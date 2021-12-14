@@ -170,6 +170,7 @@ const App: FunctionComponent<IApp> = ({
     customFunction?: (draft: IDraftData) => void,
     applyClassConnectionsFunc?: Function
   ) => {
+    console.log(ifaceKind, draftData, draft, existingInterface);
     const shouldApplyDraft = draftData ? true : draft?.interfaceKind === ifaceKind;
     // Check if draft for this interface kind exists
     if (shouldApplyDraft || existingInterface?.yaml_file) {

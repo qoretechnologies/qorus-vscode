@@ -2,11 +2,71 @@ import { join } from 'path';
 import { t } from 'ttag';
 import { commands, ExtensionContext, Uri, window as vswindow, workspace } from 'vscode';
 import { deployer } from './QorusDeploy';
-import { drafts_tree } from './QorusDraftsTree';
+import { drafts_tree, QorusDraftItem } from './QorusDraftsTree';
 import { interface_tree } from './QorusInterfaceTree';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import * as msg from './qorus_message';
 import { dash2Pascal } from './qorus_utils';
+
+const maybeDeleteInterface = (data: QorusDraftItem['data']) => {
+  vswindow
+    .showWarningMessage(t`ConfirmDeleteInterface ${data.type} ${data.name}`, t`Yes`, t`No`)
+    .then((selection) => {
+      if (selection !== t`Yes`) {
+        return;
+      }
+
+      QorusProjectCodeInfo.deleteInterface({ iface_kind: data.type, iface_data: data });
+    });
+};
+
+const maybeDeployInterface = (data: any) => {
+  if (!deployer.isRunning) {
+    vswindow
+      .showInformationMessage(
+        t`ConfirmDeployInterface ${data.type} ${data.name}`,
+        t`YesWithDep`,
+        t`YesWithoutDep`,
+        t`No`
+      )
+      .then((selection) => {
+        if (!selection || selection === t`No`) {
+          return;
+        }
+
+        if (!data.data?.yaml_file) {
+          msg.error(t`MissingDeploymentData`);
+          return;
+        }
+
+        deployer.deployFile(data.data.yaml_file, selection === t`YesWithDep`);
+      });
+  }
+};
+
+const maybeEditInterface = (data: any) => {
+  let iface_kind;
+  if (data) {
+    delete data.show_steps;
+    switch (data.type) {
+      case 'workflow-steps':
+        data.show_steps = true;
+        iface_kind = 'workflow';
+        break;
+      case 'service-methods':
+        data.active_method = 1;
+        iface_kind = 'service';
+        break;
+      case 'mapper-code-methods':
+        data.active_method = 1;
+        iface_kind = 'mapper-code';
+        break;
+      default:
+        iface_kind = data.type;
+    }
+    commands.executeCommand('qorus.editInterface', data, iface_kind);
+  }
+};
 
 export const registerQorusViewsCommands = (context: ExtensionContext) => {
   let disposable;
@@ -29,46 +89,6 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     context.subscriptions.push(disposable);
   });
 
-  // delete commands
-  [
-    'class',
-    'connection',
-    'errors',
-    'event',
-    'group',
-    'job',
-    'mapper',
-    'mapper-code',
-    'queue',
-    'service',
-    'step',
-    'value-map',
-    'workflow',
-    'type',
-    'fsm',
-    'pipeline',
-  ].forEach((iface_kind) => {
-    const command = 'qorus.views.delete' + dash2Pascal(iface_kind);
-    disposable = commands.registerCommand(command, (data: any) => {
-      vswindow
-        .showWarningMessage(t`ConfirmDeleteInterface ${iface_kind} ${data.name}`, t`Yes`, t`No`)
-        .then((selection) => {
-          if (selection !== t`Yes`) {
-            return;
-          }
-
-          const iface_data = data.data;
-          QorusProjectCodeInfo.deleteInterface({ iface_kind, iface_data });
-        });
-    });
-    context.subscriptions.push(disposable);
-  });
-
-  disposable = commands.registerCommand('qorus.views.deleteInterface', (data: any) => {
-    console.log(data);
-  });
-  context.subscriptions.push(disposable);
-
   // deploy commands
   [
     'class',
@@ -89,31 +109,19 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     'pipeline',
   ].forEach((iface_kind) => {
     const command = 'qorus.views.deploy' + dash2Pascal(iface_kind);
-    disposable = commands.registerCommand(command, (data: any) => {
-      if (!deployer.isRunning) {
-        vswindow
-          .showInformationMessage(
-            t`ConfirmDeployInterface ${iface_kind} ${data.name}`,
-            t`YesWithDep`,
-            t`YesWithoutDep`,
-            t`No`
-          )
-          .then((selection) => {
-            if (!selection || selection === t`No`) {
-              return;
-            }
-
-            if (!data.data?.yaml_file) {
-              msg.error(t`MissingDeploymentData`);
-              return;
-            }
-
-            deployer.deployFile(data.data.yaml_file, selection === t`YesWithDep`);
-          });
-      }
-    });
+    disposable = commands.registerCommand(command, maybeDeployInterface);
     context.subscriptions.push(disposable);
   });
+
+  disposable = commands.registerCommand(
+    'qorus.views.deployInterface',
+    ({ data }: QorusDraftItem) => {
+      maybeDeployInterface(data);
+    }
+  );
+  context.subscriptions.push(disposable);
+
+  // Deploy all interfaces
   disposable = commands.registerCommand('qorus.views.deployAllInterfaces', () => {
     if (!deployer.isRunning) {
       vswindow
@@ -125,6 +133,8 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
         });
     }
   });
+
+  // Deploy directory of interfaces
   disposable = commands.registerCommand('qorus.views.deployDir', (data: any) => {
     if (!deployer.isRunning) {
       vswindow
@@ -165,32 +175,14 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     'errors',
   ].forEach((key) => {
     const command = 'qorus.views.edit' + dash2Pascal(key);
-    disposable = commands.registerCommand(command, (data: any) => {
-      data = data.data;
-      let iface_kind;
-      if (data) {
-        delete data.show_steps;
-        switch (key) {
-          case 'workflow-steps':
-            data.show_steps = true;
-            iface_kind = 'workflow';
-            break;
-          case 'service-methods':
-            data.active_method = 1;
-            iface_kind = 'service';
-            break;
-          case 'mapper-code-methods':
-            data.active_method = 1;
-            iface_kind = 'mapper-code';
-            break;
-          default:
-            iface_kind = key;
-        }
-        commands.executeCommand('qorus.editInterface', data, iface_kind);
-      }
-    });
+    disposable = commands.registerCommand(command, maybeEditInterface);
     context.subscriptions.push(disposable);
   });
+
+  disposable = commands.registerCommand('qorus.views.editInterface', ({ data }: QorusDraftItem) => {
+    maybeEditInterface(data);
+  });
+  context.subscriptions.push(disposable);
 
   // open interface command, used when clicking on interface in the tree
   disposable = commands.registerCommand('qorus.views.openInterface', (data: any) => {
@@ -230,4 +222,36 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
         break;
     }
   });
+
+  // delete commands
+  [
+    'class',
+    'connection',
+    'errors',
+    'event',
+    'group',
+    'job',
+    'mapper',
+    'mapper-code',
+    'queue',
+    'service',
+    'step',
+    'value-map',
+    'workflow',
+    'type',
+    'fsm',
+    'pipeline',
+  ].forEach((iface_kind) => {
+    const command = 'qorus.views.delete' + dash2Pascal(iface_kind);
+    disposable = commands.registerCommand(command, maybeDeleteInterface);
+    context.subscriptions.push(disposable);
+  });
+
+  disposable = commands.registerCommand(
+    'qorus.views.deleteInterface',
+    ({ data }: QorusDraftItem) => {
+      maybeDeleteInterface(data);
+    }
+  );
+  context.subscriptions.push(disposable);
 };

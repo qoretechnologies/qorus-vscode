@@ -33,6 +33,7 @@ export interface IDraftData {
     fields: IField[];
   };
   classConnections?: IClassConnections;
+  associatedInterface?: string;
 }
 
 export interface IDraftsContext {
@@ -42,7 +43,7 @@ export interface IDraftsContext {
   maybeApplyDraft?: (
     interfaceKind: string,
     draftData?: IDraftData,
-    draftId?: string,
+    existingInterface?: { [key: string]: any },
     customFunction?: (draft: IDraftData) => void,
     classConnectionsFunction?: (classConnections: IClassConnections) => unknown
   ) => void;

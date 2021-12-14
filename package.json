@@ -156,15 +156,18 @@
       },
       {
         "command": "qorus.openWebview",
-        "title": "Open Webview",
+        "title": "1. Open Webview",
         "category": "Qorus",
         "icon": "images/qorus_logo_28.png"
       },
       {
         "command": "qorus.openDrafts",
-        "title": "Open Drafts",
+        "title": "2. Open Drafts",
         "category": "Qorus",
-        "icon": "images/qorus_logo_28.png"
+        "icon": {
+          "dark": "images/icons/dark/list.svg",
+          "light": "images/icons/light/list.svg"
+        }
       },
       {
         "command": "qorus.createInterfaceFromDrafts",
@@ -173,15 +176,6 @@
         "icon": {
           "dark": "images/icons/dark/create-new.svg",
           "light": "images/icons/light/create-new.svg"
-        }
-      },
-      {
-        "command": "qorus.deleteAllDrafts",
-        "title": "Delete All Drafts",
-        "category": "Qorus",
-        "icon": {
-          "dark": "images/icons/dark/trash.svg",
-          "light": "images/icons/light/trash.svg"
         }
       },
       {
@@ -197,7 +191,7 @@
       },
       {
         "command": "qorus.views.deleteInterface",
-        "title": "Delete Interface",
+        "title": "3. Delete Interface",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/trash.svg",
@@ -206,7 +200,7 @@
       },
       {
         "command": "qorus.views.deployInterface",
-        "title": "Deploy Interface",
+        "title": "2. Deploy Interface",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/cloud-upload.svg",
@@ -214,13 +208,17 @@
         }
       },
       {
-        "command": "qorus.views.viewCode",
-        "title": "View Code",
-        "category": "Qorus"
+        "command": "qorus.views.openInterface",
+        "title": "1. View Code",
+        "category": "Qorus",
+        "icon": {
+          "dark": "images/icons/dark/code.svg",
+          "light": "images/icons/light/code.svg"
+        }
       },
       {
         "command": "qorus.views.createInterface",
-        "title": "Create new",
+        "title": "1. Create new",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/create-new.svg",
@@ -236,6 +234,15 @@
         "command": "qorus.explorer.editConnection",
         "title": "Edit Connection",
         "category": "Qorus"
+      },
+      {
+        "command": "qorus.openInterfaceDrafts",
+        "title": "2. View all drafts for this interface inside the webview",
+        "category": "Qorus",
+        "icon": {
+          "dark": "images/icons/dark/list.svg",
+          "light": "images/icons/light/list.svg"
+        }
       },
       {
         "command": "qorus.explorer.multiDeploy",
@@ -695,7 +702,7 @@
       },
       {
         "command": "qorus.views.deployAllInterfaces",
-        "title": "Deploy All Interfaces",
+        "title": "5. Deploy All Interfaces",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/cloud-upload.svg",
@@ -1028,7 +1035,7 @@
       },
       {
         "command": "qorus.views.switchToCategoryView",
-        "title": "Switch to Category View",
+        "title": "3. Switch to Category View",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/category-view.svg",
@@ -1037,7 +1044,7 @@
       },
       {
         "command": "qorus.views.switchToFolderView",
-        "title": "Switch to Folder View",
+        "title": "4. Switch to Folder View",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/folder-view.svg",
@@ -1046,7 +1053,7 @@
       },
       {
         "command": "qorus.deleteDraft",
-        "title": "Delete draft",
+        "title": "1.Delete draft",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/trash.svg",
@@ -1054,17 +1061,17 @@
         }
       },
       {
-        "command": "qorus.openInterfaceDrafts",
-        "title": "View all drafts for this interface inside the webview",
+        "command": "qorus.deleteInterfaceDrafts",
+        "title": "3. Delete all drafts for this interface",
         "category": "Qorus",
         "icon": {
-          "dark": "images/icons/dark/list.svg",
-          "light": "images/icons/light/list.svg"
+          "dark": "images/icons/dark/trash.svg",
+          "light": "images/icons/light/trash.svg"
         }
       },
       {
-        "command": "qorus.deleteInterfaceDrafts",
-        "title": "Delete all drafts for this interface",
+        "command": "qorus.deleteAllDrafts",
+        "title": "Delete All Drafts",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/trash.svg",
@@ -1327,33 +1334,32 @@
         {
           "command": "qorus.openWebview",
           "group": "navigation",
-          "when": "view != qorusInstances"
+          "when": "view == qorusInstances"
+        },
+        {
+          "command": "qorus.openWebview",
+          "group": "navigation",
+          "when": "view == qorusInterfaces"
         },
         {
           "command": "qorus.openDrafts",
           "group": "navigation",
-          "when": "view != qorusInstances"
+          "when": "view == qorusInterfaces"
         },
         {
           "command": "qorus.views.deployAllInterfaces",
           "group": "navigation",
-          "when": "view != qorusInstances"
+          "when": "view == qorusInterfaces"
         },
         {
           "command": "qorus.views.switchToCategoryView",
           "group": "navigation",
-          "when": "view != qorusInstances"
+          "when": "view == qorusInterfaces"
         },
         {
           "command": "qorus.views.switchToFolderView",
           "group": "navigation",
-          "when": "view != qorusInstances"
-        }
-      ],
-      "editor/title": [
-        {
-          "command": "qorus.openWebview",
-          "group": "navigation"
+          "when": "view == qorusInterfaces"
         }
       ],
       "explorer/context": [
@@ -1580,37 +1586,37 @@
         },
         {
           "command": "qorus.views.createInterface",
-          "when": "view == qorusInterfaces && viewItem != draft && viewItem != interface",
+          "when": "view == qorusInterfaces && viewItem == category",
           "group": "inline"
         },
         {
-          "command": "qorus.views.deleteInterface",
-          "when": "view == qorusInterfaces && viewItem == interface",
+          "command": "qorus.views.openInterface",
+          "when": "view == qorusInterfaces && viewItem == interfaceWithCode",
           "group": "inline"
         },
         {
           "command": "qorus.views.deployInterface",
-          "when": "view == qorusInterfaces && viewItem == interface",
-          "group": "inline"
-        },
-        {
-          "command": "qorus.views.viewCode",
-          "when": "view == qorusInterfaces && viewItem == class",
+          "when": "view == qorusInterfaces && viewItem =~ /^interface/",
           "group": "inline"
         },
         {
           "command": "qorus.openInterfaceDrafts",
-          "when": "view == qorusInterfaces && viewItem != interface && viewItem != draft",
+          "when": "view == qorusInterfaces && viewItem == category",
           "group": "inline"
         },
         {
           "command": "qorus.deleteInterfaceDrafts",
-          "when": "view == qorusInterfaces && viewItem != interface && viewItem != draft",
+          "when": "view == qorusInterfaces && viewItem == category",
           "group": "inline"
         },
         {
           "command": "qorus.deleteDraft",
           "when": "view == qorusInterfaces && viewItem == draft",
+          "group": "inline"
+        },
+        {
+          "command": "qorus.views.deleteInterface",
+          "when": "view == qorusInterfaces && viewItem =~ /^interface/",
           "group": "inline"
         }
       ]

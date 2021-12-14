@@ -43,7 +43,7 @@ import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData, IDraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
 import { maybeSendOnChangeEvent } from '../../helpers/common';
-import { deleteDraft } from '../../helpers/functions';
+import { deleteDraft, getDraftId } from '../../helpers/functions';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -292,7 +292,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
   useDebounce(
     () => {
-      if (!isEditing && type !== 'config-item') {
+      const draftId = getDraftId(data, interfaceId);
+
+      console.log(draftId, selectedFields);
+
+      if (draftId && type !== 'config-item') {
         (async () => {
           const hasAnyChanges = (selectedFields || []).some((field) => {
             if (field.value) {
@@ -305,6 +309,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           if (!hasAnyChanges) {
             return;
           }
+
+          console.log('hasAnyChanges', hasAnyChanges);
 
           let fileData: Omit<IDraftData, 'interfaceKind' | 'interfaceId'> = {};
 
@@ -362,6 +368,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           }
 
           fileData.classConnections = classConnectionsData;
+          fileData.associatedInterface = data?.yaml_file;
+
+          console.log(fileData);
 
           await initialData.saveDraft(type, interfaceId, fileData);
         })();
@@ -480,10 +489,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           // Create it if this is brand new interface
           setInterfaceId(type, currentInterfaceId, interfaceIndex);
         }
-        if (!isEditing) {
-          // Add draft if one exists
-          maybeApplyDraft(type, null, null, setClassConnectionsFromDraft);
-        }
+        // Add draft if one exists
+        maybeApplyDraft(type, null, data, null, setClassConnectionsFromDraft);
         // Set show
         setShow(true);
         // Fetch config items

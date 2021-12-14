@@ -110,22 +110,19 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 
   disposable = vscode.commands.registerCommand('qorus.openInterfaceDrafts', (data) => {
-    const [interfaceKind] = data.tooltip.split('|');
-
-    qorus_webview.open({ tab: 'Drafts', subtab: interfaceKind });
+    qorus_webview.open({ tab: 'Drafts', subtab: data.type });
   });
 
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand('qorus.createInterfaceFromDrafts', (data) => {
-    const [interfaceKind] = data.tooltip.split('|');
-
-    qorus_webview.open({ tab: 'CreateInterface', subtab: interfaceKind });
+  disposable = vscode.commands.registerCommand('qorus.views.createInterface', (data) => {
+    qorus_webview.open({ tab: 'CreateInterface', subtab: data.type });
   });
 
   context.subscriptions.push(disposable);
 
   disposable = vscode.commands.registerCommand('qorus.openDraft', (interfaceKind, interfaceId) => {
+    console.log(interfaceKind, interfaceId);
     qorus_webview.open({
       draftData: {
         interfaceKind,
@@ -170,39 +167,6 @@ export async function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(disposable);
   });
-
-  disposable = vscode.commands.registerCommand('qorus.deleteDraft', (data) => {
-    const [interfaceKind, interfaceId] = data.tooltip.split('|');
-
-    vscode.window.showWarningMessage(t`DeleteDraft`, t`Yes`, t`No`).then((selection) => {
-      if (selection === t`Yes`) {
-        QorusDraftsInstance.deleteDraftOrDrafts(interfaceKind, interfaceId);
-      }
-    });
-  });
-  context.subscriptions.push(disposable);
-
-  disposable = vscode.commands.registerCommand('qorus.deleteInterfaceDrafts', (data) => {
-    const [interfaceKind] = data.tooltip.split('|');
-
-    vscode.window.showWarningMessage(t`DeleteInterfaceDrafts`, t`Yes`, t`No`).then((selection) => {
-      if (selection === t`Yes`) {
-        QorusDraftsInstance.deleteDraftOrDrafts(interfaceKind);
-      }
-    });
-  });
-
-  context.subscriptions.push(disposable);
-
-  disposable = vscode.commands.registerCommand('qorus.deleteAllDrafts', () => {
-    vscode.window.showWarningMessage(t`DeleteAllDrafts`, t`Yes`, t`No`).then((selection) => {
-      if (selection === t`Yes`) {
-        QorusDraftsInstance.deleteAllDrafts();
-      }
-    });
-  });
-
-  context.subscriptions.push(disposable);
 
   disposable = vscode.commands.registerCommand(
     'qorus.editInterface',
@@ -279,13 +243,39 @@ export async function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  registerQorusExplorerCommands(context);
-  registerQorusViewsCommands(context);
-
   disposable = vscode.window.createTreeView('qorusInstances', { treeDataProvider: instance_tree });
   context.subscriptions.push(disposable);
 
   interface_tree.setExtensionPath(context.extensionPath);
+
+  disposable = vscode.commands.registerCommand('qorus.deleteDraft', (data) => {
+    vscode.window.showWarningMessage(t`DeleteDraft`, t`Yes`, t`No`).then((selection) => {
+      if (selection === t`Yes`) {
+        QorusDraftsInstance.deleteDraftOrDrafts(data.type, data.id);
+      }
+    });
+  });
+  context.subscriptions.push(disposable);
+
+  disposable = vscode.commands.registerCommand('qorus.deleteInterfaceDrafts', (data) => {
+    vscode.window.showWarningMessage(t`DeleteInterfaceDrafts`, t`Yes`, t`No`).then((selection) => {
+      if (selection === t`Yes`) {
+        QorusDraftsInstance.deleteDraftOrDrafts(data.type);
+      }
+    });
+  });
+
+  context.subscriptions.push(disposable);
+
+  disposable = vscode.commands.registerCommand('qorus.deleteAllDrafts', () => {
+    vscode.window.showWarningMessage(t`DeleteAllDrafts`, t`Yes`, t`No`).then((selection) => {
+      if (selection === t`Yes`) {
+        QorusDraftsInstance.deleteAllDrafts();
+      }
+    });
+  });
+
+  context.subscriptions.push(disposable);
 
   disposable = vscode.languages.registerCodeLensProvider(
     [{ language: 'qore', scheme: 'file' }],
@@ -322,6 +312,9 @@ export async function activate(context: vscode.ExtensionContext) {
     new QorusPythonHoverProvider()
   );
   context.subscriptions.push(disposable);
+
+  registerQorusExplorerCommands(context);
+  registerQorusViewsCommands(context);
 
   updateQorusTree();
 

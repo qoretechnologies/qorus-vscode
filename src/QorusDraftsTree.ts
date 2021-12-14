@@ -32,21 +32,26 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
   }
 
   async getChildren(el): Promise<QorusDraftTreeItems> {
+    if (!this.code_info) {
+      return [];
+    }
     // Fetch the draft folders if we are rendering the root
     if (!el) {
       const allDraftFolders = QorusDraftsInstance.getDraftsFolders();
 
       return allDraftFolders.map((folder) => {
+        console.log(folder);
         const interfaceCount = size(this.code_info.interfaceDataByType(folder));
+        const count = QorusDraftsInstance.getDraftsCountForInterface(folder) + interfaceCount;
 
         return new QorusDraftCategory(
           capitalize(folder.replace('-', ' ')),
-          QorusDraftsInstance.getDraftsCountForInterface(folder) + interfaceCount,
-          TreeItemCollapsibleState.Collapsed
+          count,
+          count === 0 ? TreeItemCollapsibleState.None : TreeItemCollapsibleState.Collapsed
         );
       });
     }
-    const interfaceKind = el.label.toLowerCase();
+    const interfaceKind = el.label.toLowerCase().replace(' ', '-');
     const allDrafts = QorusDraftsInstance.getDraftsForInterface(interfaceKind, true);
     // A category has been expanded, we need to fetch the individual drafts for this
     // folder
@@ -77,18 +82,23 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
 }
 
 class QorusDraftCategory extends TreeItem {
+  public type: string;
+
   constructor(label: string, count: number, collapsibleState: TreeItemCollapsibleState) {
     super(label, collapsibleState);
 
     this.tooltip = label.toLowerCase();
     this.description = `(${count})`;
     this.iconPath = qorusIcons[`get${capitalize(label).replace('-', '').replace(' ', '')}Icon`]?.();
-    this.contextValue = label.replace(' ', '-').toLowerCase();
+    this.contextValue = 'category';
+    this.type = label.toLowerCase();
   }
 }
 
 class QorusDraftItem extends TreeItem {
   public data: any;
+  public id: string;
+  public type: string;
 
   constructor(item, interfaceKind: string) {
     // Create the label
@@ -112,6 +122,8 @@ class QorusDraftItem extends TreeItem {
       : undefined;
 
     this.data = item.data;
+    this.id = item.interfaceId;
+    this.type = interfaceKind;
 
     if (interfaceKind && item.isDraft) {
       this.contextValue = 'draft';
@@ -121,14 +133,15 @@ class QorusDraftItem extends TreeItem {
         arguments: [interfaceKind, item.interfaceId],
       };
     } else {
-      this.contextValue = 'interface';
+      this.contextValue = this.data.target_file ? 'interfaceWithCode' : 'interface';
       this.command = {
         title: 'Open Interface',
-        command: 'qorus.openInterface',
-        arguments: [interfaceKind, item.interfaceId],
+        command: 'qorus.views.editInterface',
+        arguments: [this],
       };
     }
   }
 }
 
+export { QorusDraftItem };
 export const drafts_tree = new QorusDraftsTree();
