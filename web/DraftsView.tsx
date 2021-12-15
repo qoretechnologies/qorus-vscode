@@ -25,7 +25,6 @@ export const DraftsView = () => {
   });
 
   const fetchCategories = async () => {
-    console.log('refresh');
     const fetchedDrafts = await callBackendBasic(Messages.GET_ALL_DRAFTS_WITH_COUNT);
 
     if (fetchedDrafts.ok) {

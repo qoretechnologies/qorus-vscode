@@ -26,11 +26,9 @@ const ManageConfigButton: FunctionComponent<IManageConfigButton> = ({
   const [configCount, setConfigCount] = useState<number>(0);
 
   useEffectOnce(() => {
-    console.log('Registering message listener');
     // Listen for changes in config items for
     // this interface
     const messageHandler = addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
-      console.log(data);
       const itemCount =
         type === 'workflow'
           ? size(data.workflow_items?.filter((item) => item.is_set))

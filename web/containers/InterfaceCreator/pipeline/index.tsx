@@ -316,7 +316,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
   useDebounce(
     () => {
       (async () => {
-        console.log(elements);
         if (
           !metadata['input-provider'] ||
           validateField('type-selector', metadata['input-provider'])
@@ -571,8 +570,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
       </Callout>
     );
   }
-
-  console.log('ELEMENTS', elements);
 
   return (
     <>

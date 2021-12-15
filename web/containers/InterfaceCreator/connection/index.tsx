@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
-import { filter } from 'lodash';
+import { isEqual, some } from 'lodash';
 import map from 'lodash/map';
 import size from 'lodash/size';
 import React, { useContext, useState } from 'react';
@@ -35,7 +35,10 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
   const t = useContext(TextContext);
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
 
-  const [data, setData] = useState<IConnection>(connection || {});
+  const [data, setData] = useState<IConnection>({
+    connection_options: {},
+    ...(connection || {}),
+  });
   const [interfaceId, setInterfaceId] = useState(null);
   const [fields, setFields] = useState(undefined);
 
@@ -43,7 +46,12 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
     setData((cur) => {
       const result = { ...cur };
 
-      result[name] = value;
+      // Remove the connection options if they are empty
+      if (name === 'connection_options' && size(value) === 0) {
+        delete result.connection_options;
+      } else {
+        result[name] = value;
+      }
 
       return result;
     });
@@ -85,10 +93,10 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
     () => {
       const draftId = getDraftId(connection, interfaceId);
       const hasChanged = connection
-        ? filter(data, (value, key) => value !== connection[key])
+        ? some(data, (value, key) => {
+            return !isEqual(value, connection[key]);
+          })
         : true;
-
-      console.log(hasChanged);
 
       if (
         draftId &&
@@ -96,7 +104,8 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
           hasValue(data.desc) ||
           hasValue(data.name) ||
           hasValue(data.target_file) ||
-          hasValue(data.url))
+          (hasValue(data.url) && data.url !== '://')) &&
+        hasChanged
       ) {
         saveDraft(
           'connection',

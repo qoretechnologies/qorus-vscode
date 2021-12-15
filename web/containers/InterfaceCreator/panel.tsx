@@ -498,7 +498,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           // Create it if this is brand new interface
           setInterfaceId(type, currentInterfaceId, interfaceIndex);
         }
-        console.log(`ABOUT TO APPLY A DRAFT FOR ${type}`);
         // Add draft if one exists
         maybeApplyDraft(type, null, data, null, setClassConnectionsFromDraft);
         // Set show

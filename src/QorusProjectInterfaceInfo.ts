@@ -106,7 +106,6 @@ export class QorusProjectInterfaceInfo {
     }
 
     const iface = this.iface_by_id[iface_id];
-    console.log(this.iface_by_id[iface_id], iface_id);
     if (this.hasSpecificData(iface.type)) {
       const specific_data_id = this.specificDataId(iface.type, state_id, processor_id);
       const specific_data_ids = specific_data_id
@@ -157,7 +156,7 @@ export class QorusProjectInterfaceInfo {
                 this.iface_by_id[iface_id].specific_data[state.id].class_name =
                   state.action.value.class;
               }
-              console.log('STATE', state);
+
               if (state['config-items']?.length) {
                 this.iface_by_id[iface_id].specific_data[state.id]['config-items'] =
                   state['config-items'];

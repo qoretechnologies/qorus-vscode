@@ -326,7 +326,6 @@ class QorusWebview {
               project.code_info.getInterfaceData(message);
               break;
             case 'get-config-items':
-              console.log(message);
               interface_info.getConfigItems(message);
               break;
             case 'get-config-item':
@@ -435,7 +434,6 @@ class QorusWebview {
                 project.interface_info.iface_by_id[data.interfaceId] = data.configItems;
               }
 
-              console.log(project.interface_info.iface_by_id);
               this.panel.webview.postMessage({
                 action: 'get-draft-complete',
                 request_id: message.request_id,
@@ -469,10 +467,6 @@ class QorusWebview {
               );
               break;
             case 'save-draft':
-              console.log(
-                'SAVING DRAFT WITH THESE CONFIG ITEMS',
-                project.interface_info.iface_by_id[message.iface_id]
-              );
               QorusDraftsInstance.saveDraft(
                 message.iface_kind,
                 message.iface_id,

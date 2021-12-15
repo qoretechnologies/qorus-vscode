@@ -104,21 +104,16 @@ export default () =>
       };
 
       const setMapperFromDraft = (data: any) => {
-        console.log(mapper);
         // If mapper exists, save this data for later
         if (mapper) {
-          console.log('SAVING MAPPER FROM DRAFT FOR LATER', data);
           setDraftSavedForLater(data);
         } else {
-          console.log('APPLYING MAPPER FROM DRAFT', data);
           applyDraft(data);
         }
       };
 
       const maybeApplyStoredDraft = () => {
-        console.log('IS THERE A DRAFT SAVED FOR LATER?', draftSavedForLater);
         if (draftSavedForLater) {
-          console.log('DRAFT SAVED FOR LATER', draftSavedForLater);
           applyDraft(draftSavedForLater);
         }
       };
@@ -438,7 +433,6 @@ export default () =>
                 setContextInputs(null);
                 setIsContextLoaded(true);
                 maybeApplyStoredDraft();
-                console.log('SETTING MAPPER FROM MAPPER DATA');
               }
             } else {
               setIsContextLoaded(true);

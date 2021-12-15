@@ -80,7 +80,6 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
 
   useUpdateEffect(() => {
     if (draft && showMapperConnections) {
-      console.log('APPLYING DRAFT FROM MAPPER VIEW');
       maybeApplyDraft('mapper', null, mapper);
     }
   }, [draft, showMapperConnections]);
@@ -89,8 +88,6 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     () => {
       if (showMapperConnections) {
         const draftId = getDraftId(mapper, interfaceId.mapper[interfaceIndex]);
-
-        console.log(draftId);
 
         initialData.saveDraft('mapper', draftId, {
           fields: fields.mapper[interfaceIndex],

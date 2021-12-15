@@ -182,16 +182,12 @@ const App: FunctionComponent<IApp> = ({
           interfaceId: btoa(existingInterface.yaml_file),
         });
 
-        console.log(fetchedDraft);
-
         if (fetchedDraft.ok) {
           draftToApply = fetchedDraft.data;
         } else {
           return;
         }
       }
-
-      console.log('Applying draft', ifaceKind, draftData, draftToApply, existingInterface);
 
       const {
         interfaceKind,
