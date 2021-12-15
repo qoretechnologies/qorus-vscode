@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
-import { cloneDeep, get, map, reduce, set, size, unset } from 'lodash';
+import { cloneDeep, get, isEqual, map, reduce, set, size, unset } from 'lodash';
 import React, { useContext, useState } from 'react';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
@@ -117,13 +117,25 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
     };
   });
 
+  // Compare initial data with state to check if the type has changed
+  const hasDataChanged = () => {
+    return (
+      initialData.type?.path !== val ||
+      !isEqual(initialData.type?.typeinfo?.fields, fields) ||
+      initialData.type?.target_dir !== targetDir ||
+      initialData.type?.target_file !== targetFile
+    );
+  };
+
   useDebounce(
     () => {
       const draftId = getDraftId(initialData.type, interfaceId);
+      const hasChanged = initialData.type ? hasDataChanged() : true;
 
       if (
         draftId &&
-        (hasValue(val) || hasValue(targetDir) || hasValue(targetFile) || size(fields))
+        (hasValue(val) || hasValue(targetDir) || hasValue(targetFile) || size(fields)) &&
+        hasChanged
       ) {
         initialData.saveDraft(
           'type',

@@ -303,7 +303,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           if (!data) {
             hasAnyChanges = (selectedFields || []).some((field) => {
               if (field.value) {
-                return isEqual(field.value, field.default_value);
+                return !isEqual(field.value, field.default_value);
               }
 
               return false;

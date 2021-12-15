@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Callout, Classes, Colors, Intent, Tooltip } from '@blueprintjs/core';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEqual, some } from 'lodash';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
@@ -341,6 +341,11 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
   useDebounce(
     () => {
       const draftId = getDraftId(pipeline, interfaceId);
+      const hasChanged = pipeline
+        ? some(metadata, (value, key) => {
+            return !isEqual(value, pipeline[key]);
+          })
+        : true;
 
       if (
         draftId &&
@@ -349,7 +354,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
           hasValue(metadata.name) ||
           size(metadata.groups) ||
           size(metadata['input-provider']) ||
-          size(metadata['input-provider-options']))
+          size(metadata['input-provider-options'])) &&
+        hasChanged
       ) {
         saveDraft(
           'pipeline',

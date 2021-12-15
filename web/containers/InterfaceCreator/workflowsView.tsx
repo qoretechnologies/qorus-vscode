@@ -102,7 +102,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     () => {
       const draftId = getDraftId(initialData.type, interfaceId.workflow[workflowIndex]);
 
-      if (draftId && size(steps)) {
+      if (showSteps && draftId && size(steps)) {
         initialData.saveDraft('workflow', draftId, {
           fields: fields.workflow[workflowIndex],
           selectedFields: selectedFields.workflow[workflowIndex],

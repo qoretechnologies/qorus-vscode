@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
+import { some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -417,13 +418,20 @@ const FSMView: React.FC<IFSMViewProps> = ({
     () => {
       if (!embedded) {
         const draftId = getDraftId(fsm, interfaceId);
+        const hasChanged = fsm
+          ? some(metadata, (value, key) => {
+              return !isEqual(value, fsm[key]);
+            }) || !isEqual(states, fsm.states)
+          : true;
 
         if (
           draftId &&
           (hasValue(metadata.target_dir) ||
             hasValue(metadata.desc) ||
             hasValue(metadata.name) ||
-            size(metadata.groups))
+            size(metadata.groups) ||
+            size(states)) &&
+          hasChanged
         ) {
           saveDraft(
             'fsm',
