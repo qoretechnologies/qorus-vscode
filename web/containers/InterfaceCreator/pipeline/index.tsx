@@ -240,7 +240,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
     useContext(InitialContext);
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
   const pipeline = rest?.pipeline || init?.pipeline;
-  console.log(pipeline);
   const { resetAllInterfaceData } = useContext(GlobalContext);
   const changeHistory = useRef<string[]>([]);
   const currentHistoryPosition = useRef<number>(-1);
@@ -335,6 +334,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
   useDebounce(
     () => {
       const draftId = getDraftId(pipeline, interfaceId);
+
       if (
         draftId &&
         (hasValue(metadata.target_dir) ||
@@ -352,6 +352,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
               metadata,
               elements,
             },
+            interfaceId,
             associatedInterface: pipeline?.yaml_file,
             isValid: isDataValid(elements, false),
           },
@@ -453,8 +454,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
           children: elements[0].children,
         });
       }
-
-      deleteDraft('pipeline', interfaceId, false);
+      const fileName = getDraftId(pipeline, interfaceId);
+      deleteDraft('pipeline', fileName, false);
       reset();
       resetAllInterfaceData('pipeline');
     }

@@ -30,6 +30,7 @@ import { TextContext } from '../../../context/text';
 import {
   areTypesCompatible,
   deleteDraft,
+  getDraftId,
   hasValue,
   isFSMStateValid,
   isStateIsolated,
@@ -383,6 +384,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     maybeApplyDraft(
       'fsm',
       undefined,
+      fsm,
       ({ fsmData: { metadata, states }, interfaceId }: IDraftData) => {
         // From draft
         //setIsFromDraft(true);
@@ -406,31 +408,38 @@ const FSMView: React.FC<IFSMViewProps> = ({
       setInterfaceId(fsm?.iface_id || defaultInterfaceId || shortid.generate());
       // Apply the draft with "type" as first parameter and a custom function
       applyDraft();
+    } else {
+      setInterfaceId(defaultInterfaceId);
     }
   });
 
   useDebounce(
     () => {
-      if (
-        !fsm &&
-        interfaceId &&
-        (hasValue(metadata.target_dir) ||
-          hasValue(metadata.desc) ||
-          hasValue(metadata.name) ||
-          size(metadata.groups))
-      ) {
-        saveDraft(
-          'fsm',
-          interfaceId,
-          {
-            fsmData: {
-              metadata,
-              states,
+      if (!embedded) {
+        const draftId = getDraftId(fsm, interfaceId);
+
+        if (
+          draftId &&
+          (hasValue(metadata.target_dir) ||
+            hasValue(metadata.desc) ||
+            hasValue(metadata.name) ||
+            size(metadata.groups))
+        ) {
+          saveDraft(
+            'fsm',
+            draftId,
+            {
+              fsmData: {
+                metadata,
+                states,
+              },
+              interfaceId,
+              associatedInterface: fsm?.yaml_file,
+              isValid: isFSMValid(),
             },
-            isValid: isFSMValid(),
-          },
-          metadata.name
-        );
+            metadata.name
+          );
+        }
       }
     },
     1500,
@@ -739,7 +748,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
         });
       }
 
-      deleteDraft('fsm', interfaceId, false);
+      const fileName = getDraftId(fsm, interfaceId);
+      deleteDraft('fsm', fileName, false);
       reset();
       resetAllInterfaceData('fsm');
     }

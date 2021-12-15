@@ -164,7 +164,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
 
   useUpdateEffect(() => {
     if (draft && showErrors) {
-      maybeApplyDraft('errors', null, null);
+      maybeApplyDraft('errors', null, errors);
     }
   }, [draft, showErrors]);
 
@@ -265,6 +265,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
               }}
               forceSubmit
               data={errorsData && errorsData.find((method) => method.id === activeError)}
+              parentData={errors}
               onNameChange={(methodId: number, name: string) => {
                 setSubErrors((currentMethods: { id: number; name: string }[]) =>
                   currentMethods.reduce((cur, method: { id: number; name: string }) => {

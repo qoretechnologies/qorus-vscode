@@ -40,7 +40,6 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
       const allDraftFolders = QorusDraftsInstance.getDraftsFolders();
 
       return allDraftFolders.map((folder) => {
-        console.log(folder);
         const interfaceCount = size(this.code_info.interfaceDataByType(folder));
         const count = QorusDraftsInstance.getDraftsCountForInterface(folder) + interfaceCount;
 

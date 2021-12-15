@@ -14,7 +14,7 @@ import { DraftsContext, IDraftData } from '../../../context/drafts';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { deleteDraft, hasValue } from '../../../helpers/functions';
+import { deleteDraft, getDraftId, hasValue } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import { addMessageListener, postMessage } from '../../../hocomponents/withMessageHandler';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper, IField } from '../panel';
@@ -62,11 +62,16 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
 
   const applyDraft = () => {
     // Apply the draft with "type" as first parameter and a custom function
-    maybeApplyDraft('connection', undefined, ({ connectionData: { fields, data } }: IDraftData) => {
-      setInterfaceId(interfaceId);
-      setData(data);
-      setFields(fields);
-    });
+    maybeApplyDraft(
+      'connection',
+      undefined,
+      connection,
+      ({ connectionData: { fields, data }, interfaceId: ifaceId }: IDraftData) => {
+        setInterfaceId(ifaceId);
+        setData(data);
+        setFields(fields);
+      }
+    );
   };
 
   useUpdateEffect(() => {
@@ -77,9 +82,10 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
 
   useDebounce(
     () => {
+      const draftId = getDraftId(connection, interfaceId);
+
       if (
-        !connection &&
-        interfaceId &&
+        draftId &&
         (hasValue(data.target_dir) ||
           hasValue(data.desc) ||
           hasValue(data.name) ||
@@ -88,12 +94,14 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
       ) {
         saveDraft(
           'connection',
-          interfaceId,
+          draftId,
           {
             connectionData: {
               fields,
               data,
             },
+            interfaceId,
+            associatedInterface: connection?.yaml_file,
             isValid: isDataValid(),
           },
           data.name
@@ -101,7 +109,7 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
       }
     },
     1500,
-    [data]
+    [data, interfaceId]
   );
 
   const reset = () => {
@@ -144,8 +152,10 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
       if (onSubmitSuccess) {
         onSubmitSuccess(data);
       }
+      const fileName = getDraftId(connection, interfaceId);
 
-      deleteDraft('connection', interfaceId, false);
+      deleteDraft('connection', fileName, false);
+
       reset();
       resetAllInterfaceData('connection');
     }

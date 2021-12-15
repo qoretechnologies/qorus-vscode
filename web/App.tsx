@@ -134,6 +134,7 @@ const App: FunctionComponent<IApp> = ({
 
   const removeDraft = () => {
     setDraft(null);
+    setDraftData(null);
   };
 
   useEffect(() => {
@@ -170,7 +171,6 @@ const App: FunctionComponent<IApp> = ({
     customFunction?: (draft: IDraftData) => void,
     applyClassConnectionsFunc?: Function
   ) => {
-    console.log(ifaceKind, draftData, draft, existingInterface);
     const shouldApplyDraft = draftData ? true : draft?.interfaceKind === ifaceKind;
     // Check if draft for this interface kind exists
     if (shouldApplyDraft || existingInterface?.yaml_file) {
@@ -182,12 +182,16 @@ const App: FunctionComponent<IApp> = ({
           interfaceId: btoa(existingInterface.yaml_file),
         });
 
+        console.log(fetchedDraft);
+
         if (fetchedDraft.ok) {
           draftToApply = fetchedDraft.data;
         } else {
           return;
         }
       }
+
+      console.log('Applying draft', ifaceKind, draftData, draftToApply, existingInterface);
 
       const {
         interfaceKind,
@@ -208,7 +212,9 @@ const App: FunctionComponent<IApp> = ({
       if (customFunction) {
         customFunction(draftToApply);
       } else {
-        setInterfaceId(interfaceKind, interfaceId);
+        if (!existingInterface) {
+          setInterfaceId(interfaceKind, interfaceId);
+        }
 
         if (interfaceKind === 'service') {
           setMethodsFromDraft(selectedMethods);

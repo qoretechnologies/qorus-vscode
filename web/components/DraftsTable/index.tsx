@@ -5,6 +5,7 @@ import { useMount } from 'react-use';
 import { interfaceKindTransform } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
 import { IDraftData } from '../../context/drafts';
+import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { callBackendBasic, deleteDraft } from '../../helpers/functions';
 import { StyledDialogSelectItem } from '../Field/select';
@@ -12,8 +13,9 @@ import HorizontalSpacer from '../HorizontalSpacer';
 import Spacer from '../Spacer';
 import { TimeAgo } from '../TimeAgo';
 
-export const DraftsTable = ({ interfaceKind, onClick, lastDraft }: any) => {
+export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategories }: any) => {
   const t = useContext(TextContext);
+  const { setDraftData } = useContext(InitialContext);
   // Get the last draft from the initial data context
   const [drafts, setDrafts] = useState<any[]>([]);
   const [query, setQuery] = useState('');
@@ -36,6 +38,8 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft }: any) => {
     const fetchedDrafts = await callBackendBasic(Messages.GET_DRAFTS, undefined, {
       iface_kind: interfaceKindTransform[interfaceKind],
     });
+
+    refreshCategories?.();
 
     if (fetchedDrafts.ok) {
       setDrafts(fetchedDrafts.data.drafts);
@@ -67,9 +71,18 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft }: any) => {
       )}
       {size(sortedDrafts) ? (
         <>
-          {sortedDrafts.map(({ date, interfaceId, ...rest }) => (
+          {sortedDrafts.map(({ date, interfaceId, fileName, ...rest }) => (
             <StyledDialogSelectItem
-              onClick={interfaceId === lastDraft ? undefined : () => onClick(interfaceId, rest)}
+              onClick={
+                interfaceId === lastDraft
+                  ? undefined
+                  : () => {
+                      setDraftData({
+                        interfaceId,
+                        interfaceKind,
+                      });
+                    }
+              }
               key={interfaceId}
               className={interfaceId === lastDraft ? 'selected' : ''}
             >
@@ -82,7 +95,7 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft }: any) => {
                   small
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDeleteClick(interfaceId);
+                    onDeleteClick(fileName);
                   }}
                 />{' '}
               </h5>

@@ -154,7 +154,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
 
   useUpdateEffect(() => {
     if (draft && showFunctions) {
-      maybeApplyDraft('mapper-code', null, null);
+      maybeApplyDraft('mapper-code', null, library);
     }
   }, [draft, showFunctions]);
 
@@ -241,6 +241,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
               methodsList={functions}
               onSubmitSuccess={onSubmitSuccess}
               data={functionsData && functionsData.find((fun) => fun.id === activeFunction)}
+              parentData={library}
               onNameChange={(functionId: number, name: string) => {
                 setFunctions((currentFunctions: { id: number; name: string }[]) =>
                   currentFunctions.reduce((cur, fun: { id: number; name: string }) => {

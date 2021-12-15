@@ -11,7 +11,7 @@ import Suggest from '../../components/Field/suggest';
 import FieldLabel from '../../components/FieldLabel';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData } from '../../context/drafts';
-import { deleteDraft, hasValue } from '../../helpers/functions';
+import { deleteDraft, getDraftId, hasValue } from '../../helpers/functions';
 import { flattenFields, getLastChildIndex } from '../../helpers/mapper';
 import { validateField } from '../../helpers/validations';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -118,14 +118,15 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
 
   useDebounce(
     () => {
+      const draftId = getDraftId(initialData.type, interfaceId);
+
       if (
-        !initialData.type &&
-        interfaceId &&
+        draftId &&
         (hasValue(val) || hasValue(targetDir) || hasValue(targetFile) || size(fields))
       ) {
         initialData.saveDraft(
           'type',
-          interfaceId,
+          draftId,
           {
             typeData: {
               val,
@@ -134,6 +135,8 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
               fields,
               types,
             },
+            interfaceId,
+            associatedInterface: initialData?.type?.yaml_file,
             isValid: !(!size(fields) && validateField('string', val)),
           },
           val

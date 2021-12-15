@@ -10,7 +10,7 @@ import CustomDialog from '../../components/CustomDialog';
 import StepDiagram from '../../components/Diagram';
 import { Messages } from '../../constants/messages';
 import { DraftsContext } from '../../context/drafts';
-import { deleteDraft } from '../../helpers/functions';
+import { deleteDraft, getDraftId } from '../../helpers/functions';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -94,14 +94,16 @@ const ServicesView: FunctionComponent<IServicesView> = ({
 
   useUpdateEffect(() => {
     if (draft && showSteps) {
-      maybeApplyDraft('workflow', null, null);
+      maybeApplyDraft('workflow', null, workflow);
     }
   }, [draft, showSteps]);
 
   useDebounce(
     () => {
-      if (size(steps)) {
-        initialData.saveDraft('workflow', interfaceId.workflow[workflowIndex], {
+      const draftId = getDraftId(initialData.type, interfaceId.workflow[workflowIndex]);
+
+      if (draftId && size(steps)) {
+        initialData.saveDraft('workflow', draftId, {
           fields: fields.workflow[workflowIndex],
           selectedFields: selectedFields.workflow[workflowIndex],
           steps: {
@@ -109,6 +111,8 @@ const ServicesView: FunctionComponent<IServicesView> = ({
             stepsData,
             lastStepId,
           },
+          interfaceId: interfaceId.workflow[workflowIndex],
+          associatedInterface: workflow?.yaml_file,
           isValid: isFormValid('workflow', workflowIndex),
         });
       }
@@ -219,8 +223,12 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                         if (onSubmitSuccess) {
                           onSubmitSuccess(newData);
                         }
+                        const fileName = getDraftId(
+                          initialData.type,
+                          interfaceId.workflow[workflowIndex]
+                        );
                         // Delete the draft for this interface
-                        deleteDraft('workflow', interfaceId.workflow[workflowIndex], false);
+                        deleteDraft('workflow', fileName, false);
                         resetAllInterfaceData('workflow');
                       }
                     }}

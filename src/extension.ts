@@ -122,7 +122,6 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 
   disposable = vscode.commands.registerCommand('qorus.openDraft', (interfaceKind, interfaceId) => {
-    console.log(interfaceKind, interfaceId);
     qorus_webview.open({
       draftData: {
         interfaceKind,

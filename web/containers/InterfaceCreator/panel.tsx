@@ -246,6 +246,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   lastStepId,
   allFields,
   setClassConnectionsFromDraft,
+  parentData,
   ...rest
 }) => {
   const isInitialMount = useRef(true);
@@ -292,9 +293,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
   useDebounce(
     () => {
-      const draftId = getDraftId(data, interfaceId);
-
-      console.log(draftId, selectedFields);
+      const draftId = getDraftId(parentData || data, interfaceId);
 
       if (draftId && type !== 'config-item') {
         (async () => {
@@ -310,9 +309,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             return;
           }
 
-          console.log('hasAnyChanges', hasAnyChanges);
-
-          let fileData: Omit<IDraftData, 'interfaceKind' | 'interfaceId'> = {};
+          let fileData: Omit<IDraftData, 'interfaceKind'> = {};
 
           switch (type) {
             case 'service':
@@ -368,11 +365,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           }
 
           fileData.classConnections = classConnectionsData;
-          fileData.associatedInterface = data?.yaml_file;
+          fileData.interfaceId = interfaceId;
+          fileData.associatedInterface = (parentData || data)?.yaml_file;
 
-          console.log(fileData);
-
-          await initialData.saveDraft(type, interfaceId, fileData);
+          await initialData.saveDraft(type, draftId, fileData);
         })();
       }
     },
@@ -489,6 +485,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           // Create it if this is brand new interface
           setInterfaceId(type, currentInterfaceId, interfaceIndex);
         }
+        console.log(`ABOUT TO APPLY A DRAFT FOR ${type}`);
         // Add draft if one exists
         maybeApplyDraft(type, null, data, null, setClassConnectionsFromDraft);
         // Set show
@@ -999,8 +996,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (onSubmitSuccess) {
           onSubmitSuccess(newData);
         }
+        // File name
+        const fileName = getDraftId(parentData || data, interfaceId);
         // Delete the draft for this interface
-        deleteDraft(type, interfaceId, false);
+        deleteDraft(type, fileName, false);
         // If this is config item, reset only the fields
         // local fields will be unmounted
         if (type === 'config-item') {

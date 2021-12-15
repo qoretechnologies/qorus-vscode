@@ -72,6 +72,7 @@ export default () =>
       const [wrongKeysCount, setWrongKeysCount] = useState<number>(0);
       const [mapperSubmit, setMapperSubmit] = useState<any>(null);
       const [isContextLoaded, setIsContextLoaded] = useState<boolean>(false);
+      const [draftSavedForLater, setDraftSavedForLater] = useState<any>(null);
 
       const handleMapperSubmitSet = (callback) => {
         setMapperSubmit(() => callback);
@@ -103,6 +104,26 @@ export default () =>
       };
 
       const setMapperFromDraft = (data: any) => {
+        console.log(mapper);
+        // If mapper exists, save this data for later
+        if (mapper) {
+          console.log('SAVING MAPPER FROM DRAFT FOR LATER', data);
+          setDraftSavedForLater(data);
+        } else {
+          console.log('APPLYING MAPPER FROM DRAFT', data);
+          applyDraft(data);
+        }
+      };
+
+      const maybeApplyStoredDraft = () => {
+        console.log('IS THERE A DRAFT SAVED FOR LATER?', draftSavedForLater);
+        if (draftSavedForLater) {
+          console.log('DRAFT SAVED FOR LATER', draftSavedForLater);
+          applyDraft(draftSavedForLater);
+        }
+      };
+
+      const applyDraft = (data) => {
         setShowMapperConnections(false);
         setInputs(data.inputs);
         setOutputs(data.outputs);
@@ -343,6 +364,7 @@ export default () =>
           if (data) {
             // Save the inputs if the data exist
             setContextInputs(data.fields || data);
+            maybeApplyStoredDraft();
           }
 
           listener();
@@ -415,13 +437,16 @@ export default () =>
               } else {
                 setContextInputs(null);
                 setIsContextLoaded(true);
+                maybeApplyStoredDraft();
+                console.log('SETTING MAPPER FROM MAPPER DATA');
               }
             } else {
               setIsContextLoaded(true);
+              maybeApplyStoredDraft();
             }
           })();
         }
-      }, [qorus_instance, mapper, props.currentMapperContext]);
+      }, [qorus_instance, mapper, props.currentMapperContext, draftSavedForLater]);
 
       useEffect(() => {
         if (props.mapper) {

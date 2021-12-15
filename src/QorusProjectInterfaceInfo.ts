@@ -90,10 +90,10 @@ export class QorusProjectInterfaceInfo {
         : Object.keys(iface.specific_data) || [];
       specific_data_ids.forEach((id) => {
         const specific_data = iface.specific_data[id];
-        specific_data['config-items'] = deepCopy(specific_data['orig-config-items'] || []);
+        specific_data['config-items'] = deepCopy(specific_data?.['orig-config-items'] || []);
       });
     } else {
-      iface['config-items'] = deepCopy(iface['orig-config-items'] || []);
+      iface['config-items'] = deepCopy(iface?.['orig-config-items'] || []);
     }
   };
 
@@ -106,17 +106,18 @@ export class QorusProjectInterfaceInfo {
     }
 
     const iface = this.iface_by_id[iface_id];
+    console.log(this.iface_by_id[iface_id], iface_id);
     if (this.hasSpecificData(iface.type)) {
       const specific_data_id = this.specificDataId(iface.type, state_id, processor_id);
       const specific_data_ids = specific_data_id
         ? [specific_data_id]
         : Object.keys(iface.specific_data) || [];
       specific_data_ids.forEach((id) => {
-        const specific_data = iface.specific_data[id];
+        const specific_data = iface.specific_data[id] || {};
         specific_data['orig-config-items'] = deepCopy(specific_data?.['config-items'] || []);
       });
     } else {
-      iface['orig-config-items'] = deepCopy(iface['config-items'] || []);
+      iface['orig-config-items'] = deepCopy(iface?.['config-items'] || []);
     }
   };
 
@@ -156,6 +157,7 @@ export class QorusProjectInterfaceInfo {
                 this.iface_by_id[iface_id].specific_data[state.id].class_name =
                   state.action.value.class;
               }
+              console.log('STATE', state);
               if (state['config-items']?.length) {
                 this.iface_by_id[iface_id].specific_data[state.id]['config-items'] =
                   state['config-items'];

@@ -326,6 +326,7 @@ class QorusWebview {
               project.code_info.getInterfaceData(message);
               break;
             case 'get-config-items':
+              console.log(message);
               interface_info.getConfigItems(message);
               break;
             case 'get-config-item':
@@ -423,7 +424,7 @@ class QorusWebview {
                 },
               });
               break;
-            case 'get-draft':
+            case 'get-draft': {
               const data = QorusDraftsInstance.getSingleDraftContent(
                 message.interfaceKind,
                 `${message.interfaceId}.json`
@@ -431,8 +432,10 @@ class QorusWebview {
 
               // Apply config items to draft if they exist
               if (data.configItems) {
-                project.interface_info.iface_by_id[message.interfaceId] = data.configItems;
+                project.interface_info.iface_by_id[data.interfaceId] = data.configItems;
               }
+
+              console.log(project.interface_info.iface_by_id);
               this.panel.webview.postMessage({
                 action: 'get-draft-complete',
                 request_id: message.request_id,
@@ -440,6 +443,7 @@ class QorusWebview {
                 data,
               });
               break;
+            }
             case 'delete-draft':
               QorusDraftsInstance.deleteDraftOrDrafts(
                 message.iface_kind,
@@ -465,12 +469,16 @@ class QorusWebview {
               );
               break;
             case 'save-draft':
+              console.log(
+                'SAVING DRAFT WITH THESE CONFIG ITEMS',
+                project.interface_info.iface_by_id[message.iface_id]
+              );
               QorusDraftsInstance.saveDraft(
                 message.iface_kind,
                 message.iface_id,
                 {
                   ...message.fileData,
-                  configItems: project.interface_info.iface_by_id[message.iface_id] || {},
+                  configItems: project.interface_info.iface_by_id[message.fileData.interfaceId],
                 },
                 () => {
                   this.panel.webview.postMessage({

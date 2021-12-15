@@ -172,7 +172,13 @@ const ServicesView: FunctionComponent<IServicesView> = ({
 
   useUpdateEffect(() => {
     if (draft && showMethods) {
-      maybeApplyDraft('service', null, null, classConnectionsProps.setClassConnectionsFromDraft);
+      maybeApplyDraft(
+        'service',
+        null,
+        service,
+        null,
+        classConnectionsProps.setClassConnectionsFromDraft
+      );
     }
   }, [draft, showMethods]);
 
@@ -299,6 +305,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                   ...(methodsData || []).find((method) => method.id === activeMethod),
                   lang: service?.lang,
                 }}
+                parentData={service}
                 onNameChange={(methodId: number, name: string, originalName?: string) => {
                   if (originalName) {
                     // Rename the trigger

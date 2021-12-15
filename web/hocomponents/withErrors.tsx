@@ -44,7 +44,7 @@ export default () =>
         } else {
           // When methods count changes
           // switch to the newest method
-          setActiveError(subErrors[subErrors.length - 1].id);
+          setActiveError(subErrors[subErrors.length - 1]?.id || 1);
         }
       }, [errorsCount]);
 

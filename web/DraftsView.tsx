@@ -21,14 +21,17 @@ export const DraftsView = () => {
   const t = useContext(TextContext);
 
   useMount(() => {
-    (async () => {
-      const fetchedDrafts = await callBackendBasic(Messages.GET_ALL_DRAFTS_WITH_COUNT);
-
-      if (fetchedDrafts.ok) {
-        setCategories(fetchedDrafts.data.drafts);
-      }
-    })();
+    fetchCategories();
   });
+
+  const fetchCategories = async () => {
+    console.log('refresh');
+    const fetchedDrafts = await callBackendBasic(Messages.GET_ALL_DRAFTS_WITH_COUNT);
+
+    if (fetchedDrafts.ok) {
+      setCategories(fetchedDrafts.data.drafts);
+    }
+  };
 
   if (!categories) {
     return <Loader text={t('Loading')} />;
@@ -51,6 +54,7 @@ export const DraftsView = () => {
             panel={
               <DraftsTable
                 interfaceKind={iface}
+                refreshCategories={fetchCategories}
                 onClick={(interfaceId, draftData) => {
                   addDraft({
                     interfaceKind: iface,

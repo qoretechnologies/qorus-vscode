@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { AppToaster } from '../../components/Toast';
 import { DraftsContext } from '../../context/drafts';
+import { getDraftId } from '../../helpers/functions';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
@@ -79,17 +80,22 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
 
   useUpdateEffect(() => {
     if (draft && showMapperConnections) {
-      maybeApplyDraft('mapper', null, null);
+      console.log('APPLYING DRAFT FROM MAPPER VIEW');
+      maybeApplyDraft('mapper', null, mapper);
     }
   }, [draft, showMapperConnections]);
 
   useDebounce(
     () => {
       if (showMapperConnections) {
-        initialData.saveDraft('mapper', interfaceId.mapper[interfaceIndex], {
+        const draftId = getDraftId(mapper, interfaceId.mapper[interfaceIndex]);
+
+        initialData.saveDraft('mapper', draftId, {
           fields: fields.mapper[interfaceIndex],
           selectedFields: selectedFields.mapper[interfaceIndex],
           diagram: mapperData,
+          interfaceId,
+          associatedInterface: mapper?.yaml_file,
           isValid: isFormValid('mapper', interfaceIndex) && size(mapperData.relations),
         });
       }
