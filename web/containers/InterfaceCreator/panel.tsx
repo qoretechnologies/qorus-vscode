@@ -6,6 +6,7 @@ import {
   find,
   forEach,
   includes,
+  isEqual,
   last,
   map,
   omit,
@@ -297,13 +298,25 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
       if (draftId && type !== 'config-item') {
         (async () => {
-          const hasAnyChanges = (selectedFields || []).some((field) => {
-            if (field.value) {
-              return field.value !== field.default_value;
-            }
+          let hasAnyChanges;
 
-            return false;
-          });
+          if (!data) {
+            hasAnyChanges = (selectedFields || []).some((field) => {
+              if (field.value) {
+                return isEqual(field.value, field.default_value);
+              }
+
+              return false;
+            });
+          } else {
+            hasAnyChanges = (selectedFields || []).some((field) => {
+              if (field.name === 'orig_name') {
+                return false;
+              }
+
+              return !isEqual(field.value, originalData.current[field.name]);
+            });
+          }
 
           if (!hasAnyChanges) {
             return;

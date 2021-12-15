@@ -90,7 +90,7 @@ class QorusDraftCategory extends TreeItem {
     this.description = `(${count})`;
     this.iconPath = qorusIcons[`get${capitalize(label).replace('-', '').replace(' ', '')}Icon`]?.();
     this.contextValue = 'category';
-    this.type = label.toLowerCase();
+    this.type = label.toLowerCase().replace(' ', '-');
   }
 }
 

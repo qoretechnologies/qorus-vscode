@@ -82,6 +82,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
     maybeApplyDraft(
       'type',
       undefined,
+      initialData?.type,
       ({ typeData: { fields, val, targetDir, targetFile, types }, interfaceId }: IDraftData) => {
         setInterfaceId(interfaceId);
         setVal(val);
@@ -106,9 +107,9 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
       (async () => {
         const data = await initialData.fetchData('/system/metadata/types');
         setTypes(data.data);
+        setInterfaceId(initialData?.type?.iface_id || shortid.generate());
+        applyDraft();
       })();
-      setInterfaceId(shortid.generate());
-      applyDraft();
     }
 
     return () => {

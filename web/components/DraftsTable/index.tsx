@@ -15,7 +15,7 @@ import { TimeAgo } from '../TimeAgo';
 
 export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategories }: any) => {
   const t = useContext(TextContext);
-  const { setDraftData } = useContext(InitialContext);
+  const { changeDraft } = useContext(InitialContext);
   // Get the last draft from the initial data context
   const [drafts, setDrafts] = useState<any[]>([]);
   const [query, setQuery] = useState('');
@@ -77,7 +77,7 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
                 interfaceId === lastDraft
                   ? undefined
                   : () => {
-                      setDraftData({
+                      changeDraft({
                         interfaceId,
                         interfaceKind,
                       });

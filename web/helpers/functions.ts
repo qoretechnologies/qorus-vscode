@@ -285,15 +285,6 @@ export const callBackendBasic: (
     // Create a timeout that will reject the request
     // after 2 minutes
     let timeout: NodeJS.Timer | null = setTimeout(() => {
-      AppToaster.show(
-        {
-          message: `Request ${getMessage} timed out`,
-          intent: 'danger',
-          timeout: 3000,
-          icon: 'error',
-        },
-        uniqueId
-      );
       resolve({
         ok: false,
         message: 'Request timed out',

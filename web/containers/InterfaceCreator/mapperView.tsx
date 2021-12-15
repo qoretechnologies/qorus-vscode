@@ -90,11 +90,13 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
       if (showMapperConnections) {
         const draftId = getDraftId(mapper, interfaceId.mapper[interfaceIndex]);
 
+        console.log(draftId);
+
         initialData.saveDraft('mapper', draftId, {
           fields: fields.mapper[interfaceIndex],
           selectedFields: selectedFields.mapper[interfaceIndex],
           diagram: mapperData,
-          interfaceId,
+          interfaceId: interfaceId.mapper[interfaceIndex],
           associatedInterface: mapper?.yaml_file,
           isValid: isFormValid('mapper', interfaceIndex) && size(mapperData.relations),
         });

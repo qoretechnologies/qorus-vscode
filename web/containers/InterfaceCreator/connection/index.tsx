@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
+import { filter } from 'lodash';
 import map from 'lodash/map';
 import size from 'lodash/size';
 import React, { useContext, useState } from 'react';
@@ -83,6 +84,11 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
   useDebounce(
     () => {
       const draftId = getDraftId(connection, interfaceId);
+      const hasChanged = connection
+        ? filter(data, (value, key) => value !== connection[key])
+        : true;
+
+      console.log(hasChanged);
 
       if (
         draftId &&

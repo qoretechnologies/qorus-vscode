@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
 import size from 'lodash/size';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import Tree from 'react-d3-tree';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
@@ -313,23 +313,31 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
     };
   });
 
-  useEffect(() => {
-    (async () => {
-      if (
-        !metadata['input-provider'] ||
-        validateField('type-selector', metadata['input-provider'])
-      ) {
-        setCompatibilityChecked(false);
+  useDebounce(
+    () => {
+      (async () => {
+        console.log(elements);
+        if (
+          !metadata['input-provider'] ||
+          validateField('type-selector', metadata['input-provider'])
+        ) {
+          setCompatibilityChecked(false);
 
-        const newElements = await checkPipelineCompatibility(elements, metadata['input-provider']);
+          const newElements = await checkPipelineCompatibility(
+            elements,
+            metadata['input-provider']
+          );
 
-        setCompatibilityChecked(true);
-        setElements(transformNodeData(newElements, ''));
-      } else {
-        Promise.resolve();
-      }
-    })();
-  }, [metadata['input-provider']]);
+          setCompatibilityChecked(true);
+          setElements(transformNodeData(newElements, ''));
+        } else {
+          Promise.resolve();
+        }
+      })();
+    },
+    1000,
+    [metadata['input-provider'], JSON.stringify(elements)]
+  );
 
   useDebounce(
     () => {
@@ -563,6 +571,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
       </Callout>
     );
   }
+
+  console.log('ELEMENTS', elements);
 
   return (
     <>

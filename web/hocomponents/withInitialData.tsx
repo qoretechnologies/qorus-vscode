@@ -263,6 +263,11 @@ export default () =>
         setIsSavingDraft(false);
       };
 
+      const changeDraft = (draftData) => {
+        setInitialData({});
+        setDraftData(draftData);
+      };
+
       if (!initialData) {
         return null;
       }
@@ -288,6 +293,7 @@ export default () =>
             isSavingDraft,
             lastDraft,
             setLastDraft,
+            changeDraft,
           }}
         >
           <InitialContext.Consumer>
