@@ -344,7 +344,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
       const hasChanged = pipeline
         ? some(metadata, (value, key) => {
             return !isEqual(value, pipeline[key]);
-          })
+          }) || !isEqual(elements, pipeline.children)
         : true;
 
       if (

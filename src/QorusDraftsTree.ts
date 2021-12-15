@@ -103,7 +103,7 @@ class QorusDraftItem extends TreeItem {
     // Create the label
     const name = item.name;
     // If the item is new or existing draft, we need to add the timestamp and prefixes
-    const prefix = item.hasDraft ? '✏️ ' : item.isDraft ? '✏️   [*] ' : '';
+    const prefix = item.hasDraft ? '✏️ ' : item.isDraft ? '✏️ 🔸 ' : '';
 
     super(`${prefix} ${name}`, TreeItemCollapsibleState.None);
 
@@ -111,11 +111,8 @@ class QorusDraftItem extends TreeItem {
       ? `${interfaceKind}${item.interfaceId ? `|${item.interfaceId}` : ''}`
       : undefined;
 
-    this.description = item.date
-      ? `[${timeago(item.date)}]`
-      : item.data?.version
-      ? `[${item.data.version}]`
-      : '';
+    this.description = item.date ? `[${timeago(item.date)}]` : '';
+    this.description += item.data?.version ? `[${item.data.version}]` : '';
     this.iconPath = interfaceKind
       ? qorusIcons[`get${capitalize(interfaceKind).replace('-', '').replace(' ', '')}Icon`]?.()
       : undefined;

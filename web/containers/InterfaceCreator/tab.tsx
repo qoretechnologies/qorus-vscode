@@ -8,6 +8,7 @@ import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { DraftsTable } from '../../components/DraftsTable';
 import HorizontalSpacer from '../../components/HorizontalSpacer';
+import { TimeAgo } from '../../components/TimeAgo';
 import Tutorial from '../../components/Tutorial';
 import { interfaceKindTransform } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
@@ -382,7 +383,13 @@ const Tab: React.FC<ITabProps> = ({
             intent={isSavingDraft ? 'warning' : 'success'}
             icon="small-tick"
           >
-            {t(isSavingDraft ? 'SavingDraft' : 'DraftSaved')}
+            {isSavingDraft ? (
+              t('SavingDraft')
+            ) : (
+              <>
+                {t('DraftSaved')} <TimeAgo time={Date.now()} />
+              </>
+            )}
           </Button>
         ) : null}
         <div>
