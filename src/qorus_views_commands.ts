@@ -19,7 +19,6 @@ const maybeDeleteInterface = (data: QorusDraftItem['data']) => {
       QorusProjectCodeInfo.deleteInterface({ iface_kind: data.type, iface_data: data });
     });
 };
-
 const maybeDeployInterface = (data: any) => {
   if (!deployer.isRunning) {
     vswindow
@@ -115,7 +114,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
 
   disposable = commands.registerCommand(
     'qorus.views.deployInterface',
-    ({ data }: QorusDraftItem) => {
+    (data : QorusDraftItem) => {
       maybeDeployInterface(data);
     }
   );
