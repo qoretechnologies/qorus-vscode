@@ -5,12 +5,11 @@ import {
   Callout,
   Classes,
   Navbar,
-  NavbarGroup,
+  NavbarGroup
 } from '@blueprintjs/core';
 import last from 'lodash/last';
 import size from 'lodash/size';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
-import { hot } from 'react-hot-loader/root';
 import { connect } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
@@ -42,7 +41,7 @@ import {
   addMessageListener,
   postMessage,
   TMessageListener,
-  TPostMessage,
+  TPostMessage
 } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
@@ -500,7 +499,7 @@ const mapDispatchToProps = (dispatch) => ({
   },
 });
 
-export default hot(
+export default
   compose(
     connect(mapStateToProps, mapDispatchToProps),
     withInitialData(),
@@ -511,5 +510,4 @@ export default hot(
     withSteps(),
     withMapper(),
     withGlobalOptions()
-  )(App)
-);
+  )(App);

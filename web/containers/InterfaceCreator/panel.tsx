@@ -13,7 +13,7 @@ import {
   reduce,
   size,
   uniqBy,
-  upperFirst,
+  upperFirst
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import React, {
@@ -22,7 +22,7 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState,
+  useState
 } from 'react';
 import { useDebounce, useMount, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
@@ -54,7 +54,7 @@ import withMessageHandler, {
   addMessageListener,
   postMessage,
   TMessageListener,
-  TPostMessage,
+  TPostMessage
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -533,81 +533,36 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     };
   }, [activeId, interfaceId, initialInterfaceId]);
 
-  const resetLocalFields: (newActiveId?: number) => void = (newActiveId) => {
+  const resetLocalFields: (newActiveId?: number) => void = async (newActiveId) => {
     resetAllInterfaceData(type, true);
-    // Hide the fields until they are fetched
-
-    setShow(false);
-    // Reset class connecitons
-    resetClassConnections && resetClassConnections();
-    // Change the name if needed
-    if (onNameChange) {
-      onNameChange(newActiveId, null);
-    }
-    // Remove the message listener if it exists
-    messageListener && messageListener();
-    // Create a message listener for this activeId
-    const messageListenerHandler = addMessageListener(
-      Messages.FIELDS_FETCHED,
-      ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField } }) => {
-        // Deep copy initial data
-        const copiedData = cloneDeep(data);
-        // Register only for this interface
-        if (rest.iface_kind === type) {
-          // Mark the selected fields
-          const transformedFields: IField[] = map(newFields, (field: IField) => ({
-            ...field,
-            selected: (copiedData && copiedData[field.name]) || field.mandatory !== false,
-            isValid:
-              copiedData && copiedData[field.name]
-                ? validateField(field.type || 'string', copiedData[field.name], field)
-                : false,
-            value: copiedData ? copiedData[field.name] : undefined,
-            hasValueSet: copiedData && copiedData[field.name],
-          }));
-          // Pull the pre-selected fields
-          const preselectedFields: IField[] = filter(
-            transformedFields,
-            (field: IField) => field.selected
-          );
-          // Add original name field
-          if (isEditing) {
-            preselectedFields.push({
-              name: 'orig_name',
-              value: copiedData && copiedData.name,
-              isValid: true,
-              selected: true,
-              internal: true,
-            });
-          }
-          // Save preselected fields
-          setSelectedFields(type, preselectedFields, activeId, interfaceIndex);
-          // Save the fields
-          setFields(type, transformedFields, activeId, interfaceIndex);
-        }
-        // Check if onDataFinish function is set
-        // only do this on initial mount
-        if (onDataFinishLoading && isInitialMount.current) {
-          // Run the callback
-          onDataFinishLoading();
-          // Set the mount to false
-          isInitialMount.current = false;
-        }
-        // Create / set interface id
-        setInterfaceId(type, data ? copiedData.iface_id : shortid.generate(), interfaceIndex);
-        // Set show
-        setShow(true);
-      }
-    );
-    // Set the new message listener
-    setMessageListener(() => messageListenerHandler);
-    // Fetch the fields
-    postMessage(Messages.GET_FIELDS, {
-      iface_kind: type,
-      is_editing: isEditing,
-      context,
-      lang: isEditing ? data.lang : undefined,
+    // Delete the draft
+    const draftId = getDraftId(parentData || data, interfaceId);
+    await deleteDraft(type, draftId, false);
+    // Reset also config items
+    postMessage(Messages.RESET_CONFIG_ITEMS, {
+      iface_id: interfaceId,
     });
+    // Hide the fields until they are fetched
+    setShow(false);
+    // Fetch the fields
+    if (type === 'config-item' && isEditing) {
+      postMessage(Messages.GET_FIELDS, {
+        iface_kind: type,
+        is_editing: isEditing,
+        context,
+        iface_id: interfaceId,
+        name: data.name,
+        lang: isEditing ? data.lang : undefined,
+      });
+    } else {
+      postMessage(Messages.GET_FIELDS, {
+        iface_kind: type,
+        is_editing: isEditing,
+        iface_id: isEditing ? interfaceId : undefined,
+        context,
+        lang: isEditing ? data?.lang : undefined,
+      });
+    }
   };
 
   const addField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
@@ -1386,19 +1341,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               )}
               <Tooltip content={t('ResetTooltip')}>
                 <Button
-                  text={t('Reset')}
+                  text={t('DiscardChanges')}
                   icon={'history'}
                   onClick={() => {
                     initialData.confirmAction(
                       'ResetFieldsConfirm',
                       () => {
                         resetLocalFields(activeId);
-                        // Reset also config items
-                        postMessage(Messages.RESET_CONFIG_ITEMS, {
-                          iface_id: interfaceId,
-                        });
                       },
-                      'Reset',
+                      'Discard changes',
                       'warning'
                     );
                   }}
