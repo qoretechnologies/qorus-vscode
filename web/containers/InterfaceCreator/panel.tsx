@@ -13,7 +13,7 @@ import {
   reduce,
   size,
   uniqBy,
-  upperFirst
+  upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import React, {
@@ -22,7 +22,7 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState
+  useState,
 } from 'react';
 import { useDebounce, useMount, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
@@ -54,7 +54,7 @@ import withMessageHandler, {
   addMessageListener,
   postMessage,
   TMessageListener,
-  TPostMessage
+  TPostMessage,
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -322,7 +322,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             return;
           }
 
-          let fileData: Omit<IDraftData, 'interfaceKind'> = {};
+          let fileData: Omit<Partial<IDraftData>, 'interfaceKind'> = {};
 
           switch (type) {
             case 'service':

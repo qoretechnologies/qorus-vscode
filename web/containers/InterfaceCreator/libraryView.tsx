@@ -161,7 +161,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
   return (
     <CreatorWrapper>
       <PanelWrapper>
-        {!showFunctions && (
+        <div style={{ display: !showFunctions ? 'flex' : 'none' }}>
           <InterfaceCreatorPanel
             type="mapper-code"
             submitLabel={t('Next')}
@@ -180,82 +180,80 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                 : null
             }
           />
-        )}
-        {showFunctions && (
-          <>
-            <SidePanel title={t('AddFunctionsTitle')}>
-              <ContentWrapper>
-                {functions.map((fun: { id: number; name?: string }, index: number) => (
-                  <MethodSelector
-                    key={fun.id}
-                    active={fun.id === activeFunction}
-                    valid={isSubItemValid(fun.id, 'mapper-methods', methodsIndex)}
-                    onClick={() => setActiveFunction(fun.id)}
-                  >
-                    {fun.name || `${t('Method')} ${fun.id}`}
-                    {fun.id === activeFunction && (
-                      <>
-                        <Selected />
-                      </>
-                    )}
-                    {functionsCount !== 1 && !lang_client_unavailable ? (
-                      <RemoveButton
-                        onClick={() => {
-                          setFunctions((current) =>
-                            current.filter((currentFunction) => currentFunction.id !== fun.id)
-                          );
-                          removeSubItemFromFields(fun.id, 'mapper-methods', methodsIndex);
-                          setFunctionsCount((current: number) => current - 1);
-                        }}
-                      />
-                    ) : null}
-                  </MethodSelector>
-                ))}
-              </ContentWrapper>
-              <ActionsWrapper>
-                <ButtonGroup fill>
-                  <Button
-                    text={t('AddFunction')}
-                    icon={'plus'}
-                    onClick={handleAddFunctionClick}
-                    disabled={lang_client_unavailable}
-                  />
-                </ButtonGroup>
-              </ActionsWrapper>
-            </SidePanel>
-            <InterfaceCreatorPanel
-              interfaceIndex={methodsIndex}
-              stepOneTitle={t('SelectFieldsSecondStep')}
-              stepTwoTitle={t('FillDataThirdStep')}
-              onBackClick={() => {
-                setActiveFunction(null);
-                setShowFunctions(false);
-              }}
-              initialInterfaceId={
-                library ? library.interfaceId : interfaceId['mapper-code'][interfaceIndex]
-              }
-              type="mapper-methods"
-              activeId={activeFunction}
-              isEditing={!!library}
-              allMethodsData={functionsData}
-              methodsList={functions}
-              onSubmitSuccess={onSubmitSuccess}
-              data={functionsData && functionsData.find((fun) => fun.id === activeFunction)}
-              parentData={library}
-              onNameChange={(functionId: number, name: string) => {
-                setFunctions((currentFunctions: { id: number; name: string }[]) =>
-                  currentFunctions.reduce((cur, fun: { id: number; name: string }) => {
-                    if (functionId === fun.id) {
-                      fun.name = name;
-                    }
+        </div>
+        <div style={{ display: showFunctions ? 'flex' : 'none', width: '100%' }}>
+          <SidePanel title={t('AddFunctionsTitle')}>
+            <ContentWrapper>
+              {functions.map((fun: { id: number; name?: string }, index: number) => (
+                <MethodSelector
+                  key={fun.id}
+                  active={fun.id === activeFunction}
+                  valid={isSubItemValid(fun.id, 'mapper-methods', methodsIndex)}
+                  onClick={() => setActiveFunction(fun.id)}
+                >
+                  {fun.name || `${t('Method')} ${fun.id}`}
+                  {fun.id === activeFunction && (
+                    <>
+                      <Selected />
+                    </>
+                  )}
+                  {functionsCount !== 1 && !lang_client_unavailable ? (
+                    <RemoveButton
+                      onClick={() => {
+                        setFunctions((current) =>
+                          current.filter((currentFunction) => currentFunction.id !== fun.id)
+                        );
+                        removeSubItemFromFields(fun.id, 'mapper-methods', methodsIndex);
+                        setFunctionsCount((current: number) => current - 1);
+                      }}
+                    />
+                  ) : null}
+                </MethodSelector>
+              ))}
+            </ContentWrapper>
+            <ActionsWrapper>
+              <ButtonGroup fill>
+                <Button
+                  text={t('AddFunction')}
+                  icon={'plus'}
+                  onClick={handleAddFunctionClick}
+                  disabled={lang_client_unavailable}
+                />
+              </ButtonGroup>
+            </ActionsWrapper>
+          </SidePanel>
+          <InterfaceCreatorPanel
+            interfaceIndex={methodsIndex}
+            stepOneTitle={t('SelectFieldsSecondStep')}
+            stepTwoTitle={t('FillDataThirdStep')}
+            onBackClick={() => {
+              setActiveFunction(null);
+              setShowFunctions(false);
+            }}
+            initialInterfaceId={
+              library ? library.interfaceId : interfaceId['mapper-code'][interfaceIndex]
+            }
+            type="mapper-methods"
+            activeId={activeFunction}
+            isEditing={!!library}
+            allMethodsData={functionsData}
+            methodsList={functions}
+            onSubmitSuccess={onSubmitSuccess}
+            data={functionsData && functionsData.find((fun) => fun.id === activeFunction)}
+            parentData={library}
+            onNameChange={(functionId: number, name: string) => {
+              setFunctions((currentFunctions: { id: number; name: string }[]) =>
+                currentFunctions.reduce((cur, fun: { id: number; name: string }) => {
+                  if (functionId === fun.id) {
+                    fun.name = name;
+                  }
 
-                    return [...cur, fun];
-                  }, [])
-                );
-              }}
-            />
-          </>
-        )}
+                  return [...cur, fun];
+                }, [])
+              );
+            }}
+          />
+        </div>
       </PanelWrapper>
     </CreatorWrapper>
   );

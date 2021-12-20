@@ -177,7 +177,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   return (
     <CreatorWrapper>
       <PanelWrapper>
-        {!showErrors && (
+        <div style={{ display: !showErrors ? 'flex' : 'none' }}>
           <InterfaceCreatorPanel
             type={'errors'}
             submitLabel={t('Next')}
@@ -189,97 +189,95 @@ const ServicesView: FunctionComponent<IServicesView> = ({
             data={errors && omit(errors, 'error')}
             isEditing={!!errors}
           />
-        )}
-        {showErrors && (
-          <>
-            <SidePanel title={t('AddErrorsTitle')}>
-              <ContentWrapper>
-                {subErrors.map((method: { id: number; name?: string }, index: number) => (
-                  <MethodSelector
-                    name={`select-error-${method.name}`}
-                    key={method.id}
-                    active={method.id === activeError}
-                    valid={isSubItemValid(method.id, 'error', errorsIndex)}
-                    onClick={() => setActiveError(method.id)}
-                  >
-                    {method.name || `${t('Error')} ${method.id}`}
-                    {method.id === activeError && (
-                      <>
-                        <Selected />
-                      </>
-                    )}
-                    {errorsCount !== 1 && (
-                      <RemoveButton
-                        name={`remove-error-${method.name}`}
-                        onClick={() => {
-                          setSubErrors((current) =>
-                            current.filter((currentMethod) => currentMethod.id !== method.id)
-                          );
-                          removeSubItemFromFields(method.id, 'error', errorsIndex);
-                          setErrorsCount((current: number) => current - 1);
-                        }}
-                      />
-                    )}
-                  </MethodSelector>
-                ))}
-              </ContentWrapper>
-              <ActionsWrapper>
-                <ButtonGroup fill>
-                  <Button
-                    name={'add-error-button'}
-                    text={t('AddError')}
-                    icon={'plus'}
-                    onClick={handleAddErrorClick}
-                  />
-                </ButtonGroup>
-              </ActionsWrapper>
-            </SidePanel>
-            <InterfaceCreatorPanel
-              stepOneTitle={t('SelectFieldsSecondStep')}
-              stepTwoTitle={t('FillDataThirdStep')}
-              interfaceIndex={errorsIndex}
-              onBackClick={() => {
-                hasAllMethodsLoaded = false;
-                setActiveError(null);
-                setShowErrors(false);
-              }}
-              onDataFinishLoadingRecur={(id) => {
-                if (!hasAllMethodsLoaded) {
-                  if ((id || 1) + 1 <= lastErrorId && !hasAllMethodsLoaded) {
-                    setActiveError(id + 1);
-                  } else {
-                    hasAllMethodsLoaded = true;
-                    setActiveError(initialActiveError);
-                  }
+        </div>
+        <div style={{ display: showErrors ? 'flex' : 'none', width: '100%' }}>
+          <SidePanel title={t('AddErrorsTitle')}>
+            <ContentWrapper>
+              {subErrors.map((method: { id: number; name?: string }, index: number) => (
+                <MethodSelector
+                  name={`select-error-${method.name}`}
+                  key={method.id}
+                  active={method.id === activeError}
+                  valid={isSubItemValid(method.id, 'error', errorsIndex)}
+                  onClick={() => setActiveError(method.id)}
+                >
+                  {method.name || `${t('Error')} ${method.id}`}
+                  {method.id === activeError && (
+                    <>
+                      <Selected />
+                    </>
+                  )}
+                  {errorsCount !== 1 && (
+                    <RemoveButton
+                      name={`remove-error-${method.name}`}
+                      onClick={() => {
+                        setSubErrors((current) =>
+                          current.filter((currentMethod) => currentMethod.id !== method.id)
+                        );
+                        removeSubItemFromFields(method.id, 'error', errorsIndex);
+                        setErrorsCount((current: number) => current - 1);
+                      }}
+                    />
+                  )}
+                </MethodSelector>
+              ))}
+            </ContentWrapper>
+            <ActionsWrapper>
+              <ButtonGroup fill>
+                <Button
+                  name={'add-error-button'}
+                  text={t('AddError')}
+                  icon={'plus'}
+                  onClick={handleAddErrorClick}
+                />
+              </ButtonGroup>
+            </ActionsWrapper>
+          </SidePanel>
+          <InterfaceCreatorPanel
+            stepOneTitle={t('SelectFieldsSecondStep')}
+            stepTwoTitle={t('FillDataThirdStep')}
+            interfaceIndex={errorsIndex}
+            onBackClick={() => {
+              hasAllMethodsLoaded = false;
+              setActiveError(null);
+              setShowErrors(false);
+            }}
+            onDataFinishLoadingRecur={(id) => {
+              if (!hasAllMethodsLoaded) {
+                if ((id || 1) + 1 <= lastErrorId && !hasAllMethodsLoaded) {
+                  setActiveError(id + 1);
+                } else {
+                  hasAllMethodsLoaded = true;
+                  setActiveError(initialActiveError);
                 }
-              }}
-              initialInterfaceId={errors ? errors.iface_id : interfaceId.errors[errorIndex]}
-              type={'error'}
-              activeId={activeError}
-              isEditing={!!errors}
-              allMethodsData={errorsData}
-              methodsList={subErrors}
-              onSubmitSuccess={onSubmitSuccess}
-              onSubmit={() => {
-                hasAllMethodsLoaded = false;
-              }}
-              forceSubmit
-              data={errorsData && errorsData.find((method) => method.id === activeError)}
-              parentData={errors}
-              onNameChange={(methodId: number, name: string) => {
-                setSubErrors((currentMethods: { id: number; name: string }[]) =>
-                  currentMethods.reduce((cur, method: { id: number; name: string }) => {
-                    if (methodId === method.id) {
-                      method.name = name;
-                    }
+              }
+            }}
+            initialInterfaceId={errors ? errors.iface_id : interfaceId.errors[errorIndex]}
+            type={'error'}
+            activeId={activeError}
+            isEditing={!!errors}
+            allMethodsData={errorsData}
+            methodsList={subErrors}
+            onSubmitSuccess={onSubmitSuccess}
+            onSubmit={() => {
+              hasAllMethodsLoaded = false;
+            }}
+            forceSubmit
+            data={errorsData && errorsData.find((method) => method.id === activeError)}
+            parentData={errors}
+            onNameChange={(methodId: number, name: string) => {
+              setSubErrors((currentMethods: { id: number; name: string }[]) =>
+                currentMethods.reduce((cur, method: { id: number; name: string }) => {
+                  if (methodId === method.id) {
+                    method.name = name;
+                  }
 
-                    return [...cur, method];
-                  }, [])
-                );
-              }}
-            />
-          </>
-        )}
+                  return [...cur, method];
+                }, [])
+              );
+            }}
+          />
+        </div>
       </PanelWrapper>
     </CreatorWrapper>
   );

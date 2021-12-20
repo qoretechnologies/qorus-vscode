@@ -1,3 +1,6 @@
 tasks:
-  - init: npm install && npm run build
-    command: npm run start
+  - init: |
+      npm install
+    command: |
+      git config --global http.sslverify false
+      npm run start

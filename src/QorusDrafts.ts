@@ -180,12 +180,7 @@ class QorusDrafts {
     onSuccess?: () => void,
     onError?: (error: string) => void
   ) {
-    console.log(
-      'SAVING DRAFT WITH THIS DATA, LIKE LITERALLY ABOUT TO WRITE THE FILE',
-      interfaceKind,
-      interfaceId,
-      interfaceData
-    );
+    console.log('SAVING DRAFT WITH THIS DATA', interfaceKind, interfaceId, interfaceData);
     fse
       .outputFile(
         path.join(process.env.HOME, this.getDraftsLocation(), interfaceKind, `${interfaceId}.json`),

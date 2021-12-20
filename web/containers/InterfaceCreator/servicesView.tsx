@@ -186,7 +186,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     <>
       <CreatorWrapper>
         <PanelWrapper>
-          {!showMethods && (
+          <div style={{ display: !showMethods ? 'flex' : 'none' }}>
             <InterfaceCreatorPanel
               type={'service'}
               submitLabel={t('Next')}
@@ -211,135 +211,133 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                   : null
               }
             />
-          )}
-          {showMethods && (
-            <>
-              <SidePanel title={t('AddMethodsTitle')}>
-                <ContentWrapper>
-                  {methods.map(
-                    (
-                      method: {
-                        id: number;
-                        name?: string;
+          </div>
+          <div style={{ display: showMethods ? 'flex' : 'none', width: '100%' }}>
+            <SidePanel title={t('AddMethodsTitle')}>
+              <ContentWrapper>
+                {methods.map(
+                  (
+                    method: {
+                      id: number;
+                      name?: string;
+                    },
+                    index: number
+                  ) => (
+                    <MethodSelector
+                      name={`select-method-${method.name}`}
+                      key={index}
+                      active={method.id === activeMethod}
+                      valid={isSubItemValid(method.id, 'service-methods', methodsIndex)}
+                      onClick={() => setActiveMethod(method.id)}
+                    >
+                      {method.name || `${t('Method')} ${method.id}`}
+                      {method.id === activeMethod && (
+                        <>
+                          <Selected />
+                        </>
+                      )}
+                      {methodsCount !== 1 && !initialData.lang_client_unavailable ? (
+                        <RemoveButton
+                          name={`remove-method-${method.name}`}
+                          onClick={() => {
+                            setMethods((current) =>
+                              current.filter((currentMethod) => currentMethod.id !== method.id)
+                            );
+                            removeSubItemFromFields(method.id, 'service-methods', methodsIndex);
+                            setMethodsCount((current: number) => current - 1);
+                          }}
+                        />
+                      ) : null}
+                    </MethodSelector>
+                  )
+                )}
+              </ContentWrapper>
+              <ActionsWrapper>
+                <ButtonGroup fill>
+                  <Button
+                    name={'add-method-button'}
+                    text={t('AddMethod')}
+                    icon={'plus'}
+                    onClick={handleAddMethodClick}
+                    // Figure out why is this here
+                    //disabled={initialData.lang_client_unavailable}
+                  />
+                </ButtonGroup>
+              </ActionsWrapper>
+            </SidePanel>
+            <InterfaceCreatorPanel
+              stepOneTitle={t('SelectFieldsSecondStep')}
+              stepTwoTitle={t('FillDataThirdStep')}
+              interfaceIndex={methodsIndex}
+              onBackClick={() => {
+                hasAllMethodsLoaded = false;
+                setActiveMethod(1);
+                setShowMethods(false);
+                if (service) {
+                  initialData.changeInitialData('service.active_method', null);
+                }
+              }}
+              onDataFinishLoadingRecur={(id) => {
+                if (!hasAllMethodsLoaded) {
+                  if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
+                    setActiveMethod(id + 1);
+                  } else {
+                    hasAllMethodsLoaded = true;
+                    setActiveMethod(initialActiveMethod);
+                  }
+                }
+              }}
+              initialInterfaceId={service ? service.iface_id : interfaceId.service[serviceIndex]}
+              type={'service-methods'}
+              activeId={activeMethod}
+              isEditing={!!service}
+              allMethodsData={methodsData}
+              {...classConnectionsProps}
+              hasClassConnections
+              methodsList={methods}
+              onSubmitSuccess={onSubmitSuccess}
+              onSubmit={() => {
+                hasAllMethodsLoaded = false;
+              }}
+              forceSubmit
+              data={{
+                ...(methodsData || []).find((method) => method.id === activeMethod),
+                lang: service?.lang,
+              }}
+              parentData={service}
+              onNameChange={(methodId: number, name: string, originalName?: string) => {
+                if (originalName) {
+                  // Rename the trigger
+                  classConnectionsProps.renameTrigger(originalName, name);
+                }
+
+                setMethods(
+                  (
+                    currentMethods: {
+                      id: number;
+                      name: string;
+                    }[]
+                  ) =>
+                    currentMethods.reduce(
+                      (
+                        cur,
+                        method: {
+                          id: number;
+                          name: string;
+                        }
+                      ) => {
+                        if (methodId === method.id) {
+                          method.name = name;
+                        }
+
+                        return [...cur, method];
                       },
-                      index: number
-                    ) => (
-                      <MethodSelector
-                        name={`select-method-${method.name}`}
-                        key={index}
-                        active={method.id === activeMethod}
-                        valid={isSubItemValid(method.id, 'service-methods', methodsIndex)}
-                        onClick={() => setActiveMethod(method.id)}
-                      >
-                        {method.name || `${t('Method')} ${method.id}`}
-                        {method.id === activeMethod && (
-                          <>
-                            <Selected />
-                          </>
-                        )}
-                        {methodsCount !== 1 && !initialData.lang_client_unavailable ? (
-                          <RemoveButton
-                            name={`remove-method-${method.name}`}
-                            onClick={() => {
-                              setMethods((current) =>
-                                current.filter((currentMethod) => currentMethod.id !== method.id)
-                              );
-                              removeSubItemFromFields(method.id, 'service-methods', methodsIndex);
-                              setMethodsCount((current: number) => current - 1);
-                            }}
-                          />
-                        ) : null}
-                      </MethodSelector>
+                      []
                     )
-                  )}
-                </ContentWrapper>
-                <ActionsWrapper>
-                  <ButtonGroup fill>
-                    <Button
-                      name={'add-method-button'}
-                      text={t('AddMethod')}
-                      icon={'plus'}
-                      onClick={handleAddMethodClick}
-                      // Figure out why is this here
-                      //disabled={initialData.lang_client_unavailable}
-                    />
-                  </ButtonGroup>
-                </ActionsWrapper>
-              </SidePanel>
-              <InterfaceCreatorPanel
-                stepOneTitle={t('SelectFieldsSecondStep')}
-                stepTwoTitle={t('FillDataThirdStep')}
-                interfaceIndex={methodsIndex}
-                onBackClick={() => {
-                  hasAllMethodsLoaded = false;
-                  setActiveMethod(1);
-                  setShowMethods(false);
-                  if (service) {
-                    initialData.changeInitialData('service.active_method', null);
-                  }
-                }}
-                onDataFinishLoadingRecur={(id) => {
-                  if (!hasAllMethodsLoaded) {
-                    if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
-                      setActiveMethod(id + 1);
-                    } else {
-                      hasAllMethodsLoaded = true;
-                      setActiveMethod(initialActiveMethod);
-                    }
-                  }
-                }}
-                initialInterfaceId={service ? service.iface_id : interfaceId.service[serviceIndex]}
-                type={'service-methods'}
-                activeId={activeMethod}
-                isEditing={!!service}
-                allMethodsData={methodsData}
-                {...classConnectionsProps}
-                hasClassConnections
-                methodsList={methods}
-                onSubmitSuccess={onSubmitSuccess}
-                onSubmit={() => {
-                  hasAllMethodsLoaded = false;
-                }}
-                forceSubmit
-                data={{
-                  ...(methodsData || []).find((method) => method.id === activeMethod),
-                  lang: service?.lang,
-                }}
-                parentData={service}
-                onNameChange={(methodId: number, name: string, originalName?: string) => {
-                  if (originalName) {
-                    // Rename the trigger
-                    classConnectionsProps.renameTrigger(originalName, name);
-                  }
-
-                  setMethods(
-                    (
-                      currentMethods: {
-                        id: number;
-                        name: string;
-                      }[]
-                    ) =>
-                      currentMethods.reduce(
-                        (
-                          cur,
-                          method: {
-                            id: number;
-                            name: string;
-                          }
-                        ) => {
-                          if (methodId === method.id) {
-                            method.name = name;
-                          }
-
-                          return [...cur, method];
-                        },
-                        []
-                      )
-                  );
-                }}
-              />
-            </>
-          )}
+                );
+              }}
+            />
+          </div>
         </PanelWrapper>
       </CreatorWrapper>
     </>
