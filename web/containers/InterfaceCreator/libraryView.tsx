@@ -150,6 +150,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     handleAddFunctionClick,
     setShowFunctions,
     functionsData,
+    initialShowFunctions,
   }: any = React.useContext(FunctionsContext);
 
   useUpdateEffect(() => {
@@ -173,7 +174,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
             data={library && omit(library, 'functions')}
             isEditing={!!library}
             onDataFinishLoading={
-              library && activeFunction
+              library && initialShowFunctions
                 ? () => {
                     setShowFunctions(true);
                   }
@@ -227,7 +228,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
             stepOneTitle={t('SelectFieldsSecondStep')}
             stepTwoTitle={t('FillDataThirdStep')}
             onBackClick={() => {
-              setActiveFunction(null);
+              setActiveFunction(1);
               setShowFunctions(false);
             }}
             initialInterfaceId={

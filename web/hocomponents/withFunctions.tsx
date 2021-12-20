@@ -92,7 +92,7 @@ export default () =>
       initialActiveFunctionId: (mapperCode && mapperCode.active_method) || null,
       // Set to show functions if active function
       // is being edited
-      initialShowFunctions: !!(mapperCode && mapperCode.active_method),
+      initialShowFunctions: false,
       // Map the ids to the current function data
       // to know which function belongs to which id
       // in the function selector
