@@ -13,9 +13,7 @@ export default () =>
       const [functions, setFunctions] = useState<any[]>(props.initialFunctions);
       const [functionsCount, setFunctionsCount] = useState<number>(props.initialFunctionsCount);
       const [lastFunctionId, setLastFunctionId] = useState<number>(props.initialFunctionId);
-      const [activeFunction, setActiveFunction] = useState<any>(
-        props.initialActiveFunctionId || null
-      );
+      const [activeFunction, setActiveFunction] = useState<any>(1);
       const [functionsData, setFunctionsData] = useState(props.functionsData);
 
       const resetMapperMethods = () => {
