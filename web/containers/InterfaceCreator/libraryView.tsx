@@ -161,7 +161,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
   return (
     <CreatorWrapper>
       <PanelWrapper>
-        <div style={{ display: !showFunctions ? 'flex' : 'none' }}>
+        <div style={{ display: !showFunctions ? 'flex' : 'none', width: '100%' }}>
           <InterfaceCreatorPanel
             type="mapper-code"
             submitLabel={t('Next')}

@@ -186,7 +186,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     <>
       <CreatorWrapper>
         <PanelWrapper>
-          <div style={{ display: !showMethods ? 'flex' : 'none' }}>
+          <div style={{ display: !showMethods ? 'flex' : 'none', width: '100%' }}>
             <InterfaceCreatorPanel
               type={'service'}
               submitLabel={t('Next')}
