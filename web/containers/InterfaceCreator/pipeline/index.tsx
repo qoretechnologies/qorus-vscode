@@ -342,11 +342,23 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
   useDebounce(
     () => {
       const draftId = getDraftId(pipeline, interfaceId);
-      console.log(draftId, pipeline);
+
       const hasChanged = pipeline
         ? some(metadata, (value, key) => {
             return !isEqual(value, pipeline[key]);
-          }) || !isEqual(elements, pipeline.children)
+          }) ||
+          !isEqual(
+            elements,
+            transformNodeData(
+              [
+                {
+                  type: 'start',
+                  children: pipeline?.children || [],
+                },
+              ],
+              ''
+            )
+          )
         : true;
 
       if (
