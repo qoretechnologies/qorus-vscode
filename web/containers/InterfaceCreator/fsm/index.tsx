@@ -32,10 +32,11 @@ import {
   areTypesCompatible,
   deleteDraft,
   getDraftId,
+  getTargetFile,
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -442,7 +443,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 states,
               },
               interfaceId,
-              associatedInterface: fsm?.yaml_file,
+              associatedInterface: getTargetFile(fsm),
               isValid: isFSMValid(),
             },
             metadata.name

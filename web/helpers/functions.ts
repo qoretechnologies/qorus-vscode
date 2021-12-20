@@ -12,6 +12,7 @@ import maxBy from 'lodash/maxBy';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
 import size from 'lodash/size';
+import path from 'path';
 import shortid from 'shortid';
 import { AppToaster } from '../components/Toast';
 import { interfaceKindTransform } from '../constants/interfaces';
@@ -436,10 +437,20 @@ export const deleteDraft = async (interfaceKind, fileName, notify?: boolean) => 
   );
 };
 
+export const getTargetFile = (data: any) => {
+  if (data?.yaml_file) {
+    return data.yaml_file;
+  }
+
+  if (data?.target_dir && data?.target_file) {
+    return path.join(data.target_dir, data.target_file);
+  }
+};
+
 export const hasValue = (value) => value && value !== '';
 export const getDraftId = (data, interfaceId) => {
-  if (data && data.yaml_file) {
-    return btoa(data.yaml_file);
+  if (data && getTargetFile(data)) {
+    return btoa(getTargetFile(data));
   }
 
   return interfaceId;

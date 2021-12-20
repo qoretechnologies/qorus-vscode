@@ -1,5 +1,6 @@
 import timeago from 'epoch-timeago';
 import { capitalize, size } from 'lodash';
+import path from 'path';
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from 'vscode';
 import { QorusDraftsInstance } from './QorusDrafts';
 import { qorusIcons } from './QorusIcons';
@@ -7,6 +8,18 @@ import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 
 export type QorusDraftsTreeItem = QorusDraftItem | QorusDraftCategory;
 export type QorusDraftTreeItems = QorusDraftsTreeItem[];
+
+export const getTargetFile = (data: any) => {
+  if (data?.yaml_file) {
+    return data.yaml_file;
+  }
+
+  if (data?.target_dir && data?.target_file) {
+    return path.join(data.target_dir, data.target_file);
+  }
+
+  return '';
+};
 
 class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
   public code_info: QorusProjectCodeInfo;
@@ -61,7 +74,7 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
     // Get all the interfaces for this folder
     const interfaces = this.code_info.interfaceDataByType(interfaceKind).map((interfaceData) => {
       const draft = allDrafts.find(
-        (draft) => draft.associatedInterface === interfaceData.data.yaml_file
+        (draft) => draft.associatedInterface === getTargetFile(interfaceData.data)
       );
 
       return {

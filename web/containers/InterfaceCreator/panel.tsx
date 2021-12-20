@@ -44,7 +44,7 @@ import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData, IDraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
 import { maybeSendOnChangeEvent } from '../../helpers/common';
-import { deleteDraft, getDraftId } from '../../helpers/functions';
+import { deleteDraft, getDraftId, getTargetFile } from '../../helpers/functions';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -379,7 +379,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
           fileData.classConnections = classConnectionsData;
           fileData.interfaceId = interfaceId;
-          fileData.associatedInterface = (parentData || data)?.yaml_file;
+          fileData.associatedInterface = getTargetFile(parentData || data);
 
           await initialData.saveDraft(type, draftId, fileData);
         })();

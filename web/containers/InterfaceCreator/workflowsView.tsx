@@ -10,7 +10,7 @@ import CustomDialog from '../../components/CustomDialog';
 import StepDiagram from '../../components/Diagram';
 import { Messages } from '../../constants/messages';
 import { DraftsContext } from '../../context/drafts';
-import { deleteDraft, getDraftId } from '../../helpers/functions';
+import { deleteDraft, getDraftId, getTargetFile } from '../../helpers/functions';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -112,7 +112,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
             lastStepId,
           },
           interfaceId: interfaceId.workflow[workflowIndex],
-          associatedInterface: workflow?.yaml_file,
+          associatedInterface: getTargetFile(workflow),
           isValid: isFormValid('workflow', workflowIndex),
         });
       }

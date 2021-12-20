@@ -28,6 +28,7 @@ import {
   checkPipelineCompatibility,
   deleteDraft,
   getDraftId,
+  getTargetFile,
   hasValue,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
@@ -341,6 +342,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
   useDebounce(
     () => {
       const draftId = getDraftId(pipeline, interfaceId);
+      console.log(draftId, pipeline);
       const hasChanged = pipeline
         ? some(metadata, (value, key) => {
             return !isEqual(value, pipeline[key]);
@@ -366,7 +368,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
               elements,
             },
             interfaceId,
-            associatedInterface: pipeline?.yaml_file,
+            associatedInterface: getTargetFile(pipeline),
             isValid: isDataValid(elements, false),
           },
           metadata.name
