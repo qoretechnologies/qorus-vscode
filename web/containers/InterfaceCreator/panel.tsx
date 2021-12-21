@@ -1341,7 +1341,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               )}
               <Tooltip content={t('ResetTooltip')}>
                 <Button
-                  text={t('DiscardChanges')}
+                  text={t('DiscardChangesButton')}
                   icon={'history'}
                   onClick={() => {
                     initialData.confirmAction(

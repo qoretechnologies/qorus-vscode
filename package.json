@@ -165,8 +165,8 @@
         "title": "2. Open Drafts",
         "category": "Qorus",
         "icon": {
-          "dark": "images/icons/dark/list.svg",
-          "light": "images/icons/light/list.svg"
+          "dark": "images/icons/dark/edit.svg",
+          "light": "images/icons/light/edit.svg"
         }
       },
       {
@@ -191,7 +191,7 @@
       },
       {
         "command": "qorus.views.deleteInterface",
-        "title": "3. Delete Interface",
+        "title": "4. Delete Interface",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/trash.svg",
@@ -200,7 +200,7 @@
       },
       {
         "command": "qorus.views.deployInterface",
-        "title": "2. Deploy Interface",
+        "title": "3. Deploy Interface",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/cloud-upload.svg",
@@ -214,6 +214,15 @@
         "icon": {
           "dark": "images/icons/dark/code.svg",
           "light": "images/icons/light/code.svg"
+        }
+      },
+      {
+        "command": "qorus.views.discardChanges",
+        "title": "2. Discard changes",
+        "category": "Qorus",
+        "icon": {
+          "dark": "images/icons/dark/small-cross.svg",
+          "light": "images/icons/light/small-cross.svg"
         }
       },
       {
@@ -240,8 +249,8 @@
         "title": "2. View all drafts for this interface inside the webview",
         "category": "Qorus",
         "icon": {
-          "dark": "images/icons/dark/list.svg",
-          "light": "images/icons/light/list.svg"
+          "dark": "images/icons/dark/edit.svg",
+          "light": "images/icons/light/edit.svg"
         }
       },
       {
@@ -1056,8 +1065,8 @@
         "title": "1.Delete draft",
         "category": "Qorus",
         "icon": {
-          "dark": "images/icons/dark/trash.svg",
-          "light": "images/icons/light/trash.svg"
+          "dark": "images/icons/dark/small-cross.svg",
+          "light": "images/icons/light/small-cross.svg"
         }
       },
       {
@@ -1065,8 +1074,8 @@
         "title": "3. Delete all drafts for this interface",
         "category": "Qorus",
         "icon": {
-          "dark": "images/icons/dark/trash.svg",
-          "light": "images/icons/light/trash.svg"
+          "dark": "images/icons/dark/small-cross.svg",
+          "light": "images/icons/light/small-cross.svg"
         }
       },
       {
@@ -1590,8 +1599,13 @@
           "group": "inline"
         },
         {
+          "command": "qorus.views.discardChanges",
+          "when": "view == qorusInterfaces && viewItem =~ /hasChanges/",
+          "group": "inline"
+        },
+        {
           "command": "qorus.views.openInterface",
-          "when": "view == qorusInterfaces && viewItem == interfaceWithCode",
+          "when": "view == qorusInterfaces && viewItem =~ /hasCode/",
           "group": "inline"
         },
         {

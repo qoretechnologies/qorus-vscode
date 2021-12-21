@@ -445,6 +445,8 @@ export const getTargetFile = (data: any) => {
   if (data?.target_dir && data?.target_file) {
     return path.join(data.target_dir, data.target_file);
   }
+
+  return null;
 };
 
 export const hasValue = (value) => value && value !== '';

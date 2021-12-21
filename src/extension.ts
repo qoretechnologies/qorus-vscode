@@ -6,6 +6,7 @@ import { ActionDispatcher as creator } from './interface_creator/ActionDispatche
 import { isLangClientAvailable } from './qore_vscode';
 import { deployer } from './QorusDeploy';
 import { QorusDraftsInstance } from './QorusDrafts';
+import { getTargetFile } from './QorusDraftsTree';
 import { qorusIcons } from './QorusIcons';
 import { instance_tree } from './QorusInstanceTree';
 import { interface_tree } from './QorusInterfaceTree';
@@ -251,6 +252,19 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.window.showWarningMessage(t`DeleteDraft`, t`Yes`, t`No`).then((selection) => {
       if (selection === t`Yes`) {
         QorusDraftsInstance.deleteDraftOrDrafts(data.type, data.id);
+      }
+    });
+  });
+  context.subscriptions.push(disposable);
+
+  disposable = vscode.commands.registerCommand('qorus.views.discardChanges', (data) => {
+    vscode.window.showWarningMessage(t`DiscardChanges`, t`Yes`, t`No`).then((selection) => {
+      if (selection === t`Yes`) {
+        console.log(data);
+        QorusDraftsInstance.deleteDraftOrDrafts(
+          data.type,
+          Buffer.from(getTargetFile(data.data)).toString('base64')
+        );
       }
     });
   });

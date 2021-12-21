@@ -421,7 +421,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         const draftId = getDraftId(fsm, interfaceId);
         const hasChanged = fsm
           ? some(metadata, (value, key) => {
-              return !isEqual(value, fsm[key]);
+              return !isEqual(value, key === 'groups' ? fsm[key] || [] : fsm[key]);
             }) || !isEqual(states, fsm.states)
           : true;
 

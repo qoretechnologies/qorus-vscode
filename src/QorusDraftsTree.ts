@@ -119,10 +119,7 @@ class QorusDraftItem extends TreeItem {
     const prefix = item.hasDraft ? '✏️ ' : item.isDraft ? '✏️ 🔸 ' : '';
 
     super(`${prefix} ${name}`, TreeItemCollapsibleState.None);
-
-    this.tooltip = interfaceKind
-      ? `${interfaceKind}${item.interfaceId ? `|${item.interfaceId}` : ''}`
-      : undefined;
+    this.tooltip = item.data?.desc || null;
 
     this.description = item.date ? `[${timeago(item.date)}]` : '';
     this.description += item.data?.version ? `[${item.data.version}]` : '';
@@ -142,7 +139,9 @@ class QorusDraftItem extends TreeItem {
         arguments: [interfaceKind, item.interfaceId],
       };
     } else {
-      this.contextValue = this.data.target_file ? 'interfaceWithCode' : 'interface';
+      this.contextValue = `interface${this.data.target_file ? '|hasCode' : ''}${
+        item.hasDraft ? '|hasChanges' : ''
+      }`;
       this.command = {
         title: 'Open Interface',
         command: 'qorus.views.editInterface',

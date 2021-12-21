@@ -2475,6 +2475,12 @@ msgstr "Delete all drafts? Are you sure?"
 msgid "DeleteDraft"
 msgstr "Are you sure you want to delete this draft?"
 
+msgid "DiscardChanges"
+msgstr "Are you sure you want to discard any unsaved changes?"
+
+msgid "DiscardChangesButton"
+msgstr "Discard unsaved changes"
+
 msgid "FieldsSelected"
 msgstr "Fields selected"
 

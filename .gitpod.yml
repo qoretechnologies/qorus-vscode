@@ -1,5 +1,6 @@
 tasks:
   - init: |
+      nvm install v14.18
       npm install
     command: |
       git config --global http.sslverify false

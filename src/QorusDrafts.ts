@@ -146,6 +146,9 @@ class QorusDrafts {
       interfaceKind.toLowerCase().replace(/ /g, '-'),
       interfaceId && interfaceId !== 'undefined' ? `${interfaceId}.json` : ''
     );
+
+    console.log(loc);
+
     fse
       .remove(loc)
       .then(() => {

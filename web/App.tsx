@@ -5,7 +5,7 @@ import {
   Callout,
   Classes,
   Navbar,
-  NavbarGroup
+  NavbarGroup,
 } from '@blueprintjs/core';
 import last from 'lodash/last';
 import size from 'lodash/size';
@@ -30,7 +30,7 @@ import { ErrorsContext } from './context/errors';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import { DraftsView } from './DraftsView';
-import { callBackendBasic } from './helpers/functions';
+import { callBackendBasic, getTargetFile } from './helpers/functions';
 import withErrors from './hocomponents/withErrors';
 import withFields from './hocomponents/withFields';
 import withFunctions from './hocomponents/withFunctions';
@@ -41,7 +41,7 @@ import {
   addMessageListener,
   postMessage,
   TMessageListener,
-  TPostMessage
+  TPostMessage,
 } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
@@ -172,13 +172,13 @@ const App: FunctionComponent<IApp> = ({
   ) => {
     const shouldApplyDraft = draftData ? true : draft?.interfaceKind === ifaceKind;
     // Check if draft for this interface kind exists
-    if (shouldApplyDraft || existingInterface?.yaml_file) {
+    if (shouldApplyDraft || getTargetFile(existingInterface)) {
       let draftToApply = draftData || draft;
       // Fetch the draft if the draft id is provided
       if (existingInterface) {
         const fetchedDraft = await callBackendBasic(Messages.GET_DRAFT, undefined, {
           interfaceKind: ifaceKind,
-          interfaceId: btoa(existingInterface.yaml_file),
+          interfaceId: btoa(getTargetFile(existingInterface)),
         });
 
         if (fetchedDraft.ok) {
@@ -499,15 +499,14 @@ const mapDispatchToProps = (dispatch) => ({
   },
 });
 
-export default
-  compose(
-    connect(mapStateToProps, mapDispatchToProps),
-    withInitialData(),
-    withFields(),
-    withMethods(),
-    withErrors(),
-    withFunctions(),
-    withSteps(),
-    withMapper(),
-    withGlobalOptions()
-  )(App);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  withInitialData(),
+  withFields(),
+  withMethods(),
+  withErrors(),
+  withFunctions(),
+  withSteps(),
+  withMapper(),
+  withGlobalOptions()
+)(App);
