@@ -147,8 +147,6 @@ class QorusDrafts {
       interfaceId && interfaceId !== 'undefined' ? `${interfaceId}.json` : ''
     );
 
-    console.log(loc);
-
     fse
       .remove(loc)
       .then(() => {

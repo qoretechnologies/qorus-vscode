@@ -260,7 +260,6 @@ export async function activate(context: vscode.ExtensionContext) {
   disposable = vscode.commands.registerCommand('qorus.views.discardChanges', (data) => {
     vscode.window.showWarningMessage(t`DiscardChanges`, t`Yes`, t`No`).then((selection) => {
       if (selection === t`Yes`) {
-        console.log(data);
         QorusDraftsInstance.deleteDraftOrDrafts(
           data.type,
           Buffer.from(getTargetFile(data.data)).toString('base64')
