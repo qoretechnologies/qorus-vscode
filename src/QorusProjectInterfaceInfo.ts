@@ -182,6 +182,9 @@ export class QorusProjectInterfaceInfo {
                     child['config-items'];
                 }
               }
+              if (child.children) {
+                addChildrenData(child.children);
+              }
               break;
           }
         });
