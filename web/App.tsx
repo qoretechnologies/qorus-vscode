@@ -178,7 +178,7 @@ const App: FunctionComponent<IApp> = ({
       if (existingInterface) {
         const fetchedDraft = await callBackendBasic(Messages.GET_DRAFT, undefined, {
           interfaceKind: ifaceKind,
-          interfaceId: btoa(getTargetFile(existingInterface)),
+          draftId: btoa(getTargetFile(existingInterface)),
         });
 
         if (fetchedDraft.ok) {

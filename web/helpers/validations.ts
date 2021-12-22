@@ -318,8 +318,6 @@ export const maybeParseYaml: (yaml: any) => any = (yaml) => {
     yamlCorrect = false;
   }
 
-  console.log(yamlCorrect, parsedData);
-
   if (!yamlCorrect) {
     return null;
   }
@@ -352,7 +350,6 @@ export const getValueOrDefaultValue = (value, defaultValue, canBeNull) => {
 };
 
 export const getTypeFromValue = (value: any) => {
-  console.log(value);
   if (isNull(value)) {
     return 'null';
   }

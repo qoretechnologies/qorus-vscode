@@ -438,12 +438,12 @@ export const deleteDraft = async (interfaceKind, fileName, notify?: boolean) => 
 };
 
 export const getTargetFile = (data: any) => {
-  if (data?.yaml_file) {
-    return data.yaml_file;
-  }
-
   if (data?.target_dir && data?.target_file) {
     return path.join(data.target_dir, data.target_file);
+  }
+
+  if (data?.yaml_file) {
+    return data.yaml_file;
   }
 
   return null;

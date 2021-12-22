@@ -1,8 +1,8 @@
 import * as jsyaml from 'js-yaml';
 import { flattenDeep } from 'lodash';
-import * as shortid from 'shortid';
 import { t } from 'ttag';
 import { configItemFields, defaultValue } from './interface_creator/config_item_constants';
+import { getTargetFile } from './QorusDraftsTree';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { QorusProjectYamlInfo } from './QorusProjectYamlInfo';
 import { qorus_webview } from './QorusWebview';
@@ -131,7 +131,7 @@ export class QorusProjectInterfaceInfo {
   };
 
   addIfaceById = (data: any, iface_kind: string): string => {
-    const iface_id = shortid.generate();
+    const iface_id = Buffer.from(getTargetFile(data)).toString('base64');
     this.maybeInitIfaceId({ iface_id, iface_kind });
     this.iface_by_id[iface_id] = {
       ...this.iface_by_id[iface_id],

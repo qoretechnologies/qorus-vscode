@@ -426,12 +426,15 @@ class QorusWebview {
             case 'get-draft': {
               const data = QorusDraftsInstance.getSingleDraftContent(
                 message.interfaceKind,
-                `${message.interfaceId}.json`
+                `${message.draftId}.json`
               );
 
               // Apply config items to draft if they exist
               if (data.configItems) {
-                project.interface_info.iface_by_id[data.interfaceId] = data.configItems;
+                project.interface_info.iface_by_id[data.interfaceId] = {
+                  ...(project?.interface_info?.iface_by_id?.[data.interfaceId] || {}),
+                  'config-items': data.configItems,
+                };
               }
 
               this.panel.webview.postMessage({
@@ -472,7 +475,10 @@ class QorusWebview {
                 message.iface_id,
                 {
                   ...message.fileData,
-                  configItems: project.interface_info.iface_by_id[message.fileData.interfaceId],
+                  configItems:
+                    project.interface_info.iface_by_id[message.fileData.interfaceId][
+                      'config-items'
+                    ],
                 },
                 () => {
                   this.panel.webview.postMessage({

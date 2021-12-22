@@ -1,6 +1,6 @@
 import timeago from 'epoch-timeago';
 import { capitalize, size } from 'lodash';
-import path from 'path';
+import * as path from 'path';
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from 'vscode';
 import { QorusDraftsInstance } from './QorusDrafts';
 import { qorusIcons } from './QorusIcons';
@@ -10,12 +10,12 @@ export type QorusDraftsTreeItem = QorusDraftItem | QorusDraftCategory;
 export type QorusDraftTreeItems = QorusDraftsTreeItem[];
 
 export const getTargetFile = (data: any) => {
-  if (data?.yaml_file) {
-    return data.yaml_file;
-  }
-
   if (data?.target_dir && data?.target_file) {
     return path.join(data.target_dir, data.target_file);
+  }
+
+  if (data?.yaml_file) {
+    return data.yaml_file;
   }
 
   return '';

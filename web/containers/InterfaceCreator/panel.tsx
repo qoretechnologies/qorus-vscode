@@ -322,72 +322,81 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             return;
           }
 
-          let fileData: Omit<Partial<IDraftData>, 'interfaceKind'> = {};
-
-          switch (type) {
-            case 'service':
-            case 'service-methods':
-              fileData.fields = allFields['service'][interfaceIndex];
-              fileData.selectedFields = allSelectedFields['service'][interfaceIndex];
-              fileData.methods = allFields['service-methods'][interfaceIndex];
-              fileData.selectedMethods = allSelectedFields['service-methods'][interfaceIndex];
-              fileData.isValid =
-                isFormValid('service', interfaceIndex) &&
-                isFormValid('service-methods', interfaceIndex);
-              break;
-            case 'mapper-code':
-            case 'mapper-methods':
-              fileData.fields = allFields['mapper-code'][interfaceIndex];
-              fileData.selectedFields = allSelectedFields['mapper-code'][interfaceIndex];
-              fileData.methods = allFields['mapper-methods'][interfaceIndex];
-              fileData.selectedMethods = allSelectedFields['mapper-methods'][interfaceIndex];
-              fileData.isValid =
-                isFormValid('mapper-code', interfaceIndex) &&
-                isFormValid('mapper-methods', interfaceIndex);
-              break;
-            case 'errors':
-            case 'error':
-              fileData.fields = allFields.errors[interfaceIndex];
-              fileData.selectedFields = allSelectedFields.errors[interfaceIndex];
-              fileData.methods = allFields.error[interfaceIndex];
-              fileData.selectedMethods = allSelectedFields.error[interfaceIndex];
-              fileData.isValid =
-                isFormValid('error', interfaceIndex) && isFormValid('errors', interfaceIndex);
-              break;
-            case 'mapper':
-              fileData.fields = allFields.mapper[interfaceIndex];
-              fileData.selectedFields = allSelectedFields.mapper[interfaceIndex];
-              fileData.diagram = rest.mapperData;
-              fileData.isValid =
-                isFormValid('mapper', interfaceIndex) && size(rest.mapperData.relations) > 0;
-              break;
-            case 'workflow':
-              fileData.fields = allFields['workflow'][interfaceIndex];
-              fileData.selectedFields = allSelectedFields['workflow'][interfaceIndex];
-              fileData.steps = {
-                steps,
-                stepsData,
-                lastStepId,
-              };
-              fileData.isValid = isFormValid('workflow', interfaceIndex) && size(steps) > 0;
-              break;
-            default:
-              fileData.fields = allFields[type][interfaceIndex];
-              fileData.selectedFields = allSelectedFields[type][interfaceIndex];
-              fileData.isValid = canSubmit();
-          }
-
-          fileData.classConnections = classConnectionsData;
-          fileData.interfaceId = interfaceId;
-          fileData.associatedInterface = getTargetFile(parentData || data);
-
-          await initialData.saveDraft(type, draftId, fileData);
+          updateDraft();
         })();
       }
     },
     1500,
     [selectedFields, classConnectionsData, isEditing, type]
   );
+
+  const updateDraft = async () => {
+    const draftId = getDraftId(parentData || data, interfaceId);
+
+    if (!draftId) {
+      return;
+    }
+
+    let fileData: Omit<Partial<IDraftData>, 'interfaceKind'> = {};
+
+    switch (type) {
+      case 'service':
+      case 'service-methods':
+        fileData.fields = allFields['service'][interfaceIndex];
+        fileData.selectedFields = allSelectedFields['service'][interfaceIndex];
+        fileData.methods = allFields['service-methods'][interfaceIndex];
+        fileData.selectedMethods = allSelectedFields['service-methods'][interfaceIndex];
+        fileData.isValid =
+          isFormValid('service', interfaceIndex) && isFormValid('service-methods', interfaceIndex);
+        break;
+      case 'mapper-code':
+      case 'mapper-methods':
+        fileData.fields = allFields['mapper-code'][interfaceIndex];
+        fileData.selectedFields = allSelectedFields['mapper-code'][interfaceIndex];
+        fileData.methods = allFields['mapper-methods'][interfaceIndex];
+        fileData.selectedMethods = allSelectedFields['mapper-methods'][interfaceIndex];
+        fileData.isValid =
+          isFormValid('mapper-code', interfaceIndex) &&
+          isFormValid('mapper-methods', interfaceIndex);
+        break;
+      case 'errors':
+      case 'error':
+        fileData.fields = allFields.errors[interfaceIndex];
+        fileData.selectedFields = allSelectedFields.errors[interfaceIndex];
+        fileData.methods = allFields.error[interfaceIndex];
+        fileData.selectedMethods = allSelectedFields.error[interfaceIndex];
+        fileData.isValid =
+          isFormValid('error', interfaceIndex) && isFormValid('errors', interfaceIndex);
+        break;
+      case 'mapper':
+        fileData.fields = allFields.mapper[interfaceIndex];
+        fileData.selectedFields = allSelectedFields.mapper[interfaceIndex];
+        fileData.diagram = rest.mapperData;
+        fileData.isValid =
+          isFormValid('mapper', interfaceIndex) && size(rest.mapperData.relations) > 0;
+        break;
+      case 'workflow':
+        fileData.fields = allFields['workflow'][interfaceIndex];
+        fileData.selectedFields = allSelectedFields['workflow'][interfaceIndex];
+        fileData.steps = {
+          steps,
+          stepsData,
+          lastStepId,
+        };
+        fileData.isValid = isFormValid('workflow', interfaceIndex) && size(steps) > 0;
+        break;
+      default:
+        fileData.fields = allFields[type][interfaceIndex];
+        fileData.selectedFields = allSelectedFields[type][interfaceIndex];
+        fileData.isValid = canSubmit();
+    }
+
+    fileData.classConnections = classConnectionsData;
+    fileData.interfaceId = interfaceId;
+    fileData.associatedInterface = getTargetFile(parentData || data);
+
+    await initialData.saveDraft(type, draftId, fileData);
+  };
 
   useEffect(() => {
     // Remove the current listeners
@@ -803,6 +812,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   };
 
   const handleSubmitClick: () => void = async () => {
+    // File name
+    const fileName = getDraftId(parentData || data, interfaceId);
+    // Delete the draft for this interface
+    deleteDraft(type, fileName, false);
+
     // Set the value flag for all selected fields
     setSelectedFields(
       type,
@@ -963,10 +977,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (onSubmitSuccess) {
           onSubmitSuccess(newData);
         }
-        // File name
-        const fileName = getDraftId(parentData || data, interfaceId);
-        // Delete the draft for this interface
-        deleteDraft(type, fileName, false);
         // If this is config item, reset only the fields
         // local fields will be unmounted
         if (type === 'config-item') {
@@ -1436,6 +1446,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             definitionsOnly={definitionsOnly}
             interfaceId={interfaceId}
             resetFields={resetFields}
+            onUpdate={() => updateDraft()}
             steps={processSteps(steps, stepsData)}
           />
         </CustomDialog>

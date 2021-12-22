@@ -1,5 +1,6 @@
 import set from 'lodash/set';
 import React, { FunctionComponent, useEffect, useState } from 'react';
+import { useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import shortid from 'shortid';
 import { AppToaster } from '../components/Toast';
@@ -33,6 +34,15 @@ export default () =>
       useMount(() => {
         postMessage(Messages.GET_INITIAL_DATA);
       });
+
+      useUpdateEffect(() => {
+        if (!initialData.qorus_instance?.url) {
+          setInitialData({
+            path: initialData.path,
+            tab: 'ProjectConfig',
+          });
+        }
+      }, [initialData?.qorus_instance?.url]);
 
       useEffect(() => {
         const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
