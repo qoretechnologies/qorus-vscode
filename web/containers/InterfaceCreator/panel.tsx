@@ -314,6 +314,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 return false;
               }
 
+              if (!isEqual(field.value, originalData.current[field.name])) {
+                console.log(
+                  'Field is different',
+                  field.name,
+                  field.value,
+                  originalData.current[field.name]
+                );
+              }
+
               return !isEqual(field.value, originalData.current[field.name]);
             });
           }
