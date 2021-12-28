@@ -1,6 +1,6 @@
 import { Button } from '@blueprintjs/core';
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
-import useEffectOnce from 'react-use/lib/useEffectOnce';
+import { useMount, useUnmount } from 'react-use';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
@@ -68,25 +68,11 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   const [configItems, setConfigItems] = useState<any>({});
   const initialConfigItems = useRef(null);
 
-  useEffectOnce(() => {
-    addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
-      if (!initialConfigItems.current) {
-        initialConfigItems.current = data;
-      }
-      setConfigItems(data);
-      onUpdate?.();
-    });
-    // Listen for config items data request
-    // and open the fields editing
-    addMessageListener(Messages.RETURN_CONFIG_ITEM, ({ item }) => {
-      // Transform the type of the CI
-      if (item.type.startsWith('*')) {
-        item.type = item.type.replace('*', '');
-        item.can_be_undefined = true;
-      }
-      // Set the config data
-      setConfigItemData(item);
-    });
+  useUnmount(() => {
+    console.log('Unmounting config item manager');
+  });
+
+  useMount(() => {
     // Ask for the config items
     postMessage(Messages.GET_CONFIG_ITEMS, {
       'base-class-name': baseClassName,
@@ -100,9 +86,39 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   });
 
   useEffect(() => {
-    // Check if there are any data
+    const itemsListener = addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
+      if (!initialConfigItems.current) {
+        initialConfigItems.current = data;
+      }
+      setConfigItems(data);
+      // Check if the initial config items are the same as the current config items
+      // If they are, then we don't need to update the config items
+      console.log(initialConfigItems.current, data);
+      if (JSON.stringify(initialConfigItems.current) !== JSON.stringify(data)) {
+        onUpdate?.();
+      }
+    });
+    // Listen for config items data request
+    // and open the fields editing
+    const itemListener = addMessageListener(Messages.RETURN_CONFIG_ITEM, ({ item }) => {
+      // Transform the type of the CI
+      if (item.type.startsWith('*')) {
+        item.type = item.type.replace('*', '');
+        item.can_be_undefined = true;
+      }
+      // Set the config data
+      setConfigItemData(item);
+    });
+
+    // Remove both listeners on unmount
+    return () => {
+      itemsListener();
+      itemListener();
+    };
+  });
+
+  useEffect(() => {
     if (configItemData) {
-      // Open the config item panel
       setShowConfigItemPanel(true);
     } else {
       setShowConfigItemPanel(false);

@@ -89,6 +89,10 @@ export default () =>
         };
       });
 
+      // this action is called when the user clicks the confirm button
+      /*
+      This is a function that takes a string, a function, and two optional parameters and returns a function.
+      */
       const confirmAction: (
         text: string,
         action: () => any,
@@ -158,6 +162,15 @@ export default () =>
         });
       };
 
+      /*
+      We create a unique ID for each request, and then we listen for a message with the same ID. When we receive the message, we resolve the promise.
+      */
+      /*
+      fetch data from the given url
+      Args:
+       - data
+
+      */
       const fetchData: (url: string, method: string) => Promise<any> = async (
         url,
         method = 'GET'

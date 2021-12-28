@@ -1,7 +1,7 @@
 import { Button, ButtonGroup } from '@blueprintjs/core';
 import { omit, size } from 'lodash';
 import React, { FunctionComponent, useContext, useState } from 'react';
-import { useUpdateEffect } from 'react-use';
+import { useUnmount, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
@@ -169,9 +169,13 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   }, [draft, showErrors]);
 
   useMount(() => {
-    return () => {
-      hasAllMethodsLoaded = false;
-    };
+    console.log('mounting');
+    hasAllMethodsLoaded = false;
+  });
+
+  useUnmount(() => {
+    console.log('unmounting');
+    hasAllMethodsLoaded = false;
   });
 
   return (

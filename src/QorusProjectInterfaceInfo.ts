@@ -26,6 +26,9 @@ export class QorusProjectInterfaceInfo {
 
   private hasSpecificData = (iface_kind) => ['fsm', 'pipeline'].includes(iface_kind);
 
+  /**
+   * If the interface is a pipeline, return the processor id. If the interface is a state machine, return the state id. Otherwise, return undefined.
+   */
   private specificDataId = (iface_kind, state_id, processor_id) => {
     switch (iface_kind) {
       case 'fsm':
@@ -43,6 +46,9 @@ export class QorusProjectInterfaceInfo {
     return undefined;
   };
 
+  /**
+   * If we haven't seen this interface before, we'll create a new object for it. If we have seen it before, we'll just reference the existing object.
+   */
   private maybeInitIfaceId = ({
     iface_id,
     iface_kind,
@@ -77,6 +83,9 @@ export class QorusProjectInterfaceInfo {
     }
   };
 
+  /**
+   * If the interface type has specific data, then reset the config items to the original config items for the specific data. Otherwise, reset the config items to the original config items for the interface.
+   */
   resetConfigItemsToOrig = ({ iface_id, state_id, processor_id }) => {
     if (!this.checkIfaceId(iface_id)) {
       return;
@@ -97,6 +106,10 @@ export class QorusProjectInterfaceInfo {
     }
   };
 
+  /**
+   * If the interface has specific data, then the specific data has a config-items property. If the interface has specific data, then the specific data has a config-items property.
+   */
+  // set the original config items for an interface
   setOrigConfigItems = (
     { iface_id, state_id = undefined, processor_id = undefined },
     report_unknown_iface_id = true
@@ -120,6 +133,10 @@ export class QorusProjectInterfaceInfo {
     }
   };
 
+  // check if an interface id is known
+  /**
+   * "This is a function that checks if the iface_id is valid."
+   */
   private checkIfaceId = (iface_id, report_unknown_iface_id = true): boolean => {
     if (!this.iface_by_id[iface_id]) {
       if (report_unknown_iface_id) {
@@ -130,6 +147,17 @@ export class QorusProjectInterfaceInfo {
     return true;
   };
 
+  /**
+   * "Add an interface to the
+   * iface_by_id map, and add the interface's specific data to the
+   * specific_data_by_id map."
+   */
+  /*
+  add interface by id
+  Args:
+   - states:{  }={  }
+
+  */
   addIfaceById = (data: any, iface_kind: string): string => {
     const iface_id = Buffer.from(getTargetFile(data)).toString('base64');
     this.maybeInitIfaceId({ iface_id, iface_kind });
@@ -331,6 +359,16 @@ export class QorusProjectInterfaceInfo {
     this.getConfigItems({ iface_id, iface_kind, state_data, processor_data });
   };
 
+  /**
+   * When the user clicks on the "Update" button, the "updateConfigItem" function is called. The function takes the following arguments:
+   *
+   * iface_id: The id of the interface that the user is editing.
+   * iface_kind: The kind of interface that the user is editing.
+   * data: The data that the user has entered into the interface.
+   * request_id: The id of the request that the user is making.
+   * edit_type: The type of edit that the user is making.
+   * state_id: The id of the state that the user
+   */
   updateConfigItem = ({
     iface_id,
     iface_kind,
@@ -509,6 +547,9 @@ export class QorusProjectInterfaceInfo {
     return { ...inherited_item, ...this_item };
   };
 
+  /**
+   * For each class, add the config items from the class's YAML file to the interface.
+   */
   private addClassConfigItems = (iface_id, class_name, prefix?, specific_data_id?) => {
     const class_yaml_data = this.yaml_info.yamlDataByName('class', class_name);
     if (!class_yaml_data) {

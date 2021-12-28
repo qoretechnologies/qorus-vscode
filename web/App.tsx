@@ -501,8 +501,8 @@ const mapDispatchToProps = (dispatch) => ({
 
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
-  withInitialData(),
   withFields(),
+  withInitialData(),
   withMethods(),
   withErrors(),
   withFunctions(),

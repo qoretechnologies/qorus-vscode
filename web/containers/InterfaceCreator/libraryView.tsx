@@ -1,7 +1,7 @@
 import { Button, ButtonGroup } from '@blueprintjs/core';
 import { omit, size } from 'lodash';
 import React, { FunctionComponent, useContext, useState } from 'react';
-import { useUpdateEffect } from 'react-use';
+import { useMount, useUnmount, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
@@ -12,6 +12,8 @@ import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
 import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper } from './panel';
+
+let hasAllMethodsLoaded: boolean;
 
 const MethodSelector = styled.div`
   width: 100%;
@@ -132,7 +134,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
   t,
   isSubItemValid,
   removeSubItemFromFields,
-  initialData: { 'mapper-code': library, lang_client_unavailable },
+  initialData: { 'mapper-code': library },
   interfaceId,
   onSubmitSuccess,
 }) => {
@@ -151,6 +153,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     setShowFunctions,
     functionsData,
     initialShowFunctions,
+    lastFunctionId,
   }: any = React.useContext(FunctionsContext);
 
   useUpdateEffect(() => {
@@ -158,6 +161,19 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
       maybeApplyDraft('mapper-code', null, library);
     }
   }, [draft, showFunctions]);
+
+  /*
+  Using the useMount hook to run a function when the component is mounted.
+  */
+  useMount(() => {
+    console.log('mounting');
+    hasAllMethodsLoaded = false;
+  });
+
+  useUnmount(() => {
+    console.log('unmounting');
+    hasAllMethodsLoaded = false;
+  });
 
   return (
     <CreatorWrapper>
@@ -198,7 +214,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                       <Selected />
                     </>
                   )}
-                  {functionsCount !== 1 && !lang_client_unavailable ? (
+                  {functionsCount !== 1 ? (
                     <RemoveButton
                       onClick={() => {
                         setFunctions((current) =>
@@ -214,12 +230,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
             </ContentWrapper>
             <ActionsWrapper>
               <ButtonGroup fill>
-                <Button
-                  text={t('AddFunction')}
-                  icon={'plus'}
-                  onClick={handleAddFunctionClick}
-                  disabled={lang_client_unavailable}
-                />
+                <Button text={t('AddFunction')} icon={'plus'} onClick={handleAddFunctionClick} />
               </ButtonGroup>
             </ActionsWrapper>
           </SidePanel>
@@ -228,18 +239,32 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
             stepOneTitle={t('SelectFieldsSecondStep')}
             stepTwoTitle={t('FillDataThirdStep')}
             onBackClick={() => {
+              hasAllMethodsLoaded = false;
               setActiveFunction(1);
               setShowFunctions(false);
             }}
             initialInterfaceId={
               library ? library.interfaceId : interfaceId['mapper-code'][interfaceIndex]
             }
+            onDataFinishLoadingRecur={(id) => {
+              if (!hasAllMethodsLoaded) {
+                if ((id || 1) + 1 <= lastFunctionId && !hasAllMethodsLoaded) {
+                  setActiveFunction(id + 1);
+                } else {
+                  hasAllMethodsLoaded = true;
+                  setActiveFunction(1);
+                }
+              }
+            }}
             type="mapper-methods"
             activeId={activeFunction}
             isEditing={!!library}
             allMethodsData={functionsData}
             methodsList={functions}
             onSubmitSuccess={onSubmitSuccess}
+            onSubmit={() => {
+              hasAllMethodsLoaded = false;
+            }}
             data={functionsData && functionsData.find((fun) => fun.id === activeFunction)}
             parentData={library}
             onNameChange={(functionId: number, name: string) => {

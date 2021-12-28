@@ -111,6 +111,103 @@ export default () =>
         'value-map': [],
       });
 
+      const resetAllData = () => {
+        _setInterfaceId({
+          service: [],
+          error: [],
+          errors: [],
+          ['mapper-code']: [],
+          ['service-methods']: [],
+          ['mapper-methods']: [],
+          workflow: [],
+          job: [],
+          class: [],
+          step: [],
+          group: [],
+          event: [],
+          queue: [],
+          mapper: [],
+          ['config-item']: [],
+          'value-map': [],
+        });
+
+        setLocalFields({
+          service: [],
+          error: [],
+          errors: [],
+          ['mapper-code']: [],
+          ['service-methods']: [],
+          ['mapper-methods']: [],
+          workflow: [],
+          job: [],
+          class: [],
+          step: [],
+          ['config-item']: [],
+          group: [],
+          event: [],
+          queue: [],
+          mapper: [],
+          'value-map': [],
+        });
+
+        setLocalSelectedFields({
+          service: [],
+          error: [],
+          errors: [],
+          ['mapper-code']: [],
+          ['service-methods']: [],
+          ['mapper-methods']: [],
+          workflow: [],
+          job: [],
+          class: [],
+          step: [],
+          ['config-item']: [],
+          group: [],
+          event: [],
+          queue: [],
+          mapper: [],
+          'value-map': [],
+        });
+
+        setLocalQuery({
+          service: [],
+          error: [],
+          errors: [],
+          ['mapper-code']: [],
+          ['service-methods']: [],
+          ['mapper-methods']: [],
+          workflow: [],
+          job: [],
+          class: [],
+          step: [],
+          ['config-item']: [],
+          group: [],
+          event: [],
+          queue: [],
+          mapper: [],
+          'value-map': [],
+        });
+
+        setLocalSelectedQuery({
+          service: [],
+          error: [],
+          errors: [],
+          ['service-methods']: [],
+          workflow: [],
+          ['mapper-methods']: [],
+          ['mapper-code']: [],
+          job: [],
+          class: [],
+          step: [],
+          ['config-item']: [],
+          group: [],
+          event: [],
+          queue: [],
+          mapper: [],
+          'value-map': [],
+        });
+      };
+
       const getSelectedFields = (type: string, interfaceIndex?: number) => {
         const index = getInterfaceIndex(type, interfaceIndex);
 
@@ -448,6 +545,7 @@ export default () =>
             getSelectedFields,
             getSelectedFieldValue,
             setFieldsFromDraft,
+            resetAllData,
           }}
         >
           <Component {...props} />

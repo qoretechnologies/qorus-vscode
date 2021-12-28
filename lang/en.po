@@ -2245,10 +2245,10 @@ msgid "NoInstance"
 msgstr "This item can only be created with an active Qorus instance selected"
 
 msgid "AddFunctionsTitle"
-msgstr "1. Add new methods"
+msgstr "1. Add new functions"
 
 msgid "AddFunction"
-msgstr "Add method"
+msgstr "Add function"
 
 msgid "MapperCodeNotFound ${ name }"
 msgstr "Mapper code '${ name }' not found"

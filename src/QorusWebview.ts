@@ -476,7 +476,7 @@ class QorusWebview {
                 {
                   ...message.fileData,
                   configItems:
-                    project.interface_info.iface_by_id[message.fileData.interfaceId][
+                    project.interface_info.iface_by_id?.[message.fileData.interfaceId]?.[
                       'config-items'
                     ],
                 },
@@ -518,6 +518,7 @@ class QorusWebview {
     if (!this.panel) {
       return;
     }
+
     for (const message of messages) {
       this.panel.webview.postMessage(message);
     }
