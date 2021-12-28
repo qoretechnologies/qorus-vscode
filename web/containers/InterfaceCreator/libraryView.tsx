@@ -265,6 +265,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
             onSubmit={() => {
               hasAllMethodsLoaded = false;
             }}
+            forceSubmit
             data={functionsData && functionsData.find((fun) => fun.id === activeFunction)}
             parentData={library}
             onNameChange={(functionId: number, name: string) => {
