@@ -629,6 +629,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     }
   };
 
+  /*
+  When the user removes a field, we need to remove it from the interface
+  definition and from the selected fields.
+  */
   const removeField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
     // If mapper code was removed, try to remove relations
     if (type === 'mapper' && fieldName === 'codes') {
@@ -706,6 +710,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     addField(fieldName);
   };
 
+  /*
+  We get the field name, the value, the type, and the canBeNull flag. We then
+  check if the field is prefilled by other fields. If it is, we update the value
+  of the prefilled fields. We then check if the field needs style changes. If it
+  does, we change the value based on the style. We then validate the field. If
+  it is valid, we update the value. If it is not valid, we don't update the
+  value. We then check if the field name is "name". If it is, we change the name
+  of the method
+  */
   const handleFieldChange: (
     fieldName: string,
     value: any,
@@ -820,6 +833,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     });
   };
 
+  /*
+  We get the interface ID from the parent data, delete the draft for this
+  interface, set the value flag for all selected fields, and then call the
+  submit function.
+  */
   const handleSubmitClick: () => void = async () => {
     // File name
     const fileName = getDraftId(parentData || data, interfaceId);

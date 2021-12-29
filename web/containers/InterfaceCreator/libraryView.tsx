@@ -247,6 +247,9 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
               library ? library.interfaceId : interfaceId['mapper-code'][interfaceIndex]
             }
             onDataFinishLoadingRecur={(id) => {
+              console.log('hasAllMethodsLoaded', hasAllMethodsLoaded);
+              console.log('id', id);
+              console.log('lastFunctionId', lastFunctionId);
               if (!hasAllMethodsLoaded) {
                 if ((id || 1) + 1 <= lastFunctionId && !hasAllMethodsLoaded) {
                   setActiveFunction(id + 1);

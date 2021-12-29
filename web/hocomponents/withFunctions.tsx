@@ -16,6 +16,9 @@ export default () =>
       const [activeFunction, setActiveFunction] = useState<any>(1);
       const [functionsData, setFunctionsData] = useState(props.functionsData);
 
+      /*
+      "Reset the mapper methods."
+      */
       const resetMapperMethods = () => {
         setShowFunctions(false);
         setFunctions([{ id: 1 }]);
@@ -24,6 +27,9 @@ export default () =>
         setActiveFunction(null);
       };
 
+      /*
+      "Set the functions from the draft."
+      */
       const setFunctionsFromDraft = (funcs) => {
         const funcsList = map(funcs, (methodFields, methodId) => ({
           name: getNameFromFields(methodFields, methodId),
@@ -48,8 +54,12 @@ export default () =>
         }
       }, [functionsCount]);
 
+      /*
+      The `handleAddFunctionClick` function is called when the user clicks the
+      `Add Function` button. It adds a new function to the `functions` array and
+      increments the `functionsCount` variable.
+      */
       const handleAddFunctionClick: () => void = () => {
-        // Add new function id
         setLastFunctionId((current) => current + 1);
         setFunctions((current: any[]) => [...current, { id: lastFunctionId + 1 }]);
         setFunctionsCount((current: number) => current + 1);
@@ -70,6 +80,7 @@ export default () =>
             functionsData,
             resetMapperMethods,
             setFunctionsFromDraft,
+            lastFunctionId,
           }}
         >
           <Component {...props} />
