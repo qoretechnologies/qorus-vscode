@@ -165,12 +165,10 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   }: any = useContext<any>(MethodsContext);
 
   useMount(() => {
-    console.log('mounting');
     hasAllMethodsLoaded = false;
   });
 
   useUnmount(() => {
-    console.log('unmounting');
     hasAllMethodsLoaded = false;
   });
 

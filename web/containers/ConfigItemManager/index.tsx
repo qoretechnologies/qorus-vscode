@@ -1,6 +1,6 @@
 import { Button } from '@blueprintjs/core';
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
-import { useMount, useUnmount } from 'react-use';
+import { useMount } from 'react-use';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
@@ -68,10 +68,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   const [configItems, setConfigItems] = useState<any>({});
   const initialConfigItems = useRef(null);
 
-  useUnmount(() => {
-    console.log('Unmounting config item manager');
-  });
-
   useMount(() => {
     // Ask for the config items
     postMessage(Messages.GET_CONFIG_ITEMS, {
@@ -93,7 +89,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
       setConfigItems(data);
       // Check if the initial config items are the same as the current config items
       // If they are, then we don't need to update the config items
-      console.log(initialConfigItems.current, data);
       if (JSON.stringify(initialConfigItems.current) !== JSON.stringify(data)) {
         onUpdate?.();
       }

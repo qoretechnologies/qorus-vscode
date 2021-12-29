@@ -154,6 +154,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     functionsData,
     initialShowFunctions,
     lastFunctionId,
+    initialActiveFunction,
   }: any = React.useContext(FunctionsContext);
 
   useUpdateEffect(() => {
@@ -166,12 +167,10 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
   Using the useMount hook to run a function when the component is mounted.
   */
   useMount(() => {
-    console.log('mounting');
     hasAllMethodsLoaded = false;
   });
 
   useUnmount(() => {
-    console.log('unmounting');
     hasAllMethodsLoaded = false;
   });
 
@@ -247,15 +246,12 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
               library ? library.interfaceId : interfaceId['mapper-code'][interfaceIndex]
             }
             onDataFinishLoadingRecur={(id) => {
-              console.log('hasAllMethodsLoaded', hasAllMethodsLoaded);
-              console.log('id', id);
-              console.log('lastFunctionId', lastFunctionId);
               if (!hasAllMethodsLoaded) {
                 if ((id || 1) + 1 <= lastFunctionId && !hasAllMethodsLoaded) {
                   setActiveFunction(id + 1);
                 } else {
                   hasAllMethodsLoaded = true;
-                  setActiveFunction(1);
+                  setActiveFunction(initialActiveFunction);
                 }
               }
             }}

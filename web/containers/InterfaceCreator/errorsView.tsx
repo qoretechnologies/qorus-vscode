@@ -169,12 +169,10 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   }, [draft, showErrors]);
 
   useMount(() => {
-    console.log('mounting');
     hasAllMethodsLoaded = false;
   });
 
   useUnmount(() => {
-    console.log('unmounting');
     hasAllMethodsLoaded = false;
   });
 

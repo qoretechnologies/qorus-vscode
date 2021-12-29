@@ -80,6 +80,8 @@ export default () =>
             functionsData,
             resetMapperMethods,
             setFunctionsFromDraft,
+            initialActiveFunction: props.initialFunctionId,
+            initialShowFunctions: props.initialShowFunctions,
             lastFunctionId,
           }}
         >
@@ -100,10 +102,10 @@ export default () =>
       initialFunctionId:
         mapperCode && mapperCode['mapper-methods'] ? size(mapperCode['mapper-methods']) : 1,
       // If function is being edited, switch to it
-      initialActiveFunctionId: (mapperCode && mapperCode.active_method) || null,
+      initialActiveFunctionId: (mapperCode && mapperCode.active_method) || 1,
       // Set to show functions if active function
       // is being edited
-      initialShowFunctions: false,
+      initialShowFunctions: !!(mapperCode && mapperCode.active_method),
       // Map the ids to the current function data
       // to know which function belongs to which id
       // in the function selector
