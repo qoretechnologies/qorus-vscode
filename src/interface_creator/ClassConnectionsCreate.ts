@@ -252,7 +252,7 @@ export class ClassConnectionsCreate {
                 this.connections[connection].some((connector) => !!connector.mapper)
             )
         ) {
-            imports.push('import qore.Mapper.Mapper;');
+            imports.push('import qoremod.Mapper.Mapper;');
         }
 
         // qore imports
