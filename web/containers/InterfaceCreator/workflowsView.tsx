@@ -83,13 +83,13 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
 
   useEffect(() => {
-    if (showSteps) {
-      postMessage(Messages.GET_CONFIG_ITEMS, {
-        iface_id: interfaceId.workflow[workflowIndex],
-        iface_kind: 'workflow',
-        steps: size(steps) ? processSteps(steps, stepsData) : undefined,
-      });
-    }
+    // if (showSteps) {
+    //   postMessage(Messages.GET_CONFIG_ITEMS, {
+    //     iface_id: interfaceId.workflow[workflowIndex],
+    //     iface_kind: 'workflow',
+    //     steps: size(steps) ? processSteps(steps, stepsData) : undefined,
+    //   });
+    // }
   }, [showSteps]);
 
   useUpdateEffect(() => {
@@ -134,13 +134,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
           }}
           data={workflow && omit(workflow, 'steps')}
           isEditing={!!workflow}
-          onDataFinishLoading={
-            workflow && workflow.show_steps
-              ? () => {
-                  setShowSteps(true);
-                }
-              : null
-          }
         />
       )}
       {showSteps && (
@@ -181,9 +174,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                       text={t('Back')}
                       icon={'undo'}
                       onClick={() => {
-                        if (workflow) {
-                          initialData.changeInitialData('workflow.show_steps', false);
-                        }
                         setShowSteps(false);
                       }}
                     />

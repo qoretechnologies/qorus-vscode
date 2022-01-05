@@ -32,6 +32,13 @@
     "color": "#333333",
     "theme": "dark"
   },
+  "quokka": {
+    "babel": {
+      "presets": [
+        "env"
+      ]
+    }
+  },
   "keywords": [
     "qore",
     "qorus",

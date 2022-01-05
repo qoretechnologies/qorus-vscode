@@ -38,7 +38,7 @@ export default () =>
       useUpdateEffect(() => {
         if (!initialData.qorus_instance?.url) {
           setInitialData({
-            path: initialData.path,
+            image_path: initialData.image_path,
             tab: 'ProjectConfig',
           });
         }

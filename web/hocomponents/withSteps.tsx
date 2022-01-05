@@ -1,7 +1,6 @@
-import { isArray, reduce } from 'lodash';
+import { cloneDeep, isArray, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { FunctionComponent, useEffect, useState } from 'react';
-import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import { Messages } from '../constants/messages';
@@ -21,7 +20,7 @@ export default () =>
       const [showSteps, setShowSteps] = useState<boolean>(false);
       const [steps, setSteps] = useState<any[]>(initialSteps);
       const [stepsData, setStepsData] = useState(props.initialStepsData);
-      const [parsedSteps, setParsedSteps] = useState<any[]>(stepsParser.processSteps(initialSteps));
+      const [parsedSteps, setParsedSteps] = useState<any>({});
       const [highlightedSteps, setHighlightedSteps] =
         useState<{ level: number; groupId: string }>(null);
       const [highlightedStepGroupIds, setHighlightedStepGroupIds] = useState<number[]>(null);
@@ -47,19 +46,6 @@ export default () =>
         setLastStepId(lastStepId);
       };
 
-      useMount(() => {
-        if (initialSteps) {
-          props.postMessage(Messages.GET_CONFIG_ITEMS, {
-            iface_kind: 'workflow',
-            iface_id: props.workflow?.iface_id || props.interfaceId.workflow,
-            steps: processSteps(initialSteps, props.initialStepsData),
-          });
-          setSteps(initialSteps);
-          setStepsData(props.initialStepsData);
-          setParsedSteps(stepsParser.processSteps(initialSteps));
-        }
-      });
-
       useEffect(() => {
         if (size(steps) && size(stepsData)) {
           props.postMessage(Messages.GET_CONFIG_ITEMS, {
@@ -69,6 +55,20 @@ export default () =>
           });
         }
       }, [steps, stepsData]);
+
+      // Parse the steps when the steps change
+      useEffect(() => {
+        if (size(initialSteps)) {
+          props.postMessage(Messages.GET_CONFIG_ITEMS, {
+            iface_kind: 'workflow',
+            iface_id: props.workflow?.iface_id || props.interfaceId.workflow,
+            steps: processSteps(initialSteps, props.initialStepsData),
+          });
+          setSteps(initialSteps);
+          setStepsData(props.initialStepsData);
+          setParsedSteps(stepsParser.processSteps(cloneDeep([...initialSteps])));
+        }
+      }, [JSON.stringify(initialSteps)]);
 
       const insertNewStep: (
         stepId: number,

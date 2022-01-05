@@ -1,6 +1,7 @@
 import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
 import { capitalize, forEach, size } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
+import { useUnmount } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
@@ -267,6 +268,11 @@ const Tab: React.FC<ITabProps> = ({
     return () => {
       recreateListener();
     };
+  });
+
+  useUnmount(() => {
+    // Remove the associated type interface from initial data
+    resetAllInterfaceData(type);
   });
 
   useEffect(() => {
