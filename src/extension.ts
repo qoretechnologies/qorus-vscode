@@ -28,6 +28,7 @@ import * as msg from './qorus_message';
 import { dash2Pascal } from './qorus_utils';
 import { registerQorusViewsCommands } from './qorus_views_commands';
 import { qorus_vscode } from './qorus_vscode';
+const md5 = require('md5');
 
 qorus_locale.setLocale();
 
@@ -260,10 +261,7 @@ export async function activate(context: vscode.ExtensionContext) {
   disposable = vscode.commands.registerCommand('qorus.views.discardChanges', (data) => {
     vscode.window.showWarningMessage(t`DiscardChanges`, t`Yes`, t`No`).then((selection) => {
       if (selection === t`Yes`) {
-        QorusDraftsInstance.deleteDraftOrDrafts(
-          data.type,
-          Buffer.from(getTargetFile(data.data)).toString('base64')
-        );
+        QorusDraftsInstance.deleteDraftOrDrafts(data.type, md5(getTargetFile(data.data)));
       }
     });
   });

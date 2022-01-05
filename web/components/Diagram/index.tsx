@@ -866,6 +866,7 @@ const StepDialog = ({ step, onClose, onSubmit, title, stepName }) => {
       onClose={onClose}
       style={{
         paddingBottom: 0,
+        width: '90vw',
       }}
     >
       <Content style={{ padding: 10, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>

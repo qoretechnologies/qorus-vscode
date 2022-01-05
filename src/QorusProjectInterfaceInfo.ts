@@ -9,6 +9,7 @@ import { qorus_webview } from './QorusWebview';
 import { default_version } from './qorus_constants';
 import * as msg from './qorus_message';
 import { deepCopy, hasConfigItems } from './qorus_utils';
+const md5 = require('md5');
 
 export class QorusProjectInterfaceInfo {
   private code_info: QorusProjectCodeInfo;
@@ -159,7 +160,7 @@ export class QorusProjectInterfaceInfo {
 
   */
   addIfaceById = (data: any, iface_kind: string): string => {
-    const iface_id = Buffer.from(getTargetFile(data)).toString('base64');
+    const iface_id = md5(getTargetFile(data));
     this.maybeInitIfaceId({ iface_id, iface_kind });
     this.iface_by_id[iface_id] = {
       ...this.iface_by_id[iface_id],

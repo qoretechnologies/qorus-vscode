@@ -841,9 +841,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   const handleSubmitClick: () => void = async () => {
     // File name
     const fileName = getDraftId(parentData || data, interfaceId);
-    // Delete the draft for this interface
-    deleteDraft(type, fileName, false);
-
     // Set the value flag for all selected fields
     setSelectedFields(
       type,
@@ -870,6 +867,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     let result;
 
     if (!onSubmit || forceSubmit) {
+      // Delete the draft for this interface
+      deleteDraft(type, fileName, false);
+
       let newData: { [key: string]: any };
       // If this is service methods
       if (type === 'service-methods' || type === 'mapper-methods' || type === 'error') {

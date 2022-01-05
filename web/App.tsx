@@ -48,6 +48,7 @@ import withSteps from './hocomponents/withSteps';
 import { LoginContainer } from './login/Login';
 import ProjectConfig from './project_config/ProjectConfig';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
+const md5 = require('md5');
 
 const StyledApp = styled.div`
   display: flex;
@@ -178,7 +179,7 @@ const App: FunctionComponent<IApp> = ({
       if (existingInterface) {
         const fetchedDraft = await callBackendBasic(Messages.GET_DRAFT, undefined, {
           interfaceKind: ifaceKind,
-          draftId: btoa(getTargetFile(existingInterface)),
+          draftId: md5(getTargetFile(existingInterface)),
         });
 
         if (fetchedDraft.ok) {

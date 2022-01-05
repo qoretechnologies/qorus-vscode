@@ -19,6 +19,7 @@ import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
 import { IFSMState, IFSMStates, IFSMTransition } from '../containers/InterfaceCreator/fsm';
 import { addMessageListener, postMessage } from '../hocomponents/withMessageHandler';
+const md5 = require('md5');
 
 const functionOrStringExp: Function = (item: Function | string, ...itemArguments) =>
   typeof item === 'function' ? item(...itemArguments) : item;
@@ -388,40 +389,43 @@ export const checkPipelineCompatibility = async (elements, inputProvider) => {
   return newElements;
 };
 
-const fetchData: (url: string, method: string, body?: { [key: string]: any }) => Promise<any> =
-  async (url, method = 'GET', body) => {
-    // Create the unique ID for this request
-    const uniqueId: string = shortid.generate();
+const fetchData: (
+  url: string,
+  method: string,
+  body?: { [key: string]: any }
+) => Promise<any> = async (url, method = 'GET', body) => {
+  // Create the unique ID for this request
+  const uniqueId: string = shortid.generate();
 
-    return new Promise((resolve, reject) => {
-      // Create a timeout that will reject the request
-      // after 2 minutes
-      let timeout: NodeJS.Timer | null = setTimeout(() => {
-        reject({
-          error: true,
-          msg: 'Request timed out',
-        });
-      }, 120000);
-      // Watch for the request to complete
-      // if the ID matches then resolve
-      const listener = addMessageListener('fetch-data-complete', (data) => {
-        if (data.id === uniqueId) {
-          clearTimeout(timeout);
-          timeout = null;
-          resolve(data);
-          //* Remove the listener after the call is done
-          listener();
-        }
+  return new Promise((resolve, reject) => {
+    // Create a timeout that will reject the request
+    // after 2 minutes
+    let timeout: NodeJS.Timer | null = setTimeout(() => {
+      reject({
+        error: true,
+        msg: 'Request timed out',
       });
-      // Fetch the data
-      postMessage('fetch-data', {
-        id: uniqueId,
-        url,
-        method,
-        body,
-      });
+    }, 120000);
+    // Watch for the request to complete
+    // if the ID matches then resolve
+    const listener = addMessageListener('fetch-data-complete', (data) => {
+      if (data.id === uniqueId) {
+        clearTimeout(timeout);
+        timeout = null;
+        resolve(data);
+        //* Remove the listener after the call is done
+        listener();
+      }
     });
-  };
+    // Fetch the data
+    postMessage('fetch-data', {
+      id: uniqueId,
+      url,
+      method,
+      body,
+    });
+  });
+};
 
 export { functionOrStringExp, getType };
 
@@ -452,7 +456,7 @@ export const getTargetFile = (data: any) => {
 export const hasValue = (value) => value && value !== '';
 export const getDraftId = (data, interfaceId) => {
   if (data && getTargetFile(data)) {
-    return btoa(getTargetFile(data));
+    return md5(getTargetFile(data));
   }
 
   return interfaceId;

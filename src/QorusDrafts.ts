@@ -5,6 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { drafts_tree } from './QorusDraftsTree';
+const md5 = require('md5');
 
 export const getOs = () => {
   switch (os.platform()) {
@@ -40,7 +41,7 @@ class QorusDrafts {
 
     return path.join(
       draftFilesLocation[os],
-      Buffer.from(vscode.workspace.workspaceFolders[0].uri.toString()).toString('base64')
+      md5(vscode.workspace.workspaceFolders[0].uri.toString())
     );
   }
 
