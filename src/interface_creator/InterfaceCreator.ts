@@ -375,6 +375,7 @@ export abstract class InterfaceCreator {
         const orig_base_class_name = orig_data['base-class-name'];
         const class_name = header_data['class-name'];
         const base_class_name = header_data['base-class-name'];
+        //msg.info(t`renameClassAndBaseClass orig_data: ${JSON.stringify(orig_data)}`);
 
         const {
             class_name_range,
@@ -514,6 +515,22 @@ export abstract class InterfaceCreator {
 
         if (class_name !== orig_class_name) {
             replace(class_name_range.start, orig_class_name, class_name);
+
+            // issue #904: rename Java constructor
+            if (orig_data['lang'] == 'java') {
+                // get orig constructor string
+                const java_cons_str: string = orig_class_name + "() throws Throwable";
+                // search the class source for the Java constructor until found
+                for (let n = first_base_class_line + 1; n <= last_class_line; ++n) {
+                    // if we found the Java constructor
+                    if (lines[n].includes(java_cons_str)) {
+                        // replace the constructor name
+                        lines[n] = lines[n].replace(orig_class_name, class_name);
+                        // stop searching after replacing the constructor name
+                        break;
+                    }
+                }
+            }
         }
         return lines;
     }

@@ -4,6 +4,19 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
 
+## Version 3.0 overview - What's new:
+
+-   Automatic draft management for all objects; never lose work again due to the IDE resetting its state; drafts are saved of any edits made and can be managed directly in the IDE as well
+-   fixed a bug where selecting an incompatible mapper in a pipeline dialog would result in an unusuable dialog
+-   fixed a bug where it was impossible to add service methods to a service in certain situations
+-   fixed a bug where it was not possible to enter in a config item string value with newlines
+-   fixed a bug where it was not possible to save a config item value in an FSM connector with type `any`
+-   fixed a bug where the job schedule was reset to a default value every time a job was opened
+-   fixed a bug in the Qorus connections page where icons were lost when the active connection was lost
+-   fixed a bug where the IDE would remain on the login page after a successful login
+-   fixed a bug where the step modal dialog in the workflow diagrm view had a horizontal scroll bar with steps with very long names
+-   fixed a bug where the Java constructor name was not renamed when the object class name was changed
+
 ## Version 2.3.25 overview - What's new:
 
 -   Fixed indentation for tags in generated YAML files
