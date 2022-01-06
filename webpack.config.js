@@ -20,7 +20,7 @@ let webpackConfig = {
         path: `${root}/dist`,
         filename: '[name].bundle.js',
         chunkFilename: '[name].bundle.js',
-        publicPath: 'http://localhost:9876/',
+        publicPath: 'https://9876-black-marmoset-d720tsvs.ws-eu23.gitpod.io',
         pathinfo: false,
     },
     resolve: {
@@ -97,7 +97,7 @@ if (process.env.NODE_ENV === 'development') {
     webpackConfig = merge(webpackConfig, {
         entry: {
             webview: [
-                'webpack-hot-middleware/client?noInfo=false&reload=true&path=http://localhost:9876/__webpack_hmr',
+                'webpack-hot-middleware/client?noInfo=false&reload=true&path=https://9876-black-marmoset-d720tsvs.ws-eu23.gitpod.io/__webpack_hmr',
                 `${root}/web/index.tsx`,
             ],
         },

@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 3.0
+
+#### New Features
+
+-   Automatic draft management for all objects; never lose work again due to the IDE resetting its state; drafts are saved of any edits made and can be managed directly in the IDE as well
+
+#### Bug fixes
+
+-   fixed a bug where selecting an incompatible mapper in a pipeline dialog would result in an unusuable dialog
+-   fixed a bug where it was impossible to add service methods to a service in certain situations
+-   fixed a bug where it was not possible to enter in a config item string value with newlines
+-   fixed a bug where it was not possible to save a config item value in an FSM connector with type `any`
+-   fixed a bug where the job schedule was reset to a default value every time a job was opened
+-   fixed a bug in the Qorus connections page where icons were lost when the active connection was lost
+-   fixed a bug where the IDE would remain on the login page after a successful login
+-   fixed a bug where the step modal dialog in the workflow diagrm view had a horizontal scroll bar with steps with very long names
+-   fixed a bug where the Java constructor name was not renamed when the object class name was changed
+
 ## 2.3.25
 
 #### Bug Fixes

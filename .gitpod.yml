@@ -1,0 +1,21 @@
+vscode:
+  extensions:
+    - oderwat.indent-rainbow
+    - mintlify.document
+    - streetsidesoftware.code-spell-checker
+    - tombonnike.vscode-status-bar-format-toggle
+    - github.copilot
+    - eamodio.gitlens
+    - fivepointseven.node-version
+    - esbenp.prettier-vscode
+    - wallabyjs.quokka-vscode
+    - visualstudioexptteam.vscodeintellicode
+    - styled-components.vscode-styled-components
+tasks:
+  - init: |
+      nvm install v14.18
+      npm install
+    command: |
+      nvm install v14.18
+      git config --global http.sslverify false
+      npm run start

@@ -2245,10 +2245,10 @@ msgid "NoInstance"
 msgstr "This item can only be created with an active Qorus instance selected"
 
 msgid "AddFunctionsTitle"
-msgstr "1. Add new methods"
+msgstr "1. Add new functions"
 
 msgid "AddFunction"
-msgstr "Add method"
+msgstr "Add function"
 
 msgid "MapperCodeNotFound ${ name }"
 msgstr "Mapper code '${ name }' not found"
@@ -2456,6 +2456,42 @@ msgstr "Reloading webview ..."
 
 msgid "Draft"
 msgstr "Draft"
+
+msgid "SavingDraft"
+msgstr "Saving draft..."
+
+msgid "DraftSaved"
+msgstr "Draft saved"
+
+msgid "DraftsDescription"
+msgstr "Drafts are unfinished interfaces that were automatically saved for you"
+
+msgid "DeleteInterfaceDrafts"
+msgstr "Delete all drafts for this interface?"
+
+msgid "DeleteAllDrafts"
+msgstr "Delete all drafts? Are you sure?"
+
+msgid "DeleteDraft"
+msgstr "Are you sure you want to delete this draft?"
+
+msgid "DiscardChanges"
+msgstr "Are you sure you want to discard any unsaved changes?"
+
+msgid "DiscardChangesButton"
+msgstr "Discard unsaved changes"
+
+msgid "FieldsSelected"
+msgstr "Fields selected"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Valid"
+msgstr "Valid"
+
+msgid "invalid"
+msgstr "Invalid"
 
 msgid "RemoveValue"
 msgstr "Remove value"

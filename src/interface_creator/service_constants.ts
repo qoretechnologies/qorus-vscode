@@ -1,7 +1,4 @@
-import {
-    classToPythonModule,
-    root_service
-} from '../qorus_constants';
+import { classToPythonModule, root_service } from '../qorus_constants';
 import { field } from './common_constants';
 
 export const serviceImports = (lang: string, base_class_name: string) => {
@@ -16,14 +13,18 @@ export const serviceImports = (lang: string, base_class_name: string) => {
             return [
                 'import qore.OMQ.*;',
                 'import qore.OMQ.UserApi.*;',
-                'import qore.OMQ.UserApi.Service.*;'
+                'import qore.OMQ.UserApi.Service.*;',
             ];
         default:
             return [];
     }
 };
 
-export const serviceFields = ({ default_target_dir = undefined, lang = undefined, limited_editing = undefined }): any[] => [
+export const serviceFields = ({
+    default_target_dir = undefined,
+    lang = undefined,
+    limited_editing = undefined,
+}): any[] => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -31,7 +32,7 @@ export const serviceFields = ({ default_target_dir = undefined, lang = undefined
     field.author,
     field.version,
     {
-        ... field.class_name,
+        ...field.class_name,
         disabled: limited_editing,
     },
     field.lang,
@@ -194,7 +195,7 @@ export const serviceFields = ({ default_target_dir = undefined, lang = undefined
         type: 'options',
         url: 'system',
         mandatory: false,
-    }
+    },
 ];
 
 export const serviceMethodFields = ({ limited_editing }) => [
@@ -202,7 +203,7 @@ export const serviceMethodFields = ({ limited_editing }) => [
         ...field.name,
         type: 'method-name',
         has_to_be_valid_identifier: true,
-        disabled: limited_editing,
+        disabled: false,
     },
     field.desc,
     field.author,
