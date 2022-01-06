@@ -4,68 +4,42 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
 
+## Version 3.0.1 overview - What's new:
+
+- Fixed a bug that incorrectly saved config items with any type
+
 ## Version 3.0 overview - What's new:
 
--   Automatic draft management for all objects; never lose work again due to the IDE resetting its state; drafts are saved of any edits made and can be managed directly in the IDE as well
--   fixed a bug where selecting an incompatible mapper in a pipeline dialog would result in an unusuable dialog
--   fixed a bug where it was impossible to add service methods to a service in certain situations
--   fixed a bug where it was not possible to enter in a config item string value with newlines
--   fixed a bug where it was not possible to save a config item value in an FSM connector with type `any`
--   fixed a bug where the job schedule was reset to a default value every time a job was opened
--   fixed a bug in the Qorus connections page where icons were lost when the active connection was lost
--   fixed a bug where the IDE would remain on the login page after a successful login
--   fixed a bug where the step modal dialog in the workflow diagrm view had a horizontal scroll bar with steps with very long names
--   fixed a bug where the Java constructor name was not renamed when the object class name was changed
-
-## Version 2.3.25 overview - What's new:
-
--   Fixed indentation for tags in generated YAML files
-
-## Version 2.3.24 overview - What's new:
-
--   Spaces in class connections are no longer allowed & supported
-
-## Version 2.3.23 overview - What's new:
-
--   Passwords for Qorus with special characters are now supported
-    _Existing passwords with special characters need to be updated manually in the environments view_
-
-## Version 2.3.22 overview - What's new:
-
--   Fixed a bug that would cause the webview to crash after creating new class with connectors from an FSM state
--   Replaced the X icon with a trash icon on all FSM states
-
-## Version 2.3.21 overview - What's new:
-
--   Fixed inherited config items not being deleted when the parent config item is removed
-
-## Version 2.3.20 overview - What's new:
-
--   Moved the buttons inside class connections dialog under the box, so that the full connector name can be seen at all times
-
-## Version 2.3.19 overview - What's new:
-
--   Fixed a bug that prevented setting and saving inherited config items to `null`
+- Automatic draft management for all objects; never lose work again due to the IDE resetting its state; drafts are saved of any edits made and can be managed directly in the IDE as well
+- fixed a bug where selecting an incompatible mapper in a pipeline dialog would result in an unusuable dialog
+- fixed a bug where it was impossible to add service methods to a service in certain situations
+- fixed a bug where it was not possible to enter in a config item string value with newlines
+- fixed a bug where it was not possible to save a config item value in an FSM connector with type `any`
+- fixed a bug where the job schedule was reset to a default value every time a job was opened
+- fixed a bug in the Qorus connections page where icons were lost when the active connection was lost
+- fixed a bug where the IDE would remain on the login page after a successful login
+- fixed a bug where the step modal dialog in the workflow diagrm view had a horizontal scroll bar with steps with very long names
+- fixed a bug where the Java constructor name was not renamed when the object class name was changed
 
 ---
 
 ## Main Features
 
--   Qorus Webview
--   Configuration manager helps to easily manage configuration data of the project (no need for manual work with **qorusproject.json**).
--   Support for creating of Qorus interfaces such as jobs, services, steps, workflows, classes, mappers etc.
--   Connecting building blocks using class-connections manager allows to create no-code solution for complex enterprise integration scenarios
--   Release package management
--   Hierarchy view of all interfaces in the project
--   and more
+- Qorus Webview
+- Configuration manager helps to easily manage configuration data of the project (no need for manual work with **qorusproject.json**).
+- Support for creating of Qorus interfaces such as jobs, services, steps, workflows, classes, mappers etc.
+- Connecting building blocks using class-connections manager allows to create no-code solution for complex enterprise integration scenarios
+- Release package management
+- Hierarchy view of all interfaces in the project
+- and more
 
 ## How to use
 
 There are three main user interfaces to use the extension:
 
--   Webview
--   Hierarchy view
--   Commands
+- Webview
+- Hierarchy view
+- Commands
 
 ### Webview
 
@@ -84,9 +58,9 @@ The `instances` tab of the hierarchy view displays all configured environments w
 
 The interpretation of the data is depicted by a tree with three levels:
 
--   **development environments** (here `local` and `dev`)
-    -   **Qorus instances** (here both environments have two Qorus instances)
-        -   **URLs**: the Qorus instance "main" URL at the first position and then any custom URLs, if any (here only the _'dev 1'_ Qorus instance in the _'dev'_ environment has any custom URLs). Custom URLs are supposed to serve as shortcuts for opening project related sites - simply by clicking (the opened tool/browser depends on the operating system).
+- **development environments** (here `local` and `dev`)
+  - **Qorus instances** (here both environments have two Qorus instances)
+    - **URLs**: the Qorus instance "main" URL at the first position and then any custom URLs, if any (here only the _'dev 1'_ Qorus instance in the _'dev'_ environment has any custom URLs). Custom URLs are supposed to serve as shortcuts for opening project related sites - simply by clicking (the opened tool/browser depends on the operating system).
 
 The corresponding tree looks as follows:
 
@@ -111,10 +85,10 @@ The corresponding tree looks as follows:
 
 There are several possible deployment methods:
 
--   Deploy the file currently active in the editor. This can be done using keyboard shortcut `Ctrl+Alt+o` or by using command `Qorus: Deploy current file` from the Command Palette.
--   Use the `Qorus: Deploy file` command from a file's context menu (in the Explorer view).
--   Use the `Qorus: Deploy directory` command from a directory's context menu (deploys all deployable files in the directory including subdirectories).
--   Use the _Deploy_ buttons shown when hovering mouse cursor over an interface or a directory in the _Qorus Interfaces_ tree view.
+- Deploy the file currently active in the editor. This can be done using keyboard shortcut `Ctrl+Alt+o` or by using command `Qorus: Deploy current file` from the Command Palette.
+- Use the `Qorus: Deploy file` command from a file's context menu (in the Explorer view).
+- Use the `Qorus: Deploy directory` command from a directory's context menu (deploys all deployable files in the directory including subdirectories).
+- Use the _Deploy_ buttons shown when hovering mouse cursor over an interface or a directory in the _Qorus Interfaces_ tree view.
 
 ![deployment](https://github.com/qoretechnologies/qorus-vscode/blob/master/images/gif/deployment.gif?raw=true)
 
@@ -135,18 +109,18 @@ Authentication tokens are stored, so that next time logging-in is not required.
 
 Context menus of instances in the _Qorus Instances_ tree view contain also the following commands:
 
--   Login without setting the instance active.
--   Logout (if the instance was active it becomes inactive).
--   Set the instance inactive while staying logged in.
+- Login without setting the instance active.
+- Logout (if the instance was active it becomes inactive).
+- Set the instance inactive while staying logged in.
 
 ### Hints
 
--   If there can be a heavy filesystem traffic in a part of the project folder, such as running a build with make,
-    exclude that part from file watching otherwise the extension may get frozen:
+- If there can be a heavy filesystem traffic in a part of the project folder, such as running a build with make,
+  exclude that part from file watching otherwise the extension may get frozen:
 
-    -   open settings (File -> Preferences -> Settings)
-    -   switch to the Workspace tab
-    -   search for "watcher exclude"
-    -   add a pattern there
+  - open settings (File -> Preferences -> Settings)
+  - switch to the Workspace tab
+  - search for "watcher exclude"
+  - add a pattern there
 
--   If you are not using the Qore programming language and would not like to see messages relating to missing Qore infrastructure for the Qore Language Server, unset the `Qore: Use QLS` setting in Settings (or add `"qore.useQLS": false` in `settings.json`)
+- If you are not using the Qore programming language and would not like to see messages relating to missing Qore infrastructure for the Qore Language Server, unset the `Qore: Use QLS` setting in Settings (or add `"qore.useQLS": false` in `settings.json`)

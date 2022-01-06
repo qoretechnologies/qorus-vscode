@@ -26,25 +26,28 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
   value,
   default_value,
   defaultType,
+  defaultInternalType,
   requestFieldData,
   type,
   t,
   noSoft,
   ...rest
 }) => {
-  const [currentType, setType] = useState<string>(null);
-  const [currentInternalType, setInternalType] = useState<string>('any');
+  const [currentType, setType] = useState<string>(defaultInternalType || null);
+  const [currentInternalType, setInternalType] = useState<string>(defaultInternalType || 'any');
   const [isSetToNull, setIsSetToNull] = useState<boolean>(false);
+
+  console.log(currentType, currentInternalType);
 
   useMount(() => {
     let defType = defaultType && defaultType.replace(/"/g, '').trim();
     defType = defType || 'any';
     // If value already exists, but the type is auto or any
     // set the type based on the value
-    if (value && (defType === 'auto' || defType === 'any')) {
+    if (value && (defType === 'auto' || defType === 'any') && !defaultInternalType) {
       setInternalType(getTypeFromValue(maybeParseYaml(value)));
     } else {
-      setInternalType(defType);
+      setInternalType(defaultInternalType || defType);
     }
 
     setType(defType);
