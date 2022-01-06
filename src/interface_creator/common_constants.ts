@@ -1,355 +1,356 @@
 import { classToPythonModule, default_lang } from '../qorus_constants';
 
 export const default_parse_options = {
-    qore: '%new-style\n' + '%strict-args\n' + '%require-types\n' + '%enable-all-warnings\n\n',
+  qore: '%new-style\n' + '%strict-args\n' + '%require-types\n' + '%enable-all-warnings\n\n',
 };
 
 // ================================================================
 
 export const empty_class_template = {
-    qore: 'class ${this.class_name} {\n' + '}\n',
-    python: 'class ${this.class_name}:\n' + '    pass\n',
-    java: 'class ${this.class_name} {\n' + '}',
+  qore: 'class ${this.class_name} {\n' + '}\n',
+  python: 'class ${this.class_name}:\n' + '    pass\n',
+  java: 'class ${this.class_name} {\n' + '}',
 };
 
 export const empty_subclass_template = {
-    qore: 'class ${this.class_name} inherits ${this.base_class_name} {\n' + '}\n',
-    python: 'class ${this.class_name}(${this.base_class_name}):\n' + '    pass\n',
-    java: 'class ${this.class_name} extends ${this.base_class_name} {\n' +
-          '    ${this.class_name}() throws Throwable {\n' +
-          '        super();\n' +
-          '    }\n' +
-          '}',
+  qore: 'class ${this.class_name} inherits ${this.base_class_name} {\n' + '}\n',
+  python: 'class ${this.class_name}(${this.base_class_name}):\n' + '    pass\n',
+  java:
+    'class ${this.class_name} extends ${this.base_class_name} {\n' +
+    '    ${this.class_name}() throws Throwable {\n' +
+    '        super();\n' +
+    '    }\n' +
+    '}',
 };
 
 export const class_template = {
-    qore:
-        'class ${this.class_name} {\n' +
-        '${this.methods}' +
-        '${this.connections_within_class}' +
-        '}' +
-        '${this.connections_extra_class}',
-    python:
-        'class ${this.class_name}:\n' +
-        '${this.methods}' +
-        '${this.connections_within_class}' +
-        '${this.connections_extra_class}',
-    java:
-        'class ${this.class_name} {\n' +
-        '${this.methods}' +
-        '${this.connections_within_class}' +
-        '}' +
-        '${this.connections_extra_class}',
+  qore:
+    'class ${this.class_name} {\n' +
+    '${this.methods}' +
+    '${this.connections_within_class}' +
+    '}' +
+    '${this.connections_extra_class}',
+  python:
+    'class ${this.class_name}:\n' +
+    '${this.methods}' +
+    '${this.connections_within_class}' +
+    '${this.connections_extra_class}',
+  java:
+    'class ${this.class_name} {\n' +
+    '${this.methods}' +
+    '${this.connections_within_class}' +
+    '}' +
+    '${this.connections_extra_class}',
 };
 
 export const subclass_template = {
-    qore:
-        'class ${this.class_name} inherits ${this.base_class_name} {\n' +
-        '${this.methods}' +
-        '${this.connections_within_class}' +
-        '}' +
-        '${this.connections_extra_class}',
-    python:
-        'class ${this.class_name}(${this.base_class_name}):\n' +
-        '${this.methods}' +
-        '${this.connections_within_class}' +
-        '${this.connections_extra_class}',
-    java:
-        'class ${this.class_name} extends ${this.base_class_name} {\n' +
-        '${this.methods}' +
-        '${this.connections_within_class}' +
-        '}' +
-        '${this.connections_extra_class}',
+  qore:
+    'class ${this.class_name} inherits ${this.base_class_name} {\n' +
+    '${this.methods}' +
+    '${this.connections_within_class}' +
+    '}' +
+    '${this.connections_extra_class}',
+  python:
+    'class ${this.class_name}(${this.base_class_name}):\n' +
+    '${this.methods}' +
+    '${this.connections_within_class}' +
+    '${this.connections_extra_class}',
+  java:
+    'class ${this.class_name} extends ${this.base_class_name} {\n' +
+    '${this.methods}' +
+    '${this.connections_within_class}' +
+    '}' +
+    '${this.connections_extra_class}',
 };
 
 export const classTemplate = (lang, is_subclass, is_empty) =>
-    is_subclass
-        ? is_empty
-            ? empty_subclass_template[lang]
-            : subclass_template[lang]
-        : is_empty
-            ? empty_class_template[lang]
-            : class_template[lang];
+  is_subclass
+    ? is_empty
+      ? empty_subclass_template[lang]
+      : subclass_template[lang]
+    : is_empty
+    ? empty_class_template[lang]
+    : class_template[lang];
 
 // ================================================================
 
 export const simple_method_template = {
-    qore: '    ${this.name}() {\n' + '    }\n',
-    python: '    def ${this.name}(self):\n' + '        pass\n',
-    java: '    public void ${this.name}() throws Throwable {\n' + '    }\n',
+  qore: '    ${this.name}() {\n' + '    }\n',
+  python: '    def ${this.name}(self):\n' + '        pass\n',
+  java: '    public void ${this.name}() throws Throwable {\n' + '    }\n',
 };
 
 // ================================================================
 
 export const classImports = (lang: string, base_class_name: string) => {
-    switch (lang) {
-        case 'python':
-            const module = classToPythonModule(base_class_name);
-            return module ? [`from ${module} import ${base_class_name}`] : [];
-        default:
-            return [];
-    }
+  switch (lang) {
+    case 'python':
+      const module = classToPythonModule(base_class_name);
+      return module ? [`from ${module} import ${base_class_name}`] : [];
+    default:
+      return [];
+  }
 };
 
 // ================================================================
 
 export const classFields = ({ default_target_dir, limited_editing }) => [
-    field.targetDir(default_target_dir),
-    field.targetFile,
-    field.desc,
-    field.author,
-    field.version,
-    {
-        name: 'class-class-name',
-        has_to_be_valid_identifier: true,
-        disabled: limited_editing,
+  field.targetDir(default_target_dir),
+  field.targetFile,
+  field.desc,
+  field.author,
+  field.version,
+  {
+    name: 'class-class-name',
+    has_to_be_valid_identifier: true,
+    disabled: limited_editing,
+  },
+  field.lang,
+  {
+    name: 'base-class-name',
+    mandatory: false,
+    type: 'select-string',
+    get_message: {
+      action: 'creator-get-objects',
+      object_type: 'base-class',
     },
-    field.lang,
-    {
-        name: 'base-class-name',
-        mandatory: false,
-        type: 'select-string',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'base-class',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'base-class',
-            return_value: 'objects',
-        },
-        on_change: 'get-config-items',
-        notify_on_remove: true,
-        disabled: limited_editing,
+    return_message: {
+      action: 'creator-return-objects',
+      object_type: 'base-class',
+      return_value: 'objects',
     },
-    {
-        name: 'requires',
-        mandatory: false,
-        type: 'class-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'class',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'class',
-            return_value: 'objects',
-        },
-        reference: {
-            iface_kind: 'class',
-        },
-        on_change: 'get-config-items',
-        notify_on_remove: true,
+    on_change: 'get-config-items',
+    notify_on_remove: true,
+    disabled: limited_editing,
+  },
+  {
+    name: 'requires',
+    mandatory: false,
+    type: 'class-array',
+    get_message: {
+      action: 'creator-get-objects',
+      object_type: 'class',
     },
-    field.tags,
-    {
-        name: 'class-connectors',
-        mandatory: false,
-        type: 'class-connectors',
+    return_message: {
+      action: 'creator-return-objects',
+      object_type: 'class',
+      return_value: 'objects',
     },
-    {
-        name: 'processor',
-        mandatory: false,
-        type: 'processor',
-        notify_on_add: true,
+    reference: {
+      iface_kind: 'class',
     },
+    on_change: 'get-config-items',
+    notify_on_remove: true,
+  },
+  field.tags,
+  {
+    name: 'class-connectors',
+    mandatory: false,
+    type: 'class-connectors',
+  },
+  {
+    name: 'processor',
+    mandatory: false,
+    type: 'processor',
+    notify_on_add: true,
+  },
 ];
 
 export const field = {
-    targetDir: (default_target_dir) => ({
-        name: 'target_dir',
-        type: 'file-string',
-        default_value: default_target_dir,
-        get_message: {
-            action: 'creator-get-directories',
-            object_type: 'target_dir',
-        },
-        return_message: {
-            action: 'creator-return-directories',
-            object_type: 'target_dir',
-            return_value: 'directories',
-        },
-        on_change: 'target-dir-changed',
-    }),
-    targetFile: {
-        name: 'target_file',
-        mandatory: false,
+  targetDir: (default_target_dir) => ({
+    name: 'target_dir',
+    type: 'file-string',
+    default_value: default_target_dir,
+    get_message: {
+      action: 'creator-get-directories',
+      object_type: 'target_dir',
     },
-    name: {
-        name: 'name',
+    return_message: {
+      action: 'creator-return-directories',
+      object_type: 'target_dir',
+      return_value: 'directories',
     },
-    desc: {
-        name: 'desc',
-        type: 'long-string',
-        markdown: true,
+    on_change: 'target-dir-changed',
+  }),
+  targetFile: {
+    name: 'target_file',
+    mandatory: false,
+  },
+  name: {
+    name: 'name',
+  },
+  desc: {
+    name: 'desc',
+    type: 'long-string',
+    markdown: true,
+  },
+  author: {
+    name: 'author',
+    mandatory: false,
+    type: 'select-array',
+    get_message: {
+      action: 'creator-get-objects',
+      object_type: 'author',
     },
-    author: {
-        name: 'author',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'author',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'author',
-            return_value: 'objects',
-        },
+    return_message: {
+      action: 'creator-return-objects',
+      object_type: 'author',
+      return_value: 'objects',
     },
-    version: {
-        name: 'version',
+  },
+  version: {
+    name: 'version',
+  },
+  class_name: {
+    name: 'class-name',
+    prefill: 'name',
+    has_to_be_valid_identifier: true,
+    style: 'PascalCase',
+  },
+  lang: {
+    name: 'lang',
+    type: 'enum',
+    items: [
+      {
+        value: 'qore',
+        icon_filename: 'qore-106x128.png',
+      },
+      {
+        value: 'python',
+        icon_filename: 'python-129x128.png',
+      },
+      {
+        value: 'java',
+        icon_filename: 'java-96x128.png',
+      },
+    ],
+    default_value: default_lang,
+    on_change: 'lang-changed',
+  },
+  mappers: {
+    name: 'mappers',
+    mandatory: false,
+    type: 'select-array',
+    get_message: {
+      action: 'creator-get-objects',
+      object_type: 'mapper',
     },
-    class_name: {
-        name: 'class-name',
-        prefill: 'name',
-        has_to_be_valid_identifier: true,
-        style: 'PascalCase',
+    return_message: {
+      action: 'creator-return-objects',
+      object_type: 'mapper',
+      return_value: 'objects',
     },
-    lang: {
-        name: 'lang',
-        type: 'enum',
-        items: [
-            {
-                value: 'qore',
-                icon_filename: 'qore-106x128.png',
-            },
-            {
-                value: 'python',
-                icon_filename: 'python-129x128.png',
-            },
-            {
-                value: 'java',
-                icon_filename: 'java-96x128.png',
-            },
-        ],
-        default_value: default_lang,
-        on_change: 'lang-changed',
+    reference: {
+      iface_kind: 'mapper',
     },
-    mappers: {
-        name: 'mappers',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'mapper',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'mapper',
-            return_value: 'objects',
-        },
-        reference: {
-            iface_kind: 'mapper',
-        },
+  },
+  vmaps: {
+    name: 'vmaps',
+    mandatory: false,
+    type: 'select-array',
+    get_message: {
+      action: 'creator-get-objects',
+      object_type: 'value-map',
     },
-    vmaps: {
-        name: 'vmaps',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'value-map',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'value-map',
-            return_value: 'objects',
-        },
+    return_message: {
+      action: 'creator-return-objects',
+      object_type: 'value-map',
+      return_value: 'objects',
     },
-    modules: {
-        name: 'modules',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'module',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'module',
-            return_value: 'objects',
-        },
+  },
+  modules: {
+    name: 'modules',
+    mandatory: false,
+    type: 'select-array',
+    get_message: {
+      action: 'creator-get-objects',
+      object_type: 'module',
     },
-    remote: {
-        name: 'remote',
-        mandatory: false,
-        type: 'boolean',
-        default_value: true,
+    return_message: {
+      action: 'creator-return-objects',
+      object_type: 'module',
+      return_value: 'objects',
     },
-    groups: {
-        name: 'groups',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'group',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'group',
-            return_value: 'objects',
-        },
-        reference: {
-            iface_kind: 'group',
-        },
+  },
+  remote: {
+    name: 'remote',
+    mandatory: false,
+    type: 'boolean',
+    default_value: true,
+  },
+  groups: {
+    name: 'groups',
+    mandatory: false,
+    type: 'select-array',
+    get_message: {
+      action: 'creator-get-objects',
+      object_type: 'group',
     },
-    tags: {
-        name: 'tags',
-        mandatory: false,
-        type: 'array-of-pairs',
-        fields: ['key', 'value'],
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'tag',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'tag',
-            return_value: 'objects',
-        },
+    return_message: {
+      action: 'creator-return-objects',
+      object_type: 'group',
+      return_value: 'objects',
     },
-    classes: {
-        name: 'classes',
-        mandatory: false,
-        type: 'class-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'class',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'class',
-            return_value: 'objects',
-        },
-        reference: {
-            iface_kind: 'class',
-        },
-        on_change: 'get-config-items',
-        notify_on_remove: true,
+    reference: {
+      iface_kind: 'group',
     },
-    workflow_options: {
-        name: 'workflow_options',
-        type: 'array-of-pairs',
-        fields: ['key', 'value'],
-        mandatory: false,
+  },
+  tags: {
+    name: 'tags',
+    mandatory: false,
+    type: 'array-of-pairs',
+    fields: ['key', 'value'],
+    get_message: {
+      action: 'creator-get-objects',
+      object_type: 'tag',
     },
-    statuses: {
-        name: 'statuses',
-        type: 'array-of-pairs',
-        fields: ['code', 'desc'],
-        mandatory: false,
+    return_message: {
+      action: 'creator-return-objects',
+      object_type: 'tag',
+      return_value: 'objects',
     },
-    'define-auth-label': {
-        name: 'define-auth-label',
-        type: 'array-of-pairs',
-        fields: ['label', 'value'],
-        mandatory: false,
+  },
+  classes: {
+    name: 'classes',
+    mandatory: false,
+    type: 'class-array',
+    get_message: {
+      action: 'creator-get-objects',
+      object_type: 'class',
     },
-    'value-maps': {
-        name: 'value-maps',
-        mandatory: false,
-        type: 'array-of-pairs',
-        fields: ['key', 'value'],
+    return_message: {
+      action: 'creator-return-objects',
+      object_type: 'class',
+      return_value: 'objects',
     },
+    reference: {
+      iface_kind: 'class',
+    },
+    on_change: 'get-config-items',
+    notify_on_remove: true,
+  },
+  workflow_options: {
+    name: 'workflow_options',
+    type: 'array-of-pairs',
+    fields: ['key', 'value'],
+    mandatory: false,
+  },
+  statuses: {
+    name: 'statuses',
+    type: 'array-of-pairs',
+    fields: ['code', 'desc'],
+    mandatory: false,
+  },
+  'define-auth-label': {
+    name: 'define-auth-label',
+    type: 'array-of-pairs',
+    fields: ['label', 'value'],
+    mandatory: false,
+  },
+  'value-maps': {
+    name: 'value-maps',
+    mandatory: false,
+    type: 'array-of-pairs',
+    fields: ['key', 'value'],
+  },
 };

@@ -16,6 +16,7 @@
         "allowSyntheticDefaultImports": true,
         "declaration": true,
         "declarationMap": true,
+        "resolveJsonModule": true,
         "jsx": "react",
         "types": ["node", "react", "react-dom", "styled-components", "lodash"]
     },

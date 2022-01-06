@@ -1,12 +1,13 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es6",
-		"outDir": "../out",
-		"sourceMap": true,
-		"strict": true,
-		"rootDir": ".",
-		"types": ["node", "lodash", "fs-extra"]
-	},
-	"exclude": ["node_modules", ".vscode-test", "test-resources"]
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "outDir": "../out",
+        "sourceMap": true,
+        "strict": true,
+        "rootDir": ".",
+        "types": ["node", "lodash", "fs-extra"],
+        "resolveJsonModule": true
+    },
+    "exclude": ["node_modules", ".vscode-test", "test-resources"]
 }

@@ -4,6 +4,7 @@ const fs = require("fs");
 const history = require("connect-history-api-fallback");
 const serveStatic = require("serve-static");
 const config = require("./webpack.config");
+const webpackHotMiddleware = require("webpack-hot-middleware");
 
 const app = express();
 const env = app.get("env");
@@ -15,11 +16,10 @@ if (env === "production") {
     // Get webpack
     const webpack = require("webpack");
     const webpackDevMiddleware = require("webpack-dev-middleware");
-    const webpackHotMiddleware = require("webpack-hot-middleware");
     const compiler = webpack(config);
 
     const LOCAL_PORT = 9876;
-    const LOCAL_HOST = "localhost";
+    const LOCAL_HOST = "127.0.0.1";
     const IS_SECURE = false;
 
     // History
