@@ -144,7 +144,7 @@ const App: FunctionComponent<IApp> = ({
       (async () => {
         const fetchedDraft = await callBackendBasic(Messages.GET_DRAFT, undefined, {
           interfaceKind,
-          interfaceId,
+          draftId: interfaceId,
         });
 
         if (fetchedDraft.ok) {

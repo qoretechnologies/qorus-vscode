@@ -39,7 +39,7 @@ export default () =>
         if (!initialData.qorus_instance?.url) {
           setInitialData({
             image_path: initialData.image_path,
-            tab: 'ProjectConfig',
+            //tab: 'ProjectConfig',
           });
         }
       }, [initialData?.qorus_instance?.url]);
