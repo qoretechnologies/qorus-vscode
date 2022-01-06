@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { Messages } from '../../constants/messages';
-import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
 import withMessageHandler, {
   TMessageListener,
   TPostMessage,
@@ -127,12 +126,13 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     parent: string | null,
     level: string,
     remove?: boolean
-  ) => void = (name, value, parent, level, isTemplatedString, remove) => {
+  ) => void = (name, value, parent, level, isTemplatedString, remove, currentType) => {
+    console.log(name, value, parent, level, isTemplatedString, currentType);
     // Send message that the config item has been updated
     postMessage(Messages.UPDATE_CONFIG_ITEM_VALUE, {
       name,
       value,
-      value_true_type: getTypeFromValue(maybeParseYaml(value)).toString(),
+      value_true_type: currentType,
       file_name: configItems.file_name,
       remove,
       level,
