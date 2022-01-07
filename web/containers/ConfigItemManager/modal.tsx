@@ -299,6 +299,7 @@ export default class ConfigItemsModal extends Component {
                           value={this.state.value}
                           t={t}
                           type="auto"
+                          defaultType={item.type}
                           defaultInternalType={item.value_true_type}
                           disabled={!!item.allowed_values}
                           requestFieldData={(field) =>
