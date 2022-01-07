@@ -60,7 +60,6 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
         getValueOrDefaultValue(value, default_value, canBeNull(defType)) === null) &&
       canBeNull(defType)
     ) {
-      console.log('setting to null');
       setIsSetToNull(true);
     }
 
