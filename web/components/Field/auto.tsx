@@ -56,7 +56,8 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     );
     // If the value is null and can be null, set the null flag
     if (
-      getValueOrDefaultValue(value, default_value, canBeNull(defType)) === 'null' &&
+      (getValueOrDefaultValue(value, default_value, canBeNull(defType)) === 'null' ||
+        getValueOrDefaultValue(value, default_value, canBeNull(defType)) === null) &&
       canBeNull(defType)
     ) {
       console.log('setting to null');
