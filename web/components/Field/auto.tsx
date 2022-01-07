@@ -1,7 +1,6 @@
 import { Button, Callout, ControlGroup } from '@blueprintjs/core';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
-import { isNull } from 'util';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 import {
   getTypeFromValue,
@@ -26,31 +25,39 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
   value,
   default_value,
   defaultType,
+  defaultInternalType,
   requestFieldData,
   type,
   t,
   noSoft,
   ...rest
 }) => {
-  const [currentType, setType] = useState<string>(null);
-  const [currentInternalType, setInternalType] = useState<string>('any');
+  const [currentType, setType] = useState<string>(defaultInternalType || null);
+  const [currentInternalType, setInternalType] = useState<string>(defaultInternalType || 'any');
   const [isSetToNull, setIsSetToNull] = useState<boolean>(false);
+
+  console.log(currentType, currentInternalType);
 
   useMount(() => {
     let defType = defaultType && defaultType.replace(/"/g, '').trim();
     defType = defType || 'any';
     // If value already exists, but the type is auto or any
     // set the type based on the value
-    if (value && (defType === 'auto' || defType === 'any')) {
+    if (value && (defType === 'auto' || defType === 'any') && !defaultInternalType) {
       setInternalType(getTypeFromValue(maybeParseYaml(value)));
     } else {
-      setInternalType(defType);
+      setInternalType(defaultInternalType || defType);
     }
 
     setType(defType);
+    console.log(
+      getValueOrDefaultValue(value, default_value, canBeNull(defType)),
+      canBeNull(defType)
+    );
     // If the value is null and can be null, set the null flag
     if (
-      isNull(getValueOrDefaultValue(value, default_value, canBeNull(defType))) &&
+      (getValueOrDefaultValue(value, default_value, canBeNull(defType)) === 'null' ||
+        getValueOrDefaultValue(value, default_value, canBeNull(defType)) === null) &&
       canBeNull(defType)
     ) {
       setIsSetToNull(true);
@@ -126,6 +133,8 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     // Handle change
     handleChange(name, isSetToNull ? undefined : null);
   };
+
+  console.log(isSetToNull);
 
   const renderField = (currentType: string) => {
     // If this field is set to null

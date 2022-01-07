@@ -137,7 +137,13 @@ export const Value = ({ item, useDefault }) => {
   }
 
   const type =
-    item.type === 'auto' || item.type === 'any' ? getItemType(item.type, yamlValue) : item.type;
+    item.type === 'auto' || item.type === 'any'
+      ? item.value_true_type || getItemType(item.type, yamlValue)
+      : item.type;
+
+  if (item.type === 'any') {
+    console.log(type);
+  }
 
   if (type === 'hash' || type === 'list') {
     return <Tree compact data={maybeParseYaml(yamlValue)} />;
@@ -251,8 +257,16 @@ let ItemsTable: Function = ({
                             onClick={() => {
                               handleModalToggle(
                                 { ...item },
-                                (name, value, parent, isTemplatedString, remove) => {
-                                  onSubmit(name, value, parent, type, isTemplatedString, remove);
+                                (name, value, parent, isTemplatedString, remove, currentType) => {
+                                  onSubmit(
+                                    name,
+                                    value,
+                                    parent,
+                                    type,
+                                    isTemplatedString,
+                                    remove,
+                                    currentType
+                                  );
                                   handleModalToggle(null);
                                 },
                                 intrf,

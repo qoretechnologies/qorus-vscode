@@ -39,8 +39,18 @@ export default () =>
         if (!initialData.qorus_instance?.url) {
           setInitialData({
             image_path: initialData.image_path,
-            //tab: 'ProjectConfig',
+            tab: 'ProjectConfig',
           });
+        } else {
+          AppToaster.show(
+            {
+              message: 'Successfully logged in!',
+              intent: 'success',
+              timeout: 3000,
+              icon: 'small-tick',
+            },
+            'logged-in'
+          );
         }
       }, [initialData?.qorus_instance?.url]);
 
