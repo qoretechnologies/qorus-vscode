@@ -88,7 +88,9 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
       setConfigItems(data);
       // Check if the initial config items are the same as the current config items
       // If they are, then we don't need to update the config items
+      console.log(initialConfigItems.current, data);
       if (JSON.stringify(initialConfigItems.current) !== JSON.stringify(data)) {
+        initialConfigItems.current = data;
         onUpdate?.();
       }
     });

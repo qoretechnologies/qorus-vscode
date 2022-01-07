@@ -267,23 +267,21 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
           {reference && (
             <>
               {!editOnly && (
-                <Tooltip content={t('CreateAndAddNewItem')}>
-                  <Button
-                    icon="add"
-                    intent="success"
-                    name={`field-${name}-reference-add-new`}
-                    onClick={() => onCreateClick(reference, handleEditSubmit)}
-                  />
-                </Tooltip>
+                <Button
+                  icon="add"
+                  className={Classes.FIXED}
+                  intent="success"
+                  name={`field-${name}-reference-add-new`}
+                  onClick={() => onCreateClick(reference, handleEditSubmit)}
+                />
               )}
               {value && (
-                <Tooltip content={t('EditThisItem')} className={Classes.FIXED}>
-                  <Button
-                    icon="edit"
-                    name={`field-${name}-edit-reference`}
-                    onClick={() => onEditClick(value, reference, handleEditSubmit)}
-                  />
-                </Tooltip>
+                <Button
+                  icon="edit"
+                  className={Classes.FIXED}
+                  name={`field-${name}-edit-reference`}
+                  onClick={() => onEditClick(value, reference, handleEditSubmit)}
+                />
               )}
             </>
           )}

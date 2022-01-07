@@ -5,6 +5,10 @@
 #### Bug Fixes
 
 - Fixed a bug that incorrectly saved config items with any type
+- Fixed a visual bug that caused empty spaces to appear in some field selectors
+- ENTER key is now properly respected on the login page
+- Fixed a bug where the login page would not disappear after successfully logging in
+- Fixed a bug where only the latest version of some interfaces would be shown in the hierarchy view
 
 ## Version 3.0
 

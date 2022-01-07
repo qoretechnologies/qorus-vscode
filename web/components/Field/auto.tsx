@@ -1,7 +1,6 @@
 import { Button, Callout, ControlGroup } from '@blueprintjs/core';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
-import { isNull } from 'util';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 import {
   getTypeFromValue,
@@ -51,9 +50,14 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     }
 
     setType(defType);
+    console.log(
+      getValueOrDefaultValue(value, default_value, canBeNull(defType)),
+      canBeNull(defType)
+    );
     // If the value is null and can be null, set the null flag
     if (
-      isNull(getValueOrDefaultValue(value, default_value, canBeNull(defType))) &&
+      (getValueOrDefaultValue(value, default_value, canBeNull(defType)) === 'null' ||
+        getValueOrDefaultValue(value, default_value, canBeNull(defType)) === null) &&
       canBeNull(defType)
     ) {
       setIsSetToNull(true);
@@ -129,6 +133,8 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     // Handle change
     handleChange(name, isSetToNull ? undefined : null);
   };
+
+  console.log(isSetToNull);
 
   const renderField = (currentType: string) => {
     // If this field is set to null
