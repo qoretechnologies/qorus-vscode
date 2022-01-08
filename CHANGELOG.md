@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.0.2
+
+#### Bug Fixes
+
+- Fixed a bug in Java code generation for step validation methods with connectors
+
 ## Version 3.0.1
 
 #### Bug Fixes

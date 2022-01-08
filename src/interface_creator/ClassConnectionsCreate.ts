@@ -721,10 +721,13 @@ export class ClassConnectionsCreate {
             code += indent2;
             if (++n === trigger.connections.length && hasReturn(trigger)) {
                 code += 'return ';
-            }
-            // issue #548: we have to cast array return values to Object[]
-            if (isArray(trigger)) {
-                code += '(Object[])';
+                // issue #918: validation functions must return a String
+                if (isValidation(trigger)) {
+                    code += '(String)';
+                } else if (isArray(trigger)) {
+                    // issue #548: we have to cast array return values to Object[]
+                    code += '(Object[])';
+                }
             }
             code += `${CONN_MEMBER.java}.${connection}(${params_str});\n`;
         });
