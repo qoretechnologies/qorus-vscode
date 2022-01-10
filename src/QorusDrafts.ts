@@ -33,8 +33,17 @@ class QorusDrafts {
   private getDraftsLocation() {
     const os = getOs();
 
+    const dir_hash = md5(vscode.workspace.workspaceFolders[0].uri.toString());
+
+    if (os == 'WINDOWS') {
+      return path.join(
+        process.env.APPDATA,
+        'Code\\Backups',
+        dir_hash
+      );
+    }
+
     const draftFilesLocation = {
-      WINDOWS: '%appdata%/Code/Backups',
       LINUX: '.config/Code/Backups',
       MACOS: 'Library/Application Support/Code/Backups',
     };
@@ -42,7 +51,7 @@ class QorusDrafts {
     return path.join(
       require('os').homedir(),
       draftFilesLocation[os],
-      md5(vscode.workspace.workspaceFolders[0].uri.toString())
+      dir_hash
     );
   }
 
