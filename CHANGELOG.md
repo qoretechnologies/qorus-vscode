@@ -4,6 +4,7 @@
 
 #### Bug Fixes
 
+- Fixed a bug in Java code generation for step validation methods with connectors
 - Fixed a bug where the IDE was not usable on Windows
 
 ## Version 3.0.1

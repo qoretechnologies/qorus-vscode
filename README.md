@@ -6,6 +6,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 
 ## Version 3.0.2 overview - What's new:
 
+- Fixed a bug in Java code generation for step validation methods with connectors
 - Fixed a bug where the IDE was not usable on Windows
 
 ## Version 3.0.1 overview - What's new:
