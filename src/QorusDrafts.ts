@@ -22,9 +22,9 @@ class QorusDrafts {
   constructor() {
     // Precreate the backups folder if it does not exist
     try {
-      readdirSync(path.join(process.env.HOME, this.getDraftsLocation()));
+      readdirSync(this.getDraftsLocation());
     } catch (e) {
-      mkdirSync(path.join(process.env.HOME, this.getDraftsLocation()), {
+      mkdirSync(this.getDraftsLocation(), {
         recursive: true,
       });
     }
@@ -33,15 +33,25 @@ class QorusDrafts {
   private getDraftsLocation() {
     const os = getOs();
 
+    const dir_hash = md5(vscode.workspace.workspaceFolders[0].uri.toString());
+
+    if (os == 'WINDOWS') {
+      return path.join(
+        process.env.APPDATA,
+        'Code\\Backups',
+        dir_hash
+      );
+    }
+
     const draftFilesLocation = {
-      WINDOWS: '%appdata%/Code/Backups',
       LINUX: '.config/Code/Backups',
       MACOS: 'Library/Application Support/Code/Backups',
     };
 
     return path.join(
+      require('os').homedir(),
       draftFilesLocation[os],
-      md5(vscode.workspace.workspaceFolders[0].uri.toString())
+      dir_hash
     );
   }
 
@@ -71,7 +81,6 @@ class QorusDrafts {
   public getSingleDraftContent(interfaceKind: string, fileName: string) {
     const file = readFileSync(
       path.join(
-        process.env.HOME,
         this.getDraftsLocation(),
         interfaceKind.toLowerCase().replace(/ /g, '-'),
         fileName
@@ -101,7 +110,6 @@ class QorusDrafts {
     try {
       const draftFiles = readdirSync(
         path.join(
-          process.env.HOME,
           this.getDraftsLocation(),
           interfaceKind.toLowerCase().replace(/ /g, '-')
         )
@@ -142,7 +150,6 @@ class QorusDrafts {
     onError?: (error: string) => void
   ) {
     const loc = path.join(
-      process.env.HOME,
       this.getDraftsLocation(),
       interfaceKind.toLowerCase().replace(/ /g, '-'),
       interfaceId && interfaceId !== 'undefined' ? `${interfaceId}.json` : ''
@@ -160,11 +167,11 @@ class QorusDrafts {
   }
 
   public deleteAllDrafts(onSuccess?: () => void, onError?: (error: string) => void) {
-    const loc = path.join(process.env.HOME, this.getDraftsLocation());
+    const loc = this.getDraftsLocation();
     fse
       .remove(loc)
       .then(() => {
-        mkdirSync(path.join(process.env.HOME, this.getDraftsLocation()), {
+        mkdirSync(this.getDraftsLocation(), {
           recursive: true,
         });
         drafts_tree.refresh();
@@ -185,7 +192,7 @@ class QorusDrafts {
     console.log('SAVING DRAFT WITH THIS DATA', interfaceKind, interfaceId, interfaceData);
     fse
       .outputFile(
-        path.join(process.env.HOME, this.getDraftsLocation(), interfaceKind, `${interfaceId}.json`),
+        path.join(this.getDraftsLocation(), interfaceKind, `${interfaceId}.json`),
         JSON.stringify({
           date: Date.now(),
           interfaceId,

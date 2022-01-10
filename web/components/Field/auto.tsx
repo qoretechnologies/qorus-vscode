@@ -196,6 +196,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
       case 'hash<auto>':
       case 'list':
       case 'softlist<string>':
+      case 'softlist':
       case 'list<auto>':
         return (
           <LongStringField
@@ -205,6 +206,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             value={value}
             fill
             type={currentType}
+            noWrap
             placeholder={t('Yaml')}
           />
         );
