@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.0.2
+
+#### Bug Fixes
+
+- Fixed a bug where the IDE was not usable on Windows
+
 ## Version 3.0.1
 
 #### Bug Fixes
