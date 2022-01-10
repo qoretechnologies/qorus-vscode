@@ -191,7 +191,7 @@ export default class ConfigItemsModal extends Component {
         isOpen
         title={!item ? t('AssignNewConfig') : `${t('Editing')} ${item.name}`}
         onClose={onClose}
-        style={{ backgroundColor: '#fff' }}
+        style={{ backgroundColor: '#fff', width: '50vw' }}
       >
         <StyledDialogBody style={{ flexFlow: 'column' }}>
           {item && item.description && (
@@ -299,6 +299,7 @@ export default class ConfigItemsModal extends Component {
                           value={this.state.value}
                           t={t}
                           type="auto"
+                          noSoft
                           defaultType={item.type}
                           defaultInternalType={item.value_true_type}
                           disabled={!!item.allowed_values}
