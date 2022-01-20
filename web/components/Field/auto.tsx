@@ -11,7 +11,9 @@ import withTextContext from '../../hocomponents/withTextContext';
 import { IField } from './';
 import BooleanField from './boolean';
 import ByteSizeField from './byteSize';
+import ConnectorField from './connectors';
 import DateField from './date';
+import { InterfaceSelector } from './interfaceSelector';
 import LongStringField from './longString';
 import NumberField from './number';
 import OptionHashField from './optionHash';
@@ -263,6 +265,29 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             name={name}
             onChange={handleChange}
             type={currentType}
+          />
+        );
+      }
+      case 'mapper':
+      case 'workflow':
+      case 'service':
+      case 'job':
+      case 'value-map':
+      case 'connection': {
+        return (
+          <InterfaceSelector type={currentType} name={name} value={value} onChange={handleChange} />
+        );
+      }
+      case 'data-provider': {
+        return (
+          <ConnectorField
+            value={value}
+            isInitialEditing={!!default_value}
+            name={name}
+            inline
+            minimal
+            isConfigItem
+            onChange={handleChange}
           />
         );
       }

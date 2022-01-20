@@ -1,4 +1,4 @@
-import { Button, Callout, Tag } from '@blueprintjs/core';
+import { Button, Callout, Classes, Tag } from '@blueprintjs/core';
 import size from 'lodash/size';
 import React, { useEffect, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
@@ -32,6 +32,18 @@ const StyledProviderUrl = styled.div`
   }
 `;
 
+export const getUrlFromProvider: (val: any) => string = (val) => {
+  // If the val is a string, return it
+  if (typeof val === 'string') {
+    return val;
+  }
+  const { type, name, path } = val;
+  // Get the rules for the given provider
+  const { url, suffix, recordSuffix, requiresRecord } = providers[type];
+  // Build the URL based on the provider type
+  return `${url}/${name}${suffix}${path}${requiresRecord ? recordSuffix : ''}`;
+};
+
 const ConnectorField: React.FC<IConnectorFieldProps> = ({
   title,
   onChange,
@@ -41,6 +53,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   initialData,
   inline,
   providerType,
+  minimal,
+  isConfigItem,
   t,
 }) => {
   const [nodes, setChildren] = useState([]);
@@ -61,21 +75,14 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     setIsLoading(false);
   };
 
-  const getUrlFromProvider: (val: any) => string = (val) => {
-    const { type, name, path } = val;
-    // Get the rules for the given provider
-    const { url, suffix, recordSuffix, requiresRecord } = providers[type];
-    // Build the URL based on the provider type
-    return `${url}/${name}${suffix}${path}${requiresRecord ? recordSuffix : ''}`;
-  };
-
   // Update the editing state when initial editing changes
   useEffect(() => {
     setIsEditing(isInitialEditing);
   }, [isInitialEditing]);
 
   useUpdateEffect(() => {
-    if (value) {
+    /* Setting the option provider to the value of the object. */
+    if (value && typeof value === 'object') {
       setOptionProvider(value);
     }
   }, [JSON.stringify(value)]);
@@ -92,13 +99,25 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
       delete val.options;
     }
 
-    onChange(name, val);
+    if (isConfigItem) {
+      // Add type from optionProvider and get value from all nodes and join them by /
+      const type = val.type;
+      const value = nodes.map((node) => node.value).join('/');
+
+      console.log(val, optionProvider);
+
+      console.log(`${type}/${value}`);
+
+      onChange(name, `${type}/${value}`);
+    } else {
+      onChange(name, val);
+    }
   }, [JSON.stringify(optionProvider), isEditing]);
 
   if (isEditing && value) {
     return (
       <>
-        <SubField title={t('CurrentDataProvider')}>
+        <SubField title={!minimal && t('CurrentDataProvider')}>
           <StyledProviderUrl>
             {title && <span>{title}:</span>}{' '}
             <Tag minimal large onRemove={clear}>
@@ -128,8 +147,9 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 
   return (
     <>
-      <SubField title={t('SelectDataProvider')}>
+      <SubField title={!minimal && t('SelectDataProvider')}>
         <Provider
+          isConfigItem={isConfigItem}
           nodes={nodes}
           setChildren={setChildren}
           provider={provider}
@@ -146,7 +166,9 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           }}
         />
       </SubField>
-      {size(nodes) ? <Button intent="danger" icon="cross" onClick={reset} /> : null}
+      {size(nodes) ? (
+        <Button intent="danger" icon="cross" onClick={reset} className={Classes.FIXED} />
+      ) : null}
       {provider === 'factory' && optionProvider ? (
         <SubField title={t('FactoryOptions')}>
           <Options

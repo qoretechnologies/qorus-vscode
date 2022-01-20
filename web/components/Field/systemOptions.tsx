@@ -14,191 +14,207 @@ import SubField from '../SubField';
 import AutoField from './auto';
 import SelectField from './select';
 
+/* "Fix options to be an object with the correct type." */
 export const fixOptions = (value, options) => {
-    return reduce(
-        value,
-        (newValue, option, optionName) => {
-            if (!isObject(option)) {
-                return {
-                    ...newValue,
-                    [optionName]: {
-                        type: options[optionName].type,
-                        value: option,
-                    },
-                };
-            }
+  return reduce(
+    value,
+    (newValue, option, optionName) => {
+      if (!isObject(option)) {
+        return {
+          ...newValue,
+          [optionName]: {
+            type: isArray(options[optionName].type)
+              ? options[optionName].type[0]
+              : options[optionName].type,
+            value: option,
+          },
+        };
+      }
 
-            return { ...newValue, [optionName]: option };
-        },
-        {}
-    );
+      return { ...newValue, [optionName]: option };
+    },
+    {}
+  );
 };
 
 const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
-    const t = useContext(TextContext);
-    const [options, setOptions] = useState({});
-    //const [selectedOptions, setSelectedOptions] = useState(null);
-    const { fetchData, confirmAction, qorus_instance } = useContext(InitialContext);
-    const [error, setError] = useState<string>(null);
+  const t = useContext(TextContext);
+  const [options, setOptions] = useState({});
+  //const [selectedOptions, setSelectedOptions] = useState(null);
+  const { fetchData, confirmAction, qorus_instance } = useContext(InitialContext);
+  const [error, setError] = useState<string>(null);
 
-    const getUrl = () => customUrl || `/options/${url}`;
+  const getUrl = () => customUrl || `/options/${url}`;
 
-    useMount(() => {
-        if (qorus_instance) {
-            (async () => {
-                setOptions({});
-                // Fetch the options for this mapper type
-                const data = await fetchData(getUrl());
+  useMount(() => {
+    if (qorus_instance) {
+      (async () => {
+        setOptions({});
+        // Fetch the options for this mapper type
+        const data = await fetchData(getUrl());
 
-                if (data.error) {
-                    setError(data.error.error);
-                    return;
-                }
-                onChange(name, fixOptions(value, data.data));
-                // Save the new options
-                setOptions(data.data);
-            })();
+        if (data.error) {
+          setError(data.error.error);
+          return;
         }
+        onChange(name, fixOptions(value, data.data));
+        // Save the new options
+        setOptions(data.data);
+      })();
+    }
+  });
+
+  useUpdateEffect(() => {
+    console.log('update effect options');
+    if (url && qorus_instance) {
+      (async () => {
+        setOptions({});
+        setError(null);
+        removeValue();
+        // Fetch the options for this mapper type
+        const data = await fetchData(getUrl());
+        // Save the new options
+        setOptions(data.data);
+        onChange(name, fixOptions({}, data.data));
+      })();
+    }
+  }, [url, qorus_instance]);
+
+  const handleValueChange = (optionName: string, val?: any, type?: string) => {
+    onChange(name, {
+      ...value,
+      [optionName]: {
+        type,
+        value: val,
+      },
     });
+  };
 
-    useUpdateEffect(() => {
-        if (url && qorus_instance) {
-            (async () => {
-                setOptions({});
-                setError(null);
-                removeValue();
-                // Fetch the options for this mapper type
-                const data = await fetchData(getUrl());
-                // Save the new options
-                setOptions(data.data);
-                onChange(name, fixOptions({}, data.data));
-            })();
-        }
-    }, [url, qorus_instance]);
+  const removeValue = () => {
+    onChange(name, null);
+  };
 
-    const handleValueChange = (optionName: string, val?: any, type?: string) => {
-        onChange(name, {
-            ...value,
-            [optionName]: {
-                type,
-                value: val,
-            },
-        });
-    };
-
-    const removeValue = () => {
-        onChange(name, null);
-    };
-
-    const addSelectedOption = (optionName: string) => {
-        handleValueChange(optionName, null, options[optionName].type);
-    };
-
-    const removeSelectedOption = (optionName: string) => {
-        delete value[optionName];
-
-        onChange(name, value);
-    };
-
-    if (!qorus_instance) {
-        return <Callout intent="warning">{t('OptionsQorusInstanceRequired')}</Callout>;
-    }
-
-    if (error) {
-        return (
-            <Callout intent="danger">
-                <p style={{ fontWeight: 500 }}>{t('ErrorLoadingOptions')}</p>
-                {t(error)}
-            </Callout>
-        );
-    }
-
-    if (!options) {
-        return <p>{t('LoadingOptions')}</p>;
-    }
-
-    if (!size(options)) {
-        return <p>{t('NoOptionsAvailable')}</p>;
-    }
-
-    const filteredOptions = reduce(
-        options,
-        (newOptions, option, name) => {
-            if (value && value[name]) {
-                return newOptions;
-            }
-
-            return { ...newOptions, [name]: option };
-        },
-        {}
+  const addSelectedOption = (optionName: string) => {
+    handleValueChange(
+      optionName,
+      null,
+      getTypeAndCanBeNull(options[optionName].type, options[optionName].allowed_values).type
     );
+  };
 
-    const getTypeAndCanBeNull = (type: string, allowed_values: any[]) => {
-        let canBeNull = false;
-        let realType = isArray(type) ? type[0] : type;
+  const removeSelectedOption = (optionName: string) => {
+    delete value[optionName];
 
-        if (realType?.startsWith('*')) {
-            realType = type.replace('*', '');
-            canBeNull = true;
-        }
+    onChange(name, value);
+  };
 
-        realType = realType === 'string' && allowed_values ? 'select-string' : realType;
+  if (!qorus_instance) {
+    return <Callout intent="warning">{t('OptionsQorusInstanceRequired')}</Callout>;
+  }
 
-        return {
-            type: realType,
-            defaultType: realType,
-            canBeNull,
-        };
-    };
-
+  if (error) {
     return (
-        <>
-            {map(fixOptions(value, options), ({ type, ...rest }, optionName) =>
-                !!options[optionName] ? (
-                    <SubField
-                        title={rest.name || optionName}
-                        desc={options[optionName].desc}
-                        onRemove={() => {
-                            confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
-                        }}
-                    >
-                        <AutoField
-                            {...getTypeAndCanBeNull(type, options[optionName].allowed_values)}
-                            name={optionName}
-                            onChange={(optionName, val) =>
-                                handleValueChange(
-                                    optionName,
-                                    val,
-                                    getTypeAndCanBeNull(type, options[optionName].allowed_values).type
-                                )
-                            }
-                            value={rest.value}
-                            sensitive={options[optionName].sensitive}
-                            default_value={options[optionName].default}
-                            allowed_values={options[optionName].allowed_values}
-                        />
-                    </SubField>
-                ) : null
-            )}
-            {size(value) === 0 && (
-                <p className={Classes.TEXT_MUTED}>
-                    <Icon icon="info-sign" /> {t('NoOptionsSelected')}
-                </p>
-            )}
-            <Spacer size={10} />
-            {size(filteredOptions) >= 1 && (
-                <SelectField
-                    name="options"
-                    defaultItems={Object.keys(filteredOptions).map((option) => ({
-                        name: option,
-                        desc: options[option].desc,
-                    }))}
-                    onChange={(_name, value) => addSelectedOption(value)}
-                    placeholder={`${t('AddNewOption')} (${size(filteredOptions)})`}
-                />
-            )}
-        </>
+      <Callout intent="danger">
+        <p style={{ fontWeight: 500 }}>{t('ErrorLoadingOptions')}</p>
+        {t(error)}
+      </Callout>
     );
+  }
+
+  if (!options) {
+    return <p>{t('LoadingOptions')}</p>;
+  }
+
+  if (!size(options)) {
+    return <p>{t('NoOptionsAvailable')}</p>;
+  }
+
+  const filteredOptions = reduce(
+    options,
+    (newOptions, option, name) => {
+      if (value && value[name]) {
+        return newOptions;
+      }
+
+      return { ...newOptions, [name]: option };
+    },
+    {}
+  );
+
+  const getTypeAndCanBeNull = (type: string, allowed_values: any[]) => {
+    let canBeNull = false;
+    let realType = isArray(type) ? type[0] : type;
+
+    if (realType?.startsWith('*')) {
+      realType = realType.replace('*', '');
+      canBeNull = true;
+    }
+
+    realType = realType === 'string' && allowed_values ? 'select-string' : realType;
+
+    console.log('REAL TYPE', realType);
+
+    return {
+      type: realType,
+      defaultType: realType,
+      defaultInternalType: realType,
+      canBeNull,
+    };
+  };
+
+  console.log('rerendering options', value, options, fixOptions(value, options));
+
+  return (
+    <>
+      {map(fixOptions(value, options), ({ type, ...rest }, optionName) =>
+        !!options[optionName] ? (
+          <SubField
+            title={rest.name || optionName}
+            desc={options[optionName].desc}
+            onRemove={() => {
+              confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
+            }}
+          >
+            <AutoField
+              {...getTypeAndCanBeNull(type, options[optionName].allowed_values)}
+              name={optionName}
+              onChange={(optionName, val) => {
+                console.log(optionName, val);
+                if (val !== undefined) {
+                  handleValueChange(
+                    optionName,
+                    val,
+                    getTypeAndCanBeNull(type, options[optionName].allowed_values).type
+                  );
+                }
+              }}
+              value={rest.value}
+              sensitive={options[optionName].sensitive}
+              default_value={options[optionName].default}
+              allowed_values={options[optionName].allowed_values}
+            />
+          </SubField>
+        ) : null
+      )}
+      {size(value) === 0 && (
+        <p className={Classes.TEXT_MUTED}>
+          <Icon icon="info-sign" /> {t('NoOptionsSelected')}
+        </p>
+      )}
+      <Spacer size={10} />
+      {size(filteredOptions) >= 1 && (
+        <SelectField
+          name="options"
+          defaultItems={Object.keys(filteredOptions).map((option) => ({
+            name: option,
+            desc: options[option].desc,
+          }))}
+          onChange={(_name, value) => addSelectedOption(value)}
+          placeholder={`${t('AddNewOption')} (${size(filteredOptions)})`}
+        />
+      )}
+    </>
+  );
 };
 
 export default Options;

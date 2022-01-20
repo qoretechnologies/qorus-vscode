@@ -149,7 +149,7 @@ export const Value = ({ item, useDefault }) => {
     return <Tree compact data={maybeParseYaml(yamlValue)} />;
   }
 
-  return <ContentByType inTable content={value} />;
+  return <ContentByType inTable content={value} baseType={type} />;
 };
 
 let ItemsTable: Function = ({

@@ -19,3 +19,22 @@ export const interfaceKindTransform = {
   type: 'type',
   class: 'class',
 };
+
+export const interfaceToPlural = {
+  service: 'services',
+  step: 'steps',
+  'mapper-code': 'mapper-codes',
+  errors: 'errors',
+  workflow: 'workflows',
+  job: 'jobs',
+  mapper: 'mappers',
+  group: 'groups',
+  event: 'events',
+  queue: 'queues',
+  connection: 'connections',
+  fsm: 'fsms',
+  pipeline: 'pipelines',
+  'value-map': 'valuemaps',
+  type: 'types',
+  class: 'classes',
+};
