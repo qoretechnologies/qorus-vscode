@@ -46,6 +46,10 @@ export const getUrlFromProvider: (val: any) => string = (val) => {
 };
 
 const maybeBuildOptionProvider = (provider) => {
+  if (!provider) {
+    return null;
+  }
+
   // If the provider is an object, return it
   if (typeof provider === 'object') {
     return provider;
