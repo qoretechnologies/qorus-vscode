@@ -138,7 +138,7 @@ const MapperProvider: FC<IProviderProps> = ({
   const t = useContext(TextContext);
 
   // Omit type and factory from the list of providers if is config item
-  providers = isConfigItem ? omit(providers, ['type', 'factory']) : providers;
+  providers = isConfigItem ? omit(providers, ['type']) : providers;
 
   const handleProviderChange = (provider) => {
     setProvider((current) => {

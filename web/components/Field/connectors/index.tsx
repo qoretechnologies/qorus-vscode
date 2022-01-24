@@ -1,4 +1,5 @@
 import { Button, Callout, Classes, Tag } from '@blueprintjs/core';
+import { reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useEffect, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
@@ -44,6 +45,43 @@ export const getUrlFromProvider: (val: any) => string = (val) => {
   return `${url}/${name}${suffix}${path}${requiresRecord ? recordSuffix : ''}`;
 };
 
+const maybeBuildOptionProvider = (provider) => {
+  // If the provider is an object, return it
+  if (typeof provider === 'object') {
+    return provider;
+  }
+  // Check if the provider is a factory
+  if (provider.startsWith('<factory')) {
+    // Get everything between the < and >
+    const factory = provider.substring(provider.indexOf('<') + 1, provider.indexOf('>'));
+    // Get the factory name
+    const [factoryType, factoryName] = factory.split('/');
+    // Get everything in the provider between { and }, which are the options
+    let options = provider.substring(provider.indexOf('{') + 1, provider.indexOf('}'));
+    // Split the options by comma
+    const optionsArray = options.split(',');
+    // Map through all the options and split each by =, which is the key and value
+    const optionsObject = reduce(
+      optionsArray,
+      (newOptions, option) => {
+        const [key, value] = option.split('=');
+        return { ...newOptions, [key]: value };
+      },
+      {}
+    );
+    // Return the new provider
+    return {
+      type: factoryType,
+      name: factoryName,
+      path: '',
+      options: optionsObject,
+    };
+  }
+
+  // Return it
+  return provider;
+};
+
 const ConnectorField: React.FC<IConnectorFieldProps> = ({
   title,
   onChange,
@@ -59,7 +97,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 }) => {
   const [nodes, setChildren] = useState([]);
   const [provider, setProvider] = useState(null);
-  const [optionProvider, setOptionProvider] = useState(value);
+  const [optionProvider, setOptionProvider] = useState(maybeBuildOptionProvider(value));
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(isInitialEditing);
 
@@ -104,19 +142,31 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
       const type = val.type;
       const value = nodes.map((node) => node.value).join('/');
 
-      console.log(val, optionProvider);
+      if (type === 'factory') {
+        let options = reduce(
+          val.options,
+          (newOptions, optionData, optionName) => {
+            return `${newOptions}${optionName}=${optionData.value},`;
+          },
+          ''
+        );
+        // Remove the last comma from options
+        options = options.substring(0, options.length - 1);
 
-      console.log(`${type}/${value}`);
-
-      onChange(name, `${type}/${value}`);
+        onChange(name, `<${type}/${value}>{${options}}`);
+      } else {
+        onChange(name, `${type}/${value}`);
+      }
     } else {
       onChange(name, val);
     }
   }, [JSON.stringify(optionProvider), isEditing]);
 
+  console.log(optionProvider);
+
   if (isEditing && value) {
     return (
-      <>
+      <div>
         <SubField title={!minimal && t('CurrentDataProvider')}>
           <StyledProviderUrl>
             {title && <span>{title}:</span>}{' '}
@@ -125,7 +175,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             </Tag>
           </StyledProviderUrl>
         </SubField>
-        {value.type === 'factory' ? (
+        {optionProvider.type === 'factory' ? (
           <SubField title={t('FactoryOptions')}>
             <Options
               onChange={(nm, val) => {
@@ -133,11 +183,11 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
               }}
               name="options"
               value={optionProvider.options}
-              customUrl={`${getUrlFromProvider(value)}/constructor_options`}
+              customUrl={`${getUrlFromProvider(optionProvider)}/constructor_options`}
             />
           </SubField>
         ) : null}
-      </>
+      </div>
     );
   }
 
@@ -146,7 +196,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   }
 
   return (
-    <>
+    <div>
       <SubField title={!minimal && t('SelectDataProvider')}>
         <Provider
           isConfigItem={isConfigItem}
@@ -181,7 +231,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           />
         </SubField>
       ) : null}
-    </>
+    </div>
   );
 };
 
