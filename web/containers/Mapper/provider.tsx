@@ -225,7 +225,7 @@ const MapperProvider: FC<IProviderProps> = ({
           return newItem;
         })
         .filter((item) => item);
-      if (data.has_type) {
+      if (data.has_type || isConfigItem) {
         (async () => {
           setIsLoading(true);
           if (type === 'outputs' && data.mapper_keys) {
@@ -322,7 +322,7 @@ const MapperProvider: FC<IProviderProps> = ({
           setRecord && setRecord(data.fields);
         }
         // Check if there is a record
-        else if (data.has_record || !providers[provider].requiresRecord) {
+        else if (isConfigItem || data.has_record || !providers[provider].requiresRecord) {
           (async () => {
             setIsLoading(true);
             if (type === 'outputs' && data.mapper_keys) {
