@@ -4,6 +4,7 @@ import map from 'lodash/map';
 import nth from 'lodash/nth';
 import size from 'lodash/size';
 import React, { FC, useCallback, useContext, useState } from 'react';
+import { useDebounce } from 'react-use';
 import styled, { css } from 'styled-components';
 import CustomDialog from '../../components/CustomDialog';
 import SelectField from '../../components/Field/select';
@@ -103,11 +104,12 @@ export let providers: any = {
     filter: null,
     inputFilter: 'supports_read',
     outputFilter: 'supports_create',
-    suffix: '',
+    suffix: '/provider',
     namekey: 'name',
     desckey: 'desc',
     recordSuffix: '',
     requiresRecord: false,
+    suffixRequiresOptions: true,
     type: 'factory',
   },
 };
@@ -133,12 +135,32 @@ const MapperProvider: FC<IProviderProps> = ({
   canSelectNull,
   style,
   isConfigItem,
+  options,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(null);
+  const [optionString, setOptionString] = useState('');
   const t = useContext(TextContext);
+
+  /* When the options hash changes, we want to update the query string. */
+  useDebounce(
+    () => {
+      if (size(options)) {
+        // Turn the options hash into a query string
+        const str = map(options, (value, key) => `${key}=${value.value}`).join(',');
+        console.log(str);
+        setOptionString(`provider_options={${str}}`);
+      } else {
+        setOptionString('');
+      }
+    },
+    500,
+    [options]
+  );
 
   // Omit type and factory from the list of providers if is config item
   providers = isConfigItem ? omit(providers, ['type']) : providers;
+
+  console.log(optionString);
 
   const handleProviderChange = (provider) => {
     setProvider((current) => {
@@ -197,8 +219,15 @@ const MapperProvider: FC<IProviderProps> = ({
     clear && clear(true);
     // Set loading
     setIsLoading(true);
+    // Build the suffix
+    let suffixString = providers[provider].suffixRequiresOptions
+      ? optionString && optionString !== ''
+        ? `${suffix}?${optionString}`
+        : ''
+      : suffix;
     // Fetch the data
-    const { data, error } = await fetchData(`${url}/${value}${suffix}`);
+    const { data, error } = await fetchData(`${url}/${value}${suffixString}`);
+    console.log(data);
     if (error) {
       console.error(`${url}/${value}${suffix}`, error);
       setIsLoading(false);
@@ -232,12 +261,17 @@ const MapperProvider: FC<IProviderProps> = ({
             // Save the mapper keys
             setMapperKeys && setMapperKeys(data.mapper_keys);
           }
+
+          suffixString = providers[provider].suffixRequiresOptions
+            ? optionString && optionString !== ''
+              ? `${suffix}${providers[provider].recordSuffix}?${optionString}${
+                  type === 'outputs' ? '&soft=true' : ''
+                }`
+              : ''
+            : `${suffix}${providers[provider].recordSuffix}`;
+
           // Fetch the record
-          const record = await fetchData(
-            `${url}/${value}${suffix}${providers[provider].recordSuffix}${
-              type === 'outputs' ? '?soft=true' : ''
-            }`
-          );
+          const record = await fetchData(`${url}/${value}${suffixString}`);
           // Remove loading
           setIsLoading(false);
           // Save the name by pulling the 3rd item from the split
@@ -252,6 +286,7 @@ const MapperProvider: FC<IProviderProps> = ({
               .replace(`${name}`, '')
               .replace(`${providers[provider].url}/`, '')
               .replace('provider/', ''),
+            options,
           });
           // Set the record data
           setRecord &&
@@ -349,6 +384,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 .replace(`${name}`, '')
                 .replace(`${providers[provider].url}/`, '')
                 .replace('provider/', ''),
+              options,
             });
             // Set the record data
             setRecord &&
@@ -417,29 +453,52 @@ const MapperProvider: FC<IProviderProps> = ({
             value={provider}
           />
           {nodes.map((child, index) => (
-            <SelectField
-              key={`${title}-${index}`}
-              name={`provider-${type ? `${type}-` : ''}${index}`}
-              disabled={isLoading}
-              defaultItems={child.values}
-              onChange={(_name, value) => {
-                // Get the child data
-                const { url, suffix } = child.values.find((val) => val.name === value);
-                // If the value is a wildcard present a dialog that the user has to fill
-                if (value === '*') {
-                  setWildcardDiagram({
-                    index,
-                    isOpen: true,
-                    url,
-                    suffix,
-                  });
-                } else {
-                  // Change the child
-                  handleChildFieldChange(value, url, index, suffix);
-                }
-              }}
-              value={child.value}
-            />
+            <ButtonGroup>
+              <SelectField
+                key={`${title}-${index}`}
+                name={`provider-${type ? `${type}-` : ''}${index}`}
+                disabled={isLoading}
+                defaultItems={child.values}
+                onChange={(_name, value) => {
+                  // Get the child data
+                  const { url, suffix } = child.values.find((val) => val.name === value);
+                  // If the value is a wildcard present a dialog that the user has to fill
+                  if (value === '*') {
+                    setWildcardDiagram({
+                      index,
+                      isOpen: true,
+                      url,
+                      suffix,
+                    });
+                  } else {
+                    // Change the child
+                    handleChildFieldChange(value, url, index, suffix);
+                  }
+                }}
+                value={child.value}
+              />
+              {index === 0 && size(options) ? (
+                <Button
+                  icon="refresh"
+                  onClick={() => {
+                    // Get the child data
+                    const { url, suffix } = child.values.find((val) => val.name === child.value);
+                    // If the value is a wildcard present a dialog that the user has to fill
+                    if (child.value === '*') {
+                      setWildcardDiagram({
+                        index,
+                        isOpen: true,
+                        url,
+                        suffix,
+                      });
+                    } else {
+                      // Change the child
+                      handleChildFieldChange(child.value, url, index, suffix);
+                    }
+                  }}
+                />
+              ) : null}
+            </ButtonGroup>
           ))}
           {isLoading && <Spinner size={15} />}
           {nodes.length > 0 && (

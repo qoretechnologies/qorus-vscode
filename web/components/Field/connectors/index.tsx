@@ -1,5 +1,5 @@
 import { Button, Callout, Classes, Tag } from '@blueprintjs/core';
-import { reduce } from 'lodash';
+import { map, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useEffect, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
@@ -33,16 +33,40 @@ const StyledProviderUrl = styled.div`
   }
 `;
 
-export const getUrlFromProvider: (val: any) => string = (val) => {
+export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
+  val,
+  withOptions
+) => {
   // If the val is a string, return it
   if (typeof val === 'string') {
     return val;
   }
-  const { type, name, path } = val;
+  const { type, name, path, options } = val;
+  let optionString;
+
+  if (size(options)) {
+    // Build the option string for URL
+    optionString = `provider_options={${map(options, (value, key) => `${key}=${value.value}`).join(
+      ','
+    )}}`;
+  }
   // Get the rules for the given provider
-  const { url, suffix, recordSuffix, requiresRecord } = providers[type];
+  const { url, suffix, recordSuffix, requiresRecord, suffixRequiresOptions } = providers[type];
+  // Build the suffix
+  const realPath = `${suffix}${path}${requiresRecord ? recordSuffix : ''}${
+    withOptions ? '/constructor_options' : ''
+  }`;
+
+  const suffixString = suffixRequiresOptions
+    ? optionString && optionString !== ''
+      ? `${realPath}?${optionString}`
+      : `${withOptions ? '/constructor_options' : ''}`
+    : realPath;
+
+  console.log(suffixString);
+
   // Build the URL based on the provider type
-  return `${url}/${name}${suffix}${path}${requiresRecord ? recordSuffix : ''}`;
+  return `${url}/${name}${suffixString}`;
 };
 
 const maybeBuildOptionProvider = (provider) => {
@@ -166,8 +190,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     }
   }, [JSON.stringify(optionProvider), isEditing]);
 
-  console.log(optionProvider);
-
   if (isEditing && value) {
     return (
       <div>
@@ -187,7 +209,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
               }}
               name="options"
               value={optionProvider.options}
-              customUrl={`${getUrlFromProvider(optionProvider)}/constructor_options`}
+              customUrl={`${getUrlFromProvider(optionProvider, true)}`}
             />
           </SubField>
         ) : null}
@@ -211,6 +233,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           setOptionProvider={setOptionProvider}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
+          options={optionProvider?.options}
           title={title}
           clear={clear}
           type={providerType}
@@ -231,7 +254,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             }}
             name="options"
             value={optionProvider.options}
-            customUrl={`${getUrlFromProvider(optionProvider)}/constructor_options`}
+            customUrl={`${getUrlFromProvider(optionProvider, true)}`}
           />
         </SubField>
       ) : null}

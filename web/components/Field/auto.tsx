@@ -38,8 +38,6 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
   const [currentInternalType, setInternalType] = useState<string>(defaultInternalType || 'any');
   const [isSetToNull, setIsSetToNull] = useState<boolean>(false);
 
-  console.log(currentType, currentInternalType);
-
   useMount(() => {
     let defType = defaultType && defaultType.replace(/"/g, '').trim();
     defType = defType || 'any';
@@ -52,10 +50,6 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     }
 
     setType(defType);
-    console.log(
-      getValueOrDefaultValue(value, default_value, canBeNull(defType)),
-      canBeNull(defType)
-    );
     // If the value is null and can be null, set the null flag
     if (
       (getValueOrDefaultValue(value, default_value, canBeNull(defType)) === 'null' ||
@@ -135,8 +129,6 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     // Handle change
     handleChange(name, isSetToNull ? undefined : null);
   };
-
-  console.log(isSetToNull);
 
   const renderField = (currentType: string) => {
     // If this field is set to null
