@@ -62,8 +62,6 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
     onChange(name, value);
   };
 
-  console.log(items);
-
   return (
     <div>
       {items.map(

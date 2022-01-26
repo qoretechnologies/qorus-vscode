@@ -141,10 +141,6 @@ export const Value = ({ item, useDefault }) => {
       ? item.value_true_type || getItemType(item.type, yamlValue)
       : item.type;
 
-  if (item.type === 'any') {
-    console.log(type);
-  }
-
   if (type === 'hash' || type === 'list') {
     return <Tree compact data={maybeParseYaml(yamlValue)} />;
   }

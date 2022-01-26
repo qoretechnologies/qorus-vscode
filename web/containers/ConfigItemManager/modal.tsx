@@ -185,8 +185,6 @@ export default class ConfigItemsModal extends Component {
     const { onClose, isGlobal, globalConfig, t } = this.props;
     const { error, yamlData, value, item } = this.state;
 
-    console.log(item);
-
     return (
       <CustomDialog
         isOpen

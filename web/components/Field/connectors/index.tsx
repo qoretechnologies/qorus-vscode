@@ -63,8 +63,6 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
       : `${withOptions ? '/constructor_options' : ''}`
     : realPath;
 
-  console.log(suffixString);
-
   // Build the URL based on the provider type
   return `${url}/${name}${suffixString}`;
 };

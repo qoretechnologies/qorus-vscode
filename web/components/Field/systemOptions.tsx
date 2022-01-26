@@ -65,7 +65,6 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
   });
 
   useUpdateEffect(() => {
-    console.log('update effect options');
     if (url && qorus_instance) {
       (async () => {
         setOptions({});
@@ -152,8 +151,6 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
 
     realType = realType === 'string' && allowed_values ? 'select-string' : realType;
 
-    console.log('REAL TYPE', realType);
-
     return {
       type: realType,
       defaultType: realType,
@@ -161,8 +158,6 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
       canBeNull,
     };
   };
-
-  console.log('rerendering options', value, options, fixOptions(value, options));
 
   return (
     <>
@@ -179,7 +174,6 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
               {...getTypeAndCanBeNull(type, options[optionName].allowed_values)}
               name={optionName}
               onChange={(optionName, val) => {
-                console.log(optionName, val);
                 if (val !== undefined) {
                   handleValueChange(
                     optionName,

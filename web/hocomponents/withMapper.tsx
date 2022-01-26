@@ -189,6 +189,7 @@ export default () =>
             can_manage_fields,
           });
         }
+        console.log(type, providers);
         // Get the rules for the given provider
         const { url, suffix, recordSuffix } = providers[type];
         // Build the URL based on the provider type

@@ -64,8 +64,6 @@ export const InterfaceSelector: FunctionComponent<ILongStringField & IField & IF
     return <div>Loading...</div>;
   }
 
-  console.log(interfaces);
-
   return (
     <SelectField
       defaultItems={interfaces.data.map((i) => ({ name: i }))}

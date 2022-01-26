@@ -147,7 +147,6 @@ const MapperProvider: FC<IProviderProps> = ({
       if (size(options)) {
         // Turn the options hash into a query string
         const str = map(options, (value, key) => `${key}=${value.value}`).join(',');
-        console.log(str);
         setOptionString(`provider_options={${str}}`);
       } else {
         setOptionString('');
@@ -159,8 +158,6 @@ const MapperProvider: FC<IProviderProps> = ({
 
   // Omit type and factory from the list of providers if is config item
   providers = isConfigItem ? omit(providers, ['type']) : providers;
-
-  console.log(optionString);
 
   const handleProviderChange = (provider) => {
     setProvider((current) => {
@@ -227,7 +224,6 @@ const MapperProvider: FC<IProviderProps> = ({
       : suffix;
     // Fetch the data
     const { data, error } = await fetchData(`${url}/${value}${suffixString}`);
-    console.log(data);
     if (error) {
       console.error(`${url}/${value}${suffix}`, error);
       setIsLoading(false);
@@ -514,21 +510,29 @@ const MapperProvider: FC<IProviderProps> = ({
                   result.pop();
 
                   const lastChild = nth(result, -2);
-                  const index = size(result) - 2;
-                  const { value, values } = lastChild;
-                  const { url, suffix } = values.find((val) => val.name === value);
 
-                  // If the value is a wildcard present a dialog that the user has to fill
-                  if (value === '*') {
-                    setWildcardDiagram({
-                      index,
-                      isOpen: true,
-                      url,
-                      suffix,
-                    });
-                  } else {
-                    // Change the child
-                    handleChildFieldChange(value, url, index, suffix);
+                  if (lastChild) {
+                    const index = size(result) - 2;
+                    const { value, values } = lastChild;
+                    const { url, suffix } = values.find((val) => val.name === value);
+
+                    // If the value is a wildcard present a dialog that the user has to fill
+                    if (value === '*') {
+                      setWildcardDiagram({
+                        index,
+                        isOpen: true,
+                        url,
+                        suffix,
+                      });
+                    } else {
+                      // Change the child
+                      handleChildFieldChange(value, url, index, suffix);
+                    }
+                  }
+
+                  // If there are no children then we need to reset the provider
+                  if (size(result) === 0) {
+                    handleProviderChange(provider);
                   }
 
                   return result;
