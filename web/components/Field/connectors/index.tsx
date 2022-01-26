@@ -1,5 +1,5 @@
 import { Button, Callout, Classes, Tag } from '@blueprintjs/core';
-import { map, reduce } from 'lodash';
+import { cloneDeep, map, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useEffect, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
@@ -46,9 +46,10 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
 
   if (size(options)) {
     // Build the option string for URL
-    optionString = `provider_options={${map(options, (value, key) => `${key}=${value.value}`).join(
-      ','
-    )}}`;
+    optionString = `provider_options={${map(
+      options,
+      (value, key) => `${key}=${value.value || value}`
+    ).join(',')}}`;
   }
   // Get the rules for the given provider
   const { url, suffix, recordSuffix, requiresRecord, suffixRequiresOptions } = providers[type];
@@ -77,24 +78,29 @@ const maybeBuildOptionProvider = (provider) => {
     return provider;
   }
   // Check if the provider is a factory
-  if (provider.startsWith('<factory')) {
+  if (provider.startsWith('factory')) {
     // Get everything between the < and >
-    const factory = provider.substring(provider.indexOf('<') + 1, provider.indexOf('>'));
+    //const factory = provider.substring(provider.indexOf('<') + 1, provider.indexOf('>'));
     // Get the factory name
-    const [factoryType, factoryName] = factory.split('/');
+    const [factoryType, nameWithOptions] = provider.split('/');
+    // Get everything between the first / and { bracket
+    const [factoryName] = nameWithOptions.split('{');
     // Get everything in the provider between { and }, which are the options
     let options = provider.substring(provider.indexOf('{') + 1, provider.indexOf('}'));
     // Split the options by comma
     const optionsArray = options.split(',');
-    // Map through all the options and split each by =, which is the key and value
-    const optionsObject = reduce(
-      optionsArray,
-      (newOptions, option) => {
-        const [key, value] = option.split('=');
-        return { ...newOptions, [key]: value };
-      },
-      {}
-    );
+    let optionsObject = {};
+    if (size(optionsArray)) {
+      // Map through all the options and split each by =, which is the key and value
+      optionsObject = reduce(
+        optionsArray,
+        (newOptions, option) => {
+          const [key, value] = option.split('=');
+          return { ...newOptions, [key]: value };
+        },
+        {}
+      );
+    }
     // Return the new provider
     return {
       type: factoryType,
@@ -152,41 +158,56 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   }, [JSON.stringify(value)]);
 
   useUpdateEffect(() => {
-    if (!optionProvider) {
-      onChange(name, optionProvider);
-      return;
-    }
-
-    const val = { ...optionProvider };
-
-    if (!size(val?.options)) {
-      delete val.options;
-    }
-
-    if (isConfigItem) {
-      // Add type from optionProvider and get value from all nodes and join them by /
-      const type = val.type;
-      const value = nodes.map((node) => node.value).join('/');
-
-      if (type === 'factory') {
-        let options = reduce(
-          val.options,
-          (newOptions, optionData, optionName) => {
-            return `${newOptions}${optionName}=${optionData.value},`;
-          },
-          ''
-        );
-        // Remove the last comma from options
-        options = options.substring(0, options.length - 1);
-
-        onChange(name, `<${type}/${value}>{${options}}`);
-      } else {
-        onChange(name, `${type}/${value}`);
+    if (!isEditing) {
+      if (!optionProvider) {
+        onChange(name, optionProvider);
+        return;
       }
-    } else {
-      onChange(name, val);
+
+      const val = { ...optionProvider };
+
+      if (!size(val?.options)) {
+        delete val.options;
+      }
+
+      if (isConfigItem) {
+        // Add type from optionProvider and get value from all nodes and join them by /
+        const type = val.type;
+        const newNodes = cloneDeep(nodes);
+
+        if (type === 'factory') {
+          let options = reduce(
+            val.options,
+            (newOptions, optionData, optionName) => {
+              return `${newOptions}${optionName}=${optionData.value},`;
+            },
+            ''
+          );
+          // Remove the last comma from options
+          options = options.substring(0, options.length - 1);
+
+          console.log(newNodes);
+
+          if (newNodes[0]) {
+            newNodes[0].value = `${newNodes[0].value}{${options}}`;
+          }
+
+          const value = newNodes.map((node) => node.value).join('/');
+
+          console.log(value);
+
+          onChange(name, `${type}/${value}`);
+        } else {
+          const value = nodes.map((node) => node.value).join('/');
+          onChange(name, `${type}/${value}`);
+        }
+      } else {
+        onChange(name, val);
+      }
     }
   }, [JSON.stringify(optionProvider), isEditing]);
+
+  console.log(optionProvider, value);
 
   if (isEditing && value) {
     return (
@@ -195,7 +216,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           <StyledProviderUrl>
             {title && <span>{title}:</span>}{' '}
             <Tag minimal large onRemove={clear}>
-              {getUrlFromProvider(value)}{' '}
+              {optionProvider.type === 'factory' ? value : getUrlFromProvider(value)}{' '}
             </Tag>
           </StyledProviderUrl>
         </SubField>

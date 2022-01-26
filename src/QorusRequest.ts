@@ -192,6 +192,7 @@ export class QorusRequest extends QorusLogin {
         onSuccess(response);
       },
       (error) => {
+        console.log(uri);
         console.log(error);
         if (onError) {
           onError(error);
