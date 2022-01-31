@@ -101,17 +101,32 @@ export let providers: any = {
   factory: {
     name: 'factory',
     url: 'dataprovider/factories',
-    filter: null,
+    filter: 'has_provider',
     inputFilter: 'supports_read',
     outputFilter: 'supports_create',
     suffix: '/provider',
     namekey: 'name',
     desckey: 'desc',
-    recordSuffix: '',
-    requiresRecord: false,
-    suffixRequiresOptions: true,
+    recordSuffix: '/record',
+    requiresRecord: true,
+    suffixRequiresOptions: false,
     type: 'factory',
   },
+};
+
+export const configItemFactory = {
+  name: 'factory',
+  url: 'dataprovider/factories',
+  filter: null,
+  inputFilter: 'supports_read',
+  outputFilter: 'supports_create',
+  suffix: '/provider',
+  namekey: 'name',
+  desckey: 'desc',
+  recordSuffix: '',
+  requiresRecord: false,
+  suffixRequiresOptions: true,
+  type: 'factory',
 };
 
 const MapperProvider: FC<IProviderProps> = ({
