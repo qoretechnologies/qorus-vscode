@@ -55,7 +55,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   const { url, suffix, recordSuffix, suffixRequiresOptions } = providers[type];
 
   if (withOptions) {
-    return `${url}/${name}/constructor_options`;
+    return `${url}/${name}/constructor_options?context=ui`;
   }
 
   // Build the suffix
