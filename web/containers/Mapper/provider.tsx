@@ -237,7 +237,7 @@ const MapperProvider: FC<IProviderProps> = ({
     setIsLoading(true);
     // Build the suffix
     let suffixString = providers[provider].suffixRequiresOptions
-      ? optionString && optionString !== ''
+      ? optionString && optionString !== '' && size(options)
         ? `${suffix}?${optionString}`
         : ''
       : suffix;
@@ -388,7 +388,7 @@ const MapperProvider: FC<IProviderProps> = ({
               setMapperKeys && setMapperKeys(data.mapper_keys);
             }
             suffixString = providers[provider].suffixRequiresOptions
-              ? optionString && optionString !== ''
+              ? optionString && optionString !== '' && size(options)
                 ? `${suffix}${providers[provider].recordSuffix}?${optionString}${
                     type === 'outputs' ? '&soft=true' : ''
                   }`
