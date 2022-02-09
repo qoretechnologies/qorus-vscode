@@ -48,7 +48,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
     // Build the option string for URL
     optionString = `provider_yaml_options={${map(
       options,
-      (value, key) => `${key}=${value.value || value}`
+      (value, key) => `${key}=${btoa(value.value || value)}`
     ).join(',')}}`;
   }
   // Get the rules for the given provider
