@@ -54,7 +54,7 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
         const data = await fetchData(getUrl());
 
         if (data.error) {
-          setError(data.error.error);
+          setOptions({});
           return;
         }
         onChange(name, fixOptions(value, data.data));
@@ -65,19 +65,23 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
   });
 
   useUpdateEffect(() => {
-    if (url && qorus_instance) {
+    if ((url || customUrl) && qorus_instance) {
       (async () => {
         setOptions({});
         setError(null);
         removeValue();
         // Fetch the options for this mapper type
         const data = await fetchData(getUrl());
+        if (data.error) {
+          setOptions({});
+          return;
+        }
         // Save the new options
         setOptions(data.data);
         onChange(name, fixOptions({}, data.data));
       })();
     }
-  }, [url, qorus_instance]);
+  }, [url, qorus_instance, customUrl]);
 
   const handleValueChange = (optionName: string, val?: any, type?: string) => {
     onChange(name, {
