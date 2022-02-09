@@ -35,8 +35,8 @@ export const formatFields = (fields) => {
           ...field,
           name,
           type: {
-            ...field.type,
-            fields: formatFields(field.type?.fields || {}),
+            ...field?.type,
+            fields: formatFields(field?.type?.fields || {}),
           },
         },
       };

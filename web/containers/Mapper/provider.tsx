@@ -101,7 +101,7 @@ export let providers: any = {
   factory: {
     name: 'factory',
     url: 'dataprovider/factories',
-    filter: 'has_provider',
+    filter: null,
     inputFilter: 'supports_read',
     outputFilter: 'supports_create',
     suffix: '/provider',
@@ -109,7 +109,7 @@ export let providers: any = {
     desckey: 'desc',
     recordSuffix: '/record',
     requiresRecord: true,
-    suffixRequiresOptions: false,
+    suffixRequiresOptions: true,
     type: 'factory',
   },
 };
@@ -172,7 +172,11 @@ const MapperProvider: FC<IProviderProps> = ({
   );
 
   // Omit type and factory from the list of providers if is config item
-  providers = isConfigItem ? omit(providers, ['type']) : providers;
+  providers = isConfigItem
+    ? { ...omit(providers, ['type', 'factory']), factory: configItemFactory }
+    : providers;
+
+  console.log(nodes, provider, record);
 
   const handleProviderChange = (provider) => {
     setProvider((current) => {
@@ -237,6 +241,7 @@ const MapperProvider: FC<IProviderProps> = ({
         ? `${suffix}?${optionString}`
         : ''
       : suffix;
+    console.log('OPTION STRING', suffixString, optionString);
     // Fetch the data
     const { data, error } = await fetchData(`${url}/${value}${suffixString}`);
     if (error) {
@@ -244,6 +249,7 @@ const MapperProvider: FC<IProviderProps> = ({
       setIsLoading(false);
       return;
     }
+    console.log(data);
     // Reset loading
     setIsLoading(false);
     // Add new child
@@ -265,7 +271,8 @@ const MapperProvider: FC<IProviderProps> = ({
           return newItem;
         })
         .filter((item) => item);
-      if (data.has_type || isConfigItem) {
+
+      if (data.has_type || isConfigItem || provider === 'factory') {
         (async () => {
           setIsLoading(true);
           if (type === 'outputs' && data.mapper_keys) {
@@ -281,6 +288,8 @@ const MapperProvider: FC<IProviderProps> = ({
               : ''
             : `${suffix}${providers[provider].recordSuffix}`;
 
+          console.log('OPTION STRING!!!', optionString);
+
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
           // Remove loading
@@ -289,20 +298,23 @@ const MapperProvider: FC<IProviderProps> = ({
           // url (same for every provider type)
           const name = `${url}/${value}`.split('/')[2];
           // Set the provider option
+          console.log('setting option provider heh');
           setOptionProvider({
             type: providers[provider].type,
             name,
-            can_manage_fields: record.data.can_manage_fields,
+            can_manage_fields: record.data?.can_manage_fields,
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${providers[provider].url}/`, '')
               .replace('provider/', ''),
             options,
           });
-          // Set the record data
-          setRecord &&
-            setRecord(!providers[provider].requiresRecord ? record.data.fields : record.data);
-          //
+          if (data.has_type || isConfigItem) {
+            // Set the record data
+            setRecord &&
+              setRecord(!providers[provider].requiresRecord ? record.data.fields : record.data);
+            //
+          }
         })();
       }
       // If this provider has children
@@ -375,12 +387,16 @@ const MapperProvider: FC<IProviderProps> = ({
               // Save the mapper keys
               setMapperKeys && setMapperKeys(data.mapper_keys);
             }
+            suffixString = providers[provider].suffixRequiresOptions
+              ? optionString && optionString !== ''
+                ? `${suffix}${providers[provider].recordSuffix}?${optionString}${
+                    type === 'outputs' ? '&soft=true' : ''
+                  }`
+                : ''
+              : `${suffix}${providers[provider].recordSuffix}`;
             // Fetch the record
-            const record = await fetchData(
-              `${url}/${value}${suffix}${providers[provider].recordSuffix}${
-                type === 'outputs' ? '?soft=true' : ''
-              }`
-            );
+            const record = await fetchData(`${url}/${value}${suffixString}`);
+            console.log(record);
             // Remove loading
             setIsLoading(false);
             // Save the name by pulling the 3rd item from the split

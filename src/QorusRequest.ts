@@ -189,10 +189,11 @@ export class QorusRequest extends QorusLogin {
         if (log_request_messages) {
           msg.log(t`GettingResponse ${id} ${JSON.stringify(JSON.parse(response), null, 4)}`);
         }
+        console.log('SUCCESS', uri);
         onSuccess(response);
       },
       (error) => {
-        console.log(uri);
+        console.log('ERROR', uri);
         console.log(error);
         if (onError) {
           onError(error);

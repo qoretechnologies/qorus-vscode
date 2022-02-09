@@ -208,6 +208,7 @@ export default () =>
               listener();
             }
           });
+          console.log('fetch', url, method);
           // Fetch the data
           postMessage('fetch-data', {
             id: uniqueId,

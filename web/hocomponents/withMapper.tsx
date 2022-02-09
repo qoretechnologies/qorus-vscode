@@ -2,6 +2,7 @@ import { forEach, get, reduce, set, size, unset } from 'lodash';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
+import { getUrlFromProvider as getRealUrlFromProvider } from '../components/Field/connectors';
 import { Messages } from '../constants/messages';
 import { formatFields } from '../containers/InterfaceCreator/typeView';
 import { providers } from '../containers/Mapper/provider';
@@ -57,6 +58,7 @@ export default () =>
         path?: string;
         subtype?: string;
         can_manage_fields?: boolean;
+        options?: any;
       }>(null);
       const [outputOptionProvider, setOutputOptionProvider] = useState<{
         name: string;
@@ -64,6 +66,7 @@ export default () =>
         path?: string;
         subtype?: string;
         can_manage_fields?: boolean;
+        options?: any;
       }>(null);
       const [mapperKeys, setMapperKeys] = useState<any>(null);
       const [hideInputSelector, setHideInputSelector] = useState<boolean>(false);
@@ -144,22 +147,39 @@ export default () =>
         fieldType,
         provider
       ) => {
-        const { type, name, path, subtype } = provider
+        /* GetRealUrlFromProvider(provider, withOptions)
+
+        The above code is a function that takes two parameters:
+
+        provider: the provider to use to get the real url
+        withOptions: a boolean that indicates whether or not to include the options
+
+        The function returns a function that takes one parameter:
+
+        fieldType: the type of field to get the real url for
+
+        The function returns a string that is the real url for the field type.
+
+        The function is used in the following way:
+
+        const realUrl = getReal */
+        const prov = provider
           ? provider
           : fieldType === 'input'
           ? inputOptionProvider
           : outputOptionProvider;
+        return getRealUrlFromProvider(prov, !!prov.options);
         // Check if the type is factory
-        if (type === 'factory') {
-          // Return just the type
-          return type;
-        }
-        // Get the rules for the given provider
-        const { url, suffix, recordSuffix } = providers[type];
-        // Build the URL based on the provider type
-        return `${url}/${name}${suffix}${subtype ? addTrailingSlash(path) : path}${
-          recordSuffix && !subtype ? recordSuffix : ''
-        }${subtype ? subtype : ''}`;
+        // if (type === 'factory') {
+        //   // Return just the type
+        //   return type;
+        // }
+        // // Get the rules for the given provider
+        // const { url, suffix, recordSuffix } = providers[type];
+        // // Build the URL based on the provider type
+        // return `${url}/${name}${suffix}${subtype ? addTrailingSlash(path) : path}${
+        //   recordSuffix && !subtype ? recordSuffix : ''
+        // }${subtype ? subtype : ''}`;
       };
 
       const getProviderUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {
@@ -190,12 +210,7 @@ export default () =>
           });
         }
         console.log(type, providers);
-        // Get the rules for the given provider
-        const { url, suffix, recordSuffix } = providers[type];
-        // Build the URL based on the provider type
-        return `${url}/${name}${suffix}${subtype ? addTrailingSlash(path) : path}${
-          recordSuffix && !subtype ? recordSuffix : ''
-        }${subtype ? subtype : ''}`;
+        return getUrlFromProvider(fieldType, mapper.mapper_options[`mapper-${fieldType}`]);
       };
 
       const getMapperKeysUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {
@@ -275,22 +290,15 @@ export default () =>
         // Check if this input is a factory
         const { type } = mapper.mapper_options[`mapper-input`];
 
-        if (type === 'factory') {
-          // Cancel loading
-          setInputsLoading(false);
-          // Save the empty inputs
-          setInputs({});
-          // Stop
-          return;
-        }
         const inputs = await props.fetchData(inputUrl);
+        console.log('inputs', inputs);
         // If one of the connections is down
         if (inputs.error) {
           setError(inputs.error && 'InputConnError');
           return;
         }
         // Save the fields
-        const inputFields = inputs.data.fields || inputs.data;
+        const inputFields = inputs.data.fields || inputs.data || {};
         // Save the inputs & outputs
         setInputs(
           formatFields(
@@ -315,6 +323,7 @@ export default () =>
         setOutputRecord(outputUrl);
         // Fetch the input and output fields
         const outputs = await props.fetchData(outputUrl);
+        console.log('outputs', outputs);
         // If one of the connections is down
         if (outputs.error) {
           console.error(outputs);

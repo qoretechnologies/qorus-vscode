@@ -52,9 +52,14 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
     ).join(',')}}`;
   }
   // Get the rules for the given provider
-  const { url, suffix, recordSuffix, requiresRecord, suffixRequiresOptions } = providers[type];
+  const { url, suffix, recordSuffix, suffixRequiresOptions } = providers[type];
+
+  if (withOptions) {
+    return `${url}/${name}/constructor_options`;
+  }
+
   // Build the suffix
-  const realPath = `${suffix}${path}${requiresRecord ? recordSuffix : ''}${
+  const realPath = `${suffix}${path}${recordSuffix || ''}${
     withOptions ? '/constructor_options' : ''
   }`;
 
@@ -63,6 +68,8 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
       ? `${realPath}?${optionString}`
       : `${withOptions ? '/constructor_options' : ''}`
     : realPath;
+
+  console.log('REAL URL', realPath, suffixString);
 
   // Build the URL based on the provider type
   return `${url}/${name}${suffixString}`;
