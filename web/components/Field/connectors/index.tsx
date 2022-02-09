@@ -46,7 +46,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
 
   if (size(options)) {
     // Build the option string for URL
-    optionString = `provider_options={${map(
+    optionString = `provider_yaml_options={${map(
       options,
       (value, key) => `${key}=${value.value || value}`
     ).join(',')}}`;

@@ -162,9 +162,9 @@ const MapperProvider: FC<IProviderProps> = ({
       if (size(options)) {
         // Turn the options hash into a query string
         const str = map(options, (value, key) => `${key}=${value.value}`).join(',');
-        setOptionString(`provider_options={${str}}`);
+        setOptionString(`provider_yaml_options={${str}}`);
       } else {
-        setOptionString('provider_options={}');
+        setOptionString('provider_yaml_options={}');
       }
     },
     500,
