@@ -164,7 +164,7 @@ const MapperProvider: FC<IProviderProps> = ({
         const str = map(options, (value, key) => `${key}=${value.value}`).join(',');
         setOptionString(`provider_options={${str}}`);
       } else {
-        setOptionString('');
+        setOptionString('provider_options={}');
       }
     },
     500,
@@ -504,7 +504,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 }}
                 value={child.value}
               />
-              {index === 0 && size(options) ? (
+              {index === 0 ? (
                 <Button
                   icon="refresh"
                   onClick={() => {
