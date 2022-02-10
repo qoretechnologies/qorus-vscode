@@ -168,7 +168,7 @@ export default () =>
           : fieldType === 'input'
           ? inputOptionProvider
           : outputOptionProvider;
-        return getRealUrlFromProvider(prov, !!prov.options);
+        return getRealUrlFromProvider(prov);
         // Check if the type is factory
         // if (type === 'factory') {
         //   // Return just the type
