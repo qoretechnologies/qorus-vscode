@@ -168,7 +168,6 @@ export default () =>
           : fieldType === 'input'
           ? inputOptionProvider
           : outputOptionProvider;
-        console.log('PROVIDER BULLSHIT DATA', fieldType, provider);
         return getRealUrlFromProvider(prov, !!prov.options);
         // Check if the type is factory
         // if (type === 'factory') {
