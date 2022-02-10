@@ -239,15 +239,17 @@ const MapperProvider: FC<IProviderProps> = ({
     let suffixString = providers[provider].suffixRequiresOptions
       ? optionString && optionString !== '' && size(options)
         ? `${suffix}?${optionString}`
-        : ''
+        : itemIndex === 1
+        ? ''
+        : suffix
       : suffix;
     console.log('OPTION STRING', suffixString, optionString);
     // Fetch the data
-    const { data, error } = await fetchData(`${url}/${value}${suffixString}`);
+    const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
     if (error) {
       console.error(`${url}/${value}${suffix}`, error);
-      setIsLoading(false);
-      return;
+      //setIsLoading(false);
+      //return;
     }
     console.log(data);
     // Reset loading
@@ -281,11 +283,11 @@ const MapperProvider: FC<IProviderProps> = ({
           }
 
           suffixString = providers[provider].suffixRequiresOptions
-            ? optionString && optionString !== ''
+            ? optionString && optionString !== '' && size(options)
               ? `${suffix}${providers[provider].recordSuffix}?${optionString}${
                   type === 'outputs' ? '&soft=true' : ''
                 }`
-              : ''
+              : `${suffix}`
             : `${suffix}${providers[provider].recordSuffix}`;
 
           console.log('OPTION STRING!!!', optionString);
@@ -392,7 +394,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 ? `${suffix}${providers[provider].recordSuffix}?${optionString}${
                     type === 'outputs' ? '&soft=true' : ''
                   }`
-                : ''
+                : suffix
               : `${suffix}${providers[provider].recordSuffix}`;
             // Fetch the record
             const record = await fetchData(`${url}/${value}${suffixString}`);
