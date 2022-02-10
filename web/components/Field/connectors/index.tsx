@@ -37,6 +37,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   val,
   withOptions
 ) => {
+  console.log('getUrlFromProvider', val);
   // If the val is a string, return it
   if (typeof val === 'string') {
     return val;
@@ -48,7 +49,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
     // Build the option string for URL
     optionString = `provider_yaml_options={${map(
       options,
-      (value, key) => `${key}=${btoa(value.value || value)}`
+      (value, key) => `${key}=${btoa(value?.value || value || '')}`
     ).join(',')}}`;
   }
   // Get the rules for the given provider
@@ -58,15 +59,18 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
     return `${url}/${name}/constructor_options?context=ui`;
   }
 
+  // Check if the path ends in /request or /response
+  const endsInSubtype = path.endsWith('/request') || path.endsWith('/response');
+
   // Build the suffix
-  const realPath = `${suffix}${path}${recordSuffix || ''}${
+  const realPath = `${suffix}${path}${endsInSubtype ? '' : recordSuffix || ''}${
     withOptions ? '/constructor_options' : ''
   }`;
 
   const suffixString = suffixRequiresOptions
     ? optionString && optionString !== ''
       ? `${realPath}?${optionString}`
-      : `${withOptions ? '/constructor_options' : ''}`
+      : `${withOptions ? '/constructor_options' : `${realPath}`}`
     : realPath;
 
   console.log('REAL URL', realPath, suffixString);

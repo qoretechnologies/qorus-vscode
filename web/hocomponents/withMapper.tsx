@@ -168,6 +168,7 @@ export default () =>
           : fieldType === 'input'
           ? inputOptionProvider
           : outputOptionProvider;
+        console.log('PROVIDER BULLSHIT DATA', fieldType, provider);
         return getRealUrlFromProvider(prov, !!prov.options);
         // Check if the type is factory
         // if (type === 'factory') {
@@ -221,7 +222,7 @@ export default () =>
         // Build the URL
         const newUrl: string = `${url}/${name}${suffix}${addTrailingSlash(path)}/mapper_keys`;
         // Build the URL based on the provider type
-        return subtype ? newUrl.replace(subtype, '') : newUrl;
+        return newUrl.replace('/request', '').replace('/response', '');
       };
 
       const insertCustomFields = (fields, customFields = {}) => {
