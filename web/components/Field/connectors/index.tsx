@@ -56,7 +56,9 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   const { url, suffix, recordSuffix, suffixRequiresOptions } = providers[type];
 
   if (withOptions) {
-    return `${url}/${name}/constructor_options?context=ui`;
+    return `${url}/${name}/${
+      type === 'factory' ? 'provider_info/' : ''
+    }constructor_options?context=ui`;
   }
 
   // Check if the path ends in /request or /response
