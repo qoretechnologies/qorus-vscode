@@ -190,6 +190,7 @@ export default () =>
           path = '',
           subtype,
           can_manage_fields,
+          options,
         } = mapper.mapper_options[`mapper-${fieldType}`];
         // Save the provider options
         if (fieldType === 'input') {
@@ -199,6 +200,7 @@ export default () =>
             path,
             subtype,
             can_manage_fields,
+            options,
           });
         } else {
           setOutputOptionProvider({
@@ -207,6 +209,7 @@ export default () =>
             path,
             subtype,
             can_manage_fields,
+            options,
           });
         }
         console.log(type, providers);
