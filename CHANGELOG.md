@@ -1,5 +1,24 @@
 # Changelog
 
+## Version 3.1
+
+#### New Features
+
+- Added support for data provider factories to allow for more flexibility and more types of data providers to be used in mappers (support for data provider factories requires Qorus 5.1.25+)
+- Added support for the following new config item types (which are backwards compatible with strings) to allow for a better user experience by restricting possible values to only valid values for the type:
+  - `Connection`: allows only valid connection names to be selected
+  - `Data provider`: allows only valid data providers to be selected
+  - `Job`: allows only valid job names to be selected
+  - `Mapper`: allows only valid mapper names to be selected
+  - `Service`: allows only valid service names to be selected
+  - `Value map`: allows only valid value map names to be selected
+  - `Workflow`: allows only valid workflow names to be selected
+
+#### Bug Fixes
+
+- Fixed a bug handling mapper drafts
+- Fixed a bug where some valid mappers would not open to the dialog page
+
 ## Version 3.0.2
 
 #### Bug Fixes
