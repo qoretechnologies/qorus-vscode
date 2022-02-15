@@ -187,7 +187,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               object_type: 'pipeline',
               return_value: 'objects',
             }}
-            predicate={(name) => fsmName !== name}
             target_dir={target_dir}
             onChange={(_name, value) => handleDataUpdate('action', { type: 'pipeline', value })}
             value={newData?.action?.value}

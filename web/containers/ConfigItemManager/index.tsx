@@ -88,7 +88,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
       setConfigItems(data);
       // Check if the initial config items are the same as the current config items
       // If they are, then we don't need to update the config items
-      console.log(initialConfigItems.current, data);
       if (JSON.stringify(initialConfigItems.current) !== JSON.stringify(data)) {
         initialConfigItems.current = data;
         onUpdate?.();
@@ -129,7 +128,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     level: string,
     remove?: boolean
   ) => void = (name, value, parent, level, isTemplatedString, remove, currentType) => {
-    console.log(name, value, parent, level, isTemplatedString, currentType);
     // Send message that the config item has been updated
     postMessage(Messages.UPDATE_CONFIG_ITEM_VALUE, {
       name,

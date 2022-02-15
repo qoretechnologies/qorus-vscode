@@ -9,6 +9,9 @@ import { useDrop } from 'react-dnd';
 import compose from 'recompose/compose';
 import styled, { css } from 'styled-components';
 import { TTranslator } from '../../App';
+import { getUrlFromProvider as getRealUrlFromProvider } from '../../components/Field/connectors';
+import Options from '../../components/Field/systemOptions';
+import SubField from '../../components/SubField';
 import { AppToaster } from '../../components/Toast';
 import { Messages } from '../../constants/messages';
 import { deleteDraft, getDraftId } from '../../helpers/functions';
@@ -433,29 +436,32 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     });
   };
 
-  const removeRelation: (outputPath: string, usesContext?: boolean, isInputHash?: boolean) => void =
-    (outputPath, usesContext, isInputHash) => {
-      // Remove the selected relation
-      // @ts-ignore
-      setRelations((current: any): any =>
-        reduce(
-          current,
-          (newRelations, rel: any, relationOutput): boolean => {
-            if (relationOutput === outputPath) {
-              return {
-                ...newRelations,
-                [relationOutput]: omit(
-                  rel,
-                  usesContext ? ['context'] : isInputHash ? ['use_input_record'] : ['name']
-                ),
-              };
-            }
-            return { ...newRelations, [relationOutput]: rel };
-          },
-          {}
-        )
-      );
-    };
+  const removeRelation: (
+    outputPath: string,
+    usesContext?: boolean,
+    isInputHash?: boolean
+  ) => void = (outputPath, usesContext, isInputHash) => {
+    // Remove the selected relation
+    // @ts-ignore
+    setRelations((current: any): any =>
+      reduce(
+        current,
+        (newRelations, rel: any, relationOutput): boolean => {
+          if (relationOutput === outputPath) {
+            return {
+              ...newRelations,
+              [relationOutput]: omit(
+                rel,
+                usesContext ? ['context'] : isInputHash ? ['use_input_record'] : ['name']
+              ),
+            };
+          }
+          return { ...newRelations, [relationOutput]: rel };
+        },
+        {}
+      )
+    );
+  };
 
   const removeFieldRelations: (path: string, type: string) => void = (path, type) => {
     // Remove the selected relation
@@ -783,7 +789,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         data: mapper,
         orig_data: defaultMapper || initialData.mapper,
         open_file_on_success: !mapperSubmit,
-        iface_id: interfaceId.mapper,
+        iface_id: interfaceId.mapper[interfaceIndex],
         no_data_return: !!onSubmitSuccess || !!mapperSubmit,
       },
       t('Saving mapper...')
@@ -799,53 +805,99 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         onSubmitSuccess(mapper);
       }
 
-      const fileName = getDraftId(defaultMapper || initialData.mapper, interfaceId);
+      const fileName = getDraftId(
+        defaultMapper || initialData.mapper,
+        interfaceId.mapper[interfaceIndex]
+      );
+
       deleteDraft('mapper', fileName, false);
       // Reset the interface data
       resetAllInterfaceData('mapper');
     }
   };
 
+  console.log({ inputProvider, inputOptionProvider });
+
   return (
     <>
-      {!hideInputSelector && (
-        <Provider
-          type="inputs"
-          title={t('InputProvider')}
-          provider={inputProvider}
-          setProvider={setInputProvider}
-          record={inputRecord}
-          setRecord={setInputRecord}
-          nodes={inputChildren}
-          setChildren={setInputChildren}
-          isLoading={inputsLoading}
-          setIsLoading={setInputsLoading}
-          setFields={setInputs}
-          clear={clearInputs}
-          setOptionProvider={setInputOptionProvider}
-          hide={() => setHideInputSelector(true)}
-          canSelectNull
-        />
-      )}
-      {!hideOutputSelector && (
-        <Provider
-          type="outputs"
-          title={t('OutputProvider')}
-          provider={outputProvider}
-          setProvider={setOutputProvider}
-          record={outputRecord}
-          setRecord={setOutputRecord}
-          nodes={outputChildren}
-          setChildren={setOutputChildren}
-          isLoading={outputsLoading}
-          setIsLoading={setOutputsLoading}
-          setFields={setOutputs}
-          clear={clearOutputs}
-          setMapperKeys={setMapperKeys}
-          setOptionProvider={setOutputOptionProvider}
-          hide={() => setHideOutputSelector(true)}
-        />
-      )}
+      <div style={{ display: 'flex' }}>
+        {!hideInputSelector && (
+          <div style={{ width: '50%' }}>
+            <Provider
+              type="inputs"
+              title={t('InputProvider')}
+              provider={inputProvider}
+              setProvider={(provider) => {
+                setInputOptionProvider(null);
+                setInputProvider(provider);
+              }}
+              record={inputRecord}
+              setRecord={setInputRecord}
+              nodes={inputChildren}
+              setChildren={setInputChildren}
+              isLoading={inputsLoading}
+              setIsLoading={setInputsLoading}
+              setFields={setInputs}
+              clear={clearInputs}
+              setOptionProvider={setInputOptionProvider}
+              hide={() => setHideInputSelector(true)}
+              canSelectNull
+              compact
+              options={inputOptionProvider?.options}
+            />
+            {inputProvider === 'factory' && inputOptionProvider ? (
+              <SubField title={t('FactoryOptions')}>
+                <Options
+                  onChange={(nm, val) => {
+                    setInputOptionProvider((cur) => ({ ...cur, options: val }));
+                  }}
+                  name="options"
+                  value={inputOptionProvider.options}
+                  customUrl={`${getRealUrlFromProvider(inputOptionProvider, true)}`}
+                />
+              </SubField>
+            ) : null}
+          </div>
+        )}
+        {!hideOutputSelector && (
+          <div style={{ width: '50%' }}>
+            <Provider
+              type="outputs"
+              title={t('OutputProvider')}
+              provider={outputProvider}
+              setProvider={(provider) => {
+                setOutputOptionProvider(null);
+                setOutputProvider(provider);
+              }}
+              record={outputRecord}
+              setRecord={setOutputRecord}
+              nodes={outputChildren}
+              setChildren={setOutputChildren}
+              isLoading={outputsLoading}
+              setIsLoading={setOutputsLoading}
+              setFields={setOutputs}
+              clear={clearOutputs}
+              setMapperKeys={setMapperKeys}
+              setOptionProvider={setOutputOptionProvider}
+              hide={() => setHideOutputSelector(true)}
+              compact
+              options={outputOptionProvider?.options}
+            />
+            {outputProvider === 'factory' && outputOptionProvider ? (
+              <SubField title={t('FactoryOptions')}>
+                <Options
+                  onChange={(nm, val) => {
+                    setOutputOptionProvider((cur) => ({ ...cur, options: val }));
+                  }}
+                  name="options"
+                  value={outputOptionProvider.options}
+                  customUrl={`${getRealUrlFromProvider(outputOptionProvider, true)}`}
+                />
+              </SubField>
+            ) : null}
+          </div>
+        )}
+      </div>
       <div
         style={{
           width: '100%',

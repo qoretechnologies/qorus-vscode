@@ -77,6 +77,7 @@ export default class ConfigItemsModal extends Component {
     tab: string;
   } = {
     value: this.props.item && this.props.item.value,
+    origValue: this.props.item && this.props.item.value,
     item: this.props.item,
     error: false,
     yamlData: this.props.item && this.props.item.yamlData,
@@ -183,8 +184,6 @@ export default class ConfigItemsModal extends Component {
   render() {
     const { onClose, isGlobal, globalConfig, t } = this.props;
     const { error, yamlData, value, item } = this.state;
-
-    console.log(item);
 
     return (
       <CustomDialog
@@ -297,6 +296,7 @@ export default class ConfigItemsModal extends Component {
                         <AutoField
                           name="configItem"
                           value={this.state.value}
+                          default_value={this.state.origValue}
                           t={t}
                           type="auto"
                           noSoft

@@ -11,7 +11,9 @@ import withTextContext from '../../hocomponents/withTextContext';
 import { IField } from './';
 import BooleanField from './boolean';
 import ByteSizeField from './byteSize';
+import ConnectorField from './connectors';
 import DateField from './date';
+import { InterfaceSelector } from './interfaceSelector';
 import LongStringField from './longString';
 import NumberField from './number';
 import OptionHashField from './optionHash';
@@ -36,8 +38,6 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
   const [currentInternalType, setInternalType] = useState<string>(defaultInternalType || 'any');
   const [isSetToNull, setIsSetToNull] = useState<boolean>(false);
 
-  console.log(currentType, currentInternalType);
-
   useMount(() => {
     let defType = defaultType && defaultType.replace(/"/g, '').trim();
     defType = defType || 'any';
@@ -50,10 +50,6 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     }
 
     setType(defType);
-    console.log(
-      getValueOrDefaultValue(value, default_value, canBeNull(defType)),
-      canBeNull(defType)
-    );
     // If the value is null and can be null, set the null flag
     if (
       (getValueOrDefaultValue(value, default_value, canBeNull(defType)) === 'null' ||
@@ -133,8 +129,6 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     // Handle change
     handleChange(name, isSetToNull ? undefined : null);
   };
-
-  console.log(isSetToNull);
 
   const renderField = (currentType: string) => {
     // If this field is set to null
@@ -263,6 +257,29 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             name={name}
             onChange={handleChange}
             type={currentType}
+          />
+        );
+      }
+      case 'mapper':
+      case 'workflow':
+      case 'service':
+      case 'job':
+      case 'value-map':
+      case 'connection': {
+        return (
+          <InterfaceSelector type={currentType} name={name} value={value} onChange={handleChange} />
+        );
+      }
+      case 'data-provider': {
+        return (
+          <ConnectorField
+            value={value}
+            isInitialEditing={!!default_value}
+            name={name}
+            inline
+            minimal
+            isConfigItem
+            onChange={handleChange}
           />
         );
       }

@@ -988,6 +988,24 @@ msgstr "Processor"
 msgid "field-label-mapper"
 msgstr "Mapper"
 
+msgid "field-label-service"
+msgstr "Service"
+
+msgid "field-label-workflow"
+msgstr "Workflow"
+
+msgid "field-label-job"
+msgstr "Job"
+
+msgid "field-label-value-map"
+msgstr "Value map"
+
+msgid "field-label-connection"
+msgstr "Connection"
+
+msgid "field-label-data-provider"
+msgstr "Data provider"
+
 msgid "field-label-pipeline"
 msgstr "Pipeline"
 
@@ -2834,6 +2852,9 @@ msgstr "There was an error loading options:"
 
 msgid "OptionsQorusInstanceRequired"
 msgstr "An active instance is required to manage options."
+
+msgid "InterfacesQorusInstanceRequired"
+msgstr "An active instance is required to manage this item."
 
 msgid "RemoveSelectedOption"
 msgstr "Are you sure you wish to remove the selected option?"
