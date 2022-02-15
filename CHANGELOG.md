@@ -17,7 +17,8 @@
 #### Bug Fixes
 
 - Fixed a bug handling mapper drafts
-- Fixed a bug where some valid mappers would not open to the dialog page
+- Fixed a bug where some valid mappers would not open to the diagram page
+- Fixed a bug that prevented pipeline with the identical name as it's FSM parent to be shown in the state dialog
 
 ## Version 3.0.2
 

@@ -16,7 +16,8 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
   - `Value map`: allows only valid value map names to be selected
   - `Workflow`: allows only valid workflow names to be selected
 - Fixed a bug handling mapper drafts
-- Fixed a bug where some valid mappers would not open to the dialog page
+- Fixed a bug where some valid mappers would not open to the diagram page
+- Fixed a bug that prevented pipeline with the identical name as it's FSM parent to be shown in the state dialog
 
 ## Version 3.0.2 overview - What's new:
 
