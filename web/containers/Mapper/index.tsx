@@ -789,7 +789,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         data: mapper,
         orig_data: defaultMapper || initialData.mapper,
         open_file_on_success: !mapperSubmit,
-        iface_id: interfaceId.mapper,
+        iface_id: interfaceId.mapper[interfaceIndex],
         no_data_return: !!onSubmitSuccess || !!mapperSubmit,
       },
       t('Saving mapper...')
@@ -805,7 +805,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         onSubmitSuccess(mapper);
       }
 
-      const fileName = getDraftId(defaultMapper || initialData.mapper, interfaceId);
+      const fileName = getDraftId(
+        defaultMapper || initialData.mapper,
+        interfaceId.mapper[interfaceIndex]
+      );
+
       deleteDraft('mapper', fileName, false);
       // Reset the interface data
       resetAllInterfaceData('mapper');
