@@ -77,8 +77,6 @@ class Login extends Component {
 
     const { name, safe_url, url } = this.state.loginInstance;
 
-    console.log(this.props);
-
     return (
       <TextContext.Consumer>
         {(t) => (

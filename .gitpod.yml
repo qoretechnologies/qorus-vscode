@@ -8,7 +8,6 @@ vscode:
     - eamodio.gitlens
     - fivepointseven.node-version
     - esbenp.prettier-vscode
-    - wallabyjs.quokka-vscode
     - visualstudioexptteam.vscodeintellicode
     - styled-components.vscode-styled-components
 tasks:

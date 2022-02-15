@@ -41,10 +41,16 @@ export const validateField: (
   switch (type) {
     case 'binary':
     case 'string':
+    case 'mapper':
+    case 'workflow':
+    case 'service':
+    case 'job':
+    case 'connection':
     case 'softstring':
     case 'select-string':
     case 'file-string':
     case 'long-string':
+    case 'data-provider':
     case 'method-name': {
       if (value === undefined || value === null || value === '') {
         return false;
