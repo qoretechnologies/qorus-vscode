@@ -19,7 +19,7 @@ import {
   flattenFields,
   getLastChildIndex,
   getStaticDataFieldname,
-  hasStaticDataField,
+  hasStaticDataField
 } from '../../helpers/mapper';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -815,8 +815,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
       resetAllInterfaceData('mapper');
     }
   };
-
-  console.log({ inputProvider, inputOptionProvider });
 
   return (
     <>

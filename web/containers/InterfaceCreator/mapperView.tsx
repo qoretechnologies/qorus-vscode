@@ -1,7 +1,7 @@
 import { Callout } from '@blueprintjs/core';
 import { omit, size } from 'lodash';
 import React, { FunctionComponent, useContext, useState } from 'react';
-import { useDebounce, useLifecycles, useUpdateEffect } from 'react-use';
+import { useLifecycles, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import styled from 'styled-components';
@@ -51,6 +51,9 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
   onSubmitSuccess,
   interfaceId,
   mapperData,
+  inputsLoading,
+  outputsLoading,
+  initialMapperDraftData,
 }) => {
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
 
@@ -84,24 +87,20 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     }
   }, [draft, showMapperConnections]);
 
-  useDebounce(
-    () => {
-      if (showMapperConnections) {
-        const draftId = getDraftId(mapper, interfaceId.mapper[interfaceIndex]);
+  useUpdateEffect(() => {
+    if (showMapperConnections && !inputsLoading && !outputsLoading) {
+      const draftId = getDraftId(mapper, interfaceId.mapper[interfaceIndex]);
 
-        initialData.saveDraft('mapper', draftId, {
-          fields: fields.mapper[interfaceIndex],
-          selectedFields: selectedFields.mapper[interfaceIndex],
-          diagram: mapperData,
-          interfaceId: interfaceId.mapper[interfaceIndex],
-          associatedInterface: getTargetFile(mapper),
-          isValid: isFormValid('mapper', interfaceIndex) && size(mapperData.relations),
-        });
-      }
-    },
-    1500,
-    [JSON.stringify(mapperData)]
-  );
+      initialData.saveDraft('mapper', draftId, {
+        fields: fields.mapper[interfaceIndex],
+        selectedFields: selectedFields.mapper[interfaceIndex],
+        diagram: mapperData,
+        interfaceId: interfaceId.mapper[interfaceIndex],
+        associatedInterface: getTargetFile(mapper),
+        isValid: isFormValid('mapper', interfaceIndex) && size(mapperData.relations),
+      });
+    }
+  }, [JSON.stringify(omit(mapperData, ['isContextLoaded']))]);
 
   return error ? (
     <Callout intent="danger">{t(error)}</Callout>
@@ -114,6 +113,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
             interfaceIndex={interfaceIndex}
             submitLabel={t('Next')}
             context={interfaceContext}
+            disabledSubmit={inputsLoading || outputsLoading}
             onSubmit={() => {
               setShowMapperConnections(true);
             }}
