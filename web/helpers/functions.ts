@@ -430,7 +430,6 @@ const fetchData: (
 export { functionOrStringExp, getType };
 
 export const deleteDraft = async (interfaceKind, fileName, notify?: boolean) => {
-  console.log('deleteDraft', interfaceKind, fileName);
   await callBackendBasic(
     Messages.DELETE_DRAFT,
     undefined,

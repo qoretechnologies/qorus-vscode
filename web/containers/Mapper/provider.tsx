@@ -176,8 +176,6 @@ const MapperProvider: FC<IProviderProps> = ({
     ? { ...omit(providers, ['type', 'factory']), factory: configItemFactory }
     : providers;
 
-  console.log(nodes, provider, record);
-
   const handleProviderChange = (provider) => {
     setProvider((current) => {
       // Fetch the url of the provider
@@ -243,7 +241,6 @@ const MapperProvider: FC<IProviderProps> = ({
         ? ''
         : suffix
       : suffix;
-    console.log('OPTION STRING', suffixString, optionString);
     // Fetch the data
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
     if (error) {
@@ -251,7 +248,6 @@ const MapperProvider: FC<IProviderProps> = ({
       //setIsLoading(false);
       //return;
     }
-    console.log(data);
     // Reset loading
     setIsLoading(false);
     // Add new child
@@ -290,8 +286,6 @@ const MapperProvider: FC<IProviderProps> = ({
               : `${suffix}`
             : `${suffix}${providers[provider].recordSuffix}`;
 
-          console.log('OPTION STRING!!!', optionString);
-
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
           // Remove loading
@@ -300,7 +294,6 @@ const MapperProvider: FC<IProviderProps> = ({
           // url (same for every provider type)
           const name = `${url}/${value}`.split('/')[2];
           // Set the provider option
-          console.log('setting option provider heh');
           setOptionProvider({
             type: providers[provider].type,
             name,
@@ -398,7 +391,6 @@ const MapperProvider: FC<IProviderProps> = ({
               : `${suffix}${providers[provider].recordSuffix}`;
             // Fetch the record
             const record = await fetchData(`${url}/${value}${suffixString}`);
-            console.log(record);
             // Remove loading
             setIsLoading(false);
             // Save the name by pulling the 3rd item from the split

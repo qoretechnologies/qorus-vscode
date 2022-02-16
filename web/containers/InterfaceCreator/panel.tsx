@@ -248,6 +248,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   allFields,
   setClassConnectionsFromDraft,
   parentData,
+  disabledSubmit,
   ...rest
 }) => {
   const isInitialMount = useRef(true);
@@ -1226,6 +1227,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   const canSubmit: () => boolean = () => {
     if (hasClassConnections) {
       return isFormValid(type) && areClassConnectionsValid();
+    }
+
+    // Check the disabled submit flag
+    if (disabledSubmit) {
+      return false;
     }
 
     return isFormValid(type);
