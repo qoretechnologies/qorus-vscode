@@ -1,6 +1,12 @@
 # Changelog
 
-## Version 3.1
+## Version 3.1.1
+
+#### Bug Fixes
+
+- Fixed a bug that prevented mapper provider types from loading properly
+
+## Version 3.1.0
 
 #### New Features
 

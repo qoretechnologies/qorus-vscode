@@ -78,7 +78,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   console.log('REAL URL', realPath, suffixString);
 
   // Build the URL based on the provider type
-  return `${url}/${name}${suffixString}`;
+  return `${url}/${name}${suffixString}${type === 'type' && endsInSubtype ? '?action=type' : ''}`;
 };
 
 const maybeBuildOptionProvider = (provider) => {
