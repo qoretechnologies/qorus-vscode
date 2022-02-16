@@ -37,7 +37,6 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   val,
   withOptions
 ) => {
-  console.log('getUrlFromProvider', val);
   // If the val is a string, return it
   if (typeof val === 'string') {
     return val;
@@ -75,10 +74,8 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
       : `${withOptions ? '/constructor_options' : `${realPath}`}`
     : realPath;
 
-  console.log('REAL URL', realPath, suffixString);
-
   // Build the URL based on the provider type
-  return `${url}/${name}${suffixString}`;
+  return `${url}/${name}${suffixString}${type === 'type' && endsInSubtype ? '?action=type' : ''}`;
 };
 
 const maybeBuildOptionProvider = (provider) => {
@@ -199,15 +196,11 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           // Remove the last comma from options
           options = options.substring(0, options.length - 1);
 
-          console.log(newNodes);
-
           if (newNodes[0]) {
             newNodes[0].value = `${newNodes[0].value}{${options}}`;
           }
 
           const value = newNodes.map((node) => node.value).join('/');
-
-          console.log(value);
 
           onChange(name, `${type}/${value}`);
         } else {
@@ -219,8 +212,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
       }
     }
   }, [JSON.stringify(optionProvider), isEditing]);
-
-  console.log(optionProvider, value);
 
   if (isEditing && value) {
     return (

@@ -1,5 +1,5 @@
 import { forEach, get, reduce, set, size, unset } from 'lodash';
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import { getUrlFromProvider as getRealUrlFromProvider } from '../components/Field/connectors';
@@ -46,8 +46,8 @@ export default () =>
           sequence?: string;
         };
       }>({});
-      const [inputsLoading, setInputsLoading] = useState<boolean>(false);
-      const [outputsLoading, setOutputsLoading] = useState<boolean>(false);
+      const [inputsLoading, setInputsLoading] = useState<boolean>(true);
+      const [outputsLoading, setOutputsLoading] = useState<boolean>(true);
       const [inputChildren, setInputChildren] = useState<any[]>([]);
       const [outputChildren, setOutputChildren] = useState<any[]>([]);
       const [inputRecord, setInputRecord] = useState<any>(null);
@@ -74,8 +74,9 @@ export default () =>
       const [error, setError] = useState<any>(null);
       const [wrongKeysCount, setWrongKeysCount] = useState<number>(0);
       const [mapperSubmit, setMapperSubmit] = useState<any>(null);
-      const [isContextLoaded, setIsContextLoaded] = useState<boolean>(false);
+      const [isContextLoaded, setIsContextLoaded] = useState<boolean>(true);
       const [draftSavedForLater, setDraftSavedForLater] = useState<any>(null);
+      const initialMapperDraftData = useRef(null);
 
       const handleMapperSubmitSet = (callback) => {
         setMapperSubmit(() => callback);
@@ -122,6 +123,9 @@ export default () =>
       };
 
       const applyDraft = (data) => {
+        // Save the initial mapper data
+        initialMapperDraftData.current = data;
+        // Set the mapper
         setShowMapperConnections(false);
         setInputs(data.inputs);
         setOutputs(data.outputs);
@@ -212,7 +216,7 @@ export default () =>
             options,
           });
         }
-        console.log(type, providers);
+
         return getUrlFromProvider(fieldType, mapper.mapper_options[`mapper-${fieldType}`]);
       };
 
@@ -294,7 +298,6 @@ export default () =>
         const { type } = mapper.mapper_options[`mapper-input`];
 
         const inputs = await props.fetchData(inputUrl);
-        console.log('inputs', inputs);
         // If one of the connections is down
         if (inputs.error) {
           setError(inputs.error && 'InputConnError');
@@ -326,7 +329,6 @@ export default () =>
         setOutputRecord(outputUrl);
         // Fetch the input and output fields
         const outputs = await props.fetchData(outputUrl);
-        console.log('outputs', outputs);
         // If one of the connections is down
         if (outputs.error) {
           console.error(outputs);
@@ -701,6 +703,7 @@ export default () =>
             contextInputs,
             defaultMapper: mapper,
             setMapperFromDraft,
+            initialMapperDraftData,
           }}
         >
           <Component {...props} />
