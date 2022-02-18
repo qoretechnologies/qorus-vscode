@@ -21,6 +21,8 @@ export const getTargetFile = (data: any) => {
   return '';
 };
 
+export const otherFilesNames = ['scripts', 'schema-modules', 'tests'];
+
 class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
   public code_info: QorusProjectCodeInfo;
 
@@ -32,6 +34,7 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
 
   notify(code_info) {
     this.code_info = code_info;
+    this.code_info.update(['other_files']);
     this.refresh();
   }
 
@@ -52,8 +55,10 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
     if (!el) {
       const allDraftFolders = QorusDraftsInstance.getDraftsFolders();
 
-      return allDraftFolders.map((folder) => {
-        const interfaceCount = size(this.code_info.interfaceDataByType(folder));
+      return allDraftFolders.map((folder: any) => {
+        const interfaceCount = otherFilesNames.includes(folder)
+          ? size(this.code_info.otherFilesDataByType(folder))
+          : size(this.code_info.interfaceDataByType(folder));
         const count = QorusDraftsInstance.getDraftsCountForInterface(folder) + interfaceCount;
 
         return new QorusDraftCategory(
@@ -63,6 +68,7 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
         );
       });
     }
+
     const interfaceKind = el.label.toLowerCase().replace(' ', '-');
     const allDrafts = QorusDraftsInstance.getDraftsForInterface(interfaceKind, true);
     // A category has been expanded, we need to fetch the individual drafts for this
@@ -72,18 +78,20 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
       isDraft: true,
     }));
     // Get all the interfaces for this folder
-    const interfaces = this.code_info.interfaceDataByType(interfaceKind).map((interfaceData) => {
-      const draft = allDrafts.find(
-        (draft) => draft.associatedInterface === getTargetFile(interfaceData.data)
-      );
+    const interfaces = otherFilesNames.includes(interfaceKind)
+      ? this.code_info.otherFilesDataByType(interfaceKind)
+      : this.code_info.interfaceDataByType(interfaceKind).map((interfaceData) => {
+          const draft = allDrafts.find(
+            (draft) => draft.associatedInterface === getTargetFile(interfaceData.data)
+          );
 
-      return {
-        ...interfaceData,
-        hasDraft: !!draft,
-        ...(draft || {}),
-        isDraft: false,
-      };
-    });
+          return {
+            ...interfaceData,
+            hasDraft: !!draft,
+            ...(draft || {}),
+            isDraft: false,
+          };
+        });
     // Combine the interfaces with the drafts
     const items = [...drafts, ...interfaces];
 
@@ -93,6 +101,14 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
   }
 }
 
+function getContextValue(label) {
+  if (['Schema modules', 'Tests', 'Scripts', ''].includes(label)) {
+    return 'other-file';
+  }
+
+  return 'category';
+}
+
 class QorusDraftCategory extends TreeItem {
   public type: string;
 
@@ -100,9 +116,9 @@ class QorusDraftCategory extends TreeItem {
     super(label, collapsibleState);
 
     this.tooltip = label.toLowerCase();
-    this.description = `(${count})`;
+    this.description = label === '' ? '' : `(${count})`;
     this.iconPath = qorusIcons[`get${capitalize(label).replace('-', '').replace(' ', '')}Icon`]?.();
-    this.contextValue = 'category';
+    this.contextValue = getContextValue(label);
     this.type = label.toLowerCase().replace(' ', '-');
   }
 }
@@ -144,7 +160,9 @@ class QorusDraftItem extends TreeItem {
       }`;
       this.command = {
         title: 'Open Interface',
-        command: 'qorus.views.editInterface',
+        command: otherFilesNames.includes(interfaceKind)
+          ? 'qorus.views.openInterface'
+          : 'qorus.views.editInterface',
         arguments: [this],
       };
     }

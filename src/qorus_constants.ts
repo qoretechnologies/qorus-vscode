@@ -15,6 +15,9 @@ export const types_without_version = [
   'fsm',
   'pipeline',
   'errors',
+  'schema_modules',
+  'test_scripts',
+  'deployment_scripts',
 ];
 export const types = [...types_with_version, ...types_without_version];
 

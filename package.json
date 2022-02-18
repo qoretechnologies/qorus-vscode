@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
@@ -346,53 +346,8 @@
         "category": "Qorus"
       },
       {
-        "command": "qorus.explorer.deployClass",
-        "title": "Deploy Class",
-        "category": "Qorus"
-      },
-      {
-        "command": "qorus.explorer.deployConnection",
-        "title": "Deploy Connection",
-        "category": "Qorus"
-      },
-      {
-        "command": "qorus.explorer.deployFsm",
-        "title": "Deploy Finite State Machine",
-        "category": "Qorus"
-      },
-      {
-        "command": "qorus.explorer.deployPipeline",
-        "title": "Deploy Pipeline",
-        "category": "Qorus"
-      },
-      {
-        "command": "qorus.explorer.deployJob",
-        "title": "Deploy Job",
-        "category": "Qorus"
-      },
-      {
-        "command": "qorus.explorer.deployMapper",
-        "title": "Deploy Mapper",
-        "category": "Qorus"
-      },
-      {
-        "command": "qorus.explorer.deployMapperCode",
-        "title": "Deploy Mapper Code",
-        "category": "Qorus"
-      },
-      {
-        "command": "qorus.explorer.deployService",
-        "title": "Deploy Service",
-        "category": "Qorus"
-      },
-      {
-        "command": "qorus.explorer.deployStep",
-        "title": "Deploy Step",
-        "category": "Qorus"
-      },
-      {
-        "command": "qorus.explorer.deployWorkflow",
-        "title": "Deploy Workflow",
+        "command": "qorus.explorer.deployFile",
+        "title": "Deploy file to active Qorus instance",
         "category": "Qorus"
       },
       {
@@ -1470,6 +1425,11 @@
           "group": "2_workspace@21"
         },
         {
+          "when": "!explorerResourceIsFolder && !listMultiSelection",
+          "command": "qorus.explorer.deployFile",
+          "group": "2_workspace@0"
+        },
+        {
           "when": "resourceExtname == .qsd",
           "command": "qorus.explorer.editService",
           "group": "2_workspace@1"
@@ -1480,19 +1440,9 @@
           "group": "2_workspace@2"
         },
         {
-          "when": "resourceExtname == .qsd && !listMultiSelection",
-          "command": "qorus.explorer.deployService",
-          "group": "2_workspace@11"
-        },
-        {
           "when": "resourceExtname == .qclass",
           "command": "qorus.explorer.editClass",
           "group": "2_workspace@1"
-        },
-        {
-          "when": "resourceExtname == .qclass && !listMultiSelection",
-          "command": "qorus.explorer.deployClass",
-          "group": "2_workspace@11"
         },
         {
           "when": "resourceExtname == .qjob",
@@ -1500,19 +1450,9 @@
           "group": "2_workspace@1"
         },
         {
-          "when": "resourceExtname == .qjob && !listMultiSelection",
-          "command": "qorus.explorer.deployJob",
-          "group": "2_workspace@11"
-        },
-        {
           "when": "resourceExtname == .qmapper",
           "command": "qorus.explorer.editMapper",
           "group": "2_workspace@1"
-        },
-        {
-          "when": "resourceExtname == .qmapper && !listMultiSelection",
-          "command": "qorus.explorer.deployMapper",
-          "group": "2_workspace@11"
         },
         {
           "when": "resourceExtname == .qmc",
@@ -1525,19 +1465,9 @@
           "group": "2_workspace@2"
         },
         {
-          "when": "resourceExtname == .qmc && !listMultiSelection",
-          "command": "qorus.explorer.deployMapperCode",
-          "group": "2_workspace@11"
-        },
-        {
           "when": "resourceExtname == .qstep",
           "command": "qorus.explorer.editStep",
           "group": "2_workspace@1"
-        },
-        {
-          "when": "resourceExtname == .qstep && !listMultiSelection",
-          "command": "qorus.explorer.deployStep",
-          "group": "2_workspace@11"
         },
         {
           "when": "resourceExtname == .qwf",
@@ -1548,11 +1478,6 @@
           "when": "resourceExtname == .qwf",
           "command": "qorus.explorer.editWorkflowSteps",
           "group": "2_workspace@2"
-        },
-        {
-          "when": "resourceExtname == .qwf && !listMultiSelection",
-          "command": "qorus.explorer.deployWorkflow",
-          "group": "2_workspace@11"
         },
         {
           "when": "resourceExtname =~ /^\\.(yaml|java|py)$/",

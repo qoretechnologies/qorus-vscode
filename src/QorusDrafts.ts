@@ -36,11 +36,7 @@ class QorusDrafts {
     const dir_hash = md5(vscode.workspace.workspaceFolders[0].uri.toString());
 
     if (os == 'WINDOWS') {
-      return path.join(
-        process.env.APPDATA,
-        'Code\\Backups',
-        dir_hash
-      );
+      return path.join(process.env.APPDATA, 'Code\\Backups', dir_hash);
     }
 
     const draftFilesLocation = {
@@ -48,17 +44,13 @@ class QorusDrafts {
       MACOS: 'Library/Application Support/Code/Backups',
     };
 
-    return path.join(
-      require('os').homedir(),
-      draftFilesLocation[os],
-      dir_hash
-    );
+    return path.join(require('os').homedir(), draftFilesLocation[os], dir_hash);
   }
 
   public getDraftsFolders() {
     // Get all the folders associated with drafts
     // folder name === interface kind
-    return [
+    const folders = [
       'workflow',
       'step',
       'job',
@@ -76,15 +68,18 @@ class QorusDrafts {
       'group',
       'errors',
     ].sort();
+
+    folders.push('');
+    folders.push('schema-modules');
+    folders.push('scripts');
+    folders.push('tests');
+
+    return folders;
   }
 
   public getSingleDraftContent(interfaceKind: string, fileName: string) {
     const file = readFileSync(
-      path.join(
-        this.getDraftsLocation(),
-        interfaceKind.toLowerCase().replace(/ /g, '-'),
-        fileName
-      )
+      path.join(this.getDraftsLocation(), interfaceKind.toLowerCase().replace(/ /g, '-'), fileName)
     );
     const buffer: Buffer = Buffer.from(file);
     const contents = buffer.toString();
@@ -109,10 +104,7 @@ class QorusDrafts {
     const drafts: any[] = [];
     try {
       const draftFiles = readdirSync(
-        path.join(
-          this.getDraftsLocation(),
-          interfaceKind.toLowerCase().replace(/ /g, '-')
-        )
+        path.join(this.getDraftsLocation(), interfaceKind.toLowerCase().replace(/ /g, '-'))
       );
 
       draftFiles.forEach((fileName) => {
