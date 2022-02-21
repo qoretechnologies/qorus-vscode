@@ -6,6 +6,7 @@ import { deployer } from './QorusDeploy';
 import { drafts_tree, otherFilesNames, QorusDraftItem } from './QorusDraftsTree';
 import { interface_tree } from './QorusInterfaceTree';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { tester } from './QorusTest';
 import * as msg from './qorus_message';
 import { dash2Pascal } from './qorus_utils';
 
@@ -289,6 +290,11 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     ({ data }: QorusDraftItem) => {
       maybeDeleteInterface(data);
     }
+  );
+  context.subscriptions.push(disposable);
+
+  disposable = commands.registerCommand('qorus.views.testFile', (data) =>
+    tester.testFile({ fsPath: data.data.path })
   );
   context.subscriptions.push(disposable);
 };

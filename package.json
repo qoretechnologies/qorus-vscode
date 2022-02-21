@@ -366,6 +366,15 @@
         "category": "Qorus"
       },
       {
+        "command": "qorus.views.testFile",
+        "title": "1. Execute Test",
+        "category": "Qorus",
+        "icon": {
+          "dark": "images/icons/dark/play.svg",
+          "light": "images/icons/light/play.svg"
+        }
+      },
+      {
         "command": "qorus.createClass",
         "title": "Create New Class",
         "category": "Qorus",
@@ -1543,6 +1552,11 @@
         {
           "command": "qorus.views.deployInterface",
           "when": "view == qorusInterfaces && viewItem =~ /^interface/",
+          "group": "inline"
+        },
+        {
+          "command": "qorus.views.testFile",
+          "when": "view == qorusInterfaces && viewItem =~ /isTest/",
           "group": "inline"
         },
         {
