@@ -21,6 +21,8 @@ export const getTargetFile = (data: any) => {
   return '';
 };
 
+export const otherFilesNames = ['scripts', 'schema-modules', 'tests'];
+
 class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
   public code_info: QorusProjectCodeInfo;
 
@@ -32,6 +34,7 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
 
   notify(code_info) {
     this.code_info = code_info;
+    this.code_info.update(['other_files']);
     this.refresh();
   }
 
@@ -50,19 +53,51 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
     }
     // Fetch the draft folders if we are rendering the root
     if (!el) {
+      const interfaceFolders = QorusDraftsInstance.getDraftsFolders();
+      const otherFileFolders = ['schema-modules', 'scripts', 'tests'];
       const allDraftFolders = QorusDraftsInstance.getDraftsFolders();
+      let hierarchyItems = [];
 
-      return allDraftFolders.map((folder) => {
-        const interfaceCount = size(this.code_info.interfaceDataByType(folder));
-        const count = QorusDraftsInstance.getDraftsCountForInterface(folder) + interfaceCount;
+      hierarchyItems.push(
+        new QorusDraftCategory('', '[Interfaces]', TreeItemCollapsibleState.None)
+      );
 
-        return new QorusDraftCategory(
-          capitalize(folder.replace('-', ' ')),
-          count,
-          count === 0 ? TreeItemCollapsibleState.None : TreeItemCollapsibleState.Collapsed
-        );
-      });
+      hierarchyItems = [
+        ...hierarchyItems,
+        ...interfaceFolders.map((folder: any) => {
+          const interfaceCount = size(this.code_info.interfaceDataByType(folder));
+          const count = QorusDraftsInstance.getDraftsCountForInterface(folder) + interfaceCount;
+
+          return new QorusDraftCategory(
+            capitalize(folder.replace('-', ' ')),
+            count,
+            count === 0 ? TreeItemCollapsibleState.None : TreeItemCollapsibleState.Collapsed
+          );
+        }),
+      ];
+
+      /* This is adding a category to the tree. */
+      hierarchyItems.push(
+        new QorusDraftCategory('', '[Other Files]', TreeItemCollapsibleState.None)
+      );
+
+      hierarchyItems = [
+        ...hierarchyItems,
+        ...otherFileFolders.map((folder: any) => {
+          const interfaceCount = size(this.code_info.otherFilesDataByType(folder));
+          const count = QorusDraftsInstance.getDraftsCountForInterface(folder) + interfaceCount;
+
+          return new QorusDraftCategory(
+            capitalize(folder.replace('-', ' ')),
+            count,
+            count === 0 ? TreeItemCollapsibleState.None : TreeItemCollapsibleState.Collapsed
+          );
+        }),
+      ];
+
+      return hierarchyItems;
     }
+
     const interfaceKind = el.label.toLowerCase().replace(' ', '-');
     const allDrafts = QorusDraftsInstance.getDraftsForInterface(interfaceKind, true);
     // A category has been expanded, we need to fetch the individual drafts for this
@@ -72,18 +107,20 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
       isDraft: true,
     }));
     // Get all the interfaces for this folder
-    const interfaces = this.code_info.interfaceDataByType(interfaceKind).map((interfaceData) => {
-      const draft = allDrafts.find(
-        (draft) => draft.associatedInterface === getTargetFile(interfaceData.data)
-      );
+    const interfaces = otherFilesNames.includes(interfaceKind)
+      ? this.code_info.otherFilesDataByType(interfaceKind)
+      : this.code_info.interfaceDataByType(interfaceKind).map((interfaceData) => {
+          const draft = allDrafts.find(
+            (draft) => draft.associatedInterface === getTargetFile(interfaceData.data)
+          );
 
-      return {
-        ...interfaceData,
-        hasDraft: !!draft,
-        ...(draft || {}),
-        isDraft: false,
-      };
-    });
+          return {
+            ...interfaceData,
+            hasDraft: !!draft,
+            ...(draft || {}),
+            isDraft: false,
+          };
+        });
     // Combine the interfaces with the drafts
     const items = [...drafts, ...interfaces];
 
@@ -93,16 +130,24 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
   }
 }
 
+function getContextValue(label) {
+  if (['Schema modules', 'Tests', 'Scripts', ''].includes(label)) {
+    return 'other-file';
+  }
+
+  return 'category';
+}
+
 class QorusDraftCategory extends TreeItem {
   public type: string;
 
-  constructor(label: string, count: number, collapsibleState: TreeItemCollapsibleState) {
+  constructor(label: string, count: number | string, collapsibleState: TreeItemCollapsibleState) {
     super(label, collapsibleState);
 
     this.tooltip = label.toLowerCase();
-    this.description = `(${count})`;
+    this.description = label === '' ? (count as string) : `(${count})`;
     this.iconPath = qorusIcons[`get${capitalize(label).replace('-', '').replace(' ', '')}Icon`]?.();
-    this.contextValue = 'category';
+    this.contextValue = getContextValue(label);
     this.type = label.toLowerCase().replace(' ', '-');
   }
 }
@@ -144,7 +189,9 @@ class QorusDraftItem extends TreeItem {
       }`;
       this.command = {
         title: 'Open Interface',
-        command: 'qorus.views.editInterface',
+        command: otherFilesNames.includes(interfaceKind)
+          ? 'qorus.views.openInterface'
+          : 'qorus.views.editInterface',
         arguments: [this],
       };
     }
