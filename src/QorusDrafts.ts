@@ -69,11 +69,6 @@ class QorusDrafts {
       'errors',
     ].sort();
 
-    folders.push('');
-    folders.push('schema-modules');
-    folders.push('scripts');
-    folders.push('tests');
-
     return folders;
   }
 

@@ -53,20 +53,50 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
     }
     // Fetch the draft folders if we are rendering the root
     if (!el) {
+      const interfaceFolders = QorusDraftsInstance.getDraftsFolders();
+      const otherFileFolders = ['schema-modules', 'scripts', 'tests'];
       const allDraftFolders = QorusDraftsInstance.getDraftsFolders();
+      let hierarchyItems = [];
 
-      return allDraftFolders.map((folder: any) => {
-        const interfaceCount = otherFilesNames.includes(folder)
-          ? size(this.code_info.otherFilesDataByType(folder))
-          : size(this.code_info.interfaceDataByType(folder));
-        const count = QorusDraftsInstance.getDraftsCountForInterface(folder) + interfaceCount;
+      hierarchyItems.push(
+        new QorusDraftCategory('', '[Interfaces]', TreeItemCollapsibleState.None)
+      );
 
-        return new QorusDraftCategory(
-          capitalize(folder.replace('-', ' ')),
-          count,
-          count === 0 ? TreeItemCollapsibleState.None : TreeItemCollapsibleState.Collapsed
-        );
-      });
+      hierarchyItems = [
+        ...hierarchyItems,
+        ...interfaceFolders.map((folder: any) => {
+          const interfaceCount = size(this.code_info.interfaceDataByType(folder));
+          const count = QorusDraftsInstance.getDraftsCountForInterface(folder) + interfaceCount;
+
+          return new QorusDraftCategory(
+            capitalize(folder.replace('-', ' ')),
+            count,
+            count === 0 ? TreeItemCollapsibleState.None : TreeItemCollapsibleState.Collapsed
+          );
+        }),
+      ];
+
+      hierarchyItems.push(new QorusDraftCategory('', '', TreeItemCollapsibleState.None));
+      /* This is adding a category to the tree. */
+      hierarchyItems.push(
+        new QorusDraftCategory('', '[Other Files]', TreeItemCollapsibleState.None)
+      );
+
+      hierarchyItems = [
+        ...hierarchyItems,
+        ...otherFileFolders.map((folder: any) => {
+          const interfaceCount = size(this.code_info.otherFilesDataByType(folder));
+          const count = QorusDraftsInstance.getDraftsCountForInterface(folder) + interfaceCount;
+
+          return new QorusDraftCategory(
+            capitalize(folder.replace('-', ' ')),
+            count,
+            count === 0 ? TreeItemCollapsibleState.None : TreeItemCollapsibleState.Collapsed
+          );
+        }),
+      ];
+
+      return hierarchyItems;
     }
 
     const interfaceKind = el.label.toLowerCase().replace(' ', '-');
@@ -112,11 +142,11 @@ function getContextValue(label) {
 class QorusDraftCategory extends TreeItem {
   public type: string;
 
-  constructor(label: string, count: number, collapsibleState: TreeItemCollapsibleState) {
+  constructor(label: string, count: number | string, collapsibleState: TreeItemCollapsibleState) {
     super(label, collapsibleState);
 
     this.tooltip = label.toLowerCase();
-    this.description = label === '' ? '' : `(${count})`;
+    this.description = label === '' ? (count as string) : `(${count})`;
     this.iconPath = qorusIcons[`get${capitalize(label).replace('-', '').replace(' ', '')}Icon`]?.();
     this.contextValue = getContextValue(label);
     this.type = label.toLowerCase().replace(' ', '-');
