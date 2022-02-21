@@ -76,7 +76,6 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
         }),
       ];
 
-      hierarchyItems.push(new QorusDraftCategory('', '', TreeItemCollapsibleState.None));
       /* This is adding a category to the tree. */
       hierarchyItems.push(
         new QorusDraftCategory('', '[Other Files]', TreeItemCollapsibleState.None)
