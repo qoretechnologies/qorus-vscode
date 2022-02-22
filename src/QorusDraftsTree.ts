@@ -186,7 +186,7 @@ class QorusDraftItem extends TreeItem {
     } else {
       this.contextValue = `interface${this.data.target_file ? '|hasCode' : ''}${
         item.hasDraft ? '|hasChanges' : ''
-      }`;
+      }${interfaceKind === 'tests' ? '|isTest' : ''}`;
       this.command = {
         title: 'Open Interface',
         command: otherFilesNames.includes(interfaceKind)

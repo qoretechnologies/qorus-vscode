@@ -7,6 +7,7 @@
 - Hierarchy view now shows and allows deployment of Qorus files such as Schema modules, Scripts and Tests
 - Any file inside your source directories can now be deployed to your active instance
 - QoL improvements for the item select dialog - descriptions are now hidden and will be shown after hovering an item; The filter stays on top of the dialog when scrolling;
+- It is now possible to execute tests from the hierarchy view
 
 ## Version 3.1.1
 
