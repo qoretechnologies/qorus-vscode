@@ -50,6 +50,11 @@ export class QorusProjectCodeInfo {
   private dir_tree: any[] = [];
   private all_dir_tree: any = {};
   private modules: string[] = [];
+  public otherFiles: {
+    path?: string;
+    type?: string;
+    name?: string;
+  }[] = [];
   private source_directories = [];
   private mapper_types: any[] = [];
   private java_class_2_package = {};
@@ -96,6 +101,16 @@ export class QorusProjectCodeInfo {
   fileTree() {
     return this.file_tree;
   }
+
+  otherFilesDataByType = (type: 'scripts' | 'schema-modules' | 'tests') => {
+    // Filter other files by type
+    let data = this.otherFiles.filter((f) => f.type === type);
+    data = data.map(({ name, ...rest }) => ({ name, data: rest }));
+
+    console.log(data, this.otherFiles);
+
+    return sortBy(data, ['name']);
+  };
 
   interfaceDataByType = (iface_kind) => {
     const yaml_data = this.yaml_info.yamlDataByType(iface_kind);
@@ -899,8 +914,8 @@ export class QorusProjectCodeInfo {
 
   private initFileWatchers() {
     this.all_files_watcher = vscode.workspace.createFileSystemWatcher('**/*');
-    this.all_files_watcher.onDidCreate(() => this.update(['file_tree']));
-    this.all_files_watcher.onDidDelete(() => this.update(['file_tree']));
+    this.all_files_watcher.onDidCreate(() => this.update(['file_tree', 'other_files']));
+    this.all_files_watcher.onDidDelete(() => this.update(['file_tree', 'other_files']));
 
     this.yaml_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.yaml');
     this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.addSingleYamlInfo(uri.fsPath));
@@ -1212,7 +1227,7 @@ export class QorusProjectCodeInfo {
 
   static isRootBaseClass = (base_class_name) => all_root_classes.includes(base_class_name);
 
-  private update = (info_list: string[] = info_keys, is_initial_update: boolean = false) => {
+  public update = (info_list: string[] = info_keys, is_initial_update: boolean = false) => {
     this.project.validateConfigFileAndDo((file_data) => {
       if (is_initial_update) {
         info_keys.forEach((key) => this.setPending(key, true, true));
@@ -1242,6 +1257,11 @@ export class QorusProjectCodeInfo {
       if (info_list.includes('modules')) {
         setTimeout(() => {
           this.updateModuleInfo(file_data.source_directories);
+        }, 0);
+      }
+      if (info_list.includes('other_files')) {
+        setTimeout(() => {
+          this.updateOtherFilesInfo(file_data.source_directories);
         }, 0);
       }
 
@@ -1348,6 +1368,53 @@ export class QorusProjectCodeInfo {
     }
     this.modules = Object.keys(modules).map((file_path) => path.basename(file_path, '.qm'));
     this.setPending('modules', false);
+  }
+
+  private getFileType(ext: string) {
+    switch (ext) {
+      case '.qsm':
+        return 'schema-modules';
+      case '.qscript':
+        return 'scripts';
+      case '.qtest':
+        return 'tests';
+      default:
+        return '';
+    }
+  }
+
+  private updateOtherFilesInfo(source_directories: string[]) {
+    console.log('UPDATING OTHER FILES');
+    this.setPending('otherFiles', true);
+
+    let otherFiles: any = {};
+
+    for (let dir of source_directories) {
+      const full_dir = path.join(this.project.folder, dir);
+      if (!fs.existsSync(full_dir)) {
+        continue;
+      }
+
+      let files = filesInDir(
+        full_dir,
+        (path) => hasSuffix(path, 'qsm') || hasSuffix(path, 'qscript') || hasSuffix(path, 'qtest')
+      );
+      for (let file of files) {
+        otherFiles[file] = true;
+      }
+    }
+
+    /* The above code is creating a list of all the files in the directory that end with .qsm,
+    .qscript, or .qtest. */
+    this.otherFiles = Object.keys(otherFiles).map((file_path) => ({
+      path: file_path,
+      // Get the file_path extension
+      ext: path.extname(file_path),
+      type: this.getFileType(path.extname(file_path)),
+      // Get the file_path basename
+      name: path.basename(file_path, path.extname(file_path)),
+    }));
+    this.setPending('otherFiles', false);
   }
 
   private addDescToClasses(base_classes: any, root_classes: string[] = []): any[] {

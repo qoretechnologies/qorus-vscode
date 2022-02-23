@@ -39,6 +39,26 @@ export const StyledDialogSelectItem = styled.div`
     margin-bottom: 10px;
   }
 
+  max-height: 150px;
+  overflow: hidden;
+  position: relative;
+
+  &:before {
+    content: '';
+    display: block;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    // Linear gradient from top transparent to bottom white
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0) 30%,
+      rgba(255, 255, 255, 1) 100%
+    );
+    z-index: 10;
+  }
+
   background-color: #fff;
 
   border: 1px solid #ddd;
@@ -49,12 +69,12 @@ export const StyledDialogSelectItem = styled.div`
   &:hover,
   &.selected {
     cursor: pointer;
-    transform: scale(1.02);
+    transform: scale(0.98);
     box-shadow: 0 0 10px -6px #555;
   }
 
   &.selected {
-    border: 1px solid #7fba27;
+    border: 2px solid #7fba27;
   }
 
   h5 {
@@ -334,42 +354,64 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                       }}
                       title={t('SelectItem')}
                       style={{
-                        maxHeight: '50vh',
+                        maxHeight: '80vh',
+                        width: '50vw',
+                        minWidth: '500px',
                         overflow: 'auto',
                         padding: 0,
                       }}
                     >
-                      <div className={Classes.DIALOG_BODY}>
-                        <StringField
-                          onChange={(_name, value) => setQuery(value)}
-                          value={query}
-                          name="select-filter"
-                          placeholder={t('Filter')}
-                          autoFocus
-                        />
-                        <Spacer size={10} />
-                        {filterItems(filteredItems).map((item) => (
-                          <StyledDialogSelectItem
-                            className={item.name === value ? 'selected' : ''}
-                            name={`field-${name}-item`}
-                            onClick={() => {
-                              handleSelectClick(item);
-                              setSelectDialogOpen(false);
-                              setQuery('');
-                            }}
-                          >
-                            <h5>
-                              {item.name === value && (
-                                <Icon icon="small-tick" style={{ color: '#7fba27' }} />
-                              )}{' '}
-                              {item.name}
-                            </h5>
+                      <div
+                        className={Classes.DIALOG_BODY}
+                        style={{ display: 'flex', flexFlow: 'column', overflow: 'hidden' }}
+                      >
+                        <div>
+                          <StringField
+                            onChange={(_name, value) => setQuery(value)}
+                            value={query}
+                            name="select-filter"
+                            placeholder={t('Filter')}
+                            autoFocus
+                          />
+                          <Spacer size={10} />
+                        </div>
+                        <div style={{ overflowY: 'auto', overflowX: 'hidden' }}>
+                          {filterItems(filteredItems).map((item) => (
+                            <Tooltip
+                              position="top"
+                              boundary="viewport"
+                              targetProps={{
+                                style: {
+                                  width: '100%',
+                                },
+                              }}
+                              hoverOpenDelay={500}
+                              interactionKind="hover"
+                              content={<ReactMarkdown source={item.desc} />}
+                            >
+                              <StyledDialogSelectItem
+                                className={item.name === value ? 'selected' : ''}
+                                name={`field-${name}-item`}
+                                onClick={() => {
+                                  handleSelectClick(item);
+                                  setSelectDialogOpen(false);
+                                  setQuery('');
+                                }}
+                              >
+                                <h5>
+                                  {item.name === value && (
+                                    <Icon icon="small-tick" style={{ color: '#7fba27' }} />
+                                  )}{' '}
+                                  {item.name}
+                                </h5>
 
-                            <p className={Classes.TEXT_MUTED}>
-                              <ReactMarkdown source={item.desc || t('NoDescription')} />
-                            </p>
-                          </StyledDialogSelectItem>
-                        ))}
+                                <p className={Classes.TEXT_MUTED}>
+                                  <ReactMarkdown source={item.desc || t('NoDescription')} />
+                                </p>
+                              </StyledDialogSelectItem>
+                            </Tooltip>
+                          ))}
+                        </div>
                       </div>
                     </CustomDialog>
                   )}

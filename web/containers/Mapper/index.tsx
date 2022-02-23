@@ -19,7 +19,7 @@ import {
   flattenFields,
   getLastChildIndex,
   getStaticDataFieldname,
-  hasStaticDataField
+  hasStaticDataField,
 } from '../../helpers/mapper';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -1041,7 +1041,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
               : null}
           </StyledFieldsWrapper>
           <StyledConnectionsWrapper>
-            {size(relations) && !isDragging ? (
+            {size(relations) ? (
               <svg
                 height={
                   Math.max(

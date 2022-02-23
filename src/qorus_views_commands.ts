@@ -1,18 +1,32 @@
+import * as fs from 'fs';
 import { join } from 'path';
 import { t } from 'ttag';
 import { commands, ExtensionContext, Uri, window as vswindow, workspace } from 'vscode';
 import { deployer } from './QorusDeploy';
-import { drafts_tree, QorusDraftItem } from './QorusDraftsTree';
+import { drafts_tree, otherFilesNames, QorusDraftItem } from './QorusDraftsTree';
 import { interface_tree } from './QorusInterfaceTree';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { tester } from './QorusTest';
 import * as msg from './qorus_message';
 import { dash2Pascal } from './qorus_utils';
 
 const maybeDeleteInterface = (data: QorusDraftItem['data']) => {
   vswindow
-    .showWarningMessage(t`ConfirmDeleteInterface ${data.type} ${data.name}`, t`Yes`, t`No`)
+    .showWarningMessage(t`ConfirmDeleteInterface ${data.type} ${data.path}`, t`Yes`, t`No`)
     .then((selection) => {
       if (selection !== t`Yes`) {
+        return;
+      }
+
+      if (otherFilesNames.includes(data.type)) {
+        fs.unlink(data.path, (err) => {
+          if (err) {
+            msg.warning(t`FailedDeletingIfaceCodeFile ${data.type} ${data.path} ${err}`);
+          } else {
+            msg.info(t`DeletedIfaceCodeFile ${data.type} ${data.path}`);
+          }
+        });
+
         return;
       }
 
@@ -21,6 +35,16 @@ const maybeDeleteInterface = (data: QorusDraftItem['data']) => {
 };
 const maybeDeployInterface = (data: any) => {
   if (!deployer.isRunning) {
+    if (otherFilesNames.includes(data.type)) {
+      vswindow.showInformationMessage(t`ConfirmDeployFile`, t`Yes`, t`No`).then((selection) => {
+        if (selection !== t`No`) {
+          deployer.deployFile(data.data.path, false);
+        }
+      });
+
+      return;
+    }
+
     vswindow
       .showInformationMessage(
         t`ConfirmDeployInterface ${data.type} ${data.name}`,
@@ -112,12 +136,9 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     context.subscriptions.push(disposable);
   });
 
-  disposable = commands.registerCommand(
-    'qorus.views.deployInterface',
-    (data : QorusDraftItem) => {
-      maybeDeployInterface(data);
-    }
-  );
+  disposable = commands.registerCommand('qorus.views.deployInterface', (data: QorusDraftItem) => {
+    maybeDeployInterface(data);
+  });
   context.subscriptions.push(disposable);
 
   // Deploy all interfaces
@@ -185,6 +206,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
 
   // open interface command, used when clicking on interface in the tree
   disposable = commands.registerCommand('qorus.views.openInterface', (data: any) => {
+    console.log(data);
     if (!data || !data.data) {
       return;
     }
@@ -218,6 +240,23 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
         }
         break;
       default:
+        if (iface_data.path) {
+          workspace.openTextDocument(Uri.file(iface_data.path)).then(
+            (doc) => {
+              if (
+                vswindow.activeTextEditor &&
+                vswindow.activeTextEditor.document.fileName === iface_data.path
+              ) {
+                vswindow.showTextDocument(doc, { preview: false });
+              } else {
+                vswindow.showTextDocument(doc);
+              }
+            },
+            (err) => {
+              console.log(t`ErrorOpeningFile ${iface_data.path} ${err}`);
+            }
+          );
+        }
         break;
     }
   });
@@ -251,6 +290,11 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     ({ data }: QorusDraftItem) => {
       maybeDeleteInterface(data);
     }
+  );
+  context.subscriptions.push(disposable);
+
+  disposable = commands.registerCommand('qorus.views.testFile', (data) =>
+    tester.testFile({ fsPath: data.data.path })
   );
   context.subscriptions.push(disposable);
 };
