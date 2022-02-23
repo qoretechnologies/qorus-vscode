@@ -10,6 +10,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 - Any file inside your source directories can now be deployed to your active instance
 - QoL improvements for the item select dialog - descriptions are now hidden and will be shown after hovering an item; The filter stays on top of the dialog when scrolling;
 - It is now possible to execute tests from the hierarchy view
+- Fixed a bug where it was not possible to drag mapper inputs if the window was scrolled all the way the bottom
 
 ## Version 3.1.1 overview - What's new:
 
