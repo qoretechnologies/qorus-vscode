@@ -2,6 +2,10 @@
 
 ## Version 3.2.0
 
+#### Bug Fixes
+
+- Fixed a bug where it was not possible to drag mapper inputs if the window was scrolled all the way the bottom
+
 #### New Features
 
 - Hierarchy view now shows and allows deployment of Qorus files such as Schema modules, Scripts and Tests
