@@ -137,9 +137,30 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   isConfigItem,
   t,
 }) => {
-  const [nodes, setChildren] = useState([]);
-  const [provider, setProvider] = useState(null);
   const [optionProvider, setOptionProvider] = useState(maybeBuildOptionProvider(value));
+  const [nodes, setChildren] = useState(
+    optionProvider && optionProvider.type === 'factory'
+      ? [
+          {
+            value: optionProvider.name,
+            values: [
+              {
+                name: optionProvider.name,
+                url: providers[optionProvider.type].url,
+                suffix: providers[optionProvider.type].suffix,
+              },
+            ],
+          },
+          ...(optionProvider.path
+            ? optionProvider?.path
+                .replace('/', '')
+                .split('/')
+                .map((item) => ({ value: item, values: [{ name: item }] }))
+            : []),
+        ]
+      : []
+  );
+  const [provider, setProvider] = useState(optionProvider?.type);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(isInitialEditing);
 
@@ -153,11 +174,14 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     setProvider(null);
     setOptionProvider(null);
     setIsLoading(false);
+    onChange(name, null);
   };
 
   // Update the editing state when initial editing changes
   useEffect(() => {
-    setIsEditing(isInitialEditing);
+    if (optionProvider?.type !== 'factory') {
+      setIsEditing(isInitialEditing);
+    }
   }, [isInitialEditing]);
 
   useUpdateEffect(() => {
@@ -213,29 +237,17 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     }
   }, [JSON.stringify(optionProvider), isEditing]);
 
-  if (isEditing && value) {
+  if (isEditing && value && optionProvider?.type !== 'factory') {
     return (
       <div>
         <SubField title={!minimal && t('CurrentDataProvider')}>
           <StyledProviderUrl>
             {title && <span>{title}:</span>}{' '}
             <Tag minimal large onRemove={clear}>
-              {optionProvider.type === 'factory' ? value : getUrlFromProvider(value)}{' '}
+              {getUrlFromProvider(value)}{' '}
             </Tag>
           </StyledProviderUrl>
         </SubField>
-        {optionProvider.type === 'factory' ? (
-          <SubField title={t('FactoryOptions')}>
-            <Options
-              onChange={(nm, val) => {
-                setOptionProvider((cur) => ({ ...cur, options: val }));
-              }}
-              name="options"
-              value={optionProvider.options}
-              customUrl={`${getUrlFromProvider(optionProvider, true)}`}
-            />
-          </SubField>
-        ) : null}
       </div>
     );
   }
@@ -253,7 +265,9 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           setChildren={setChildren}
           provider={provider}
           setProvider={setProvider}
-          setOptionProvider={setOptionProvider}
+          setOptionProvider={(data) => {
+            setOptionProvider(data);
+          }}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           options={optionProvider?.options}

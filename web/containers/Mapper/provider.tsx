@@ -507,14 +507,14 @@ const MapperProvider: FC<IProviderProps> = ({
                     // If the value is a wildcard present a dialog that the user has to fill
                     if (child.value === '*') {
                       setWildcardDiagram({
-                        index,
+                        index: 0,
                         isOpen: true,
                         url,
                         suffix,
                       });
                     } else {
                       // Change the child
-                      handleChildFieldChange(child.value, url, index, suffix);
+                      handleChildFieldChange(child.value, url, 0, suffix);
                     }
                   }}
                 />
