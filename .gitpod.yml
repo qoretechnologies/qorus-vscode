@@ -5,11 +5,11 @@ vscode:
     - streetsidesoftware.code-spell-checker
     - tombonnike.vscode-status-bar-format-toggle
     - github.copilot
-    - eamodio.gitlens
     - fivepointseven.node-version
     - esbenp.prettier-vscode
     - visualstudioexptteam.vscodeintellicode
     - styled-components.vscode-styled-components
+    - kejun.devtoys
 tasks:
   - init: |
       nvm install v14.18

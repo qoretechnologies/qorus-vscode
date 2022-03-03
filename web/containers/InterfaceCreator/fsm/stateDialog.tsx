@@ -40,7 +40,7 @@ export interface IFSMStateDialogProps {
   disableInitial?: boolean;
 }
 
-export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none';
+export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none' | 'apicall';
 
 const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   onClose,
@@ -145,6 +145,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'connector': {
         return !!newData?.action?.value?.['class'] && !!newData?.action?.value?.connector;
       }
+      case 'apicall': {
+        return validateField('api-call', newData?.action?.value);
+      }
       default: {
         return true;
       }
@@ -204,6 +207,19 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             target_dir={target_dir}
             onChange={(value) => handleDataUpdate('action', { type: 'connector', value })}
             types={['input', 'input-output', 'output']}
+          />
+        );
+      }
+      case 'apicall': {
+        return (
+          <Connectors
+            name="apicall"
+            inline
+            minimal
+            requiresRequest
+            isInitialEditing={!!data?.action?.value}
+            onChange={(_name, value) => handleDataUpdate('action', { type: 'apicall', value })}
+            value={newData?.action?.value}
           />
         );
       }
@@ -386,7 +402,12 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                           setActionType(value);
                         }}
                         value={actionType}
-                        items={[{ value: 'mapper' }, { value: 'pipeline' }, { value: 'connector' }]}
+                        items={[
+                          { value: 'mapper' },
+                          { value: 'pipeline' },
+                          { value: 'connector' },
+                          { value: 'apicall' },
+                        ]}
                       />
                       {actionType && actionType !== 'none' ? (
                         <>

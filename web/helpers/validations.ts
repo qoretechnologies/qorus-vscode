@@ -203,6 +203,30 @@ export const validateField: (
 
       // Type path and name are required
       return !!(value.type && value.path && value.name);
+    case 'api-call':
+      console.log(value);
+      if (!value) {
+        return false;
+      }
+
+      // Api call only supports  requests / response
+      if (!value.supports_request) {
+        return false;
+      }
+
+      if (value?.type === 'factory') {
+        let options = true;
+
+        if (value.options) {
+          options = validateField('system-options', value.options);
+        }
+
+        // Type path and name are required
+        return !!(value.type && value.name && options);
+      }
+
+      // Type path and name are required
+      return !!(value.type && value.path && value.name);
     case 'context-selector':
       if (isString(value)) {
         const cont: string[] = value.split(':');

@@ -101,7 +101,7 @@ export interface IFSMState {
   'input-type'?: any;
   'output-type'?: any;
   name?: string;
-  type: 'state' | 'fsm' | 'block' | 'if';
+  type: 'state' | 'fsm' | 'block' | 'if' | 'apicall';
   desc: string;
   states?: IFSMStates;
   fsm?: string;
@@ -1196,6 +1196,14 @@ const FSMView: React.FC<IFSMViewProps> = ({
             onDoubleClick={handleToolbarItemDblClick}
           >
             {t('If')}
+          </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="apicall"
+            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'apicall'))}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('ApiCall')}
           </FSMToolbarItem>
           <ButtonGroup style={{ float: 'right' }}>
             <Button

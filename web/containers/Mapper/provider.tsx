@@ -31,6 +31,7 @@ export interface IProviderProps {
   hide: any;
   style: any;
   isConfigItem?: boolean;
+  requiresRequest?: boolean;
 }
 
 const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
@@ -151,6 +152,7 @@ const MapperProvider: FC<IProviderProps> = ({
   style,
   isConfigItem,
   options,
+  requiresRequest,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(null);
   const [optionString, setOptionString] = useState('');
@@ -297,6 +299,7 @@ const MapperProvider: FC<IProviderProps> = ({
           setOptionProvider({
             type: providers[provider].type,
             name,
+            supports_request: data.supports_request,
             can_manage_fields: record.data?.can_manage_fields,
             path: `${url}/${value}`
               .replace(`${name}`, '')
@@ -328,7 +331,7 @@ const MapperProvider: FC<IProviderProps> = ({
             value: null,
           },
         ];
-      } else if (data.supports_request) {
+      } else if (data.supports_request && !requiresRequest) {
         // Return the updated items and add
         // the new item
         return [

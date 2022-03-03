@@ -22,6 +22,7 @@ export interface IConnectorFieldProps {
   inline?: boolean;
   providerType?: 'inputs' | 'outputs' | 'event' | 'input-output' | 'condition';
   t: TTranslator;
+  requiresRequest?: boolean;
 }
 
 const StyledProviderUrl = styled.div`
@@ -135,6 +136,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   providerType,
   minimal,
   isConfigItem,
+  requiresRequest,
   t,
 }) => {
   const [nodes, setChildren] = useState([]);
@@ -220,7 +222,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           <StyledProviderUrl>
             {title && <span>{title}:</span>}{' '}
             <Tag minimal large onRemove={clear}>
-              {optionProvider.type === 'factory' ? value : getUrlFromProvider(value)}{' '}
+              {getUrlFromProvider(value)}{' '}
             </Tag>
           </StyledProviderUrl>
         </SubField>
@@ -261,6 +263,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           clear={clear}
           type={providerType}
           compact
+          requiresRequest={requiresRequest}
           style={{
             display: inline ? 'inline-block' : 'block',
           }}
