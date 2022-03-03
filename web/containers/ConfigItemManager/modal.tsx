@@ -126,6 +126,15 @@ export default class ConfigItemsModal extends Component {
       newValue = `$${this.state.templateType}:${this.state.templateKey}`;
     }
 
+    console.log(
+      this.state.item.name,
+      newValue,
+      this.state.item.parent_class,
+      this.state.isTemplatedString,
+      false,
+      this.state.currentType
+    );
+
     this.props.onSubmit(
       this.state.item.name,
       newValue,
@@ -184,6 +193,8 @@ export default class ConfigItemsModal extends Component {
   render() {
     const { onClose, isGlobal, globalConfig, t } = this.props;
     const { error, yamlData, value, item } = this.state;
+
+    console.log(this.state);
 
     return (
       <CustomDialog
@@ -301,7 +312,7 @@ export default class ConfigItemsModal extends Component {
                           type="auto"
                           noSoft
                           defaultType={item.type}
-                          defaultInternalType={item.value_true_type}
+                          defaultInternalType={item.value_true_type || item.type}
                           disabled={!!item.allowed_values}
                           requestFieldData={(field) =>
                             field === 'can_be_undefined' ? item.can_be_undefined : item.type
