@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.2.1
+
+#### Bug Fixes
+
+- It is now possible to edit factory data providers, and their options, without having to re-create them
+
 ## Version 3.2.0
 
 #### Bug Fixes

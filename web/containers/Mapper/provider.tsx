@@ -31,6 +31,8 @@ export interface IProviderProps {
   hide: any;
   style: any;
   isConfigItem?: boolean;
+  options?: { [key: string]: any };
+  optionsChanged?: boolean;
 }
 
 const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
@@ -151,6 +153,7 @@ const MapperProvider: FC<IProviderProps> = ({
   style,
   isConfigItem,
   options,
+  optionsChanged,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(null);
   const [optionString, setOptionString] = useState('');
@@ -498,26 +501,30 @@ const MapperProvider: FC<IProviderProps> = ({
                 }}
                 value={child.value}
               />
-              {index === 0 ? (
+              {index === 0 && optionsChanged ? (
                 <Button
                   icon="refresh"
+                  intent="success"
                   onClick={() => {
                     // Get the child data
                     const { url, suffix } = child.values.find((val) => val.name === child.value);
                     // If the value is a wildcard present a dialog that the user has to fill
                     if (child.value === '*') {
                       setWildcardDiagram({
-                        index,
+                        index: 0,
                         isOpen: true,
                         url,
                         suffix,
                       });
                     } else {
                       // Change the child
-                      handleChildFieldChange(child.value, url, index, suffix);
+                      handleChildFieldChange(child.value, url, 0, suffix);
                     }
                   }}
-                />
+                >
+                  {' '}
+                  Apply options{' '}
+                </Button>
               ) : null}
             </ButtonGroup>
           ))}
