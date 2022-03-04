@@ -115,7 +115,8 @@ export const maybeBuildOptionProvider = (provider) => {
     return {
       type: factoryType,
       name: factoryName,
-      path: '',
+      // Get everything after the last }/ from the provider
+      path: provider.substring(provider.lastIndexOf('}/') + 2),
       options: optionsObject,
       // Add the optionsChanged key if the provider includes the "?options_changed" string
       optionsChanged: (provider as string).includes('?options_changed'),
