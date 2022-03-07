@@ -107,8 +107,6 @@ export class QorusProjectCodeInfo {
     let data = this.otherFiles.filter((f) => f.type === type);
     data = data.map(({ name, ...rest }) => ({ name, data: rest }));
 
-    console.log(data, this.otherFiles);
-
     return sortBy(data, ['name']);
   };
 
@@ -1384,7 +1382,6 @@ export class QorusProjectCodeInfo {
   }
 
   private updateOtherFilesInfo(source_directories: string[]) {
-    console.log('UPDATING OTHER FILES');
     this.setPending('otherFiles', true);
 
     let otherFiles: any = {};

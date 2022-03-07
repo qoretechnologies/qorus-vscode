@@ -8,6 +8,7 @@ import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
 import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
+import { maybeBuildOptionProvider } from '../components/Field/connectors';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { TTrigger } from '../containers/InterfaceCreator/fsm';
 import { IField } from '../containers/InterfaceCreator/panel';
@@ -50,7 +51,6 @@ export const validateField: (
     case 'select-string':
     case 'file-string':
     case 'long-string':
-    case 'data-provider':
     case 'method-name': {
       if (value === undefined || value === null || value === '') {
         return false;
@@ -186,47 +186,37 @@ export const validateField: (
       // Both fields need to be strings & filled
       return validateField('string', code) && validateField('string', method);
     case 'type-selector':
-      if (!value) {
-        return false;
-      }
-
-      if (value?.type === 'factory') {
-        let options = true;
-
-        if (value.options) {
-          options = validateField('system-options', value.options);
-        }
-
-        // Type path and name are required
-        return !!(value.type && value.name && options);
-      }
-
-      // Type path and name are required
-      return !!(value.type && value.path && value.name);
+    case 'data-provider':
     case 'api-call':
-      console.log(value);
-      if (!value) {
+      let newValue = maybeBuildOptionProvider(value);
+
+      console.log('newValue', newValue);
+
+      if (!newValue) {
         return false;
       }
 
       // Api call only supports  requests / response
-      if (!value.supports_request) {
+      if (type === 'api-call' && !value.supports_request) {
         return false;
       }
 
-      if (value?.type === 'factory') {
+      if (newValue?.type === 'factory') {
+        if (newValue.optionsChanged) {
+          return false;
+        }
+
         let options = true;
 
-        if (value.options) {
-          options = validateField('system-options', value.options);
+        if (newValue.options) {
+          options = validateField('system-options', newValue.options);
         }
 
         // Type path and name are required
-        return !!(value.type && value.name && options);
+        return !!(newValue.type && newValue.name && options);
       }
 
-      // Type path and name are required
-      return !!(value.type && value.path && value.name);
+      return !!(newValue.type && newValue.path && newValue.name);
     case 'context-selector':
       if (isString(value)) {
         const cont: string[] = value.split(':');
@@ -291,7 +281,11 @@ export const validateField: (
         return false;
       }
 
-      return every(value, (optionData) => validateField(optionData.type, optionData.value));
+      return every(value, (optionData) =>
+        typeof optionData !== 'object'
+          ? validateField(getTypeFromValue(optionData), optionData)
+          : validateField(optionData.type, optionData.value)
+      );
     }
     case 'byte-size': {
       let valid = true;
