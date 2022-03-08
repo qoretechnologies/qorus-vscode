@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.3.0
+
+#### New Features
+
+- Introducing new type of state: API Call - \*\*\*\*
+
 ## Version 3.2.1
 
 #### Bug Fixes

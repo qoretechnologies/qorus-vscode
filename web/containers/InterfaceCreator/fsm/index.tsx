@@ -32,6 +32,7 @@ import {
   areTypesCompatible,
   deleteDraft,
   getDraftId,
+  getStateProvider,
   getTargetFile,
   hasValue,
   isFSMStateValid,
@@ -40,6 +41,7 @@ import {
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
+import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import FSMDiagramWrapper from './diagramWrapper';
@@ -57,6 +59,7 @@ export interface IFSMViewProps {
   defaultStates?: IFSMStates;
   parentStateName?: string;
   defaultInterfaceId?: string;
+  states: IFSMStates;
 }
 
 export interface IDraggableItem {
@@ -112,6 +115,7 @@ export interface IFSMState {
   keyId?: string;
   disabled?: boolean;
   error?: boolean;
+  injected?: boolean;
 }
 
 export interface IFSMStates {
@@ -191,6 +195,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   onHideMetadataClick,
   isExternalMetadataHidden,
   defaultInterfaceId,
+  setMapper,
   ...rest
 }) => {
   const t = useContext(TextContext);
@@ -272,7 +277,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
     },
   });
 
-  const addNewState = (item, x, y) => {
+  const addNewState = (item, x, y, onSuccess?: (stateId: string) => any) => {
+    console.log(item);
     const ids: number[] = size(states) ? Object.keys(states).map((key) => parseInt(key)) : [0];
     const id = (Math.max(...ids) + 1).toString();
 
@@ -287,6 +293,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
           initial: false,
           name: getStateName(item, id),
           desc: '',
+          injected: item.injected,
           type: item.name,
           id: shortid.generate(),
           states: item.name === 'block' ? {} : undefined,
@@ -300,6 +307,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
         },
       })
     );
+
+    onSuccess?.(id);
 
     setEditingState(id);
   };
@@ -569,12 +578,14 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const isAvailableForTransition = async (stateId: string, targetId: string): Promise<boolean> => {
-    return (
-      (await areStatesCompatible(stateId, targetId)) && !getTransitionByState(stateId, targetId)
-    );
+    if (getTransitionByState(stateId, targetId)) {
+      return false;
+    }
+
+    return await areStatesCompatible(stateId, targetId);
   };
 
-  const handleStateClick = (id: string): void => {
+  const handleStateClick = async (id: string) => {
     if (selectedState) {
       // Do nothing if the selected transition already
       // exists
@@ -587,6 +598,71 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
       // Also do nothing is the user is trying to transition FSM to itself or IF to itself
       if ((targetStateType === 'fsm' || targetStateType === 'if') && selectedState === id) {
+        return;
+      }
+
+      // Check if the states are compatible
+      const isCompatible = await areStatesCompatible(selectedState, id);
+
+      if (!isCompatible) {
+        setSelectedState(null);
+
+        const outputType = await getStateProvider(
+          getStateDataForComparison(states[id], 'input'),
+          'input'
+        );
+        const inputType = await getStateProvider(
+          getStateDataForComparison(states[selectedState], 'output'),
+          'output'
+        );
+        console.log(inputType, outputType);
+        setMapper({
+          hasInitialInput: true,
+          hasInitialOutput: true,
+          mapper_options: {
+            'mapper-input': inputType,
+            'mapper-output': outputType,
+          },
+        });
+
+        addNewState(
+          {
+            name: 'state',
+            type: 'toolbar-item',
+            stateType: 'mapper',
+            injected: true,
+          },
+          (states[selectedState].position.x + states[id].position.x) / 2,
+          (states[selectedState].position.y + states[id].position.y) / 2,
+          // Add both transition immediately when the state is added
+          // to the diagram
+          (stateId: string) => {
+            setStates((cur) => {
+              const newBoxes = { ...cur };
+
+              newBoxes[selectedState].transitions = [
+                ...(newBoxes[selectedState].transitions || []),
+                {
+                  state: stateId.toString(),
+                  language: 'qore',
+                },
+              ];
+
+              newBoxes[stateId].transitions = [
+                ...(newBoxes[stateId].transitions || []),
+                {
+                  state: id.toString(),
+                  language: 'qore',
+                },
+              ];
+
+              updateHistory(newBoxes);
+
+              return newBoxes;
+            });
+          }
+        );
+
         return;
       }
 
@@ -780,6 +856,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const handleToolbarItemDblClick = (name, type, stateType) => {
+    console.log(name, type, stateType);
     addNewState(
       {
         name,
@@ -1379,4 +1456,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
   );
 };
 
-export default compose(withGlobalOptionsConsumer(), withMessageHandler())(FSMView);
+export default compose(
+  withGlobalOptionsConsumer(),
+  withMessageHandler(),
+  withMapperConsumer()
+)(FSMView);

@@ -299,6 +299,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                           ? [{ name: 'state' }, { name: 'fsm' }, { name: 'block' }]
                           : [{ name: 'state' }, { name: 'fsm' }]
                       }
+                      disabled={newData.injected}
                       onChange={handleDataUpdate}
                       value={newData.type}
                       name="type"
@@ -402,6 +403,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                           setActionType(value);
                         }}
                         value={actionType}
+                        disabled={newData.injected}
                         items={[
                           { value: 'mapper' },
                           { value: 'pipeline' },

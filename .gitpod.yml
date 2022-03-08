@@ -11,6 +11,7 @@ vscode:
     - visualstudioexptteam.vscodeintellicode
     - styled-components.vscode-styled-components
     - kejun.devtoys
+    - qoretechnologies.qore-vscode
 tasks:
   - init: |
       nvm install v14.18

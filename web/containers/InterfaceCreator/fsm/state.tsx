@@ -108,8 +108,10 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
   ${({ selected, initial, final, isIncompatible, error }) => {
     let color: string = '#a9a9a9';
 
-    if (isIncompatible || error) {
+    if (error) {
       color = '#d13913';
+    } else if (isIncompatible) {
+      color = '#ce7909';
     } else if (selected) {
       color = '#277fba';
     } else if (final) {
@@ -219,6 +221,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
 
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [shouldWiggle, setShouldWiggle] = useState<boolean>(false);
+  const [isCompatible, setIsCompatible] = useState<boolean>(null);
   const [isLoadingCheck, setIsLoadingCheck] = useState<boolean>(false);
   const { addMenu } = useContext(ContextMenuContext);
   const t = useContext(TextContext);
@@ -229,11 +232,13 @@ const FSMState: React.FC<IFSMStateProps> = ({
       if (selectedState) {
         setIsLoadingCheck(true);
         const isAvailable = await isAvailableForTransition(selectedState, id);
+        setIsCompatible(isAvailable);
         setIsLoadingCheck(false);
-        setShouldWiggle(isAvailable);
+        setShouldWiggle(true);
       } else {
         setShouldWiggle(false);
         setIsLoadingCheck(false);
+        setIsCompatible(null);
       }
     })();
   }, [selectedState]);
@@ -272,11 +277,13 @@ const FSMState: React.FC<IFSMStateProps> = ({
       isIsolated={isIsolated}
       className={isIsolated ? 'isolated-state' : ''}
       isAvailableForTransition={shouldWiggle}
-      isIncompatible={selectedState && !shouldWiggle}
+      isIncompatible={selectedState && !isCompatible}
       error={error}
       type={action?.type || type}
       onContextMenu={(event) => {
         event.persist();
+        event.preventDefault();
+
         let menuData = [
           {
             title: name,
