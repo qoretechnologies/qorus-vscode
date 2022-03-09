@@ -123,14 +123,9 @@ export const maybeBuildOptionProvider = (provider) => {
       optionsChanged: (provider as string).includes('?options_changed'),
     };
   }
-  // Split the provider by /
-  const [type, name, ...path] = provider.split('/');
+
   // Return it
-  return {
-    type,
-    name,
-    path: path.join('/'),
-  };
+  return provider;
 };
 
 const ConnectorField: React.FC<IConnectorFieldProps> = ({
