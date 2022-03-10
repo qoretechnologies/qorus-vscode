@@ -6,6 +6,12 @@
 
 - Introducing new type of state: API Call - \*\*\*\*
 
+## Version 3.2.2
+
+#### Bug Fixes
+
+- Fixed a bug where non-factory data providers in config items were not able to be saved
+
 ## Version 3.2.1
 
 #### Bug Fixes

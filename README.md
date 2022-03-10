@@ -8,6 +8,12 @@ reused later and setup an initial configuration for them.
 ## Version 3.3.0 overview - What's new:
 
 - Introducing new type of state: API Call - \*\*\*\*
+  It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial
+  configuration for them.
+
+## Version 3.2.2 overview - What's new:
+
+- Fixed a bug where non-factory data providers in config items were not able to be saved
 
 ## Version 3.2.1 overview - What's new:
 
