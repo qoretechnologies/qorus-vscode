@@ -144,7 +144,7 @@ export default () =>
         setHideOutputSelector(data.hideOutputSelector);
         setError(data.error);
         setContextInputs(data.contextInputs);
-        setIsContextLoaded(data.isContextLoaded);
+        setIsContextLoaded(true);
       };
 
       const getUrlFromProvider: (fieldType: 'input' | 'output', provider?: any) => string = (
@@ -173,17 +173,6 @@ export default () =>
           ? inputOptionProvider
           : outputOptionProvider;
         return getRealUrlFromProvider(prov);
-        // Check if the type is factory
-        // if (type === 'factory') {
-        //   // Return just the type
-        //   return type;
-        // }
-        // // Get the rules for the given provider
-        // const { url, suffix, recordSuffix } = providers[type];
-        // // Build the URL based on the provider type
-        // return `${url}/${name}${suffix}${subtype ? addTrailingSlash(path) : path}${
-        //   recordSuffix && !subtype ? recordSuffix : ''
-        // }${subtype ? subtype : ''}`;
       };
 
       const getProviderUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {
