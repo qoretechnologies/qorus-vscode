@@ -250,6 +250,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     }
   }, [JSON.stringify(optionProvider), isEditing]);
 
+  console.log(isEditing, optionProvider, value);
+
   if (isEditing && value && optionProvider?.type !== 'factory') {
     return (
       <div>

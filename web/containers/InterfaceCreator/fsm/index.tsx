@@ -37,7 +37,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
+  ITypeComparatorData
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -116,6 +116,11 @@ export interface IFSMState {
   disabled?: boolean;
   error?: boolean;
   injected?: boolean;
+  injectedData?: {
+    from: string;
+    to: string;
+    name?: string;
+  };
 }
 
 export interface IFSMStates {
@@ -278,7 +283,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
   });
 
   const addNewState = (item, x, y, onSuccess?: (stateId: string) => any) => {
-    console.log(item);
     const ids: number[] = size(states) ? Object.keys(states).map((key) => parseInt(key)) : [0];
     const id = (Math.max(...ids) + 1).toString();
 
@@ -294,6 +298,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
           name: getStateName(item, id),
           desc: '',
           injected: item.injected,
+          injectedData: item.injectedData,
           type: item.name,
           id: shortid.generate(),
           states: item.name === 'block' ? {} : undefined,
@@ -631,6 +636,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
             type: 'toolbar-item',
             stateType: 'mapper',
             injected: true,
+            injectedData: {
+              from: states[selectedState].name,
+              to: states[id].name,
+              name: metadata.name,
+            },
           },
           (states[selectedState].position.x + states[id].position.x) / 2,
           (states[selectedState].position.y + states[id].position.y) / 2,
