@@ -177,9 +177,13 @@ const MapperProvider: FC<IProviderProps> = ({
   );
 
   // Omit type and factory from the list of providers if is config item
-  providers = isConfigItem
-    ? { ...omit(providers, ['type', 'factory']), factory: configItemFactory }
-    : providers;
+  if (isConfigItem) {
+    providers = omit(providers, ['type', 'factory']);
+  }
+
+  if (requiresRequest) {
+    providers = omit(providers, ['connection', 'remote', 'datasource', 'type']);
+  }
 
   const handleProviderChange = (provider) => {
     setProvider((current) => {

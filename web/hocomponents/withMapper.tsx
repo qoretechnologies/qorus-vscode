@@ -317,7 +317,7 @@ export default () =>
         // Save the url as a record, to be accessible
         setOutputRecord(outputUrl);
         // Fetch the input and output fields
-        const outputs = await props.fetchData(outputUrl);
+        const outputs = await props.fetchData(`${outputUrl}?soft=true`);
         // If one of the connections is down
         if (outputs.error) {
           console.error(outputs);
