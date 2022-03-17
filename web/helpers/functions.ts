@@ -145,13 +145,12 @@ export const getStateProvider = async (
   data: ITypeComparatorData,
   providerType: 'input' | 'output'
 ) => {
-  console.log('getStateProvider', data);
   if (data.interfaceKind === 'apicall') {
     return Promise.resolve({
       // @ts-expect-error
       ...data.interfaceName,
       // @ts-expect-error
-      path: `${data.interfaceName.path}/${providerType === 'input' ? 'response' : 'request'}`,
+      path: `${data.interfaceName.path}`,
     });
   }
 

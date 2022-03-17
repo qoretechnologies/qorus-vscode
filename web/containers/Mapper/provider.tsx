@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Callout, Classes, Spinner } from '@blueprintjs/core';
-import { omit } from 'lodash';
+import { cloneDeep, omit } from 'lodash';
 import map from 'lodash/map';
 import nth from 'lodash/nth';
 import size from 'lodash/size';
@@ -176,14 +176,16 @@ const MapperProvider: FC<IProviderProps> = ({
     [options]
   );
 
-  // Omit type and factory from the list of providers if is config item
+  let realProviders = cloneDeep(providers);
+
+  // Omit type and factory from the list of realProviders if is config item
   if (isConfigItem) {
-    providers = omit(providers, ['type', 'factory']);
-    providers.factory = configItemFactory;
+    realProviders = omit(realProviders, ['type', 'factory']);
+    realProviders.factory = configItemFactory;
   }
 
   if (requiresRequest) {
-    providers = omit(providers, ['datasource', 'type']);
+    realProviders = omit(realProviders, ['datasource', 'type']);
   }
 
   const handleProviderChange = (provider) => {
@@ -195,7 +197,7 @@ const MapperProvider: FC<IProviderProps> = ({
         // Set loading
         setIsLoading(true);
         // Select the provider data
-        const { url, filter, inputFilter, outputFilter } = providers[provider];
+        const { url, filter, inputFilter, outputFilter } = realProviders[provider];
         // Get the data
         let { data, error } = await fetchData(url);
         // Remove loading
@@ -219,10 +221,12 @@ const MapperProvider: FC<IProviderProps> = ({
         setChildren([
           {
             values: children.map((child) => ({
-              name: providers[provider].namekey ? child[providers[provider].namekey] : child,
+              name: realProviders[provider].namekey
+                ? child[realProviders[provider].namekey]
+                : child,
               desc: '',
               url,
-              suffix: providers[provider].suffix,
+              suffix: realProviders[provider].suffix,
             })),
             value: null,
           },
@@ -244,7 +248,7 @@ const MapperProvider: FC<IProviderProps> = ({
     // Set loading
     setIsLoading(true);
     // Build the suffix
-    let suffixString = providers[provider].suffixRequiresOptions
+    let suffixString = realProviders[provider].suffixRequiresOptions
       ? optionString && optionString !== '' && size(options)
         ? `${suffix}?${optionString}`
         : itemIndex === 1
@@ -293,13 +297,13 @@ const MapperProvider: FC<IProviderProps> = ({
             setMapperKeys && setMapperKeys(data.mapper_keys);
           }
 
-          suffixString = providers[provider].suffixRequiresOptions
+          suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
-              ? `${suffix}${providers[provider].recordSuffix}?${optionString}${
+              ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                   type === 'outputs' ? '&soft=true' : ''
                 }`
               : `${suffix}`
-            : `${suffix}${providers[provider].recordSuffix}`;
+            : `${suffix}${realProviders[provider].recordSuffix}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
@@ -310,20 +314,20 @@ const MapperProvider: FC<IProviderProps> = ({
           const name = `${url}/${value}`.split('/')[2];
           // Set the provider option
           setOptionProvider({
-            type: providers[provider].type,
+            type: realProviders[provider].type,
             name,
             supports_request: data.supports_request,
             can_manage_fields: record.data?.can_manage_fields,
             path: `${url}/${value}`
               .replace(`${name}`, '')
-              .replace(`${providers[provider].url}/`, '')
+              .replace(`${realProviders[provider].url}/`, '')
               .replace('provider/', ''),
             options,
           });
           if (data.has_type || isConfigItem) {
             // Set the record data
             setRecord &&
-              setRecord(!providers[provider].requiresRecord ? record.data.fields : record.data);
+              setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
             //
           }
         })();
@@ -376,13 +380,13 @@ const MapperProvider: FC<IProviderProps> = ({
           const name = `${url}/${value}`.split('/')[2];
           // Set the provider option
           setOptionProvider({
-            type: providers[provider].type,
+            type: realProviders[provider].type,
             can_manage_fields: data.can_manage_fields,
             name,
             subtype: value === 'request' || value === 'response' ? value : undefined,
             path: `${url}/${value}`
               .replace(`${name}`, '')
-              .replace(`${providers[provider].url}/`, '')
+              .replace(`${realProviders[provider].url}/`, '')
               .replace('provider/', '')
               .replace('request', '')
               .replace('response', ''),
@@ -391,20 +395,20 @@ const MapperProvider: FC<IProviderProps> = ({
           setRecord && setRecord(data.fields);
         }
         // Check if there is a record
-        else if (isConfigItem || data.has_record || !providers[provider].requiresRecord) {
+        else if (isConfigItem || data.has_record || !realProviders[provider].requiresRecord) {
           (async () => {
             setIsLoading(true);
             if (type === 'outputs' && data.mapper_keys) {
               // Save the mapper keys
               setMapperKeys && setMapperKeys(data.mapper_keys);
             }
-            suffixString = providers[provider].suffixRequiresOptions
+            suffixString = realProviders[provider].suffixRequiresOptions
               ? optionString && optionString !== '' && size(options)
-                ? `${suffix}${providers[provider].recordSuffix}?${optionString}${
+                ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                     type === 'outputs' ? '&soft=true' : ''
                   }`
                 : suffix
-              : `${suffix}${providers[provider].recordSuffix}`;
+              : `${suffix}${realProviders[provider].recordSuffix}`;
             // Fetch the record
             const record = await fetchData(`${url}/${value}${suffixString}`);
             // Remove loading
@@ -414,18 +418,18 @@ const MapperProvider: FC<IProviderProps> = ({
             const name = `${url}/${value}`.split('/')[2];
             // Set the provider option
             setOptionProvider({
-              type: providers[provider].type,
+              type: realProviders[provider].type,
               name,
               can_manage_fields: record.data.can_manage_fields,
               path: `${url}/${value}`
                 .replace(`${name}`, '')
-                .replace(`${providers[provider].url}/`, '')
+                .replace(`${realProviders[provider].url}/`, '')
                 .replace('provider/', ''),
               options,
             });
             // Set the record data
             setRecord &&
-              setRecord(!providers[provider].requiresRecord ? record.data.fields : record.data);
+              setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
             //
           })();
         }
@@ -437,7 +441,7 @@ const MapperProvider: FC<IProviderProps> = ({
 
   const getDefaultItems = useCallback(
     () =>
-      map(providers, ({ name }) => ({ name, desc: '' })).filter((prov) =>
+      map(realProviders, ({ name }) => ({ name, desc: '' })).filter((prov) =>
         prov.name === 'null' ? canSelectNull : true
       ),
     []

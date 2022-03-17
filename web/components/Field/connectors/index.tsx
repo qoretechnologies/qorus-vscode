@@ -38,6 +38,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   val,
   withOptions
 ) => {
+  console.log({ val });
   // If the val is a string, return it
   if (typeof val === 'string') {
     return val;
