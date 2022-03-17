@@ -37,7 +37,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -49,7 +49,7 @@ import FSMInitialOrderDialog from './initialOrderDialog';
 import FSMState from './state';
 import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
-import FSMTransitionDialog from './transitionDialog';
+import FSMTransitionDialog, { IModifiedTransitions } from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
 
 export interface IFSMViewProps {
@@ -785,7 +785,63 @@ const FSMView: React.FC<IFSMViewProps> = ({
     setEditingState(null);
   };
 
-  const updateTransitionData = (
+  const updateMultipleTransitionData = async (newData: IModifiedTransitions) => {
+    let fixedStates: IFSMStates = { ...states };
+
+    for await (const [id, transitionData] of Object.entries(newData)) {
+      const [stateId, index] = id.split(':');
+      const anotherTransitionData = transitionData?.data;
+      const remove = !transitionData;
+
+      let transitionsCopy = [...states[stateId].transitions];
+
+      if (remove) {
+        delete transitionsCopy[index];
+      } else {
+        transitionsCopy[index] = {
+          ...transitionsCopy[index],
+          ...anotherTransitionData,
+        };
+      }
+
+      transitionsCopy = transitionsCopy.filter((t) => t);
+      transitionsCopy = size(transitionsCopy) === 0 ? null : transitionsCopy;
+
+      // @ts-expect-error
+      const data: IFSMState = { transitions: transitionsCopy };
+
+      fixedStates[stateId] = {
+        ...fixedStates[stateId],
+        ...data,
+      };
+
+      if (data?.type !== states[stateId].type || !isEqual(data.action, states[stateId].action)) {
+        if (size(fixedStates[stateId].transitions)) {
+          const newTransitions = [];
+
+          for await (const transition of fixedStates[stateId].transitions) {
+            const isCompatible = await areStatesCompatible(stateId, transition.state, fixedStates);
+
+            if (isCompatible) {
+              newTransitions.push(transition);
+            } else {
+              showTransitionsToaster.current += 1;
+            }
+          }
+
+          fixedStates[stateId].transitions = newTransitions;
+        }
+
+        fixedStates = await fixIncomptibleStates(stateId, fixedStates);
+      }
+    }
+
+    updateHistory(fixedStates);
+    setStates(fixedStates);
+    setEditingState(null);
+  };
+
+  const updateTransitionData = async (
     stateId: number,
     index: number,
     data: IFSMTransition,
@@ -805,7 +861,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     transitionsCopy = transitionsCopy.filter((t) => t);
     transitionsCopy = size(transitionsCopy) === 0 ? null : transitionsCopy;
 
-    updateStateData(stateId, { transitions: transitionsCopy });
+    await updateStateData(stateId, { transitions: transitionsCopy });
   };
 
   const handleStateEditClick = (id: string): void => {
@@ -1220,7 +1276,9 @@ const FSMView: React.FC<IFSMViewProps> = ({
       )}
       {size(editingTransition) ? (
         <FSMTransitionDialog
-          onSubmit={updateTransitionData}
+          onSubmit={async (newData) => {
+            await updateMultipleTransitionData(newData);
+          }}
           onClose={() => setEditingTransition([])}
           states={states}
           editingData={editingTransition}

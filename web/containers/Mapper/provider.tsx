@@ -280,7 +280,12 @@ const MapperProvider: FC<IProviderProps> = ({
         })
         .filter((item) => item);
 
-      if (data.has_type || isConfigItem || provider === 'factory') {
+      if (
+        data.has_type ||
+        isConfigItem ||
+        provider === 'factory' ||
+        (requiresRequest && data.supports_request)
+      ) {
         (async () => {
           setIsLoading(true);
           if (type === 'outputs' && data.mapper_keys) {
