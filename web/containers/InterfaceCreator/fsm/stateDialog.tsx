@@ -174,7 +174,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             name="action"
             context={{
               default_values: {
-                name: `${newData.injectedData?.from}-${newData.injectedData?.to}`,
+                name: `${newData.injectedData?.name ? `${newData.injectedData?.name}-` : ''}${
+                  newData.injectedData?.from
+                }-${newData.injectedData?.to}`,
                 desc: `mapper to bridge ${newData.injectedData?.from} to ${
                   newData.injectedData?.to
                 }${newData.injectedData?.name ? ` in flow ${newData.injectedData?.name}` : ''}`,

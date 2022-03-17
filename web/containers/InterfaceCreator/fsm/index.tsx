@@ -319,6 +319,10 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const getStateName = (item, id) => {
+    if (item.injected) {
+      return `Map ${item.injectedData.from} to ${item.injectedData.to}`;
+    }
+
     if (parentStateName) {
       return `${parentStateName}.State ${id}`;
     }
