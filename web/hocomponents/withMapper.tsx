@@ -59,6 +59,8 @@ export default () =>
         subtype?: string;
         can_manage_fields?: boolean;
         options?: any;
+        supports_request: boolean;
+        is_api_call: boolean;
       }>(null);
       const [outputOptionProvider, setOutputOptionProvider] = useState<{
         name: string;
@@ -67,6 +69,8 @@ export default () =>
         subtype?: string;
         can_manage_fields?: boolean;
         options?: any;
+        supports_request: boolean;
+        is_api_call: boolean;
       }>(null);
       const [mapperKeys, setMapperKeys] = useState<any>(null);
       const [hideInputSelector, setHideInputSelector] = useState<boolean>(false);
@@ -172,7 +176,11 @@ export default () =>
           : fieldType === 'input'
           ? inputOptionProvider
           : outputOptionProvider;
-        return getRealUrlFromProvider(prov);
+
+        // If the provider is an api call, we need to add /request or /response at the end
+        const url = prov.is_api_call ? (fieldType === 'input' ? '/response' : '/request') : '';
+
+        return `${getRealUrlFromProvider(prov)}${url}`;
       };
 
       const getProviderUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {
@@ -184,6 +192,8 @@ export default () =>
           subtype,
           can_manage_fields,
           options,
+          supports_request,
+          is_api_call,
         } = mapper.mapper_options[`mapper-${fieldType}`];
         // Save the provider options
         if (fieldType === 'input') {
@@ -194,6 +204,8 @@ export default () =>
             subtype,
             can_manage_fields,
             options,
+            supports_request,
+            is_api_call,
           });
         } else {
           setOutputOptionProvider({
@@ -203,6 +215,8 @@ export default () =>
             subtype,
             can_manage_fields,
             options,
+            supports_request,
+            is_api_call,
           });
         }
 

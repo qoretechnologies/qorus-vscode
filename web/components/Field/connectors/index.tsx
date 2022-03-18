@@ -43,7 +43,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   if (typeof val === 'string') {
     return val;
   }
-  const { type, name, path, options } = val;
+  const { type, name, path, options, is_api_call } = val;
   let optionString;
 
   if (size(options)) {
@@ -66,7 +66,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   const endsInSubtype = path.endsWith('/request') || path.endsWith('/response');
 
   // Build the suffix
-  const realPath = `${suffix}${path}${endsInSubtype ? '' : recordSuffix || ''}${
+  const realPath = `${suffix}${path}${endsInSubtype || is_api_call ? '' : recordSuffix || ''}${
     withOptions ? '/constructor_options' : ''
   }`;
 

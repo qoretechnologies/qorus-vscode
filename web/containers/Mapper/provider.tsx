@@ -316,6 +316,7 @@ const MapperProvider: FC<IProviderProps> = ({
           setOptionProvider({
             type: realProviders[provider].type,
             name,
+            is_api_call: requiresRequest,
             supports_request: data.supports_request,
             can_manage_fields: record.data?.can_manage_fields,
             path: `${url}/${value}`
