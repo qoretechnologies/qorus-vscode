@@ -4,7 +4,11 @@
 
 #### New Features
 
-- Introducing new type of state: API Call - \*\*\*\*
+- Introducing new type of state: API Call - It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
+
+#### Bug Fixes
+
+- Reordered some context menu item for better consistency
 
 ## Version 3.2.2
 
