@@ -1436,7 +1436,7 @@
         {
           "when": "!explorerResourceIsFolder && !listMultiSelection",
           "command": "qorus.explorer.deployFile",
-          "group": "2_workspace@0"
+          "group": "2_workspace@51"
         },
         {
           "when": "resourceExtname == .qsd",
