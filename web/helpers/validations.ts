@@ -190,14 +190,23 @@ export const validateField: (
     case 'api-call':
       let newValue = maybeBuildOptionProvider(value);
 
-      console.log('newValue', newValue);
-
       if (!newValue) {
         return false;
       }
 
       // Api call only supports  requests / response
       if (type === 'api-call' && !value.supports_request) {
+        return false;
+      }
+
+      if (
+        value.use_args &&
+        (!value.args ||
+          !validateField(
+            value.args.type === 'hash' ? 'system-options' : value.args.type,
+            value.args.value
+          ))
+      ) {
         return false;
       }
 

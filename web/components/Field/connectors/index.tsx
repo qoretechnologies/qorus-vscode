@@ -2,7 +2,7 @@ import { Button, Callout, Classes, Tag } from '@blueprintjs/core';
 import { cloneDeep, isEqual, map, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useEffect, useState } from 'react';
-import { useUpdateEffect } from 'react-use';
+import { useDebounce } from 'react-use';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../../App';
@@ -10,6 +10,8 @@ import Provider, { providers } from '../../../containers/Mapper/provider';
 import withInitialDataConsumer from '../../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../../hocomponents/withTextContext';
 import SubField from '../../SubField';
+import { ApiCallArgs } from '../apiCallArgs';
+import BooleanField from '../boolean';
 import Options from '../systemOptions';
 
 export interface IConnectorFieldProps {
@@ -38,7 +40,6 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   val,
   withOptions
 ) => {
-  console.log({ val });
   // If the val is a string, return it
   if (typeof val === 'string') {
     return val;
@@ -195,63 +196,71 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     }
   }, [isInitialEditing]);
 
-  useUpdateEffect(() => {
-    /* Setting the option provider to the value of the object. */
-    if (value && typeof value === 'object') {
-      setOptionProvider(value);
-    }
-  }, [JSON.stringify(value)]);
-
-  useUpdateEffect(() => {
-    if (!isEditing) {
-      if (!optionProvider) {
-        onChange(name, optionProvider);
-        return;
+  useDebounce(
+    () => {
+      /* Setting the option provider to the value of the object. */
+      if (value && typeof value === 'object' && !isEqual(value, optionProvider)) {
+        console.log('UPDATING FROM VALUE', value);
+        setOptionProvider(value);
       }
+    },
+    100,
+    [JSON.stringify(value)]
+  );
 
-      const val = { ...optionProvider };
+  console.log(optionProvider, JSON.stringify(optionProvider));
 
-      if (val.type !== 'factory') {
-        delete val.optionsChanged;
-        delete val.options;
-      }
-
-      if (isConfigItem) {
-        // Add type from optionProvider and get value from all nodes and join them by /
-        const type = val.type;
-        const newNodes = cloneDeep(nodes);
-
-        if (type === 'factory') {
-          let options = reduce(
-            val.options,
-            (newOptions, optionData, optionName) => {
-              return `${newOptions}${optionName}=${optionData.value},`;
-            },
-            ''
-          );
-          // Remove the last comma from options
-          options = options.substring(0, options.length - 1);
-
-          if (newNodes[0]) {
-            newNodes[0].value = `${newNodes[0].value}{${options}}`;
-          }
-
-          const value = newNodes.map((node) => node.value).join('/');
-
-          console.log(val);
-
-          onChange(name, `${type}/${value}${val.optionsChanged ? `?options_changed` : ''}`);
-        } else {
-          const value = nodes.map((node) => node.value).join('/');
-          onChange(name, `${type}/${value}`);
+  useDebounce(
+    () => {
+      if (!isEditing) {
+        if (!optionProvider) {
+          onChange(name, optionProvider);
+          return;
         }
-      } else {
-        onChange(name, val);
-      }
-    }
-  }, [JSON.stringify(optionProvider), isEditing]);
 
-  console.log(isEditing, optionProvider, value);
+        const val = { ...optionProvider };
+
+        if (val.type !== 'factory') {
+          delete val.optionsChanged;
+          delete val.options;
+        }
+
+        if (isConfigItem) {
+          // Add type from optionProvider and get value from all nodes and join them by /
+          const type = val.type;
+          const newNodes = cloneDeep(nodes);
+
+          if (type === 'factory') {
+            let options = reduce(
+              val.options,
+              (newOptions, optionData, optionName) => {
+                return `${newOptions}${optionName}=${optionData.value},`;
+              },
+              ''
+            );
+            // Remove the last comma from options
+            options = options.substring(0, options.length - 1);
+
+            if (newNodes[0]) {
+              newNodes[0].value = `${newNodes[0].value}{${options}}`;
+            }
+
+            const value = newNodes.map((node) => node.value).join('/');
+
+            onChange(name, `${type}/${value}${val.optionsChanged ? `?options_changed` : ''}`);
+          } else {
+            const value = nodes.map((node) => node.value).join('/');
+            onChange(name, `${type}/${value}`);
+          }
+        } else {
+          console.log('CHANGING STUFF', name, val);
+          onChange(name, val);
+        }
+      }
+    },
+    100,
+    [JSON.stringify(optionProvider), isEditing]
+  );
 
   if (isEditing && value && optionProvider?.type !== 'factory') {
     return (
@@ -316,6 +325,40 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             customUrl={`${getUrlFromProvider(optionProvider, true)}`}
           />
         </SubField>
+      ) : null}
+      {/* This means that we are working with an API Call provider */}
+      {requiresRequest && optionProvider?.supports_request ? (
+        <>
+          <SubField title={t('AllowAPIArguments')} desc={t('AllowAPIArgumentsDesc')}>
+            <BooleanField
+              name="useArgs"
+              value={optionProvider.use_args || false}
+              onChange={(_nm, val) => {
+                setOptionProvider((cur) => ({
+                  ...cur,
+                  use_args: val,
+                }));
+              }}
+            />
+          </SubField>
+          {optionProvider?.use_args && (
+            <SubField title={t('RequestArguments')}>
+              <ApiCallArgs
+                value={optionProvider?.args?.value}
+                url={`${getUrlFromProvider(optionProvider)}`}
+                onChange={(_nm, value, type) => {
+                  setOptionProvider((cur) => ({
+                    ...cur,
+                    args: {
+                      type,
+                      value,
+                    },
+                  }));
+                }}
+              />
+            </SubField>
+          )}
+        </>
       ) : null}
     </div>
   );

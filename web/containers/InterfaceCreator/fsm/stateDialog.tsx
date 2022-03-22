@@ -173,17 +173,19 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             target_dir={target_dir}
             name="action"
             context={{
-              default_values: typeof variable !== 'undefined' ? {
-                name: `${newData.injectedData?.name ? `${newData.injectedData?.name}-` : ''}${
-                  newData.injectedData?.from
-                }-${newData.injectedData?.to}`,
-                desc: `mapper to bridge ${newData.injectedData?.from} to ${
-                  newData.injectedData?.to
-                }${newData.injectedData?.name ? ` in flow ${newData.injectedData?.name}` : ''}`,
-                version: '1.0',
-              } : {
-                version: '1.0',
-              },
+              default_values: newData?.injectedData
+                ? {
+                    name: `${newData.injectedData?.name ? `${newData.injectedData?.name}-` : ''}${
+                      newData.injectedData?.from
+                    }-${newData.injectedData?.to}`,
+                    desc: `mapper to bridge ${newData.injectedData?.from} to ${
+                      newData.injectedData?.to
+                    }${newData.injectedData?.name ? ` in flow ${newData.injectedData?.name}` : ''}`,
+                    version: '1.0',
+                  }
+                : {
+                    version: '1.0',
+                  },
             }}
             reference={{
               iface_kind: 'mapper',
