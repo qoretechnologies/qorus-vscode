@@ -63,7 +63,12 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
       name="field"
       onChange={(n, v) => onChange(n, v, schema.type)}
       value={value}
-      defaultType={schema.type}
+      defaultType={schema.type.replace('*', '')}
+      requestFieldData={(key) => {
+        if (key === 'can_be_undefined') {
+          return schema.type.startsWith('*');
+        }
+      }}
     />
   );
 };
