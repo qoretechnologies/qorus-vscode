@@ -2,6 +2,7 @@ import { Button, Callout, Classes, Tag } from '@blueprintjs/core';
 import { cloneDeep, isEqual, map, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useDebounce } from 'react-use';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
@@ -198,20 +199,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 
   useDebounce(
     () => {
-      /* Setting the option provider to the value of the object. */
-      if (value && typeof value === 'object' && !isEqual(value, optionProvider)) {
-        console.log('UPDATING FROM VALUE', value);
-        setOptionProvider(value);
-      }
-    },
-    100,
-    [JSON.stringify(value)]
-  );
-
-  console.log(optionProvider, JSON.stringify(optionProvider));
-
-  useDebounce(
-    () => {
       if (!isEditing) {
         if (!optionProvider) {
           onChange(name, optionProvider);
@@ -253,12 +240,11 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             onChange(name, `${type}/${value}`);
           }
         } else {
-          console.log('CHANGING STUFF', name, val);
           onChange(name, val);
         }
       }
     },
-    100,
+    30,
     [JSON.stringify(optionProvider), isEditing]
   );
 
@@ -310,6 +296,11 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
       {size(nodes) ? (
         <Button intent="danger" icon="cross" onClick={reset} className={Classes.FIXED} />
       ) : null}
+      {optionProvider?.desc && (
+        <SubField title={!minimal && t('Description')}>
+          <ReactMarkdown source={optionProvider.desc} />
+        </SubField>
+      )}
       {provider === 'factory' && optionProvider ? (
         <SubField title={t('FactoryOptions')}>
           <Options

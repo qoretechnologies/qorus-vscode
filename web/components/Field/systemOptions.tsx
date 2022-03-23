@@ -21,13 +21,10 @@ export const fixOptions = (value = {}, options) => {
 
   // Add missing required options to the fixedValue
   forEach(options, (option, name) => {
-    console.log(option);
     if (option.required && !fixedValue[name]) {
       fixedValue[name] = { type: option.type, value: option.value };
     }
   });
-
-  console.log({ fixedValue });
 
   return reduce(
     fixedValue,
