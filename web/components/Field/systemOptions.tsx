@@ -22,7 +22,7 @@ export const fixOptions = (value = {}, options) => {
   // Add missing required options to the fixedValue
   forEach(options, (option, name) => {
     if (option.required && !fixedValue[name]) {
-      fixedValue[name] = { type: option.type, value: option.value };
+      fixedValue[name] = { type: option.type, value: option.default_value };
     }
   });
 
@@ -156,7 +156,7 @@ const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }
     return {
       type: realType,
       defaultType: realType,
-      defaultInternalType: realType,
+      defaultInternalType: realType === 'auto' || realType === 'any' ? undefined : realType,
       canBeNull,
     };
   };
@@ -176,12 +176,12 @@ const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }
 
   return (
     <>
-      {map(fixedValue, ({ type, ...rest }, optionName) =>
+      {map(fixedValue, ({ type, ...other }, optionName) =>
         !!options[optionName] ? (
           <SubField
             subtle
             key={optionName}
-            title={rest.name || optionName}
+            title={other.name || optionName}
             desc={options[optionName].desc}
             onRemove={
               !options[optionName].required
@@ -203,7 +203,8 @@ const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }
                   );
                 }
               }}
-              value={rest.value}
+              noSoft={!!rest?.options}
+              value={other.value}
               sensitive={options[optionName].sensitive}
               default_value={options[optionName].default}
               allowed_values={options[optionName].allowed_values}
