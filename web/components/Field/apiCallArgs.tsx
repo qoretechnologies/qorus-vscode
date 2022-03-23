@@ -54,6 +54,7 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
         onChange={(n, v) => onChange(n, v, schema.type)}
         value={value}
         options={schema.arg_schema}
+        placeholder="AddArgument"
       />
     );
   }

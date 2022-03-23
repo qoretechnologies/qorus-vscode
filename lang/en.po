@@ -3067,3 +3067,6 @@ msgstr "Arguments"
 
 msgid "AllowAPIArgumentsDesc"
 msgstr "Specify literal API arguments in this flow state rather than using the state's input data as arguments"
+
+msgid "AddArgument"
+msgstr "Add argument"

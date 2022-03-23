@@ -50,7 +50,7 @@ export const fixOptions = (value = {}, options) => {
   );
 };
 
-const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
+const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }) => {
   const t = useContext(TextContext);
   const [options, setOptions] = useState(rest?.options || {});
   //const [selectedOptions, setSelectedOptions] = useState(null);
@@ -228,7 +228,7 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
             desc: options[option].desc,
           }))}
           onChange={(_name, value) => addSelectedOption(value)}
-          placeholder={`${t('AddNewOption')} (${size(filteredOptions)})`}
+          placeholder={`${t(placeholder || 'AddNewOption')} (${size(filteredOptions)})`}
         />
       )}
     </>
