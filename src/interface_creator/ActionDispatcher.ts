@@ -72,19 +72,35 @@ export class ActionDispatcher {
     const not_to_sort = ['target_dir', 'name', 'class-class-name', 'description', 'desc', 'lang'];
     let unsorted = [...ActionDispatcher.getFields(params)];
     let at_the_beginning = [];
+
     not_to_sort.forEach((field_name) => {
       const index = unsorted.findIndex(({ name }) => name === field_name);
       if (index > -1) {
         at_the_beginning.push(unsorted.splice(index, 1));
       }
     });
+
     const sorter = (a, b) => {
       const nameA = gettext(`field-label-${a.name}`).toUpperCase();
       const nameB = gettext(`field-label-${b.name}`).toUpperCase();
       return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
     };
 
-    return Promise.resolve([...flattenDeep(at_the_beginning), ...unsorted.sort(sorter)]);
+    let fields = [...flattenDeep(at_the_beginning), ...unsorted.sort(sorter)];
+
+    // Inject any default values from the params object
+    if (params.context?.default_values) {
+      fields = fields.map((field) => {
+        if (params.context?.default_values[field.name]) {
+          field.default_value = params.context?.default_values[field.name];
+        }
+        return field;
+      });
+    }
+
+    console.log(params, fields);
+
+    return Promise.resolve(fields);
   };
 
   /**

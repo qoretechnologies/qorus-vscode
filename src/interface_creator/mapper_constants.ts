@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { field } from './common_constants';
 
 // ================================================================
@@ -12,10 +13,13 @@ export const mapper_code_method_template = {
 // ================================================================
 
 export const mapperFields = ({ default_target_dir, context }) => {
-  if (context) {
-    delete context.target_dir;
-    if (!Object.keys(context).length) {
-      context = undefined;
+  let cont = cloneDeep(context);
+
+  if (cont) {
+    delete cont.target_dir;
+    delete cont.default_values;
+    if (!Object.keys(cont).length) {
+      cont = undefined;
     }
   }
 
@@ -59,9 +63,9 @@ export const mapperFields = ({ default_target_dir, context }) => {
     {
       name: 'context',
       type: 'context-selector',
-      default_value: context,
-      mandatory: !!context,
-      disabled: !!context,
+      default_value: cont,
+      mandatory: !!cont,
+      disabled: !!cont,
     },
   ];
 };

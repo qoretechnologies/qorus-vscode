@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
@@ -1436,7 +1436,7 @@
         {
           "when": "!explorerResourceIsFolder && !listMultiSelection",
           "command": "qorus.explorer.deployFile",
-          "group": "2_workspace@0"
+          "group": "2_workspace@51"
         },
         {
           "when": "resourceExtname == .qsd",
@@ -1694,7 +1694,7 @@
     "tslint": "^5.19.0",
     "typescript": "^4.0.2",
     "url-loader": "^1.1.2",
-    "vsce": "^1.95.1",
+    "vsce": "^2.7.0",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.8",
     "webpack-dev-middleware": "^3.7.1",

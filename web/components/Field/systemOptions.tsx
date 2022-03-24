@@ -1,4 +1,5 @@
 import { Callout, Classes, Icon } from '@blueprintjs/core';
+import { cloneDeep, forEach } from 'lodash';
 import isArray from 'lodash/isArray';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
@@ -15,9 +16,18 @@ import AutoField from './auto';
 import SelectField from './select';
 
 /* "Fix options to be an object with the correct type." */
-export const fixOptions = (value, options) => {
+export const fixOptions = (value = {}, options) => {
+  const fixedValue = cloneDeep(value);
+
+  // Add missing required options to the fixedValue
+  forEach(options, (option, name) => {
+    if (option.required && !fixedValue[name]) {
+      fixedValue[name] = { type: option.type, value: option.default_value };
+    }
+  });
+
   return reduce(
-    value,
+    fixedValue,
     (newValue, option, optionName) => {
       if (!isObject(option)) {
         return {
@@ -37,9 +47,9 @@ export const fixOptions = (value, options) => {
   );
 };
 
-const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
+const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }) => {
   const t = useContext(TextContext);
-  const [options, setOptions] = useState({});
+  const [options, setOptions] = useState(rest?.options || {});
   //const [selectedOptions, setSelectedOptions] = useState(null);
   const { fetchData, confirmAction, qorus_instance } = useContext(InitialContext);
   const [error, setError] = useState<string>(null);
@@ -47,7 +57,7 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
   const getUrl = () => customUrl || `/options/${url}`;
 
   useMount(() => {
-    if (qorus_instance) {
+    if (qorus_instance && (url || customUrl)) {
       (async () => {
         setOptions({});
         // Fetch the options for this mapper type
@@ -132,18 +142,6 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
     return <p>{t('NoOptionsAvailable')}</p>;
   }
 
-  const filteredOptions = reduce(
-    options,
-    (newOptions, option, name) => {
-      if (value && value[name]) {
-        return newOptions;
-      }
-
-      return { ...newOptions, [name]: option };
-    },
-    {}
-  );
-
   const getTypeAndCanBeNull = (type: string, allowed_values: any[]) => {
     let canBeNull = false;
     let realType = isArray(type) ? type[0] : type;
@@ -158,21 +156,40 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
     return {
       type: realType,
       defaultType: realType,
-      defaultInternalType: realType,
+      defaultInternalType: realType === 'auto' || realType === 'any' ? undefined : realType,
       canBeNull,
     };
   };
 
+  const fixedValue = fixOptions(value, options);
+  const filteredOptions = reduce(
+    options,
+    (newOptions, option, name) => {
+      if (fixedValue && fixedValue[name]) {
+        return newOptions;
+      }
+
+      return { ...newOptions, [name]: option };
+    },
+    {}
+  );
+
   return (
     <>
-      {map(fixOptions(value, options), ({ type, ...rest }, optionName) =>
+      {map(fixedValue, ({ type, ...other }, optionName) =>
         !!options[optionName] ? (
           <SubField
-            title={rest.name || optionName}
+            subtle
+            key={optionName}
+            title={other.name || optionName}
             desc={options[optionName].desc}
-            onRemove={() => {
-              confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
-            }}
+            onRemove={
+              !options[optionName].required
+                ? () => {
+                    confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
+                  }
+                : undefined
+            }
           >
             <AutoField
               {...getTypeAndCanBeNull(type, options[optionName].allowed_values)}
@@ -186,7 +203,8 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
                   );
                 }
               }}
-              value={rest.value}
+              noSoft={!!rest?.options}
+              value={other.value}
               sensitive={options[optionName].sensitive}
               default_value={options[optionName].default}
               allowed_values={options[optionName].allowed_values}
@@ -194,7 +212,7 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
           </SubField>
         ) : null
       )}
-      {size(value) === 0 && (
+      {size(fixedValue) === 0 && (
         <p className={Classes.TEXT_MUTED}>
           <Icon icon="info-sign" /> {t('NoOptionsSelected')}
         </p>
@@ -208,7 +226,7 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
             desc: options[option].desc,
           }))}
           onChange={(_name, value) => addSelectedOption(value)}
-          placeholder={`${t('AddNewOption')} (${size(filteredOptions)})`}
+          placeholder={`${t(placeholder || 'AddNewOption')} (${size(filteredOptions)})`}
         />
       )}
     </>
