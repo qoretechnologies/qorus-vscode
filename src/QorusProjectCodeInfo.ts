@@ -1,6 +1,8 @@
 import * as fs from 'fs';
+import * as fsExtra from 'fs-extra';
 import * as jsyaml from 'js-yaml';
 import {
+  cloneDeep,
   filter,
   flattenDeep,
   isArray as lodashIsArray,
@@ -13,9 +15,9 @@ import { gettext, t } from 'ttag';
 import * as vscode from 'vscode';
 import * as globals from './global_config_item_values';
 import { field } from './interface_creator/common_constants';
-import { drafts_tree } from './QorusDraftsTree';
+import { drafts_tree, otherFilesNames } from './QorusDraftsTree';
 import { interface_tree } from './QorusInterfaceTree';
-import { config_filename, QorusProject } from './QorusProject';
+import { config_filename, projects, QorusProject } from './QorusProject';
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import { QorusProjectYamlInfo } from './QorusProjectYamlInfo';
@@ -1566,6 +1568,128 @@ export class QorusProjectCodeInfo {
           msg.info(t`DeletedIfaceCodeFile ${iface_kind} ${code_file}`);
         }
       });
+    }
+  };
+
+  static duplicateInterface = ({ iface_kind, iface_data }) => {
+    // Check if the file is other file
+    if (otherFilesNames.includes(iface_data.type)) {
+      // Get the extension of the path
+      const ext = path.extname(iface_data.path);
+      // replace the extension with timestamp
+      const new_path = iface_data.path.replace(ext, `_${Date.now()}${ext}`);
+      // Simply duplicate the file with new timestamp
+      try {
+        fsExtra.copySync(iface_data.path, new_path, { overwrite: false, errorOnExist: true });
+      } catch (err) {
+        msg.warning(t`FailedDuplicatingIfaceCodeFile ${iface_kind} ${iface_data.path} ${err}`);
+        return;
+      }
+
+      drafts_tree.refresh();
+      // Open the interface
+      vscode.commands.executeCommand('qorus.views.openInterface', {
+        data: {
+          ...iface_data,
+          path: new_path,
+        },
+      });
+
+      return;
+    }
+
+    iface_data = iface_data || {};
+    const yaml_file: string = iface_data.yaml_file;
+    const code_file =
+      iface_data.target_dir &&
+      iface_data.target_file &&
+      path.join(iface_data.target_dir, iface_data.target_file);
+
+    const timestamp = Date.now();
+
+    const buildCodeFileName = (path) => {
+      // Split the file name by . and get the last 2 items from the list
+      const [langOrFileExt, maybeFileExt, ...paths] = path.split('.').reverse();
+
+      // if the first extension is a lang extension (py or java) we have to add the timestamp before the file qorus file extension
+      if (langOrFileExt === 'py' || langOrFileExt === 'java') {
+        return `${paths.reverse().join('.')}_${timestamp}.${maybeFileExt}.${langOrFileExt}`;
+      }
+
+      return `${paths.reverse().join('.')}${
+        maybeFileExt ? `.${maybeFileExt}` : ''
+      }_${timestamp}.${langOrFileExt}`;
+    };
+
+    if (yaml_file) {
+      // Split the file name by . and get the last 2 items from the list
+      const [yamlExt, fileExt, ...paths] = yaml_file.split('.').reverse();
+      const new_yaml_file = `${paths.reverse().join('.')}_${timestamp}.${fileExt}.${yamlExt}`;
+      // Get the yaml data
+      const oldYamlData = projects.currentProjectCodeInfo().yaml_info.yamlDataByYamlFile(yaml_file);
+      let newYamlData = cloneDeep(oldYamlData);
+
+      newYamlData.name = `${newYamlData.name}_${timestamp}`;
+      newYamlData.yaml_file = new_yaml_file;
+
+      // Get the yaml_file contents
+      let yaml_contents: string = fs.readFileSync(yaml_file, 'utf8');
+      // Replace the name in the yaml contents with the new name
+      let new_yaml_contents = yaml_contents.replace(oldYamlData.name, newYamlData.name);
+      new_yaml_contents = new_yaml_contents.replace(oldYamlData.yaml_file, newYamlData.yaml_file);
+
+      if (oldYamlData.code) {
+        const newCode = buildCodeFileName(oldYamlData.code);
+        const new_code_file = buildCodeFileName(code_file);
+
+        newYamlData.code = newCode;
+        newYamlData.target_file = newCode;
+        // Replace the code file name with the new name
+        new_yaml_contents = new_yaml_contents.replace(oldYamlData.code, newYamlData.code);
+        new_yaml_contents = new_yaml_contents.replace(
+          oldYamlData.target_file,
+          newYamlData.target_file
+        );
+
+        try {
+          fsExtra.copySync(code_file, new_code_file, { overwrite: false, errorOnExist: true });
+        } catch (err) {
+          msg.warning(t`FailedDuplicatingIfaceCodeFile ${iface_kind} ${code_file} ${err}`);
+          return;
+        }
+      }
+
+      try {
+        fs.writeFileSync(new_yaml_file, new_yaml_contents);
+      } catch (err) {
+        msg.warning(t`FailedDuplicatingIfaceMetaFile ${iface_kind} ${yaml_file} ${err}`);
+        return;
+      }
+
+      let edit_iface_kind;
+
+      if (newYamlData) {
+        delete newYamlData.show_steps;
+        switch (newYamlData.type) {
+          case 'workflow-steps':
+            newYamlData.show_steps = true;
+            edit_iface_kind = 'workflow';
+            break;
+          case 'service-methods':
+            newYamlData.active_method = 1;
+            edit_iface_kind = 'service';
+            break;
+          case 'mapper-code-methods':
+            newYamlData.active_method = 1;
+            edit_iface_kind = 'mapper-code';
+            break;
+          default:
+            edit_iface_kind = newYamlData.type;
+        }
+
+        vscode.commands.executeCommand('qorus.editInterface', newYamlData, edit_iface_kind);
+      }
+      drafts_tree.refresh();
     }
   };
 }

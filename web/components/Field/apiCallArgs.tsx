@@ -37,8 +37,6 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
     return null;
   }, [url]);
 
-  console.log(schema, loading, error);
-
   if (loading) {
     return <div>Loading...</div>;
   }

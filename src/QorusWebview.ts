@@ -18,6 +18,7 @@ import * as msg from './qorus_message';
 import { deepCopy } from './qorus_utils';
 
 const web_path = path.join(__dirname, '..', 'dist');
+const images_path = path.join(__dirname, '..', 'images');
 
 export const unsavedFilesLocation = {
   WINDOWS: '%appdata%/Code/Backups',
@@ -137,8 +138,14 @@ class QorusWebview {
             enableScripts: true,
             retainContextWhenHidden: true,
             enableCommandUris: true,
+            enableFindWidget: true,
           }
         );
+
+        this.panel.iconPath = {
+          light: vscode.Uri.file(path.join(images_path, 'qorus_logo_28.png')),
+          dark: vscode.Uri.file(path.join(images_path, 'qorus_logo_28.png')),
+        };
 
         const uri = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path)) as unknown;
         let html = doc.getText().replace(/{{ path }}/g, uri as string);

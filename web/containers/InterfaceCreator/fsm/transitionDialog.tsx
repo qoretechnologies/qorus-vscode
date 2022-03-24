@@ -231,8 +231,6 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({
 }) => {
   const { qorus_instance, fetchData } = useContext<{ qorus_instance?: string }>(InitialContext);
 
-  console.log(editingData, states);
-
   const getTransitionFromStates: () => IModifiedTransitions = () =>
     editingData.reduce(
       (modifiedData, { stateId, index }) => ({

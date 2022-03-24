@@ -224,6 +224,15 @@
         }
       },
       {
+        "command": "qorus.views.duplicateInterface",
+        "title": "1.5 Duplicate Interface",
+        "category": "Qorus",
+        "icon": {
+          "dark": "images/icons/dark/duplicate.svg",
+          "light": "images/icons/light/duplicate.svg"
+        }
+      },
+      {
         "command": "qorus.views.discardChanges",
         "title": "2. Discard changes",
         "category": "Qorus",
@@ -1550,6 +1559,11 @@
           "group": "inline"
         },
         {
+          "command": "qorus.views.duplicateInterface",
+          "when": "view == qorusInterfaces && viewItem =~ /^interface/",
+          "group": "inline"
+        },
+        {
           "command": "qorus.views.deployInterface",
           "when": "view == qorusInterfaces && viewItem =~ /^interface/",
           "group": "inline"
@@ -1662,6 +1676,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.6.0",
     "@blueprintjs/core": "^3.18.0",
+    "@types/fs-extra": "^9.0.13",
     "@types/glob": "^5.0.35",
     "@types/mocha": "^2.2.43",
     "@types/node": "^10.16.0",

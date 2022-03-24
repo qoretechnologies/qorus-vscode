@@ -98,8 +98,6 @@ export class ActionDispatcher {
       });
     }
 
-    console.log(params, fields);
-
     return Promise.resolve(fields);
   };
 

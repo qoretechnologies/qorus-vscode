@@ -8,6 +8,7 @@ reused later and setup an initial configuration for them.
 ## Version 3.3.0 overview - What's new:
 
 - Introducing new type of state: API Call - It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
+- It is now possible to duplicate interfaces right from the hierarchy view
 - Reordered some context menu item for better consistency
 
 ## Version 3.2.2 overview - What's new:
