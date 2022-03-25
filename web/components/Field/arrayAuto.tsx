@@ -123,7 +123,7 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
   return (
     <>
       {map(values, (val: string | number, idx: string): typeof StyledPairField => (
-        <StyledPairField>
+        <StyledPairField key={idx}>
           <ControlGroup fill>
             <Button text={`${idx}.`} className={Classes.FIXED} />
             <AutoField
