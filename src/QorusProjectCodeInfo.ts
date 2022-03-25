@@ -221,7 +221,7 @@ export class QorusProjectCodeInfo {
     });
     referenced_yaml_files = removeDuplicates(referenced_yaml_files);
 
-    let all_referenced_files: string[] = [];
+    const all_referenced_files: string[] = [];
     referenced_yaml_files.forEach((yaml_file) => {
       all_referenced_files.push(yaml_file);
       const src_file = this.yaml_info.getSrcFile(yaml_file);
@@ -235,7 +235,7 @@ export class QorusProjectCodeInfo {
 
   stepData = (step_structure: any[]): any => {
     const step_names: string[] = flattenDeep(step_structure);
-    let step_data = {};
+    const step_data = {};
     step_names.forEach((name) => {
       step_data[name] = { ...this.yaml_info.yamlDataByName('step', name) };
       delete step_data[name].yaml_file;
@@ -292,7 +292,7 @@ export class QorusProjectCodeInfo {
 
   getObjectsWithStaticData = ({ iface_kind }) => {
     const all_local_objects = this.yaml_info.yamlDataByType(iface_kind);
-    let local_objects = Object.keys(all_local_objects)
+    const local_objects = Object.keys(all_local_objects)
       .filter((name) => all_local_objects[name]['staticdata-type'])
       .map((name) => ({ name }));
 
@@ -365,7 +365,7 @@ export class QorusProjectCodeInfo {
   };
 
   yaml2FrontEnd(orig_data: any): any {
-    let data = deepCopy(orig_data);
+    const data = deepCopy(orig_data);
 
     if (data.options) {
       data[data.type + '_options'] = data.options;
@@ -434,7 +434,7 @@ export class QorusProjectCodeInfo {
 
     if (data.fields) {
       Object.keys(data.fields).forEach((field_name) => {
-        let field = data.fields[field_name];
+        const field = data.fields[field_name];
         if (field.code) {
           const code_parts = field.code.split('::');
           if (code_parts.length === 2) {
@@ -465,7 +465,7 @@ export class QorusProjectCodeInfo {
 
     const classes_or_requires = data.type === 'class' ? 'requires' : 'classes';
     if (data[classes_or_requires]) {
-      let classes = (data['class-prefixes'] || []).map((prefix_data) => ({
+      const classes = (data['class-prefixes'] || []).map((prefix_data) => ({
         name: prefix_data.class,
         prefix: prefix_data.prefix,
       }));
@@ -492,7 +492,7 @@ export class QorusProjectCodeInfo {
       }
 
       const [key_name, value_name] = field[tag].fields;
-      let transformed_data = [];
+      const transformed_data = [];
 
       for (const key in data[tag]) {
         transformed_data.push({
@@ -548,7 +548,7 @@ export class QorusProjectCodeInfo {
 
     const fixOptions = (data_with_options: any): any => {
       Object.keys(data_with_options.options || {}).forEach((option_key) => {
-        let option = data_with_options.options[option_key];
+        const option = data_with_options.options[option_key];
         const option_type = option.type || '';
         if (option_type.indexOf('list') > -1 || option_type.indexOf('hash') > -1) {
           option.value = jsyaml.safeDump(option.value).replace(/\r?\n$/, '');
@@ -653,7 +653,7 @@ export class QorusProjectCodeInfo {
   }
 
   checkReferencedObjects(iface_id: string, iface_data: any) {
-    let messages: any = {};
+    const messages: any = {};
 
     const addMessage = (message: string) => {
       messages[message] = true;
@@ -792,7 +792,7 @@ export class QorusProjectCodeInfo {
   }
 
   private getReferencedObjects(iface_data: any): any[] {
-    let result: any[] = [];
+    const result: any[] = [];
 
     const checkObject = (type, name) => {
       if (!name) {
@@ -873,7 +873,7 @@ export class QorusProjectCodeInfo {
       checkObjects('value-map', data.vmaps);
 
       Object.keys(data['class-connections'] || {}).forEach((connection) => {
-        let connectors = data['class-connections'][connection];
+        const connectors = data['class-connections'][connection];
         connectors.forEach((connector) => checkObject('class', connector.class));
       });
 
@@ -953,11 +953,7 @@ export class QorusProjectCodeInfo {
     });
   };
 
-  async waitForPending(
-    info_list: string[],
-    sleep_before: number = 0,
-    timeout: number = 30000
-  ): Promise<void> {
+  async waitForPending(info_list: string[], sleep_before = 0, timeout = 30000): Promise<void> {
     // "waiting for pending" need not be enough, specifically in cases when the updated info is required
     // before the update process has even started (before the pending flag has been set),
     // this can happen when the update process is triggered by a file watcher
@@ -1022,7 +1018,7 @@ export class QorusProjectCodeInfo {
       return objects;
     };
 
-    const postMessage = (return_type: string, objects: any, sort: boolean = true) => {
+    const postMessage = (return_type: string, objects: any, sort = true) => {
       qorus_webview.postMessage({
         action: 'creator-return-' + return_type,
         object_type,
@@ -1227,7 +1223,7 @@ export class QorusProjectCodeInfo {
 
   static isRootBaseClass = (base_class_name) => all_root_classes.includes(base_class_name);
 
-  public update = (info_list: string[] = info_keys, is_initial_update: boolean = false) => {
+  public update = (info_list: string[] = info_keys, is_initial_update = false) => {
     this.project.validateConfigFileAndDo((file_data) => {
       if (is_initial_update) {
         info_keys.forEach((key) => this.setPending(key, true, true));
@@ -1336,14 +1332,14 @@ export class QorusProjectCodeInfo {
   private updateYamlInfo(source_directories: string[]) {
     this.setPending('yaml', true);
     this.yaml_info.initData();
-    for (let dir of source_directories) {
+    for (const dir of source_directories) {
       const full_dir = path.join(this.project.folder, dir);
       if (!fs.existsSync(full_dir)) {
         continue;
       }
 
-      let files = filesInDir(full_dir, (path) => hasSuffix(path, 'yaml'));
-      for (let file of files) {
+      const files = filesInDir(full_dir, (path) => hasSuffix(path, 'yaml'));
+      for (const file of files) {
         this.yaml_info.addSingleYamlInfo(file);
       }
     }
@@ -1354,15 +1350,15 @@ export class QorusProjectCodeInfo {
 
   private updateModuleInfo(source_directories: string[]) {
     this.setPending('modules', true);
-    let modules: any = {};
-    for (let dir of source_directories) {
+    const modules: any = {};
+    for (const dir of source_directories) {
       const full_dir = path.join(this.project.folder, dir);
       if (!fs.existsSync(full_dir)) {
         continue;
       }
 
-      let files = filesInDir(full_dir, (path) => hasSuffix(path, 'qm'));
-      for (let file of files) {
+      const files = filesInDir(full_dir, (path) => hasSuffix(path, 'qm'));
+      for (const file of files) {
         modules[file] = true;
       }
     }
@@ -1386,19 +1382,19 @@ export class QorusProjectCodeInfo {
   private updateOtherFilesInfo(source_directories: string[]) {
     this.setPending('otherFiles', true);
 
-    let otherFiles: any = {};
+    const otherFiles: any = {};
 
-    for (let dir of source_directories) {
+    for (const dir of source_directories) {
       const full_dir = path.join(this.project.folder, dir);
       if (!fs.existsSync(full_dir)) {
         continue;
       }
 
-      let files = filesInDir(
+      const files = filesInDir(
         full_dir,
         (path) => hasSuffix(path, 'qsm') || hasSuffix(path, 'qscript') || hasSuffix(path, 'qtest')
       );
-      for (let file of files) {
+      for (const file of files) {
         otherFiles[file] = true;
       }
     }
@@ -1421,7 +1417,7 @@ export class QorusProjectCodeInfo {
       return this.addDescToClasses(Object.keys(base_classes), root_classes);
     }
 
-    let ret_val = [];
+    const ret_val = [];
     for (const base_class of base_classes) {
       const desc = root_classes.includes(base_class)
         ? gettext(`${base_class}Desc`)
@@ -1431,7 +1427,7 @@ export class QorusProjectCodeInfo {
     return ret_val;
   }
 
-  setPending(info_key: string, value: boolean, never_message: boolean = false) {
+  setPending(info_key: string, value: boolean, never_message = false) {
     this.info_update_pending[info_key] = value;
     if (!never_message) {
       this.logUpdateMessage(info_key);
@@ -1440,7 +1436,7 @@ export class QorusProjectCodeInfo {
 
   private updateFileTree(source_directories: string[]) {
     this.setPending('file_tree', true);
-    const dirItem = (abs_path: string, only_dirs: boolean, is_root_item: boolean = false) => {
+    const dirItem = (abs_path: string, only_dirs: boolean, is_root_item = false) => {
       const rel_path = this.project.relativeDirPath(abs_path);
       return {
         abs_path,
@@ -1453,13 +1449,13 @@ export class QorusProjectCodeInfo {
 
     const subDirRecursion = (tree_item: any, only_dirs: boolean) => {
       const dir_entries: string[] = fs.readdirSync(tree_item.abs_path).sort();
-      for (let entry of dir_entries) {
+      for (const entry of dir_entries) {
         if (entry[0] === '.') {
           continue;
         }
         const entry_path: string = path.join(tree_item.abs_path, entry);
         if (fs.lstatSync(entry_path).isDirectory()) {
-          let dir_item = dirItem(entry_path, only_dirs);
+          const dir_item = dirItem(entry_path, only_dirs);
           tree_item.dirs.push(dir_item);
           subDirRecursion(dir_item, only_dirs);
         } else if (!only_dirs) {
@@ -1473,21 +1469,21 @@ export class QorusProjectCodeInfo {
       }
     };
 
-    let file_tree: any[] = [];
-    let dir_tree: any[] = [];
+    const file_tree: any[] = [];
+    const dir_tree: any[] = [];
 
-    for (let dir of source_directories.sort()) {
-      let file_tree_root = dirItem(path.join(this.project.folder, dir), false, true);
+    for (const dir of source_directories.sort()) {
+      const file_tree_root = dirItem(path.join(this.project.folder, dir), false, true);
       file_tree.push(file_tree_root);
       subDirRecursion(file_tree_root, false);
 
-      let dir_tree_root = dirItem(path.join(this.project.folder, dir), true, true);
+      const dir_tree_root = dirItem(path.join(this.project.folder, dir), true, true);
       dir_tree.push(dir_tree_root);
       subDirRecursion(dir_tree_root, true);
     }
 
-    let all_dir_tree: any = [];
-    let all_dir_tree_root = dirItem(this.project.folder, true);
+    const all_dir_tree: any = [];
+    const all_dir_tree_root = dirItem(this.project.folder, true);
     all_dir_tree.push(all_dir_tree_root);
     subDirRecursion(all_dir_tree_root, true);
 
@@ -1616,8 +1612,8 @@ export class QorusProjectCodeInfo {
         return `${paths.reverse().join('.')}_${timestamp}.${maybeFileExt}.${langOrFileExt}`;
       }
 
-      return `${paths.reverse().join('.')}${
-        maybeFileExt ? `.${maybeFileExt}` : ''
+      return `${size(paths) ? `${paths.reverse().join('.')}.` : ''}${
+        maybeFileExt ? `${maybeFileExt}` : ''
       }_${timestamp}.${langOrFileExt}`;
     };
 
@@ -1627,13 +1623,13 @@ export class QorusProjectCodeInfo {
       const new_yaml_file = `${paths.reverse().join('.')}_${timestamp}.${fileExt}.${yamlExt}`;
       // Get the yaml data
       const oldYamlData = projects.currentProjectCodeInfo().yaml_info.yamlDataByYamlFile(yaml_file);
-      let newYamlData = cloneDeep(oldYamlData);
+      const newYamlData = cloneDeep(oldYamlData);
 
       newYamlData.name = `${newYamlData.name}_${timestamp}`;
       newYamlData.yaml_file = new_yaml_file;
 
       // Get the yaml_file contents
-      let yaml_contents: string = fs.readFileSync(yaml_file, 'utf8');
+      const yaml_contents: string = fs.readFileSync(yaml_file, 'utf8');
       // Replace the name in the yaml contents with the new name
       let new_yaml_contents = yaml_contents.replace(oldYamlData.name, newYamlData.name);
       new_yaml_contents = new_yaml_contents.replace(oldYamlData.yaml_file, newYamlData.yaml_file);
