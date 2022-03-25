@@ -93,9 +93,9 @@ const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }
     }
   }, [url, qorus_instance, customUrl]);
 
-  const handleValueChange = (optionName: string, val?: any, type?: string) => {
+  const handleValueChange = (optionName: string, currentValue: any, val?: any, type?: string) => {
     onChange(name, {
-      ...value,
+      ...currentValue,
       [optionName]: {
         type,
         value: val,
@@ -198,6 +198,7 @@ const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }
                 if (val !== undefined) {
                   handleValueChange(
                     optionName,
+                    fixedValue,
                     val,
                     getTypeAndCanBeNull(type, options[optionName].allowed_values).type
                   );
