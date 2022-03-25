@@ -1,3 +1,4 @@
+import { Callout } from '@blueprintjs/core';
 import React, { useContext } from 'react';
 import { useAsyncRetry } from 'react-use';
 import styled from 'styled-components';
@@ -32,6 +33,8 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
         throw new Error(data.error);
       }
 
+      console.log(data);
+
       return data.data;
     }
     return null;
@@ -43,6 +46,10 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
 
   if (error) {
     return <div>Error: {error}</div>;
+  }
+
+  if (schema?.type === 'nothing') {
+    return <Callout intent="warning">{t('APICallTakesNoArgs')}</Callout>;
   }
 
   if (schema.type === 'hash') {
