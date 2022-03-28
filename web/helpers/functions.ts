@@ -1,3 +1,4 @@
+import { reduce } from 'lodash';
 import forEach from 'lodash/forEach';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
@@ -112,7 +113,7 @@ export const isStateIsolated = (
 export interface ITypeComparatorData {
   interfaceName?: string;
   connectorName?: string;
-  interfaceKind?: 'mapper' | 'pipeline' | 'connector' | 'processor' | 'if' | 'block';
+  interfaceKind?: 'mapper' | 'pipeline' | 'connector' | 'processor' | 'if' | 'block' | 'apicall';
   typeData?: any;
 }
 
@@ -144,6 +145,15 @@ export const getStateProvider = async (
   data: ITypeComparatorData,
   providerType: 'input' | 'output'
 ) => {
+  if (data.interfaceKind === 'apicall') {
+    return Promise.resolve({
+      // @ts-expect-error
+      ...data.interfaceName,
+      // @ts-expect-error
+      path: `${data.interfaceName.path}`,
+    });
+  }
+
   if ('typeData' in data && !data.typeData) {
     return Promise.resolve(null);
   }
@@ -191,9 +201,27 @@ export const areTypesCompatible = async (
     return true;
   }
 
+  output.options = reduce(
+    output.options || {},
+    (newOptions, option, key) => ({
+      ...newOptions,
+      [key]: option.value,
+    }),
+    {}
+  );
+
+  input.options = reduce(
+    input.options || {},
+    (newOptions, option, key) => ({
+      ...newOptions,
+      [key]: option.value,
+    }),
+    {}
+  );
+
   const comparison = await fetchData('/dataprovider/compareTypes', 'PUT', {
-    base_type: omit(output, ['options']),
-    type: omit(input, ['options']),
+    base_type: input,
+    type: output,
   });
 
   return comparison.data;

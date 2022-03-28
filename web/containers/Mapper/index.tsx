@@ -405,7 +405,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
   }, [outputs, contextInputs, isContextLoaded]);
 
   if (!isContextLoaded) {
-    return <p> Loading... </p>;
+    return <p> Loading context... </p>;
   }
 
   const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (

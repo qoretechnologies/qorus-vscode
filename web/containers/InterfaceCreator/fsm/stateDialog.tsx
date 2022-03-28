@@ -40,7 +40,7 @@ export interface IFSMStateDialogProps {
   disableInitial?: boolean;
 }
 
-export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none';
+export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none' | 'apicall';
 
 const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   onClose,
@@ -145,6 +145,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'connector': {
         return !!newData?.action?.value?.['class'] && !!newData?.action?.value?.connector;
       }
+      case 'apicall': {
+        return validateField('api-call', newData?.action?.value);
+      }
       default: {
         return true;
       }
@@ -169,6 +172,21 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             value={newData?.action?.value}
             target_dir={target_dir}
             name="action"
+            context={{
+              default_values: newData?.injectedData
+                ? {
+                    name: `${newData.injectedData?.name ? `${newData.injectedData?.name}-` : ''}${
+                      newData.injectedData?.from
+                    }-${newData.injectedData?.to}`,
+                    desc: `mapper to bridge ${newData.injectedData?.from} to ${
+                      newData.injectedData?.to
+                    }${newData.injectedData?.name ? ` in flow ${newData.injectedData?.name}` : ''}`,
+                    version: '1.0',
+                  }
+                : {
+                    version: '1.0',
+                  },
+            }}
             reference={{
               iface_kind: 'mapper',
             }}
@@ -204,6 +222,19 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             target_dir={target_dir}
             onChange={(value) => handleDataUpdate('action', { type: 'connector', value })}
             types={['input', 'input-output', 'output']}
+          />
+        );
+      }
+      case 'apicall': {
+        return (
+          <Connectors
+            name="apicall"
+            inline
+            minimal
+            requiresRequest
+            isInitialEditing={!!data?.action?.value}
+            onChange={(_name, value) => handleDataUpdate('action', { type: 'apicall', value })}
+            value={newData?.action?.value}
           />
         );
       }
@@ -283,6 +314,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                           ? [{ name: 'state' }, { name: 'fsm' }, { name: 'block' }]
                           : [{ name: 'state' }, { name: 'fsm' }]
                       }
+                      disabled={newData.injected}
                       onChange={handleDataUpdate}
                       value={newData.type}
                       name="type"
@@ -386,7 +418,13 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                           setActionType(value);
                         }}
                         value={actionType}
-                        items={[{ value: 'mapper' }, { value: 'pipeline' }, { value: 'connector' }]}
+                        disabled={newData.injected}
+                        items={[
+                          { value: 'mapper' },
+                          { value: 'pipeline' },
+                          { value: 'connector' },
+                          { value: 'apicall' },
+                        ]}
                       />
                       {actionType && actionType !== 'none' ? (
                         <>

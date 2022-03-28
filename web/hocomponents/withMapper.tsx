@@ -59,6 +59,8 @@ export default () =>
         subtype?: string;
         can_manage_fields?: boolean;
         options?: any;
+        supports_request: boolean;
+        is_api_call: boolean;
       }>(null);
       const [outputOptionProvider, setOutputOptionProvider] = useState<{
         name: string;
@@ -67,6 +69,8 @@ export default () =>
         subtype?: string;
         can_manage_fields?: boolean;
         options?: any;
+        supports_request: boolean;
+        is_api_call: boolean;
       }>(null);
       const [mapperKeys, setMapperKeys] = useState<any>(null);
       const [hideInputSelector, setHideInputSelector] = useState<boolean>(false);
@@ -144,7 +148,7 @@ export default () =>
         setHideOutputSelector(data.hideOutputSelector);
         setError(data.error);
         setContextInputs(data.contextInputs);
-        setIsContextLoaded(data.isContextLoaded);
+        setIsContextLoaded(true);
       };
 
       const getUrlFromProvider: (fieldType: 'input' | 'output', provider?: any) => string = (
@@ -172,18 +176,11 @@ export default () =>
           : fieldType === 'input'
           ? inputOptionProvider
           : outputOptionProvider;
-        return getRealUrlFromProvider(prov);
-        // Check if the type is factory
-        // if (type === 'factory') {
-        //   // Return just the type
-        //   return type;
-        // }
-        // // Get the rules for the given provider
-        // const { url, suffix, recordSuffix } = providers[type];
-        // // Build the URL based on the provider type
-        // return `${url}/${name}${suffix}${subtype ? addTrailingSlash(path) : path}${
-        //   recordSuffix && !subtype ? recordSuffix : ''
-        // }${subtype ? subtype : ''}`;
+
+        // If the provider is an api call, we need to add /request or /response at the end
+        const url = prov.is_api_call ? (fieldType === 'input' ? '/response' : '/request') : '';
+
+        return `${getRealUrlFromProvider(prov)}${url}`;
       };
 
       const getProviderUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {
@@ -195,6 +192,8 @@ export default () =>
           subtype,
           can_manage_fields,
           options,
+          supports_request,
+          is_api_call,
         } = mapper.mapper_options[`mapper-${fieldType}`];
         // Save the provider options
         if (fieldType === 'input') {
@@ -205,6 +204,8 @@ export default () =>
             subtype,
             can_manage_fields,
             options,
+            supports_request,
+            is_api_call,
           });
         } else {
           setOutputOptionProvider({
@@ -214,6 +215,8 @@ export default () =>
             subtype,
             can_manage_fields,
             options,
+            supports_request,
+            is_api_call,
           });
         }
 
@@ -328,7 +331,7 @@ export default () =>
         // Save the url as a record, to be accessible
         setOutputRecord(outputUrl);
         // Fetch the input and output fields
-        const outputs = await props.fetchData(outputUrl);
+        const outputs = await props.fetchData(`${outputUrl}?soft=true`);
         // If one of the connections is down
         if (outputs.error) {
           console.error(outputs);

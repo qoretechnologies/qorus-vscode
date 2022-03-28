@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
@@ -221,6 +221,15 @@
         "icon": {
           "dark": "images/icons/dark/code.svg",
           "light": "images/icons/light/code.svg"
+        }
+      },
+      {
+        "command": "qorus.views.duplicateInterface",
+        "title": "1.5 Duplicate Interface",
+        "category": "Qorus",
+        "icon": {
+          "dark": "images/icons/dark/duplicate.svg",
+          "light": "images/icons/light/duplicate.svg"
         }
       },
       {
@@ -1436,7 +1445,7 @@
         {
           "when": "!explorerResourceIsFolder && !listMultiSelection",
           "command": "qorus.explorer.deployFile",
-          "group": "2_workspace@0"
+          "group": "2_workspace@51"
         },
         {
           "when": "resourceExtname == .qsd",
@@ -1547,6 +1556,11 @@
         {
           "command": "qorus.views.openInterface",
           "when": "view == qorusInterfaces && viewItem =~ /hasCode/",
+          "group": "inline"
+        },
+        {
+          "command": "qorus.views.duplicateInterface",
+          "when": "view == qorusInterfaces && viewItem =~ /^interface/",
           "group": "inline"
         },
         {
@@ -1662,6 +1676,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.6.0",
     "@blueprintjs/core": "^3.18.0",
+    "@types/fs-extra": "^9.0.13",
     "@types/glob": "^5.0.35",
     "@types/mocha": "^2.2.43",
     "@types/node": "^10.16.0",
@@ -1669,7 +1684,8 @@
     "@types/react": "^16.8.15",
     "@types/react-dom": "^16.8.4",
     "@types/request-promise": "^4.1.44",
-    "@typescript-eslint/eslint-plugin": "^1.9.0",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-syntax-jsx": "^6.18.0",
     "babel-plugin-ttag": "^1.7.23",
@@ -1677,7 +1693,10 @@
     "connect-history-api-fallback": "^1.6.0",
     "copy-webpack-plugin": "^5.0.3",
     "css-loader": "^2.1.1",
-    "eslint": "^5.16.0",
+    "eslint": "^8.11.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.29.4",
     "file-loader": "^3.0.1",
     "mini-css-extract-plugin": "^0.5.0",
     "node-sass": "^4.12.0",
@@ -1692,9 +1711,9 @@
     "serve-static": "^1.14.1",
     "style-loader": "^0.23.1",
     "tslint": "^5.19.0",
-    "typescript": "^4.0.2",
+    "typescript": "^4.6.3",
     "url-loader": "^1.1.2",
-    "vsce": "^1.95.1",
+    "vsce": "^2.7.0",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.8",
     "webpack-dev-middleware": "^3.7.1",

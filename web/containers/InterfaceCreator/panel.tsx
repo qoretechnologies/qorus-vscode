@@ -347,7 +347,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       return;
     }
 
-    let fileData: Omit<Partial<IDraftData>, 'interfaceKind'> = {};
+    const fileData: Omit<Partial<IDraftData>, 'interfaceKind'> = {};
 
     switch (type) {
       case 'service':

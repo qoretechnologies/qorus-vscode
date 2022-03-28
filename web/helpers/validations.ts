@@ -25,6 +25,11 @@ export const validateField: (
   if (!type) {
     return false;
   }
+  // Check if the type starts with a * to indicate it can be null
+  if (type.startsWith('*')) {
+    type = type.substring(1);
+    canBeNull = true;
+  }
   // If the value can be null an is null
   // immediately return true, no matter what type
   if (canBeNull && isNull(value)) {
@@ -187,11 +192,27 @@ export const validateField: (
       return validateField('string', code) && validateField('string', method);
     case 'type-selector':
     case 'data-provider':
+    case 'api-call':
       let newValue = maybeBuildOptionProvider(value);
 
-      console.log('newValue', newValue);
-
       if (!newValue) {
+        return false;
+      }
+
+      // Api call only supports  requests / response
+      if (type === 'api-call' && !value.supports_request) {
+        return false;
+      }
+
+      if (
+        value.use_args &&
+        value.args &&
+        value.args?.type !== 'nothing' &&
+        !validateField(
+          value.args.type === 'hash' ? 'system-options' : value.args.type,
+          value.args.value
+        )
+      ) {
         return false;
       }
 
@@ -210,7 +231,6 @@ export const validateField: (
         return !!(newValue.type && newValue.name && options);
       }
 
-      // Type path and name are required
       return !!(newValue.type && newValue.path && newValue.name);
     case 'context-selector':
       if (isString(value)) {

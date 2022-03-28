@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 3.3.0
+
+#### New Features
+
+- Introducing new type of state: API Call - It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them (required Qorus 5.1.29+)
+- It is now possible to duplicate interfaces right from the hierarchy view
+
+#### Bug Fixes
+
+- Reordered some context menu item for better consistency
+- Fixed a bug in allowed values in config items that caused discrepancies when adding new allowed values
+
 ## Version 3.2.2
 
 #### Bug Fixes
