@@ -42,7 +42,7 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
     transformValues(true, value)
   );
   const [type, setType] = useState<string>(null);
-  const [lastId, setLastId] = useState<number>(1);
+  const [lastId, setLastId] = useState<number>(size(value || []));
   const initContext = useContext(InitialContext);
 
   useMount(() => {
