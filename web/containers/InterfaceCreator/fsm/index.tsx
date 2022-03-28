@@ -624,7 +624,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
           getStateDataForComparison(states[selectedState], 'output'),
           'output'
         );
-        console.log(inputType, outputType);
         setMapper({
           hasInitialInput: true,
           hasInitialOutput: true,
@@ -926,7 +925,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const handleToolbarItemDblClick = (name, type, stateType) => {
-    console.log(name, type, stateType);
     addNewState(
       {
         name,

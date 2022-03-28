@@ -67,7 +67,7 @@ const maybeDeployInterface = (data: any) => {
   }
 };
 
-const maybeEditInterface = (data: any) => {
+export const maybeEditInterface = (data: any) => {
   let iface_kind;
   if (data) {
     delete data.show_steps;
@@ -204,9 +204,16 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
   });
   context.subscriptions.push(disposable);
 
+  disposable = commands.registerCommand(
+    'qorus.views.duplicateInterface',
+    ({ data }: QorusDraftItem) => {
+      QorusProjectCodeInfo.duplicateInterface({ iface_kind: data.type, iface_data: data });
+    }
+  );
+  context.subscriptions.push(disposable);
+
   // open interface command, used when clicking on interface in the tree
   disposable = commands.registerCommand('qorus.views.openInterface', (data: any) => {
-    console.log(data);
     if (!data || !data.data) {
       return;
     }

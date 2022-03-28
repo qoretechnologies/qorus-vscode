@@ -62,7 +62,6 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
     const iface_kind = reference.iface_kind === 'other' ? reference.type : reference.iface_kind;
     // Add message listener for the interface data
     const listener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-      console.log(reference, iface_kind, iface_name, 'DATA', data);
       // Set the context for the mapper if this is
       // mapper interface
       if (reference.iface_kind === 'mapper') {

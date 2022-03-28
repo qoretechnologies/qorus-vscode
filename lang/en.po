@@ -3070,3 +3070,12 @@ msgstr "Specify literal API arguments in this flow state rather than using the s
 
 msgid "AddArgument"
 msgstr "Add argument"
+
+msgid "FailedDuplicatingIfaceCodeFile"
+msgstr "Failed to duplicate interface code file"
+
+msgid "FailedDuplicatingIfaceMetaFile"
+msgstr "Failed to duplicate interface meta file"
+
+msgid "APICallTakesNoArgs"
+msgstr "API call takes no arguments"

@@ -1,4 +1,5 @@
-import React, { useContext } from 'react';
+import { Callout } from '@blueprintjs/core';
+import React, { useContext, useEffect } from 'react';
 import { useAsyncRetry } from 'react-use';
 import styled from 'styled-components';
 import { InitialContext } from '../../context/init';
@@ -37,7 +38,11 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
     return null;
   }, [url]);
 
-  console.log(schema, loading, error);
+  useEffect(() => {
+    if (schema?.type === 'nothing') {
+      onChange('apicallargs', undefined, 'nothing');
+    }
+  }, [schema]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -45,6 +50,10 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
 
   if (error) {
     return <div>Error: {error}</div>;
+  }
+
+  if (schema?.type === 'nothing') {
+    return <Callout intent="warning">{t('APICallTakesNoArgs')}</Callout>;
   }
 
   if (schema.type === 'hash') {
