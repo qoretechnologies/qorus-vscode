@@ -10,6 +10,7 @@
 #### Bug Fixes
 
 - Reordered some context menu item for better consistency
+- Fixed a bug in allowed values in config items that caused discrepancies when adding new allowed values
 
 ## Version 3.2.2
 
