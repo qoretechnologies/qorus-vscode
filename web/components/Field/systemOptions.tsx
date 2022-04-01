@@ -94,6 +94,7 @@ const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }
   }, [url, qorus_instance, customUrl]);
 
   const handleValueChange = (optionName: string, currentValue: any, val?: any, type?: string) => {
+    console.log('handleValueChange', optionName, currentValue, val, type);
     onChange(name, {
       ...currentValue,
       [optionName]: {
@@ -108,9 +109,14 @@ const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }
   };
 
   const addSelectedOption = (optionName: string) => {
+    console.log(
+      'addSelectedOption',
+      getTypeAndCanBeNull(options[optionName].type, options[optionName].allowed_values)
+    );
     handleValueChange(
       optionName,
       null,
+      options[optionName].default_value,
       getTypeAndCanBeNull(options[optionName].type, options[optionName].allowed_values).type
     );
   };
@@ -173,6 +179,8 @@ const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }
     },
     {}
   );
+
+  console.log(fixedValue, options);
 
   return (
     <>
