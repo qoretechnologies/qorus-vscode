@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.3.1
+
+#### Bug Fixes
+
+- Fixed a bug that caused issues when adding optional options
+
 ## Version 3.3.0
 
 #### New Features

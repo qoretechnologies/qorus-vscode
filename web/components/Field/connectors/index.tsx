@@ -100,7 +100,7 @@ export const maybeBuildOptionProvider = (provider) => {
     // Get everything between the first / and { bracket
     const [factoryName] = nameWithOptions.split('{');
     // Get everything in the provider between { and }, which are the options
-    let options = provider.substring(provider.indexOf('{') + 1, provider.indexOf('}'));
+    const options = provider.substring(provider.indexOf('{') + 1, provider.indexOf('}'));
     // Split the options by comma
     const optionsArray = options.split(',');
     let optionsObject = {};
