@@ -115,7 +115,7 @@ const Options = ({ name, value, onChange, url, customUrl, placeholder, ...rest }
     );
     handleValueChange(
       optionName,
-      null,
+      value,
       options[optionName].default_value,
       getTypeAndCanBeNull(options[optionName].type, options[optionName].allowed_values).type
     );
