@@ -5,6 +5,7 @@ import useMount from 'react-use/lib/useMount';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { TextContext } from '../../context/text';
 import { postMessage } from '../../hocomponents/withMessageHandler';
+import { ApiManager } from './apiManager';
 import ArrayAutoField from './arrayAuto';
 import AutoField from './auto';
 import BooleanField from './boolean';
@@ -85,6 +86,7 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
       {type === 'fsm-list' && <FSMListField {...rest} type={type} />}
       {type === 'options' && <Options {...rest} />}
       {type === 'url' && <URLField {...rest} type={type} />}
+      {type === 'api-manager' && <ApiManager {...rest} />}
       {rest.markdown && <MarkdownPreview value={rest.value} />}
     </>
   );

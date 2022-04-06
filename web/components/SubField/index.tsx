@@ -1,4 +1,4 @@
-import { Button, Icon } from '@blueprintjs/core';
+import { Button, Classes } from '@blueprintjs/core';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
@@ -9,21 +9,31 @@ export interface ISubFieldProps {
   children: any;
   subtle?: boolean;
   onRemove?: () => any;
+  detail?: string;
 }
 
 const StyledSubFieldTitle = styled.h4`
-  margin: 0 0 5px 0;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 10px 0;
   font-weight: ${({ subtle }) => (subtle ? 450 : 'bold')};
 
   &:not(:first-child) {
-    margin-top: 10px;
+    margin-top: 20px;
+  }
+`;
+
+const StyledSubFieldMarkdown = styled.div`
+  display: 'inline-block';
+
+  p:last-child {
+    margin-bottom: 0;
   }
 `;
 
 const StyledSubFieldDesc = styled.p`
   padding: 0;
   margin: 5px 0 10px 0;
-  color: #a9a9a9;
   font-size: 12px;
 
   .bp3-icon {
@@ -32,11 +42,27 @@ const StyledSubFieldDesc = styled.p`
   }
 `;
 
-const SubField: React.FC<ISubFieldProps> = ({ title, desc, children, subtle, onRemove }) => (
+const SubField: React.FC<ISubFieldProps> = ({
+  title,
+  desc,
+  children,
+  subtle,
+  onRemove,
+  detail,
+}) => (
   <>
     {title && (
       <StyledSubFieldTitle subtle={subtle}>
-        {title}{' '}
+        <div>
+          {title}{' '}
+          {detail && (
+            <span className={Classes.TEXT_MUTED}>
+              {'<'}
+              {detail}
+              {'>'}
+            </span>
+          )}
+        </div>
         {onRemove ? (
           <Button
             style={{ verticalAlign: 'sub' }}
@@ -44,6 +70,7 @@ const SubField: React.FC<ISubFieldProps> = ({ title, desc, children, subtle, onR
             icon="trash"
             onClick={onRemove}
             intent="danger"
+            small
           />
         ) : (
           ''
@@ -51,12 +78,11 @@ const SubField: React.FC<ISubFieldProps> = ({ title, desc, children, subtle, onR
       </StyledSubFieldTitle>
     )}
     {desc && (
-      <StyledSubFieldDesc>
-        <Icon icon="info-sign" iconSize={12.5} style={{ display: 'inline-block' }} />{' '}
-        <div style={{ display: 'inline-block' }}>
+      <blockquote className={`bp3-blockquote ${Classes.TEXT_MUTED}`}>
+        <StyledSubFieldMarkdown>
           <ReactMarkdown source={desc} />
-        </div>
-      </StyledSubFieldDesc>
+        </StyledSubFieldMarkdown>
+      </blockquote>
     )}
     {children}
   </>

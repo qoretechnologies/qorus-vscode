@@ -13,6 +13,7 @@ import BooleanField from './boolean';
 import ByteSizeField from './byteSize';
 import ConnectorField from './connectors';
 import DateField from './date';
+import FileField from './fileString';
 import { InterfaceSelector } from './interfaceSelector';
 import LongStringField from './longString';
 import NumberField from './number';
@@ -281,6 +282,27 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             isConfigItem
             onChange={handleChange}
           />
+        );
+      }
+      case 'file-as-string': {
+        return (
+          <div>
+            <FileField
+              name={name}
+              value={value}
+              onChange={handleChange}
+              type={currentType}
+              get_message={{
+                action: 'creator-get-resources',
+                object_type: 'files',
+              }}
+              return_message={{
+                action: 'creator-return-resources',
+                object_type: 'files',
+                return_value: 'resources',
+              }}
+            />
+          </div>
         );
       }
       case 'any':

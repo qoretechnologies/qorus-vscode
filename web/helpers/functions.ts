@@ -417,9 +417,9 @@ export const checkPipelineCompatibility = async (elements, inputProvider) => {
   return newElements;
 };
 
-const fetchData: (
+export const fetchData: (
   url: string,
-  method: string,
+  method?: string,
   body?: { [key: string]: any }
 ) => Promise<any> = async (url, method = 'GET', body) => {
   // Create the unique ID for this request

@@ -155,9 +155,7 @@ export interface IField {
   iface_kind?: string;
 }
 
-export declare interface IFieldChange {
-  onChange: (fieldName: string, value: any) => void;
-}
+export declare type IFieldChange = (fieldName: string, value: any) => void;
 
 export const FieldWrapper = styled.div<{ padded?: boolean }>`
   display: flex;

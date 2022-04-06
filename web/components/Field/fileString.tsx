@@ -3,52 +3,52 @@ import styled from 'styled-components';
 import { IField } from '.';
 import { TTranslator } from '../../App';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import String from './string';
 import TreeField from './tree';
 
 export interface IFileField {
-    get_message?: { action: string; object_type: string };
-    return_message?: { action: string; object_type: string; return_value: string };
-    addMessageListener: TMessageListener;
-    postMessage: TPostMessage;
-    name: string;
-    t: TTranslator;
-    includeInputField: boolean;
+  get_message?: { action: string; object_type: string };
+  return_message?: { action: string; object_type: string; return_value: string };
+  addMessageListener: TMessageListener;
+  postMessage: TPostMessage;
+  name: string;
+  t: TTranslator;
+  includeInputField: boolean;
 }
 
 const Spacer = styled.div`
-    margin: 5px;
+  margin: 5px;
 `;
 
 const FileField: FunctionComponent<IFileField & IField & IFieldChange> = ({
-    onChange,
-    name,
-    value,
-    default_value,
-    canManageSourceDirs = true,
-    includeInputField = false,
-    ...rest
+  onChange,
+  name,
+  value,
+  default_value,
+  canManageSourceDirs = true,
+  includeInputField = false,
+  ...rest
 }) => {
-    return (
+  return (
+    <>
+      {includeInputField && (
         <>
-            {includeInputField && (
-                <>
-                    <String name={name} onChange={onChange} value={value} default_value={default_value} />
-                    <Spacer />
-                </>
-            )}
-            <TreeField
-                single
-                onChange={onChange}
-                name={name}
-                value={value}
-                default_value={default_value}
-                canManageSourceDirs={canManageSourceDirs}
-                {...rest}
-            />
+          <String name={name} onChange={onChange} value={value} default_value={default_value} />
+          <Spacer />
         </>
-    );
+      )}
+      <TreeField
+        single
+        onChange={onChange}
+        name={name}
+        value={value}
+        default_value={default_value}
+        canManageSourceDirs={canManageSourceDirs}
+        {...rest}
+      />
+    </>
+  );
 };
 
-export default withMessageHandler()(FileField);
+export default FileField;

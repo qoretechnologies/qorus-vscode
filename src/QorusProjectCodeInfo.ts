@@ -1185,6 +1185,7 @@ export class QorusProjectCodeInfo {
       case 'text-resource':
       case 'bin-resource':
       case 'template':
+      case 'files':
         this.waitForPending(['file_tree']).then(() =>
           postMessage('resources', this.file_tree, false)
         );
