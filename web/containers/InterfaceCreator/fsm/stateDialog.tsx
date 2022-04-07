@@ -561,6 +561,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     modifiedData['block-type'] = 'for';
                   }
 
+                  if (modifiedData.type === 'if' && !modifiedData['input-output-type']) {
+                    delete modifiedData['input-output-type'];
+                  }
+
                   onSubmit(id, modifiedData);
                 }}
               />
