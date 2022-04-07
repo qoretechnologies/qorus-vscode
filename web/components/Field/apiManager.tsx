@@ -10,7 +10,6 @@ import { callBackendBasic, fetchData } from '../../helpers/functions';
 import Spacer from '../Spacer';
 import SubField from '../SubField';
 import Select from './select';
-import String from './string';
 import Options, { IOptions } from './systemOptions';
 
 export type TApiManagerFactory = 'swagger' | 'soap';
@@ -185,6 +184,10 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
     });
   };
 
+  const isAvailable = (obj: any) => {
+    return obj.loading || obj.value || obj.error;
+  };
+
   console.log(value);
 
   // Remove selected endpoints from the endpoints value
@@ -210,85 +213,103 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
           />
         )}
       </SubField>
-      <SubField title={t('ApiManagerProviderOptions')}>
-        {providerOptions.loading ? (
-          <Callout intent="primary">Loading...</Callout>
-        ) : providerOptions.error ? (
-          <Callout intent="danger" title="Error">
-            {providerOptions.error}
-          </Callout>
-        ) : (
-          <Options
-            options={providerOptions.value}
-            value={value?.['provider-options']}
-            name="provider-options"
-            onChange={(_n, data) => handleOptionsChange(data)}
-          />
-        )}
-      </SubField>
-      <SubField title={t('ApiManagerEndpoints')}>
-        {endpoints.loading || !endpoints.value ? (
-          <Callout intent="primary">Loading...</Callout>
-        ) : endpoints.error ? (
-          <Callout intent="danger" title="Error">
-            Failed to load endpoints
-          </Callout>
-        ) : (
-          <>
-            {value?.endpoints &&
-              value.endpoints.map((endpoint, index) => (
-                <SubField
-                  title={`${index + 1}. ${endpoint.endpoint}`}
-                  key={endpoint.endpoint}
-                  subtle
-                  onRemove={() => {
-                    confirmAction('RemoveEndpoint', () => {
-                      handleDeleteEndpoint(endpoint.endpoint);
-                    });
+      {isAvailable(providerOptions) && (
+        <SubField title={t('ApiManagerProviderOptions')}>
+          {providerOptions.loading ? (
+            <Callout intent="primary">Loading...</Callout>
+          ) : providerOptions.error ? (
+            <Callout intent="danger" title="Error">
+              {providerOptions.error}
+            </Callout>
+          ) : (
+            <Options
+              options={providerOptions.value}
+              value={value?.['provider-options']}
+              name="provider-options"
+              onChange={(_n, data) => handleOptionsChange(data)}
+            />
+          )}
+        </SubField>
+      )}
+      {isAvailable(endpoints) && (
+        <SubField title={t('ApiManagerEndpoints')}>
+          {endpoints.loading || !endpoints.value ? (
+            <Callout intent="primary">Loading...</Callout>
+          ) : endpoints.error ? (
+            <Callout intent="danger" title="Error">
+              Failed to load endpoints
+            </Callout>
+          ) : (
+            <>
+              {value?.endpoints &&
+                value.endpoints.map((endpoint, index) => (
+                  <SubField
+                    title={`${index + 1}. ${endpoint.endpoint}`}
+                    key={endpoint.endpoint}
+                    subtle
+                    onRemove={() => {
+                      confirmAction('RemoveEndpoint', () => {
+                        handleDeleteEndpoint(endpoint.endpoint);
+                      });
+                    }}
+                  >
+                    <ControlGroup fill>
+                      <Select
+                        defaultItems={[
+                          {
+                            name: 'fsm',
+                          },
+                          {
+                            name: 'method',
+                          },
+                        ]}
+                        value={endpoint.type || t('Type')}
+                        onChange={(_n, v) => {
+                          handleUpdateEndpoint(endpoint.endpoint, v, endpoint.value);
+                        }}
+                      />
+                      {endpoint.type === 'fsm' && (
+                        <Select
+                          fill
+                          onChange={(_name, value) =>
+                            handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
+                          }
+                          name="fsm"
+                          value={endpoint.value}
+                          get_message={{
+                            action: 'creator-get-objects',
+                            object_type: 'fsm',
+                          }}
+                          return_message={{
+                            action: 'creator-return-objects',
+                            object_type: 'fsm',
+                            return_value: 'objects',
+                          }}
+                          reference={{
+                            iface_kind: 'fsm',
+                          }}
+                        />
+                      )}
+                    </ControlGroup>
+                  </SubField>
+                ))}
+              <Spacer size={20} />
+              <SubField>
+                <Select
+                  defaultItems={availableEndpoints.map((endpoint) => ({
+                    name: endpoint.endpoint,
+                    desc: `API endpoint for ${endpoint.endpoint}`,
+                  }))}
+                  value={`${t('ManageEndpoints')} (${size(availableEndpoints)})`}
+                  onChange={(_n, v) => {
+                    handleAddEndpoint(v);
                   }}
-                >
-                  <ControlGroup fill>
-                    <Select
-                      defaultItems={[
-                        {
-                          name: 'fsm',
-                        },
-                        {
-                          name: 'method',
-                        },
-                      ]}
-                      value={endpoint.type || t('Type')}
-                      onChange={(_n, v) => {
-                        handleUpdateEndpoint(endpoint.endpoint, v, endpoint.value);
-                      }}
-                    />
-                    <String
-                      fill
-                      name="endpoint-value"
-                      value={endpoint.value}
-                      onChange={(_n, v) => {
-                        handleUpdateEndpoint(endpoint.endpoint, endpoint.type, v);
-                      }}
-                    />
-                  </ControlGroup>
-                </SubField>
-              ))}
-            <Spacer size={20} />
-            <SubField>
-              <Select
-                defaultItems={availableEndpoints.map((endpoint) => ({
-                  name: endpoint.endpoint,
-                  desc: `API endpoint for ${endpoint.endpoint}`,
-                }))}
-                value={`${t('ManageEndpoints')} (${size(availableEndpoints)})`}
-                onChange={(_n, v) => {
-                  handleAddEndpoint(v);
-                }}
-              />
-            </SubField>
-          </>
-        )}
-      </SubField>
+                />
+              </SubField>
+            </>
+          )}
+        </SubField>
+      )}
     </>
   );
 };

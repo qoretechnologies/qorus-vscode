@@ -1049,6 +1049,7 @@ export abstract class InterfaceCreator {
           case 'typeinfo':
           case 'staticdata-type':
           case 'input-provider':
+          case 'api-manager':
           case 'context':
             let fixed_value;
             if (['staticdata-type', 'input-provider'].includes(tag)) {
