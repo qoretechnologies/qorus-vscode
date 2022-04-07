@@ -412,6 +412,13 @@ export class QorusProjectCodeInfo {
       }
     });
 
+    if (data['api-manager']) {
+      data['api-manager']['provider-options'].schema.value = path.resolve(
+        data.target_dir,
+        data['api-manager']['provider-options'].schema.value
+      );
+    }
+
     if (data['mapper-code']) {
       data.codes = data['mapper-code'];
       delete data['mapper-code'];
