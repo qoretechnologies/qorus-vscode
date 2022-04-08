@@ -20,7 +20,7 @@ export default () =>
       const [methods, setMethods] = useState<any[]>(props.initialMethods);
       const [methodsCount, setMethodsCount] = useState<number>(props.initialCount);
       const [lastMethodId, setLastMethodId] = useState<number>(props.initialId);
-      const [activeMethod, setActiveMethod] = useState<any>(0);
+      const [activeMethod, setActiveMethod] = useState<any>(1);
       const [methodsData, setMethodsData] = useState(props.methodsData);
 
       const resetMethods = () => {
@@ -118,7 +118,7 @@ export default () =>
           // count + 1 if methods exist
           initialId: service && service.methods ? size(service.methods) : 1,
           // If method is being edited, switch to it
-          initialActiveId: (service && parseInt(service.active_method)) || 0,
+          initialActiveId: (service && parseInt(service.active_method)) || 1,
           // Set to show methods if active method
           // is being edited
           initialShowMethods: !!(service && service.active_method),
