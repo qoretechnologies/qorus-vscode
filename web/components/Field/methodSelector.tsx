@@ -11,8 +11,7 @@ import Select from './select';
 import String from './string';
 
 const NewMethodDialog = ({ onSubmit, onClose }) => {
-  const { methodsData }: any = useContext(MethodsContext);
-  const { addMethod } = useContext(FieldContext);
+  const { methods }: any = useContext(MethodsContext);
   const t: Function = useContext<Function>(TextContext);
   const [name, setName] = React.useState('');
   const [description, setDescription] = React.useState('');
@@ -20,8 +19,20 @@ const NewMethodDialog = ({ onSubmit, onClose }) => {
   const isMethodValid = () => {
     return (
       validateField('string', name, { has_to_be_valid_identifier: true }) &&
+      methods.find((method) => method.name === name) === undefined &&
       validateField('string', description)
     );
+  };
+
+  const isNameValid = () => {
+    return (
+      validateField('string', name, { has_to_be_valid_identifier: true }) &&
+      methods.find((method) => method.name === name) === undefined
+    );
+  };
+
+  const isDescValid = () => {
+    return validateField('string', description);
   };
 
   return (
@@ -32,10 +43,10 @@ const NewMethodDialog = ({ onSubmit, onClose }) => {
       style={{ backgroundColor: '#fff' }}
     >
       <div className={Classes.DIALOG_BODY}>
-        <SubField title={t('field-label-name')}>
+        <SubField title={t('field-label-name')} isValid={isNameValid()}>
           <String value={name} name="methodName" onChange={(_n, v) => setName(v)} />
         </SubField>
-        <SubField title={t('field-label-desc')}>
+        <SubField title={t('field-label-desc')} isValid={isDescValid()}>
           <LongStringField
             value={description}
             name="methodDesc"
@@ -58,6 +69,7 @@ const NewMethodDialog = ({ onSubmit, onClose }) => {
               intent={'success'}
               disabled={!isMethodValid()}
               onClick={() => {
+                onClose();
                 onSubmit(name, description);
               }}
             />
@@ -69,7 +81,7 @@ const NewMethodDialog = ({ onSubmit, onClose }) => {
 };
 
 const MethodSelector = ({ onChange, name, value }) => {
-  const { methodsData, addNewMethodWithData }: any = useContext(MethodsContext);
+  const { methods, addNewMethodWithData }: any = useContext(MethodsContext);
   const { addMethod } = useContext(FieldContext);
   const t: Function = useContext<Function>(TextContext);
   // State that indicates if new method is being added
@@ -91,7 +103,7 @@ const MethodSelector = ({ onChange, name, value }) => {
         <Select
           fill
           forceDropdown
-          defaultItems={methodsData}
+          defaultItems={methods}
           value={value}
           onChange={onChange}
           name={name}

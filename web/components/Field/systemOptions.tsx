@@ -11,6 +11,7 @@ import styled from 'styled-components';
 import { isObject } from 'util';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
+import { validateField } from '../../helpers/validations';
 import Spacer from '../Spacer';
 import SubField from '../SubField';
 import AutoField from './auto';
@@ -256,6 +257,7 @@ const Options = ({
                 subtle
                 key={optionName}
                 title={optionName}
+                isValid={validateField(type, other.value)}
                 detail={getType(options[optionName].type)}
                 desc={options[optionName].desc}
                 onRemove={

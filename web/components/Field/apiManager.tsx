@@ -7,6 +7,7 @@ import { Messages } from '../../constants/messages';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { callBackendBasic, fetchData } from '../../helpers/functions';
+import { validateField } from '../../helpers/validations';
 import Spacer from '../Spacer';
 import SubField from '../SubField';
 import MethodSelector from './methodSelector';
@@ -180,7 +181,7 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
 
   return (
     <>
-      <SubField title={t('ApiManagerSchema')}>
+      <SubField title={t('ApiManagerSchema')} isValid={validateField('string', value?.factory)}>
         {schemas.loading ? (
           <Callout intent="primary">Loading...</Callout>
         ) : schemas.error ? (
@@ -196,7 +197,10 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
         )}
       </SubField>
       {isAvailable(providerOptions) && (
-        <SubField title={t('ApiManagerProviderOptions')}>
+        <SubField
+          title={t('ApiManagerProviderOptions')}
+          isValid={validateField('system-options', value?.['provider-options'])}
+        >
           {providerOptions.loading ? (
             <Callout intent="primary">Loading...</Callout>
           ) : providerOptions.error ? (
@@ -214,7 +218,10 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
         </SubField>
       )}
       {isAvailable(endpoints) && (
-        <SubField title={t('ApiManagerEndpoints')}>
+        <SubField
+          title={t('ApiManagerEndpoints')}
+          isValid={validateField('api-endpoints', value?.endpoints)}
+        >
           {endpoints.loading || !endpoints.value ? (
             <Callout intent="primary">Loading...</Callout>
           ) : endpoints.error ? (
@@ -236,6 +243,7 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
                             handleDeleteEndpoint(endpoint.endpoint);
                           });
                         }}
+                        isValid={!!endpoint.value}
                       >
                         <ControlGroup fill>
                           <Select

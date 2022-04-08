@@ -302,16 +302,20 @@ export const validateField: (
         valid = false;
       }
 
-      if (
-        !size(value.endpoints) ||
-        !value.endpoints.every((endpoint: TApiManagerEndpoint) =>
-          validateField('string', endpoint.value)
-        )
-      ) {
+      if (!validateField('api-endpoints', value.endpoints)) {
         valid = false;
       }
 
       return valid;
+    }
+    case 'api-endpoints': {
+      if (!isArray(value) || !size(value)) {
+        return false;
+      }
+
+      return value.every((endpoint: TApiManagerEndpoint) =>
+        validateField('string', endpoint.value)
+      );
     }
     case 'options':
     case 'pipeline-options':
