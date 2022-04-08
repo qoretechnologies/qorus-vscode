@@ -2207,6 +2207,9 @@ msgstr "No instances"
 msgid "NoDirectories"
 msgstr "No directories"
 
+msgid "NoDataAvailable"
+msgstr "No data available"
+
 msgid "AddInstance"
 msgstr "Add new instance"
 

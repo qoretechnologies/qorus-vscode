@@ -5,6 +5,12 @@ This extension makes it possible to easily create, deploy, and test Qorus interf
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be
 reused later and setup an initial configuration for them.
 
+## Version 3.4.0 overview - What's new:
+
+- Added IDE support for API managers in services, allowing Qorus services to provide server-side API implementations with a low-code/no-code solution; these can also be microservices when Qorus is deployed in Kubernetes and the stateless flag is set
+- IF states no longer save the `input-output-type` flag to YAML if it's not defined
+- Many visual improvements and bug fixes
+
 ## Version 3.3.1 overview - What's new:
 
 - Fixed a bug that caused issues when adding optional options

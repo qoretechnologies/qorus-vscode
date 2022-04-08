@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 3.4.0
+
+#### New Features
+
+- Added IDE support for API managers in services, allowing Qorus services to provide server-side API implementations with a low-code/no-code solution; these can also be microservices when Qorus is deployed in Kubernetes and the stateless flag is set (requires Qorus 5.1.30+)
+
+#### Bug Fixes
+
+- IF states no longer save the `input-output-type` flag to YAML if it's not defined
+- Many visual improvements and bug fixes
+
 ## Version 3.3.1
 
 #### Bug Fixes
@@ -10,7 +21,7 @@
 
 #### New Features
 
-- Introducing new type of state: API Call - It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them (required Qorus 5.1.29+)
+- Introducing new type of state: API Call - It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them (requires Qorus 5.1.29+)
 - It is now possible to duplicate interfaces right from the hierarchy view
 
 #### Bug Fixes
