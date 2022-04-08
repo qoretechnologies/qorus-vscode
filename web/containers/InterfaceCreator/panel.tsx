@@ -13,7 +13,7 @@ import {
   reduce,
   size,
   uniqBy,
-  upperFirst,
+  upperFirst
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import React, {
@@ -22,7 +22,7 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState,
+  useState
 } from 'react';
 import { useDebounce, useMount, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
@@ -54,7 +54,7 @@ import withMessageHandler, {
   addMessageListener,
   postMessage,
   TMessageListener,
-  TPostMessage,
+  TPostMessage
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -127,7 +127,7 @@ export interface IField {
   };
   return_message?: { action: string; object_type: string; return_value?: string };
   style?: string;
-  type?: string;
+  type: string;
   default_value?: string;
   items?: { value: string; icon_filename: string }[];
   prefill?: any;
@@ -794,14 +794,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               // Basic field with predefined type
               isValid = validateField(finalFieldType || 'string', value, currentField, canBeNull);
             }
-            // Check if we should change the name of the
-            // method
-            if (fieldName === 'name' && onNameChange) {
-              // Change the method name in the side panel
-              onNameChange(activeId, value, metadata?.originalName);
-            }
             // On change events
             maybeSendOnChangeEvent(currentField, value, type, interfaceId, isEditing);
+
+            console.log('CHANGING METHOD NAME TO', value);
             // Add the value
             return [
               ...newFields,
@@ -820,6 +816,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       activeId,
       interfaceIndex
     );
+
+    // Check if we should change the name of the
+    // method
+    if (fieldName === 'name' && onNameChange) {
+      console.log('RUNNIN ON NAME CHANGE FUNCTION FROM', metadata?.originalName, 'TO', value);
+      // Change the method name in the side panel
+      onNameChange(activeId, value, metadata?.originalName);
+    }
   };
 
   const handleAddAll: () => void = () => {
@@ -1223,16 +1227,28 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   };
 
   const canSubmit: () => boolean = () => {
-    if (hasClassConnections) {
-      return isFormValid(type) && areClassConnectionsValid();
+    console.log('CHECKING SUBMIT');
+
+    let isValid = true;
+
+    if (hasClassConnections && !areClassConnectionsValid()) {
+      isValid = false;
     }
 
     // Check the disabled submit flag
     if (disabledSubmit) {
-      return false;
+      isValid = false;
     }
 
-    return isFormValid(type);
+    if (type === 'service-methods' && !isFormValid('service')) {
+      isValid = false;
+    }
+
+    if (!isFormValid(type)) {
+      isValid = false;
+    }
+
+    return isValid;
   };
 
   return (

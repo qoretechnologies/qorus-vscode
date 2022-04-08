@@ -8,6 +8,7 @@ import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
 import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
+import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { TTrigger } from '../containers/InterfaceCreator/fsm';
@@ -55,6 +56,7 @@ export const validateField: (
     case 'softstring':
     case 'select-string':
     case 'file-string':
+    case 'file-as-string':
     case 'long-string':
     case 'method-name': {
       if (value === undefined || value === null || value === '') {
@@ -283,6 +285,33 @@ export const validateField: (
       return value?.every(
         (val: { name: string; triggers?: TTrigger[] }) => validateField('string', val.name) === true
       );
+    }
+    case 'api-manager': {
+      console.log('api-manager', value);
+      if (!value) {
+        return false;
+      }
+
+      let valid = true;
+
+      if (!validateField('string', value.factory)) {
+        valid = false;
+      }
+
+      if (!validateField('system-options', value['provider-options'])) {
+        valid = false;
+      }
+
+      if (
+        !size(value.endpoints) ||
+        !value.endpoints.every((endpoint: TApiManagerEndpoint) =>
+          validateField('string', endpoint.value)
+        )
+      ) {
+        valid = false;
+      }
+
+      return valid;
     }
     case 'options':
     case 'pipeline-options':

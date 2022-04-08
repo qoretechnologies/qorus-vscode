@@ -1,6 +1,6 @@
 import { Callout, ControlGroup } from '@blueprintjs/core';
 import { reduce, size } from 'lodash';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { useAsyncRetry } from 'react-use';
 import styled from 'styled-components';
 import { Messages } from '../../constants/messages';
@@ -9,6 +9,7 @@ import { TextContext } from '../../context/text';
 import { callBackendBasic, fetchData } from '../../helpers/functions';
 import Spacer from '../Spacer';
 import SubField from '../SubField';
+import MethodSelector from './methodSelector';
 import Select from './select';
 import Options, { IOptions } from './systemOptions';
 
@@ -44,20 +45,6 @@ export const EndPoint = () => {
 export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
   const t: any = useContext(TextContext);
   const { callBackend, qorus_instance, confirmAction }: any = useContext(InitialContext);
-  const [schemaString, setSchemaString] = useState(null);
-
-  useEffect(() => {
-    if (value?.['provider-options']?.schema?.value) {
-      // Load the contents into the schema string
-      (async () => {
-        const { fileData } = await callBackendBasic(Messages.GET_FILE_CONTENT, undefined, {
-          file: value?.['provider-options']?.schema.value,
-        });
-
-        setSchemaString(fileData);
-      })();
-    }
-  }, [value?.['provider-options']?.schema?.value]);
 
   const schemas = useAsyncRetry(async () => {
     if (qorus_instance) {
@@ -90,17 +77,20 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
   }, [value?.factory]);
 
   const endpoints = useAsyncRetry(async () => {
-    if (schemaString && qorus_instance) {
+    if (qorus_instance && value?.['provider-options']?.schema?.value) {
+      // Load the contents into the schema string
+      const { fileData } = await callBackendBasic(Messages.GET_FILE_CONTENT, undefined, {
+        file: value?.['provider-options']?.schema.value,
+      });
+
       const options = {
         ...reduce(
           value!['provider-options'],
           (newOptions, option, optionName) => ({ ...newOptions, [optionName]: option.value }),
           {}
         ),
-        schema: schemaString,
+        schema: fileData,
       };
-
-      console.log(options);
 
       const data = await fetchData(
         `/dataprovider/factories/${value!.factory}/provider/apiEndpoints?context=ui&context=api`,
@@ -118,7 +108,7 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
       return data.data;
     }
     return null;
-  }, [value?.['provider-options'], schemaString]);
+  }, [JSON.stringify(value?.['provider-options'])]);
 
   const handleSchemaChange = (newFactory: TApiManagerFactory) => {
     onChange(name, {
@@ -187,8 +177,6 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
   const isAvailable = (obj: any) => {
     return obj.loading || obj.value || obj.error;
   };
-
-  console.log(value);
 
   // Remove selected endpoints from the endpoints value
   const availableEndpoints: { endpoint: string }[] = (endpoints.value || []).filter(
@@ -288,6 +276,15 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
                           reference={{
                             iface_kind: 'fsm',
                           }}
+                        />
+                      )}
+                      {endpoint.type === 'method' && (
+                        <MethodSelector
+                          name="method-selector"
+                          value={endpoint.value}
+                          onChange={(_name, value) =>
+                            handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
+                          }
                         />
                       )}
                     </ControlGroup>

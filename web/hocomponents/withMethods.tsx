@@ -40,6 +40,7 @@ export default () =>
         setMethods(methodsList);
         setMethodsData(methodsList);
         setMethodsCount(size(methods));
+        setLastMethodId(size(methodsList));
         setActiveMethod(methodsList[0]?.id || 1);
       };
 
@@ -62,6 +63,18 @@ export default () =>
         setMethodsCount((current: number) => current + 1);
       };
 
+      const addNewMethodWithData = (data): number => {
+        // Add new method id
+        setLastMethodId((current) => current + 1);
+        setMethods((current: any[]) => [...current, { id: lastMethodId + 1, ...data }]);
+        setMethodsData((current: any[]) => [...current, { id: lastMethodId + 1, ...data }]);
+        setMethodsCount((current: number) => current + 1);
+
+        return lastMethodId + 1;
+      };
+
+      console.log('METHODS IN HOC', methods);
+
       return (
         <MethodsContext.Provider
           value={{
@@ -81,6 +94,7 @@ export default () =>
             initialActiveMethod: props.initialActiveId,
             initialShowMethods: props.initialShowMethods,
             setMethodsFromDraft,
+            addNewMethodWithData,
           }}
         >
           <Component {...props} />
@@ -91,8 +105,12 @@ export default () =>
     return mapProps(({ service, ...rest }) => ({
       initialMethods:
         service && service.methods
-          ? service.methods.map((method, i) => ({ name: method.name, id: i + 1 }))
-          : [{ id: 1, name: 'init' }],
+          ? service.methods.map((method, i) => ({
+              name: method.name,
+              id: i + 1,
+              desc: method.desc,
+            }))
+          : [{ id: 1, name: 'init', desc: 'init' }],
       initialCount: service && service.methods ? size(service.methods) : 1,
       // Set the last method ID to the methods
       // count + 1 if methods exist
@@ -107,8 +125,8 @@ export default () =>
       // in the method selector
       methodsData:
         service && service.methods
-          ? service.methods.map((method, i) => ({ ...method, id: i + 1 }))
-          : [{ id: 1, name: 'init' }],
+          ? service.methods.map((method, i) => ({ ...method, id: i + 1, desc: method.desc }))
+          : [{ id: 1, name: 'init', desc: 'init' }],
       service,
       ...rest,
     }))(EnhancedComponent);

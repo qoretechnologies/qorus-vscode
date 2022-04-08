@@ -112,6 +112,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   context,
   editOnly,
   target_dir,
+  forceDropdown,
 }) => {
   const [items, setItems] = useState<any[]>(defaultItems || []);
   const [query, setQuery] = useState<string>('');
@@ -315,7 +316,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
             />
           ) : (
             <>
-              {hasItemsWithDesc(items) ? (
+              {hasItemsWithDesc(items) && !forceDropdown ? (
                 <>
                   <Tooltip
                     position="top"
