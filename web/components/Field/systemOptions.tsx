@@ -247,6 +247,8 @@ const Options = ({
     {}
   );
 
+  console.log({ fixedValue });
+
   return (
     <>
       <div>
@@ -257,7 +259,7 @@ const Options = ({
                 subtle
                 key={optionName}
                 title={optionName}
-                isValid={validateField(type, other.value)}
+                isValid={validateField(getType(type), other.value)}
                 detail={getType(options[optionName].type)}
                 desc={options[optionName].desc}
                 onRemove={
