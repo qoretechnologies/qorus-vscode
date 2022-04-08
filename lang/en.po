@@ -3100,3 +3100,6 @@ msgstr "Are you sure you wish to remove the endpoint?"
 
 msgid "ManageEndpoints"
 msgstr "Select Endpoint"
+
+msgid "ValueIsEmpty"
+msgstr "Value is empty, please select a value from the list below"
