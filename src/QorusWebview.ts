@@ -1,3 +1,4 @@
+import * as fs from 'fs-extra';
 import * as map from 'lodash/map';
 import * as os from 'os';
 import * as path from 'path';
@@ -288,6 +289,17 @@ class QorusWebview {
                     fields,
                   });
                 });
+              break;
+            case 'get-file-contents':
+              // Read the file contents
+              const fileData = fs.readFileSync(message.file, 'utf8');
+              // Send the response to the webview
+              this.panel.webview.postMessage({
+                action: 'get-file-contents-complete',
+                request_id: message.request_id,
+                fileData,
+                ok: true,
+              });
               break;
             case 'creator-get-objects':
             case 'creator-get-resources':

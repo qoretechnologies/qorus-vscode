@@ -1,4 +1,4 @@
-import { Button, Callout, Classes, ControlGroup, Icon, MenuItem, Tooltip } from '@blueprintjs/core';
+import { Button, Classes, ControlGroup, Icon, MenuItem, Tooltip } from '@blueprintjs/core';
 import { Select } from '@blueprintjs/select';
 import { get, includes } from 'lodash';
 import React, { useEffect, useState } from 'react';
@@ -112,6 +112,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   context,
   editOnly,
   target_dir,
+  forceDropdown,
 }) => {
   const [items, setItems] = useState<any[]>(defaultItems || []);
   const [query, setQuery] = useState<string>('');
@@ -258,13 +259,21 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     );
   }
 
-  if (!reference && (!filteredItems || filteredItems.length === 0)) {
-    return <Callout intent="warning">{warningMessageOnEmpty || t('SelectNoItems')}</Callout>;
-  }
-
   const hasItemsWithDesc = (data) => {
     return data.some((item) => item.desc);
   };
+
+  if (!reference && (!filteredItems || filteredItems.length === 0)) {
+    return (
+      <Button
+        fill={fill}
+        text={t('NoDataAvailable')}
+        rightIcon={'caret-down'}
+        icon="disable"
+        disabled
+      />
+    );
+  }
 
   const filterItems = (items) => {
     return items.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
@@ -315,7 +324,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
             />
           ) : (
             <>
-              {hasItemsWithDesc(items) ? (
+              {hasItemsWithDesc(items) && !forceDropdown ? (
                 <>
                   <Tooltip
                     position="top"

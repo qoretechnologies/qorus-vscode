@@ -127,7 +127,7 @@ export interface IField {
   };
   return_message?: { action: string; object_type: string; return_value?: string };
   style?: string;
-  type?: string;
+  type: string;
   default_value?: string;
   items?: { value: string; icon_filename: string }[];
   prefill?: any;
@@ -155,9 +155,7 @@ export interface IField {
   iface_kind?: string;
 }
 
-export declare interface IFieldChange {
-  onChange: (fieldName: string, value: any) => void;
-}
+export declare type IFieldChange = (fieldName: string, value: any) => void;
 
 export const FieldWrapper = styled.div<{ padded?: boolean }>`
   display: flex;
@@ -796,12 +794,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               // Basic field with predefined type
               isValid = validateField(finalFieldType || 'string', value, currentField, canBeNull);
             }
-            // Check if we should change the name of the
-            // method
-            if (fieldName === 'name' && onNameChange) {
-              // Change the method name in the side panel
-              onNameChange(activeId, value, metadata?.originalName);
-            }
             // On change events
             maybeSendOnChangeEvent(currentField, value, type, interfaceId, isEditing);
             // Add the value
@@ -822,6 +814,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       activeId,
       interfaceIndex
     );
+
+    // Check if we should change the name of the
+    // method
+    if (fieldName === 'name' && onNameChange) {
+      // Change the method name in the side panel
+      onNameChange(activeId, value, metadata?.originalName);
+    }
   };
 
   const handleAddAll: () => void = () => {
@@ -915,6 +914,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             {}
           );
         });
+        console.log('METHODS CHECK');
+        console.log(methodsList);
+        console.log(newData[subItemType]);
         // Filter deleted methods
         if (methodsList) {
           newData[subItemType] = newData[subItemType].filter((m) =>
@@ -946,6 +948,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       if (parent) {
         iface_kind = `${parent}:${type}`;
       }
+      console.log('SUBMIT DATA', newData);
       // Add workflow data with step
       if (type === 'step') {
         // Get the workflow data
@@ -1225,16 +1228,26 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   };
 
   const canSubmit: () => boolean = () => {
-    if (hasClassConnections) {
-      return isFormValid(type) && areClassConnectionsValid();
+    let isValid = true;
+
+    if (hasClassConnections && !areClassConnectionsValid()) {
+      isValid = false;
     }
 
     // Check the disabled submit flag
     if (disabledSubmit) {
-      return false;
+      isValid = false;
     }
 
-    return isFormValid(type);
+    if (type === 'service-methods' && !isFormValid('service')) {
+      isValid = false;
+    }
+
+    if (!isFormValid(type)) {
+      isValid = false;
+    }
+
+    return isValid;
   };
 
   return (

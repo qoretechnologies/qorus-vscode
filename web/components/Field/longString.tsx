@@ -18,9 +18,10 @@ export interface ILongStringField {
   addMessageListener?: TMessageListener;
   placeholder?: string;
   noWrap?: boolean;
+  onChange: IFieldChange;
 }
 
-const LongStringField: FunctionComponent<ILongStringField & IField & IFieldChange> = ({
+const LongStringField: FunctionComponent<ILongStringField & IField> = ({
   name,
   onChange,
   value,
