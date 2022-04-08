@@ -412,6 +412,13 @@ export class QorusProjectCodeInfo {
       }
     });
 
+    if (data['api-manager']) {
+      data['api-manager']['provider-options'].schema.value = path.resolve(
+        data.target_dir,
+        data['api-manager']['provider-options'].schema.value
+      );
+    }
+
     if (data['mapper-code']) {
       data.codes = data['mapper-code'];
       delete data['mapper-code'];
@@ -1185,6 +1192,7 @@ export class QorusProjectCodeInfo {
       case 'text-resource':
       case 'bin-resource':
       case 'template':
+      case 'files':
         this.waitForPending(['file_tree']).then(() =>
           postMessage('resources', this.file_tree, false)
         );

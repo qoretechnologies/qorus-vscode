@@ -1,9 +1,10 @@
-import { cloneDeep, every, last, reduce } from 'lodash';
+import { cloneDeep, every, first, last, reduce, values } from 'lodash';
 import React, { FunctionComponent, useState } from 'react';
 import { isArray } from 'util';
 import { IField } from '../containers/InterfaceCreator/panel';
 import { FieldContext } from '../context/fields';
 import { maybeSendOnChangeEvent } from '../helpers/common';
+import { validateField } from '../helpers/validations';
 
 const getInterfaceCollectionType: (type: string) => [] | {} = (type) => {
   switch (type) {
@@ -390,10 +391,10 @@ export default () =>
 
       const setFieldsFromDraft = (type, fields, selectedFields) => {
         setFields(type, fields);
-        setSelectedFields(type, selectedFields, null, null);
+        setSelectedFields(type, selectedFields);
       };
 
-      const setSelectedFields = (type, value, activeId, interfaceIndex) => {
+      const setSelectedFields = (type, value, activeId?: number, interfaceIndex?: number) => {
         setLocalSelectedFields((current) => {
           const index = getInterfaceIndex(type, interfaceIndex);
           const newResult = cloneDeep(current);
@@ -468,12 +469,36 @@ export default () =>
         const index = getInterfaceIndex(type, interfaceIndex);
 
         if (isArray(selectedFields[type][index])) {
-          return selectedFields[type][index].every(({ isValid }: IField) => isValid);
+          return selectedFields[type][index].every(validateAndFixField);
         }
 
         return every(selectedFields[type][index], (fieldsData: IField[]) => {
-          return fieldsData.every(({ isValid }: IField) => isValid);
+          return fieldsData.every(validateAndFixField);
         });
+      };
+
+      const validateAndFixField = (field: IField) => {
+        const { value, type = 'string', isValid, internal } = field;
+
+        if (internal) {
+          field.isValid = true;
+          return true;
+        }
+
+        if (validateField(type, value)) {
+          if (!isValid) {
+            field.isValid = true;
+          }
+
+          return true;
+        }
+
+        // Check if the field is internally valid and fix it
+        if (isValid) {
+          field.isValid = false;
+        }
+
+        return false;
       };
 
       // Checks if method is valid
@@ -521,6 +546,48 @@ export default () =>
         });
       };
 
+      const getFieldData: IField = (type, interfaceIndex, field, activeId?: number) => {
+        const index = getInterfaceIndex(type, interfaceIndex);
+
+        if (activeId) {
+          return selectedFields[type][index][activeId].find(
+            (fieldData: IField) => fieldData.name === field
+          );
+        }
+
+        return selectedFields[type][index].find((fieldData: IField) => fieldData.name === field);
+      };
+
+      const addMethod = (name, desc, addNewMethodWithData) => {
+        const index = getInterfaceIndex('service-methods');
+        const firstFieldsItem = first(values(fields['service-methods'][index]));
+        const activeId = addNewMethodWithData({ name, desc });
+
+        if (firstFieldsItem) {
+          setFields('service-methods', cloneDeep(firstFieldsItem), activeId);
+
+          const firstDataItem: IField[] = first(values(selectedFields['service-methods'][index]));
+
+          const newItem = firstDataItem!.map((field) => {
+            if (field.name === 'name') {
+              return { ...field, value: name };
+            }
+
+            if (field.name === 'desc' || field.name === 'description') {
+              return { ...field, value: desc };
+            }
+
+            if (field.name === 'orig_name') {
+              return { ...field, value: name };
+            }
+
+            return field;
+          });
+
+          setSelectedFields('service-methods', cloneDeep(newItem), activeId);
+        }
+      };
+
       return (
         <FieldContext.Provider
           value={{
@@ -546,6 +613,8 @@ export default () =>
             getSelectedFieldValue,
             setFieldsFromDraft,
             resetAllData,
+            addMethod,
+            getFieldData,
           }}
         >
           <Component {...props} />

@@ -1,4 +1,4 @@
-import { Colors, Icon, Intent } from '@blueprintjs/core';
+import { Colors } from '@blueprintjs/core';
 import React, { FunctionComponent } from 'react';
 import styled, { css } from 'styled-components';
 
@@ -23,6 +23,9 @@ const FieldLabelName = styled.h4<{ isValid?: boolean }>`
   flex: 1;
   font-size: 16px;
 
+  padding: 5px;
+  border-radius: 3px;
+  background-color: ${({ isValid }) => (!isValid ? '#ffe7e7' : undefined)};
   color: ${({ isValid }) => (isValid ? 'initial' : Colors.RED2)};
 `;
 
@@ -53,9 +56,6 @@ const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info }) =>
         {info && <FieldLabelInfo>{info}</FieldLabelInfo>}
       </FieldLabelName>
     )}
-    <FieldLabelValid>
-      <Icon icon={!isValid ? 'cross' : 'blank'} intent={!isValid ? Intent.DANGER : Intent.NONE} />
-    </FieldLabelValid>
   </StyledFieldLabel>
 );
 

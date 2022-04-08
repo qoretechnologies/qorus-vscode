@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
+import { cloneDeep } from 'lodash';
 import * as path from 'path';
 import { t } from 'ttag';
 import { Position } from 'vscode';
@@ -1040,6 +1041,17 @@ export abstract class InterfaceCreator {
           case 'type':
             result += `${tag}: ${value.toLowerCase()}\n`;
             break;
+          case 'api-manager': {
+            let fixed_value = cloneDeep(value);
+            // Update the schema option to use relative path
+            fixed_value['provider-options'].schema.value = path
+              .relative(headers.target_dir, fixed_value['provider-options'].schema.value)
+              .replace(/\\/g, '/');
+
+            result += `${tag}:\n` + InterfaceCreator.indentYamlDump(fixed_value, 1, true);
+
+            break;
+          }
           case 'fields':
           case 'mapper_options':
           case 'input-provider-options':

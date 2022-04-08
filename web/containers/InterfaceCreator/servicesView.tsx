@@ -1,11 +1,12 @@
 import { Button, ButtonGroup } from '@blueprintjs/core';
-import { omit, size } from 'lodash';
+import { cloneDeep, omit, size } from 'lodash';
 import React, { FunctionComponent, useContext, useState } from 'react';
 import { useUnmount, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
+import { TApiManagerEndpoint } from '../../components/Field/apiManager';
 import SidePanel from '../../components/SidePanel';
 import { DraftsContext } from '../../context/drafts';
 import { MethodsContext } from '../../context/methods';
@@ -139,6 +140,8 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   t,
   isSubItemValid,
   removeSubItemFromFields,
+  updateField,
+  getFieldData,
   service,
   onSubmitSuccess,
   interfaceId,
@@ -183,6 +186,22 @@ const ServicesView: FunctionComponent<IServicesView> = ({
       );
     }
   }, [draft, showMethods]);
+
+  const handleDataFinishLoadingRecur = (id) => {
+    console.log('finished loading', id);
+    console.log('setting active method', lastMethodId, hasAllMethodsLoaded);
+    console.log(1 + 1 <= lastMethodId && !hasAllMethodsLoaded);
+    if (!hasAllMethodsLoaded) {
+      if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
+        setActiveMethod(id + 1);
+      } else {
+        hasAllMethodsLoaded = true;
+        setActiveMethod(1);
+      }
+    }
+  };
+
+  console.log({ activeMethod, lastMethodId });
 
   return (
     <>
@@ -247,6 +266,38 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                             );
                             removeSubItemFromFields(method.id, 'service-methods', methodsIndex);
                             setMethodsCount((current: number) => current - 1);
+                            // Check if there is an endpoint that uses this method
+                            // Rename methods in api manager
+                            const apiManager = cloneDeep(
+                              getFieldData('service', serviceIndex, 'api-manager')?.value || {}
+                            );
+                            /* Updating the endpoint name in the api-manager. */
+                            /* Checking if the apiManager exists and if it has an endpoint with the name of the
+                            original name. */
+                            if (
+                              apiManager &&
+                              apiManager?.endpoints?.find(
+                                (endpoint: TApiManagerEndpoint) => endpoint.value === method.name
+                              )
+                            ) {
+                              // Rename the endpoint
+                              apiManager.endpoints = apiManager.endpoints.filter(
+                                (endpoint: TApiManagerEndpoint) => {
+                                  if (endpoint.value === method.name) {
+                                    return false;
+                                  }
+                                  return true;
+                                }
+                              );
+                              // Update the field
+                              updateField(
+                                'service',
+                                'api-manager',
+                                apiManager,
+                                service ? service.iface_id : interfaceId.service[serviceIndex],
+                                serviceIndex
+                              );
+                            }
                           }}
                         />
                       ) : null}
@@ -268,6 +319,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
               </ActionsWrapper>
             </SidePanel>
             <InterfaceCreatorPanel
+              key={`method-${activeMethod}`}
               stepOneTitle={t('SelectFieldsSecondStep')}
               stepTwoTitle={t('FillDataThirdStep')}
               interfaceIndex={methodsIndex}
@@ -279,16 +331,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                   initialData.changeInitialData('service.active_method', null);
                 }
               }}
-              onDataFinishLoadingRecur={(id) => {
-                if (!hasAllMethodsLoaded) {
-                  if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
-                    setActiveMethod(id + 1);
-                  } else {
-                    hasAllMethodsLoaded = true;
-                    setActiveMethod(initialActiveMethod);
-                  }
-                }
-              }}
+              onDataFinishLoadingRecur={handleDataFinishLoadingRecur}
               initialInterfaceId={service ? service.iface_id : interfaceId.service[serviceIndex]}
               type={'service-methods'}
               activeId={activeMethod}
@@ -311,6 +354,37 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                 if (originalName) {
                   // Rename the trigger
                   classConnectionsProps.renameTrigger(originalName, name);
+                  // Rename methods in api manager
+                  const apiManager = cloneDeep(
+                    getFieldData('service', serviceIndex, 'api-manager')?.value || {}
+                  );
+                  /* Updating the endpoint name in the api-manager. */
+                  /* Checking if the apiManager exists and if it has an endpoint with the name of the
+                  original name. */
+                  if (
+                    apiManager &&
+                    apiManager?.endpoints?.find(
+                      (endpoint: TApiManagerEndpoint) => endpoint.value === originalName
+                    )
+                  ) {
+                    // Rename the endpoint
+                    apiManager.endpoints = apiManager.endpoints.map(
+                      (endpoint: TApiManagerEndpoint) => {
+                        if (endpoint.value === originalName) {
+                          endpoint.value = name;
+                        }
+                        return endpoint;
+                      }
+                    );
+                    // Update the field
+                    updateField(
+                      'service',
+                      'api-manager',
+                      apiManager,
+                      service ? service.iface_id : interfaceId.service[serviceIndex],
+                      serviceIndex
+                    );
+                  }
                 }
 
                 setMethods(
@@ -328,7 +402,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                           name: string;
                         }
                       ) => {
-                        if (methodId === method.id) {
+                        if (methodId == method.id) {
                           method.name = name;
                         }
 

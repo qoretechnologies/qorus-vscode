@@ -8,6 +8,7 @@ import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
 import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
+import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { TTrigger } from '../containers/InterfaceCreator/fsm';
@@ -55,6 +56,7 @@ export const validateField: (
     case 'softstring':
     case 'select-string':
     case 'file-string':
+    case 'file-as-string':
     case 'long-string':
     case 'method-name': {
       if (value === undefined || value === null || value === '') {
@@ -282,6 +284,36 @@ export const validateField: (
     case 'fsm-list': {
       return value?.every(
         (val: { name: string; triggers?: TTrigger[] }) => validateField('string', val.name) === true
+      );
+    }
+    case 'api-manager': {
+      if (!value) {
+        return false;
+      }
+
+      let valid = true;
+
+      if (!validateField('string', value.factory)) {
+        valid = false;
+      }
+
+      if (!validateField('system-options', value['provider-options'])) {
+        valid = false;
+      }
+
+      if (!validateField('api-endpoints', value.endpoints)) {
+        valid = false;
+      }
+
+      return valid;
+    }
+    case 'api-endpoints': {
+      if (!isArray(value) || !size(value)) {
+        return false;
+      }
+
+      return value.every((endpoint: TApiManagerEndpoint) =>
+        validateField('string', endpoint.value)
       );
     }
     case 'options':
