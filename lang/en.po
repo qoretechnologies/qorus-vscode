@@ -1027,8 +1027,7 @@ msgid "field-desc-input-provider"
 msgstr "Input provider"
 
 msgid "field-desc-api-manager"
-msgstr "API Manager"
-
+msgstr "A server-side API definition with API endpoints that can be served from this Qorus service."
 
 msgid "field-label-system-options"
 msgstr "System options"
