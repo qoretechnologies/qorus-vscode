@@ -1,6 +1,5 @@
 import { map, size } from 'lodash';
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
-import { useUpdateEffect } from 'react-use';
 import mapProps from 'recompose/mapProps';
 import { MethodsContext } from '../context/methods';
 
@@ -56,24 +55,6 @@ export default () =>
           //setActiveMethod(methods[methods.length - 1]?.id || 0);
         }
       }, [methodsCount]);
-
-      useUpdateEffect(() => {
-        if (props.service) {
-          setMethods(
-            props.service.methods.map((method, i) => ({
-              name: method.name,
-              id: i + 1,
-              desc: method.desc,
-            }))
-          );
-          setMethodsData(
-            props.service.methods.map((method, i) => ({ ...method, id: i + 1, desc: method.desc }))
-          );
-          setMethodsCount(size(props.service.methods));
-          setLastMethodId(size(props.service.methods));
-          setActiveMethod(1);
-        }
-      }, [JSON.stringify(props.service)]);
 
       const handleAddMethodClick: () => void = () => {
         // Add new method id
