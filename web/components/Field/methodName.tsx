@@ -52,8 +52,6 @@ const MethodNameField: FunctionComponent<IStringField & IField & IFieldChange> =
 
   const val = value || default_value;
 
-  console.log('METHOD NAME VALUE', val);
-
   return (
     <ControlGroup fill>
       <InputGroup

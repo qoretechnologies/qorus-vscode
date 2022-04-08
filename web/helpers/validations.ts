@@ -287,7 +287,6 @@ export const validateField: (
       );
     }
     case 'api-manager': {
-      console.log('api-manager', value);
       if (!value) {
         return false;
       }

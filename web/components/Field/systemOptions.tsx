@@ -247,8 +247,6 @@ const Options = ({
     {}
   );
 
-  console.log({ fixedValue });
-
   return (
     <>
       <div>

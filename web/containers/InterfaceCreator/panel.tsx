@@ -13,7 +13,7 @@ import {
   reduce,
   size,
   uniqBy,
-  upperFirst
+  upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import React, {
@@ -22,7 +22,7 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState
+  useState,
 } from 'react';
 import { useDebounce, useMount, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
@@ -54,7 +54,7 @@ import withMessageHandler, {
   addMessageListener,
   postMessage,
   TMessageListener,
-  TPostMessage
+  TPostMessage,
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -796,8 +796,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             }
             // On change events
             maybeSendOnChangeEvent(currentField, value, type, interfaceId, isEditing);
-
-            console.log('CHANGING METHOD NAME TO', value);
             // Add the value
             return [
               ...newFields,
@@ -820,7 +818,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     // Check if we should change the name of the
     // method
     if (fieldName === 'name' && onNameChange) {
-      console.log('RUNNIN ON NAME CHANGE FUNCTION FROM', metadata?.originalName, 'TO', value);
       // Change the method name in the side panel
       onNameChange(activeId, value, metadata?.originalName);
     }
@@ -917,6 +914,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             {}
           );
         });
+        console.log('METHODS CHECK');
+        console.log(methodsList);
+        console.log(newData[subItemType]);
         // Filter deleted methods
         if (methodsList) {
           newData[subItemType] = newData[subItemType].filter((m) =>
@@ -948,6 +948,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       if (parent) {
         iface_kind = `${parent}:${type}`;
       }
+      console.log('SUBMIT DATA', newData);
       // Add workflow data with step
       if (type === 'step') {
         // Get the workflow data
@@ -1227,8 +1228,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   };
 
   const canSubmit: () => boolean = () => {
-    console.log('CHECKING SUBMIT');
-
     let isValid = true;
 
     if (hasClassConnections && !areClassConnectionsValid()) {

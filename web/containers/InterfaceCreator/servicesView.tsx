@@ -187,6 +187,22 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     }
   }, [draft, showMethods]);
 
+  const handleDataFinishLoadingRecur = (id) => {
+    console.log('finished loading', id);
+    console.log('setting active method', lastMethodId, hasAllMethodsLoaded);
+    console.log(1 + 1 <= lastMethodId && !hasAllMethodsLoaded);
+    if (!hasAllMethodsLoaded) {
+      if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
+        setActiveMethod(id + 1);
+      } else {
+        hasAllMethodsLoaded = true;
+        setActiveMethod(1);
+      }
+    }
+  };
+
+  console.log({ activeMethod, lastMethodId });
+
   return (
     <>
       <CreatorWrapper>
@@ -264,7 +280,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                 (endpoint: TApiManagerEndpoint) => endpoint.value === method.name
                               )
                             ) {
-                              console.log('endpoint found');
                               // Rename the endpoint
                               apiManager.endpoints = apiManager.endpoints.filter(
                                 (endpoint: TApiManagerEndpoint) => {
@@ -274,7 +289,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                   return true;
                                 }
                               );
-                              console.log({ apiManager });
                               // Update the field
                               updateField(
                                 'service',
@@ -317,16 +331,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                   initialData.changeInitialData('service.active_method', null);
                 }
               }}
-              onDataFinishLoadingRecur={(id) => {
-                if (!hasAllMethodsLoaded) {
-                  if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
-                    setActiveMethod(id + 1);
-                  } else {
-                    hasAllMethodsLoaded = true;
-                    setActiveMethod(initialActiveMethod);
-                  }
-                }
-              }}
+              onDataFinishLoadingRecur={handleDataFinishLoadingRecur}
               initialInterfaceId={service ? service.iface_id : interfaceId.service[serviceIndex]}
               type={'service-methods'}
               activeId={activeMethod}
@@ -356,14 +361,12 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                   /* Updating the endpoint name in the api-manager. */
                   /* Checking if the apiManager exists and if it has an endpoint with the name of the
                   original name. */
-                  console.log({ apiManager, originalName });
                   if (
                     apiManager &&
                     apiManager?.endpoints?.find(
                       (endpoint: TApiManagerEndpoint) => endpoint.value === originalName
                     )
                   ) {
-                    console.log('endpoint found');
                     // Rename the endpoint
                     apiManager.endpoints = apiManager.endpoints.map(
                       (endpoint: TApiManagerEndpoint) => {
@@ -373,7 +376,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                         return endpoint;
                       }
                     );
-                    console.log({ apiManager });
                     // Update the field
                     updateField(
                       'service',

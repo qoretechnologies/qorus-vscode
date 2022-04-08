@@ -478,7 +478,12 @@ export default () =>
       };
 
       const validateAndFixField = (field: IField) => {
-        const { value, type = 'string', isValid } = field;
+        const { value, type = 'string', isValid, internal } = field;
+
+        if (internal) {
+          field.isValid = true;
+          return true;
+        }
 
         if (validateField(type, value)) {
           if (!isValid) {
@@ -550,8 +555,6 @@ export default () =>
           );
         }
 
-        console.log(selectedFields[type][index], selectedFields, type, index);
-
         return selectedFields[type][index].find((fieldData: IField) => fieldData.name === field);
       };
 
@@ -559,8 +562,6 @@ export default () =>
         const index = getInterfaceIndex('service-methods');
         const firstFieldsItem = first(values(fields['service-methods'][index]));
         const activeId = addNewMethodWithData({ name, desc });
-
-        console.log('FIRST FIELDS ITEM', firstFieldsItem, fields['service-methods'], index);
 
         if (firstFieldsItem) {
           setFields('service-methods', cloneDeep(firstFieldsItem), activeId);
@@ -576,17 +577,16 @@ export default () =>
               return { ...field, value: desc };
             }
 
+            if (field.name === 'orig_name') {
+              return { ...field, value: name };
+            }
+
             return field;
           });
-
-          console.log({ newItem, activeId });
 
           setSelectedFields('service-methods', cloneDeep(newItem), activeId);
         }
       };
-
-      console.log(fields['service-methods']);
-      console.log(selectedFields['service-methods']);
 
       return (
         <FieldContext.Provider

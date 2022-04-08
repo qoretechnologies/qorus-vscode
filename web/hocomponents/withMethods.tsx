@@ -1,5 +1,6 @@
 import { map, size } from 'lodash';
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { useUpdateEffect } from 'react-use';
 import mapProps from 'recompose/mapProps';
 import { MethodsContext } from '../context/methods';
 
@@ -20,7 +21,7 @@ export default () =>
       const [methods, setMethods] = useState<any[]>(props.initialMethods);
       const [methodsCount, setMethodsCount] = useState<number>(props.initialCount);
       const [lastMethodId, setLastMethodId] = useState<number>(props.initialId);
-      const [activeMethod, setActiveMethod] = useState<any>(1);
+      const [activeMethod, setActiveMethod] = useState<any>(0);
       const [methodsData, setMethodsData] = useState(props.methodsData);
 
       const resetMethods = () => {
@@ -52,9 +53,27 @@ export default () =>
         } else {
           // When methods count changes
           // switch to the newest method
-          setActiveMethod(methods[methods.length - 1]?.id || 0);
+          //setActiveMethod(methods[methods.length - 1]?.id || 0);
         }
       }, [methodsCount]);
+
+      useUpdateEffect(() => {
+        if (props.service) {
+          setMethods(
+            props.service.methods.map((method, i) => ({
+              name: method.name,
+              id: i + 1,
+              desc: method.desc,
+            }))
+          );
+          setMethodsData(
+            props.service.methods.map((method, i) => ({ ...method, id: i + 1, desc: method.desc }))
+          );
+          setMethodsCount(size(props.service.methods));
+          setLastMethodId(size(props.service.methods));
+          setActiveMethod(1);
+        }
+      }, [JSON.stringify(props.service)]);
 
       const handleAddMethodClick: () => void = () => {
         // Add new method id
@@ -102,32 +121,35 @@ export default () =>
       );
     };
 
-    return mapProps(({ service, ...rest }) => ({
-      initialMethods:
-        service && service.methods
-          ? service.methods.map((method, i) => ({
-              name: method.name,
-              id: i + 1,
-              desc: method.desc,
-            }))
-          : [{ id: 1, name: 'init', desc: 'init' }],
-      initialCount: service && service.methods ? size(service.methods) : 1,
-      // Set the last method ID to the methods
-      // count + 1 if methods exist
-      initialId: service && service.methods ? size(service.methods) : 1,
-      // If method is being edited, switch to it
-      initialActiveId: (service && service.active_method) || 1,
-      // Set to show methods if active method
-      // is being edited
-      initialShowMethods: !!(service && service.active_method),
-      // Map the ids to the current method data
-      // to know which method belongs to which id
-      // in the method selector
-      methodsData:
-        service && service.methods
-          ? service.methods.map((method, i) => ({ ...method, id: i + 1, desc: method.desc }))
-          : [{ id: 1, name: 'init', desc: 'init' }],
-      service,
-      ...rest,
-    }))(EnhancedComponent);
+    return mapProps(
+      ({ service, ...rest }) =>
+        console.log(service) || {
+          initialMethods:
+            service && service.methods
+              ? service.methods.map((method, i) => ({
+                  name: method.name,
+                  id: i + 1,
+                  desc: method.desc,
+                }))
+              : [{ id: 1, name: 'init', desc: 'init' }],
+          initialCount: service && service.methods ? size(service.methods) : 1,
+          // Set the last method ID to the methods
+          // count + 1 if methods exist
+          initialId: service && service.methods ? size(service.methods) : 1,
+          // If method is being edited, switch to it
+          initialActiveId: (service && parseInt(service.active_method)) || 0,
+          // Set to show methods if active method
+          // is being edited
+          initialShowMethods: !!(service && service.active_method),
+          // Map the ids to the current method data
+          // to know which method belongs to which id
+          // in the method selector
+          methodsData:
+            service && service.methods
+              ? service.methods.map((method, i) => ({ ...method, id: i + 1, desc: method.desc }))
+              : [{ id: 1, name: 'init', desc: 'init' }],
+          service,
+          ...rest,
+        }
+    )(EnhancedComponent);
   };
