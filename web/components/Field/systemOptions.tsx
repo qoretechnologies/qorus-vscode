@@ -16,7 +16,7 @@ import SubField from '../SubField';
 import AutoField from './auto';
 import SelectField from './select';
 
-const StyledOptionField = styled.div`
+export const StyledOptionField = styled.div`
   padding: 10px;
   border-bottom: 1px solid #e6e6e6;
   border-right: 1px solid #e6e6e6;

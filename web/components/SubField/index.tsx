@@ -1,7 +1,8 @@
-import { Button, Classes } from '@blueprintjs/core';
+import { Button, Classes, Icon } from '@blueprintjs/core';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
+import HorizontalSpacer from '../HorizontalSpacer';
 
 export interface ISubFieldProps {
   title?: string;
@@ -54,6 +55,8 @@ const SubField: React.FC<ISubFieldProps> = ({
     {title && (
       <StyledSubFieldTitle subtle={subtle}>
         <div>
+          {!subtle && <Icon icon="dot" iconSize={16} />}
+          <HorizontalSpacer size={5} />
           {title}{' '}
           {detail && (
             <span className={Classes.TEXT_MUTED}>

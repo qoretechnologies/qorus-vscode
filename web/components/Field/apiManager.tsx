@@ -11,7 +11,7 @@ import Spacer from '../Spacer';
 import SubField from '../SubField';
 import MethodSelector from './methodSelector';
 import Select from './select';
-import Options, { IOptions } from './systemOptions';
+import Options, { IOptions, StyledOptionField } from './systemOptions';
 
 export type TApiManagerFactory = 'swagger' | 'soap';
 export type TApiManagerEndpointType = 'fsm' | 'method';
@@ -34,13 +34,7 @@ export interface IApiManagerProps {
   onChange: (name: string, value: IApiManager) => void;
 }
 
-export const StyledPairField = styled.div`
-  margin-bottom: 10px;
-`;
-
-export const EndPoint = () => {
-  return <div></div>;
-};
+export const StyledEndpointWrapper = styled(StyledOptionField)``;
 
 export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
   const t: any = useContext(TextContext);
@@ -229,68 +223,72 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
             </Callout>
           ) : (
             <>
-              {value?.endpoints &&
-                value.endpoints.map((endpoint, index) => (
-                  <SubField
-                    title={`${index + 1}. ${endpoint.endpoint}`}
-                    key={endpoint.endpoint}
-                    subtle
-                    onRemove={() => {
-                      confirmAction('RemoveEndpoint', () => {
-                        handleDeleteEndpoint(endpoint.endpoint);
-                      });
-                    }}
-                  >
-                    <ControlGroup fill>
-                      <Select
-                        defaultItems={[
-                          {
-                            name: 'fsm',
-                          },
-                          {
-                            name: 'method',
-                          },
-                        ]}
-                        value={endpoint.type || t('Type')}
-                        onChange={(_n, v) => {
-                          handleUpdateEndpoint(endpoint.endpoint, v, endpoint.value);
+              <div>
+                {value?.endpoints &&
+                  value.endpoints.map((endpoint, index) => (
+                    <StyledEndpointWrapper>
+                      <SubField
+                        title={`${index + 1}. ${endpoint.endpoint}`}
+                        key={endpoint.endpoint}
+                        subtle
+                        onRemove={() => {
+                          confirmAction('RemoveEndpoint', () => {
+                            handleDeleteEndpoint(endpoint.endpoint);
+                          });
                         }}
-                      />
-                      {endpoint.type === 'fsm' && (
-                        <Select
-                          fill
-                          onChange={(_name, value) =>
-                            handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
-                          }
-                          name="fsm"
-                          value={endpoint.value}
-                          get_message={{
-                            action: 'creator-get-objects',
-                            object_type: 'fsm',
-                          }}
-                          return_message={{
-                            action: 'creator-return-objects',
-                            object_type: 'fsm',
-                            return_value: 'objects',
-                          }}
-                          reference={{
-                            iface_kind: 'fsm',
-                          }}
-                        />
-                      )}
-                      {endpoint.type === 'method' && (
-                        <MethodSelector
-                          name="method-selector"
-                          value={endpoint.value}
-                          onChange={(_name, value) =>
-                            handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
-                          }
-                        />
-                      )}
-                    </ControlGroup>
-                  </SubField>
-                ))}
-              <Spacer size={20} />
+                      >
+                        <ControlGroup fill>
+                          <Select
+                            defaultItems={[
+                              {
+                                name: 'fsm',
+                              },
+                              {
+                                name: 'method',
+                              },
+                            ]}
+                            value={endpoint.type || t('Type')}
+                            onChange={(_n, v) => {
+                              handleUpdateEndpoint(endpoint.endpoint, v, endpoint.value);
+                            }}
+                          />
+                          {endpoint.type === 'fsm' && (
+                            <Select
+                              fill
+                              onChange={(_name, value) =>
+                                handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
+                              }
+                              name="fsm"
+                              value={endpoint.value}
+                              get_message={{
+                                action: 'creator-get-objects',
+                                object_type: 'fsm',
+                              }}
+                              return_message={{
+                                action: 'creator-return-objects',
+                                object_type: 'fsm',
+                                return_value: 'objects',
+                              }}
+                              reference={{
+                                iface_kind: 'fsm',
+                              }}
+                            />
+                          )}
+                          {endpoint.type === 'method' && (
+                            <MethodSelector
+                              name="method-selector"
+                              value={endpoint.value}
+                              onChange={(_name, value) =>
+                                handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
+                              }
+                            />
+                          )}
+                        </ControlGroup>
+                      </SubField>
+                    </StyledEndpointWrapper>
+                  ))}
+              </div>
+              <Spacer size={10} />
               <SubField>
                 <Select
                   defaultItems={availableEndpoints.map((endpoint) => ({

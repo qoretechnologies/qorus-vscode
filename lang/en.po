@@ -981,6 +981,9 @@ msgstr "Webview cannot be opened since there's no open workspace folder"
 msgid "field-label-target_dir"
 msgstr "Target directory"
 
+msgid "field-label-api-manager"
+msgstr "API Manager"
+
 msgid "field-label-newDir"
 msgstr "New subdirectory"
 
@@ -1022,6 +1025,10 @@ msgstr "Input provider options"
 
 msgid "field-desc-input-provider"
 msgstr "Input provider"
+
+msgid "field-desc-api-manager"
+msgstr "API Manager"
+
 
 msgid "field-label-system-options"
 msgstr "System options"
@@ -3079,3 +3086,18 @@ msgstr "Failed to duplicate interface meta file"
 
 msgid "APICallTakesNoArgs"
 msgstr "API call takes no arguments"
+
+msgid "ApiManagerSchema"
+msgstr "API Schema Type"
+
+msgid "ApiManagerProviderOptions"
+msgstr "Options"
+
+msgid "ApiManagerEndpoints"
+msgstr "API Endpoints"
+
+msgid "RemoveEndpoint"
+msgstr "Are you sure you wish to remove the endpoint?"
+
+msgid "ManageEndpoints"
+msgstr "Select Endpoint"

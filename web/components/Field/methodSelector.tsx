@@ -26,7 +26,7 @@ const NewMethodDialog = ({ onSubmit, onClose }) => {
 
   return (
     <CustomDialog
-      title={t('AddNewMethod')}
+      title={t('AddMethodTooltip')}
       isOpen
       onClose={onClose}
       style={{ backgroundColor: '#fff' }}
