@@ -94,7 +94,7 @@ export class QorusRepositoryGit implements QorusRepository {
         return this.repository.diffWith(commit, folder).then(
             diff => {
                 const lines = diff.split(/\r?\n/).filter(line => line.indexOf('+++ b/') == 0);
-                return lines.map(line => line.substr(6)).filter(file => {
+                return lines.map(line => line.substring(6)).filter(file => {
                     for (let dir of source_dirs) {
                         if (file.indexOf(dir + '/') == 0) {
                             return true;
@@ -107,9 +107,8 @@ export class QorusRepositoryGit implements QorusRepository {
     }
 
     private upToDate(): boolean {
-        if (this.repository.state.workingTreeChanges.length) {
-            return false;
-        }
+        // issue #975: cannot return false if 'this.repository.state.workingTreeChanges.length' is non-zero; this
+        // would be a false positive returning false if there are untracked files, which should be ignored
         if (this.repository.state.indexChanges.length) {
             return false;
         }

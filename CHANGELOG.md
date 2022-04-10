@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.4.1
+
+#### New Features
+
+- Fixed bugs in "make release" functionality where it would refuse to make a release if there were untracked files in the repository and where release packages were not installable by Qorus
+
 ## Version 3.4.0
 
 #### New Features
