@@ -1,5 +1,4 @@
 import * as archiver from 'archiver';
-import { Bzip2 as compressor } from 'compressjs';
 import * as fs from 'fs';
 import { size, uniq } from 'lodash';
 import * as moment from 'moment';
@@ -8,6 +7,7 @@ import * as tmp_dir from 'os-tmpdir';
 import * as path from 'path';
 import { t } from 'ttag';
 import * as vscode from 'vscode';
+import * as zlib from 'zlib';
 import { deployer } from './QorusDeploy';
 import { projects, QorusProject } from './QorusProject';
 import { QorusRepository } from './QorusRepository';
@@ -171,7 +171,7 @@ class QorusRelease {
     const file_name_base = 'qorus-' + project + '-' + timestamp;
 
     const file_tar = file_name_base + '.tar';
-    const file_tarbz2 = file_tar + '.bz2';
+    const file_tarbz2 = file_tar + '.gz';
     const [path_tar, path_tarbz2] = [file_tar, file_tarbz2].map((file) => path.join(tempDir, file));
 
     const file_qrf = file_name_base + '.qrf';
@@ -185,13 +185,20 @@ class QorusRelease {
     const tar_output = fs.createWriteStream(path_tar);
     tar_output.on('close', () => {
       const input = fs.readFileSync(path_tar);
-      const compressed = compressor.compressFile(input);
-      fs.writeFileSync(path_tarbz2, compressed);
-      fs.unlinkSync(path_tar);
-      fs.rmSync(path_tmp_root, { recursive: true, force: true });
-      qorus_webview.postMessage({
-        action: 'release-package-created',
-        package_path: path_tarbz2,
+
+      zlib.gzip(input, (err, buffer) => {
+        if (err) {
+          console.log('gzip failed: ' + err);
+          throw err;
+        }
+        //const compressed = compressor.compressFile(input);
+        fs.writeFileSync(path_tarbz2, buffer);
+        fs.unlinkSync(path_tar);
+        fs.rmSync(path_tmp_root, { recursive: true, force: true });
+        qorus_webview.postMessage({
+          action: 'release-package-created',
+          package_path: path_tarbz2,
+        });
       });
     });
 
