@@ -1,7 +1,10 @@
+import * as archiver from 'archiver';
+import { Bzip2 as compressor } from 'compressjs';
 import * as fs from 'fs';
 import { size, uniq } from 'lodash';
 import * as moment from 'moment';
 import * as os from 'os';
+import * as tmp_dir from 'os-tmpdir';
 import * as path from 'path';
 import { t } from 'ttag';
 import * as vscode from 'vscode';
@@ -113,12 +116,21 @@ class QorusRelease {
         }
         break;
       }
+      case '.java':
+      case '.py':
       case '.qclass':
       case '.qstep':
       case '.qwf':
       case '.qsd':
       case '.qjob': {
-        result.push(this.getFilesMetadataFile(file));
+        // Try to get the pair file
+        const pairFile: string | undefined = projects
+          .currentProjectCodeInfo()
+          .pairFile(path.join(this.project_folder, file));
+
+        if (pairFile) {
+          result.push(vscode.workspace.asRelativePath(pairFile));
+        }
         break;
       }
     }
@@ -127,12 +139,12 @@ class QorusRelease {
   };
 
   private createReleaseFile(): any {
-    const tmp_dir = require('os-tmpdir')();
     const project = path.basename(this.project_folder);
+    const tempDir = tmp_dir();
 
     // create temporary directory structure for archive
     const path_tmp_root: string = fs.mkdtempSync(
-      path.join(tmp_dir, 'release-'),
+      path.join(tempDir, 'release-'),
       (err, directory) => {
         if (err) throw err;
         console.log('created temporary directory' + directory);
@@ -160,7 +172,7 @@ class QorusRelease {
 
     const file_tar = file_name_base + '.tar';
     const file_tarbz2 = file_tar + '.bz2';
-    const [path_tar, path_tarbz2] = [file_tar, file_tarbz2].map((file) => path.join(tmp_dir, file));
+    const [path_tar, path_tarbz2] = [file_tar, file_tarbz2].map((file) => path.join(tempDir, file));
 
     const file_qrf = file_name_base + '.qrf';
     const install_sh = 'install.sh';
@@ -170,10 +182,8 @@ class QorusRelease {
 
     this.package_path = path_tarbz2;
 
-    const archiver = require('archiver')('tar');
     const tar_output = fs.createWriteStream(path_tar);
     tar_output.on('close', () => {
-      const compressor = require('compressjs').Bzip2;
       const input = fs.readFileSync(path_tar);
       const compressed = compressor.compressFile(input);
       fs.writeFileSync(path_tarbz2, compressed);
@@ -184,7 +194,9 @@ class QorusRelease {
         package_path: path_tarbz2,
       });
     });
-    archiver.pipe(tar_output);
+
+    const tarArchiver = archiver('tar');
+    tarArchiver.pipe(tar_output);
 
     // write install.sh file
     fs.writeFileSync(path_install_sh, '#!/bin/sh\noload ' + file_qrf, { mode: 0o755 });
@@ -195,8 +207,8 @@ class QorusRelease {
         .map((file) => 'load ' + file + '\n')
         .join('')
     );
-    archiver.directory(path_tmp_root, '/', { name: project });
-    archiver.finalize();
+    tarArchiver.directory(path_tmp_root, '/', { name: project });
+    tarArchiver.finalize();
   }
 
   private copySourceToTarget(source_dir: string, source: string, target: string) {
