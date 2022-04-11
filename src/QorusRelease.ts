@@ -56,6 +56,15 @@ class QorusRelease {
     }
   }
 
+  private getFilesMetadataFile(file: string): string {
+    // If the file ends in a .py or .java, we need to remove the extension and add .yaml extension
+    if (file.endsWith('.py') || file.endsWith('.java')) {
+      return path.join(path.dirname(file), path.basename(file, path.extname(file)) + '.yaml');
+    }
+
+    return file + '.yaml';
+  }
+
   private getRelatedFiles = (file: string): string[] => {
     const result = [];
     // Get the files extension
@@ -109,8 +118,7 @@ class QorusRelease {
       case '.qwf':
       case '.qsd':
       case '.qjob': {
-        // Add the file path followed by ".yaml"
-        result.push(file + '.yaml');
+        result.push(this.getFilesMetadataFile(file));
         break;
       }
     }
