@@ -130,20 +130,6 @@ class QorusRelease {
         fs.copyFileSync(path_source, path_target, fs.constants.COPYFILE_FICLONE);
     }
 
-    /*
-    private copyFolderRecursiveSync(source: string, target: string) {
-        let files: string[] = fs.readdirSync(source);
-        files.forEach(function (file) {
-            var curSource = path.join(source, file);
-            if (fs.lstatSync(curSource).isDirectory()) {
-                copyFolderRecursiveSync(curSource, target);
-            } else {
-                fs.copyFileSync(curSource, target);
-            }
-        });
-    }
-    */
-
     private checkUpToDate() {
         const branch = this.repository.currentBranch();
         if (!branch.up_to_date) {
