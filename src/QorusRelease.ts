@@ -11,7 +11,7 @@ import { QorusRepository } from './QorusRepository';
 import { QorusRepositoryGit } from './QorusRepositoryGit';
 import { qorus_webview } from './QorusWebview';
 import * as msg from './qorus_message';
-import { filesInDir, isDeployable } from './qorus_utils';
+import { dash2Camel, filesInDir, isDeployable } from './qorus_utils';
 
 
 class QorusRelease {
@@ -58,18 +58,35 @@ class QorusRelease {
     }
 
     private createReleaseFile(): any {
-        const timestamp = moment().format('YYYYMMDDHHmmss');
         const tmp_dir = require('os-tmpdir')();
         const project = path.basename(this.project_folder);
 
+        // create temporary directory structure for archive
+        const path_tmp_root: string = fs.mkdtempSync(path.join(tmp_dir, 'release-'), (err, directory) => {
+            if (err) throw err;
+            console.log('created temporary directory' +_directory);
+        });
+        const path_tmp_rel = path.join(path_tmp_root, project);
+        // create a subdirectory under this folder
+        fs.mkdirSync(path_tmp_rel, { recursive: true }, (err) => {
+            if (err) throw err;
+        });
+
+        // copy all files to the target folder
+        this.files.map(file => this.copySourceToTarget(this.project_folder, file, path_tmp_rel));
+
+        const timestamp = moment().format('YYYYMMDDHHmmss');
         const file_name_base = 'qorus-' + project + '-' + timestamp;
 
         const file_tar = file_name_base + '.tar';
         const file_tarbz2 = file_tar + '.bz2';
-        const file_qrf = file_name_base + '.qrf';
+        const [path_tar, path_tarbz2] =
+            [file_tar, file_tarbz2].map(file => path.join(tmp_dir, file));
 
-        const [path_tar, path_tarbz2, path_qrf] =
-            [file_tar, file_tarbz2, file_qrf].map(file => path.join(tmp_dir, file));
+        const file_qrf = file_name_base + '.qrf';
+        const install_sh = 'install.sh';
+        const [path_qrf, path_install_sh] =
+            [file_qrf, install_sh].map(file => path.join(path_tmp_rel, file));
 
         this.package_path = path_tarbz2;
 
@@ -81,7 +98,7 @@ class QorusRelease {
             const compressed = compressor.compressFile(input);
             fs.writeFileSync(path_tarbz2, compressed);
             fs.unlinkSync(path_tar);
-            fs.unlinkSync(path_qrf);
+            fs.rmSync(path_tmp_root, {recursive: true, force: true});
             qorus_webview.postMessage({
                 action: 'release-package-created',
                 package_path: path_tarbz2
@@ -89,13 +106,28 @@ class QorusRelease {
         });
         archiver.pipe(tar_output);
 
-        this.files.map(file => archiver.file(path.join(this.project_folder, file), {name: file}));
         fs.writeFileSync(path_qrf, this.files.filter(isDeployable)
-                                             .map(file => 'load ' + file + '\n')
-                                             .join(''));
-        archiver.file(path_qrf, {name: file_qrf});
+            .map(file => 'load ' + file + '\n')
+            .join(''));
+        archiver.directory(path_tmp_root, '/', {name: project});
 
+        // write install.sh file
+        fs.writeFileSync(path_install_sh, '#!/bin/sh\noload ' + file_qrf, {mode: 0o755});
+        archiver.file(path_install_sh, {name: path.join(project, install_sh), mode: 0o755});
         archiver.finalize();
+    }
+
+    private copySourceToTarget(source_dir: string, source: string, target: string) {
+        const path_source = path.join(source_dir, source);
+        const path_target = path.join(target, source);
+
+        const path_target_dir = path.dirname(path_target);
+        if (!fs.existsSync(path_target_dir)) {
+            fs.mkdirSync(path_target_dir, {recursive: true}, (err) => {
+                if (err) throw err;
+            });
+        }
+        fs.copyFileSync(path_source, path_target, fs.constants.COPYFILE_FICLONE);
     }
 
     private checkUpToDate() {

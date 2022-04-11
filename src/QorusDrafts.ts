@@ -33,7 +33,10 @@ class QorusDrafts {
   private getDraftsLocation() {
     const os = getOs();
 
-    const dir_hash = md5(vscode.workspace.workspaceFolders[0].uri.toString());
+    // prevent the extension from refusing to load with a confusing error when there is no current workspace
+    const dir_hash = vscode.workspace.workspaceFolders
+      ? md5(vscode.workspace.workspaceFolders[0].uri.toString())
+      : "x";
 
     if (os == 'WINDOWS') {
       return path.join(process.env.APPDATA, 'Code\\Backups', dir_hash);
