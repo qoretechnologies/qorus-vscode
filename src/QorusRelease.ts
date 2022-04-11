@@ -212,7 +212,7 @@ class QorusRelease {
       files
         .filter(isDeployable)
         .map((file) => 'load ' + file + '\n')
-        .join('')
+        .join('') + 'refresh-recursive\n'
     );
     tarArchiver.directory(path_tmp_root, '/', { name: project });
     tarArchiver.finalize();
