@@ -9,7 +9,7 @@ import {
   Intent,
   Radio,
   RadioGroup,
-  Spinner,
+  Spinner
 } from '@blueprintjs/core';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -299,7 +299,7 @@ class ReleasePackage extends Component {
         style={{ maxWidth: 400 }}
         buttons={[
           {
-            title: t('ButtonOK'),
+            title: t('ButtonOk'),
             intent: Intent.DANGER,
             onClick: () => {
               this.backToStep(Step.Type);
