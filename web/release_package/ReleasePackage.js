@@ -229,7 +229,7 @@ class ReleasePackage extends Component {
         />
         <H4 style={{ marginTop: 12 }}>{t('PackageContents')}</H4>
         <H5>
-          {t('SelectedCommit')}: <strong>{this.props.selected_commit}</strong>
+          {t('SelectedBranch')}: <strong>{this.props.selected_commit}</strong>
         </H5>
         {this.props.files && this.props.files.map((file) => <div>{file}</div>)}
       </Card>

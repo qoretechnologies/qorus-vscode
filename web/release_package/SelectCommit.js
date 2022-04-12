@@ -1,8 +1,8 @@
+import { Button, ControlGroup, H4, InputGroup, Spinner } from '@blueprintjs/core';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, ControlGroup, H4, InputGroup, Spinner } from '@blueprintjs/core';
-import { vscode } from '../common/vscode';
 import compose from 'recompose/compose';
+import { vscode } from '../common/vscode';
 import withTextContext from '../hocomponents/withTextContext';
 
 class SelectCommit extends Component {
@@ -84,7 +84,7 @@ class SelectCommit extends Component {
 
         return (
             <>
-                <H4>{t('SelectCommit')}</H4>
+                <H4>{t('SelectBranch')}</H4>
                 <ControlGroup className='bp3-monospace-text' vertical={true}>
                     <InputGroup
                         className='filter-input'

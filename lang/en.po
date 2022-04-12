@@ -600,8 +600,14 @@ msgstr "Package contents"
 msgid "SelectCommit"
 msgstr "Select commit"
 
+msgid "SelectBranch"
+msgstr "Select branch"
+
 msgid "SelectedCommit"
 msgstr "Selected commit"
+
+msgid "SelectedBranch"
+msgstr "Selected branch"
 
 msgid "DeployPackage"
 msgstr "Deploy package"
