@@ -21,6 +21,7 @@ export interface QorusRequestTexts {
 const log_request_messages = false;
 
 export class QorusRequest extends QorusLogin {
+  // onFinished is executed unconditionally; even if there are errors
   // returns true if the process got to the stage of checking the result
   // returns false if the process failed earlier
   doRequestAndCheckResult(options: any, texts: QorusRequestTexts, onFinished?): Thenable<boolean> {
@@ -38,6 +39,9 @@ export class QorusRequest extends QorusLogin {
       (error: any) => {
         console.log('Request error: ' + JSON.stringify(error));
         this.requestError(error, texts.error);
+        if (onFinished) {
+            onFinished();
+        }
         return false;
       }
     );
