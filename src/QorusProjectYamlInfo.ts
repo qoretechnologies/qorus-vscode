@@ -18,7 +18,7 @@ import {
 import * as msg from './qorus_message';
 
 export class QorusProjectYamlInfo {
-  private yaml_data: any = {};
+  public yaml_data: any = {};
 
   private src_2_yaml: any = {};
   yamlDataBySrcFile = (file) => this.yaml_data[this.src_2_yaml[file]];
@@ -35,7 +35,7 @@ export class QorusProjectYamlInfo {
    * For each type, we create a dictionary of the names of the yaml files that are of that type.
    */
   yamlDataByType = (type) => {
-    let ret_val = {};
+    const ret_val = {};
     for (const name in this.name_2_yaml[type] || {}) {
       ret_val[name] = this.yamlDataByName(type, name);
     }
@@ -176,7 +176,7 @@ export class QorusProjectYamlInfo {
       delete data['class-name'];
 
       const lines = file_contents.toString().split(/\r?\n/);
-      let fixed_lines = [];
+      const fixed_lines = [];
       lines.forEach((line) => {
         if (line.substr(0, 5) === 'name:') {
           return;
@@ -202,7 +202,7 @@ export class QorusProjectYamlInfo {
       return;
     }
 
-    let yaml_data = {
+    const yaml_data = {
       ...data,
       yaml_file: file,
       target_dir: path.dirname(file),
@@ -278,7 +278,7 @@ export class QorusProjectYamlInfo {
     let any_new = true;
     while (any_new) {
       any_new = false;
-      for (let name in inheritance_pairs) {
+      for (const name in inheritance_pairs) {
         if (inheritance_pairs[name].some((base_class_name) => base_classes[base_class_name])) {
           base_classes[name] = true;
           delete inheritance_pairs[name];
@@ -295,7 +295,7 @@ export class QorusProjectYamlInfo {
     possible_descendant_class_name: string,
     lang: string
   ): boolean => {
-    let descendants_and_self = { [class_name]: true };
+    const descendants_and_self = { [class_name]: true };
     this.baseClasses(descendants_and_self, { ...this.inheritance_pairs[lang] });
     return Object.keys(descendants_and_self).includes(possible_descendant_class_name);
   };
