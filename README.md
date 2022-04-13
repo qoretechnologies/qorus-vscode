@@ -8,6 +8,7 @@ reused later and setup an initial configuration for them.
 ## Version 3.4.1 overview - What's new:
 
 - Fixed bugs in "make release" functionality where it would refuse to make a release if there were untracked files in the repository and where release packages were not installable by Qorus
+- Fixed bugs in "make release" functionality where it would get stuck in a broken state if the connection to the Qorus server was lost while the release was being created
 - Requires Qorus 5.1.31+ to support remote release deployment from the IDE
 
 ## Version 3.4.0 overview - What's new:

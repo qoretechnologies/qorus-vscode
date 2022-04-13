@@ -21,11 +21,13 @@ export interface QorusRequestTexts {
 const log_request_messages = false;
 
 export class QorusRequest extends QorusLogin {
+  // onFinished is executed unconditionally; even if there are errors
   // returns true if the process got to the stage of checking the result
   // returns false if the process failed earlier
   doRequestAndCheckResult(options: any, texts: QorusRequestTexts, onFinished?): Thenable<boolean> {
     return request(options).then(
       (response: any) => {
+        console.log('Request response: ' + JSON.stringify(response));
         msg.log('    ' + t`requestResponse ${JSON.stringify(response)}`);
         if (response.id === undefined) {
           msg.error(t`ResponseIdUndefined`);
@@ -35,7 +37,11 @@ export class QorusRequest extends QorusLogin {
         return true;
       },
       (error: any) => {
+        console.log('Request error: ' + JSON.stringify(error));
         this.requestError(error, texts.error);
+        if (onFinished) {
+            onFinished();
+        }
         return false;
       }
     );
@@ -78,8 +84,8 @@ export class QorusRequest extends QorusLogin {
         });
 
         progress.report({ increment: -1 });
-        let sec: number = 0;
-        let quit: boolean = false;
+        let sec = 0;
+        let quit = false;
 
         const options = {
           method: 'GET',

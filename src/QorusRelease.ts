@@ -176,9 +176,6 @@ class QorusRelease {
 
     const file_qrf = file_name_base + '.qrf';
     const install_sh = 'install.sh';
-    const [path_qrf, path_install_sh] = [file_qrf, install_sh].map((file) =>
-      path.join(path_tmp_rel, file)
-    );
 
     this.package_path = path_tarbz2;
 
@@ -205,14 +202,18 @@ class QorusRelease {
     const tarArchiver = archiver('tar');
     tarArchiver.pipe(tar_output);
 
-    // write install.sh file
-    fs.writeFileSync(path_install_sh, '#!/bin/sh\noload ' + file_qrf, { mode: 0o755 });
-    fs.writeFileSync(
-      path_qrf,
-      files
+    // add install.sh file to archive
+    tarArchiver.append('#!/bin/sh\noload ' + file_qrf, {
+        name: path.join(project, install_sh),
+        mode: 0o755,
+    });
+    tarArchiver.append(files
         .filter(isDeployable)
         .map((file) => 'load ' + file + '\n')
-        .join('') + 'refresh-recursive\n'
+        .join('') + 'refresh-recursive\n', {
+            name: path.join(project, file_qrf),
+            mode: 0o644,
+        }
     );
     tarArchiver.directory(path_tmp_root, '/', { name: project });
     tarArchiver.finalize();

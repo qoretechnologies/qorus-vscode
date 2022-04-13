@@ -9,13 +9,14 @@ import {
   Intent,
   Radio,
   RadioGroup,
-  Spinner
+  Spinner,
 } from '@blueprintjs/core';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 import { MessageDialog } from '../common/MessageDialog';
 import { vscode } from '../common/vscode';
+import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
 import withTextContext from '../hocomponents/withTextContext';
 import { BackForwardButtons } from './BackForwardButtons';
 import { SelectCommitContainer as SelectCommit } from './SelectCommit';
@@ -140,6 +141,8 @@ class ReleasePackage extends Component {
       return null;
     }
 
+    console.log(this.props);
+
     const t = this.props.t;
 
     const BranchInfo = (
@@ -172,7 +175,7 @@ class ReleasePackage extends Component {
       <>
         {this.props.branch.up_to_date || NotUpToDate}
         <div className="flex-start">
-          <H4 style={{ marginRight: 48 }}>{t('ReleaseType')}:</H4>
+          <h4 style={{ marginRight: 48 }}>{t('ReleaseType')}:</h4>
           <RadioGroup onChange={this.onReleaseTypeChange} selectedValue={this.props.release_type}>
             <Radio label={t('CreateFullRelease')} value="full" />
             <Radio label={t('CreateIncrementalRelease')} value="incremental" />
@@ -244,6 +247,7 @@ class ReleasePackage extends Component {
           onForward={this.deployPackage}
           forward_text_id="DeployPackage"
           pending={this.props.pending}
+          disabled={!this.props.initialData?.qorus_instance}
         />
         <H5>
           {this.props.release_type == 'existing'
@@ -368,5 +372,6 @@ const mapDispatchToProps = (dispatch) => ({
 
 export const ReleasePackageContainer = compose(
   connect(mapStateToProps, mapDispatchToProps),
-  withTextContext()
+  withTextContext(),
+  withInitialDataConsumer()
 )(ReleasePackage);
