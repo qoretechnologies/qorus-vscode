@@ -27,6 +27,10 @@ export const StyledOptionField = styled.div`
     background-color: #ffffff;
   }
 
+  &:nth-child(odd) {
+    background-color: #f7f7f7;
+  }
+
   &:first-child {
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;

@@ -23,6 +23,14 @@ class QorusRelease {
   private files: string[] = [];
   private package_path = null;
 
+  get filesToRelease() {
+    return this.files;
+  }
+
+  set filesToRelease(files: string[]) {
+    this.files = files;
+  }
+
   makeRelease() {
     const project: QorusProject | undefined = projects.getProject();
     if (!project?.configFileExists()) {
@@ -204,16 +212,18 @@ class QorusRelease {
 
     // add install.sh file to archive
     tarArchiver.append('#!/bin/sh\noload ' + file_qrf, {
-        name: path.join(project, install_sh),
-        mode: 0o755,
+      name: path.join(project, install_sh),
+      mode: 0o755,
     });
-    tarArchiver.append(files
+    tarArchiver.append(
+      files
         .filter(isDeployable)
         .map((file) => 'load ' + file + '\n')
-        .join('') + 'refresh-recursive\n', {
-            name: path.join(project, file_qrf),
-            mode: 0o644,
-        }
+        .join('') + 'refresh-recursive\n',
+      {
+        name: path.join(project, file_qrf),
+        mode: 0o644,
+      }
     );
     tarArchiver.directory(path_tmp_root, '/', { name: project });
     tarArchiver.finalize();
@@ -274,6 +284,13 @@ class QorusRelease {
       if (full) {
         this.setAllFiles();
       }
+      this.createReleaseFile();
+    }
+  }
+
+  createCustomPackage(files) {
+    if (this.checkUpToDate()) {
+      this.files = files.map((file) => vscode.workspace.asRelativePath(file, false));
       this.createReleaseFile();
     }
   }

@@ -37,4 +37,7 @@ export const interfaceToPlural = {
   'value-map': 'valuemaps',
   type: 'types',
   class: 'classes',
+  'schema-module': 'schema-modules',
+  script: 'scripts',
+  test: 'tests',
 };
