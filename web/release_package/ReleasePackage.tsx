@@ -358,9 +358,17 @@ class ReleasePackage extends Component<
         {NotUpToDateMsg}
 
         {this.props.step == Step.Type && (
-          <Card className="step-card bp3-elevation-2" style={{ width: '100%', overflowY: 'auto' }}>
+          <Card
+            className="step-card bp3-elevation-2"
+            style={{
+              width: '100%',
+              overflowY: this.props.release_type === 'custom' ? 'hidden' : 'auto',
+              display: 'flex',
+              flexFlow: 'column nowrap',
+            }}
+          >
             {ReleaseType}
-            <Collapse isOpen={this.props.release_type == 'custom'}>
+            <Collapse isOpen={this.props.release_type == 'custom'} className="flex-fix-scroll-y">
               <Callout
                 intent="primary"
                 style={{ display: 'flex', justifyContent: 'space-between' }}

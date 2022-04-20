@@ -831,6 +831,11 @@ div.configItemsEditor {
   width: 100%;
 }
 
+.flex-fix-scroll-y {
+  flex: 1;
+  overflow-y: auto !important;
+}
+
 @import '../components/DataOrEmptyTable/style.scss';
 @import '../components/Tree/style.scss';
 @import '../components/ContentByType/style.scss';

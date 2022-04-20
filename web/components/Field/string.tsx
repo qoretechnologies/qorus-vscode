@@ -12,7 +12,7 @@ import withMessageHandler, {
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 
-export interface IStringField {
+export interface IStringField extends IField {
   t?: TTranslator;
   fill?: boolean;
   postMessage?: TPostMessage;
@@ -25,7 +25,7 @@ export interface IStringField {
   onChange?: IFieldChange;
 }
 
-const StringField: FunctionComponent<IStringField & IField> = ({
+const StringField = ({
   name,
   onChange,
   value,
@@ -41,7 +41,7 @@ const StringField: FunctionComponent<IStringField & IField> = ({
   canBeNull,
   sensitive,
   autoFocus,
-}) => {
+}: IStringField) => {
   // Fetch data on mount
   useMount(() => {
     // Populate default value
@@ -77,6 +77,8 @@ const StringField: FunctionComponent<IStringField & IField> = ({
       value={
         canBeNull && isNull(value) ? 'Value set to [null]' : !value ? default_value || '' : value
       }
+      onFocus={(event) => event.stopPropagation()}
+      onClick={(event) => event.stopPropagation()}
       onChange={handleInputChange}
       type={sensitive ? 'password' : 'text'}
       autoFocus={autoFocus}

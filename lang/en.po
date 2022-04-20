@@ -3124,3 +3124,6 @@ msgstr "Create custom release"
 
 msgid "CreateRelease"
 msgstr "Create release"
+
+msgid "SelectFiltered"
+msgstr "Select filtered"

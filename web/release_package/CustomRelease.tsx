@@ -1,8 +1,9 @@
-import { Button, Classes, Colors, Icon } from '@blueprintjs/core';
+import { Button, Classes, Colors, ControlGroup, Icon } from '@blueprintjs/core';
 import { map, size } from 'lodash';
 import React, { useContext, useState } from 'react';
-import { useAsyncRetry } from 'react-use';
+import { useAsyncRetry, useBoolean } from 'react-use';
 import styled, { css } from 'styled-components';
+import StringField from '../components/Field/string';
 import Loader from '../components/Loader';
 import { MENU } from '../constants/menu';
 import { TextContext } from '../context/text';
@@ -37,7 +38,7 @@ const StyledInterfaceListTitle = styled.div`
       pointer-events: none;
     `}
 
-  > div {
+  > div:first-child {
     svg {
       margin-right: 10px;
     }
@@ -97,9 +98,122 @@ export const otherInterfaceNames = {
   tests: 'Tests',
 };
 
+export interface ICustomReleaseGroupProps {
+  selected: string[];
+  onItemClick: (item: string[], isDeselect?: boolean) => void;
+  onSelectAll: (interfaceKind: string) => void;
+  interfaces: any[];
+  interfaceKind: string;
+  getItemFile: (item: any) => string;
+}
+
+export const CustomReleaseGroup = ({
+  selected,
+  onItemClick,
+  interfaces,
+  interfaceKind,
+  onSelectAll,
+  getItemFile,
+}: ICustomReleaseGroupProps) => {
+  const [isCollapsed, setIsCollapsed] = useBoolean(false);
+  const [query, setQuery] = useState<string>('');
+
+  const t = useContext<(text: string) => string>(TextContext as any);
+
+  const isSelected = (item: string): boolean => {
+    return !!selected.find((selectedItem) => selectedItem === item);
+  };
+
+  const filteredInterfaces = interfaces.filter((item) => {
+    return query && query !== '' ? item.name.toLowerCase().includes(query.toLowerCase()) : true;
+  });
+
+  const handleSelectFiltered = () => {
+    onItemClick(filteredInterfaces.map((item) => getItemFile(item)) || []);
+  };
+
+  return (
+    <StyledInterfaceItem key={interfaceKind}>
+      <StyledInterfaceListTitle
+        disabled={!size(interfaces)}
+        onClick={() => {
+          // Add this interface to the collapsed list if it's not already there
+          // and remove it if it is
+          setIsCollapsed(!isCollapsed);
+        }}
+      >
+        <div>
+          <Icon
+            iconSize={18}
+            icon={size(interfaces) ? (isCollapsed ? 'chevron-right' : 'chevron-down') : 'disable'}
+          />{' '}
+          <Icon
+            iconSize={18}
+            icon={
+              MENU.CreateInterface[0].submenu.find(
+                (interfaceMenuData) => interfaceMenuData.subtab === interfaceKind
+              )?.icon || otherInterfaceIcons[interfaceKind]
+            }
+          />{' '}
+          {MENU.CreateInterface[0].submenu.find(
+            (interfaceMenuData) => interfaceMenuData.subtab === interfaceKind
+          )?.name || otherInterfaceNames[interfaceKind]}{' '}
+          <span className={Classes.TEXT_MUTED}>({filteredInterfaces.length})</span>
+        </div>
+        {size(interfaces) > 0 && (
+          <ControlGroup>
+            <StringField
+              name="query"
+              value={query}
+              onChange={(n, q) => setQuery(q)}
+              placeholder={t('Filter')}
+            />
+            {size(filteredInterfaces) > 0 && (
+              <Button
+                onClick={(event) => {
+                  event.stopPropagation();
+                  if (query && query !== '') {
+                    handleSelectFiltered();
+                  } else {
+                    onSelectAll(interfaceKind);
+                  }
+                }}
+                intent="primary"
+                icon="multi-select"
+              >
+                {query && query !== '' ? t('SelectFiltered') : t('SelectAll')}
+              </Button>
+            )}
+          </ControlGroup>
+        )}
+      </StyledInterfaceListTitle>
+      {!isCollapsed
+        ? map(filteredInterfaces, (interfaceData, index) => (
+            <StyledInterfaceListItem
+              key={index}
+              selected={isSelected(getItemFile(interfaceData))}
+              onClick={() => {
+                onItemClick([getItemFile(interfaceData)], isSelected(getItemFile(interfaceData)));
+              }}
+            >
+              <Icon
+                iconSize={15}
+                style={{ marginRight: 10 }}
+                icon={isSelected(getItemFile(interfaceData)) ? 'tick-circle' : 'circle'}
+              />
+              <span className={Classes.TEXT_MUTED}>
+                {interfaceData.data?.version && `[v${interfaceData.data.version}] `}
+              </span>
+              {interfaceData.data?.name || interfaceData.name}
+            </StyledInterfaceListItem>
+          ))
+        : null}
+    </StyledInterfaceItem>
+  );
+};
+
 export const CustomRelease = ({ selected, onItemClick }: ICustomReleaseProps) => {
   const t = useContext<(text: string) => string>(TextContext);
-  const [collapsed, setCollapsed] = useState<string[]>([]);
 
   // Fetch all the interfaces on mount
   const { value, loading, error } = useAsyncRetry<{ [key: string]: { [key: string]: any }[] }>(
@@ -118,10 +232,6 @@ export const CustomRelease = ({ selected, onItemClick }: ICustomReleaseProps) =>
     return <Loader text="Loading..." />;
   }
 
-  const isSelected = (item: string): boolean => {
-    return !!selected.find((selectedItem) => selectedItem === item);
-  };
-
   const getItemFile = (item: any): string => {
     return item.data.yaml_file || item.data.path;
   };
@@ -135,81 +245,15 @@ export const CustomRelease = ({ selected, onItemClick }: ICustomReleaseProps) =>
   return (
     <StyledCustomReleaseWrapper>
       {map(value, (interfaces, interfaceKind) => (
-        <StyledInterfaceItem key={interfaceKind}>
-          <StyledInterfaceListTitle
-            disabled={!size(interfaces)}
-            onClick={() => {
-              // Add this interface to the collapsed list if it's not already there
-              // and remove it if it is
-              setCollapsed(
-                collapsed.includes(interfaceKind)
-                  ? [...collapsed.filter((item) => item !== interfaceKind)]
-                  : [...collapsed, interfaceKind]
-              );
-            }}
-          >
-            <div>
-              <Icon
-                iconSize={18}
-                icon={
-                  size(interfaces)
-                    ? collapsed.includes(interfaceKind)
-                      ? 'chevron-right'
-                      : 'chevron-down'
-                    : 'disable'
-                }
-              />{' '}
-              <Icon
-                iconSize={18}
-                icon={
-                  MENU.CreateInterface[0].submenu.find(
-                    (interfaceMenuData) => interfaceMenuData.subtab === interfaceKind
-                  )?.icon || otherInterfaceIcons[interfaceKind]
-                }
-              />{' '}
-              {MENU.CreateInterface[0].submenu.find(
-                (interfaceMenuData) => interfaceMenuData.subtab === interfaceKind
-              )?.name || otherInterfaceNames[interfaceKind]}{' '}
-              <span className={Classes.TEXT_MUTED}>({interfaces.length})</span>
-            </div>
-            {size(interfaces) > 0 && (
-              <Button
-                onClick={(event) => {
-                  event.stopPropagation();
-                  handleSelectAll(interfaceKind);
-                }}
-                intent="primary"
-                icon="multi-select"
-              >
-                {t('SelectAll')}
-              </Button>
-            )}
-          </StyledInterfaceListTitle>
-          {!collapsed.includes(interfaceKind)
-            ? map(interfaces, (interfaceData, index) => (
-                <StyledInterfaceListItem
-                  key={index}
-                  selected={isSelected(getItemFile(interfaceData))}
-                  onClick={() => {
-                    onItemClick(
-                      [getItemFile(interfaceData)],
-                      isSelected(getItemFile(interfaceData))
-                    );
-                  }}
-                >
-                  <Icon
-                    iconSize={15}
-                    style={{ marginRight: 10 }}
-                    icon={isSelected(getItemFile(interfaceData)) ? 'tick-circle' : 'circle'}
-                  />
-                  <span className={Classes.TEXT_MUTED}>
-                    {interfaceData.data?.version && `[v${interfaceData.data.version}] `}
-                  </span>
-                  {interfaceData.data?.name || interfaceData.name}
-                </StyledInterfaceListItem>
-              ))
-            : null}
-        </StyledInterfaceItem>
+        <CustomReleaseGroup
+          key={interfaceKind}
+          selected={selected}
+          onItemClick={onItemClick}
+          interfaceKind={interfaceKind}
+          interfaces={interfaces}
+          onSelectAll={handleSelectAll}
+          getItemFile={getItemFile}
+        />
       ))}
     </StyledCustomReleaseWrapper>
   );
