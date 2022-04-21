@@ -791,6 +791,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 }
               }
             } else {
+              console.log(finalFieldType, value, currentField);
               // Basic field with predefined type
               isValid = validateField(finalFieldType || 'string', value, currentField, canBeNull);
             }
