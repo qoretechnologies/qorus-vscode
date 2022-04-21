@@ -40,7 +40,7 @@ export class QorusRequest extends QorusLogin {
         console.log('Request error: ' + JSON.stringify(error));
         this.requestError(error, texts.error);
         if (onFinished) {
-            onFinished();
+          onFinished();
         }
         return false;
       }
@@ -213,7 +213,7 @@ export class QorusRequest extends QorusLogin {
       qorus_webview.postMessage({
         action: 'fetch-data-complete',
         id,
-        data: JSON.parse(response),
+        data: typeof response === 'string' ? JSON.parse(response) : response,
       });
     };
 

@@ -1,5 +1,6 @@
 import {
   Button,
+  Callout,
   Card,
   Collapse,
   Colors,
@@ -7,23 +8,35 @@ import {
   H4,
   H5,
   Intent,
-  Radio,
-  RadioGroup,
   Spinner,
 } from '@blueprintjs/core';
+import { size } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 import { MessageDialog } from '../common/MessageDialog';
 import { vscode } from '../common/vscode';
+import Select from '../components/Field/select';
+import Spacer from '../components/Spacer';
+import SubField from '../components/SubField';
 import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
 import withTextContext from '../hocomponents/withTextContext';
 import { BackForwardButtons } from './BackForwardButtons';
+import { CustomRelease } from './CustomRelease';
 import { SelectCommitContainer as SelectCommit } from './SelectCommit';
 
 const Step = { Type: 0, Diff: 1, Send: 2, Close: 3 };
 
-class ReleasePackage extends Component {
+class ReleasePackage extends Component<
+  any,
+  {
+    selectedInterfaces: string[];
+  }
+> {
+  state: { selectedInterfaces: string[] } = {
+    selectedInterfaces: [],
+  };
+
   constructor() {
     super();
 
@@ -69,8 +82,14 @@ class ReleasePackage extends Component {
     });
   }
 
-  onReleaseTypeChange = (ev) => {
-    this.props.setReleaseType(ev.target.value);
+  onReleaseTypeChange = (_name, value) => {
+    this.props.setReleaseType(value);
+
+    if (value === 'custom') {
+      vscode.postMessage({
+        action: 'get-all-interfaces',
+      });
+    }
   };
 
   selectCommit = (commit) => {
@@ -93,6 +112,15 @@ class ReleasePackage extends Component {
     vscode.postMessage({
       action: 'release-create-package',
       full: true,
+    });
+    this.props.setPending(true);
+  };
+
+  createCustomPackage = () => {
+    vscode.postMessage({
+      action: 'release-create-package',
+      custom: true,
+      files: this.state.selectedInterfaces,
     });
     this.props.setPending(true);
   };
@@ -144,6 +172,7 @@ class ReleasePackage extends Component {
     console.log(this.props);
 
     const t = this.props.t;
+    const { selectedInterfaces } = this.state;
 
     const BranchInfo = (
       <div style={{ marginBottom: 24 }}>
@@ -174,15 +203,23 @@ class ReleasePackage extends Component {
     const ReleaseType = (
       <>
         {this.props.branch.up_to_date || NotUpToDate}
-        <div className="flex-start">
-          <h4 style={{ marginRight: 48 }}>{t('ReleaseType')}:</h4>
-          <RadioGroup onChange={this.onReleaseTypeChange} selectedValue={this.props.release_type}>
-            <Radio label={t('CreateFullRelease')} value="full" />
-            <Radio label={t('CreateIncrementalRelease')} value="incremental" />
-            <Radio label={t('UseExistingRelease')} value="existing" />
-          </RadioGroup>
+        <div>
+          <h2>{t('CreateRelease')}</h2>
+          <SubField subtle desc="Select the type of release you would like to create">
+            <Select
+              fill
+              defaultItems={[
+                { name: 'custom' },
+                { name: 'full' },
+                { name: 'incremental' },
+                { name: 'existing' },
+              ]}
+              onChange={this.onReleaseTypeChange}
+              value={`Selected release type - ${this.props.release_type}`}
+            />
+          </SubField>
         </div>
-        <hr style={{ marginBottom: 16 }} />
+        <Spacer size={20} />
       </>
     );
 
@@ -314,13 +351,70 @@ class ReleasePackage extends Component {
       />
     );
 
+    console.log(this.state);
+
     return (
-      <div className="flex-start">
+      <div className="flex-start" style={{ width: '100%' }}>
         {NotUpToDateMsg}
 
         {this.props.step == Step.Type && (
-          <Card className="step-card bp3-elevation-2">
+          <Card
+            className="step-card bp3-elevation-2"
+            style={{
+              width: '100%',
+              overflowY: this.props.release_type === 'custom' ? 'hidden' : 'auto',
+              display: 'flex',
+              flexFlow: 'column nowrap',
+            }}
+          >
             {ReleaseType}
+            <Collapse isOpen={this.props.release_type == 'custom'} className="flex-fix-scroll-y">
+              <Callout
+                intent="primary"
+                style={{ display: 'flex', justifyContent: 'space-between' }}
+              >
+                <div>{t('SelectCustomReleaseInterfaces')}</div>
+                {size(selectedInterfaces) ? (
+                  <Button
+                    onClick={this.createCustomPackage}
+                    intent="primary"
+                    icon="arrow-right"
+                    disabled={this.props.pending}
+                  >
+                    {this.props.pending
+                      ? t('Working')
+                      : `${t('CreateCustomRelease')} (${size(selectedInterfaces)})`}
+                  </Button>
+                ) : null}
+              </Callout>
+              <Spacer size={20} />
+              <CustomRelease
+                selected={selectedInterfaces}
+                onItemClick={(selectedItems: string[], isDeselect) => {
+                  // Remove or add items from the selected interfaces
+                  if (isDeselect) {
+                    this.setState({
+                      selectedInterfaces: selectedInterfaces.filter(
+                        (item) => !selectedItems.includes(item)
+                      ),
+                    });
+                  } else {
+                    // Add items to the selected interfaces
+                    const newSelectedInterfaces = [
+                      ...selectedInterfaces,
+                      ...selectedItems.filter((item) => {
+                        // Filter out duplicates
+                        return !selectedInterfaces.includes(item);
+                      }),
+                    ];
+
+                    this.setState({
+                      selectedInterfaces: newSelectedInterfaces,
+                    });
+                  }
+                }}
+              />
+            </Collapse>
 
             <Collapse isOpen={this.props.release_type == 'full'}>{FullRelease}</Collapse>
 

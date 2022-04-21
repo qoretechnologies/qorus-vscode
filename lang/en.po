@@ -3112,3 +3112,18 @@ msgstr "Select Endpoint"
 
 msgid "ValueIsEmpty"
 msgstr "Value is empty, please select a value from the list below"
+
+msgid "SelectCustomReleaseInterfaces"
+msgstr "Select interfaces to include in the release"
+
+msgid "Working"
+msgstr "Working..."
+
+msgid "CreateCustomRelease"
+msgstr "Create custom release"
+
+msgid "CreateRelease"
+msgstr "Create release"
+
+msgid "SelectFiltered"
+msgstr "Select filtered"

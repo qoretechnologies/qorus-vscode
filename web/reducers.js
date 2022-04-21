@@ -99,7 +99,7 @@ function releaseResult(state = null, action) {
   return simpleReducer(state, action, 'release_result');
 }
 
-function releaseType(state = 'full', action) {
+function releaseType(state = 'custom', action) {
   return simpleReducer(state, action, 'release_type');
 }
 

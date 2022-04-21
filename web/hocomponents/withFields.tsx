@@ -485,7 +485,7 @@ export default () =>
           return true;
         }
 
-        if (validateField(type, value)) {
+        if (validateField(type, value, field)) {
           if (!isValid) {
             field.isValid = true;
           }

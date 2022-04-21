@@ -9,6 +9,7 @@ import { FormChangesResponder } from './interface_creator/FormChangesResponder';
 import { triggers } from './interface_creator/standard_methods';
 import { deleter } from './QorusDelete';
 import { QorusDraftsInstance } from './QorusDrafts';
+import { drafts_tree } from './QorusDraftsTree';
 import { instance_tree } from './QorusInstanceTree';
 import { qorus_locale } from './QorusLocale';
 import { config_filename, projects, QorusProject } from './QorusProject';
@@ -251,6 +252,14 @@ class QorusWebview {
             case 'get-interfaces':
               deleter.getInterfaces(message.iface_kind, message.columns);
               break;
+            case 'get-all-interfaces':
+              this.panel.webview.postMessage({
+                action: 'get-all-interfaces-complete',
+                data: drafts_tree.getObjectWithAllInterfaces(),
+                request_id: message.request_id,
+                ok: true,
+              });
+              break;
             case 'delete-interfaces':
               deleter.deleteInterfaces(message.iface_kind, message.ids);
               break;
@@ -264,7 +273,11 @@ class QorusWebview {
               releaser.getDiff(message.commit);
               break;
             case 'release-create-package':
-              releaser.createPackage(message.full);
+              if (message.custom) {
+                releaser.createCustomPackage(message.files);
+              } else {
+                releaser.createPackage(message.full);
+              }
               break;
             case 'release-deploy-package':
               releaser.deployPackage();

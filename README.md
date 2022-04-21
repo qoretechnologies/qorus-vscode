@@ -5,8 +5,10 @@ This extension makes it possible to easily create, deploy, and test Qorus interf
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be
 reused later and setup an initial configuration for them.
 
-## Version 3.4.1 overview - What's new:
+## Version 3.5.0 overview - What's new:
 
+- It is now possible to create a custom release by selecting interfaces inside the `Release` tab.
+- Fixed a bug when validating various key-value fields that caused the IDE to crash.
 - Fixed bugs in "make release" functionality where it would refuse to make a release if there were untracked files in the repository and where release packages were not installable by Qorus
 - Fixed bugs in "make release" functionality where it would get stuck in a broken state if the connection to the Qorus server was lost while the release was being created
 - Requires Qorus 5.1.31+ to support remote release deployment from the IDE
