@@ -47,6 +47,39 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
     return node;
   }
 
+  getObjectWithAllInterfaces(): { [interfaceKind: string]: string[] } {
+    const interfaceFolders = [
+      ...QorusDraftsInstance.getDraftsFolders(),
+      'schema-modules',
+      'scripts',
+      'tests',
+    ];
+
+    const allInterfaces = interfaceFolders.reduce((newInterfaces, folder) => {
+      const allDrafts = QorusDraftsInstance.getDraftsForInterface(folder, true);
+
+      return {
+        ...newInterfaces,
+        [folder]: otherFilesNames.includes(folder)
+          ? this.code_info.otherFilesDataByType(folder as any)
+          : this.code_info.interfaceDataByType(folder).map((interfaceData) => {
+              const draft = allDrafts.find(
+                (draft) => draft.associatedInterface === getTargetFile(interfaceData.data)
+              );
+
+              return {
+                ...interfaceData,
+                hasDraft: !!draft,
+                ...(draft || {}),
+                isDraft: false,
+              };
+            }),
+      };
+    }, {});
+
+    return allInterfaces;
+  }
+
   async getChildren(el): Promise<QorusDraftTreeItems> {
     if (!this.code_info) {
       return [];

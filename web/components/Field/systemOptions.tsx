@@ -27,6 +27,10 @@ export const StyledOptionField = styled.div`
     background-color: #ffffff;
   }
 
+  &:nth-child(odd) {
+    background-color: #f7f7f7;
+  }
+
   &:first-child {
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
@@ -125,6 +129,7 @@ const Options = ({
   //const [selectedOptions, setSelectedOptions] = useState(null);
   const { fetchData, confirmAction, qorus_instance }: any = useContext(InitialContext);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const getUrl = () => customUrl || `/options/${url}`;
 
@@ -132,15 +137,18 @@ const Options = ({
     if (qorus_instance && (url || customUrl)) {
       (async () => {
         setOptions(undefined);
+        setLoading(true);
         // Fetch the options for this mapper type
         const data = await fetchData(getUrl());
 
         if (data.error) {
+          setLoading(false);
           setOptions(undefined);
           return;
         }
         onChange(name, fixOptions(value, data.data));
         // Save the new options
+        setLoading(false);
         setOptions(data.data);
       })();
     }
@@ -152,13 +160,16 @@ const Options = ({
         setOptions(undefined);
         setError(null);
         removeValue();
+        setLoading(true);
         // Fetch the options for this mapper type
         const data = await fetchData(getUrl());
         if (data.error) {
+          setLoading(false);
           setOptions(undefined);
           return;
         }
         // Save the new options
+        setLoading(false);
         setOptions(data.data);
         onChange(name, fixOptions({}, data.data));
       })();
@@ -198,12 +209,12 @@ const Options = ({
     );
   }
 
-  if (!options) {
+  if (loading) {
     return <p>{t('LoadingOptions')}</p>;
   }
 
   if (!size(options)) {
-    return <p>{t('NoOptionsAvailable')}</p>;
+    return <Callout intent="warning">{t('NoOptionsAvailable')}</Callout>;
   }
 
   const addSelectedOption = (optionName: string) => {

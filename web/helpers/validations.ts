@@ -74,6 +74,7 @@ export const validateField: (
       return isValid;
     }
     case 'array-of-pairs': {
+      console.log('array-of-pairs', value, type, field);
       let valid = true;
       // Check if every pair has key & value
       // assigned properly

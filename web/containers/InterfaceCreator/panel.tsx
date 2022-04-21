@@ -133,7 +133,7 @@ export interface IField {
   prefill?: any;
   name: string;
   mandatory?: boolean;
-  placeholder?: boolean;
+  placeholder?: string;
   selected?: boolean;
   fields?: string[];
   value?: any;
@@ -791,6 +791,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 }
               }
             } else {
+              console.log(finalFieldType, value, currentField);
               // Basic field with predefined type
               isValid = validateField(finalFieldType || 'string', value, currentField, canBeNull);
             }
