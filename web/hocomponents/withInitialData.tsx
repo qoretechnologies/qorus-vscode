@@ -285,6 +285,9 @@ export default () =>
 
       const saveDraft = async (interfaceKind, interfaceId, fileData, name?: string) => {
         setIsSavingDraft(true);
+
+        console.log('saving draft', interfaceKind, interfaceId, fileData, name);
+
         await callBackendBasic(Messages.SAVE_DRAFT, undefined, {
           iface_id: interfaceId,
           iface_kind: interfaceKindTransform[interfaceKind],

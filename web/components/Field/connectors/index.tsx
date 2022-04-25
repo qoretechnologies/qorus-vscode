@@ -1,7 +1,7 @@
 import { Button, Callout, Classes, Tag } from '@blueprintjs/core';
 import { cloneDeep, isEqual, map, reduce } from 'lodash';
 import size from 'lodash/size';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useDebounce } from 'react-use';
 import compose from 'recompose/compose';
@@ -13,7 +13,7 @@ import withTextContext from '../../../hocomponents/withTextContext';
 import SubField from '../../SubField';
 import { ApiCallArgs } from '../apiCallArgs';
 import BooleanField from '../boolean';
-import Options from '../systemOptions';
+import Options, { IOptions } from '../systemOptions';
 
 export interface IConnectorFieldProps {
   title?: string;
@@ -26,6 +26,13 @@ export interface IConnectorFieldProps {
   providerType?: 'inputs' | 'outputs' | 'event' | 'input-output' | 'condition';
   t: TTranslator;
   requiresRequest?: boolean;
+}
+
+export interface IProviderType {
+  type: string;
+  name: string;
+  path: string;
+  options?: IOptions;
 }
 
 const StyledProviderUrl = styled.div`
@@ -152,7 +159,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 }) => {
   const [optionProvider, setOptionProvider] = useState(maybeBuildOptionProvider(value));
   const [nodes, setChildren] = useState(
-    optionProvider && optionProvider.type === 'factory'
+    optionProvider
       ? [
           {
             value: optionProvider.name,
@@ -189,13 +196,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     setIsLoading(false);
     onChange(name, null);
   };
-
-  // Update the editing state when initial editing changes
-  useEffect(() => {
-    if (optionProvider?.type !== 'factory') {
-      setIsEditing(isInitialEditing);
-    }
-  }, [isInitialEditing]);
 
   useDebounce(
     () => {
