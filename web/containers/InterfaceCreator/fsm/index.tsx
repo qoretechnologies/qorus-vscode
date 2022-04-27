@@ -39,7 +39,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
+  ITypeComparatorData
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -240,13 +240,15 @@ const FSMView: React.FC<IFSMViewProps> = ({
     setStates = setSt;
   }
 
+  console.log(interfaceContext);
+
   const [metadata, setMetadata] = useState<IFSMMetadata>({
     target_dir: fsm?.target_dir || interfaceContext?.target_dir || null,
     name: fsm?.name || null,
     desc: fsm?.desc || null,
     groups: fsm?.groups || [],
-    inputType: fsm?.inputType || null,
-    outputType: fsm?.outputType || null,
+    inputType: fsm?.['input-type'] || interfaceContext?.inputType || null,
+    outputType: fsm?.['output-type'] || null,
   });
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
@@ -741,7 +743,10 @@ const FSMView: React.FC<IFSMViewProps> = ({
       );
 
       compareHash[state.id] = {
-        type: inputType,
+        type: {
+          ...inputType,
+          context: inputType.hasApiContext ? 'api' : undefined,
+        },
         base_type: input,
       };
     }
@@ -1062,6 +1067,17 @@ const FSMView: React.FC<IFSMViewProps> = ({
       delete fixedMetadata.groups;
     }
 
+    if (fixedMetadata.inputType) {
+      fixedMetadata['input-type'] = fixedMetadata.inputType;
+    }
+
+    if (fixedMetadata.outputType) {
+      fixedMetadata['output-type'] = fixedMetadata.outputType;
+    }
+
+    delete fixedMetadata.inputType;
+    delete fixedMetadata.outputType;
+
     const result = await callBackend(
       fsm ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
       undefined,
@@ -1209,8 +1225,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
       desc: fsm?.desc,
       target_dir: fsm?.target_dir,
       groups: fsm?.groups || [],
-      inputType: fsm?.inputType,
-      outputType: fsm?.outputType,
+      inputType: fsm?.['input-type'],
+      outputType: fsm?.['output-type'],
     });
   };
 
@@ -1327,7 +1343,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
           <Loader text={t('CheckingCompatibility')} />
         </StyledCompatibilityLoader>
       )}
-      <div ref={fieldsWrapperRef} id="fsm-fields-wrapper">
+      <div
+        ref={fieldsWrapperRef}
+        id="fsm-fields-wrapper"
+        style={{ height: '50%', overflowY: 'auto', overflowX: 'hidden' }}
+      >
         {!isMetadataHidden && (
           <>
             <FieldWrapper name="selected-field">
@@ -1431,7 +1451,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   value={metadata.inputType}
                   onChange={(n, v) => v && handleMetadataChange(n, v)}
                   name="inputType"
-                  isInitialEditing={fsm?.inputType}
+                  isInitialEditing={fsm?.['input-type']}
                 />
               </FieldInputWrapper>
             </FieldWrapper>
@@ -1459,7 +1479,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   value={metadata.outputType}
                   onChange={(n, v) => v && handleMetadataChange(n, v)}
                   name="outputType"
-                  isInitialEditing={fsm?.outputType}
+                  isInitialEditing={fsm?.['output-type']}
                 />
               </FieldInputWrapper>
             </FieldWrapper>

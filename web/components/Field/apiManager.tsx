@@ -10,6 +10,7 @@ import { callBackendBasic, fetchData } from '../../helpers/functions';
 import { validateField } from '../../helpers/validations';
 import Spacer from '../Spacer';
 import SubField from '../SubField';
+import { IProviderType } from './connectors';
 import MethodSelector from './methodSelector';
 import Select from './select';
 import Options, { IOptions, StyledOptionField } from './systemOptions';
@@ -279,6 +280,15 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
                               }}
                               reference={{
                                 iface_kind: 'fsm',
+                                context: {
+                                  inputType: {
+                                    type: 'factory',
+                                    name: value?.factory,
+                                    path: endpoint.endpoint,
+                                    options: value?.['provider-options'],
+                                    hasApiContext: true,
+                                  } as IProviderType,
+                                },
                               }}
                             />
                           )}

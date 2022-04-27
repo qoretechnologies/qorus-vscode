@@ -1062,6 +1062,8 @@ export abstract class InterfaceCreator {
           case 'staticdata-type':
           case 'input-provider':
           case 'context':
+          case 'input-type':
+          case 'output-type':
             let fixed_value;
             if (['staticdata-type', 'input-provider'].includes(tag)) {
               fixed_value = fixOptions(value);
