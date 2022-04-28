@@ -46,12 +46,16 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
         interfaceContext: context,
       });
     }
+
+    console.log('handleCreateClick', reference, context);
+
     // Open the dialog
     setEditManager({
       isOpen: true,
       changeType: 'CreateInterface',
       interfaceKind: reference.iface_kind,
       context:
+        reference.context ||
         context ||
         (reference.type && reference.type !== '' ? { type: capitalize(reference.type) } : null),
       onSubmit,
@@ -81,7 +85,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
         initialData: {
           [reference.iface_kind]: data[reference.iface_kind],
         },
-        context,
+        context: reference.context || context,
         onSubmit,
       });
       // Remove this listener

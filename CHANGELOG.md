@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 3.6.0
+
+#### New Features
+
+- FSMs now support input & output types
+- FSMs created from API Manager service now automatically acquire the required input type for the given endpoint
+
+#### Bug Fixes
+
+- Fixed a bug where the FSM would crash with an API call state
+- Fixed a bug that caused config items values with multiple curly brackets to be incorrectly interpreted
+
 ## Version 3.5.0
 
 #### New Features

@@ -169,7 +169,8 @@ const App: FunctionComponent<IApp> = ({
     draftData: IDraftData,
     existingInterface?: any,
     customFunction?: (draft: IDraftData) => void,
-    applyClassConnectionsFunc?: Function
+    applyClassConnectionsFunc?: Function,
+    onFinish?: () => any
   ) => {
     const shouldApplyDraft = draftData ? true : draft?.interfaceKind === ifaceKind;
     // Check if draft for this interface kind exists
@@ -185,6 +186,7 @@ const App: FunctionComponent<IApp> = ({
         if (fetchedDraft.ok) {
           draftToApply = fetchedDraft.data;
         } else {
+          onFinish?.();
           return;
         }
       }
@@ -245,6 +247,8 @@ const App: FunctionComponent<IApp> = ({
       // Remove the draft
       removeDraft();
     }
+
+    onFinish?.();
   };
 
   const addDialog: (id: string, onClose: any) => void = (id, onClose) => {

@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
-import { some } from 'lodash';
+import { every, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -16,6 +16,7 @@ import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled from 'styled-components';
 import Field from '../../../components/Field';
+import Connectors, { IProviderType } from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
@@ -31,13 +32,15 @@ import { TextContext } from '../../../context/text';
 import {
   areTypesCompatible,
   deleteDraft,
+  fetchData,
+  formatAndFixOptionsToKeyValuePairs,
   getDraftId,
   getStateProvider,
   getTargetFile,
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
+  ITypeComparatorData
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -87,6 +90,8 @@ export interface IFSMMetadata {
   desc: string;
   target_dir: string;
   groups?: any[];
+  inputType?: IProviderType;
+  outputType?: IProviderType;
 }
 
 export interface IFSMState {
@@ -108,7 +113,7 @@ export interface IFSMState {
   desc: string;
   states?: IFSMStates;
   fsm?: string;
-  id?: string;
+  id: string;
   condition?: any;
   language?: 'qore' | 'python';
   execution_order?: number;
@@ -241,9 +246,18 @@ const FSMView: React.FC<IFSMViewProps> = ({
     name: fsm?.name || null,
     desc: fsm?.desc || null,
     groups: fsm?.groups || [],
+    inputType: fsm?.['input-type'] || interfaceContext?.inputType || null,
+    outputType: fsm?.['output-type'] || null,
   });
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
+  const [outputCompatibility, setOutputCompatibility] = useState<
+    { [key: string]: boolean } | undefined
+  >(undefined);
+  const [inputCompatibility, setInputCompatibility] = useState<
+    { [key: string]: boolean } | undefined
+  >(undefined);
+  const [isReady, setIsReady] = useState<boolean>(false);
   const [editingState, setEditingState] = useState<string | null>(null);
   const [editingTransition, setEditingTransition] = useState<
     { stateId: number; index: number }[] | null
@@ -371,11 +385,21 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const isFSMValid = () => {
+    if (metadata.inputType && !validateField('type-selector', metadata.inputType)) {
+      return false;
+    }
+
+    if (metadata.outputType && !validateField('type-selector', metadata.outputType)) {
+      return false;
+    }
+
     return (
       validateField('string', metadata.target_dir) &&
       validateField('string', metadata.name) &&
       validateField('string', metadata.desc) &&
       areStatesValid(states) &&
+      isTypeCompatible('input') &&
+      isTypeCompatible('output') &&
       size(states)
     );
   };
@@ -406,11 +430,13 @@ const FSMView: React.FC<IFSMViewProps> = ({
       undefined,
       fsm,
       ({ fsmData: { metadata, states }, interfaceId }: IDraftData) => {
-        // From draft
-        //setIsFromDraft(true);
         setInterfaceId(interfaceId);
         setMetadata(metadata);
         setStates(states);
+      },
+      undefined,
+      () => {
+        setIsReady(true);
       }
     );
   };
@@ -434,7 +460,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   });
 
   useDebounce(
-    () => {
+    async () => {
       if (!embedded) {
         const draftId = getDraftId(fsm, interfaceId);
         const hasChanged = fsm
@@ -448,6 +474,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
           (hasValue(metadata.target_dir) ||
             hasValue(metadata.desc) ||
             hasValue(metadata.name) ||
+            hasValue(metadata.inputType) ||
+            hasValue(metadata.outputType) ||
             size(metadata.groups) ||
             size(states)) &&
           hasChanged
@@ -470,11 +498,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
       }
     },
     1500,
-    [metadata, states]
+    [metadata, states, inputCompatibility, outputCompatibility]
   );
 
   useEffect(() => {
-    if (qorus_instance) {
+    if (qorus_instance && isReady) {
       if (embedded || fsm) {
         let newStates = embedded ? states : cloneDeep(fsm?.states || {});
 
@@ -509,13 +537,22 @@ const FSMView: React.FC<IFSMViewProps> = ({
         setFsmReset(null);
       }
     };
-  }, [qorus_instance]);
+  }, [qorus_instance, isReady]);
 
   useEffect(() => {
     if (states && onStatesChange) {
       onStatesChange(states);
     }
   }, [states]);
+
+  useDebounce(
+    () => {
+      areFinalStatesCompatibleWithOutputType();
+      areFinalStatesCompatibleWithInputType();
+    },
+    1000,
+    [metadata?.outputType, metadata?.inputType, states]
+  );
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === DIAGRAM_DRAG_KEY) {
@@ -538,6 +575,19 @@ const FSMView: React.FC<IFSMViewProps> = ({
     const { transitions } = states[stateId];
 
     return transitions?.find((transition) => transition.state === targetId);
+  };
+
+  // This function gets all the states that do not have any transitions out of them
+  const getEndStates = (): IFSMState[] => {
+    return filter(states, (state: IFSMState) => {
+      return !size(state.transitions);
+    });
+  };
+
+  const getStartStates = (): IFSMState[] => {
+    return filter(states, (state: IFSMState) => {
+      return !!state.initial;
+    });
   };
 
   const getStateDataForComparison = (
@@ -568,6 +618,135 @@ const FSMView: React.FC<IFSMViewProps> = ({
     return {
       typeData: state[`${providerType}-type`] || state['input-output-type'],
     };
+  };
+
+  const isTypeCompatible = (position: 'input' | 'output') => {
+    if (position === 'input' && !inputCompatibility) {
+      return true;
+    }
+
+    if (position === 'output' && !outputCompatibility) {
+      return true;
+    }
+
+    const isCompatible = every(
+      position === 'input' ? inputCompatibility : outputCompatibility,
+      (result) => {
+        return result === true;
+      }
+    );
+
+    return isCompatible;
+  };
+
+  const areFinalStatesCompatibleWithOutputType = async () => {
+    setCompatibilityChecked(false);
+    setOutputCompatibility(undefined);
+
+    const endStates = getEndStates();
+
+    if (!endStates.length) {
+      setOutputCompatibility(undefined);
+      setCompatibilityChecked(true);
+      return;
+    }
+
+    const outputType = metadata.outputType;
+
+    if (!outputType) {
+      setOutputCompatibility(undefined);
+      setCompatibilityChecked(true);
+      return;
+    }
+
+    const compareHash = {};
+
+    for await (const state of endStates) {
+      const stateData = getStateDataForComparison(state, 'output');
+      if (!stateData) {
+        continue;
+      }
+
+      let output = await getStateProvider(stateData, 'output');
+      if (!output) {
+        continue;
+      }
+
+      output.options = reduce(
+        output.options || {},
+        (newOptions, option, key) => ({
+          ...newOptions,
+          [key]: option.value,
+        }),
+        {}
+      );
+
+      compareHash[state.id] = {
+        type: output,
+        base_type: outputType,
+      };
+    }
+
+    const comparison = await fetchData('/dataprovider/compareManyTypes', 'PUT', {
+      types: compareHash,
+    });
+
+    setCompatibilityChecked(true);
+    setOutputCompatibility(comparison.data);
+  };
+
+  const areFinalStatesCompatibleWithInputType = async () => {
+    setCompatibilityChecked(false);
+    setInputCompatibility(undefined);
+
+    const startStates = getStartStates();
+
+    if (!startStates.length) {
+      setInputCompatibility(undefined);
+      setCompatibilityChecked(true);
+      return;
+    }
+
+    const inputType: IProviderType | undefined = cloneDeep(metadata.inputType);
+
+    if (!inputType) {
+      setInputCompatibility(undefined);
+      setCompatibilityChecked(true);
+      return;
+    }
+
+    // Format and fix the options
+    inputType.options = await formatAndFixOptionsToKeyValuePairs(inputType.options);
+
+    const compareHash = {};
+
+    for await (const state of startStates) {
+      const stateData = getStateDataForComparison(state, 'input');
+
+      if (!stateData) {
+        continue;
+      }
+
+      let input: IProviderType = await getStateProvider(stateData, 'input');
+
+      if (!input) {
+        continue;
+      }
+
+      input.options = await formatAndFixOptionsToKeyValuePairs(input.options);
+
+      compareHash[state.id] = {
+        type: inputType,
+        base_type: input,
+      };
+    }
+
+    const comparison = await fetchData('/dataprovider/compareManyTypes', 'PUT', {
+      types: compareHash,
+    });
+
+    setCompatibilityChecked(true);
+    setInputCompatibility(comparison.data);
   };
 
   const areStatesCompatible = async (
@@ -878,6 +1057,17 @@ const FSMView: React.FC<IFSMViewProps> = ({
       delete fixedMetadata.groups;
     }
 
+    if (fixedMetadata.inputType) {
+      fixedMetadata['input-type'] = fixedMetadata.inputType;
+    }
+
+    if (fixedMetadata.outputType) {
+      fixedMetadata['output-type'] = fixedMetadata.outputType;
+    }
+
+    delete fixedMetadata.inputType;
+    delete fixedMetadata.outputType;
+
     const result = await callBackend(
       fsm ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
       undefined,
@@ -1025,6 +1215,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
       desc: fsm?.desc,
       target_dir: fsm?.target_dir,
       groups: fsm?.groups || [],
+      inputType: fsm?.['input-type'],
+      outputType: fsm?.['output-type'],
     });
   };
 
@@ -1118,6 +1310,14 @@ const FSMView: React.FC<IFSMViewProps> = ({
     );
   }
 
+  if (!isReady) {
+    return (
+      <Callout title={t('Loading')} icon="info-sign" intent="warning">
+        {t('Loading FSM...')}
+      </Callout>
+    );
+  }
+
   if (showTransitionsToaster.current) {
     AppToaster.show({
       message: `${showTransitionsToaster.current} ${t('IncompatibleTransitionsRemoved')}`,
@@ -1133,7 +1333,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
           <Loader text={t('CheckingCompatibility')} />
         </StyledCompatibilityLoader>
       )}
-      <div ref={fieldsWrapperRef} id="fsm-fields-wrapper">
+      <div
+        ref={fieldsWrapperRef}
+        id="fsm-fields-wrapper"
+        style={{ height: '50%', overflowY: 'auto', overflowX: 'hidden' }}
+      >
         {!isMetadataHidden && (
           <>
             <FieldWrapper name="selected-field">
@@ -1210,6 +1414,62 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   }}
                   value={metadata.groups}
                   name="groups"
+                />
+              </FieldInputWrapper>
+            </FieldWrapper>
+            <FieldWrapper name="selected-field">
+              <FieldLabel
+                isValid={
+                  !metadata.inputType
+                    ? true
+                    : validateField('type-selector', metadata.inputType) &&
+                      isTypeCompatible('input')
+                }
+                info={t('Optional')}
+                label={t('InputType')}
+              />
+              <FieldInputWrapper>
+                {!isTypeCompatible('input') && (
+                  <>
+                    <Callout intent="danger">{t('FSMInputTypeError')}</Callout>
+                    <Spacer size={20} />
+                  </>
+                )}
+                <Connectors
+                  inline
+                  minimal
+                  value={metadata.inputType}
+                  onChange={(n, v) => v && handleMetadataChange(n, v)}
+                  name="inputType"
+                  isInitialEditing={fsm?.['input-type']}
+                />
+              </FieldInputWrapper>
+            </FieldWrapper>
+            <FieldWrapper name="selected-field">
+              <FieldLabel
+                isValid={
+                  !metadata.outputType
+                    ? true
+                    : validateField('type-selector', metadata.outputType) &&
+                      isTypeCompatible('output')
+                }
+                info={t('Optional')}
+                label={t('OutputType')}
+              />
+              <FieldInputWrapper>
+                {!isTypeCompatible('output') && (
+                  <>
+                    <Callout intent="danger">{t('FSMOutputTypeError')}</Callout>
+                    <Spacer size={20} />
+                  </>
+                )}
+                <Connectors
+                  inline
+                  minimal
+                  value={metadata.outputType}
+                  onChange={(n, v) => v && handleMetadataChange(n, v)}
+                  name="outputType"
+                  isInitialEditing={fsm?.['output-type']}
                 />
               </FieldInputWrapper>
             </FieldWrapper>

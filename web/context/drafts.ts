@@ -45,7 +45,8 @@ export interface IDraftsContext {
     draftData?: IDraftData,
     existingInterface?: { [key: string]: any },
     customFunction?: (draft: IDraftData) => void,
-    classConnectionsFunction?: (classConnections: IClassConnections) => unknown
+    classConnectionsFunction?: (classConnections: IClassConnections) => unknown,
+    onFinish?: () => any
   ) => void;
   maybeDeleteDraft?: (
     interfaceKind: string,

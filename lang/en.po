@@ -3127,3 +3127,9 @@ msgstr "Create release"
 
 msgid "SelectFiltered"
 msgstr "Select filtered"
+
+msgid "FSMInputTypeError"
+msgstr "Input type is incompatible with one or more initial states"
+
+msgid "FSMOutputTypeError"
+msgstr "Output type is incompatible with one or more final states"

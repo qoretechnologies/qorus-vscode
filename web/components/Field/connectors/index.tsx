@@ -1,7 +1,7 @@
 import { Button, Callout, Classes, Tag } from '@blueprintjs/core';
 import { cloneDeep, isEqual, map, reduce } from 'lodash';
 import size from 'lodash/size';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useDebounce } from 'react-use';
 import compose from 'recompose/compose';
@@ -13,19 +13,33 @@ import withTextContext from '../../../hocomponents/withTextContext';
 import SubField from '../../SubField';
 import { ApiCallArgs } from '../apiCallArgs';
 import BooleanField from '../boolean';
-import Options from '../systemOptions';
+import Options, { IOptions } from '../systemOptions';
 
 export interface IConnectorFieldProps {
   title?: string;
   onChange: (name: string, data: any) => void;
   name: string;
-  value: any;
+  value: IProviderType;
   isInitialEditing?: boolean;
   initialData: any;
   inline?: boolean;
   providerType?: 'inputs' | 'outputs' | 'event' | 'input-output' | 'condition';
   t: TTranslator;
   requiresRequest?: boolean;
+}
+
+export interface IProviderType {
+  type: string;
+  name: string;
+  path?: string;
+  options?: IOptions;
+  hasApiContext?: boolean;
+  optionsChanged?: boolean;
+  desc?: string;
+  use_args?: boolean;
+  args?: any;
+  supports_request?: boolean;
+  is_api_call?: boolean;
 }
 
 const StyledProviderUrl = styled.div`
@@ -37,7 +51,7 @@ const StyledProviderUrl = styled.div`
   }
 `;
 
-export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
+export const getUrlFromProvider: (val: IProviderType, withOptions?: boolean) => string = (
   val,
   withOptions
 ) => {
@@ -45,7 +59,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   if (typeof val === 'string') {
     return val;
   }
-  const { type, name, path, options, is_api_call } = val;
+  const { type, name, path = '', options, is_api_call, hasApiContext } = val;
   let optionString;
 
   if (size(options)) {
@@ -61,7 +75,7 @@ export const getUrlFromProvider: (val: any, withOptions?: boolean) => string = (
   if (withOptions) {
     return `${url}/${name}/${
       type === 'factory' ? 'provider_info/' : ''
-    }constructor_options?context=ui`;
+    }constructor_options?context=ui${hasApiContext ? '&context=api' : ''}`;
   }
 
   // Check if the path ends in /request or /response
@@ -96,11 +110,14 @@ export const maybeBuildOptionProvider = (provider) => {
     // Get everything between the < and >
     //const factory = provider.substring(provider.indexOf('<') + 1, provider.indexOf('>'));
     // Get the factory name
-    const [factoryType, nameWithOptions] = provider.split('/');
+    const [factoryType, nameWithOptions]: string[] = provider.split('/');
     // Get everything between the first / and { bracket
     const [factoryName] = nameWithOptions.split('{');
-    // Get everything in the provider between { and }, which are the options
-    const options = provider.substring(provider.indexOf('{') + 1, provider.indexOf('}'));
+    // Get everything in the provider between first { and last }, which are the options
+    const options = nameWithOptions.substring(
+      nameWithOptions.indexOf('{') + 1,
+      nameWithOptions.lastIndexOf('}')
+    );
     // Split the options by comma
     const optionsArray = options.split(',');
     let optionsObject = {};
@@ -150,9 +167,11 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   requiresRequest,
   t,
 }) => {
-  const [optionProvider, setOptionProvider] = useState(maybeBuildOptionProvider(value));
+  const [optionProvider, setOptionProvider] = useState<IProviderType | null>(
+    maybeBuildOptionProvider(value)
+  );
   const [nodes, setChildren] = useState(
-    optionProvider && optionProvider.type === 'factory'
+    optionProvider
       ? [
           {
             value: optionProvider.name,
@@ -189,13 +208,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     setIsLoading(false);
     onChange(name, null);
   };
-
-  // Update the editing state when initial editing changes
-  useEffect(() => {
-    if (optionProvider?.type !== 'factory') {
-      setIsEditing(isInitialEditing);
-    }
-  }, [isInitialEditing]);
 
   useDebounce(
     () => {
