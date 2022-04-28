@@ -882,6 +882,15 @@ export class QorusProjectCodeInfo {
       console.log('OBJECT DATA', data);
 
       if (data.type === 'service' && data['api-manager']) {
+        // Add the schema
+        // Add the schema to other files to be deployed
+        result.push({
+          yaml_file: path.resolve(
+            data.target_dir,
+            data['api-manager']?.['provider-options']?.schema?.value
+          ),
+        });
+
         data['api-manager'].endpoints.forEach((endpoint) => {
           if (endpoint.type === 'fsm') {
             checkObject('fsm', endpoint.value);
