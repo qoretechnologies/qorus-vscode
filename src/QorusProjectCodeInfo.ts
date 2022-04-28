@@ -879,6 +879,16 @@ export class QorusProjectCodeInfo {
       checkObjects('fsm', data.fsm);
       checkObjects('value-map', data.vmaps);
 
+      console.log('OBJECT DATA', data);
+
+      if (data.type === 'service' && data['api-manager']) {
+        data['api-manager'].endpoints.forEach((endpoint) => {
+          if (endpoint.type === 'fsm') {
+            checkObject('fsm', endpoint.value);
+          }
+        });
+      }
+
       Object.keys(data['class-connections'] || {}).forEach((connection) => {
         const connectors = data['class-connections'][connection];
         connectors.forEach((connector) => checkObject('class', connector.class));
