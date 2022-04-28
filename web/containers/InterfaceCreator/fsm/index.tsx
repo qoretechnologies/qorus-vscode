@@ -40,7 +40,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
+  ITypeComparatorData
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -740,8 +740,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
         base_type: input,
       };
     }
-
-    console.log(compareHash);
 
     const comparison = await fetchData('/dataprovider/compareManyTypes', 'PUT', {
       types: compareHash,

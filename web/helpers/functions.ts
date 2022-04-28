@@ -347,7 +347,7 @@ export const callBackendBasic: (
     // if the ID matches then resolve
     addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
       if (data.request_id === uniqueId) {
-        if (toastMessage || !data.ok) {
+        if (toastMessage) {
           AppToaster.show(
             {
               message: data.message || `Request ${getMessage} failed!`,
