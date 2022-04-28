@@ -186,6 +186,7 @@ const App: FunctionComponent<IApp> = ({
         if (fetchedDraft.ok) {
           draftToApply = fetchedDraft.data;
         } else {
+          onFinish?.();
           return;
         }
       }

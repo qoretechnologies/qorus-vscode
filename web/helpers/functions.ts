@@ -1,4 +1,4 @@
-import { reduce } from 'lodash';
+import { cloneDeep, reduce } from 'lodash';
 import forEach from 'lodash/forEach';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
@@ -15,6 +15,7 @@ import set from 'lodash/set';
 import size from 'lodash/size';
 import path from 'path';
 import shortid from 'shortid';
+import { IOptions } from '../components/Field/systemOptions';
 import { AppToaster } from '../components/Toast';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
@@ -225,6 +226,28 @@ export const areTypesCompatible = async (
   });
 
   return comparison.data;
+};
+
+export const formatAndFixOptionsToKeyValuePairs = async (options?: IOptions): Promise<IOptions> => {
+  const newOptions = cloneDeep(options || {});
+
+  for await (const optionName of Object.keys(newOptions || {})) {
+    let newValue = newOptions[optionName].value;
+
+    if (newOptions[optionName].type === 'file-as-string') {
+      // We need to fetch the file contents from the server
+      // Load the contents into the schema string
+      const { fileData } = await callBackendBasic(Messages.GET_FILE_CONTENT, undefined, {
+        file: newOptions[optionName].value,
+      });
+
+      newValue = fileData;
+    }
+
+    newOptions[optionName].value = newValue;
+  }
+
+  return newOptions;
 };
 
 export const areConnectorsCompatible = async (

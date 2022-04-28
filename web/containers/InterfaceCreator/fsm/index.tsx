@@ -33,13 +33,14 @@ import {
   areTypesCompatible,
   deleteDraft,
   fetchData,
+  formatAndFixOptionsToKeyValuePairs,
   getDraftId,
   getStateProvider,
   getTargetFile,
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -240,8 +241,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
     setStates = setSt;
   }
 
-  console.log(interfaceContext);
-
   const [metadata, setMetadata] = useState<IFSMMetadata>({
     target_dir: fsm?.target_dir || interfaceContext?.target_dir || null,
     name: fsm?.name || null,
@@ -406,7 +405,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const handleMetadataChange: (name: string, value: any) => void = (name, value) => {
-    console.log('handleMetadataChange', name, value);
     setMetadata((cur) => ({
       ...cur,
       [name]: value,
@@ -432,9 +430,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
       undefined,
       fsm,
       ({ fsmData: { metadata, states }, interfaceId }: IDraftData) => {
-        console.log('draft applied', metadata, states);
-        // From draft
-        //setIsFromDraft(true);
         setInterfaceId(interfaceId);
         setMetadata(metadata);
         setStates(states);
@@ -712,7 +707,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
       return;
     }
 
-    const inputType = metadata.inputType;
+    const inputType: IProviderType | undefined = cloneDeep(metadata.inputType);
 
     if (!inputType) {
       setInputCompatibility(undefined);
@@ -720,36 +715,33 @@ const FSMView: React.FC<IFSMViewProps> = ({
       return;
     }
 
+    // Format and fix the options
+    inputType.options = await formatAndFixOptionsToKeyValuePairs(inputType.options);
+
     const compareHash = {};
 
     for await (const state of startStates) {
       const stateData = getStateDataForComparison(state, 'input');
+
       if (!stateData) {
         continue;
       }
 
-      let input = await getStateProvider(stateData, 'input');
+      let input: IProviderType = await getStateProvider(stateData, 'input');
+
       if (!input) {
         continue;
       }
 
-      input.options = reduce(
-        input.options || {},
-        (newOptions, option, key) => ({
-          ...newOptions,
-          [key]: option.value,
-        }),
-        {}
-      );
+      input.options = await formatAndFixOptionsToKeyValuePairs(input.options);
 
       compareHash[state.id] = {
-        type: {
-          ...inputType,
-          context: inputType.hasApiContext ? 'api' : undefined,
-        },
+        type: inputType,
         base_type: input,
       };
     }
+
+    console.log(compareHash);
 
     const comparison = await fetchData('/dataprovider/compareManyTypes', 'PUT', {
       types: compareHash,
