@@ -118,12 +118,13 @@ class QorusDeploy {
       }
     });
 
+    const pair_files: string[] = files
+      .map((file) => this.code_info.pairFile(file))
+      .filter((file) => !!file);
+
     if (with_dependencies) {
       this.doDeploy(this.code_info.getFilesOfReferencedObjects(removeDuplicates(files)));
     } else {
-      const pair_files: string[] = files
-        .map((file) => this.code_info.pairFile(file))
-        .filter((file) => !!file);
       this.doDeploy(removeDuplicates([...files, ...pair_files]));
     }
   };

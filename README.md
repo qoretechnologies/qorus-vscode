@@ -5,6 +5,13 @@ This extension makes it possible to easily create, deploy, and test Qorus interf
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be
 reused later and setup an initial configuration for them.
 
+## Version 3.6.0 overview - What's new:
+
+- FSMs now support input & output types
+- FSMs created from API Manager service now automatically acquire the required input type for the given endpoint
+- Fixed a bug where the FSM would crash with an API call state
+- Fixed a bug that caused config items values with multiple curly brackets to be incorrectly interpreted
+
 ## Version 3.5.0 overview - What's new:
 
 - It is now possible to create a custom release by selecting interfaces inside the `Release` tab.
@@ -18,80 +25,6 @@ reused later and setup an initial configuration for them.
 - Added IDE support for API managers in services, allowing Qorus services to provide server-side API implementations with a low-code/no-code solution; these can also be microservices when Qorus is deployed in Kubernetes and the stateless flag is set
 - IF states no longer save the `input-output-type` flag to YAML if it's not defined
 - Many visual improvements and bug fixes
-
-## Version 3.3.1 overview - What's new:
-
-- Fixed a bug that caused issues when adding optional options
-
-## Version 3.3.0 overview - What's new:
-
-- Introducing new type of state: API Call - It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them (required Qorus 5.1.29+)
-- It is now possible to duplicate interfaces right from the hierarchy view
-- Reordered some context menu item for better consistency
-- Fixed a bug in allowed values in config items that caused discrepancies when adding new allowed values
-
-## Version 3.2.2 overview - What's new:
-
-- Fixed a bug where non-factory data providers in config items were not able to be saved
-
-## Version 3.2.1 overview - What's new:
-
-- It is now possible to edit factory data providers, and their options, without having to re-create them
-
-## Version 3.2.0 overview - What's new:
-
-- Hierarchy view now shows and allows deployment of Qorus files such as Schema modules, Scripts and Tests
-- Any file inside your source directories can now be deployed to your active instance
-- QoL improvements for the item select dialog - descriptions are now hidden and will be shown after hovering an item; The filter stays on top of the dialog when scrolling;
-- It is now possible to execute tests from the hierarchy view
-- Fixed a bug where it was not possible to drag mapper inputs if the window was scrolled all the way the bottom
-
-## Version 3.1.1 overview - What's new:
-
-- Fixed a bug that prevented mapper provider types from loading properly
-
-## Version 3.1.0 overview - What's new:
-
-- Added support for data provider factories to allow for more flexibility and more types of data providers to be used in mappers (support for data provider factories requires Qorus 5.1.25+)
-- Added support for the following new config item types (which are backwards compatible with strings) to allow for a better user experience by restricting possible values to only valid values for the type:
-  - `Connection`: allows only valid connection names to be selected
-  - `Data provider`: allows only valid data providers to be selected
-  - `Job`: allows only valid job names to be selected
-  - `Mapper`: allows only valid mapper names to be selected
-  - `Service`: allows only valid service names to be selected
-  - `Value map`: allows only valid value map names to be selected
-  - `Workflow`: allows only valid workflow names to be selected
-- Fixed a bug handling mapper drafts
-- Fixed a bug where some valid mappers would not open to the diagram page
-- Fixed a bug that prevented pipeline with the identical name as it's FSM parent to be shown in the state dialog
-
-## Version 3.0.2 overview - What's new:
-
-- Fixed a bug in Java code generation for step validation methods with connectors
-- Fixed a bug where the IDE was not usable on Windows
-- Config items type selection no longer offers soft types
-- Config items value field no longer automatically wraps hash & list element values
-
-## Version 3.0.1 overview - What's new:
-
-- Fixed a bug that incorrectly saved config items with any type
-- Fixed a visual bug that caused empty spaces to appear in some field selectors
-- ENTER key is now properly respected on the login page
-- Fixed a bug where the login page would not disappear after successfully logging in
-- Fixed a bug where only the latest version of some interfaces would be shown in the hierarchy view
-
-## Version 3.0 overview - What's new:
-
-- Automatic draft management for all objects; never lose work again due to the IDE resetting its state; drafts are saved of any edits made and can be managed directly in the IDE as well
-- fixed a bug where selecting an incompatible mapper in a pipeline dialog would result in an unusuable dialog
-- fixed a bug where it was impossible to add service methods to a service in certain situations
-- fixed a bug where it was not possible to enter in a config item string value with newlines
-- fixed a bug where it was not possible to save a config item value in an FSM connector with type `any`
-- fixed a bug where the job schedule was reset to a default value every time a job was opened
-- fixed a bug in the Qorus connections page where icons were lost when the active connection was lost
-- fixed a bug where the IDE would remain on the login page after a successful login
-- fixed a bug where the step modal dialog in the workflow diagrm view had a horizontal scroll bar with steps with very long names
-- fixed a bug where the Java constructor name was not renamed when the object class name was changed
 
 ---
 

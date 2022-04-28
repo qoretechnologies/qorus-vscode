@@ -90,7 +90,8 @@ export type IQorusType =
   | 'workflow'
   | 'service'
   | 'job'
-  | 'data-provider';
+  | 'data-provider'
+  | 'file-as-string';
 export type TOption = {
   type: IQorusType;
   value: any;

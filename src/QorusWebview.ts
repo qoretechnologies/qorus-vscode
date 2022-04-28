@@ -456,25 +456,33 @@ class QorusWebview {
               });
               break;
             case 'get-draft': {
-              const data = QorusDraftsInstance.getSingleDraftContent(
-                message.interfaceKind,
-                `${message.draftId}.json`
-              );
+              try {
+                const data = QorusDraftsInstance.getSingleDraftContent(
+                  message.interfaceKind,
+                  `${message.draftId}.json`
+                );
 
-              // Apply config items to draft if they exist
-              if (data.configItems) {
-                project.interface_info.iface_by_id[data.interfaceId] = {
-                  ...(project?.interface_info?.iface_by_id?.[data.interfaceId] || {}),
-                  'config-items': data.configItems,
-                };
+                // Apply config items to draft if they exist
+                if (data.configItems) {
+                  project.interface_info.iface_by_id[data.interfaceId] = {
+                    ...(project?.interface_info?.iface_by_id?.[data.interfaceId] || {}),
+                    'config-items': data.configItems,
+                  };
+                }
+
+                this.panel.webview.postMessage({
+                  action: 'get-draft-complete',
+                  request_id: message.request_id,
+                  ok: true,
+                  data,
+                });
+              } catch (e) {
+                this.panel.webview.postMessage({
+                  action: 'get-draft-complete',
+                  request_id: message.request_id,
+                  ok: false,
+                });
               }
-
-              this.panel.webview.postMessage({
-                action: 'get-draft-complete',
-                request_id: message.request_id,
-                ok: true,
-                data,
-              });
               break;
             }
             case 'delete-draft':
