@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.6.2
+
+#### Bug Fixes
+
+ - Fixed draft changes being saved upon opening FSM without any changes.
+
 ## Version 3.6.1
 
 #### Bug Fixes
