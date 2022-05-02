@@ -8,3 +8,4 @@ ui-test/node_modules
 ui-test/test_project/*
 ui-test/extensions
 api.http
+.idea/*

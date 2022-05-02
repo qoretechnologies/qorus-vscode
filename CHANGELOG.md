@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.6.1
+
+#### Bug Fixes
+
+- Fixed a bug where the FSM fields wrapper would not collapse when hidden.
+
 ## Version 3.6.0
 
 #### New Features
