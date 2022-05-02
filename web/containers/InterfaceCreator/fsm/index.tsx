@@ -40,7 +40,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -465,10 +465,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
         const draftId = getDraftId(fsm, interfaceId);
         const hasChanged = fsm
           ? some(metadata, (value, key) => {
-              return !isEqual(value, key === 'groups' ? fsm[key] || [] : fsm[key]);
+              return !value && !fsm[key]
+                ? false
+                : !isEqual(value, key === 'groups' ? fsm[key] || [] : fsm[key]);
             }) || !isEqual(states, fsm.states)
           : true;
-
         if (
           draftId &&
           (hasValue(metadata.target_dir) ||
@@ -1336,7 +1337,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
       <div
         ref={fieldsWrapperRef}
         id="fsm-fields-wrapper"
-        style={{ height: !isMetadataHidden ? '50%' : undefined, overflowY: 'auto', overflowX: 'hidden' }}
+        style={{
+          height: !isMetadataHidden ? '50%' : undefined,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
       >
         {!isMetadataHidden && (
           <>
