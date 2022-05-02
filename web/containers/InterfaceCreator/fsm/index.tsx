@@ -1336,7 +1336,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
       <div
         ref={fieldsWrapperRef}
         id="fsm-fields-wrapper"
-        style={{ height: '50%', overflowY: 'auto', overflowX: 'hidden' }}
+        style={{ height: !isMetadataHidden ? '50%' : undefined, overflowY: 'auto', overflowX: 'hidden' }}
       >
         {!isMetadataHidden && (
           <>
