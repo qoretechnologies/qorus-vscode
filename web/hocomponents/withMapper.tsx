@@ -454,6 +454,10 @@ export default () =>
               }
             } else {
               setIsContextLoaded(true);
+              // Cancel loading
+              setInputsLoading(false);
+              // Cancel loading
+              setOutputsLoading(false);
               maybeApplyStoredDraft();
             }
           })();
