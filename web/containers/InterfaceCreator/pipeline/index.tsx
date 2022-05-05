@@ -29,7 +29,7 @@ import {
   deleteDraft,
   getDraftId,
   getTargetFile,
-  hasValue
+  hasValue,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
