@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "3.6.2",
+  "version": "3.6.3",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
