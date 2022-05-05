@@ -29,7 +29,7 @@ import {
   deleteDraft,
   getDraftId,
   getTargetFile,
-  hasValue,
+  hasValue
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -342,7 +342,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
   useDebounce(
     () => {
       const draftId = getDraftId(pipeline, interfaceId);
-
       const hasChanged = pipeline
         ? some(metadata, (value, key) => {
             return !isEqual(value, pipeline[key]);
@@ -360,7 +359,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             )
           )
         : true;
-
       if (
         draftId &&
         (hasValue(metadata.target_dir) ||

@@ -206,14 +206,14 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     setProvider(null);
     setOptionProvider(null);
     setIsLoading(false);
-    onChange(name, null);
+    onChange(name, undefined);
   };
 
   useDebounce(
     () => {
       if (!isEditing) {
         if (!optionProvider) {
-          onChange(name, optionProvider);
+          onChange(name, undefined);
           return;
         }
 

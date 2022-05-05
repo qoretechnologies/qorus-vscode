@@ -21,4 +21,5 @@ tasks:
     command: |
       nvm install v14.18
       git config --global http.sslverify false
+      cd /workspace/qorus-vscode
       npm run start
