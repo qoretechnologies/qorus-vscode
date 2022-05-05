@@ -1,10 +1,16 @@
 # Changelog
 
+## Version 3.6.3
+
+#### Bug Fixes
+
+- Fixed a bug where new mapper submit button would not be enabled unless the mapper page was left
+
 ## Version 3.6.2
 
 #### Bug Fixes
 
- - Fixed draft changes being saved upon opening FSM without any changes.
+- Fixed draft changes being saved upon opening FSM without any changes.
 
 ## Version 3.6.1
 

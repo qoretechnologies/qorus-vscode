@@ -102,6 +102,8 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     }
   }, [JSON.stringify(omit(mapperData, ['isContextLoaded']))]);
 
+  console.log(inputsLoading || outputsLoading);
+
   return error ? (
     <Callout intent="danger">{t(error)}</Callout>
   ) : (

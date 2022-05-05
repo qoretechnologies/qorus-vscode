@@ -16,6 +16,8 @@ tasks:
   - init: |
       nvm install v14.18
       npm install
+      cd /workspace
+      git clone https://git.qoretechnologies.com/qorus/building-blocks
     command: |
       nvm install v14.18
       git config --global http.sslverify false
