@@ -195,8 +195,8 @@ export const areTypesCompatible = async (
     return true;
   }
 
-  let output = await getStateProvider(outputTypeData, 'output');
-  let input = await getStateProvider(inputTypeData, 'input');
+  let output = cloneDeep(await getStateProvider(outputTypeData, 'output'));
+  let input = cloneDeep(await getStateProvider(inputTypeData, 'input'));
 
   if (!input || !output) {
     return true;

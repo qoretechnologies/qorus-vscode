@@ -336,7 +336,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
       })();
     },
     1000,
-    [metadata['input-provider'], JSON.stringify(elements)]
+    [JSON.stringify(metadata['input-provider']), JSON.stringify(elements)]
   );
 
   useDebounce(
@@ -427,7 +427,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
       (fields ? true : isDiagramValid(data)) &&
       validateField('string', metadata.name) &&
       validateField('string', metadata.desc) &&
-      validateField('string', metadata.target_dir)
+      validateField('string', metadata.target_dir) &&
+      validateField('type-selector', metadata['input-provider'])
     );
   };
 
