@@ -246,7 +246,7 @@ export const formatAndFixOptionsToKeyValuePairs = async (options?: IOptions): Pr
       newValue = fileData;
     }
 
-    newOptions[optionName].value = newValue;
+    newOptions[optionName] = newValue;
   }
 
   return newOptions;

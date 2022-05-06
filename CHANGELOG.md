@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.6.4
+
+#### Bug Fixes
+
+- Fixed Pipeline & FSM provider fields & unnecessary draft saving issue
+
 ## Version 3.6.3
 
 #### Bug Fixes
