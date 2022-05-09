@@ -742,6 +742,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
       };
     }
 
+    console.log(inputType, compareHash);
+
     const comparison = await fetchData('/dataprovider/compareManyTypes', 'PUT', {
       types: compareHash,
     });

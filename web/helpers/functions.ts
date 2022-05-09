@@ -195,8 +195,8 @@ export const areTypesCompatible = async (
     return true;
   }
 
-  let output = await getStateProvider(outputTypeData, 'output');
-  let input = await getStateProvider(inputTypeData, 'input');
+  let output = cloneDeep(await getStateProvider(outputTypeData, 'output'));
+  let input = cloneDeep(await getStateProvider(inputTypeData, 'input'));
 
   if (!input || !output) {
     return true;
@@ -219,6 +219,8 @@ export const areTypesCompatible = async (
     }),
     {}
   );
+
+  console.log(input, output);
 
   const comparison = await fetchData('/dataprovider/compareTypes', 'PUT', {
     base_type: input,
@@ -244,7 +246,7 @@ export const formatAndFixOptionsToKeyValuePairs = async (options?: IOptions): Pr
       newValue = fileData;
     }
 
-    newOptions[optionName].value = newValue;
+    newOptions[optionName] = newValue;
   }
 
   return newOptions;
@@ -414,19 +416,16 @@ export const checkPipelineCompatibility = async (elements, inputProvider) => {
   const newElements = [...elements];
 
   for await (const element of flattened) {
-    if (element.type === 'queue') {
+    // If the element is a queue or a start element (a circle with no value / data) it's automatically compatible
+    if (element.type === 'queue' || element.type === 'start') {
       Promise.resolve();
     } else {
       const isCompatibleWithParent = await areTypesCompatible(
         getPipelineClosestParentOutputData(element.parent, inputProvider),
-        element.type === 'start'
-          ? {
-              typeData: inputProvider,
-            }
-          : {
-              interfaceKind: element.type,
-              interfaceName: element.name,
-            }
+        {
+          interfaceKind: element.type,
+          interfaceName: element.name,
+        }
       );
 
       if (!isCompatibleWithParent) {
