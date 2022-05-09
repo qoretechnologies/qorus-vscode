@@ -5,13 +5,11 @@ This extension makes it possible to easily create, deploy, and test Qorus interf
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be
 reused later and setup an initial configuration for them.
 
-## Version 3.6.5 overview - What's new:
-
-- Fixed a bug where deploying an FSM would not deploy Class dependencies
-
 ## Version 3.6.4 overview - What's new:
 
 - Fixed Pipeline & FSM provider fields & unnecessary draft saving issue
+- Fixed a bug where deploying an FSM would not deploy Class dependencies
+- Fixed a bug where FSM drafts would be saved without any changes when editing FSMs
 
 ## Version 3.6.3 overview - What's new:
 
