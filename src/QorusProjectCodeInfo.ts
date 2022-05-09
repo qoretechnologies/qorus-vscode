@@ -926,7 +926,7 @@ export class QorusProjectCodeInfo {
           checkObject(state.action.type, state.action.value);
         }
         if (['connector'].includes(state.action?.type)) {
-          checkObject('class', state.action.value);
+          checkObject('class', state.action.value.class);
         }
       });
 
