@@ -18,6 +18,7 @@ export const Messages = {
   RETURN_INTERFACE_DATA: 'return-interface-data',
   GET_INTERFACE_DATA: 'get-interface-data',
   GET_CONFIG_ITEMS: 'get-config-items',
+  REMOVE_CONFIG_ITEMS: 'remove-config-items',
   RETURN_CONFIG_ITEMS: 'return-config-items',
   UPDATE_CONFIG_ITEM_VALUE: 'update-config-item-value',
   CONFIG_RETURN_DATA: 'config-return-data',

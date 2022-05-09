@@ -203,6 +203,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   const clear = () => {
     setIsEditing(false);
     setOptionProvider(null);
+    onChange(name, undefined);
   };
 
   const reset = () => {

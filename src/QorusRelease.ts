@@ -155,7 +155,6 @@ class QorusRelease {
       path.join(tempDir, 'release-'),
       (err, directory) => {
         if (err) throw err;
-        console.log('created temporary directory' + directory);
       }
     );
     const path_tmp_rel = path.join(path_tmp_root, project);
@@ -167,8 +166,6 @@ class QorusRelease {
         return [...newFiles, file, ...this.getRelatedFiles(file)];
       }, [])
     );
-
-    console.log(files);
 
     // copy all files to the target folder
     files.forEach((file) => {
@@ -193,7 +190,6 @@ class QorusRelease {
 
       zlib.gzip(input, (err, buffer) => {
         if (err) {
-          console.log('gzip failed: ' + err);
           throw err;
         }
         //const compressed = compressor.compressFile(input);

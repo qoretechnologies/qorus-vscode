@@ -10,6 +10,7 @@ reused later and setup an initial configuration for them.
 - Fixed Pipeline & FSM provider fields & unnecessary draft saving issue
 - Fixed a bug where deploying an FSM would not deploy Class dependencies
 - Fixed a bug where FSM drafts would be saved without any changes when editing FSMs
+- Fixed a bug where config items were left over in YAML when switching from connectors inside FSM states
 
 ## Version 3.6.3 overview - What's new:
 
