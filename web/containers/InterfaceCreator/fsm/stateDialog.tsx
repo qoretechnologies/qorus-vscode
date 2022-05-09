@@ -74,6 +74,14 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           class_name: newData.action.value['class'],
         },
       });
+    } else {
+      postMessage(Messages.REMOVE_CONFIG_ITEMS, {
+        iface_kind: 'fsm',
+        iface_id: interfaceId,
+        state_data: {
+          id: newData.id,
+        },
+      });
     }
   }, [newData.action?.value?.['class']]);
 

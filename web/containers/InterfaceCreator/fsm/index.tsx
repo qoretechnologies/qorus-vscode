@@ -465,24 +465,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
         const draftId = getDraftId(fsm, interfaceId);
         const hasChanged = fsm
           ? some(metadata, (value, key) => {
-              console.log(key, value, key === 'groups' ? fsm[key] || [] : fsm[key]);
               return !value && !fsm[key]
                 ? false
                 : !isEqual(value, key === 'groups' ? fsm[key] || [] : fsm[key]);
             }) || !isEqual(states, fsm.states)
           : true;
-
-        console.log(
-          'has metadata changed',
-          some(metadata, (value, key) => {
-            console.log(key, value, key === 'groups' ? fsm[key] || [] : fsm[key]);
-            return !value && !fsm[key]
-              ? false
-              : !isEqual(value, key === 'groups' ? fsm[key] || [] : fsm[key]);
-          })
-        );
-        console.log('have states changed', !isEqual(states, fsm.states));
-        console.log('states', states, fsm.states);
 
         if (
           draftId &&
@@ -1447,7 +1434,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   inline
                   minimal
                   value={metadata['input-type']}
-                  onChange={(n, v) => v && handleMetadataChange(n, v)}
+                  onChange={(n, v) => handleMetadataChange(n, v)}
                   name="input-type"
                   isInitialEditing={fsm?.['input-type']}
                 />
@@ -1475,7 +1462,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   inline
                   minimal
                   value={metadata['output-type']}
-                  onChange={(n, v) => v && handleMetadataChange(n, v)}
+                  onChange={(n, v) => handleMetadataChange(n, v)}
                   name="output-type"
                   isInitialEditing={fsm?.['output-type']}
                 />

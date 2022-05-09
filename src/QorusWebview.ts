@@ -360,6 +360,9 @@ class QorusWebview {
             case 'get-config-items':
               interface_info.getConfigItems(message);
               break;
+            case 'remove-config-items':
+              interface_info.removeConfigItems(message);
+              break;
             case 'get-config-item':
               interface_info.getConfigItem(message);
               break;
