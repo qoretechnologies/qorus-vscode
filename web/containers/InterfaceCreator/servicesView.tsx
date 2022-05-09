@@ -188,9 +188,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   }, [draft, showMethods]);
 
   const handleDataFinishLoadingRecur = (id) => {
-    console.log('finished loading', id);
-    console.log('setting active method', lastMethodId, hasAllMethodsLoaded);
-    console.log(1 + 1 <= lastMethodId && !hasAllMethodsLoaded);
     if (!hasAllMethodsLoaded) {
       if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
         setActiveMethod(id + 1);
@@ -200,8 +197,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
       }
     }
   };
-
-  console.log({ activeMethod, lastMethodId });
 
   return (
     <>

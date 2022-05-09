@@ -8,6 +8,8 @@ reused later and setup an initial configuration for them.
 ## Version 3.6.4 overview - What's new:
 
 - Fixed Pipeline & FSM provider fields & unnecessary draft saving issue
+- Fixed a bug where deploying an FSM would not deploy Class dependencies
+- Fixed a bug where FSM drafts would be saved without any changes when editing FSMs
 
 ## Version 3.6.3 overview - What's new:
 

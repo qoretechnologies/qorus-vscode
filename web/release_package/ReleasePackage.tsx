@@ -169,8 +169,6 @@ class ReleasePackage extends Component<
       return null;
     }
 
-    console.log(this.props);
-
     const t = this.props.t;
     const { selectedInterfaces } = this.state;
 
@@ -350,8 +348,6 @@ class ReleasePackage extends Component<
         ]}
       />
     );
-
-    console.log(this.state);
 
     return (
       <div className="flex-start" style={{ width: '100%' }}>

@@ -90,8 +90,8 @@ export interface IFSMMetadata {
   desc: string;
   target_dir: string;
   groups?: any[];
-  inputType?: IProviderType;
-  outputType?: IProviderType;
+  'input-type'?: IProviderType;
+  'output-type'?: IProviderType;
 }
 
 export interface IFSMState {
@@ -218,7 +218,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     qorus_instance,
     saveDraft,
     ...init
-  } = useContext(InitialContext);
+  }: any = useContext(InitialContext);
 
   const fsm = rest?.fsm || init?.fsm;
 
@@ -246,8 +246,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
     name: fsm?.name || null,
     desc: fsm?.desc || null,
     groups: fsm?.groups || [],
-    inputType: fsm?.['input-type'] || interfaceContext?.inputType || null,
-    outputType: fsm?.['output-type'] || null,
+    'input-type': fsm?.['input-type'] || interfaceContext?.inputType || null,
+    'output-type': fsm?.['output-type'] || null,
   });
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
@@ -385,11 +385,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const isFSMValid = () => {
-    if (metadata.inputType && !validateField('type-selector', metadata.inputType)) {
+    if (metadata['input-type'] && !validateField('type-selector', metadata['input-type'])) {
       return false;
     }
 
-    if (metadata.outputType && !validateField('type-selector', metadata.outputType)) {
+    if (metadata['output-type'] && !validateField('type-selector', metadata['output-type'])) {
       return false;
     }
 
@@ -465,18 +465,32 @@ const FSMView: React.FC<IFSMViewProps> = ({
         const draftId = getDraftId(fsm, interfaceId);
         const hasChanged = fsm
           ? some(metadata, (value, key) => {
+              console.log(key, value, key === 'groups' ? fsm[key] || [] : fsm[key]);
               return !value && !fsm[key]
                 ? false
                 : !isEqual(value, key === 'groups' ? fsm[key] || [] : fsm[key]);
             }) || !isEqual(states, fsm.states)
           : true;
+
+        console.log(
+          'has metadata changed',
+          some(metadata, (value, key) => {
+            console.log(key, value, key === 'groups' ? fsm[key] || [] : fsm[key]);
+            return !value && !fsm[key]
+              ? false
+              : !isEqual(value, key === 'groups' ? fsm[key] || [] : fsm[key]);
+          })
+        );
+        console.log('have states changed', !isEqual(states, fsm.states));
+        console.log('states', states, fsm.states);
+
         if (
           draftId &&
           (hasValue(metadata.target_dir) ||
             hasValue(metadata.desc) ||
             hasValue(metadata.name) ||
-            hasValue(metadata.inputType) ||
-            hasValue(metadata.outputType) ||
+            hasValue(metadata['input-type']) ||
+            hasValue(metadata['output-type']) ||
             size(metadata.groups) ||
             size(states)) &&
           hasChanged
@@ -552,7 +566,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
       areFinalStatesCompatibleWithInputType();
     },
     1000,
-    [metadata?.outputType, metadata?.inputType, states]
+    [metadata?.['input-type'], metadata?.['output-type'], states]
   );
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -652,7 +666,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
       return;
     }
 
-    const outputType = metadata.outputType;
+    const outputType = metadata['output-type'];
 
     if (!outputType) {
       setOutputCompatibility(undefined);
@@ -708,7 +722,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
       return;
     }
 
-    const inputType: IProviderType | undefined = cloneDeep(metadata.inputType);
+    const inputType: IProviderType | undefined = cloneDeep(metadata['input-type']);
 
     if (!inputType) {
       setInputCompatibility(undefined);
@@ -741,8 +755,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
         base_type: input,
       };
     }
-
-    console.log(inputType, compareHash);
 
     const comparison = await fetchData('/dataprovider/compareManyTypes', 'PUT', {
       types: compareHash,
@@ -1060,17 +1072,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
       delete fixedMetadata.groups;
     }
 
-    if (fixedMetadata.inputType) {
-      fixedMetadata['input-type'] = fixedMetadata.inputType;
-    }
-
-    if (fixedMetadata.outputType) {
-      fixedMetadata['output-type'] = fixedMetadata.outputType;
-    }
-
-    delete fixedMetadata.inputType;
-    delete fixedMetadata.outputType;
-
     const result = await callBackend(
       fsm ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
       undefined,
@@ -1218,8 +1219,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
       desc: fsm?.desc,
       target_dir: fsm?.target_dir,
       groups: fsm?.groups || [],
-      inputType: fsm?.['input-type'],
-      outputType: fsm?.['output-type'],
+      'input-type': fsm?.['input-type'],
+      'output-type': fsm?.['output-type'],
     });
   };
 
@@ -1427,9 +1428,9 @@ const FSMView: React.FC<IFSMViewProps> = ({
             <FieldWrapper name="selected-field">
               <FieldLabel
                 isValid={
-                  !metadata.inputType
+                  !metadata['input-type']
                     ? true
-                    : validateField('type-selector', metadata.inputType) &&
+                    : validateField('type-selector', metadata['input-type']) &&
                       isTypeCompatible('input')
                 }
                 info={t('Optional')}
@@ -1445,9 +1446,9 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 <Connectors
                   inline
                   minimal
-                  value={metadata.inputType}
+                  value={metadata['input-type']}
                   onChange={(n, v) => v && handleMetadataChange(n, v)}
-                  name="inputType"
+                  name="input-type"
                   isInitialEditing={fsm?.['input-type']}
                 />
               </FieldInputWrapper>
@@ -1455,9 +1456,9 @@ const FSMView: React.FC<IFSMViewProps> = ({
             <FieldWrapper name="selected-field">
               <FieldLabel
                 isValid={
-                  !metadata.outputType
+                  !metadata['output-type']
                     ? true
-                    : validateField('type-selector', metadata.outputType) &&
+                    : validateField('type-selector', metadata['output-type']) &&
                       isTypeCompatible('output')
                 }
                 info={t('Optional')}
@@ -1473,9 +1474,9 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 <Connectors
                   inline
                   minimal
-                  value={metadata.outputType}
+                  value={metadata['output-type']}
                   onChange={(n, v) => v && handleMetadataChange(n, v)}
-                  name="outputType"
+                  name="output-type"
                   isInitialEditing={fsm?.['output-type']}
                 />
               </FieldInputWrapper>

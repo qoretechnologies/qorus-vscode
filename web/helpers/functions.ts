@@ -220,8 +220,6 @@ export const areTypesCompatible = async (
     {}
   );
 
-  console.log(input, output);
-
   const comparison = await fetchData('/dataprovider/compareTypes', 'PUT', {
     base_type: input,
     type: output,

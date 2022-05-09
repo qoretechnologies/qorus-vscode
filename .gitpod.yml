@@ -16,10 +16,12 @@ tasks:
   - init: |
       nvm install v14.18
       npm install
-      cd /workspace
-      git clone https://git.qoretechnologies.com/qorus/building-blocks
     command: |
       nvm install v14.18
       git config --global http.sslverify false
       cd /workspace/qorus-vscode
       npm run start
+additionalRepositories:
+  - url: https://git.qoretechnologies.com/qorus/building-blocks
+  - url: https://git.qoretechnologies.com/qorus/demos.git
+  - url: https://git.qoretechnologies.com/qorus/qorus.git

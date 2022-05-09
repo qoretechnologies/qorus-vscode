@@ -791,7 +791,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 }
               }
             } else {
-              console.log(finalFieldType, value, currentField);
               // Basic field with predefined type
               isValid = validateField(finalFieldType || 'string', value, currentField, canBeNull);
             }
@@ -915,9 +914,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             {}
           );
         });
-        console.log('METHODS CHECK');
-        console.log(methodsList);
-        console.log(newData[subItemType]);
         // Filter deleted methods
         if (methodsList) {
           newData[subItemType] = newData[subItemType].filter((m) =>
@@ -949,7 +945,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       if (parent) {
         iface_kind = `${parent}:${type}`;
       }
-      console.log('SUBMIT DATA', newData);
       // Add workflow data with step
       if (type === 'step') {
         // Get the workflow data
