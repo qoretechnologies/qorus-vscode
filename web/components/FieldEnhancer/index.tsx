@@ -47,8 +47,6 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
       });
     }
 
-    console.log('handleCreateClick', reference, context);
-
     // Open the dialog
     setEditManager({
       isOpen: true,

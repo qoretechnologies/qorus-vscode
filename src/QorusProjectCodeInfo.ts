@@ -197,6 +197,11 @@ export class QorusProjectCodeInfo {
 
   getFilesOfReferencedObjects(files: string[]): string[] {
     let yaml_files: string[] = [];
+
+    /* Iterating through the files and checking if the file extension is .yaml. If it is, it pushes the
+    file to the yaml_files array. If it is not, it checks if the file is in the
+    yaml_info.yamlDataBySrcFile(file) object. If it is, it pushes the yaml_file to the yaml_files
+    array. */
     files.forEach((file) => {
       if (path.extname(file) === '.yaml') {
         yaml_files.push(file);
@@ -207,9 +212,12 @@ export class QorusProjectCodeInfo {
         }
       }
     });
+
     yaml_files = removeDuplicates(yaml_files);
 
     let referenced_yaml_files: string[] = [];
+
+    /* Getting all the referenced yaml files. */
     yaml_files.forEach((yaml_file) => {
       const yaml_data = this.yaml_info.yamlDataByFile(yaml_file);
       const objects: any[] = this.getReferencedObjects(yaml_data);
@@ -219,9 +227,12 @@ export class QorusProjectCodeInfo {
         ...objects.map((o) => o.yaml_file).filter((yaml_file) => !!yaml_file),
       ];
     });
+
     referenced_yaml_files = removeDuplicates(referenced_yaml_files);
 
     const all_referenced_files: string[] = [];
+
+    /* Adding the yaml file and the source file to the list of all referenced files. */
     referenced_yaml_files.forEach((yaml_file) => {
       all_referenced_files.push(yaml_file);
       const src_file = this.yaml_info.getSrcFile(yaml_file);
@@ -823,8 +834,15 @@ export class QorusProjectCodeInfo {
       getObjects(yaml_data);
     };
 
-    const checkObjects = (type: string, names?: string[]) => {
-      (names || []).forEach((name) => checkObject(type, name));
+    const checkObjects = (type: string, names?: any[]) => {
+      (names || []).forEach((item) => {
+        // We need to check if the item is a string or an object
+        if (typeof item === 'string') {
+          checkObject(type, item);
+        } else if (item.name) {
+          checkObject(type, item.name);
+        }
+      });
     };
 
     const checkParentConfigItem = (name: string, parent_type: string, parent_name: string) => {
@@ -879,10 +897,7 @@ export class QorusProjectCodeInfo {
       checkObjects('fsm', data.fsm);
       checkObjects('value-map', data.vmaps);
 
-      console.log('OBJECT DATA', data);
-
       if (data.type === 'service' && data['api-manager']) {
-        // Add the schema
         // Add the schema to other files to be deployed
         result.push({
           yaml_file: path.resolve(
@@ -898,15 +913,20 @@ export class QorusProjectCodeInfo {
         });
       }
 
+      /* Checking if the class exists in the data object. */
       Object.keys(data['class-connections'] || {}).forEach((connection) => {
         const connectors = data['class-connections'][connection];
         connectors.forEach((connector) => checkObject('class', connector.class));
       });
 
+      /* Checking the type of the action.type and action.value. */
       Object.keys(data.states || {}).forEach((state_id) => {
         const state = data.states[state_id];
         if (['mapper', 'pipeline'].includes(state.action?.type)) {
           checkObject(state.action.type, state.action.value);
+        }
+        if (['connector'].includes(state.action?.type)) {
+          checkObject('class', state.action.value);
         }
       });
 
