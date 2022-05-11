@@ -1,12 +1,20 @@
 # Changelog
 
+## Version 3.6.4
+
+#### Bug Fixes
+
+- Fixed Pipeline & FSM provider fields & unnecessary draft saving issue
+- Fixed a bug where deploying an FSM would not deploy Class dependencies
+- Fixed a bug where FSM drafts would be saved without any changes when editing FSMs
+- Fixed a bug where config items were left over in YAML when switching from connectors inside FSM states
+
 ## Version 3.6.3
 
 #### Bug Fixes
 
 - Fixed a bug where new mapper submit button would not be enabled unless the mapper page was left
 - Fixed draft changes being saved upon opening pipeline without any changes.
-
 
 ## Version 3.6.2
 

@@ -240,8 +240,6 @@ export const CustomRelease = ({ selected, onItemClick }: ICustomReleaseProps) =>
     onItemClick(value?.[interfaceKind].map((item) => getItemFile(item)) || []);
   };
 
-  console.log(value);
-
   return (
     <StyledCustomReleaseWrapper>
       {map(value, (interfaces, interfaceKind) => (

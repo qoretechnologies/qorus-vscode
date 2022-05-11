@@ -839,6 +839,12 @@ export class QorusProjectInterfaceInfo {
     return inherited_data[field_name];
   };
 
+  removeConfigItems = ({ iface_id, state_data: { id } }) => {
+    this.iface_by_id[iface_id] = {};
+    this.iface_by_id[iface_id].specific_data = {};
+    this.iface_by_id[iface_id].specific_data[id] = {};
+  };
+
   getConfigItems = (params) => {
     this.code_info.waitForPending(['yaml'], 500).then(() => this.getConfigItemsImpl(params));
   };

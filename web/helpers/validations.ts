@@ -19,7 +19,7 @@ const cron = require('cron-validator');
 
 export const validateField: (
   type: string,
-  value: any,
+  value?: any,
   field?: IField,
   canBeNull?: boolean
 ) => boolean = (type, value, field, canBeNull) => {
@@ -74,12 +74,11 @@ export const validateField: (
       return isValid;
     }
     case 'array-of-pairs': {
-      console.log('array-of-pairs', value, type, field);
       let valid = true;
       // Check if every pair has key & value
       // assigned properly
       if (
-        !value.every(
+        !value?.every(
           (pair: { [key: string]: string }): boolean =>
             pair[field.fields[0]] !== '' && pair[field.fields[1]] !== ''
         )
@@ -103,7 +102,7 @@ export const validateField: (
       // Check if every pair has name, input method and output method
       // assigned properly
       if (
-        !value.every(
+        !value?.every(
           (pair: { [key: string]: string }): boolean => pair.name !== '' && pair.method !== ''
         )
       ) {
@@ -123,7 +122,7 @@ export const validateField: (
       let valid = true;
       // Check if the fields are not empty
       if (
-        !value.every((pair: { [key: string]: string }): boolean => pair.name && pair.name !== '')
+        !value?.every((pair: { [key: string]: string }): boolean => pair.name && pair.name !== '')
       ) {
         valid = false;
       }

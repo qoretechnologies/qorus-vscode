@@ -133,15 +133,19 @@ export const maybeBuildOptionProvider = (provider) => {
       );
     }
     // Return the new provider
-    return {
+    const result: IProviderType = {
       type: factoryType,
       name: factoryName,
       // Get everything after the last }/ from the provider
       path: provider.substring(provider.lastIndexOf('}/') + 2),
       options: optionsObject,
-      // Add the optionsChanged key if the provider includes the "?options_changed" string
-      optionsChanged: (provider as string).includes('?options_changed'),
     };
+    // Add the optionsChanged key if the provider includes the "?options_changed" string
+    if (provider.includes('?options_changed')) {
+      result.optionsChanged = true;
+    }
+
+    return result;
   }
   // split the provider by /
   const [type, name, ...path] = provider.split('/');
@@ -199,6 +203,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   const clear = () => {
     setIsEditing(false);
     setOptionProvider(null);
+    onChange(name, undefined);
   };
 
   const reset = () => {
@@ -317,11 +322,18 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
         <SubField title={t('FactoryOptions')}>
           <Options
             onChange={(nm, val) => {
-              setOptionProvider((cur) => ({
-                ...cur,
-                options: val,
-                optionsChanged: !isEqual(optionProvider.options, val),
-              }));
+              setOptionProvider((cur: IProviderType | null) => {
+                const result: IProviderType = {
+                  ...cur,
+                  options: val,
+                } as IProviderType;
+
+                if (!isEqual(optionProvider.options, val)) {
+                  result.optionsChanged = true;
+                }
+
+                return result;
+              });
             }}
             name="options"
             value={optionProvider.options}
