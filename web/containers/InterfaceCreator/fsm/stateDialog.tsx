@@ -40,7 +40,7 @@ export interface IFSMStateDialogProps {
   disableInitial?: boolean;
 }
 
-export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none' | 'apicall';
+export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none' | 'apicall' | 'recordSearch';
 
 const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   onClose,
@@ -156,6 +156,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'apicall': {
         return validateField('api-call', newData?.action?.value);
       }
+      case 'recordSearch': {
+        return validateField('type-selector', newData?.action?.value);
+      }
       default: {
         return true;
       }
@@ -242,6 +245,19 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             requiresRequest
             isInitialEditing={!!data?.action?.value}
             onChange={(_name, value) => handleDataUpdate('action', { type: 'apicall', value })}
+            value={newData?.action?.value}
+          />
+        );
+      }
+      case 'recordSearch': {
+        return (
+          <Connectors
+            name="recordSearch"
+            inline
+            minimal
+            isRecordSearch
+            isInitialEditing={!!data?.action?.value}
+            onChange={(_name, value) => handleDataUpdate('action', { type: 'recordSearch', value })}
             value={newData?.action?.value}
           />
         );
@@ -432,6 +448,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                           { value: 'pipeline' },
                           { value: 'connector' },
                           { value: 'apicall' },
+                          { value: 'recordSearch' },
                         ]}
                       />
                       {actionType && actionType !== 'none' ? (

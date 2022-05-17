@@ -43,7 +43,7 @@ export const StyledOptionField = styled.div`
   }
 `;
 
-const getType = (type) => (isArray(type) ? type[0] : type);
+const getType = (type: IQorusType | IQorusType[]): IQorusType => (isArray(type) ? type[0] : type);
 
 /* "Fix options to be an object with the correct type." */
 export const fixOptions = (value: IOptions = {}, options: IOptionsSchema): IOptions => {
@@ -52,7 +52,7 @@ export const fixOptions = (value: IOptions = {}, options: IOptionsSchema): IOpti
   // Add missing required options to the fixedValue
   forEach(options, (option, name) => {
     if (option.required && !fixedValue[name]) {
-      fixedValue[name] = { type: option.type, value: option.default_value };
+      fixedValue[name] = { type: getType(option.type), value: option.default_value };
     }
   });
 
@@ -90,20 +90,38 @@ export type IQorusType =
   | 'workflow'
   | 'service'
   | 'job'
+  | 'select-string'
   | 'data-provider'
   | 'file-as-string';
+
 export type TOption = {
   type: IQorusType;
   value: any;
+  op?: string;
 };
 export type IOptions = {
   [optionName: string]: TOption;
 };
 
 export interface IOptionsSchema {
+  [optionName: string]: {
+    type: IQorusType | IQorusType[];
+    default_value?: any;
+    required?: boolean;
+    allowed_values?: any[];
+    sensitive?: boolean;
+    desc?: string;
+  };
+}
+
+export interface IOperator {
   type: IQorusType;
-  default_value?: any;
-  required?: boolean;
+  name: string;
+  desc: string;
+}
+
+export interface IOperatorsSchema {
+  [operatorName: string]: IOperator;
 }
 
 export interface IOptionsProps {
@@ -114,6 +132,7 @@ export interface IOptionsProps {
   options?: IOptionsSchema;
   onChange: (name: string, value?: IOptions) => void;
   placeholder?: string;
+  useOperators?: boolean;
 }
 
 const Options = ({
@@ -123,11 +142,12 @@ const Options = ({
   url,
   customUrl,
   placeholder,
+  useOperators,
   ...rest
 }: IOptionsProps) => {
   const t: any = useContext(TextContext);
   const [options, setOptions] = useState<IOptionsSchema | undefined>(rest?.options || undefined);
-  //const [selectedOptions, setSelectedOptions] = useState(null);
+  const [operators, setOperators] = useState<IOperatorsSchema | undefined>(undefined);
   const { fetchData, confirmAction, qorus_instance }: any = useContext(InitialContext);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -214,7 +234,7 @@ const Options = ({
     return <p>{t('LoadingOptions')}</p>;
   }
 
-  if (!size(options)) {
+  if (!options || !size(options)) {
     return <Callout intent="warning">{t('NoOptionsAvailable')}</Callout>;
   }
 
@@ -227,12 +247,12 @@ const Options = ({
     );
   };
 
-  const getTypeAndCanBeNull = (type: string, allowed_values: any[]) => {
+  const getTypeAndCanBeNull = (type: IQorusType | IQorusType[], allowed_values?: any[]) => {
     let canBeNull = false;
-    let realType = isArray(type) ? type[0] : type;
+    let realType = getType(type);
 
     if (realType?.startsWith('*')) {
-      realType = realType.replace('*', '');
+      realType = realType.replace('*', '') as IQorusType;
       canBeNull = true;
     }
 

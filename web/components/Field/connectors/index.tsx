@@ -1,11 +1,10 @@
-import { Button, Callout, Classes, Tag } from '@blueprintjs/core';
+import { Button, Callout, Classes } from '@blueprintjs/core';
 import { cloneDeep, isEqual, map, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useDebounce } from 'react-use';
 import compose from 'recompose/compose';
-import styled from 'styled-components';
 import { TTranslator } from '../../../App';
 import Provider, { providers } from '../../../containers/Mapper/provider';
 import withInitialDataConsumer from '../../../hocomponents/withInitialDataConsumer';
@@ -26,6 +25,9 @@ export interface IConnectorFieldProps {
   providerType?: 'inputs' | 'outputs' | 'event' | 'input-output' | 'condition';
   t: TTranslator;
   requiresRequest?: boolean;
+  isRecordSearch?: boolean;
+  minimal?: boolean;
+  isConfigItem?: boolean;
 }
 
 export interface IProviderType {
@@ -39,22 +41,17 @@ export interface IProviderType {
   use_args?: boolean;
   args?: any;
   supports_request?: boolean;
+  supports_read?: boolean;
   is_api_call?: boolean;
+  search_args?: IOptions;
+  search_options?: IOptions;
 }
 
-const StyledProviderUrl = styled.div`
-  min-height: 40px;
-  line-height: 40px;
-
-  span {
-    font-weight: 500;
-  }
-`;
-
-export const getUrlFromProvider: (val: IProviderType, withOptions?: boolean) => string = (
-  val,
-  withOptions
-) => {
+export const getUrlFromProvider: (
+  val: IProviderType,
+  withOptions?: boolean,
+  isRecordSearch?: boolean
+) => string = (val, withOptions, isRecordSearch) => {
   // If the val is a string, return it
   if (typeof val === 'string') {
     return val;
@@ -82,9 +79,9 @@ export const getUrlFromProvider: (val: IProviderType, withOptions?: boolean) => 
   const endsInSubtype = path.endsWith('/request') || path.endsWith('/response');
 
   // Build the suffix
-  const realPath = `${suffix}${path}${endsInSubtype || is_api_call ? '' : recordSuffix || ''}${
-    withOptions ? '/constructor_options' : ''
-  }`;
+  const realPath = `${suffix}${path}${
+    endsInSubtype || is_api_call || isRecordSearch ? '' : recordSuffix || ''
+  }${withOptions ? '/constructor_options' : ''}`;
 
   const suffixString = suffixRequiresOptions
     ? optionString && optionString !== ''
@@ -162,13 +159,13 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   onChange,
   name,
   value,
-  isInitialEditing,
   initialData,
   inline,
   providerType,
   minimal,
   isConfigItem,
   requiresRequest,
+  isRecordSearch,
   t,
 }) => {
   const [optionProvider, setOptionProvider] = useState<IProviderType | null>(
@@ -213,6 +210,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     setIsLoading(false);
     onChange(name, undefined);
   };
+
+  console.log(optionProvider);
 
   useDebounce(
     () => {
@@ -264,21 +263,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     30,
     [JSON.stringify(optionProvider), isEditing]
   );
-
-  if (isEditing && value && optionProvider?.type !== 'factory') {
-    return (
-      <div>
-        <SubField title={!minimal && t('CurrentDataProvider')}>
-          <StyledProviderUrl>
-            {title && <span>{title}:</span>}{' '}
-            <Tag minimal large onRemove={clear}>
-              {getUrlFromProvider(value)}{' '}
-            </Tag>
-          </StyledProviderUrl>
-        </SubField>
-      </div>
-    );
-  }
 
   if (!initialData.qorus_instance) {
     return <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>;
@@ -373,6 +357,45 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
               />
             </SubField>
           )}
+        </>
+      ) : null}
+      {/* This means that we are working with a record search */}
+      {isRecordSearch && optionProvider?.supports_read ? (
+        <>
+          <SubField title={t('SearchArguments')}>
+            <Options
+              onChange={(nm, val) => {
+                setOptionProvider((cur: IProviderType | null) => {
+                  const result: IProviderType = {
+                    ...cur,
+                    search_args: val,
+                  } as IProviderType;
+
+                  return result;
+                });
+              }}
+              name="search_args"
+              value={optionProvider.search_args}
+              customUrl={`${getUrlFromProvider(optionProvider, false, true)}`}
+            />
+          </SubField>
+          <SubField title={t('SearchOptions')}>
+            <Options
+              onChange={(nm, val) => {
+                setOptionProvider((cur: IProviderType | null) => {
+                  const result: IProviderType = {
+                    ...cur,
+                    search_options: val,
+                  } as IProviderType;
+
+                  return result;
+                });
+              }}
+              name="search_options"
+              value={optionProvider.search_options}
+              customUrl={`${getUrlFromProvider(optionProvider, false, true)}/search_options`}
+            />
+          </SubField>
         </>
       ) : null}
     </div>

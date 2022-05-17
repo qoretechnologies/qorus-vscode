@@ -27,7 +27,7 @@ export class QorusRequest extends QorusLogin {
   doRequestAndCheckResult(options: any, texts: QorusRequestTexts, onFinished?): Thenable<boolean> {
     return request(options).then(
       (response: any) => {
-        console.log('Request response: ' + JSON.stringify(response));
+        console.log('Request response: ' + { response: JSON.stringify(response) });
         msg.log('    ' + t`requestResponse ${JSON.stringify(response)}`);
         if (response.id === undefined) {
           msg.error(t`ResponseIdUndefined`);

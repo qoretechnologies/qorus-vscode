@@ -32,6 +32,7 @@ export interface IProviderProps {
   style: any;
   isConfigItem?: boolean;
   requiresRequest?: boolean;
+  isRecordSearch?: boolean;
   options?: { [key: string]: any };
   optionsChanged?: boolean;
 }
@@ -155,6 +156,7 @@ const MapperProvider: FC<IProviderProps> = ({
   isConfigItem,
   options,
   requiresRequest,
+  isRecordSearch,
   optionsChanged,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(null);
@@ -288,7 +290,8 @@ const MapperProvider: FC<IProviderProps> = ({
         data.has_type ||
         isConfigItem ||
         provider === 'factory' ||
-        (requiresRequest && data.supports_request)
+        (requiresRequest && data.supports_request) ||
+        (isRecordSearch && data.supports_read)
       ) {
         (async () => {
           setIsLoading(true);
@@ -319,6 +322,7 @@ const MapperProvider: FC<IProviderProps> = ({
             is_api_call: requiresRequest,
             desc: data.desc,
             supports_request: data.supports_request,
+            supports_read: data.supports_read,
             can_manage_fields: record.data?.can_manage_fields,
             path: `${url}/${value}`
               .replace(`${name}`, '')
@@ -385,6 +389,7 @@ const MapperProvider: FC<IProviderProps> = ({
             type: realProviders[provider].type,
             can_manage_fields: data.can_manage_fields,
             name,
+            supports_read: data.supports_read,
             subtype: value === 'request' || value === 'response' ? value : undefined,
             path: `${url}/${value}`
               .replace(`${name}`, '')
@@ -422,6 +427,7 @@ const MapperProvider: FC<IProviderProps> = ({
             setOptionProvider({
               type: realProviders[provider].type,
               name,
+              supports_read: data.supports_read,
               can_manage_fields: record.data.can_manage_fields,
               path: `${url}/${value}`
                 .replace(`${name}`, '')
