@@ -194,7 +194,7 @@ class QorusDraftItem extends TreeItem {
     // Create the label
     const name = item.data?.name || item.name;
     // If the item is new or existing draft, we need to add the timestamp and prefixes
-    let prefix = '';
+    let prefix = item.hasDraft ? '✏️ ' : item.isDraft ? '✏️ 🔸 ' : '';
     prefix += item.data?.version ? ` [v${item.data.version}] ` : '';
 
     super(`${prefix} ${name}`, TreeItemCollapsibleState.None);
