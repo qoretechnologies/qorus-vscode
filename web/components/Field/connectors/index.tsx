@@ -13,6 +13,7 @@ import SubField from '../../SubField';
 import { ApiCallArgs } from '../apiCallArgs';
 import BooleanField from '../boolean';
 import Options, { IOptions } from '../systemOptions';
+import { SearchArgs } from './searchArgs';
 
 export interface IConnectorFieldProps {
   title?: string;
@@ -363,7 +364,9 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
       {isRecordSearch && optionProvider?.supports_read ? (
         <>
           <SubField title={t('SearchArguments')}>
-            <Options
+            <SearchArgs
+              url={getUrlFromProvider(optionProvider, false, true)}
+              value={optionProvider?.search_args}
               onChange={(nm, val) => {
                 setOptionProvider((cur: IProviderType | null) => {
                   const result: IProviderType = {
@@ -374,9 +377,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                   return result;
                 });
               }}
-              name="search_args"
-              value={optionProvider.search_args}
-              customUrl={`${getUrlFromProvider(optionProvider, false, true)}`}
             />
           </SubField>
           <SubField title={t('SearchOptions')}>

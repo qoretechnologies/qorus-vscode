@@ -132,7 +132,7 @@ export interface IOptionsProps {
   options?: IOptionsSchema;
   onChange: (name: string, value?: IOptions) => void;
   placeholder?: string;
-  useOperators?: boolean;
+  operatorsUrl?: string;
 }
 
 const Options = ({
@@ -142,15 +142,17 @@ const Options = ({
   url,
   customUrl,
   placeholder,
-  useOperators,
+  operatorsUrl,
   ...rest
 }: IOptionsProps) => {
   const t: any = useContext(TextContext);
   const [options, setOptions] = useState<IOptionsSchema | undefined>(rest?.options || undefined);
-  const [operators, setOperators] = useState<IOperatorsSchema | undefined>(undefined);
+  const [operators, setOperators] = useState<IOperatorsSchema | undefined>({});
   const { fetchData, confirmAction, qorus_instance }: any = useContext(InitialContext);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  console.log(options);
 
   const getUrl = () => customUrl || `/options/${url}`;
 
@@ -173,6 +175,23 @@ const Options = ({
         setOptions(data.data);
       })();
     }
+    // if (qorus_instance && operatorsUrl) {
+    //   (async () => {
+    //     setOperators(undefined);
+    //     setLoading(true);
+    //     // Fetch the options for this mapper type
+    //     const data = await fetchData(`/${operatorsUrl}`);
+
+    //     if (data.error) {
+    //       setLoading(false);
+    //       setOperators({});
+    //       return;
+    //     }
+    //     // Save the new options
+    //     setLoading(false);
+    //     setOperators(data.data);
+    //   })();
+    // }
   });
 
   useUpdateEffect(() => {
@@ -197,11 +216,38 @@ const Options = ({
     }
   }, [url, qorus_instance, customUrl]);
 
-  const handleValueChange = (optionName: string, currentValue: any, val?: any, type?: string) => {
+  useUpdateEffect(() => {
+    if (operatorsUrl && qorus_instance) {
+      (async () => {
+        setOperators(undefined);
+        setLoading(true);
+        // Fetch the options for this mapper type
+        const data = await fetchData(`/${operatorsUrl}`);
+
+        if (data.error) {
+          setLoading(false);
+          setOperators({});
+          return;
+        }
+        // Save the new options
+        setLoading(false);
+        setOperators(data.data);
+      })();
+    }
+  }, [operatorsUrl, qorus_instance]);
+
+  const handleValueChange = (
+    optionName: string,
+    currentValue: any,
+    val?: any,
+    type?: string,
+    operator?: string
+  ) => {
     onChange(name, {
       ...currentValue,
       [optionName]: {
         type,
+        op: operator,
         value: val,
       },
     });
@@ -302,6 +348,11 @@ const Options = ({
                     : undefined
                 }
               >
+                {size(operators) ? (
+                  <SelectField
+                    defaultItems={map(operators, (operator, sign) => ({ name: sign }))}
+                  />
+                ) : null}
                 <AutoField
                   {...getTypeAndCanBeNull(type, options[optionName].allowed_values)}
                   name={optionName}
