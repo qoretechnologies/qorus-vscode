@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 3.6.5
+
+- Fixed a bug that caused a crash when creating a job while the Schedule field was empty
+
 ## Version 3.6.4
 
 #### Bug Fixes
