@@ -153,6 +153,9 @@ export const validateField: (
       // selected
       return value && value.length !== 0;
     case 'cron':
+      if (!value) {
+        return false;
+      }
       // Check if the cron is valid
       return cron.isValidCron(value, { alias: true });
     case 'date':
