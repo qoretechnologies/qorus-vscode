@@ -344,7 +344,9 @@ const Options = ({
                 subtle
                 key={optionName}
                 title={optionName}
-                isValid={validateField(getType(type), other.value)}
+                isValid={
+                  validateField(getType(type), other.value) && operatorsUrl ? !!other.op : true
+                }
                 detail={getType(options[optionName].type)}
                 desc={options[optionName].desc}
                 onRemove={
