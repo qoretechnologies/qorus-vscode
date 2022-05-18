@@ -1,7 +1,8 @@
 import { reduce, size } from 'lodash';
 import React, { useContext, useEffect } from 'react';
+import { TTranslator } from '../../../App';
 import { InitialContext } from '../../../context/init';
-import Loader from '../../Loader';
+import { TextContext } from '../../../context/text';
 import Options, { IOptions, IOptionsSchema } from '../systemOptions';
 
 export interface ISearchArgsProps {
@@ -12,7 +13,7 @@ export interface ISearchArgsProps {
 
 export const SearchArgs = ({ value, url, onChange }: ISearchArgsProps) => {
   const [options, setOptions] = React.useState<any>(undefined);
-
+  const t: TTranslator = useContext<TTranslator>(TextContext);
   const { fetchData, confirmAction, qorus_instance }: any = useContext(InitialContext);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export const SearchArgs = ({ value, url, onChange }: ISearchArgsProps) => {
   }, [url, qorus_instance]);
 
   if (!size(options)) {
-    return <Loader text="Loading" />;
+    return <p>{t('LoadingSearchArgs')}</p>;
   }
 
   const transformedOptions: IOptionsSchema =
@@ -39,7 +40,7 @@ export const SearchArgs = ({ value, url, onChange }: ISearchArgsProps) => {
       (newOptions: IOptionsSchema, optionData, optionName): IOptionsSchema => ({
         ...newOptions,
         [optionName]: {
-          type: optionData.base_type,
+          type: optionData.type.base_type,
           desc: optionData.desc,
         },
       }),
@@ -51,8 +52,10 @@ export const SearchArgs = ({ value, url, onChange }: ISearchArgsProps) => {
       onChange={onChange}
       name="search_args"
       value={value}
-      operatorsUrl={url}
+      operatorsUrl={`${url}/search_operators`}
       options={transformedOptions}
+      placeholder={t('AddSearchArgument')}
+      noValueString={t('NoSearchArgument')}
     />
   );
 };

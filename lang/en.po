@@ -1047,6 +1047,9 @@ msgstr "Connector"
 msgid "field-label-apicall"
 msgstr "API Call"
 
+msgid "field-label-search-single"
+msgstr "Single search"
+
 msgid "field-desc-connector"
 msgstr "Connectors used for building blocks"
 
@@ -2864,8 +2867,14 @@ msgstr "Loading options ..."
 msgid "NoOptionsSelected"
 msgstr "No options selected. Please select an option below."
 
+msgid "NoSearchArgument"
+msgstr "No search arguments selected. Please select an argument below."
+
 msgid "AddNewOption"
 msgstr "Add option"
+
+msgid "AddSearchArgument"
+msgstr "Add search argument"
 
 msgid "ErrorLoadingOptions"
 msgstr "There was an error loading options:"
@@ -3133,3 +3142,16 @@ msgstr "Input type is incompatible with one or more initial states"
 
 msgid "FSMOutputTypeError"
 msgstr "Output type is incompatible with one or more final states"
+
+msgid "SearchArguments"
+msgstr "Search arguments"
+
+msgid "SearchOptions"
+msgstr "Search options"
+
+msgid "LoadingSearchArgs"
+msgstr "Loading search arguments..."
+
+msgid "search-single"
+msgstr "Single search"
+

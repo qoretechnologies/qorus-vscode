@@ -292,7 +292,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
       }}
     >
       {(onEditClick, onCreateClick) => (
-        <ControlGroup fill={fill}>
+        <ControlGroup fill={fill} style={{ flex: 'none' }}>
           {reference && (
             <>
               {!editOnly && (

@@ -198,7 +198,7 @@ class QorusDraftItem extends TreeItem {
     prefix += item.data?.version ? ` [v${item.data.version}] ` : '';
 
     super(`${prefix} ${name}`, TreeItemCollapsibleState.None);
-    this.tooltip = item.data?.desc || null;
+    //this.tooltip = item.data?.desc || null;
 
     this.description = item.date ? `[${timeago(item.date)}]` : '';
     this.iconPath = interfaceKind

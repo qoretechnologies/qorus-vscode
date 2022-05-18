@@ -1,5 +1,5 @@
-import { Callout, Classes, Icon } from '@blueprintjs/core';
-import { cloneDeep, forEach } from 'lodash';
+import { Callout, Classes, ControlGroup, Icon } from '@blueprintjs/core';
+import { cloneDeep, findKey, forEach } from 'lodash';
 import isArray from 'lodash/isArray';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
@@ -133,6 +133,7 @@ export interface IOptionsProps {
   onChange: (name: string, value?: IOptions) => void;
   placeholder?: string;
   operatorsUrl?: string;
+  noValueString?: string;
 }
 
 const Options = ({
@@ -143,6 +144,7 @@ const Options = ({
   customUrl,
   placeholder,
   operatorsUrl,
+  noValueString,
   ...rest
 }: IOptionsProps) => {
   const t: any = useContext(TextContext);
@@ -175,23 +177,23 @@ const Options = ({
         setOptions(data.data);
       })();
     }
-    // if (qorus_instance && operatorsUrl) {
-    //   (async () => {
-    //     setOperators(undefined);
-    //     setLoading(true);
-    //     // Fetch the options for this mapper type
-    //     const data = await fetchData(`/${operatorsUrl}`);
+    if (qorus_instance && operatorsUrl) {
+      (async () => {
+        setOperators(undefined);
+        setLoading(true);
+        // Fetch the options for this mapper type
+        const data = await fetchData(`/${operatorsUrl}`);
 
-    //     if (data.error) {
-    //       setLoading(false);
-    //       setOperators({});
-    //       return;
-    //     }
-    //     // Save the new options
-    //     setLoading(false);
-    //     setOperators(data.data);
-    //   })();
-    // }
+        if (data.error) {
+          setLoading(false);
+          setOperators({});
+          return;
+        }
+        // Save the new options
+        setLoading(false);
+        setOperators(data.data);
+      })();
+    }
   });
 
   useUpdateEffect(() => {
@@ -238,17 +240,26 @@ const Options = ({
 
   const handleValueChange = (
     optionName: string,
-    currentValue: any,
+    currentValue: any = {},
     val?: any,
-    type?: string,
-    operator?: string
+    type?: string
   ) => {
     onChange(name, {
       ...currentValue,
       [optionName]: {
+        ...currentValue[optionName],
         type,
-        op: operator,
         value: val,
+      },
+    });
+  };
+
+  const handleOperatorChange = (optionName: string, currentValue: any, operator?: string) => {
+    onChange(name, {
+      ...currentValue,
+      [optionName]: {
+        ...currentValue[optionName],
+        op: operator,
       },
     });
   };
@@ -348,30 +359,45 @@ const Options = ({
                     : undefined
                 }
               >
-                {size(operators) ? (
-                  <SelectField
-                    defaultItems={map(operators, (operator, sign) => ({ name: sign }))}
+                <ControlGroup fill>
+                  {size(operators) ? (
+                    <SelectField
+                      defaultItems={map(operators, (operator) => ({
+                        name: operator.name,
+                        desc: operator.desc,
+                      }))}
+                      value={other.op && `Operator: ${operators?.[other.op].name}`}
+                      onChange={(_n, val) => {
+                        if (val !== undefined) {
+                          handleOperatorChange(
+                            optionName,
+                            fixedValue,
+                            findKey(operators, (operator) => operator.name === val)
+                          );
+                        }
+                      }}
+                    />
+                  ) : null}
+                  <AutoField
+                    {...getTypeAndCanBeNull(type, options[optionName].allowed_values)}
+                    name={optionName}
+                    onChange={(optionName, val) => {
+                      if (val !== undefined) {
+                        handleValueChange(
+                          optionName,
+                          fixedValue,
+                          val,
+                          getTypeAndCanBeNull(type, options[optionName].allowed_values).type
+                        );
+                      }
+                    }}
+                    noSoft={!!rest?.options}
+                    value={other.value}
+                    sensitive={options[optionName].sensitive}
+                    default_value={options[optionName].default}
+                    allowed_values={options[optionName].allowed_values}
                   />
-                ) : null}
-                <AutoField
-                  {...getTypeAndCanBeNull(type, options[optionName].allowed_values)}
-                  name={optionName}
-                  onChange={(optionName, val) => {
-                    if (val !== undefined) {
-                      handleValueChange(
-                        optionName,
-                        fixedValue,
-                        val,
-                        getTypeAndCanBeNull(type, options[optionName].allowed_values).type
-                      );
-                    }
-                  }}
-                  noSoft={!!rest?.options}
-                  value={other.value}
-                  sensitive={options[optionName].sensitive}
-                  default_value={options[optionName].default}
-                  allowed_values={options[optionName].allowed_values}
-                />
+                </ControlGroup>
               </SubField>
             </StyledOptionField>
           ) : null
@@ -379,7 +405,7 @@ const Options = ({
       </div>
       {size(fixedValue) === 0 && (
         <p className={Classes.TEXT_MUTED}>
-          <Icon icon="info-sign" /> {t('NoOptionsSelected')}
+          <Icon icon="info-sign" /> {t(noValueString || 'NoOptionsSelected')}
         </p>
       )}
       <Spacer size={10} />

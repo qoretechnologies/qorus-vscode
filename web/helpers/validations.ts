@@ -10,6 +10,7 @@ import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
+import { TOption } from '../components/Field/systemOptions';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { TTrigger } from '../containers/InterfaceCreator/fsm';
 import { IField } from '../containers/InterfaceCreator/panel';
@@ -198,6 +199,7 @@ export const validateField: (
     case 'type-selector':
     case 'data-provider':
     case 'api-call':
+    case 'search-single':
       let newValue = maybeBuildOptionProvider(value);
 
       if (!newValue) {
@@ -221,6 +223,14 @@ export const validateField: (
         return false;
       }
 
+      if (
+        type === 'search-single' &&
+        (size(value.search_args) === 0 ||
+          !validateField('system-options-with-operators', value.search_args))
+      ) {
+        return false;
+      }
+
       if (newValue?.type === 'factory') {
         if (newValue.optionsChanged) {
           return false;
@@ -230,6 +240,10 @@ export const validateField: (
 
         if (newValue.options) {
           options = validateField('system-options', newValue.options);
+        }
+
+        if (newValue.search_options) {
+          options = validateField('system-options', newValue.search_options);
         }
 
         // Type path and name are required
@@ -336,6 +350,28 @@ export const validateField: (
           ? validateField(getTypeFromValue(optionData), optionData)
           : validateField(optionData.type, optionData.value)
       );
+    }
+    case 'system-options-with-operators': {
+      if (!value || size(value) === 0) {
+        if (canBeNull) {
+          return true;
+        }
+
+        return false;
+      }
+
+      return every(value, (optionData: TOption) => {
+        let isValid: boolean =
+          typeof optionData !== 'object'
+            ? validateField(getTypeFromValue(optionData), optionData)
+            : validateField(optionData.type, optionData.value);
+
+        if (!optionData.op) {
+          isValid = false;
+        }
+
+        return isValid;
+      });
     }
     case 'byte-size': {
       let valid = true;

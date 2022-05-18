@@ -109,7 +109,7 @@ export interface IFSMState {
   'input-type'?: any;
   'output-type'?: any;
   name?: string;
-  type: 'state' | 'fsm' | 'block' | 'if' | 'apicall';
+  type: 'state' | 'fsm' | 'block' | 'if' | 'apicall' | 'search-single';
   desc: string;
   states?: IFSMStates;
   fsm?: string;
@@ -1606,6 +1606,16 @@ const FSMView: React.FC<IFSMViewProps> = ({
             onDoubleClick={handleToolbarItemDblClick}
           >
             {t('ApiCall')}
+          </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="search-single"
+            count={size(
+              filter(states, ({ action }: IFSMState) => action?.type === 'search-single')
+            )}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('SearchSingle')}
           </FSMToolbarItem>
           <ButtonGroup style={{ float: 'right' }}>
             <Button

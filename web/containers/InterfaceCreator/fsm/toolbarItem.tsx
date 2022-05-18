@@ -45,6 +45,10 @@ export const getStateStyle = (type, toolbar?: boolean) => {
       return css`
         border-radius: 40% 40% 0 0;
       `;
+    case 'search-single':
+      return css`
+        border-radius: 0 0 40% 40%;
+      `;
     case 'if':
       if (toolbar) {
         return null;
