@@ -1,4 +1,4 @@
-import { cloneDeep, reduce } from 'lodash';
+import { cloneDeep } from 'lodash';
 import forEach from 'lodash/forEach';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
@@ -114,7 +114,15 @@ export const isStateIsolated = (
 export interface ITypeComparatorData {
   interfaceName?: string;
   connectorName?: string;
-  interfaceKind?: 'mapper' | 'pipeline' | 'connector' | 'processor' | 'if' | 'block' | 'apicall';
+  interfaceKind?:
+    | 'mapper'
+    | 'pipeline'
+    | 'connector'
+    | 'processor'
+    | 'if'
+    | 'block'
+    | 'apicall'
+    | 'search-single';
   typeData?: any;
 }
 
@@ -146,7 +154,7 @@ export const getStateProvider = async (
   data: ITypeComparatorData,
   providerType: 'input' | 'output'
 ) => {
-  if (data.interfaceKind === 'apicall') {
+  if (data.interfaceKind === 'apicall' || data.interfaceKind === 'search-single') {
     return Promise.resolve({
       // @ts-expect-error
       ...data.interfaceName,
@@ -202,23 +210,8 @@ export const areTypesCompatible = async (
     return true;
   }
 
-  output.options = reduce(
-    output.options || {},
-    (newOptions, option, key) => ({
-      ...newOptions,
-      [key]: option.value,
-    }),
-    {}
-  );
-
-  input.options = reduce(
-    input.options || {},
-    (newOptions, option, key) => ({
-      ...newOptions,
-      [key]: option.value,
-    }),
-    {}
-  );
+  output.options = await formatAndFixOptionsToKeyValuePairs(output.options);
+  input.options = await formatAndFixOptionsToKeyValuePairs(input.options);
 
   const comparison = await fetchData('/dataprovider/compareTypes', 'PUT', {
     base_type: input,

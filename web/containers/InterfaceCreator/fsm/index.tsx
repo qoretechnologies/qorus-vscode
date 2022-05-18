@@ -653,13 +653,15 @@ const FSMView: React.FC<IFSMViewProps> = ({
       return;
     }
 
-    const outputType = metadata['output-type'];
+    const outputType: IProviderType | undefined = cloneDeep(metadata['output-type']);
 
     if (!outputType) {
       setOutputCompatibility(undefined);
       setCompatibilityChecked(true);
       return;
     }
+
+    outputType.options = await formatAndFixOptionsToKeyValuePairs(outputType.options);
 
     const compareHash = {};
 
@@ -674,14 +676,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         continue;
       }
 
-      output.options = reduce(
-        output.options || {},
-        (newOptions, option, key) => ({
-          ...newOptions,
-          [key]: option.value,
-        }),
-        {}
-      );
+      output.options = await formatAndFixOptionsToKeyValuePairs(output.options);
 
       compareHash[state.id] = {
         type: output,
@@ -1605,7 +1600,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
             count={size(filter(states, ({ action }: IFSMState) => action?.type === 'apicall'))}
             onDoubleClick={handleToolbarItemDblClick}
           >
-            {t('ApiCall')}
+            {t('field-label-apicall')}
           </FSMToolbarItem>
           <FSMToolbarItem
             name="state"
@@ -1615,7 +1610,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
             )}
             onDoubleClick={handleToolbarItemDblClick}
           >
-            {t('SearchSingle')}
+            {t('field-label-search-single')}
           </FSMToolbarItem>
           <ButtonGroup style={{ float: 'right' }}>
             <Button

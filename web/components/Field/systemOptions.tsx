@@ -154,8 +154,6 @@ const Options = ({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  console.log(options);
-
   const getUrl = () => customUrl || `/options/${url}`;
 
   useMount(() => {
