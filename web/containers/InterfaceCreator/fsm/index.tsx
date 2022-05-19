@@ -977,7 +977,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
       const anotherTransitionData = transitionData?.data;
       const remove = !transitionData;
 
-      let transitionsCopy = [...states[stateId].transitions];
+      let transitionsCopy = [...(states[stateId].transitions || [])];
 
       if (remove) {
         delete transitionsCopy[index];
@@ -989,7 +989,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
       }
 
       transitionsCopy = transitionsCopy.filter((t) => t);
-      transitionsCopy = size(transitionsCopy) === 0 ? null : transitionsCopy;
 
       // @ts-expect-error
       const data: IFSMState = { transitions: transitionsCopy };
@@ -998,6 +997,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
         ...fixedStates[stateId],
         ...data,
       };
+
+      // Remove the transitions if they are empty
+      if (size(fixedStates[stateId].transitions) === 0) {
+        delete fixedStates[stateId].transitions;
+      }
 
       if (data?.type !== states[stateId].type || !isEqual(data.action, states[stateId].action)) {
         if (size(fixedStates[stateId].transitions)) {
@@ -1093,12 +1097,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
   const hasBothWayTransition = (
     stateId: string,
     targetId: string
-  ): { stateId: string; index: number } => {
+  ): { stateId: string; index: number } | null => {
     const transitionIndex = states[targetId].transitions?.findIndex(
       (transition) => transition.state === stateId
     );
 
-    if (transitionIndex >= 0) {
+    if (transitionIndex && transitionIndex >= 0) {
       return { stateId: targetId, index: transitionIndex };
     }
 
