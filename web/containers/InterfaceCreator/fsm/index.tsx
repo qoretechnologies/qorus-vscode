@@ -961,6 +961,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
         fixedStates[id].transitions = newTransitions;
       }
 
+      // Check if transitions are null and remove them
+      if (size(fixedStates[id].transitions) === 0) {
+        delete fixedStates[id].transitions;
+      }
+
       fixedStates = await fixIncomptibleStates(id, fixedStates);
     }
 
