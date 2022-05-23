@@ -21,7 +21,7 @@ const StyledSubFieldTitle = styled.h4`
   font-weight: ${({ subtle }) => (subtle ? 450 : 'bold')};
   background-color: ${({ isValid }) => (isValid === false ? '#ffe7e7' : 'transparent')};
   border-radius: 3px;
-  padding: 5px;
+  padding: 5px 0;
   align-items: center;
 
   .subfield-title {
@@ -41,17 +41,6 @@ const StyledSubFieldMarkdown = styled.div`
   }
 `;
 
-const StyledSubFieldDesc = styled.p`
-  padding: 0;
-  margin: 5px 0 10px 0;
-  font-size: 12px;
-
-  .bp3-icon {
-    margin-right: 3px;
-    vertical-align: text-top;
-  }
-`;
-
 const SubField: React.FC<ISubFieldProps> = ({
   title,
   desc,
@@ -66,9 +55,11 @@ const SubField: React.FC<ISubFieldProps> = ({
       <StyledSubFieldTitle subtle={subtle} isValid={isValid}>
         <div>
           {!subtle && (
-            <Icon icon="dot" iconSize={16} color={isValid === false ? '#bd0000' : undefined} />
+            <>
+              <Icon icon="dot" iconSize={16} color={isValid === false ? '#bd0000' : undefined} />
+              <HorizontalSpacer size={5} />
+            </>
           )}
-          <HorizontalSpacer size={5} />
           <span className="subfield-title">{title}</span>{' '}
           {detail && (
             <span className={Classes.TEXT_MUTED}>

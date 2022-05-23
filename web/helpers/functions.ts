@@ -65,7 +65,7 @@ export const splitByteSize = (value: string): [number, string] => {
   return [Number(bytes?.[0]), size?.[0]];
 };
 
-export const insertAtIndex = (array = [], index = 0, value) => {
+export const insertAtIndex = (array: any[] = [], index = 0, value) => {
   return [...array.slice(0, index), value, ...array.slice(index)];
 };
 

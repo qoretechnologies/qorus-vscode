@@ -43,9 +43,13 @@ export const getStateStyle = (type, toolbar?: boolean) => {
       `;
     case 'apicall':
       return css`
-        border-radius: 40% 40% 0 0;
+        border-radius: 30%;
       `;
     case 'search-single':
+      return css`
+        border-radius: 0 0 0 40%;
+      `;
+    case 'search':
       return css`
         border-radius: 0 0 40% 40%;
       `;

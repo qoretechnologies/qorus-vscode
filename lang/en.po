@@ -1050,6 +1050,9 @@ msgstr "API Call"
 msgid "field-label-search-single"
 msgstr "Single search"
 
+msgid "field-label-search"
+msgstr "Search"
+
 msgid "field-desc-connector"
 msgstr "Connectors used for building blocks"
 

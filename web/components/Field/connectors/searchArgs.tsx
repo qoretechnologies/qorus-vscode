@@ -52,7 +52,7 @@ export const SearchArgs = ({ value, url, onChange }: ISearchArgsProps) => {
       onChange={onChange}
       name="search_args"
       value={value}
-      operatorsUrl={`${url}/search_operators`}
+      operatorsUrl={`${url}/search_operators?context=ui`}
       options={transformedOptions}
       placeholder={t('AddSearchArgument')}
       noValueString={t('NoSearchArgument')}

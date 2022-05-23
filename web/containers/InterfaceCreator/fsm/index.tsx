@@ -94,6 +94,8 @@ export interface IFSMMetadata {
   'output-type'?: IProviderType;
 }
 
+export type TFSMStateType = 'state' | 'fsm' | 'block' | 'if';
+
 export interface IFSMState {
   position?: {
     x?: number;
@@ -109,7 +111,7 @@ export interface IFSMState {
   'input-type'?: any;
   'output-type'?: any;
   name?: string;
-  type: 'state' | 'fsm' | 'block' | 'if' | 'apicall' | 'search-single';
+  type: TFSMStateType;
   desc: string;
   states?: IFSMStates;
   fsm?: string;
@@ -1323,7 +1325,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         ref={fieldsWrapperRef}
         id="fsm-fields-wrapper"
         style={{
-          height: !isMetadataHidden ? '50%' : undefined,
+          maxHeight: !isMetadataHidden ? '50%' : undefined,
           overflowY: 'auto',
           overflowX: 'hidden',
         }}
@@ -1611,6 +1613,14 @@ const FSMView: React.FC<IFSMViewProps> = ({
             onDoubleClick={handleToolbarItemDblClick}
           >
             {t('field-label-search-single')}
+          </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="search"
+            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'search'))}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('field-label-search')}
           </FSMToolbarItem>
           <ButtonGroup style={{ float: 'right' }}>
             <Button
