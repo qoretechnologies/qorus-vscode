@@ -10,7 +10,7 @@ import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
-import { TOption } from '../components/Field/systemOptions';
+import { fixOperatorValue, TOption } from '../components/Field/systemOptions';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { TTrigger } from '../containers/InterfaceCreator/fsm';
 import { IField } from '../containers/InterfaceCreator/panel';
@@ -69,6 +69,10 @@ export const validateField: (
       // Check if this field has to be a valid identifier
       if (field?.has_to_be_valid_identifier) {
         isValid = !value.match(/^[0-9]|\W/);
+      }
+
+      if (field?.has_to_have_value) {
+        isValid = value !== '' && value.length !== 0;
       }
 
       // Strings cannot be empty
@@ -200,6 +204,7 @@ export const validateField: (
     case 'data-provider':
     case 'api-call':
     case 'search-single':
+    case 'search':
       let newValue = maybeBuildOptionProvider(value);
 
       if (!newValue) {
@@ -224,7 +229,7 @@ export const validateField: (
       }
 
       if (
-        type === 'search-single' &&
+        (type === 'search-single' || type === 'search') &&
         (size(value.search_args) === 0 ||
           !validateField('system-options-with-operators', value.search_args))
       ) {
@@ -366,7 +371,10 @@ export const validateField: (
             ? validateField(getTypeFromValue(optionData), optionData)
             : validateField(optionData.type, optionData.value);
 
-        if (!optionData.op) {
+        if (
+          !optionData.op ||
+          !fixOperatorValue(optionData.op).every((operator) => validateField('string', operator))
+        ) {
           isValid = false;
         }
 

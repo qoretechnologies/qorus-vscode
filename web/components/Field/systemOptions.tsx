@@ -81,7 +81,7 @@ export const fixOptions = (
   forEach(options, (option, name) => {
     if (option.required && !fixedValue[name]) {
       fixedValue[name] = {
-        type: getType(option.type, operators, fixedValue[name].op),
+        type: getType(option.type, operators, fixedValue[name]?.op),
         value: option.default_value,
       };
     }
@@ -414,7 +414,8 @@ const Options = ({
                 key={optionName}
                 title={optionName}
                 isValid={
-                  validateField(getType(type), other.value) && operatorsUrl ? !!other.op : true
+                  validateField(getType(type), other.value, { has_to_have_value: true }) &&
+                  (operatorsUrl ? !!other.op : true)
                 }
                 detail={getType(options[optionName].type)}
                 desc={options[optionName].desc}
