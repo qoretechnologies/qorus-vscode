@@ -1,4 +1,4 @@
-import { Button, Callout, Classes, ControlGroup, Icon } from '@blueprintjs/core';
+import { Button, Callout, Classes, ControlGroup, Icon, Tag } from '@blueprintjs/core';
 import { cloneDeep, findKey, forEach, last } from 'lodash';
 import isArray from 'lodash/isArray';
 import map from 'lodash/map';
@@ -492,6 +492,15 @@ const Options = ({
                   default_value={options[optionName].default}
                   allowed_values={options[optionName].allowed_values}
                 />
+                {operators && size(operators) && size(other.op) ? (
+                  <>
+                    <Spacer size={5} />
+                    <span className={Classes.TEXT_MUTED}>
+                      WHERE <Tag>{optionName}</Tag> IS {fixOperatorValue(other.op).join(' ')}{' '}
+                      {other.value?.toString() || ''}
+                    </span>
+                  </>
+                ) : null}
               </SubField>
             </StyledOptionField>
           ) : null
