@@ -122,7 +122,8 @@ export interface ITypeComparatorData {
     | 'if'
     | 'block'
     | 'apicall'
-    | 'search-single';
+    | 'search-single'
+    | 'search';
   typeData?: any;
 }
 
@@ -154,7 +155,11 @@ export const getStateProvider = async (
   data: ITypeComparatorData,
   providerType: 'input' | 'output'
 ) => {
-  if (data.interfaceKind === 'apicall' || data.interfaceKind === 'search-single') {
+  if (
+    data.interfaceKind === 'apicall' ||
+    data.interfaceKind === 'search-single' ||
+    data.interfaceKind === 'search'
+  ) {
     return Promise.resolve({
       // @ts-expect-error
       ...data.interfaceName,
