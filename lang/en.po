@@ -3155,14 +3155,17 @@ msgstr "Input type is incompatible with one or more initial states"
 msgid "FSMOutputTypeError"
 msgstr "Output type is incompatible with one or more final states"
 
-msgid "SearchArguments"
+msgid "searchArguments"
 msgstr "Search arguments"
 
-msgid "UpdateArguments"
+msgid "updateArguments"
 msgstr "Update arguments"
 
-msgid "DeleteArguments"
+msgid "deleteArguments"
 msgstr "Delete arguments"
+
+msgid "createArguments"
+msgstr "Create arguments"
 
 msgid "SearchOptions"
 msgstr "Search options"
@@ -3173,3 +3176,8 @@ msgstr "Loading arguments..."
 msgid "search-single"
 msgstr "Single search"
 
+msgid "ActionValue"
+msgstr "Action value"
+
+msgid "AddAnotherRecord"
+msgstr "Add record"

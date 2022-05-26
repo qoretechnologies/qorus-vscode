@@ -10,7 +10,7 @@ import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
-import { fixOperatorValue, TOption } from '../components/Field/systemOptions';
+import { fixOperatorValue, IOptions, TOption } from '../components/Field/systemOptions';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { TTrigger } from '../containers/InterfaceCreator/fsm';
 import { IField } from '../containers/InterfaceCreator/panel';
@@ -240,17 +240,9 @@ export const validateField: (
       }
 
       if (
-        type === 'update' &&
-        (size(value.update_args) === 0 ||
-          !validateField('system-options-with-operators', value.update_args))
-      ) {
-        return false;
-      }
-
-      if (
-        type === 'delete' &&
-        (size(value.delete_args) === 0 ||
-          !validateField('system-options-with-operators', value.delete_args))
+        (type === 'update' || type === 'delete' || type === 'create') &&
+        (size(value[`${type}_args`]) === 0 ||
+          !validateField('system-options-with-operators', value[`${type}_args`]))
       ) {
         return false;
       }
@@ -376,29 +368,37 @@ export const validateField: (
       );
     }
     case 'system-options-with-operators': {
-      if (!value || size(value) === 0) {
-        if (canBeNull) {
-          return true;
+      const isValid = (val: IOptions) => {
+        if (!val || size(val) === 0) {
+          if (canBeNull) {
+            return true;
+          }
+
+          return false;
         }
 
-        return false;
+        return every(val, (optionData: TOption) => {
+          let isValid: boolean =
+            typeof optionData !== 'object'
+              ? validateField(getTypeFromValue(optionData), optionData)
+              : validateField(optionData.type, optionData.value);
+
+          if (
+            !optionData.op ||
+            !fixOperatorValue(optionData.op).every((operator) => validateField('string', operator))
+          ) {
+            isValid = false;
+          }
+
+          return isValid;
+        });
+      };
+
+      if (isArray(value)) {
+        return value.every(isValid);
       }
 
-      return every(value, (optionData: TOption) => {
-        let isValid: boolean =
-          typeof optionData !== 'object'
-            ? validateField(getTypeFromValue(optionData), optionData)
-            : validateField(optionData.type, optionData.value);
-
-        if (
-          !optionData.op ||
-          !fixOperatorValue(optionData.op).every((operator) => validateField('string', operator))
-        ) {
-          isValid = false;
-        }
-
-        return isValid;
-      });
+      return isValid(value);
     }
     case 'byte-size': {
       let valid = true;

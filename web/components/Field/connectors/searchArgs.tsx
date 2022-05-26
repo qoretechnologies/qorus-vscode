@@ -1,15 +1,20 @@
+import { Button, ButtonGroup } from '@blueprintjs/core';
 import { reduce, size } from 'lodash';
 import React, { useContext, useEffect } from 'react';
+import { TRecordType } from '.';
 import { TTranslator } from '../../../App';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import Spacer from '../../Spacer';
+import SubField from '../../SubField';
 import Options, { IOptions, IOptionsSchema } from '../systemOptions';
 
 export interface ISearchArgsProps {
-  value?: IOptions;
-  type: 'search' | 'update' | 'create' | 'delete';
+  value?: IOptions | IOptions[];
+  asList?: boolean;
+  type: TRecordType;
   url: string;
-  onChange: (name: string, value?: IOptions) => void;
+  onChange: (name: string, value?: IOptions | IOptions[]) => void;
   hasOperators?: boolean;
 }
 
@@ -19,6 +24,7 @@ export const RecordQueryArgs = ({
   onChange,
   type,
   hasOperators = true,
+  asList,
 }: ISearchArgsProps) => {
   const [options, setOptions] = React.useState<any>(undefined);
   const t: TTranslator = useContext<TTranslator>(TextContext);
@@ -55,11 +61,59 @@ export const RecordQueryArgs = ({
       {}
     );
 
+  if (asList) {
+    return (
+      <>
+        {value &&
+          (value as IOptions[]).map((options: IOptions, index: number) => (
+            <SubField
+              title={`${t('Record')} ${index + 1}`}
+              key={index}
+              subtle
+              onRemove={() => {
+                // Filter out the items from value with this index
+                onChange(
+                  `${type}_args`,
+                  ((value || []) as IOptions[]).filter(
+                    (_options: IOptions, idx: number) => idx !== index
+                  )
+                );
+              }}
+            >
+              <Options
+                onChange={(name, newOptions?: IOptions) => {
+                  const newValue = [...(value as IOptions[])];
+                  // Update the field
+                  newValue[index] = newOptions;
+                  // Update the pairs
+                  onChange(name, newValue);
+                }}
+                name={`${type}_args`}
+                value={options}
+                operatorsUrl={hasOperators ? `${url}/search_operators?context=ui` : undefined}
+                options={transformedOptions}
+                placeholder={t('AddArgument')}
+                noValueString={t('NoArgument')}
+              />
+            </SubField>
+          ))}
+        <Spacer size={15} />
+        <ButtonGroup fill style={{ marginBottom: '10px' }}>
+          <Button
+            text={t('AddAnotherRecord')}
+            icon={'add'}
+            onClick={() => onChange(`${type}_args`, [...((value || []) as IOptions[]), {}])}
+          />
+        </ButtonGroup>
+      </>
+    );
+  }
+
   return (
     <Options
       onChange={onChange}
       name={`${type}_args`}
-      value={value}
+      value={value as IOptions}
       operatorsUrl={hasOperators ? `${url}/search_operators?context=ui` : undefined}
       options={transformedOptions}
       placeholder={t('AddArgument')}

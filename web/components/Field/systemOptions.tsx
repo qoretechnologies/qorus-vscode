@@ -132,9 +132,11 @@ export type TOption = {
   value: any;
   op?: TOperatorValue;
 };
-export type IOptions = {
-  [optionName: string]: TOption;
-};
+export type IOptions =
+  | {
+      [optionName: string]: TOption;
+    }
+  | undefined;
 
 export interface IOptionsSchema {
   [optionName: string]: {

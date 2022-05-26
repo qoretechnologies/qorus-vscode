@@ -13,7 +13,6 @@ import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
 import FieldGroup from '../../../components/FieldGroup';
 import FieldLabel from '../../../components/FieldLabel';
-import Spacer from '../../../components/Spacer';
 import { Messages } from '../../../constants/messages';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
@@ -274,6 +273,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             inline
             minimal
             key={actionType}
+            recordType={actionType}
             isRecordSearch={actionType === 'search-single' || actionType === 'search'}
             isRecordUpdate={actionType === 'update'}
             isRecordDelete={actionType === 'delete'}
@@ -453,41 +453,60 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                       isValid={isActionValid()}
                       info={t('Optional')}
                     />
-                    <FieldInputWrapper>
-                      <RadioField
-                        name="action"
-                        onChange={(_name, value) => {
-                          handleDataUpdate(
-                            'action',
-                            value === data?.action?.type ? data?.action : null
-                          );
-                          handleDataUpdate('id', data.id || shortid.generate());
-                          setActionType(value);
-                        }}
-                        value={actionType}
-                        disabled={newData.injected}
-                        items={[
-                          { isDivider: true, title: 'Data providers' },
-                          { value: 'mapper' },
-                          { value: 'pipeline' },
-                          { value: 'connector' },
-                          { value: 'apicall' },
-                          { isDivider: true, title: 'Record management' },
-                          { value: 'search-single' },
-                          { value: 'search' },
-                          { value: 'create' },
-                          { value: 'update' },
-                          { value: 'delete' },
-                        ]}
-                      />
-                      {actionType && actionType !== 'none' ? (
-                        <>
-                          <Spacer size={20} />
-                          {renderActionField()}
-                        </>
-                      ) : null}
-                    </FieldInputWrapper>
+                    <FieldGroup transparent>
+                      <FieldInputWrapper>
+                        <RadioField
+                          name="action"
+                          onChange={(_name, value) => {
+                            handleDataUpdate(
+                              'action',
+                              value === data?.action?.type ? data?.action : null
+                            );
+                            handleDataUpdate('id', data.id || shortid.generate());
+                            setActionType(value);
+                          }}
+                          value={actionType}
+                          disabled={newData.injected}
+                          items={[
+                            { isDivider: true, title: 'Data providers' },
+                            { value: 'mapper' },
+                            { value: 'pipeline' },
+                            { value: 'connector' },
+                            { value: 'apicall' },
+                          ]}
+                        />
+                      </FieldInputWrapper>
+                      <FieldInputWrapper>
+                        <RadioField
+                          name="action"
+                          onChange={(_name, value) => {
+                            handleDataUpdate(
+                              'action',
+                              value === data?.action?.type ? data?.action : null
+                            );
+                            handleDataUpdate('id', data.id || shortid.generate());
+                            setActionType(value);
+                          }}
+                          value={actionType}
+                          disabled={newData.injected}
+                          items={[
+                            { isDivider: true, title: 'Record management' },
+                            { value: 'search-single' },
+                            { value: 'search' },
+                            { value: 'create' },
+                            { value: 'update' },
+                            { value: 'delete' },
+                          ]}
+                        />
+                      </FieldInputWrapper>
+                    </FieldGroup>
                   </FieldWrapper>
+                  {actionType && actionType !== 'none' ? (
+                    <FieldWrapper padded>
+                      <FieldLabel isValid info={t('ActionValue')} />
+                      {renderActionField()}
+                    </FieldWrapper>
+                  ) : null}
                 </>
               )}
               {newData.type === 'block' ? (
