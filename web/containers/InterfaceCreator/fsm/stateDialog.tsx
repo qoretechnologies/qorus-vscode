@@ -47,7 +47,10 @@ export type TAction =
   | 'none'
   | 'apicall'
   | 'search-single'
-  | 'search';
+  | 'search'
+  | 'create'
+  | 'update'
+  | 'delete';
 
 const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   onClose,
@@ -163,11 +166,12 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'apicall': {
         return validateField('api-call', newData?.action?.value);
       }
+      case 'search':
+      case 'delete':
+      case 'update':
+      case 'create':
       case 'search-single': {
-        return validateField('search-single', newData?.action?.value);
-      }
-      case 'search': {
-        return validateField('search-single', newData?.action?.value);
+        return validateField(actionType, newData?.action?.value);
       }
       default: {
         return true;
@@ -260,13 +264,20 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
         );
       }
       case 'search-single':
+      case 'update':
+      case 'delete':
+      case 'create':
       case 'search': {
         return (
           <Connectors
             name={actionType}
             inline
             minimal
-            isRecordSearch
+            key={actionType}
+            isRecordSearch={actionType === 'search-single' || actionType === 'search'}
+            isRecordUpdate={actionType === 'update'}
+            isRecordDelete={actionType === 'delete'}
+            isRecordCreate={actionType === 'create'}
             isMultiRecordSearch={actionType === 'search'}
             isInitialEditing={!!data?.action?.value}
             onChange={(_name, value) => handleDataUpdate('action', { type: actionType, value })}
@@ -456,12 +467,17 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                         value={actionType}
                         disabled={newData.injected}
                         items={[
+                          { isDivider: true, title: 'Data providers' },
                           { value: 'mapper' },
                           { value: 'pipeline' },
                           { value: 'connector' },
                           { value: 'apicall' },
+                          { isDivider: true, title: 'Record management' },
                           { value: 'search-single' },
                           { value: 'search' },
+                          { value: 'create' },
+                          { value: 'update' },
+                          { value: 'delete' },
                         ]}
                       />
                       {actionType && actionType !== 'none' ? (

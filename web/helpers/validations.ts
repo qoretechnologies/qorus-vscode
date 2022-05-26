@@ -205,6 +205,9 @@ export const validateField: (
     case 'api-call':
     case 'search-single':
     case 'search':
+    case 'update':
+    case 'delete':
+    case 'create':
       let newValue = maybeBuildOptionProvider(value);
 
       if (!newValue) {
@@ -232,6 +235,22 @@ export const validateField: (
         (type === 'search-single' || type === 'search') &&
         (size(value.search_args) === 0 ||
           !validateField('system-options-with-operators', value.search_args))
+      ) {
+        return false;
+      }
+
+      if (
+        type === 'update' &&
+        (size(value.update_args) === 0 ||
+          !validateField('system-options-with-operators', value.update_args))
+      ) {
+        return false;
+      }
+
+      if (
+        type === 'delete' &&
+        (size(value.delete_args) === 0 ||
+          !validateField('system-options-with-operators', value.delete_args))
       ) {
         return false;
       }

@@ -12,6 +12,8 @@ vscode:
     - styled-components.vscode-styled-components
     - kejun.devtoys
     - qoretechnologies.qore-vscode
+    - mattpocock.ts-error-translator
+    - usernamehw.errorlens
 tasks:
   - init: |
       nvm install v14.18

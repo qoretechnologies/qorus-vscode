@@ -1053,6 +1053,15 @@ msgstr "Single search"
 msgid "field-label-search"
 msgstr "Search"
 
+msgid "field-label-update"
+msgstr "Update"
+
+msgid "field-label-delete"
+msgstr "Delete"
+
+msgid "field-label-create"
+msgstr "Create"
+
 msgid "field-desc-connector"
 msgstr "Connectors used for building blocks"
 
@@ -2870,14 +2879,14 @@ msgstr "Loading options ..."
 msgid "NoOptionsSelected"
 msgstr "No options selected. Please select an option below."
 
-msgid "NoSearchArgument"
-msgstr "No search arguments selected. Please select an argument below."
+msgid "NoArgument"
+msgstr "No arguments selected. Please select an argument below."
 
 msgid "AddNewOption"
 msgstr "Add option"
 
-msgid "AddSearchArgument"
-msgstr "Add search argument"
+msgid "AddArgument"
+msgstr "Add argument"
 
 msgid "ErrorLoadingOptions"
 msgstr "There was an error loading options:"
@@ -3149,11 +3158,17 @@ msgstr "Output type is incompatible with one or more final states"
 msgid "SearchArguments"
 msgstr "Search arguments"
 
+msgid "UpdateArguments"
+msgstr "Update arguments"
+
+msgid "DeleteArguments"
+msgstr "Delete arguments"
+
 msgid "SearchOptions"
 msgstr "Search options"
 
-msgid "LoadingSearchArgs"
-msgstr "Loading search arguments..."
+msgid "LoadingArgs"
+msgstr "Loading arguments..."
 
 msgid "search-single"
 msgstr "Single search"

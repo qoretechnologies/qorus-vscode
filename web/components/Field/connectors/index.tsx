@@ -13,7 +13,7 @@ import SubField from '../../SubField';
 import { ApiCallArgs } from '../apiCallArgs';
 import BooleanField from '../boolean';
 import Options, { IOptions } from '../systemOptions';
-import { SearchArgs } from './searchArgs';
+import { RecordQueryArgs } from './searchArgs';
 
 export interface IConnectorFieldProps {
   title?: string;
@@ -27,6 +27,8 @@ export interface IConnectorFieldProps {
   t: TTranslator;
   requiresRequest?: boolean;
   isRecordSearch?: boolean;
+  isRecordUpdate?: boolean;
+  isRecordDelete?: boolean;
   minimal?: boolean;
   isConfigItem?: boolean;
 }
@@ -43,8 +45,13 @@ export interface IProviderType {
   args?: any;
   supports_request?: boolean;
   supports_read?: boolean;
+  supports_update?: boolean;
+  supports_delete?: boolean;
   is_api_call?: boolean;
   search_args?: IOptions;
+  update_args?: IOptions;
+  delete_args?: IOptions;
+  create_args?: IOptions[];
   search_options?: IOptions;
 }
 
@@ -167,6 +174,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   isConfigItem,
   requiresRequest,
   isRecordSearch,
+  isRecordUpdate,
+  isRecordDelete,
   t,
 }) => {
   const [optionProvider, setOptionProvider] = useState<IProviderType | null>(
@@ -359,10 +368,13 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
         </>
       ) : null}
       {/* This means that we are working with a record search */}
-      {isRecordSearch && optionProvider?.supports_read ? (
+      {(isRecordSearch && optionProvider?.supports_read) ||
+      (isRecordUpdate && optionProvider?.supports_update) ||
+      (isRecordDelete && optionProvider?.supports_delete) ? (
         <>
           <SubField title={t('SearchArguments')}>
-            <SearchArgs
+            <RecordQueryArgs
+              type="search"
               url={getUrlFromProvider(optionProvider, false, true)}
               value={optionProvider?.search_args}
               onChange={(nm, val) => {
@@ -392,6 +404,50 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
               name="search_options"
               value={optionProvider.search_options}
               customUrl={`${getUrlFromProvider(optionProvider, false, true)}/search_options`}
+            />
+          </SubField>
+        </>
+      ) : null}
+      {/* This means that we are working with a record update */}
+      {isRecordUpdate && optionProvider?.supports_update ? (
+        <>
+          <SubField title={t('UpdateArguments')}>
+            <RecordQueryArgs
+              type="update"
+              url={getUrlFromProvider(optionProvider, false, true)}
+              value={optionProvider?.update_args}
+              onChange={(nm, val) => {
+                setOptionProvider((cur: IProviderType | null) => {
+                  const result: IProviderType = {
+                    ...cur,
+                    update_args: val,
+                  } as IProviderType;
+
+                  return result;
+                });
+              }}
+            />
+          </SubField>
+        </>
+      ) : null}
+      {/* This means that we are working with a record update */}
+      {isRecordDelete && optionProvider?.supports_delete ? (
+        <>
+          <SubField title={t('DeleteArguments')}>
+            <RecordQueryArgs
+              type="delete"
+              url={getUrlFromProvider(optionProvider, false, true)}
+              value={optionProvider?.delete_args}
+              onChange={(nm, val) => {
+                setOptionProvider((cur: IProviderType | null) => {
+                  const result: IProviderType = {
+                    ...cur,
+                    delete_args: val,
+                  } as IProviderType;
+
+                  return result;
+                });
+              }}
             />
           </SubField>
         </>

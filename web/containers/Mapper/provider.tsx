@@ -323,6 +323,9 @@ const MapperProvider: FC<IProviderProps> = ({
             desc: data.desc,
             supports_request: data.supports_request,
             supports_read: data.supports_read,
+            supports_update: data.supports_update,
+            supports_create: data.supports_create,
+            supports_delete: data.supports_delete,
             can_manage_fields: record.data?.can_manage_fields,
             path: `${url}/${value}`
               .replace(`${name}`, '')
@@ -390,6 +393,9 @@ const MapperProvider: FC<IProviderProps> = ({
             can_manage_fields: data.can_manage_fields,
             name,
             supports_read: data.supports_read,
+            supports_update: data.supports_update,
+            supports_create: data.supports_create,
+            supports_delete: data.supports_delete,
             subtype: value === 'request' || value === 'response' ? value : undefined,
             path: `${url}/${value}`
               .replace(`${name}`, '')
@@ -428,6 +434,9 @@ const MapperProvider: FC<IProviderProps> = ({
               type: realProviders[provider].type,
               name,
               supports_read: data.supports_read,
+              supports_update: data.supports_update,
+              supports_create: data.supports_create,
+              supports_delete: data.supports_delete,
               can_manage_fields: record.data.can_manage_fields,
               path: `${url}/${value}`
                 .replace(`${name}`, '')

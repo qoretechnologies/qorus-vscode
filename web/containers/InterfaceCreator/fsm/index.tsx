@@ -1622,6 +1622,30 @@ const FSMView: React.FC<IFSMViewProps> = ({
           >
             {t('field-label-search')}
           </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="update"
+            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'update'))}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('field-label-update')}
+          </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="create"
+            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'create'))}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('field-label-create')}
+          </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="delete"
+            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'delete'))}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('field-label-delete')}
+          </FSMToolbarItem>
           <ButtonGroup style={{ float: 'right' }}>
             <Button
               onClick={() => {

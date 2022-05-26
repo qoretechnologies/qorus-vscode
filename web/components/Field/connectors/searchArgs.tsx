@@ -7,14 +7,22 @@ import Options, { IOptions, IOptionsSchema } from '../systemOptions';
 
 export interface ISearchArgsProps {
   value?: IOptions;
+  type: 'search' | 'update' | 'create' | 'delete';
   url: string;
   onChange: (name: string, value?: IOptions) => void;
+  hasOperators?: boolean;
 }
 
-export const SearchArgs = ({ value, url, onChange }: ISearchArgsProps) => {
+export const RecordQueryArgs = ({
+  value,
+  url,
+  onChange,
+  type,
+  hasOperators = true,
+}: ISearchArgsProps) => {
   const [options, setOptions] = React.useState<any>(undefined);
   const t: TTranslator = useContext<TTranslator>(TextContext);
-  const { fetchData, confirmAction, qorus_instance }: any = useContext(InitialContext);
+  const { fetchData, qorus_instance }: any = useContext(InitialContext);
 
   useEffect(() => {
     if (qorus_instance) {
@@ -30,7 +38,7 @@ export const SearchArgs = ({ value, url, onChange }: ISearchArgsProps) => {
   }, [url, qorus_instance]);
 
   if (!size(options)) {
-    return <p>{t('LoadingSearchArgs')}</p>;
+    return <p>{t(`LoadingArgs`)}</p>;
   }
 
   const transformedOptions: IOptionsSchema =
@@ -50,12 +58,12 @@ export const SearchArgs = ({ value, url, onChange }: ISearchArgsProps) => {
   return (
     <Options
       onChange={onChange}
-      name="search_args"
+      name={`${type}_args`}
       value={value}
-      operatorsUrl={`${url}/search_operators?context=ui`}
+      operatorsUrl={hasOperators ? `${url}/search_operators?context=ui` : undefined}
       options={transformedOptions}
-      placeholder={t('AddSearchArgument')}
-      noValueString={t('NoSearchArgument')}
+      placeholder={t('AddArgument')}
+      noValueString={t('NoArgument')}
     />
   );
 };
