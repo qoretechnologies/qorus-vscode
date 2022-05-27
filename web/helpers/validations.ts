@@ -240,9 +240,9 @@ export const validateField: (
       }
 
       if (
-        (type === 'update' || type === 'delete' || type === 'create') &&
+        (type === 'update' || type === 'create') &&
         (size(value[`${type}_args`]) === 0 ||
-          !validateField('system-options-with-operators', value[`${type}_args`]))
+          !validateField('system-options', value[`${type}_args`]))
       ) {
         return false;
       }
@@ -353,21 +353,30 @@ export const validateField: (
     case 'pipeline-options':
     case 'mapper-options':
     case 'system-options': {
-      if (!value || size(value) === 0) {
-        if (canBeNull) {
-          return true;
+      const isValid = (val) => {
+        if (!val || size(val) === 0) {
+          if (canBeNull) {
+            return true;
+          }
+
+          return false;
         }
 
-        return false;
+        return every(val, (optionData) =>
+          typeof optionData !== 'object'
+            ? validateField(getTypeFromValue(optionData), optionData)
+            : validateField(optionData.type, optionData.value)
+        );
+      };
+
+      if (isArray(value)) {
+        return value.every(isValid);
       }
 
-      return every(value, (optionData) =>
-        typeof optionData !== 'object'
-          ? validateField(getTypeFromValue(optionData), optionData)
-          : validateField(optionData.type, optionData.value)
-      );
+      return isValid(value);
     }
     case 'system-options-with-operators': {
+      console.log(value);
       const isValid = (val: IOptions) => {
         if (!val || size(val) === 0) {
           if (canBeNull) {
