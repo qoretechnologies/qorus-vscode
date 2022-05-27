@@ -66,6 +66,11 @@ const supportsOperators = {
   'search-single': true,
 };
 
+const supportsArguments = {
+  create: true,
+  update: true,
+}
+
 const getRealRecordType = (recordType: TRecordType): TRealRecordType => {
   return recordType.startsWith('search') ? 'read' : (recordType as TRealRecordType);
 };
@@ -438,7 +443,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
         </>
       ) : null}
       {/* This means that we are working with a record update */}
-      {recordType && optionProvider && getRealRecordType(recordType) !== 'read' ? (
+      {recordType && optionProvider && supportsArguments[recordType] ? (
         <SubField title={t(`${recordType}Arguments`)}>
           <RecordQueryArgs
             type={recordType}

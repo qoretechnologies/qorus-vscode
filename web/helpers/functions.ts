@@ -20,6 +20,7 @@ import { AppToaster } from '../components/Toast';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
 import { IFSMState, IFSMStates, IFSMTransition } from '../containers/InterfaceCreator/fsm';
+import { TAction } from '../containers/InterfaceCreator/fsm/stateDialog';
 import { addMessageListener, postMessage } from '../hocomponents/withMessageHandler';
 const md5 = require('md5');
 
@@ -114,16 +115,7 @@ export const isStateIsolated = (
 export interface ITypeComparatorData {
   interfaceName?: string;
   connectorName?: string;
-  interfaceKind?:
-    | 'mapper'
-    | 'pipeline'
-    | 'connector'
-    | 'processor'
-    | 'if'
-    | 'block'
-    | 'apicall'
-    | 'search-single'
-    | 'search';
+  interfaceKind?: 'if' | 'block' | 'processor' | TAction;
   typeData?: any;
 }
 
@@ -158,7 +150,10 @@ export const getStateProvider = async (
   if (
     data.interfaceKind === 'apicall' ||
     data.interfaceKind === 'search-single' ||
-    data.interfaceKind === 'search'
+    data.interfaceKind === 'search' ||
+    data.interfaceKind === 'update' ||
+    data.interfaceKind === 'create' ||
+    data.interfaceKind === 'delete'
   ) {
     return Promise.resolve({
       // @ts-expect-error
