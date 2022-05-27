@@ -6,6 +6,12 @@
 
 - Implemented new FSM state - single record search.
 
+## Version 3.6.6
+
+#### Bug Fixes
+
+- Fixed a bug that left "null" value in an FSM state when removing all transitions
+
 ## Version 3.6.5
 
 #### Bug Fixes

@@ -9,6 +9,10 @@ reused later and setup an initial configuration for them.
 
 - Implemented new FSM state - single record search.
 
+## Version 3.6.6 overview - What's new:
+
+- Fixed a bug that left "null" value in an FSM state when removing all transitions
+
 ## Version 3.6.5 overview - What's new:
 
 - Fixed a bug that caused a crash when creating a job while the Schedule field was empty
