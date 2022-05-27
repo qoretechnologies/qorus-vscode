@@ -1,4 +1,4 @@
-import { Button, Classes, ControlGroup, Icon, MenuItem, Tooltip } from '@blueprintjs/core';
+import { Button, Classes, ControlGroup, Icon, Menu, MenuItem, Tooltip } from '@blueprintjs/core';
 import { Select } from '@blueprintjs/select';
 import { get, includes } from 'lodash';
 import React, { useEffect, useState } from 'react';
@@ -16,6 +16,7 @@ import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
 import Spacer from '../Spacer';
+import { DescriptionField } from '../SubField';
 import StringField from './string';
 
 export interface ISelectField {
@@ -32,6 +33,7 @@ export interface ISelectField {
   messageData: any;
   warningMessageOnEmpty?: string;
   autoSelect?: boolean;
+  asMenu?: boolean;
 }
 
 export const StyledDialogSelectItem = styled.div`
@@ -113,6 +115,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   editOnly,
   target_dir,
   forceDropdown,
+  asMenu,
 }) => {
   const [items, setItems] = useState<any[]>(defaultItems || []);
   const [query, setQuery] = useState<string>('');
@@ -292,179 +295,179 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
       }}
     >
       {(onEditClick, onCreateClick) => (
-        <ControlGroup fill={fill} style={{ flex: 'none' }}>
-          {reference && (
-            <>
-              {!editOnly && (
-                <Button
-                  icon="add"
-                  className={Classes.FIXED}
-                  intent="success"
-                  name={`field-${name}-reference-add-new`}
-                  onClick={() => onCreateClick(reference, handleEditSubmit)}
-                />
-              )}
-              {value && (
-                <Button
-                  icon="edit"
-                  className={Classes.FIXED}
-                  name={`field-${name}-edit-reference`}
-                  onClick={() => onEditClick(value, reference, handleEditSubmit)}
-                />
-              )}
-            </>
-          )}
-          {!filteredItems || filteredItems.length === 0 ? (
-            <StringField
-              value={t('NothingToSelect')}
-              read_only
-              disabled
-              name={name}
-              onChange={() => {}}
-            />
-          ) : (
-            <>
-              {hasItemsWithDesc(items) && !forceDropdown ? (
-                <>
-                  <Tooltip
-                    position="top"
-                    boundary="viewport"
-                    targetProps={{
-                      style: {
-                        width: '100%',
-                      },
-                    }}
-                    content={
-                      <ReactMarkdown
-                        source={
-                          value
-                            ? getItemDescription(value) || t('NoDescription')
-                            : t('PleaseSelect')
-                        }
-                      />
-                    }
-                  >
+        <>
+          <ControlGroup fill={fill} style={{ flex: 'none' }}>
+            {reference && (
+              <>
+                {!editOnly && (
+                  <Button
+                    icon="add"
+                    className={Classes.FIXED}
+                    intent="success"
+                    name={`field-${name}-reference-add-new`}
+                    onClick={() => onCreateClick(reference, handleEditSubmit)}
+                  />
+                )}
+                {value && (
+                  <Button
+                    icon="edit"
+                    className={Classes.FIXED}
+                    name={`field-${name}-edit-reference`}
+                    onClick={() => onEditClick(value, reference, handleEditSubmit)}
+                  />
+                )}
+              </>
+            )}
+            {!filteredItems || filteredItems.length === 0 ? (
+              <StringField
+                value={t('NothingToSelect')}
+                read_only
+                disabled
+                name={name}
+                onChange={() => {}}
+              />
+            ) : (
+              <>
+                {hasItemsWithDesc(items) && !forceDropdown ? (
+                  <>
                     <Button
                       name={`field-${name}`}
                       fill={fill}
                       text={value ? value : placeholder || t('PleaseSelect')}
                       rightIcon="widget-header"
+                      intent={value ? 'primary' : undefined}
                       onClick={() => setSelectDialogOpen(true)}
                       disabled={disabled}
                     />
-                  </Tooltip>
-                  {isSelectDialogOpen && (
-                    <CustomDialog
-                      isOpen
-                      icon="list"
-                      onClose={() => {
-                        setSelectDialogOpen(false);
-                        setQuery('');
-                      }}
-                      title={t('SelectItem')}
-                      style={{
-                        maxHeight: '80vh',
-                        width: '50vw',
-                        minWidth: '500px',
-                        overflow: 'auto',
-                        padding: 0,
-                      }}
-                    >
-                      <div
-                        className={Classes.DIALOG_BODY}
-                        style={{ display: 'flex', flexFlow: 'column', overflow: 'hidden' }}
+                    {isSelectDialogOpen && (
+                      <CustomDialog
+                        isOpen
+                        icon="list"
+                        onClose={() => {
+                          setSelectDialogOpen(false);
+                          setQuery('');
+                        }}
+                        title={t('SelectItem')}
+                        style={{
+                          maxHeight: '80vh',
+                          width: '50vw',
+                          minWidth: '500px',
+                          overflow: 'auto',
+                          padding: 0,
+                        }}
                       >
-                        <div>
-                          <StringField
-                            onChange={(_name, value) => setQuery(value)}
-                            value={query}
-                            name="select-filter"
-                            placeholder={t('Filter')}
-                            autoFocus
-                          />
-                          <Spacer size={10} />
-                        </div>
-                        <div style={{ overflowY: 'auto', overflowX: 'hidden' }}>
-                          {filterItems(filteredItems).map((item) => (
-                            <Tooltip
-                              position="top"
-                              boundary="viewport"
-                              targetProps={{
-                                style: {
-                                  width: '100%',
-                                },
-                              }}
-                              hoverOpenDelay={500}
-                              interactionKind="hover"
-                              content={<ReactMarkdown source={item.desc} />}
-                            >
-                              <StyledDialogSelectItem
-                                className={item.name === value ? 'selected' : ''}
-                                name={`field-${name}-item`}
-                                onClick={() => {
-                                  handleSelectClick(item);
-                                  setSelectDialogOpen(false);
-                                  setQuery('');
+                        <div
+                          className={Classes.DIALOG_BODY}
+                          style={{ display: 'flex', flexFlow: 'column', overflow: 'hidden' }}
+                        >
+                          <div>
+                            <StringField
+                              onChange={(_name, value) => setQuery(value)}
+                              value={query}
+                              name="select-filter"
+                              placeholder={t('Filter')}
+                              autoFocus
+                            />
+                            <Spacer size={10} />
+                          </div>
+                          <div style={{ overflowY: 'auto', overflowX: 'hidden' }}>
+                            {filterItems(filteredItems).map((item) => (
+                              <Tooltip
+                                position="top"
+                                boundary="viewport"
+                                targetProps={{
+                                  style: {
+                                    width: '100%',
+                                  },
                                 }}
+                                hoverOpenDelay={500}
+                                interactionKind="hover"
+                                content={<ReactMarkdown source={item.desc} />}
                               >
-                                <h5>
-                                  {item.name === value && (
-                                    <Icon icon="small-tick" style={{ color: '#7fba27' }} />
-                                  )}{' '}
-                                  {item.name}
-                                </h5>
+                                <StyledDialogSelectItem
+                                  className={item.name === value ? 'selected' : ''}
+                                  name={`field-${name}-item`}
+                                  onClick={() => {
+                                    handleSelectClick(item);
+                                    setSelectDialogOpen(false);
+                                    setQuery('');
+                                  }}
+                                >
+                                  <h5>
+                                    {item.name === value && (
+                                      <Icon icon="small-tick" style={{ color: '#7fba27' }} />
+                                    )}{' '}
+                                    {item.name}
+                                  </h5>
 
-                                <p className={Classes.TEXT_MUTED}>
-                                  <ReactMarkdown source={item.desc || t('NoDescription')} />
-                                </p>
-                              </StyledDialogSelectItem>
-                            </Tooltip>
-                          ))}
+                                  <p className={Classes.TEXT_MUTED}>
+                                    <ReactMarkdown source={item.desc || t('NoDescription')} />
+                                  </p>
+                                </StyledDialogSelectItem>
+                              </Tooltip>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </CustomDialog>
-                  )}
-                </>
-              ) : (
-                <Select
-                  items={query === '' ? filteredItems : filterItems(filteredItems)}
-                  itemRenderer={(item, data) => (
-                    <MenuItem
-                      name={`field-${name}-item`}
-                      title={item.desc}
-                      icon={value && item.name === value ? 'tick' : 'blank'}
-                      text={item.name}
-                      onClick={data.handleClick}
+                      </CustomDialog>
+                    )}
+                  </>
+                ) : asMenu ? (
+                  <Menu>
+                    {filteredItems.map((item) => (
+                      <MenuItem
+                        key={item.name}
+                        text={item.name}
+                        onClick={() => {
+                          handleSelectClick(item);
+                          setSelectDialogOpen(false);
+                          setQuery('');
+                        }}
+                      />
+                    ))}
+                  </Menu>
+                ) : (
+                  <Select
+                    items={query === '' ? filteredItems : filterItems(filteredItems)}
+                    itemRenderer={(item, data) => (
+                      <MenuItem
+                        name={`field-${name}-item`}
+                        title={item.desc}
+                        icon={value && item.name === value ? 'tick' : 'blank'}
+                        text={item.name}
+                        onClick={data.handleClick}
+                      />
+                    )}
+                    inputProps={{
+                      placeholder: t('Filter'),
+                      name: 'field-select-filter',
+                      autoFocus: true,
+                    }}
+                    popoverProps={{
+                      popoverClassName: 'custom-popover',
+                      targetClassName: fill ? 'select-popover' : '',
+                      position: 'left',
+                    }}
+                    className={fill ? Classes.FILL : ''}
+                    onItemSelect={(item: any) => handleSelectClick(item)}
+                    query={query}
+                    onQueryChange={(newQuery: string) => setQuery(newQuery)}
+                    disabled={disabled}
+                  >
+                    <Button
+                      name={`field-${name}`}
+                      fill={fill}
+                      intent={value ? 'primary' : undefined}
+                      text={value ? value : placeholder || t('PleaseSelect')}
+                      rightIcon={'caret-down'}
+                      onClick={handleClick}
                     />
-                  )}
-                  inputProps={{
-                    placeholder: t('Filter'),
-                    name: 'field-select-filter',
-                    autoFocus: true,
-                  }}
-                  popoverProps={{
-                    popoverClassName: 'custom-popover',
-                    targetClassName: fill ? 'select-popover' : '',
-                    position: 'left',
-                  }}
-                  className={fill ? Classes.FILL : ''}
-                  onItemSelect={(item: any) => handleSelectClick(item)}
-                  query={query}
-                  onQueryChange={(newQuery: string) => setQuery(newQuery)}
-                  disabled={disabled}
-                >
-                  <Button
-                    name={`field-${name}`}
-                    fill={fill}
-                    text={value ? value : placeholder || t('PleaseSelect')}
-                    rightIcon={'caret-down'}
-                    onClick={handleClick}
-                  />
-                </Select>
-              )}
-            </>
-          )}
-        </ControlGroup>
+                  </Select>
+                )}
+              </>
+            )}
+          </ControlGroup>
+          <DescriptionField desc={getItemDescription(value)} />
+        </>
       )}
     </FieldEnhancer>
   );

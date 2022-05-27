@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
+import { map } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
@@ -39,17 +40,20 @@ export interface IFSMStateDialogProps {
   disableInitial?: boolean;
 }
 
-export type TAction =
-  | 'connector'
-  | 'mapper'
-  | 'pipeline'
-  | 'none'
-  | 'apicall'
-  | 'search-single'
-  | 'search'
-  | 'create'
-  | 'update'
-  | 'delete';
+export enum StateTypes {
+  connector = 'connector',
+  mapper = 'mapper',
+  pipeline = 'pipeline',
+  none = 'none',
+  apicall = 'apicall',
+  'search-single' = 'search-single',
+  search = 'search',
+  create = 'create',
+  update = 'update',
+  delete = 'delete',
+}
+
+export type TAction = keyof typeof StateTypes;
 
 const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   onClose,
@@ -274,11 +278,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             minimal
             key={actionType}
             recordType={actionType}
-            isRecordSearch={actionType === 'search-single' || actionType === 'search'}
-            isRecordUpdate={actionType === 'update'}
-            isRecordDelete={actionType === 'delete'}
-            isRecordCreate={actionType === 'create'}
-            isMultiRecordSearch={actionType === 'search'}
             isInitialEditing={!!data?.action?.value}
             onChange={(_name, value) => handleDataUpdate('action', { type: actionType, value })}
             value={newData?.action?.value}
@@ -453,53 +452,26 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                       isValid={isActionValid()}
                       info={t('Optional')}
                     />
-                    <FieldGroup transparent>
-                      <FieldInputWrapper>
-                        <RadioField
-                          name="action"
-                          onChange={(_name, value) => {
-                            handleDataUpdate(
-                              'action',
-                              value === data?.action?.type ? data?.action : null
-                            );
-                            handleDataUpdate('id', data.id || shortid.generate());
-                            setActionType(value);
-                          }}
-                          value={actionType}
-                          disabled={newData.injected}
-                          items={[
-                            { isDivider: true, title: 'Data providers' },
-                            { value: 'mapper' },
-                            { value: 'pipeline' },
-                            { value: 'connector' },
-                            { value: 'apicall' },
-                          ]}
-                        />
-                      </FieldInputWrapper>
-                      <FieldInputWrapper>
-                        <RadioField
-                          name="action"
-                          onChange={(_name, value) => {
-                            handleDataUpdate(
-                              'action',
-                              value === data?.action?.type ? data?.action : null
-                            );
-                            handleDataUpdate('id', data.id || shortid.generate());
-                            setActionType(value);
-                          }}
-                          value={actionType}
-                          disabled={newData.injected}
-                          items={[
-                            { isDivider: true, title: 'Record management' },
-                            { value: 'search-single' },
-                            { value: 'search' },
-                            { value: 'create' },
-                            { value: 'update' },
-                            { value: 'delete' },
-                          ]}
-                        />
-                      </FieldInputWrapper>
-                    </FieldGroup>
+                    <FieldInputWrapper>
+                      <SelectField
+                        defaultItems={map(StateTypes, (stateType) => ({
+                          name: stateType,
+                          desc: t(`field-desc-state-${stateType}`),
+                        }))}
+                        onChange={(_name, value) => {
+                          handleDataUpdate(
+                            'action',
+                            value === data?.action?.type ? data?.action : null
+                          );
+                          handleDataUpdate('id', data.id || shortid.generate());
+                          setActionType(value);
+                        }}
+                        value={actionType}
+                        placeholder={t('field-placeholder-action')}
+                        disabled={newData.injected}
+                        name="action"
+                      />
+                    </FieldInputWrapper>
                   </FieldWrapper>
                   {actionType && actionType !== 'none' ? (
                     <FieldWrapper padded>

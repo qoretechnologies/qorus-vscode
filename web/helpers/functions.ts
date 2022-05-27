@@ -160,6 +160,7 @@ export const getStateProvider = async (
       ...data.interfaceName,
       // @ts-expect-error
       path: `${data.interfaceName.path}`,
+      typeAction: data.interfaceKind,
     });
   }
 

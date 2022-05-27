@@ -17,7 +17,7 @@ export interface ISubFieldProps {
 const StyledSubFieldTitle = styled.h4`
   display: flex;
   justify-content: space-between;
-  margin: 0 0 10px 0;
+  margin: 0 0 0 0;
   font-weight: ${({ subtle }) => (subtle ? 450 : 'bold')};
   background-color: ${({ isValid }) => (isValid === false ? '#ffe7e7' : 'transparent')};
   border-radius: 3px;
@@ -40,6 +40,18 @@ const StyledSubFieldMarkdown = styled.div`
     margin-bottom: 0;
   }
 `;
+
+export const DescriptionField = ({ desc }: { desc?: string }) =>
+  desc ? (
+    <blockquote
+      className={`bp3-blockquote ${Classes.TEXT_MUTED}`}
+      style={{ display: 'block', marginTop: '10px' }}
+    >
+      <StyledSubFieldMarkdown>
+        <ReactMarkdown source={desc} />
+      </StyledSubFieldMarkdown>
+    </blockquote>
+  ) : null;
 
 const SubField: React.FC<ISubFieldProps> = ({
   title,
@@ -83,13 +95,7 @@ const SubField: React.FC<ISubFieldProps> = ({
         )}
       </StyledSubFieldTitle>
     )}
-    {desc && (
-      <blockquote className={`bp3-blockquote ${Classes.TEXT_MUTED}`}>
-        <StyledSubFieldMarkdown>
-          <ReactMarkdown source={desc} />
-        </StyledSubFieldMarkdown>
-      </blockquote>
-    )}
+    <DescriptionField desc={desc} />
     {children}
   </>
 );

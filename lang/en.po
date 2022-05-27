@@ -1281,6 +1281,33 @@ msgstr "Options"
 msgid "field-desc-mapper_options"
 msgstr "Mapper options"
 
+msgid "field-desc-state-mapper"
+msgstr "This state performs data transformations on input data using a Qorus mapper.  This state optionally accepts input data for processing and returns the output data after data transformation."
+
+msgid "field-desc-state-pipeline"
+msgstr "This state executes a data pipeline, allowing potentially large volumes of data to be efficiently processed.  This state optionally accepts input data but provides no output data."
+
+msgid "field-desc-state-connector"
+msgstr "This state executes a class connector on the input data and returns the output data produced by the connector."
+
+msgid "field-desc-state-apicall"
+msgstr "This state calls a data provider API using the request-response integration pattern; the state's input can optionally be used as the API request data, and the response data is returned as the state's output data."
+
+msgid "field-desc-state-search-single"
+msgstr "This state makes a search for a single record in a record-based data provider.  The search criteria is defined in the state and can use any contextual data available including input data.  The output data is the single record retrieved."
+
+msgid "field-desc-state-search"
+msgstr "This state makes a search for a record set in a record-based data provider.  The search criteria is defined in the state and can use any contextual data available including input data.  The output data is a list of record data retrieved."
+
+msgid "field-desc-state-create"
+msgstr "This state creates records in a record-based data provider.  The record(s) to be created are defined in the state and can use any contextual data available including input data.  The output data is the list of record(s) created."
+
+msgid "field-desc-state-update"
+msgstr "This state updates records in a record-based data provider.  The search and update criteria are defined in the state and can use any contextual data available including input data.  The output data indicates how many records were updated."
+
+msgid "field-desc-state-delete"
+msgstr "This state deletes records in a record-based data provider.  The search criteria is defined in the state and can use any contextual data available including input data.  The output data indicates how many records were deleted."
+
 msgid "field-label-functions"
 msgstr "Functions"
 
