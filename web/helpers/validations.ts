@@ -11,6 +11,7 @@ import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
 import { fixOperatorValue, IOptions, TOption } from '../components/Field/systemOptions';
+import { getTemplateKey, getTemplateValue, isValueTemplate } from '../components/Field/template';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { TTrigger } from '../containers/InterfaceCreator/fsm';
 import { IField } from '../containers/InterfaceCreator/panel';
@@ -44,6 +45,11 @@ export const validateField: (
   if (pos > 0) {
     // Get the type from start to the position of the `<`
     type = type.slice(0, pos);
+  }
+  // Check if the value is a template string
+  if (isValueTemplate(value)) {
+    // Check if the template has both the key and value
+    return !!getTemplateKey(value) && !!getTemplateValue(value);
   }
   // Check individual types
   switch (type) {

@@ -18,6 +18,7 @@ import Spacer from '../Spacer';
 import SubField from '../SubField';
 import AutoField from './auto';
 import SelectField from './select';
+import { TemplateField } from './template';
 
 export const StyledOptionField = styled.div`
   padding: 10px;
@@ -193,8 +194,6 @@ const Options = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   const getUrl = () => customUrl || `/options/${url}`;
-
-  console.log(qorus_instance);
 
   useMount(() => {
     if (qorus_instance && (url || customUrl)) {
@@ -507,7 +506,8 @@ const Options = ({
                     <Spacer size={5} />
                   </>
                 ) : null}
-                <AutoField
+                <TemplateField
+                  component={AutoField}
                   {...getTypeAndCanBeNull(type, options[optionName].allowed_values, other.op)}
                   name={optionName}
                   onChange={(optionName, val) => {

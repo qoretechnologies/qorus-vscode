@@ -1,4 +1,13 @@
-import { Button, Classes, ControlGroup, Icon, Menu, MenuItem, Tooltip } from '@blueprintjs/core';
+import {
+  Button,
+  Classes,
+  ControlGroup,
+  Icon,
+  IconName,
+  Menu,
+  MenuItem,
+  Tooltip,
+} from '@blueprintjs/core';
 import { Select } from '@blueprintjs/select';
 import { get, includes } from 'lodash';
 import React, { useEffect, useState } from 'react';
@@ -34,6 +43,7 @@ export interface ISelectField {
   warningMessageOnEmpty?: string;
   autoSelect?: boolean;
   asMenu?: boolean;
+  icon?: IconName;
 }
 
 export const StyledDialogSelectItem = styled.div`
@@ -116,6 +126,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   target_dir,
   forceDropdown,
   asMenu,
+  icon,
 }) => {
   const [items, setItems] = useState<any[]>(defaultItems || []);
   const [query, setQuery] = useState<string>('');
@@ -465,6 +476,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                       text={value ? value : placeholder || t('PleaseSelect')}
                       rightIcon={'caret-down'}
                       onClick={handleClick}
+                      icon={icon}
                     />
                   </Select>
                 )}
