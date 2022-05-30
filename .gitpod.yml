@@ -1,19 +1,6 @@
 vscode:
   extensions:
-    - oderwat.indent-rainbow
-    - mintlify.document
-    - streetsidesoftware.code-spell-checker
-    - tombonnike.vscode-status-bar-format-toggle
-    - github.copilot
-    - fivepointseven.node-version
-    - kejun.devtoys
-    - esbenp.prettier-vscode
-    - visualstudioexptteam.vscodeintellicode
-    - styled-components.vscode-styled-components
-    - kejun.devtoys
     - qoretechnologies.qore-vscode
-    - mattpocock.ts-error-translator
-    - usernamehw.errorlens
 tasks:
   - init: |
       nvm install v14.18
@@ -23,6 +10,9 @@ tasks:
       git config --global http.sslverify false
       cd /workspace/qorus-vscode
       npm run start
+ports:
+  - port: 3140-3199
+    visibility: private
 additionalRepositories:
   - url: https://git.qoretechnologies.com/qorus/building-blocks
   - url: https://git.qoretechnologies.com/qorus/demos.git

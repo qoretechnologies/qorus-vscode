@@ -262,6 +262,11 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     );
   }
 
+  /**
+   * It returns true if any of the items in the data array have a desc property
+   * @param data - The data that we're going to be checking.
+   * @returns A boolean value.
+   */
   const hasItemsWithDesc = (data) => {
     return data.some((item) => item.desc);
   };

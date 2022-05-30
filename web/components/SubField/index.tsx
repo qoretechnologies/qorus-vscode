@@ -1,4 +1,6 @@
 import { Button, Classes, Colors, Icon } from '@blueprintjs/core';
+import { setupPreviews } from '@previewjs/plugin-react/setup';
+import { noop } from 'lodash';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
@@ -99,5 +101,18 @@ const SubField: React.FC<ISubFieldProps> = ({
     {children}
   </>
 );
+
+setupPreviews(SubField, () => ({
+  Basic: { title: 'SubField', children: <p> Hello </p> },
+  InValid: { title: 'SubField', children: <p> Hello </p>, isValid: false },
+  Subtle: { title: 'SubField', children: <p> Hello </p>, subtle: true },
+  WithDetail: { title: 'SubField', children: <p> Hello </p>, detail: 'This is detail' },
+  WithRemoveButton: {
+    title: 'SubField',
+    children: <p> Hello </p>,
+    detail: 'This is detail',
+    onRemove: noop,
+  },
+}));
 
 export default SubField;

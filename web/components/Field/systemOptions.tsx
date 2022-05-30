@@ -1,4 +1,5 @@
 import { Button, Callout, Classes, ControlGroup, Icon, Tag } from '@blueprintjs/core';
+import { setupPreviews } from '@previewjs/plugin-react/setup';
 import { cloneDeep, findKey, forEach, last } from 'lodash';
 import isArray from 'lodash/isArray';
 import map from 'lodash/map';
@@ -154,6 +155,7 @@ export interface IOperator {
   name: string;
   desc: string;
   supports_nesting?: boolean;
+  selected?: boolean;
 }
 
 export interface IOperatorsSchema {
@@ -191,6 +193,8 @@ const Options = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   const getUrl = () => customUrl || `/options/${url}`;
+
+  console.log(qorus_instance);
 
   useMount(() => {
     if (qorus_instance && (url || customUrl)) {
@@ -278,6 +282,34 @@ const Options = ({
     val?: any,
     type?: string
   ) => {
+    // Check if this option is already added
+    if (!currentValue[optionName]) {
+      // If it's not, add potential default operators
+      const defaultOperators: TOperatorValue = reduce(
+        operators,
+        (filteredOperators: TOperatorValue, operator, operatorKey) => {
+          if (operator.selected) {
+            return [...(filteredOperators as string[]), operatorKey];
+          }
+
+          return filteredOperators;
+        },
+        []
+      );
+      // If there are default operators, add them to the value
+      if (defaultOperators?.length) {
+        onChange(name, {
+          ...currentValue,
+          [optionName]: {
+            type,
+            value: val,
+            op: defaultOperators,
+          },
+        });
+
+        return;
+      }
+    }
     onChange(name, {
       ...currentValue,
       [optionName]: {
@@ -528,5 +560,25 @@ const Options = ({
     </>
   );
 };
+
+const PreviewOptions = (props: Omit<IOptionsProps, 'onChange'>) => {
+  const [value, setValue] = useState<IOptions>(props.value);
+
+  return <Options value={value} onChange={(_name, val) => setValue(val)} {...props} />;
+};
+
+setupPreviews(PreviewOptions, () => ({
+  Default: {
+    name: 'options',
+    options: {
+      RequiredString: {
+        type: ['string'] as IQorusType[],
+        desc: 'A string',
+        required: true,
+        default_value: 'hello',
+      },
+    },
+  },
+}));
 
 export default Options;
