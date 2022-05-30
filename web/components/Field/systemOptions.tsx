@@ -125,7 +125,8 @@ export type IQorusType =
   | 'job'
   | 'select-string'
   | 'data-provider'
-  | 'file-as-string';
+  | 'file-as-string'
+  | 'number';
 
 export type TOperatorValue = string | string[] | undefined | null;
 
