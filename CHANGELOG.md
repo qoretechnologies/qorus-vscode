@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.6.7
+
+#### Bug Fixes
+
+- Fixed a bug that would not allow to go to the 2nd page in Pipeline view
+
 ## Version 3.6.6
 
 #### Bug Fixes
