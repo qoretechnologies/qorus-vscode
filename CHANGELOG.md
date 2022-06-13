@@ -4,7 +4,13 @@
 
 #### New Features
 
-- Implemented new FSM state - single record search.
+- Implemented new FSM state - create, single record, multiple record search, update, and delete.
+
+## Version 3.6.7
+
+#### Bug Fixes
+
+- Fixed a bug that would not allow to go to the 2nd page in Pipeline view
 
 ## Version 3.6.6
 

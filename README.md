@@ -7,7 +7,11 @@ reused later and setup an initial configuration for them.
 
 ## Version 3.7.0 overview - What's new:
 
-- Implemented new FSM state - single record search.
+- Implemented new FSM states - create, single record, multiple record search, update, and delete.
+
+## Version 3.6.7 overview - What's new:
+
+- Fixed a bug that would not allow to go to the 2nd page in Pipeline view
 
 ## Version 3.6.6 overview - What's new:
 

@@ -423,12 +423,23 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
   };
 
   const isDataValid = (data, fields: boolean) => {
+    if (metadata['input-provider']) {
+      if (!validateField('type-selector', metadata['input-provider'])) {
+        return false;
+      }
+
+      if (size(metadata['input-provider-options'])) {
+        if (!validateField('system-options', metadata['input-provider-options'])) {
+          return false;
+        }
+      }
+    }
+
     return (
       (fields ? true : isDiagramValid(data)) &&
       validateField('string', metadata.name) &&
       validateField('string', metadata.desc) &&
-      validateField('string', metadata.target_dir) &&
-      validateField('type-selector', metadata['input-provider'])
+      validateField('string', metadata.target_dir)
     );
   };
 
