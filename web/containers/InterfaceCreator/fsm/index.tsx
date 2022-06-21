@@ -407,6 +407,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const handleMetadataChange: (name: string, value: any) => void = (name, value) => {
+    console.log(name, value);
     setMetadata((cur) => ({
       ...cur,
       [name]: value,

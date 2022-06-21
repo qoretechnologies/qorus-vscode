@@ -483,7 +483,9 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
               </>
             )}
           </ControlGroup>
-          <DescriptionField desc={getItemDescription(value)} />
+          <div>
+            <DescriptionField desc={getItemDescription(value)} />
+          </div>
         </>
       )}
     </FieldEnhancer>

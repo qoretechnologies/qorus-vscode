@@ -1,4 +1,12 @@
-import { Button, ButtonGroup, Callout, Classes, Spinner } from '@blueprintjs/core';
+import {
+  Button,
+  ButtonGroup,
+  Callout,
+  Classes,
+  ControlGroup,
+  Spinner,
+  Tooltip,
+} from '@blueprintjs/core';
 import { cloneDeep, omit } from 'lodash';
 import map from 'lodash/map';
 import nth from 'lodash/nth';
@@ -249,18 +257,19 @@ const MapperProvider: FC<IProviderProps> = ({
     clear && clear(true);
     // Set loading
     setIsLoading(true);
+    const newSuffix = `${suffix}/childDetails`;
     // Build the suffix
     let suffixString = realProviders[provider].suffixRequiresOptions
       ? optionString && optionString !== '' && size(options)
-        ? `${suffix}?${optionString}`
+        ? `${newSuffix}?${optionString}`
         : itemIndex === 1
         ? ''
-        : suffix
-      : suffix;
+        : newSuffix
+      : newSuffix;
     // Fetch the data
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
     if (error) {
-      console.error(`${url}/${value}${suffix}`, error);
+      console.error(`${url}/${value}${newSuffix}`, error);
       //setIsLoading(false);
       //return;
     }
@@ -330,7 +339,7 @@ const MapperProvider: FC<IProviderProps> = ({
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')
-              .replace('provider/', ''),
+              .replace(`provider/`, ''),
             options,
           });
           if (data.has_type || isConfigItem) {
@@ -349,8 +358,7 @@ const MapperProvider: FC<IProviderProps> = ({
           ...newItems,
           {
             values: data.children.map((child) => ({
-              name: child,
-              desc: '',
+              ...child,
               url: `${url}/${value}${suffix}`,
               suffix: '',
             })),
@@ -511,30 +519,34 @@ const MapperProvider: FC<IProviderProps> = ({
             value={provider}
           />
           {nodes.map((child, index) => (
-            <ButtonGroup>
-              <SelectField
-                key={`${title}-${index}`}
-                name={`provider-${type ? `${type}-` : ''}${index}`}
-                disabled={isLoading}
-                defaultItems={child.values}
-                onChange={(_name, value) => {
-                  // Get the child data
-                  const { url, suffix } = child.values.find((val) => val.name === value);
-                  // If the value is a wildcard present a dialog that the user has to fill
-                  if (value === '*') {
-                    setWildcardDiagram({
-                      index,
-                      isOpen: true,
-                      url,
-                      suffix,
-                    });
-                  } else {
-                    // Change the child
-                    handleChildFieldChange(value, url, index, suffix);
-                  }
-                }}
-                value={child.value}
-              />
+            <ControlGroup>
+              <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
+                <SelectField
+                  fill
+                  key={`${title}-${index}`}
+                  name={`provider-${type ? `${type}-` : ''}${index}`}
+                  disabled={isLoading}
+                  withSupportsFilters
+                  defaultItems={child.values}
+                  onChange={(_name, value) => {
+                    // Get the child data
+                    const { url, suffix } = child.values.find((val) => val.name === value);
+                    // If the value is a wildcard present a dialog that the user has to fill
+                    if (value === '*') {
+                      setWildcardDiagram({
+                        index,
+                        isOpen: true,
+                        url,
+                        suffix,
+                      });
+                    } else {
+                      // Change the child
+                      handleChildFieldChange(value, url, index, suffix);
+                    }
+                  }}
+                  value={child.value}
+                />
+              </ButtonGroup>
               {index === 0 && optionsChanged ? (
                 <Button
                   icon="refresh"
@@ -560,51 +572,70 @@ const MapperProvider: FC<IProviderProps> = ({
                   Apply options{' '}
                 </Button>
               ) : null}
-            </ButtonGroup>
+            </ControlGroup>
           ))}
           {isLoading && <Spinner size={15} />}
           {nodes.length > 0 && (
-            <Button
-              intent="danger"
-              name={`provider-${type ? `${type}-` : ''}back`}
-              icon="step-backward"
-              className={Classes.FIXED}
-              onClick={() => {
-                setChildren((cur) => {
-                  const result = [...cur];
+            <ControlGroup>
+              <ButtonGroup>
+                <Tooltip
+                  position="top"
+                  boundary="viewport"
+                  targetProps={{
+                    style: {
+                      width: '100%',
+                    },
+                  }}
+                  hoverOpenDelay={500}
+                  interactionKind="hover"
+                  content="Go back a step"
+                >
+                  <div>
+                    <Button
+                      intent="danger"
+                      name={`provider-${type ? `${type}-` : ''}back`}
+                      icon="step-backward"
+                      className={Classes.FIXED}
+                      onClick={() => {
+                        setChildren((cur) => {
+                          const result = [...cur];
 
-                  result.pop();
+                          result.pop();
 
-                  const lastChild = nth(result, -2);
+                          const lastChild = nth(result, -2);
 
-                  if (lastChild) {
-                    const index = size(result) - 2;
-                    const { value, values } = lastChild;
-                    const { url, suffix } = values.find((val) => val.name === value);
+                          if (lastChild) {
+                            const index = size(result) - 2;
+                            const { value, values } = lastChild;
+                            const { url, suffix } = values.find((val) => val.name === value);
 
-                    // If the value is a wildcard present a dialog that the user has to fill
-                    if (value === '*') {
-                      setWildcardDiagram({
-                        index,
-                        isOpen: true,
-                        url,
-                        suffix,
-                      });
-                    } else {
-                      // Change the child
-                      handleChildFieldChange(value, url, index, suffix);
-                    }
-                  }
+                            // If the value is a wildcard present a dialog that the user has to fill
+                            if (value === '*') {
+                              setWildcardDiagram({
+                                index,
+                                isOpen: true,
+                                url,
+                                suffix,
+                              });
+                            } else {
+                              // Change the child
+                              handleChildFieldChange(value, url, index, suffix);
+                            }
+                          }
 
-                  // If there are no children then we need to reset the provider
-                  if (size(result) === 0) {
-                    handleProviderChange(provider);
-                  }
+                          // If there are no children then we need to reset the provider
+                          if (size(result) === 0) {
+                            handleProviderChange(provider);
+                          }
 
-                  return result;
-                });
-              }}
-            />
+                          return result;
+                        });
+                      }}
+                    />
+                  </div>
+                </Tooltip>
+              </ButtonGroup>
+            </ControlGroup>
           )}
           {record && (
             <Button
