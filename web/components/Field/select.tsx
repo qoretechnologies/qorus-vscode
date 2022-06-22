@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonGroup,
   Classes,
   ControlGroup,
   Icon,
@@ -9,7 +10,7 @@ import {
   Tooltip,
 } from '@blueprintjs/core';
 import { Select } from '@blueprintjs/select';
-import { get, includes } from 'lodash';
+import { capitalize, get, noop, size } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import useMount from 'react-use/lib/useMount';
@@ -25,8 +26,9 @@ import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
 import Spacer from '../Spacer';
-import { DescriptionField } from '../SubField';
+import SubField, { DescriptionField } from '../SubField';
 import StringField from './string';
+import { StyledOptionField } from './systemOptions';
 
 export interface ISelectField {
   addMessageListener: TMessageListener;
@@ -44,6 +46,7 @@ export interface ISelectField {
   autoSelect?: boolean;
   asMenu?: boolean;
   icon?: IconName;
+  filters?: string[];
 }
 
 export const StyledDialogSelectItem = styled.div`
@@ -127,9 +130,11 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   forceDropdown,
   asMenu,
   icon,
+  filters,
 }) => {
   const [items, setItems] = useState<any[]>(defaultItems || []);
   const [query, setQuery] = useState<string>('');
+  const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [isSelectDialogOpen, setSelectDialogOpen] = useState<boolean>(false);
   const [listener, setListener] = useState(null);
   const [hasProcessor, setHasProcessor] = useState<boolean>(
@@ -268,7 +273,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
         value={value || filteredItems[0].name}
         read_only
         name={name}
-        onChange={() => {}}
+        onChange={() => noop()}
       />
     );
   }
@@ -295,7 +300,19 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   }
 
   const filterItems = (items) => {
-    return items.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
+    return items.filter((item: any) => {
+      let isMatch = true;
+
+      if (query) {
+        isMatch = item.name.toLowerCase().includes(query.toLowerCase());
+      }
+
+      if (appliedFilters.length > 0) {
+        isMatch = appliedFilters.some((filter) => item[filter]);
+      }
+
+      return isMatch;
+    });
   };
 
   const getItemDescription = (itemName) => {
@@ -376,53 +393,86 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                           className={Classes.DIALOG_BODY}
                           style={{ display: 'flex', flexFlow: 'column', overflow: 'hidden' }}
                         >
-                          <div>
-                            <StringField
-                              onChange={(_name, value) => setQuery(value)}
-                              value={query}
-                              name="select-filter"
-                              placeholder={t('Filter')}
-                              autoFocus
-                            />
-                            <Spacer size={10} />
-                          </div>
-                          <div style={{ overflowY: 'auto', overflowX: 'hidden' }}>
-                            {filterItems(filteredItems).map((item) => (
-                              <Tooltip
-                                position="top"
-                                boundary="viewport"
-                                targetProps={{
-                                  style: {
-                                    width: '100%',
-                                  },
-                                }}
-                                hoverOpenDelay={500}
-                                interactionKind="hover"
-                                content={<ReactMarkdown source={item.desc} />}
-                              >
-                                <StyledDialogSelectItem
-                                  className={item.name === value ? 'selected' : ''}
-                                  name={`field-${name}-item`}
-                                  onClick={() => {
-                                    handleSelectClick(item);
-                                    setSelectDialogOpen(false);
-                                    setQuery('');
-                                  }}
-                                >
-                                  <h5>
-                                    {item.name === value && (
-                                      <Icon icon="small-tick" style={{ color: '#7fba27' }} />
-                                    )}{' '}
-                                    {item.name}
-                                  </h5>
+                          <StyledOptionField>
+                            <SubField title="Filters">
+                              <StringField
+                                onChange={(_name, value) => setQuery(value)}
+                                value={query}
+                                name="select-filter"
+                                placeholder={t('Filter')}
+                                autoFocus
+                              />
+                              <Spacer size={10} />
+                              <ButtonGroup>
+                                {filters?.map((filter) => (
+                                  <Button
+                                    key={filter}
+                                    intent={appliedFilters.includes(filter) ? 'primary' : 'none'}
+                                    onClick={() => {
+                                      // Add this filter to the applied filters if it's not already there
+                                      if (!appliedFilters.includes(filter)) {
+                                        setAppliedFilters([...appliedFilters, filter]);
+                                      } else {
+                                        // Remove this filter from the applied filters
+                                        setAppliedFilters(
+                                          appliedFilters.filter((f) => f !== filter)
+                                        );
+                                      }
+                                    }}
+                                  >
+                                    {capitalize(filter.replace('_', ' '))} (
+                                    {items.filter((item) => item[filter]).length})
+                                  </Button>
+                                ))}
+                              </ButtonGroup>
+                            </SubField>
+                          </StyledOptionField>
+                          <StyledOptionField>
+                            <SubField
+                              title="Items"
+                              detail={size(filterItems(filteredItems)).toString()}
+                              isValid={!!size(filterItems(filteredItems))}
+                            >
+                              <div style={{ overflowY: 'auto', overflowX: 'hidden' }}>
+                                {filterItems(filteredItems).map((item) => (
+                                  <Tooltip
+                                    key={item.name}
+                                    position="top"
+                                    boundary="viewport"
+                                    targetProps={{
+                                      style: {
+                                        width: '100%',
+                                      },
+                                    }}
+                                    hoverOpenDelay={500}
+                                    interactionKind="hover"
+                                    content={<ReactMarkdown source={item.desc} />}
+                                  >
+                                    <StyledDialogSelectItem
+                                      className={item.name === value ? 'selected' : ''}
+                                      name={`field-${name}-item`}
+                                      onClick={() => {
+                                        handleSelectClick(item);
+                                        setSelectDialogOpen(false);
+                                        setQuery('');
+                                      }}
+                                    >
+                                      <h5>
+                                        {item.name === value && (
+                                          <Icon icon="small-tick" style={{ color: '#7fba27' }} />
+                                        )}{' '}
+                                        {item.name}
+                                      </h5>
 
-                                  <p className={Classes.TEXT_MUTED}>
-                                    <ReactMarkdown source={item.desc || t('NoDescription')} />
-                                  </p>
-                                </StyledDialogSelectItem>
-                              </Tooltip>
-                            ))}
-                          </div>
+                                      <p className={Classes.TEXT_MUTED}>
+                                        <ReactMarkdown source={item.desc || t('NoDescription')} />
+                                      </p>
+                                    </StyledDialogSelectItem>
+                                  </Tooltip>
+                                ))}
+                              </div>
+                            </SubField>
+                          </StyledOptionField>
                         </div>
                       </CustomDialog>
                     )}

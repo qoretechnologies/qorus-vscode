@@ -43,6 +43,7 @@ export interface IProviderProps {
   isRecordSearch?: boolean;
   options?: { [key: string]: any };
   optionsChanged?: boolean;
+  onResetClick?: () => void;
 }
 
 const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
@@ -69,7 +70,7 @@ const StyledHeader = styled.h3`
   text-align: center;
 `;
 
-export let providers: any = {
+export const providers: any = {
   type: {
     name: 'type',
     url: 'dataprovider/types',
@@ -166,8 +167,9 @@ const MapperProvider: FC<IProviderProps> = ({
   requiresRequest,
   isRecordSearch,
   optionsChanged,
+  onResetClick,
 }) => {
-  const [wildcardDiagram, setWildcardDiagram] = useState(null);
+  const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [optionString, setOptionString] = useState('');
   const t = useContext(TextContext);
 
@@ -226,7 +228,7 @@ const MapperProvider: FC<IProviderProps> = ({
           }
         }
         // Save the children
-        let children = data.children || data;
+        const children = data.children || data;
         // Add new child
         setChildren([
           {
@@ -263,7 +265,7 @@ const MapperProvider: FC<IProviderProps> = ({
       ? optionString && optionString !== '' && size(options)
         ? `${newSuffix}?${optionString}`
         : itemIndex === 1
-        ? ''
+        ? '/childDetails'
         : newSuffix
       : newSuffix;
     // Fetch the data
@@ -308,13 +310,13 @@ const MapperProvider: FC<IProviderProps> = ({
             // Save the mapper keys
             setMapperKeys && setMapperKeys(data.mapper_keys);
           }
-
+          const newSuffix = `${suffix}/childDetails`;
           suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
               ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                   type === 'outputs' ? '&soft=true' : ''
                 }`
-              : `${suffix}`
+              : `${newSuffix}`
             : `${suffix}${realProviders[provider].recordSuffix}`;
 
           // Fetch the record
@@ -329,7 +331,6 @@ const MapperProvider: FC<IProviderProps> = ({
             type: realProviders[provider].type,
             name,
             is_api_call: requiresRequest,
-            desc: data.desc,
             supports_request: data.supports_request,
             supports_read: data.supports_read,
             supports_update: data.supports_update,
@@ -357,11 +358,22 @@ const MapperProvider: FC<IProviderProps> = ({
         return [
           ...newItems,
           {
-            values: data.children.map((child) => ({
-              ...child,
-              url: `${url}/${value}${suffix}`,
-              suffix: '',
-            })),
+            values: data.children.map((child) => {
+              if (typeof child === 'string') {
+                return {
+                  name: child,
+                  desc: 'No description provided',
+                  url: `${url}/${value}${suffix}`,
+                  suffix: '',
+                };
+              }
+
+              return {
+                ...child,
+                url: `${url}/${value}${suffix}`,
+                suffix: '',
+              };
+            }),
             value: null,
           },
         ];
@@ -428,7 +440,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                     type === 'outputs' ? '&soft=true' : ''
                   }`
-                : suffix
+                : newSuffix
               : `${suffix}${realProviders[provider].recordSuffix}`;
             // Fetch the record
             const record = await fetchData(`${url}/${value}${suffixString}`);
@@ -519,14 +531,14 @@ const MapperProvider: FC<IProviderProps> = ({
             value={provider}
           />
           {nodes.map((child, index) => (
-            <ControlGroup>
+            <ControlGroup key={index}>
               <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
                 <SelectField
                   fill
                   key={`${title}-${index}`}
                   name={`provider-${type ? `${type}-` : ''}${index}`}
                   disabled={isLoading}
-                  withSupportsFilters
+                  filters={['supports_read', 'supports_request', 'has_record']}
                   defaultItems={child.values}
                   onChange={(_name, value) => {
                     // Get the child data
@@ -634,6 +646,14 @@ const MapperProvider: FC<IProviderProps> = ({
                     />
                   </div>
                 </Tooltip>
+                {onResetClick && (
+                  <Button
+                    intent="danger"
+                    icon="cross"
+                    onClick={onResetClick}
+                    className={Classes.FIXED}
+                  />
+                )}
               </ButtonGroup>
             </ControlGroup>
           )}

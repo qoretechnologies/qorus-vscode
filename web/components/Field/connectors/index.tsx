@@ -1,8 +1,7 @@
-import { Button, Callout, Classes } from '@blueprintjs/core';
+import { Callout } from '@blueprintjs/core';
 import { cloneDeep, isEqual, map, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 import { useDebounce } from 'react-use';
 import compose from 'recompose/compose';
 import { TTranslator } from '../../../App';
@@ -69,7 +68,7 @@ const supportsOperators = {
 const supportsArguments = {
   create: true,
   update: true,
-}
+};
 
 const getRealRecordType = (recordType: TRecordType): TRealRecordType => {
   return recordType.startsWith('search') ? 'read' : (recordType as TRealRecordType);
@@ -334,16 +333,9 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           style={{
             display: inline ? 'inline-block' : 'block',
           }}
+          onResetClick={reset}
         />
       </SubField>
-      {size(nodes) ? (
-        <Button intent="danger" icon="cross" onClick={reset} className={Classes.FIXED} />
-      ) : null}
-      {optionProvider?.desc && (
-        <SubField title={!minimal ? t('Description') : undefined}>
-          <ReactMarkdown source={optionProvider.desc} />
-        </SubField>
-      )}
       {provider === 'factory' && optionProvider ? (
         <SubField title={t('FactoryOptions')}>
           <Options
