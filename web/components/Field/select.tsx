@@ -371,6 +371,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                       intent={value ? 'primary' : undefined}
                       onClick={() => setSelectDialogOpen(true)}
                       disabled={disabled}
+                      style={{ whiteSpace: 'nowrap' }}
                     />
                     {isSelectDialogOpen && (
                       <CustomDialog
@@ -527,6 +528,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                       rightIcon={'caret-down'}
                       onClick={handleClick}
                       icon={icon}
+                      style={{ whiteSpace: 'nowrap' }}
                     />
                   </Select>
                 )}
