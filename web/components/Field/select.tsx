@@ -427,13 +427,13 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                               </ButtonGroup>
                             </SubField>
                           </StyledOptionField>
-                          <StyledOptionField>
+                          <StyledOptionField style={{ overflowY: 'auto', overflowX: 'hidden' }}>
                             <SubField
                               title="Items"
                               detail={size(filterItems(filteredItems)).toString()}
                               isValid={!!size(filterItems(filteredItems))}
                             >
-                              <div style={{ overflowY: 'auto', overflowX: 'hidden' }}>
+                              <div>
                                 {filterItems(filteredItems).map((item) => (
                                   <Tooltip
                                     key={item.name}

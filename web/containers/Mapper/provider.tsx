@@ -211,7 +211,7 @@ const MapperProvider: FC<IProviderProps> = ({
         // Select the provider data
         const { url, filter, inputFilter, outputFilter } = realProviders[provider];
         // Get the data
-        let { data, error } = await fetchData(url);
+        let { data, error } = await fetchData(`${url}`);
         // Remove loading
         setIsLoading(false);
         // Filter unwanted data if needed
@@ -232,14 +232,24 @@ const MapperProvider: FC<IProviderProps> = ({
         // Add new child
         setChildren([
           {
-            values: children.map((child) => ({
-              name: realProviders[provider].namekey
-                ? child[realProviders[provider].namekey]
-                : child,
-              desc: '',
-              url,
-              suffix: realProviders[provider].suffix,
-            })),
+            values: children.map((child) => {
+              if (typeof child === 'string') {
+                return {
+                  name: realProviders[provider].namekey
+                    ? child[realProviders[provider].namekey]
+                    : child,
+                  desc: '',
+                  url,
+                  suffix: realProviders[provider].suffix,
+                };
+              }
+
+              return {
+                ...child,
+                url: url,
+                suffix: realProviders[provider].suffix,
+              };
+            }),
             value: null,
           },
         ]);
