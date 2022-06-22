@@ -15,6 +15,7 @@ import React, { FC, useCallback, useContext, useState } from 'react';
 import { useDebounce } from 'react-use';
 import styled, { css } from 'styled-components';
 import CustomDialog from '../../components/CustomDialog';
+import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
 import { TextContext } from '../../context/text';
@@ -40,7 +41,7 @@ export interface IProviderProps {
   style: any;
   isConfigItem?: boolean;
   requiresRequest?: boolean;
-  isRecordSearch?: boolean;
+  recordType?: TRecordType;
   options?: { [key: string]: any };
   optionsChanged?: boolean;
   onResetClick?: () => void;
@@ -78,6 +79,7 @@ export const providers: any = {
     recordSuffix: '?action=type',
     type: 'type',
     withDetails: true,
+    desc: 'Data type and custom record descriptions',
   },
   connection: {
     name: 'connection',
@@ -89,6 +91,7 @@ export const providers: any = {
     recordSuffix: '/record',
     requiresRecord: true,
     type: 'connection',
+    desc: 'Qorus user connections; access a data provider through a user connection',
   },
   remote: {
     name: 'remote',
@@ -100,6 +103,7 @@ export const providers: any = {
     recordSuffix: '/record',
     requiresRecord: true,
     type: 'remote',
+    desc: 'Qorus to Qorus remote connections; access a data provider through a remote Qorus instances (remote datasources and remote Qorus APIs)',
   },
   datasource: {
     name: 'datasource',
@@ -111,6 +115,7 @@ export const providers: any = {
     recordSuffix: '/record',
     requiresRecord: true,
     type: 'datasource',
+    desc: 'Qorus database connections; access record-based data providers through a local datasource',
   },
   factory: {
     name: 'factory',
@@ -125,6 +130,7 @@ export const providers: any = {
     requiresRecord: true,
     suffixRequiresOptions: true,
     type: 'factory',
+    desc: 'Data provider factories for creating data providers from options',
   },
 };
 
@@ -166,12 +172,14 @@ const MapperProvider: FC<IProviderProps> = ({
   isConfigItem,
   options,
   requiresRequest,
-  isRecordSearch,
   optionsChanged,
   onResetClick,
+  optionProvider,
+  recordType,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [optionString, setOptionString] = useState('');
+  const [descriptions, setDescriptions] = useState<{ [key: string]: string }>({});
   const t = useContext(TextContext);
 
   /* When the options hash changes, we want to update the query string. */
@@ -199,6 +207,10 @@ const MapperProvider: FC<IProviderProps> = ({
 
   if (requiresRequest) {
     realProviders = omit(realProviders, ['datasource', 'type']);
+  }
+
+  if (recordType) {
+    realProviders = omit(realProviders, ['type']);
   }
 
   const handleProviderChange = (provider) => {
@@ -288,6 +300,17 @@ const MapperProvider: FC<IProviderProps> = ({
     }
     // Reset loading
     setIsLoading(false);
+
+    /* Setting the state of the descriptions hash. */
+    if (data.desc) {
+      // Add the description to the descriptions hash
+      setDescriptions((current) => {
+        return {
+          ...current,
+          [value]: data.desc,
+        };
+      });
+    }
     // Add new child
     setChildren((current) => {
       // Update this item
@@ -312,8 +335,7 @@ const MapperProvider: FC<IProviderProps> = ({
         data.has_type ||
         isConfigItem ||
         provider === 'factory' ||
-        (requiresRequest && data.supports_request) ||
-        (isRecordSearch && data.supports_read)
+        (requiresRequest && data.supports_request)
       ) {
         (async () => {
           setIsLoading(true);
@@ -348,6 +370,11 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             can_manage_fields: record.data?.can_manage_fields,
+            descriptions: {
+              ...optionProvider?.descriptions,
+              ...descriptions,
+              [value]: data.desc,
+            },
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')
@@ -412,84 +439,92 @@ const MapperProvider: FC<IProviderProps> = ({
           },
         ];
       }
-      // Return the updated children
-      else {
-        if (data.fields) {
+
+      if (data.fields) {
+        // Save the name by pulling the 3rd item from the split
+        // url (same for every provider type)
+        const name = `${url}/${value}`.split('/')[2];
+        // Set the provider option
+        setOptionProvider({
+          type: realProviders[provider].type,
+          can_manage_fields: data.can_manage_fields,
+          name,
+          supports_read: data.supports_read,
+          supports_update: data.supports_update,
+          supports_create: data.supports_create,
+          supports_delete: data.supports_delete,
+          subtype: value === 'request' || value === 'response' ? value : undefined,
+          descriptions: {
+            ...optionProvider?.descriptions,
+            ...descriptions,
+            [value]: data.desc,
+          },
+          path: `${url}/${value}`
+            .replace(`${name}`, '')
+            .replace(`${realProviders[provider].url}/`, '')
+            .replace('provider/', '')
+            .replace('request', '')
+            .replace('response', ''),
+        });
+        // Set the record data
+        setRecord && setRecord(data.fields);
+      }
+      // Check if there is a record
+      else if (isConfigItem || data.has_record || !realProviders[provider].requiresRecord) {
+        (async () => {
+          setIsLoading(true);
+          if (type === 'outputs' && data.mapper_keys) {
+            // Save the mapper keys
+            setMapperKeys && setMapperKeys(data.mapper_keys);
+          }
+          suffixString = realProviders[provider].suffixRequiresOptions
+            ? optionString && optionString !== '' && size(options)
+              ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
+                  type === 'outputs' ? '&soft=true' : ''
+                }`
+              : newSuffix
+            : `${suffix}${realProviders[provider].recordSuffix}`;
+          // Fetch the record
+          const record = await fetchData(`${url}/${value}${suffixString}`);
+          // Remove loading
+          setIsLoading(false);
           // Save the name by pulling the 3rd item from the split
           // url (same for every provider type)
           const name = `${url}/${value}`.split('/')[2];
           // Set the provider option
           setOptionProvider({
             type: realProviders[provider].type,
-            can_manage_fields: data.can_manage_fields,
             name,
             supports_read: data.supports_read,
             supports_update: data.supports_update,
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
-            subtype: value === 'request' || value === 'response' ? value : undefined,
+            can_manage_fields: record.data.can_manage_fields,
+            descriptions: {
+              ...optionProvider?.descriptions,
+              ...descriptions,
+              [value]: data.desc,
+            },
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')
-              .replace('provider/', '')
-              .replace('request', '')
-              .replace('response', ''),
+              .replace('provider/', ''),
+            options,
           });
           // Set the record data
-          setRecord && setRecord(data.fields);
-        }
-        // Check if there is a record
-        else if (isConfigItem || data.has_record || !realProviders[provider].requiresRecord) {
-          (async () => {
-            setIsLoading(true);
-            if (type === 'outputs' && data.mapper_keys) {
-              // Save the mapper keys
-              setMapperKeys && setMapperKeys(data.mapper_keys);
-            }
-            suffixString = realProviders[provider].suffixRequiresOptions
-              ? optionString && optionString !== '' && size(options)
-                ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
-                    type === 'outputs' ? '&soft=true' : ''
-                  }`
-                : newSuffix
-              : `${suffix}${realProviders[provider].recordSuffix}`;
-            // Fetch the record
-            const record = await fetchData(`${url}/${value}${suffixString}`);
-            // Remove loading
-            setIsLoading(false);
-            // Save the name by pulling the 3rd item from the split
-            // url (same for every provider type)
-            const name = `${url}/${value}`.split('/')[2];
-            // Set the provider option
-            setOptionProvider({
-              type: realProviders[provider].type,
-              name,
-              supports_read: data.supports_read,
-              supports_update: data.supports_update,
-              supports_create: data.supports_create,
-              supports_delete: data.supports_delete,
-              can_manage_fields: record.data.can_manage_fields,
-              path: `${url}/${value}`
-                .replace(`${name}`, '')
-                .replace(`${realProviders[provider].url}/`, '')
-                .replace('provider/', ''),
-              options,
-            });
-            // Set the record data
-            setRecord &&
-              setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
-            //
-          })();
-        }
-
-        return [...newItems];
+          setRecord &&
+            setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
+          //
+        })();
       }
+
+      return [...newItems];
     });
   };
 
   const getDefaultItems = useCallback(
     () =>
-      map(realProviders, ({ name }) => ({ name, desc: '' })).filter((prov) =>
+      map(realProviders, ({ name, desc }) => ({ name, desc })).filter((prov) =>
         prov.name === 'null' ? canSelectNull : true
       ),
     []
@@ -532,15 +567,18 @@ const MapperProvider: FC<IProviderProps> = ({
         {!compact && <StyledHeader>{title}</StyledHeader>}
         {compact && title && <span>{title}: </span>}{' '}
         <ButtonGroup>
-          <SelectField
-            name={`provider${type ? `-${type}` : ''}`}
-            disabled={isLoading}
-            defaultItems={getDefaultItems()}
-            onChange={(_name, value) => {
-              handleProviderChange(value);
-            }}
-            value={provider}
-          />
+          <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
+            <SelectField
+              fill
+              name={`provider${type ? `-${type}` : ''}`}
+              disabled={isLoading}
+              defaultItems={getDefaultItems()}
+              onChange={(_name, value) => {
+                handleProviderChange(value);
+              }}
+              value={provider}
+            />
+          </ButtonGroup>
           {nodes.map((child, index) => (
             <ControlGroup key={index}>
               <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>

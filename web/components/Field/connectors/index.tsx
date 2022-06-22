@@ -54,6 +54,7 @@ export interface IProviderType extends TProviderTypeSupports, TProviderTypeArgs 
   supports_request?: boolean;
   is_api_call?: boolean;
   search_options?: IOptions;
+  descriptions?: { [key: string]: string };
 }
 
 const supportsList = {
@@ -224,14 +225,18 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                 name: optionProvider.name,
                 url: providers[optionProvider.type].url,
                 suffix: providers[optionProvider.type].suffix,
+                desc: optionProvider.descriptions?.[optionProvider.name],
               },
             ],
           },
           ...(optionProvider.path
-            ? optionProvider?.path
+            ? optionProvider.path
                 .replace('/', '')
                 .split('/')
-                .map((item) => ({ value: item, values: [{ name: item }] }))
+                .map((item) => ({
+                  value: item,
+                  values: [{ name: item, desc: optionProvider.descriptions?.[item] }],
+                }))
             : []),
         ]
       : []
@@ -309,6 +314,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     return <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>;
   }
 
+  console.log(optionProvider);
+
   return (
     <div style={{ flex: 1 }}>
       <SubField title={!minimal ? t('SelectDataProvider') : undefined}>
@@ -323,6 +330,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           }}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
+          optionProvider={optionProvider}
           options={optionProvider?.options}
           optionsChanged={optionProvider?.optionsChanged}
           title={title}
@@ -334,6 +342,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             display: inline ? 'inline-block' : 'block',
           }}
           onResetClick={reset}
+          recordType={recordType}
         />
       </SubField>
       {provider === 'factory' && optionProvider ? (

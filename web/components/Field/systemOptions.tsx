@@ -1,4 +1,4 @@
-import { Button, Callout, Classes, ControlGroup, Icon, Tag } from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout, Classes, ControlGroup, Icon, Tag } from '@blueprintjs/core';
 import { setupPreviews } from '@previewjs/plugin-react/setup';
 import { cloneDeep, findKey, forEach, last } from 'lodash';
 import isArray from 'lodash/isArray';
@@ -467,41 +467,52 @@ const Options = ({
                   <>
                     <ControlGroup fill>
                       {fixOperatorValue(other.op).map((operator, index) => (
-                        <>
-                          <SelectField
-                            defaultItems={map(operators, (operator) => ({
-                              name: operator.name,
-                              desc: operator.desc,
-                            }))}
-                            value={operator && `${operators?.[operator].name}`}
-                            onChange={(_n, val) => {
-                              if (val !== undefined) {
-                                handleOperatorChange(
-                                  optionName,
-                                  fixedValue,
-                                  findKey(operators, (operator) => operator.name === val) as string,
-                                  index
-                                );
-                              }
-                            }}
-                          />
+                        <React.Fragment key={index}>
+                          <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
+                            <SelectField
+                              fill
+                              defaultItems={map(operators, (operator) => ({
+                                name: operator.name,
+                                desc: operator.desc,
+                              }))}
+                              value={operator && `${operators?.[operator].name}`}
+                              onChange={(_n, val) => {
+                                if (val !== undefined) {
+                                  handleOperatorChange(
+                                    optionName,
+                                    fixedValue,
+                                    findKey(
+                                      operators,
+                                      (operator) => operator.name === val
+                                    ) as string,
+                                    index
+                                  );
+                                }
+                              }}
+                            />
+                          </ButtonGroup>
                           {size(fixOperatorValue(other.op)) > 1 ? (
-                            <Button
-                              icon="trash"
-                              intent="danger"
-                              className={Classes.FIXED}
-                              onClick={() => handleRemoveOperator(optionName, fixedValue, index)}
-                            />
+                            <div>
+                              <Button
+                                icon="trash"
+                                intent="danger"
+                                className={Classes.FIXED}
+                                onClick={() => handleRemoveOperator(optionName, fixedValue, index)}
+                              />
+                            </div>
                           ) : null}
-                          {operator && operators[operator].supports_nesting ? (
-                            <Button
-                              icon="add"
-                              intent="primary"
-                              className={Classes.FIXED}
-                              onClick={() => handleAddOperator(optionName, fixedValue, index + 1)}
-                            />
+                          {index === fixOperatorValue(other.op).length - 1 &&
+                          operator &&
+                          operators[operator].supports_nesting ? (
+                            <div>
+                              <Button
+                                icon="add"
+                                className={Classes.FIXED}
+                                onClick={() => handleAddOperator(optionName, fixedValue, index + 1)}
+                              />
+                            </div>
                           ) : null}
-                        </>
+                        </React.Fragment>
                       ))}
                     </ControlGroup>
                     <Spacer size={5} />
