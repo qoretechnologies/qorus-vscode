@@ -571,29 +571,46 @@ const MapperProvider: FC<IProviderProps> = ({
                 />
               </ButtonGroup>
               {index === 0 && optionsChanged ? (
-                <Button
-                  icon="refresh"
-                  intent="success"
-                  onClick={() => {
-                    // Get the child data
-                    const { url, suffix } = child.values.find((val) => val.name === child.value);
-                    // If the value is a wildcard present a dialog that the user has to fill
-                    if (child.value === '*') {
-                      setWildcardDiagram({
-                        index: 0,
-                        isOpen: true,
-                        url,
-                        suffix,
-                      });
-                    } else {
-                      // Change the child
-                      handleChildFieldChange(child.value, url, 0, suffix);
-                    }
+                <Tooltip
+                  position="top"
+                  boundary="viewport"
+                  targetProps={{
+                    style: {
+                      width: '100%',
+                    },
                   }}
+                  hoverOpenDelay={500}
+                  interactionKind="hover"
+                  content="Apply the current options to move forward"
                 >
-                  {' '}
-                  Apply options{' '}
-                </Button>
+                  <div>
+                    <Button
+                      icon="refresh"
+                      intent="success"
+                      onClick={() => {
+                        // Get the child data
+                        const { url, suffix } = child.values.find(
+                          (val) => val.name === child.value
+                        );
+                        // If the value is a wildcard present a dialog that the user has to fill
+                        if (child.value === '*') {
+                          setWildcardDiagram({
+                            index: 0,
+                            isOpen: true,
+                            url,
+                            suffix,
+                          });
+                        } else {
+                          // Change the child
+                          handleChildFieldChange(child.value, url, 0, suffix);
+                        }
+                      }}
+                    >
+                      {' '}
+                      Apply options{' '}
+                    </Button>
+                  </div>
+                </Tooltip>
               ) : null}
             </ControlGroup>
           ))}
@@ -609,7 +626,7 @@ const MapperProvider: FC<IProviderProps> = ({
                       width: '100%',
                     },
                   }}
-                  hoverOpenDelay={500}
+                  hoverOpenDelay={100}
                   interactionKind="hover"
                   content="Go back a step"
                 >
@@ -658,12 +675,27 @@ const MapperProvider: FC<IProviderProps> = ({
                   </div>
                 </Tooltip>
                 {onResetClick && (
-                  <Button
-                    intent="danger"
-                    icon="cross"
-                    onClick={onResetClick}
-                    className={Classes.FIXED}
-                  />
+                  <Tooltip
+                    position="top"
+                    boundary="viewport"
+                    targetProps={{
+                      style: {
+                        width: '100%',
+                      },
+                    }}
+                    hoverOpenDelay={100}
+                    interactionKind="hover"
+                    content="Remove all data"
+                  >
+                    <div>
+                      <Button
+                        intent="danger"
+                        icon="cross"
+                        onClick={onResetClick}
+                        className={Classes.FIXED}
+                      />
+                    </div>
+                  </Tooltip>
                 )}
               </ButtonGroup>
             </ControlGroup>
