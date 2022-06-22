@@ -77,6 +77,7 @@ export const providers: any = {
     suffix: '',
     recordSuffix: '?action=type',
     type: 'type',
+    withDetails: true,
   },
   connection: {
     name: 'connection',
@@ -209,9 +210,9 @@ const MapperProvider: FC<IProviderProps> = ({
         // Set loading
         setIsLoading(true);
         // Select the provider data
-        const { url, filter, inputFilter, outputFilter } = realProviders[provider];
+        const { url, filter, inputFilter, outputFilter, withDetails } = realProviders[provider];
         // Get the data
-        let { data, error } = await fetchData(`${url}`);
+        let { data, error } = await fetchData(`${url}${withDetails ? '/childDetails' : ''}`);
         // Remove loading
         setIsLoading(false);
         // Filter unwanted data if needed
