@@ -179,8 +179,10 @@ const MapperProvider: FC<IProviderProps> = ({
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [optionString, setOptionString] = useState('');
-  const [descriptions, setDescriptions] = useState<{ [key: string]: string }>({});
+  const [descriptions, setDescriptions] = useState<string[]>([]);
   const t = useContext(TextContext);
+
+  console.log(descriptions);
 
   /* When the options hash changes, we want to update the query string. */
   useDebounce(
@@ -304,11 +306,11 @@ const MapperProvider: FC<IProviderProps> = ({
     /* Setting the state of the descriptions hash. */
     if (data.desc) {
       // Add the description to the descriptions hash
-      setDescriptions((current) => {
-        return {
-          ...current,
-          [value]: data.desc,
-        };
+      setDescriptions((current): string[] => {
+        console.log(itemIndex, data.desc);
+        const newData = [...current];
+        newData[itemIndex] = data.desc;
+        return newData;
       });
     }
     // Add new child
@@ -370,11 +372,7 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             can_manage_fields: record.data?.can_manage_fields,
-            descriptions: {
-              ...optionProvider?.descriptions,
-              ...descriptions,
-              [value]: data.desc,
-            },
+            descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')
@@ -454,11 +452,7 @@ const MapperProvider: FC<IProviderProps> = ({
           supports_create: data.supports_create,
           supports_delete: data.supports_delete,
           subtype: value === 'request' || value === 'response' ? value : undefined,
-          descriptions: {
-            ...optionProvider?.descriptions,
-            ...descriptions,
-            [value]: data.desc,
-          },
+          descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
           path: `${url}/${value}`
             .replace(`${name}`, '')
             .replace(`${realProviders[provider].url}/`, '')
@@ -500,11 +494,7 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             can_manage_fields: record.data.can_manage_fields,
-            descriptions: {
-              ...optionProvider?.descriptions,
-              ...descriptions,
-              [value]: data.desc,
-            },
+            descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')

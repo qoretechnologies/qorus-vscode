@@ -225,7 +225,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                 name: optionProvider.name,
                 url: providers[optionProvider.type].url,
                 suffix: providers[optionProvider.type].suffix,
-                desc: optionProvider.descriptions?.[optionProvider.name],
+                desc: optionProvider.descriptions?.[0],
               },
             ],
           },
@@ -233,9 +233,9 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             ? optionProvider.path
                 .replace('/', '')
                 .split('/')
-                .map((item) => ({
+                .map((item, index: number) => ({
                   value: item,
-                  values: [{ name: item, desc: optionProvider.descriptions?.[item] }],
+                  values: [{ name: item, desc: optionProvider.descriptions?.[index + 1] }],
                 }))
             : []),
         ]
