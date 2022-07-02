@@ -8,6 +8,7 @@ reused later and setup an initial configuration for them.
 ## Version 3.7.0 overview - What's new:
 
 - Implemented new FSM states - create, single record, multiple record search, update, and delete.
+- Requires Qorus 5.1.35+ to support new FSM functionality
 
 ## Version 3.6.7 overview - What's new:
 
