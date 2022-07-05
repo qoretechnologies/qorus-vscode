@@ -49,13 +49,13 @@ export interface IFieldLabel {
 }
 
 const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info }) => (
-  <StyledFieldLabel fluid={!label}>
-    {label && (
+  <StyledFieldLabel fluid={!label && !info}>
+    {label || info ? (
       <FieldLabelName isValid={isValid}>
         {label}
         {info && <FieldLabelInfo>{info}</FieldLabelInfo>}
       </FieldLabelName>
-    )}
+    ) : null}
   </StyledFieldLabel>
 );
 

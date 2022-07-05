@@ -94,6 +94,8 @@ export interface IFSMMetadata {
   'output-type'?: IProviderType;
 }
 
+export type TFSMStateType = 'state' | 'fsm' | 'block' | 'if';
+
 export interface IFSMState {
   position?: {
     x?: number;
@@ -109,7 +111,7 @@ export interface IFSMState {
   'input-type'?: any;
   'output-type'?: any;
   name?: string;
-  type: 'state' | 'fsm' | 'block' | 'if' | 'apicall';
+  type: TFSMStateType;
   desc: string;
   states?: IFSMStates;
   fsm?: string;
@@ -405,6 +407,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const handleMetadataChange: (name: string, value: any) => void = (name, value) => {
+    console.log(name, value);
     setMetadata((cur) => ({
       ...cur,
       [name]: value,
@@ -653,13 +656,15 @@ const FSMView: React.FC<IFSMViewProps> = ({
       return;
     }
 
-    const outputType = metadata['output-type'];
+    const outputType: IProviderType | undefined = cloneDeep(metadata['output-type']);
 
     if (!outputType) {
       setOutputCompatibility(undefined);
       setCompatibilityChecked(true);
       return;
     }
+
+    outputType.options = await formatAndFixOptionsToKeyValuePairs(outputType.options);
 
     const compareHash = {};
 
@@ -674,14 +679,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         continue;
       }
 
-      output.options = reduce(
-        output.options || {},
-        (newOptions, option, key) => ({
-          ...newOptions,
-          [key]: option.value,
-        }),
-        {}
-      );
+      output.options = await formatAndFixOptionsToKeyValuePairs(output.options);
 
       compareHash[state.id] = {
         type: output,
@@ -1337,7 +1335,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         ref={fieldsWrapperRef}
         id="fsm-fields-wrapper"
         style={{
-          height: !isMetadataHidden ? '50%' : undefined,
+          maxHeight: !isMetadataHidden ? '50%' : undefined,
           overflowY: 'auto',
           overflowX: 'hidden',
         }}
@@ -1614,7 +1612,49 @@ const FSMView: React.FC<IFSMViewProps> = ({
             count={size(filter(states, ({ action }: IFSMState) => action?.type === 'apicall'))}
             onDoubleClick={handleToolbarItemDblClick}
           >
-            {t('ApiCall')}
+            {t('field-label-apicall')}
+          </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="search-single"
+            count={size(
+              filter(states, ({ action }: IFSMState) => action?.type === 'search-single')
+            )}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('field-label-search-single')}
+          </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="search"
+            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'search'))}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('field-label-search')}
+          </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="update"
+            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'update'))}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('field-label-update')}
+          </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="create"
+            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'create'))}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('field-label-create')}
+          </FSMToolbarItem>
+          <FSMToolbarItem
+            name="state"
+            type="delete"
+            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'delete'))}
+            onDoubleClick={handleToolbarItemDblClick}
+          >
+            {t('field-label-delete')}
           </FSMToolbarItem>
           <ButtonGroup style={{ float: 'right' }}>
             <Button

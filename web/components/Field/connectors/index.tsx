@@ -1,11 +1,9 @@
-import { Button, Callout, Classes, Tag } from '@blueprintjs/core';
+import { Callout } from '@blueprintjs/core';
 import { cloneDeep, isEqual, map, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 import { useDebounce } from 'react-use';
 import compose from 'recompose/compose';
-import styled from 'styled-components';
 import { TTranslator } from '../../../App';
 import Provider, { providers } from '../../../containers/Mapper/provider';
 import withInitialDataConsumer from '../../../hocomponents/withInitialDataConsumer';
@@ -14,6 +12,10 @@ import SubField from '../../SubField';
 import { ApiCallArgs } from '../apiCallArgs';
 import BooleanField from '../boolean';
 import Options, { IOptions } from '../systemOptions';
+import { RecordQueryArgs } from './searchArgs';
+
+export type TRecordType = 'search' | 'search-single' | 'create' | 'update' | 'delete';
+export type TRealRecordType = 'read' | 'create' | 'update' | 'delete';
 
 export interface IConnectorFieldProps {
   title?: string;
@@ -26,9 +28,20 @@ export interface IConnectorFieldProps {
   providerType?: 'inputs' | 'outputs' | 'event' | 'input-output' | 'condition';
   t: TTranslator;
   requiresRequest?: boolean;
+  recordType?: TRecordType;
+  minimal?: boolean;
+  isConfigItem?: boolean;
 }
 
-export interface IProviderType {
+export type TProviderTypeSupports = {
+  [key in `supports_${TRealRecordType}`]?: boolean;
+};
+
+export type TProviderTypeArgs = {
+  [key in `${TRecordType}_args`]?: IOptions | IOptions[];
+};
+
+export interface IProviderType extends TProviderTypeSupports, TProviderTypeArgs {
   type: string;
   name: string;
   path?: string;
@@ -40,21 +53,49 @@ export interface IProviderType {
   args?: any;
   supports_request?: boolean;
   is_api_call?: boolean;
+  search_options?: IOptions;
+  descriptions?: { [key: string]: string };
 }
 
-const StyledProviderUrl = styled.div`
-  min-height: 40px;
-  line-height: 40px;
+const supportsList = {
+  create: true,
+};
 
-  span {
-    font-weight: 500;
+const supportsOperators = {
+  search: true,
+  'search-single': true,
+};
+
+const supportsArguments = {
+  create: true,
+  update: true,
+};
+
+const getRealRecordType = (recordType: TRecordType): TRealRecordType => {
+  return recordType.startsWith('search') ? 'read' : (recordType as TRealRecordType);
+};
+
+const shouldShowSearchArguments = (
+  recordType: TRecordType,
+  optionProvider: IProviderType | null
+): boolean => {
+  const realRecordType = recordType.startsWith('search') ? 'read' : recordType;
+
+  if (
+    ['read', 'update', 'delete'].includes(realRecordType) &&
+    optionProvider?.[`supports_${realRecordType}`]
+  ) {
+    return true;
   }
-`;
 
-export const getUrlFromProvider: (val: IProviderType, withOptions?: boolean) => string = (
-  val,
-  withOptions
-) => {
+  return false;
+};
+
+export const getUrlFromProvider: (
+  val: IProviderType,
+  withOptions?: boolean,
+  isRecordSearch?: boolean
+) => string = (val, withOptions, isRecord) => {
   // If the val is a string, return it
   if (typeof val === 'string') {
     return val;
@@ -82,9 +123,9 @@ export const getUrlFromProvider: (val: IProviderType, withOptions?: boolean) => 
   const endsInSubtype = path.endsWith('/request') || path.endsWith('/response');
 
   // Build the suffix
-  const realPath = `${suffix}${path}${endsInSubtype || is_api_call ? '' : recordSuffix || ''}${
-    withOptions ? '/constructor_options' : ''
-  }`;
+  const realPath = `${suffix}${path}${
+    endsInSubtype || is_api_call || isRecord ? '' : recordSuffix || ''
+  }${withOptions ? '/constructor_options' : ''}`;
 
   const suffixString = suffixRequiresOptions
     ? optionString && optionString !== ''
@@ -162,13 +203,13 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   onChange,
   name,
   value,
-  isInitialEditing,
   initialData,
   inline,
   providerType,
   minimal,
   isConfigItem,
   requiresRequest,
+  recordType,
   t,
 }) => {
   const [optionProvider, setOptionProvider] = useState<IProviderType | null>(
@@ -184,19 +225,23 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                 name: optionProvider.name,
                 url: providers[optionProvider.type].url,
                 suffix: providers[optionProvider.type].suffix,
+                desc: optionProvider.descriptions?.[0],
               },
             ],
           },
           ...(optionProvider.path
-            ? optionProvider?.path
+            ? optionProvider.path
                 .replace('/', '')
                 .split('/')
-                .map((item) => ({ value: item, values: [{ name: item }] }))
+                .map((item, index: number) => ({
+                  value: item,
+                  values: [{ name: item, desc: optionProvider.descriptions?.[index + 1] }],
+                }))
             : []),
         ]
       : []
   );
-  const [provider, setProvider] = useState(optionProvider?.type);
+  const [provider, setProvider] = useState<string | null | undefined>(optionProvider?.type);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -265,28 +310,15 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     [JSON.stringify(optionProvider), isEditing]
   );
 
-  if (isEditing && value && optionProvider?.type !== 'factory') {
-    return (
-      <div>
-        <SubField title={!minimal && t('CurrentDataProvider')}>
-          <StyledProviderUrl>
-            {title && <span>{title}:</span>}{' '}
-            <Tag minimal large onRemove={clear}>
-              {getUrlFromProvider(value)}{' '}
-            </Tag>
-          </StyledProviderUrl>
-        </SubField>
-      </div>
-    );
-  }
-
   if (!initialData.qorus_instance) {
     return <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>;
   }
 
+  console.log(optionProvider);
+
   return (
-    <div>
-      <SubField title={!minimal && t('SelectDataProvider')}>
+    <div style={{ flex: 1 }}>
+      <SubField title={!minimal ? t('SelectDataProvider') : undefined}>
         <Provider
           isConfigItem={isConfigItem}
           nodes={nodes}
@@ -298,6 +330,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           }}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
+          optionProvider={optionProvider}
           options={optionProvider?.options}
           optionsChanged={optionProvider?.optionsChanged}
           title={title}
@@ -308,16 +341,10 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           style={{
             display: inline ? 'inline-block' : 'block',
           }}
+          onResetClick={reset}
+          recordType={recordType}
         />
       </SubField>
-      {size(nodes) ? (
-        <Button intent="danger" icon="cross" onClick={reset} className={Classes.FIXED} />
-      ) : null}
-      {optionProvider?.desc && (
-        <SubField title={!minimal && t('Description')}>
-          <ReactMarkdown source={optionProvider.desc} />
-        </SubField>
-      )}
       {provider === 'factory' && optionProvider ? (
         <SubField title={t('FactoryOptions')}>
           <Options
@@ -347,7 +374,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           <SubField title={t('AllowAPIArguments')} desc={t('AllowAPIArgumentsDesc')}>
             <BooleanField
               name="useArgs"
-              value={optionProvider.use_args || false}
+              value={optionProvider?.use_args || false}
               onChange={(_nm, val) => {
                 setOptionProvider((cur) => ({
                   ...cur,
@@ -362,18 +389,81 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                 value={optionProvider?.args?.value}
                 url={`${getUrlFromProvider(optionProvider)}`}
                 onChange={(_nm, value, type) => {
-                  setOptionProvider((cur) => ({
-                    ...cur,
-                    args: {
-                      type,
-                      value,
-                    },
-                  }));
+                  setOptionProvider(
+                    (cur: IProviderType): IProviderType => ({
+                      ...cur,
+                      args: {
+                        type,
+                        value,
+                      },
+                    })
+                  );
                 }}
               />
             </SubField>
           )}
         </>
+      ) : null}
+      {/* This means that we are working with a record search */}
+      {recordType && optionProvider && shouldShowSearchArguments(recordType, optionProvider) ? (
+        <>
+          <SubField title={t('searchArguments')}>
+            <RecordQueryArgs
+              type="search"
+              url={getUrlFromProvider(optionProvider, false, true)}
+              value={optionProvider?.search_args as IOptions}
+              onChange={(_nm, val) => {
+                setOptionProvider((cur: IProviderType | null) => {
+                  const result: IProviderType = {
+                    ...cur,
+                    search_args: val,
+                  } as IProviderType;
+
+                  return result;
+                });
+              }}
+            />
+          </SubField>
+          <SubField title={t('SearchOptions')}>
+            <Options
+              onChange={(_nm, val) => {
+                setOptionProvider((cur: IProviderType | null) => {
+                  const result: IProviderType = {
+                    ...cur,
+                    search_options: val,
+                  } as IProviderType;
+
+                  return result;
+                });
+              }}
+              name="search_options"
+              value={optionProvider?.search_options}
+              customUrl={`${getUrlFromProvider(optionProvider, false, true)}/search_options`}
+            />
+          </SubField>
+        </>
+      ) : null}
+      {/* This means that we are working with a record update */}
+      {recordType && optionProvider && supportsArguments[recordType] ? (
+        <SubField title={t(`${recordType}Arguments`)}>
+          <RecordQueryArgs
+            type={recordType}
+            asList={supportsList[recordType]}
+            url={getUrlFromProvider(optionProvider, false, true)}
+            value={optionProvider?.[`${recordType}_args`]}
+            onChange={(_nm, val) => {
+              setOptionProvider((cur: IProviderType | null) => {
+                const result: IProviderType = {
+                  ...cur,
+                  [`${recordType}_args`]: val,
+                } as IProviderType;
+
+                return result;
+              });
+            }}
+            hasOperators={supportsOperators[recordType] || false}
+          />
+        </SubField>
       ) : null}
     </div>
   );

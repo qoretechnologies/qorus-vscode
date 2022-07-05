@@ -209,6 +209,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
       case 'softint':
       case 'float':
       case 'softfloat':
+      case 'number':
         return (
           <NumberField
             {...rest}

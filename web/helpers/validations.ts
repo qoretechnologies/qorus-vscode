@@ -10,6 +10,8 @@ import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
+import { fixOperatorValue, IOptions, TOption } from '../components/Field/systemOptions';
+import { getTemplateKey, getTemplateValue, isValueTemplate } from '../components/Field/template';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { TTrigger } from '../containers/InterfaceCreator/fsm';
 import { IField } from '../containers/InterfaceCreator/panel';
@@ -44,6 +46,11 @@ export const validateField: (
     // Get the type from start to the position of the `<`
     type = type.slice(0, pos);
   }
+  // Check if the value is a template string
+  if (isValueTemplate(value)) {
+    // Check if the template has both the key and value
+    return !!getTemplateKey(value) && !!getTemplateValue(value);
+  }
   // Check individual types
   switch (type) {
     case 'binary':
@@ -68,6 +75,10 @@ export const validateField: (
       // Check if this field has to be a valid identifier
       if (field?.has_to_be_valid_identifier) {
         isValid = !value.match(/^[0-9]|\W/);
+      }
+
+      if (field?.has_to_have_value) {
+        isValid = value !== '' && value.length !== 0;
       }
 
       // Strings cannot be empty
@@ -198,6 +209,11 @@ export const validateField: (
     case 'type-selector':
     case 'data-provider':
     case 'api-call':
+    case 'search-single':
+    case 'search':
+    case 'update':
+    case 'delete':
+    case 'create':
       let newValue = maybeBuildOptionProvider(value);
 
       if (!newValue) {
@@ -221,6 +237,22 @@ export const validateField: (
         return false;
       }
 
+      if (
+        (type === 'search-single' || type === 'search') &&
+        (size(value.search_args) === 0 ||
+          !validateField('system-options-with-operators', value.search_args))
+      ) {
+        return false;
+      }
+
+      if (
+        (type === 'update' || type === 'create') &&
+        (size(value[`${type}_args`]) === 0 ||
+          !validateField('system-options', value[`${type}_args`]))
+      ) {
+        return false;
+      }
+
       if (newValue?.type === 'factory') {
         if (newValue.optionsChanged) {
           return false;
@@ -230,6 +262,10 @@ export const validateField: (
 
         if (newValue.options) {
           options = validateField('system-options', newValue.options);
+        }
+
+        if (newValue.search_options) {
+          options = validateField('system-options', newValue.search_options);
         }
 
         // Type path and name are required
@@ -323,19 +359,61 @@ export const validateField: (
     case 'pipeline-options':
     case 'mapper-options':
     case 'system-options': {
-      if (!value || size(value) === 0) {
-        if (canBeNull) {
-          return true;
+      const isValid = (val) => {
+        if (!val || size(val) === 0) {
+          if (canBeNull) {
+            return true;
+          }
+
+          return false;
         }
 
-        return false;
+        return every(val, (optionData) =>
+          typeof optionData !== 'object'
+            ? validateField(getTypeFromValue(optionData), optionData)
+            : validateField(optionData.type, optionData.value)
+        );
+      };
+
+      if (isArray(value)) {
+        return value.every(isValid);
       }
 
-      return every(value, (optionData) =>
-        typeof optionData !== 'object'
-          ? validateField(getTypeFromValue(optionData), optionData)
-          : validateField(optionData.type, optionData.value)
-      );
+      return isValid(value);
+    }
+    case 'system-options-with-operators': {
+      console.log(value);
+      const isValid = (val: IOptions) => {
+        if (!val || size(val) === 0) {
+          if (canBeNull) {
+            return true;
+          }
+
+          return false;
+        }
+
+        return every(val, (optionData: TOption) => {
+          let isValid: boolean =
+            typeof optionData !== 'object'
+              ? validateField(getTypeFromValue(optionData), optionData)
+              : validateField(optionData.type, optionData.value);
+
+          if (
+            !optionData.op ||
+            !fixOperatorValue(optionData.op).every((operator) => validateField('string', operator))
+          ) {
+            isValid = false;
+          }
+
+          return isValid;
+        });
+      };
+
+      if (isArray(value)) {
+        return value.every(isValid);
+      }
+
+      return isValid(value);
     }
     case 'byte-size': {
       let valid = true;

@@ -1,4 +1,6 @@
 import { Button, Classes, Colors, Icon } from '@blueprintjs/core';
+import { setupPreviews } from '@previewjs/plugin-react/setup';
+import { noop } from 'lodash';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
@@ -17,11 +19,11 @@ export interface ISubFieldProps {
 const StyledSubFieldTitle = styled.h4`
   display: flex;
   justify-content: space-between;
-  margin: 0 0 10px 0;
+  margin: 0 0 0 0;
   font-weight: ${({ subtle }) => (subtle ? 450 : 'bold')};
   background-color: ${({ isValid }) => (isValid === false ? '#ffe7e7' : 'transparent')};
   border-radius: 3px;
-  padding: 5px;
+  padding: 5px 0;
   align-items: center;
 
   .subfield-title {
@@ -41,16 +43,17 @@ const StyledSubFieldMarkdown = styled.div`
   }
 `;
 
-const StyledSubFieldDesc = styled.p`
-  padding: 0;
-  margin: 5px 0 10px 0;
-  font-size: 12px;
-
-  .bp3-icon {
-    margin-right: 3px;
-    vertical-align: text-top;
-  }
-`;
+export const DescriptionField = ({ desc }: { desc?: string }) =>
+  desc ? (
+    <blockquote
+      className={`bp3-blockquote ${Classes.TEXT_MUTED}`}
+      style={{ display: 'block', marginTop: '10px' }}
+    >
+      <StyledSubFieldMarkdown>
+        <ReactMarkdown source={desc} />
+      </StyledSubFieldMarkdown>
+    </blockquote>
+  ) : null;
 
 const SubField: React.FC<ISubFieldProps> = ({
   title,
@@ -66,9 +69,11 @@ const SubField: React.FC<ISubFieldProps> = ({
       <StyledSubFieldTitle subtle={subtle} isValid={isValid}>
         <div>
           {!subtle && (
-            <Icon icon="dot" iconSize={16} color={isValid === false ? '#bd0000' : undefined} />
+            <>
+              <Icon icon="dot" iconSize={16} color={isValid === false ? '#bd0000' : undefined} />
+              <HorizontalSpacer size={5} />
+            </>
           )}
-          <HorizontalSpacer size={5} />
           <span className="subfield-title">{title}</span>{' '}
           {detail && (
             <span className={Classes.TEXT_MUTED}>
@@ -92,15 +97,22 @@ const SubField: React.FC<ISubFieldProps> = ({
         )}
       </StyledSubFieldTitle>
     )}
-    {desc && (
-      <blockquote className={`bp3-blockquote ${Classes.TEXT_MUTED}`}>
-        <StyledSubFieldMarkdown>
-          <ReactMarkdown source={desc} />
-        </StyledSubFieldMarkdown>
-      </blockquote>
-    )}
+    <DescriptionField desc={desc} />
     {children}
   </>
 );
+
+setupPreviews(SubField, () => ({
+  Basic: { title: 'SubField', children: <p> Hello </p> },
+  InValid: { title: 'SubField', children: <p> Hello </p>, isValid: false },
+  Subtle: { title: 'SubField', children: <p> Hello </p>, subtle: true },
+  WithDetail: { title: 'SubField', children: <p> Hello </p>, detail: 'This is detail' },
+  WithRemoveButton: {
+    title: 'SubField',
+    children: <p> Hello </p>,
+    detail: 'This is detail',
+    onRemove: noop,
+  },
+}));
 
 export default SubField;
