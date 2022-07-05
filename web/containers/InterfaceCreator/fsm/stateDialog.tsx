@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
+import { map } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
@@ -13,7 +14,6 @@ import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
 import FieldGroup from '../../../components/FieldGroup';
 import FieldLabel from '../../../components/FieldLabel';
-import Spacer from '../../../components/Spacer';
 import { Messages } from '../../../constants/messages';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
@@ -40,7 +40,20 @@ export interface IFSMStateDialogProps {
   disableInitial?: boolean;
 }
 
-export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none' | 'apicall';
+export enum StateTypes {
+  connector = 'connector',
+  mapper = 'mapper',
+  pipeline = 'pipeline',
+  none = 'none',
+  apicall = 'apicall',
+  'search-single' = 'search-single',
+  search = 'search',
+  create = 'create',
+  update = 'update',
+  delete = 'delete',
+}
+
+export type TAction = keyof typeof StateTypes;
 
 const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   onClose,
@@ -156,6 +169,13 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'apicall': {
         return validateField('api-call', newData?.action?.value);
       }
+      case 'search':
+      case 'delete':
+      case 'update':
+      case 'create':
+      case 'search-single': {
+        return validateField(actionType, newData?.action?.value);
+      }
       default: {
         return true;
       }
@@ -242,6 +262,24 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             requiresRequest
             isInitialEditing={!!data?.action?.value}
             onChange={(_name, value) => handleDataUpdate('action', { type: 'apicall', value })}
+            value={newData?.action?.value}
+          />
+        );
+      }
+      case 'search-single':
+      case 'update':
+      case 'delete':
+      case 'create':
+      case 'search': {
+        return (
+          <Connectors
+            name={actionType}
+            inline
+            minimal
+            key={actionType}
+            recordType={actionType}
+            isInitialEditing={!!data?.action?.value}
+            onChange={(_name, value) => handleDataUpdate('action', { type: actionType, value })}
             value={newData?.action?.value}
           />
         );
@@ -415,8 +453,11 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                       info={t('Optional')}
                     />
                     <FieldInputWrapper>
-                      <RadioField
-                        name="action"
+                      <SelectField
+                        defaultItems={map(StateTypes, (stateType) => ({
+                          name: stateType,
+                          desc: t(`field-desc-state-${stateType}`),
+                        }))}
                         onChange={(_name, value) => {
                           handleDataUpdate(
                             'action',
@@ -426,22 +467,18 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                           setActionType(value);
                         }}
                         value={actionType}
+                        placeholder={t('field-placeholder-action')}
                         disabled={newData.injected}
-                        items={[
-                          { value: 'mapper' },
-                          { value: 'pipeline' },
-                          { value: 'connector' },
-                          { value: 'apicall' },
-                        ]}
+                        name="action"
                       />
-                      {actionType && actionType !== 'none' ? (
-                        <>
-                          <Spacer size={20} />
-                          {renderActionField()}
-                        </>
-                      ) : null}
                     </FieldInputWrapper>
                   </FieldWrapper>
+                  {actionType && actionType !== 'none' ? (
+                    <FieldWrapper padded>
+                      <FieldLabel isValid info={t('ActionValue')} />
+                      {renderActionField()}
+                    </FieldWrapper>
+                  ) : null}
                 </>
               )}
               {newData.type === 'block' ? (

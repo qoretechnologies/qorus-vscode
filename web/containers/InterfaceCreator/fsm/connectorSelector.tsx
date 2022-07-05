@@ -92,6 +92,7 @@ const ConnectorSelector = ({
   return (
     <ButtonGroup>
       <SelectField
+        fill
         onChange={handleChange}
         value={value?.['class']}
         name="class"
@@ -103,6 +104,7 @@ const ConnectorSelector = ({
       />
       {value?.['class'] && (
         <SelectField
+          fill
           defaultItems={getConnectors()}
           onChange={handleChange}
           value={value?.connector}

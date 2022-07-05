@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 3.7.0
+
+#### New Features
+
+- Implemented new FSM states - create, single record search, multiple record search, update, and delete
+- Requires Qorus 5.1.35+ to support new FSM functionality
+
 ## Version 3.6.7
 
 #### Bug Fixes

@@ -1,4 +1,4 @@
-import { cloneDeep, reduce } from 'lodash';
+import { cloneDeep } from 'lodash';
 import forEach from 'lodash/forEach';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
@@ -20,6 +20,7 @@ import { AppToaster } from '../components/Toast';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
 import { IFSMState, IFSMStates, IFSMTransition } from '../containers/InterfaceCreator/fsm';
+import { TAction } from '../containers/InterfaceCreator/fsm/stateDialog';
 import { addMessageListener, postMessage } from '../hocomponents/withMessageHandler';
 const md5 = require('md5');
 
@@ -65,7 +66,7 @@ export const splitByteSize = (value: string): [number, string] => {
   return [Number(bytes?.[0]), size?.[0]];
 };
 
-export const insertAtIndex = (array = [], index = 0, value) => {
+export const insertAtIndex = (array: any[] = [], index = 0, value) => {
   return [...array.slice(0, index), value, ...array.slice(index)];
 };
 
@@ -114,7 +115,7 @@ export const isStateIsolated = (
 export interface ITypeComparatorData {
   interfaceName?: string;
   connectorName?: string;
-  interfaceKind?: 'mapper' | 'pipeline' | 'connector' | 'processor' | 'if' | 'block' | 'apicall';
+  interfaceKind?: 'if' | 'block' | 'processor' | TAction;
   typeData?: any;
 }
 
@@ -146,12 +147,20 @@ export const getStateProvider = async (
   data: ITypeComparatorData,
   providerType: 'input' | 'output'
 ) => {
-  if (data.interfaceKind === 'apicall') {
+  if (
+    data.interfaceKind === 'apicall' ||
+    data.interfaceKind === 'search-single' ||
+    data.interfaceKind === 'search' ||
+    data.interfaceKind === 'update' ||
+    data.interfaceKind === 'create' ||
+    data.interfaceKind === 'delete'
+  ) {
     return Promise.resolve({
       // @ts-expect-error
       ...data.interfaceName,
       // @ts-expect-error
       path: `${data.interfaceName.path}`,
+      typeAction: data.interfaceKind,
     });
   }
 
@@ -202,23 +211,8 @@ export const areTypesCompatible = async (
     return true;
   }
 
-  output.options = reduce(
-    output.options || {},
-    (newOptions, option, key) => ({
-      ...newOptions,
-      [key]: option.value,
-    }),
-    {}
-  );
-
-  input.options = reduce(
-    input.options || {},
-    (newOptions, option, key) => ({
-      ...newOptions,
-      [key]: option.value,
-    }),
-    {}
-  );
+  output.options = await formatAndFixOptionsToKeyValuePairs(output.options);
+  input.options = await formatAndFixOptionsToKeyValuePairs(input.options);
 
   const comparison = await fetchData('/dataprovider/compareTypes', 'PUT', {
     base_type: input,

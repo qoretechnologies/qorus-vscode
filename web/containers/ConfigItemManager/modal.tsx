@@ -28,7 +28,7 @@ import withTextContext from '../../hocomponents/withTextContext';
 import { StyledDialogBody } from '../ClassConnectionsManager';
 import { Value } from './table';
 
-const templatesList = [
+export const templatesList = [
   'local',
   'timestamp',
   'rest',

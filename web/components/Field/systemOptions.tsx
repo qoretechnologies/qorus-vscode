@@ -1,5 +1,6 @@
-import { Callout, Classes, Icon } from '@blueprintjs/core';
-import { cloneDeep, forEach } from 'lodash';
+import { Button, ButtonGroup, Callout, Classes, ControlGroup, Icon, Tag } from '@blueprintjs/core';
+import { setupPreviews } from '@previewjs/plugin-react/setup';
+import { cloneDeep, findKey, forEach, last } from 'lodash';
 import isArray from 'lodash/isArray';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
@@ -11,11 +12,13 @@ import styled from 'styled-components';
 import { isObject } from 'util';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
+import { insertAtIndex } from '../../helpers/functions';
 import { validateField } from '../../helpers/validations';
 import Spacer from '../Spacer';
 import SubField from '../SubField';
 import AutoField from './auto';
 import SelectField from './select';
+import { TemplateField } from './template';
 
 export const StyledOptionField = styled.div`
   padding: 10px;
@@ -43,16 +46,46 @@ export const StyledOptionField = styled.div`
   }
 `;
 
-const getType = (type) => (isArray(type) ? type[0] : type);
+const getType = (
+  type: IQorusType | IQorusType[],
+  operators?: IOperatorsSchema,
+  operator?: TOperatorValue
+) => {
+  const finalType = getTypeFromOperator(operators, fixOperatorValue(operator)) || type;
+
+  return isArray(finalType) ? finalType[0] : finalType;
+};
+
+const getTypeFromOperator = (
+  operators?: IOperatorsSchema,
+  operatorData?: (string | null | undefined)[]
+) => {
+  if (!operators || !operatorData || !size(operatorData) || !last(operatorData)) {
+    return null;
+  }
+
+  return operators[last(operatorData) as string]?.type || null;
+};
+
+export const fixOperatorValue = (operator: TOperatorValue): (string | null | undefined)[] => {
+  return isArray(operator) ? operator : [operator];
+};
 
 /* "Fix options to be an object with the correct type." */
-export const fixOptions = (value: IOptions = {}, options: IOptionsSchema): IOptions => {
+export const fixOptions = (
+  value: IOptions = {},
+  options: IOptionsSchema,
+  operators?: IOperatorsSchema
+): IOptions => {
   const fixedValue = cloneDeep(value);
 
   // Add missing required options to the fixedValue
   forEach(options, (option, name) => {
     if (option.required && !fixedValue[name]) {
-      fixedValue[name] = { type: option.type, value: option.default_value };
+      fixedValue[name] = {
+        type: getType(option.type, operators, fixedValue[name]?.op),
+        value: option.default_value,
+      };
     }
   });
 
@@ -63,7 +96,7 @@ export const fixOptions = (value: IOptions = {}, options: IOptionsSchema): IOpti
         return {
           ...newValue,
           [optionName]: {
-            type: getType(options[optionName].type),
+            type: getType(options[optionName].type, operators, option.op),
             value: option,
           },
         };
@@ -90,20 +123,45 @@ export type IQorusType =
   | 'workflow'
   | 'service'
   | 'job'
+  | 'select-string'
   | 'data-provider'
-  | 'file-as-string';
+  | 'file-as-string'
+  | 'number';
+
+export type TOperatorValue = string | string[] | undefined | null;
+
 export type TOption = {
   type: IQorusType;
   value: any;
+  op?: TOperatorValue;
 };
-export type IOptions = {
-  [optionName: string]: TOption;
-};
+export type IOptions =
+  | {
+      [optionName: string]: TOption;
+    }
+  | undefined;
 
 export interface IOptionsSchema {
-  type: IQorusType;
-  default_value?: any;
-  required?: boolean;
+  [optionName: string]: {
+    type: IQorusType | IQorusType[];
+    default_value?: any;
+    required?: boolean;
+    allowed_values?: any[];
+    sensitive?: boolean;
+    desc?: string;
+  };
+}
+
+export interface IOperator {
+  type?: IQorusType;
+  name: string;
+  desc: string;
+  supports_nesting?: boolean;
+  selected?: boolean;
+}
+
+export interface IOperatorsSchema {
+  [operatorName: string]: IOperator;
 }
 
 export interface IOptionsProps {
@@ -114,6 +172,8 @@ export interface IOptionsProps {
   options?: IOptionsSchema;
   onChange: (name: string, value?: IOptions) => void;
   placeholder?: string;
+  operatorsUrl?: string;
+  noValueString?: string;
 }
 
 const Options = ({
@@ -123,11 +183,13 @@ const Options = ({
   url,
   customUrl,
   placeholder,
+  operatorsUrl,
+  noValueString,
   ...rest
 }: IOptionsProps) => {
   const t: any = useContext(TextContext);
   const [options, setOptions] = useState<IOptionsSchema | undefined>(rest?.options || undefined);
-  //const [selectedOptions, setSelectedOptions] = useState(null);
+  const [operators, setOperators] = useState<IOperatorsSchema | undefined>({});
   const { fetchData, confirmAction, qorus_instance }: any = useContext(InitialContext);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -151,6 +213,23 @@ const Options = ({
         // Save the new options
         setLoading(false);
         setOptions(data.data);
+      })();
+    }
+    if (qorus_instance && operatorsUrl) {
+      (async () => {
+        setOperators(undefined);
+        setLoading(true);
+        // Fetch the options for this mapper type
+        const data = await fetchData(`/${operatorsUrl}`);
+
+        if (data.error) {
+          setLoading(false);
+          setOperators({});
+          return;
+        }
+        // Save the new options
+        setLoading(false);
+        setOperators(data.data);
       })();
     }
   });
@@ -177,12 +256,107 @@ const Options = ({
     }
   }, [url, qorus_instance, customUrl]);
 
-  const handleValueChange = (optionName: string, currentValue: any, val?: any, type?: string) => {
+  useUpdateEffect(() => {
+    if (operatorsUrl && qorus_instance) {
+      (async () => {
+        setOperators(undefined);
+        setLoading(true);
+        // Fetch the options for this mapper type
+        const data = await fetchData(`/${operatorsUrl}`);
+
+        if (data.error) {
+          setLoading(false);
+          setOperators({});
+          return;
+        }
+        // Save the new options
+        setLoading(false);
+        setOperators(data.data);
+      })();
+    }
+  }, [operatorsUrl, qorus_instance]);
+
+  const handleValueChange = (
+    optionName: string,
+    currentValue: any = {},
+    val?: any,
+    type?: string
+  ) => {
+    // Check if this option is already added
+    if (!currentValue[optionName]) {
+      // If it's not, add potential default operators
+      const defaultOperators: TOperatorValue = reduce(
+        operators,
+        (filteredOperators: TOperatorValue, operator, operatorKey) => {
+          if (operator.selected) {
+            return [...(filteredOperators as string[]), operatorKey];
+          }
+
+          return filteredOperators;
+        },
+        []
+      );
+      // If there are default operators, add them to the value
+      if (defaultOperators?.length) {
+        onChange(name, {
+          ...currentValue,
+          [optionName]: {
+            type,
+            value: val,
+            op: defaultOperators,
+          },
+        });
+
+        return;
+      }
+    }
     onChange(name, {
       ...currentValue,
       [optionName]: {
+        ...currentValue[optionName],
         type,
         value: val,
+      },
+    });
+  };
+
+  const handleOperatorChange = (
+    optionName: string,
+    currentValue: IOptions,
+    operator: string,
+    index: number
+  ) => {
+    onChange(name, {
+      ...currentValue,
+      [optionName]: {
+        ...currentValue[optionName],
+        op: fixOperatorValue(currentValue[optionName].op).map((op, idx) => {
+          if (idx === index) {
+            return operator;
+          }
+          return op as string;
+        }),
+      },
+    });
+  };
+
+  // Add empty operator at the provider index
+  const handleAddOperator = (optionName, currentValue: IOptions, index: number) => {
+    onChange(name, {
+      ...currentValue,
+      [optionName]: {
+        ...currentValue[optionName],
+        op: insertAtIndex(fixOperatorValue(currentValue[optionName].op), index, null),
+      },
+    });
+  };
+
+  const handleRemoveOperator = (optionName, currentValue: IOptions, index: number) => {
+    onChange(name, {
+      ...currentValue,
+      [optionName]: {
+        ...currentValue[optionName],
+        op: fixOperatorValue(currentValue[optionName].op).filter((_op, idx) => idx !== index),
       },
     });
   };
@@ -214,7 +388,7 @@ const Options = ({
     return <p>{t('LoadingOptions')}</p>;
   }
 
-  if (!size(options)) {
+  if (!options || !size(options)) {
     return <Callout intent="warning">{t('NoOptionsAvailable')}</Callout>;
   }
 
@@ -227,12 +401,16 @@ const Options = ({
     );
   };
 
-  const getTypeAndCanBeNull = (type: string, allowed_values: any[]) => {
+  const getTypeAndCanBeNull = (
+    type: IQorusType | IQorusType[],
+    allowed_values?: any[],
+    operatorData?: TOperatorValue
+  ) => {
     let canBeNull = false;
-    let realType = isArray(type) ? type[0] : type;
+    let realType = getType(type, operators, operatorData);
 
     if (realType?.startsWith('*')) {
-      realType = realType.replace('*', '');
+      realType = realType.replace('*', '') as IQorusType;
       canBeNull = true;
     }
 
@@ -269,7 +447,10 @@ const Options = ({
                 subtle
                 key={optionName}
                 title={optionName}
-                isValid={validateField(getType(type), other.value)}
+                isValid={
+                  validateField(getType(type), other.value, { has_to_have_value: true }) &&
+                  (operatorsUrl ? !!other.op : true)
+                }
                 detail={getType(options[optionName].type)}
                 desc={options[optionName].desc}
                 onRemove={
@@ -282,8 +463,64 @@ const Options = ({
                     : undefined
                 }
               >
-                <AutoField
-                  {...getTypeAndCanBeNull(type, options[optionName].allowed_values)}
+                {operators && size(operators) ? (
+                  <>
+                    <ControlGroup fill>
+                      {fixOperatorValue(other.op).map((operator, index) => (
+                        <React.Fragment key={index}>
+                          <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
+                            <SelectField
+                              fill
+                              defaultItems={map(operators, (operator) => ({
+                                name: operator.name,
+                                desc: operator.desc,
+                              }))}
+                              value={operator && `${operators?.[operator].name}`}
+                              onChange={(_n, val) => {
+                                if (val !== undefined) {
+                                  handleOperatorChange(
+                                    optionName,
+                                    fixedValue,
+                                    findKey(
+                                      operators,
+                                      (operator) => operator.name === val
+                                    ) as string,
+                                    index
+                                  );
+                                }
+                              }}
+                            />
+                          </ButtonGroup>
+                          {size(fixOperatorValue(other.op)) > 1 ? (
+                            <div>
+                              <Button
+                                icon="trash"
+                                intent="danger"
+                                className={Classes.FIXED}
+                                onClick={() => handleRemoveOperator(optionName, fixedValue, index)}
+                              />
+                            </div>
+                          ) : null}
+                          {index === fixOperatorValue(other.op).length - 1 &&
+                          operator &&
+                          operators[operator].supports_nesting ? (
+                            <div>
+                              <Button
+                                icon="add"
+                                className={Classes.FIXED}
+                                onClick={() => handleAddOperator(optionName, fixedValue, index + 1)}
+                              />
+                            </div>
+                          ) : null}
+                        </React.Fragment>
+                      ))}
+                    </ControlGroup>
+                    <Spacer size={5} />
+                  </>
+                ) : null}
+                <TemplateField
+                  component={AutoField}
+                  {...getTypeAndCanBeNull(type, options[optionName].allowed_values, other.op)}
                   name={optionName}
                   onChange={(optionName, val) => {
                     if (val !== undefined) {
@@ -301,6 +538,15 @@ const Options = ({
                   default_value={options[optionName].default}
                   allowed_values={options[optionName].allowed_values}
                 />
+                {operators && size(operators) && size(other.op) ? (
+                  <>
+                    <Spacer size={5} />
+                    <span className={Classes.TEXT_MUTED}>
+                      WHERE <Tag>{optionName}</Tag> IS {fixOperatorValue(other.op).join(' ')}{' '}
+                      {other.value?.toString() || ''}
+                    </span>
+                  </>
+                ) : null}
               </SubField>
             </StyledOptionField>
           ) : null
@@ -308,7 +554,7 @@ const Options = ({
       </div>
       {size(fixedValue) === 0 && (
         <p className={Classes.TEXT_MUTED}>
-          <Icon icon="info-sign" /> {t('NoOptionsSelected')}
+          <Icon icon="info-sign" /> {t(noValueString || 'NoOptionsSelected')}
         </p>
       )}
       <Spacer size={10} />
@@ -326,5 +572,25 @@ const Options = ({
     </>
   );
 };
+
+const PreviewOptions = (props: Omit<IOptionsProps, 'onChange'>) => {
+  const [value, setValue] = useState<IOptions>(props.value);
+
+  return <Options value={value} onChange={(_name, val) => setValue(val)} {...props} />;
+};
+
+setupPreviews(PreviewOptions, () => ({
+  Default: {
+    name: 'options',
+    options: {
+      RequiredString: {
+        type: ['string'] as IQorusType[],
+        desc: 'A string',
+        required: true,
+        default_value: 'hello',
+      },
+    },
+  },
+}));
 
 export default Options;

@@ -89,6 +89,9 @@ body {
   background-color: transparent;
   padding-top: 5px;
   padding-bottom: 5px;
+  border-left-width: 2px;
+  font-size: 11px;
+  padding: 0 8px;
 }
 
 
@@ -829,6 +832,10 @@ div.configItemsEditor {
 
 .bp3-vertical .bp3-tab-panel {
   width: 100%;
+}
+
+.bp3-tab-panel {
+  margin-top: 10px !important;
 }
 
 .flex-fix-scroll-y {

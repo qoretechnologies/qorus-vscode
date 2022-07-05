@@ -1,4 +1,12 @@
-import { Button, ButtonGroup, Callout, Classes, Spinner } from '@blueprintjs/core';
+import {
+  Button,
+  ButtonGroup,
+  Callout,
+  Classes,
+  ControlGroup,
+  Spinner,
+  Tooltip,
+} from '@blueprintjs/core';
 import { cloneDeep, omit } from 'lodash';
 import map from 'lodash/map';
 import nth from 'lodash/nth';
@@ -7,6 +15,7 @@ import React, { FC, useCallback, useContext, useState } from 'react';
 import { useDebounce } from 'react-use';
 import styled, { css } from 'styled-components';
 import CustomDialog from '../../components/CustomDialog';
+import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
 import { TextContext } from '../../context/text';
@@ -32,8 +41,10 @@ export interface IProviderProps {
   style: any;
   isConfigItem?: boolean;
   requiresRequest?: boolean;
+  recordType?: TRecordType;
   options?: { [key: string]: any };
   optionsChanged?: boolean;
+  onResetClick?: () => void;
 }
 
 const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
@@ -60,13 +71,15 @@ const StyledHeader = styled.h3`
   text-align: center;
 `;
 
-export let providers: any = {
+export const providers: any = {
   type: {
     name: 'type',
     url: 'dataprovider/types',
     suffix: '',
     recordSuffix: '?action=type',
     type: 'type',
+    withDetails: true,
+    desc: 'Data type and custom record descriptions',
   },
   connection: {
     name: 'connection',
@@ -78,6 +91,7 @@ export let providers: any = {
     recordSuffix: '/record',
     requiresRecord: true,
     type: 'connection',
+    desc: 'Qorus user connections; access a data provider through a user connection',
   },
   remote: {
     name: 'remote',
@@ -89,6 +103,7 @@ export let providers: any = {
     recordSuffix: '/record',
     requiresRecord: true,
     type: 'remote',
+    desc: 'Qorus to Qorus remote connections; access a data provider through a remote Qorus instances (remote datasources and remote Qorus APIs)',
   },
   datasource: {
     name: 'datasource',
@@ -100,6 +115,7 @@ export let providers: any = {
     recordSuffix: '/record',
     requiresRecord: true,
     type: 'datasource',
+    desc: 'Qorus database connections; access record-based data providers through a local datasource',
   },
   factory: {
     name: 'factory',
@@ -114,6 +130,7 @@ export let providers: any = {
     requiresRecord: true,
     suffixRequiresOptions: true,
     type: 'factory',
+    desc: 'Data provider factories for creating data providers from options',
   },
 };
 
@@ -156,10 +173,16 @@ const MapperProvider: FC<IProviderProps> = ({
   options,
   requiresRequest,
   optionsChanged,
+  onResetClick,
+  optionProvider,
+  recordType,
 }) => {
-  const [wildcardDiagram, setWildcardDiagram] = useState(null);
+  const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [optionString, setOptionString] = useState('');
+  const [descriptions, setDescriptions] = useState<string[]>([]);
   const t = useContext(TextContext);
+
+  console.log(descriptions);
 
   /* When the options hash changes, we want to update the query string. */
   useDebounce(
@@ -188,6 +211,10 @@ const MapperProvider: FC<IProviderProps> = ({
     realProviders = omit(realProviders, ['datasource', 'type']);
   }
 
+  if (recordType) {
+    realProviders = omit(realProviders, ['type']);
+  }
+
   const handleProviderChange = (provider) => {
     setProvider((current) => {
       // Fetch the url of the provider
@@ -197,9 +224,9 @@ const MapperProvider: FC<IProviderProps> = ({
         // Set loading
         setIsLoading(true);
         // Select the provider data
-        const { url, filter, inputFilter, outputFilter } = realProviders[provider];
+        const { url, filter, inputFilter, outputFilter, withDetails } = realProviders[provider];
         // Get the data
-        let { data, error } = await fetchData(url);
+        let { data, error } = await fetchData(`${url}${withDetails ? '/childDetails' : ''}`);
         // Remove loading
         setIsLoading(false);
         // Filter unwanted data if needed
@@ -216,18 +243,28 @@ const MapperProvider: FC<IProviderProps> = ({
           }
         }
         // Save the children
-        let children = data.children || data;
+        const children = data.children || data;
         // Add new child
         setChildren([
           {
-            values: children.map((child) => ({
-              name: realProviders[provider].namekey
-                ? child[realProviders[provider].namekey]
-                : child,
-              desc: '',
-              url,
-              suffix: realProviders[provider].suffix,
-            })),
+            values: children.map((child) => {
+              if (typeof child === 'string') {
+                return {
+                  name: realProviders[provider].namekey
+                    ? child[realProviders[provider].namekey]
+                    : child,
+                  desc: '',
+                  url,
+                  suffix: realProviders[provider].suffix,
+                };
+              }
+
+              return {
+                ...child,
+                url: url,
+                suffix: realProviders[provider].suffix,
+              };
+            }),
             value: null,
           },
         ]);
@@ -247,23 +284,35 @@ const MapperProvider: FC<IProviderProps> = ({
     clear && clear(true);
     // Set loading
     setIsLoading(true);
+    const newSuffix = `${suffix}/childDetails`;
     // Build the suffix
     let suffixString = realProviders[provider].suffixRequiresOptions
       ? optionString && optionString !== '' && size(options)
-        ? `${suffix}?${optionString}`
+        ? `${newSuffix}?${optionString}`
         : itemIndex === 1
-        ? ''
-        : suffix
-      : suffix;
+        ? '/childDetails'
+        : newSuffix
+      : newSuffix;
     // Fetch the data
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
     if (error) {
-      console.error(`${url}/${value}${suffix}`, error);
+      console.error(`${url}/${value}${newSuffix}`, error);
       //setIsLoading(false);
       //return;
     }
     // Reset loading
     setIsLoading(false);
+
+    /* Setting the state of the descriptions hash. */
+    if (data.desc) {
+      // Add the description to the descriptions hash
+      setDescriptions((current): string[] => {
+        console.log(itemIndex, data.desc);
+        const newData = [...current];
+        newData[itemIndex] = data.desc;
+        return newData;
+      });
+    }
     // Add new child
     setChildren((current) => {
       // Update this item
@@ -296,13 +345,13 @@ const MapperProvider: FC<IProviderProps> = ({
             // Save the mapper keys
             setMapperKeys && setMapperKeys(data.mapper_keys);
           }
-
+          const newSuffix = `${suffix}/childDetails`;
           suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
               ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                   type === 'outputs' ? '&soft=true' : ''
                 }`
-              : `${suffix}`
+              : `${newSuffix}`
             : `${suffix}${realProviders[provider].recordSuffix}`;
 
           // Fetch the record
@@ -317,13 +366,17 @@ const MapperProvider: FC<IProviderProps> = ({
             type: realProviders[provider].type,
             name,
             is_api_call: requiresRequest,
-            desc: data.desc,
             supports_request: data.supports_request,
+            supports_read: data.supports_read,
+            supports_update: data.supports_update,
+            supports_create: data.supports_create,
+            supports_delete: data.supports_delete,
             can_manage_fields: record.data?.can_manage_fields,
+            descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')
-              .replace('provider/', ''),
+              .replace(`provider/`, ''),
             options,
           });
           if (data.has_type || isConfigItem) {
@@ -341,12 +394,22 @@ const MapperProvider: FC<IProviderProps> = ({
         return [
           ...newItems,
           {
-            values: data.children.map((child) => ({
-              name: child,
-              desc: '',
-              url: `${url}/${value}${suffix}`,
-              suffix: '',
-            })),
+            values: data.children.map((child) => {
+              if (typeof child === 'string') {
+                return {
+                  name: child,
+                  desc: 'No description provided',
+                  url: `${url}/${value}${suffix}`,
+                  suffix: '',
+                };
+              }
+
+              return {
+                ...child,
+                url: `${url}/${value}${suffix}`,
+                suffix: '',
+              };
+            }),
             value: null,
           },
         ];
@@ -374,76 +437,84 @@ const MapperProvider: FC<IProviderProps> = ({
           },
         ];
       }
-      // Return the updated children
-      else {
-        if (data.fields) {
+
+      if (data.fields) {
+        // Save the name by pulling the 3rd item from the split
+        // url (same for every provider type)
+        const name = `${url}/${value}`.split('/')[2];
+        // Set the provider option
+        setOptionProvider({
+          type: realProviders[provider].type,
+          can_manage_fields: data.can_manage_fields,
+          name,
+          supports_read: data.supports_read,
+          supports_update: data.supports_update,
+          supports_create: data.supports_create,
+          supports_delete: data.supports_delete,
+          subtype: value === 'request' || value === 'response' ? value : undefined,
+          descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
+          path: `${url}/${value}`
+            .replace(`${name}`, '')
+            .replace(`${realProviders[provider].url}/`, '')
+            .replace('provider/', '')
+            .replace('request', '')
+            .replace('response', ''),
+        });
+        // Set the record data
+        setRecord && setRecord(data.fields);
+      }
+      // Check if there is a record
+      else if (isConfigItem || data.has_record || !realProviders[provider].requiresRecord) {
+        (async () => {
+          setIsLoading(true);
+          if (type === 'outputs' && data.mapper_keys) {
+            // Save the mapper keys
+            setMapperKeys && setMapperKeys(data.mapper_keys);
+          }
+          suffixString = realProviders[provider].suffixRequiresOptions
+            ? optionString && optionString !== '' && size(options)
+              ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
+                  type === 'outputs' ? '&soft=true' : ''
+                }`
+              : newSuffix
+            : `${suffix}${realProviders[provider].recordSuffix}`;
+          // Fetch the record
+          const record = await fetchData(`${url}/${value}${suffixString}`);
+          // Remove loading
+          setIsLoading(false);
           // Save the name by pulling the 3rd item from the split
           // url (same for every provider type)
           const name = `${url}/${value}`.split('/')[2];
           // Set the provider option
           setOptionProvider({
             type: realProviders[provider].type,
-            can_manage_fields: data.can_manage_fields,
             name,
-            subtype: value === 'request' || value === 'response' ? value : undefined,
+            supports_read: data.supports_read,
+            supports_update: data.supports_update,
+            supports_create: data.supports_create,
+            supports_delete: data.supports_delete,
+            can_manage_fields: record.data.can_manage_fields,
+            descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')
-              .replace('provider/', '')
-              .replace('request', '')
-              .replace('response', ''),
+              .replace('provider/', ''),
+            options,
           });
           // Set the record data
-          setRecord && setRecord(data.fields);
-        }
-        // Check if there is a record
-        else if (isConfigItem || data.has_record || !realProviders[provider].requiresRecord) {
-          (async () => {
-            setIsLoading(true);
-            if (type === 'outputs' && data.mapper_keys) {
-              // Save the mapper keys
-              setMapperKeys && setMapperKeys(data.mapper_keys);
-            }
-            suffixString = realProviders[provider].suffixRequiresOptions
-              ? optionString && optionString !== '' && size(options)
-                ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
-                    type === 'outputs' ? '&soft=true' : ''
-                  }`
-                : suffix
-              : `${suffix}${realProviders[provider].recordSuffix}`;
-            // Fetch the record
-            const record = await fetchData(`${url}/${value}${suffixString}`);
-            // Remove loading
-            setIsLoading(false);
-            // Save the name by pulling the 3rd item from the split
-            // url (same for every provider type)
-            const name = `${url}/${value}`.split('/')[2];
-            // Set the provider option
-            setOptionProvider({
-              type: realProviders[provider].type,
-              name,
-              can_manage_fields: record.data.can_manage_fields,
-              path: `${url}/${value}`
-                .replace(`${name}`, '')
-                .replace(`${realProviders[provider].url}/`, '')
-                .replace('provider/', ''),
-              options,
-            });
-            // Set the record data
-            setRecord &&
-              setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
-            //
-          })();
-        }
-
-        return [...newItems];
+          setRecord &&
+            setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
+          //
+        })();
       }
+
+      return [...newItems];
     });
   };
 
   const getDefaultItems = useCallback(
     () =>
-      map(realProviders, ({ name }) => ({ name, desc: '' })).filter((prov) =>
+      map(realProviders, ({ name, desc }) => ({ name, desc })).filter((prov) =>
         prov.name === 'null' ? canSelectNull : true
       ),
     []
@@ -486,87 +557,31 @@ const MapperProvider: FC<IProviderProps> = ({
         {!compact && <StyledHeader>{title}</StyledHeader>}
         {compact && title && <span>{title}: </span>}{' '}
         <ButtonGroup>
-          <SelectField
-            name={`provider${type ? `-${type}` : ''}`}
-            disabled={isLoading}
-            defaultItems={getDefaultItems()}
-            onChange={(_name, value) => {
-              handleProviderChange(value);
-            }}
-            value={provider}
-          />
+          <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
+            <SelectField
+              fill
+              name={`provider${type ? `-${type}` : ''}`}
+              disabled={isLoading}
+              defaultItems={getDefaultItems()}
+              onChange={(_name, value) => {
+                handleProviderChange(value);
+              }}
+              value={provider}
+            />
+          </ButtonGroup>
           {nodes.map((child, index) => (
-            <ButtonGroup>
-              <SelectField
-                key={`${title}-${index}`}
-                name={`provider-${type ? `${type}-` : ''}${index}`}
-                disabled={isLoading}
-                defaultItems={child.values}
-                onChange={(_name, value) => {
-                  // Get the child data
-                  const { url, suffix } = child.values.find((val) => val.name === value);
-                  // If the value is a wildcard present a dialog that the user has to fill
-                  if (value === '*') {
-                    setWildcardDiagram({
-                      index,
-                      isOpen: true,
-                      url,
-                      suffix,
-                    });
-                  } else {
-                    // Change the child
-                    handleChildFieldChange(value, url, index, suffix);
-                  }
-                }}
-                value={child.value}
-              />
-              {index === 0 && optionsChanged ? (
-                <Button
-                  icon="refresh"
-                  intent="success"
-                  onClick={() => {
+            <ControlGroup key={index}>
+              <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
+                <SelectField
+                  fill
+                  key={`${title}-${index}`}
+                  name={`provider-${type ? `${type}-` : ''}${index}`}
+                  disabled={isLoading}
+                  filters={['supports_read', 'supports_request', 'has_record']}
+                  defaultItems={child.values}
+                  onChange={(_name, value) => {
                     // Get the child data
-                    const { url, suffix } = child.values.find((val) => val.name === child.value);
-                    // If the value is a wildcard present a dialog that the user has to fill
-                    if (child.value === '*') {
-                      setWildcardDiagram({
-                        index: 0,
-                        isOpen: true,
-                        url,
-                        suffix,
-                      });
-                    } else {
-                      // Change the child
-                      handleChildFieldChange(child.value, url, 0, suffix);
-                    }
-                  }}
-                >
-                  {' '}
-                  Apply options{' '}
-                </Button>
-              ) : null}
-            </ButtonGroup>
-          ))}
-          {isLoading && <Spinner size={15} />}
-          {nodes.length > 0 && (
-            <Button
-              intent="danger"
-              name={`provider-${type ? `${type}-` : ''}back`}
-              icon="step-backward"
-              className={Classes.FIXED}
-              onClick={() => {
-                setChildren((cur) => {
-                  const result = [...cur];
-
-                  result.pop();
-
-                  const lastChild = nth(result, -2);
-
-                  if (lastChild) {
-                    const index = size(result) - 2;
-                    const { value, values } = lastChild;
-                    const { url, suffix } = values.find((val) => val.name === value);
-
+                    const { url, suffix } = child.values.find((val) => val.name === value);
                     // If the value is a wildcard present a dialog that the user has to fill
                     if (value === '*') {
                       setWildcardDiagram({
@@ -579,17 +594,139 @@ const MapperProvider: FC<IProviderProps> = ({
                       // Change the child
                       handleChildFieldChange(value, url, index, suffix);
                     }
-                  }
+                  }}
+                  value={child.value}
+                />
+              </ButtonGroup>
+              {index === 0 && optionsChanged ? (
+                <Tooltip
+                  position="top"
+                  boundary="viewport"
+                  targetProps={{
+                    style: {
+                      width: '100%',
+                    },
+                  }}
+                  hoverOpenDelay={500}
+                  interactionKind="hover"
+                  content="Apply the current options to move forward"
+                >
+                  <div>
+                    <Button
+                      icon="refresh"
+                      intent="success"
+                      onClick={() => {
+                        // Get the child data
+                        const { url, suffix } = child.values.find(
+                          (val) => val.name === child.value
+                        );
+                        // If the value is a wildcard present a dialog that the user has to fill
+                        if (child.value === '*') {
+                          setWildcardDiagram({
+                            index: 0,
+                            isOpen: true,
+                            url,
+                            suffix,
+                          });
+                        } else {
+                          // Change the child
+                          handleChildFieldChange(child.value, url, 0, suffix);
+                        }
+                      }}
+                    >
+                      {' '}
+                      Apply options{' '}
+                    </Button>
+                  </div>
+                </Tooltip>
+              ) : null}
+            </ControlGroup>
+          ))}
+          {isLoading && <Spinner size={15} />}
+          {nodes.length > 0 && (
+            <ControlGroup>
+              <ButtonGroup>
+                <Tooltip
+                  position="top"
+                  boundary="viewport"
+                  targetProps={{
+                    style: {
+                      width: '100%',
+                    },
+                  }}
+                  hoverOpenDelay={100}
+                  interactionKind="hover"
+                  content="Go back a step"
+                >
+                  <div>
+                    <Button
+                      intent="danger"
+                      name={`provider-${type ? `${type}-` : ''}back`}
+                      icon="step-backward"
+                      className={Classes.FIXED}
+                      onClick={() => {
+                        setChildren((cur) => {
+                          const result = [...cur];
 
-                  // If there are no children then we need to reset the provider
-                  if (size(result) === 0) {
-                    handleProviderChange(provider);
-                  }
+                          result.pop();
 
-                  return result;
-                });
-              }}
-            />
+                          const lastChild = nth(result, -2);
+
+                          if (lastChild) {
+                            const index = size(result) - 2;
+                            const { value, values } = lastChild;
+                            const { url, suffix } = values.find((val) => val.name === value);
+
+                            // If the value is a wildcard present a dialog that the user has to fill
+                            if (value === '*') {
+                              setWildcardDiagram({
+                                index,
+                                isOpen: true,
+                                url,
+                                suffix,
+                              });
+                            } else {
+                              // Change the child
+                              handleChildFieldChange(value, url, index, suffix);
+                            }
+                          }
+
+                          // If there are no children then we need to reset the provider
+                          if (size(result) === 0) {
+                            handleProviderChange(provider);
+                          }
+
+                          return result;
+                        });
+                      }}
+                    />
+                  </div>
+                </Tooltip>
+                {onResetClick && (
+                  <Tooltip
+                    position="top"
+                    boundary="viewport"
+                    targetProps={{
+                      style: {
+                        width: '100%',
+                      },
+                    }}
+                    hoverOpenDelay={100}
+                    interactionKind="hover"
+                    content="Remove all data"
+                  >
+                    <div>
+                      <Button
+                        intent="danger"
+                        icon="cross"
+                        onClick={onResetClick}
+                        className={Classes.FIXED}
+                      />
+                    </div>
+                  </Tooltip>
+                )}
+              </ButtonGroup>
+            </ControlGroup>
           )}
           {record && (
             <Button
