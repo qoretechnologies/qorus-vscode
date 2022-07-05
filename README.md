@@ -6,8 +6,10 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 
 ## Version 3.7.0 overview - What's new:
 
-- Implemented new FSM states - create, single record search, multiple record search, update, and delete.
+- Implemented new FSM states - create, single record search, multiple record search, update, and delete
 - Requires Qorus 5.1.35+ to support new FSM functionality
+
+![update_state](https://github.com/qoretechnologies/qorus-vscode/blob/master/images/gif/update-state.gif?raw=true)
 
 ## Version 3.6.7 overview - What's new:
 
