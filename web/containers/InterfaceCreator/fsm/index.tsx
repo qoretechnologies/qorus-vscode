@@ -134,14 +134,14 @@ export interface IFSMStates {
   [name: string]: IFSMState;
 }
 
-export const TOOLBAR_ITEM_TYPE: string = 'toolbar-item';
-export const STATE_ITEM_TYPE: string = 'state';
+export const TOOLBAR_ITEM_TYPE = 'toolbar-item';
+export const STATE_ITEM_TYPE = 'state';
 
-const DIAGRAM_SIZE: number = 2000;
-export const IF_STATE_SIZE: number = 80;
-export const STATE_WIDTH: number = 180;
-export const STATE_HEIGHT: number = 50;
-const DIAGRAM_DRAG_KEY: string = 'Shift';
+const DIAGRAM_SIZE = 2000;
+export const IF_STATE_SIZE = 80;
+export const STATE_WIDTH = 180;
+export const STATE_HEIGHT = 50;
+const DIAGRAM_DRAG_KEY = 'Shift';
 const DROP_ACCEPTS: string[] = [TOOLBAR_ITEM_TYPE, STATE_ITEM_TYPE];
 
 export const StyledToolbarWrapper = styled.div`
@@ -259,7 +259,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   const [inputCompatibility, setInputCompatibility] = useState<
     { [key: string]: boolean } | undefined
   >(undefined);
-  const [isReady, setIsReady] = useState<boolean>(false);
+  const [isReady, setIsReady] = useState<boolean>(embedded || false);
   const [editingState, setEditingState] = useState<string | null>(null);
   const [editingTransition, setEditingTransition] = useState<
     { stateId: number; index: number }[] | null
@@ -674,7 +674,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         continue;
       }
 
-      let output = await getStateProvider(stateData, 'output');
+      const output = await getStateProvider(stateData, 'output');
       if (!output) {
         continue;
       }
@@ -727,7 +727,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         continue;
       }
 
-      let input: IProviderType = await getStateProvider(stateData, 'input');
+      const input: IProviderType = await getStateProvider(stateData, 'input');
 
       if (!input) {
         continue;
@@ -1060,7 +1060,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const handleSubmitClick = async () => {
-    let fixedMetadata = { ...metadata };
+    const fixedMetadata = { ...metadata };
 
     if (size(metadata.groups) === 0) {
       delete fixedMetadata.groups;
