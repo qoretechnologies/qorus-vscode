@@ -7,6 +7,10 @@
 - Implemented new FSM states - create, single record search, multiple record search, update, and delete
 - Requires Qorus 5.1.35+ to support new FSM functionality
 
+#### Bug Fixes
+
+- Fixed a bug that prevented creation of FSM Block states
+
 ## Version 3.6.7
 
 #### Bug Fixes
