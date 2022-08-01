@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Icon, Intent, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Colors, Icon, Intent, Tooltip } from '@blueprintjs/core';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
@@ -85,19 +85,19 @@ export const StyledMapperField = styled.div`
     `}
 
   height: ${({ isInputHash }) => (isInputHash ? '55px' : `${FIELD_HEIGHT}px`)};
-  border: 1px solid #d7d7d7;
+  border: 1px solid ${({ hasError }) => (hasError ? Colors.ORANGE3 : '#d7d7d7')};
   border-radius: 3px;
   margin-bottom: ${FIELD_MARGIN}px;
   transition: all 0.3s;
-  background-color: #fff;
+  background-color: ${({ hasError }) => (hasError ? 'rgba(217, 130, 43, 0.15)' : '#fff')};
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
   position: relative;
   cursor: ${({ isDisabled }) => (isDisabled ? 'initial' : 'pointer')};
 
-  ${({ isDisabled }) =>
+  ${({ isDisabled, hasError }) =>
     css`
       &:hover {
-        border-color: ${isDisabled ? '#d7d7d7' : '#137cbd'};
+        border-color: ${isDisabled ? (hasError ? Colors.ORANGE1 : '#d7d7d7') : '#137cbd'};
       }
     `};
 
@@ -336,6 +336,10 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
   context,
   isContextLoaded,
   interfaceIndex,
+  inputsError,
+  outputsError,
+  setInputsError,
+  setOutputsError,
 }) => {
   const [{ isDragging }, _dropRef] = useDrop({
     accept: 'none',
@@ -441,6 +445,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     usesContext?: boolean,
     isInputHash?: boolean
   ) => void = (outputPath, usesContext, isInputHash) => {
+    if (inputsError || outputsError) {
+      return;
+    }
     // Remove the selected relation
     // @ts-ignore
     setRelations((current: any): any =>
@@ -533,6 +540,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     setInputs(null);
     setInputsLoading(false);
     setInputRecord(null);
+    setInputsError(null);
     setHideInputSelector(false);
   };
 
@@ -546,6 +554,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     setOutputs(null);
     setOutputsLoading(false);
     setOutputRecord(null);
+    setOutputsError(null);
     setHideOutputSelector(false);
   };
 
@@ -911,6 +920,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
           <StyledFieldsWrapper>
             <StyledFieldHeader>
               <MapperInput
+                hasError={inputsError}
                 name={
                   <>
                     <span> Input </span>
@@ -983,7 +993,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                   />
                 ))
               : null}
-            {size(flattenedInputs) === 0 &&
+            {!inputsError &&
+            size(flattenedInputs) === 0 &&
             !(hideInputSelector && inputOptionProvider?.can_manage_fields) ? (
               <StyledInfoMessage>
                 {inputOptionProvider?.type === 'factory'
@@ -991,7 +1002,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                   : t('MapperNoInputFields')}
               </StyledInfoMessage>
             ) : null}
-            {hideInputSelector && inputOptionProvider?.can_manage_fields && (
+            {!inputsError && hideInputSelector && inputOptionProvider?.can_manage_fields && (
               <Button
                 fill
                 text={t('AddNewField')}
@@ -1041,7 +1052,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
               : null}
           </StyledFieldsWrapper>
           <StyledConnectionsWrapper>
-            {size(relations) ? (
+            {!inputsError && !outputsError && size(relations) ? (
               <svg
                 height={
                   Math.max(
@@ -1357,14 +1368,15 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                     lastChildIndex={getLastChildIndex(output, flattenedOutputs) - index}
                     onClick={handleClick('outputs')}
                     onManageClick={() => handleManageClick(output)}
+                    hasError={inputsError || outputsError}
                     t={t}
                   />
                 ))
               : null}
-            {size(flattenedOutputs) === 0 ? (
+            {!outputsError && size(flattenedOutputs) === 0 ? (
               <StyledInfoMessage>{t('MapperNoOutputFields')}</StyledInfoMessage>
             ) : null}
-            {hideOutputSelector && outputOptionProvider?.can_manage_fields && (
+            {!outputsError && hideOutputSelector && outputOptionProvider?.can_manage_fields && (
               <Button
                 fill
                 text={t('AddNewField')}

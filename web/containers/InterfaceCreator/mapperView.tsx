@@ -1,11 +1,12 @@
 import { Callout } from '@blueprintjs/core';
-import { omit, size } from 'lodash';
+import { cloneDeep, omit, size } from 'lodash';
 import React, { FunctionComponent, useContext, useState } from 'react';
 import { useLifecycles, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
+import Spacer from '../../components/Spacer';
 import { AppToaster } from '../../components/Toast';
 import { DraftsContext } from '../../context/drafts';
 import { getDraftId, getTargetFile } from '../../helpers/functions';
@@ -40,7 +41,8 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
   fields,
   showMapperConnections,
   setShowMapperConnections,
-  error,
+  inputsError,
+  outputsError,
   wrongKeysCount,
   qorus_instance,
   changeInitialData,
@@ -81,9 +83,19 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     }
   );
 
+  const fixedOptions = omit(mapper?.options, ['mapper-input', 'mapper-output']);
+  const newMapper = cloneDeep(mapper);
+  newMapper.mapper_options = size(fixedOptions) ? fixedOptions : undefined;
+
+  if (!size(newMapper.mapper_options)) {
+    delete newMapper.mapper_options;
+  }
+
+  console.log(newMapper);
+
   useUpdateEffect(() => {
     if (draft && showMapperConnections) {
-      maybeApplyDraft('mapper', null, mapper);
+      maybeApplyDraft('mapper', null, newMapper);
     }
   }, [draft, showMapperConnections]);
 
@@ -102,10 +114,11 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     }
   }, [JSON.stringify(omit(mapperData, ['isContextLoaded']))]);
 
-  return error ? (
-    <Callout intent="danger">{t(error)}</Callout>
-  ) : (
+  return (
     <>
+      {inputsError && <Callout intent="warning">{t(inputsError)}</Callout>}
+      {outputsError && <Callout intent="warning">{t(outputsError)}</Callout>}
+      {inputsError || outputsError ? <Spacer size={10} /> : null}
       {!showMapperConnections && (
         <CreatorWrapper>
           <InterfaceCreatorPanel
@@ -117,8 +130,8 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
             onSubmit={() => {
               setShowMapperConnections(true);
             }}
-            data={mapper && omit(mapper, ['connections'])}
-            isEditing={isEditing || !!mapper}
+            data={newMapper && omit(newMapper, ['connections'])}
+            isEditing={isEditing || !!newMapper}
           />
         </CreatorWrapper>
       )}

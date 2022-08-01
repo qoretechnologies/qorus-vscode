@@ -75,7 +75,8 @@ export default () =>
       const [mapperKeys, setMapperKeys] = useState<any>(null);
       const [hideInputSelector, setHideInputSelector] = useState<boolean>(false);
       const [hideOutputSelector, setHideOutputSelector] = useState<boolean>(false);
-      const [error, setError] = useState<any>(null);
+      const [inputsError, setInputsError] = useState<any>(null);
+      const [outputsError, setOutputsError] = useState<any>(null);
       const [wrongKeysCount, setWrongKeysCount] = useState<number>(0);
       const [mapperSubmit, setMapperSubmit] = useState<any>(null);
       const [isContextLoaded, setIsContextLoaded] = useState<boolean>(true);
@@ -104,7 +105,8 @@ export default () =>
           setOutputOptionProvider(null);
           setHideInputSelector(false);
           setHideOutputSelector(false);
-          setError(null);
+          setInputsError(null);
+          setOutputsError(null);
           setWrongKeysCount(0);
           setMapperSubmit(null);
         }
@@ -146,7 +148,8 @@ export default () =>
         setOutputOptionProvider(data.outputOptionProvider);
         setHideInputSelector(data.hideInputSelector);
         setHideOutputSelector(data.hideOutputSelector);
-        setError(data.error);
+        setInputsError(data.inputsError || data.error);
+        setOutputsError(data.outputsError || data.error);
         setContextInputs(data.contextInputs);
         setIsContextLoaded(true);
       };
@@ -229,7 +232,7 @@ export default () =>
         // Get the rules for the given provider
         const { url, suffix } = providers[type];
         // Build the URL
-        const newUrl: string = `${url}/${name}${suffix}${addTrailingSlash(path)}/mapper_keys`;
+        const newUrl = `${url}/${name}${suffix}${addTrailingSlash(path)}/mapper_keys`;
         // Build the URL based on the provider type
         return newUrl.replace('/request', '').replace('/response', '');
       };
@@ -303,7 +306,15 @@ export default () =>
         const inputs = await props.fetchData(inputUrl);
         // If one of the connections is down
         if (inputs.error) {
-          setError(inputs.error && 'InputConnError');
+          setInputsError(inputs.error && 'InputConnError');
+          // Save the inputs & outputs
+          setInputs(
+            formatFields(
+              insertCustomFields({}, mapper.mapper_options['mapper-input']['custom-fields'] || {})
+            )
+          );
+          // Cancel loading
+          setInputsLoading(false);
           return;
         }
         // Save the fields
@@ -335,7 +346,13 @@ export default () =>
         // If one of the connections is down
         if (outputs.error) {
           console.error(outputs);
-          setError(outputs.error && 'OutputConnError');
+          setOutputs(
+            formatFields(
+              insertCustomFields({}, mapper.mapper_options['mapper-output']['custom-fields'] || {})
+            )
+          );
+          // Cancel loading
+          setOutputsLoading(false);
           return;
         }
         // Do not fetch mapper keys for types
@@ -346,7 +363,6 @@ export default () =>
           // Check if mapper keys call was good
           if (resp.error) {
             console.error(resp);
-            setError('MapperKeysFail');
             return;
           }
           // Save the mapper keys
@@ -701,7 +717,10 @@ export default () =>
             setHideOutputSelector,
             resetMapper,
             getUrlFromProvider,
-            error,
+            inputsError,
+            outputsError,
+            setInputsError,
+            setOutputsError,
             wrongKeysCount,
             setMapper,
             mapperSubmit,
