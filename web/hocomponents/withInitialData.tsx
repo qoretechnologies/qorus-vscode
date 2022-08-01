@@ -65,7 +65,7 @@ export default () =>
             return null;
           });
 
-          if (!data.tab) {
+          if (!data?.tab) {
             data.tab = 'ProjectConfig';
           }
 
@@ -83,7 +83,7 @@ export default () =>
           Messages.RETURN_INTERFACE_DATA,
           ({ data }) => {
             // only set initial data if we are switching tabs
-            if (data.tab) {
+            if (data?.tab) {
               setInitialData((current) => ({
                 ...current,
                 ...data,

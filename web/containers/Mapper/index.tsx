@@ -760,7 +760,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     const mapperOptions: { [key: string]: any } = mapper.mapper_options;
     // Add the input & output providers
     mapper.mapper_options = {
-      ...mapperOptions,
+      ...(mapperOptions || {}),
       'mapper-input': {
         ...inputOptionProvider,
         'custom-fields': getCustomFields('inputs'),
