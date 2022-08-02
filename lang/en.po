@@ -2373,10 +2373,10 @@ msgid "AddInitialConnector"
 msgstr "Add initial connector"
 
 msgid "InputConnError"
-msgstr "Fetching input provider data failed, please check the input connection status."
+msgstr "Fetching input provider data failed, please check the input connection status. You won't be able to edit the input fields for this Mapper. You can, however, replace the input data provider."
 
 msgid "OutputConnError"
-msgstr "Fetching output provider data failed, please check the output connection status."
+msgstr "Fetching output provider data failed, please check the output connection status. You won't be able to edit the output fields for this Mapper. You can, however, replace the output data provider."
 
 msgid "IncorrectKeysRemoved"
 msgstr "incorrect keys were removed from the mapper."
