@@ -19,7 +19,6 @@ import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsu
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
-import TinyGrid from '../../images/TinyGrid';
 import { StyledFieldsWrapper, StyledMapperWrapper } from '../Mapper';
 import MapperInput from '../Mapper/input';
 import MapperFieldModal from '../Mapper/modal';
@@ -370,7 +369,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
           padding: 10,
           flex: 1,
           overflow: 'auto',
-          background: `url(${TinyGrid})`,
+          background: `url(${initialData.image_path}/tiny_grid.png)`,
         }}
       >
         <StyledMapperWrapper style={{ justifyContent: 'center', paddingTop: '10px' }}>

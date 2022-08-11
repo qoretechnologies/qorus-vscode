@@ -35,7 +35,6 @@ import {
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
-import TinyGrid from '../../../images/TinyGrid';
 import { StyledCompatibilityLoader, StyledToolbarWrapper } from '../fsm';
 import { calculateFontSize } from '../fsm/state';
 import PipelineElementDialog from './elementDialog';
@@ -79,7 +78,7 @@ const StyledDiagramWrapper = styled.div<{ path: string }>`
   width: 100%;
   flex: 1;
   position: relative;
-  background: ${({ path }) => `url(${TinyGrid})`};
+  background: ${({ path }) => `url(${path}/tiny_grid.png)`};
 `;
 
 const StyledNodeLabel = styled.div<{ isValid?: boolean }>`

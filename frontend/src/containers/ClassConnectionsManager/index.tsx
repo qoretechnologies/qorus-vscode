@@ -26,7 +26,6 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMessageHandler, { TMessageListener } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
-import TinyGrid from '../../images/TinyGrid';
 import { StyledCompatibilityLoader } from '../InterfaceCreator/fsm';
 import { MethodSelector, PanelWrapper } from '../InterfaceCreator/servicesView';
 import ClassConnectionsDiagram from './diagram';
@@ -452,7 +451,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         <Content>
           <ContentWrapper
             style={{
-              background: `url(${TinyGrid})`,
+              background: `url(${initialData.image_path}/tiny_grid.png)`,
               padding: 10,
               position: 'relative',
             }}

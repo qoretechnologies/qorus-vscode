@@ -28,7 +28,6 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
-import TinyGrid from '../../images/TinyGrid';
 import MapperInput from './input';
 import MappingModal, { getKeyType } from './mappingModal';
 import MapperFieldModal from './modal';
@@ -914,7 +913,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
           padding: 10,
           flex: 1,
           overflow: 'auto',
-          background: `url(${TinyGrid})`,
+          background: `url(${initialData.image_path}/tiny_grid.png)`,
         }}
       >
         <StyledMapperWrapper>

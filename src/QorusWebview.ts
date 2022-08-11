@@ -69,7 +69,7 @@ class QorusWebview {
       action: 'return-initial-data',
       data: {
         path: web_path,
-        image_path: `${scheme}://${authority}${path}/frontend`,
+        image_path: `${scheme}://${authority}${path}`,
         qorus_instance: qorus_request.activeQorusInstance(),
         ...this.initial_data,
       },
@@ -103,37 +103,6 @@ class QorusWebview {
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
-  }
-
-  private _getHtmlForWebview() {
-    const manifest = require(path.join(web_path, 'asset-manifest.json'));
-    const mainScript = manifest.files['main.js'];
-    //const mainStyle = manifest['main.css'];
-    console.log(manifest, mainScript);
-    const scriptPathOnDisk = vscode.Uri.file(path.join(web_path, mainScript));
-    const scriptUri = scriptPathOnDisk.with({ scheme: 'vscode-resource' });
-    // const stylePathOnDisk = vscode.Uri.file(path.join(web_path, mainStyle));
-    // const styleUri = stylePathOnDisk.with({ scheme: 'vscode-resource' });
-
-    // Use a nonce to whitelist which scripts can be run
-    const nonce = this.getNonce();
-
-    return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="utf-8">
-				<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
-				<meta name="theme-color" content="#000000">
-				<title>React App</title>
-				<meta http-equiv="Content-Security-Policy" content="style-src vscode-resource: 'unsafe-inline' http: https: data:;">
-			</head>
-			<body>
-				<noscript>You need to enable JavaScript to run this app.</noscript>
-				<div id="root"></div>
-
-				<script src="${scriptUri}"></script>
-			</body>
-			</html>`;
   }
 
   open(initial_data: any = {}, other_params: any = {}) {
@@ -171,11 +140,8 @@ class QorusWebview {
       return;
     }
 
-    console.log('AHALAOLFJIOASHJFGJKLASHJGJKLASHGJKLAHSJKGh');
-
-    vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(
+    vscode.workspace.openTextDocument(path.join(public_path, 'index.html')).then(
       (doc) => {
-        console.log(doc);
         this.panel = vscode.window.createWebviewPanel(
           'qorusWebview',
           t`QorusWebviewTitle`,
@@ -194,10 +160,18 @@ class QorusWebview {
           dark: vscode.Uri.file(path.join(images_path, 'qorus_logo_28.png')),
         };
 
-        const uri = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path)) as any;
-        const html = doc.getText().replace(new RegExp(`/${web_path}/g`), uri);
-        this.panel.webview.html = html.replace(/%URL%/g, uri);
-        //this.panel.webview.html = this._getHtmlForWebview();
+        const uri = vscode.Uri.file(web_path).with({ scheme: 'vscode-resource' });
+
+        let html = doc.getText().replace(/%PUBLIC_URL%/g, uri.toString());
+        html = html.replace(
+          /%MAIN_SCRIPT_NAME%/g,
+          path.join(uri.toString(), 'static', 'js', 'bundle.js')
+        );
+        html = html.replace(
+          /%MAIN_CSS_NAME%/g,
+          path.join(uri.toString(), 'static', 'css', 'bundle.css')
+        );
+        this.panel.webview.html = html.replace(/%URL%/g, uri.toString());
 
         this.config_file_watcher = vscode.workspace.createFileSystemWatcher(
           '**/' + config_filename

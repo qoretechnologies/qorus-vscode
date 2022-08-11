@@ -18,7 +18,6 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
-import TinyGrid from '../../images/TinyGrid';
 import ConfigItemManager from '../ConfigItemManager';
 import ManageButton from '../ConfigItemManager/manageButton';
 import InterfaceCreatorPanel from './panel';
@@ -144,7 +143,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
             <ContentWrapper
               scrollX
               style={{
-                background: `url(${TinyGrid})`,
+                background: `url(${initialData.image_path}/tiny_grid.png)`,
                 paddingRight: 0,
               }}
             >

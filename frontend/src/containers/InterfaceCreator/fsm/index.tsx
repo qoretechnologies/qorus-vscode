@@ -47,7 +47,6 @@ import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
-import TinyGrid from '../../../images/TinyGrid';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMInitialOrderDialog from './initialOrderDialog';
 import FSMState from './state';
@@ -160,7 +159,7 @@ const StyledDiagramWrapper = styled.div`
 const StyledDiagram = styled.div<{ path: string }>`
   width: ${DIAGRAM_SIZE}px;
   height: ${DIAGRAM_SIZE}px;
-  background: ${({ path }) => `url(${TinyGrid})`};
+  background: ${({ path }) => `url(${path}/tiny_grid.png)`};
   display: flex;
   align-items: center;
   justify-content: center;
