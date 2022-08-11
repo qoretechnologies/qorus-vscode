@@ -1,7 +1,7 @@
 import { Button, Callout, ControlGroup } from '@blueprintjs/core';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
-import { IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { IFieldChange } from '../../components/FieldWrapper';
 import {
   getTypeFromValue,
   getValueOrDefaultValue,

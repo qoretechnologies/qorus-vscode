@@ -2,7 +2,7 @@ import { Callout } from '@blueprintjs/core';
 import isArray from 'lodash/isArray';
 import React, { useContext } from 'react';
 import useMount from 'react-use/lib/useMount';
-import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { TextContext } from '../../context/text';
 import { postMessage } from '../../hocomponents/withMessageHandler';
 import { ApiManager } from './apiManager';

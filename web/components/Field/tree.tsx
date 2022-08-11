@@ -11,7 +11,7 @@ import {
   FieldInputWrapper,
   FieldWrapper,
   IFieldChange,
-} from '../../containers/InterfaceCreator/panel';
+} from '../../components/FieldWrapper';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';

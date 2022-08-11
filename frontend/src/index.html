@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src 'none'; img-src {{ csp }} http:; script-src {{ csp }} 'unsafe-eval' http:; style-src {{ csp }} 'unsafe-inline'; font-src {{ csp }} http:; connect-src {{ csp }} http:"
+        />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+        <link rel="stylesheet" href="{{ path }}/css/vendors.css" />
+        <link rel="stylesheet" href="{{ path }}/css/webview.css" />
+    </head>
+    <body>
+        <div id="svg-defs" style="position: absolute; left: -1000px; top: -1000px;">
+            <svg>
+                <defs>
+                    <marker
+                        id="arrowhead"
+                        markerUnits="userSpaceOnUse"
+                        markerWidth="30"
+                        markerHeight="30"
+                        refX="20"
+                        refY="10"
+                        orient="auto"
+                    >
+                        <path d="M2,2 L2,20 L20,10 L2,2" fill="#a9a9a9" />
+                    </marker>
+                    <marker
+                        id="arrowheaderror"
+                        markerUnits="userSpaceOnUse"
+                        markerWidth="30"
+                        markerHeight="30"
+                        refX="20"
+                        refY="10"
+                        orient="auto"
+                    >
+                        <path d="M2,2 L2,20 L20,10 L2,2" fill="red" />
+                    </marker>
+                    <marker
+                        id="arrowheadtrue"
+                        markerUnits="userSpaceOnUse"
+                        markerWidth="30"
+                        markerHeight="30"
+                        refX="20"
+                        refY="10"
+                        orient="auto"
+                    >
+                        <path d="M2,2 L2,20 L20,10 L2,2" fill="#7fba27" />
+                    </marker>
+                    <marker
+                        id="arrowheadfalse"
+                        markerUnits="userSpaceOnUse"
+                        markerWidth="30"
+                        markerHeight="30"
+                        refX="20"
+                        refY="10"
+                        orient="auto"
+                    >
+                        <path d="M2,2 L2,20 L20,10 L2,2" fill="#d13913" />
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+        <div id="root"></div>
+        <div id="toastContainer"></div>
+        <script crossorigin="anonymous" src="{{ path }}/vendors.bundle.js"></script>
+        <script crossorigin="anonymous" src="{{ path }}/webview.bundle.js"></script>
+    </body>
+</html>

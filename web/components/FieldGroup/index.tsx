@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { FieldInputWrapper, FieldWrapper } from '../../containers/InterfaceCreator/panel';
+import { FieldInputWrapper } from '../../components/FieldWrapper';
+//import { FieldWrapper } from '../FieldWrapper';
 
 export interface IFieldGroupProps {
   children: any;
@@ -11,7 +12,7 @@ const StyledFieldGroup = styled.div<{ transparent: boolean }>`
   display: flex;
   justify-content: space-between;
 
-  // If transparent is not set
+  // If transparent is not setag
   ${({ transparent }) =>
     !transparent &&
     css`
@@ -20,7 +21,7 @@ const StyledFieldGroup = styled.div<{ transparent: boolean }>`
       }
     `}
 
-  ${FieldWrapper} {
+  .field-wrapper {
     flex: 1;
     background-color: transparent;
     &:not(:last-child) {

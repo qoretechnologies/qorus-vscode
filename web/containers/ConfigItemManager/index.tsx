@@ -5,13 +5,13 @@ import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
+import InterfaceCreatorPanel from '../../components/FieldWrapper';
 import { Messages } from '../../constants/messages';
 import withMessageHandler, {
   TMessageListener,
   TPostMessage,
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
-import InterfaceCreatorPanel from '../InterfaceCreator/panel';
 import GlobalTable from './globalTable';
 import ConfigItemsTable from './table';
 

@@ -2,7 +2,7 @@ import { Classes, TextArea } from '@blueprintjs/core';
 import React, { ChangeEvent, FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import { TTranslator } from '../../App';
-import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { IField, IFieldChange } from '../../components/FieldWrapper';
 import {
   addMessageListener,
   postMessage,

@@ -1,0 +1,121 @@
+.datepicker-wrapper {
+  display: inline-block;
+  position: relative;
+
+  &.toolbar-item {
+    float: left;
+  }
+}
+
+.datepicker-group {
+  display: inline;
+
+  .input-group {
+    width: auto;
+  }
+}
+
+.datepicker {
+  color: #000;
+  // position: absolute;
+  //background-color: #fff;
+  // border-radius: 5px;
+  // border: 1px solid #eee;
+  // box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  // z-index: 1051;
+  padding: 10px;
+  // top: 40px;
+  // left: 0;
+  width: 220px;
+  font-size: 12px;
+
+  .form-control {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .hours {
+    margin-bottom: 15px;
+    overflow: hidden;
+  }
+
+  .calendar {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .table {
+    margin-bottom: 10px;
+
+    td,
+    thead th {
+      font-size: 10px;
+      border: none;
+      border-radius: 5px;
+      color: #000;
+      padding: 0;
+      line-height: 2;
+      width: 30px;
+      text-align: center;
+    }
+
+    th {
+      &.month {
+        cursor: pointer;
+      }
+    }
+
+    td {
+      &:not(.disabled) {
+        cursor: pointer;
+      }
+
+      &.disabled {
+        color: #ddd;
+      }
+
+      &.active {
+        background-color: $qore-cobalt;
+        color: #fff;
+      }
+
+      &.today:not(.active) {
+        background-color: $bgcolor;
+      }
+
+      &.new,
+      &.old {
+        color: #aaa;
+      }
+    }
+
+    td:not(.disabled),
+    th.month {
+      &:not(.active):not(.today):hover {
+        background-color: #f5f5f5;
+      }
+    }
+  }
+
+  .table.table-condensed thead th {
+    padding: 4px 5px;
+  }
+}
+
+.date-controls {
+  float: left;
+}
+
+.pt-input-group.pt-small,
+.pt-control-group.pt-small {
+  .pt-input {
+    padding: 0 4px;
+    height: 24px;
+    line-height: 24px;
+  }
+}
+
+.datepicker-submit {
+  margin-top: 5px;
+  clear: both;
+}

@@ -11,6 +11,7 @@ import styled, { css } from 'styled-components';
 import { TTranslator } from '../../App';
 import { getUrlFromProvider as getRealUrlFromProvider } from '../../components/Field/connectors';
 import Options from '../../components/Field/systemOptions';
+import { ActionsWrapper, IField } from '../../components/FieldWrapper';
 import SubField from '../../components/SubField';
 import { AppToaster } from '../../components/Toast';
 import { Messages } from '../../constants/messages';
@@ -27,7 +28,6 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
-import { ActionsWrapper, IField } from '../InterfaceCreator/panel';
 import MapperInput from './input';
 import MappingModal, { getKeyType } from './mappingModal';
 import MapperFieldModal from './modal';

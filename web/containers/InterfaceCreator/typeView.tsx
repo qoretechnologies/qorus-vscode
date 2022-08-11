@@ -9,6 +9,7 @@ import FileField from '../../components/Field/fileString';
 import String from '../../components/Field/string';
 import Suggest from '../../components/Field/suggest';
 import FieldLabel from '../../components/FieldLabel';
+import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../../components/FieldWrapper';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData } from '../../context/drafts';
 import { deleteDraft, getDraftId, getTargetFile, hasValue } from '../../helpers/functions';
@@ -21,7 +22,6 @@ import withTextContext from '../../hocomponents/withTextContext';
 import { StyledFieldsWrapper, StyledMapperWrapper } from '../Mapper';
 import MapperInput from '../Mapper/input';
 import MapperFieldModal from '../Mapper/modal';
-import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from './panel';
 
 export const formatFields = (fields) => {
   const newFields = reduce(

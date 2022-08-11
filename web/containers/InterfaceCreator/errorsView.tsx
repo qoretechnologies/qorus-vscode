@@ -6,13 +6,16 @@ import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
+import InterfaceCreatorPanel, {
+  ActionsWrapper,
+  ContentWrapper,
+} from '../../components/FieldWrapper';
 import SidePanel from '../../components/SidePanel';
 import { DraftsContext } from '../../context/drafts';
 import { ErrorsContext } from '../../context/errors';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
-import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper } from './panel';
 
 let hasAllMethodsLoaded: boolean;
 

@@ -8,6 +8,11 @@ import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
 import StepDiagram from '../../components/Diagram';
+import InterfaceCreatorPanel, {
+  ActionsWrapper,
+  ContentWrapper,
+  IField,
+} from '../../components/FieldWrapper';
 import { Messages } from '../../constants/messages';
 import { DraftsContext } from '../../context/drafts';
 import { deleteDraft, getDraftId, getTargetFile } from '../../helpers/functions';
@@ -19,7 +24,6 @@ import withStepsConsumer from '../../hocomponents/withStepsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
 import ConfigItemManager from '../ConfigItemManager';
 import ManageButton from '../ConfigItemManager/manageButton';
-import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper, IField } from './panel';
 
 export const CreatorWrapper = styled.div`
   display: flex;

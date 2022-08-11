@@ -5,6 +5,12 @@ import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
 import SelectField from '../../../components/Field/select';
 import FieldLabel from '../../../components/FieldLabel';
+import {
+  ActionsWrapper,
+  ContentWrapper,
+  FieldInputWrapper,
+  FieldWrapper,
+} from '../../../components/FieldWrapper';
 import Spacer from '../../../components/Spacer';
 import { Messages } from '../../../constants/messages';
 import { TextContext } from '../../../context/text';
@@ -13,7 +19,6 @@ import { validateField } from '../../../helpers/validations';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
 import ConfigItemManager from '../../ConfigItemManager';
 import ManageButton from '../../ConfigItemManager/manageButton';
-import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 
 export const CompatibilityCheckIndicator = ({ isCompatible, isCheckingCompatibility, title }) => {
   const t = useContext(TextContext);

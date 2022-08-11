@@ -17,6 +17,7 @@ import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
 import FieldLabel from '../../../components/FieldLabel';
+import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import Loader from '../../../components/Loader';
 import { Messages } from '../../../constants/messages';
 import { ContextMenuContext } from '../../../context/contextMenu';
@@ -36,7 +37,6 @@ import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsCo
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
 import { StyledCompatibilityLoader, StyledToolbarWrapper } from '../fsm';
 import { calculateFontSize } from '../fsm/state';
-import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
 
 export interface IPipelineViewProps {

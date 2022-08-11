@@ -7,13 +7,16 @@ import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { TApiManagerEndpoint } from '../../components/Field/apiManager';
+import InterfaceCreatorPanel, {
+  ActionsWrapper,
+  ContentWrapper,
+} from '../../components/FieldWrapper';
 import SidePanel from '../../components/SidePanel';
 import { DraftsContext } from '../../context/drafts';
 import { MethodsContext } from '../../context/methods';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
-import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper } from './panel';
 
 let hasAllMethodsLoaded: boolean;
 

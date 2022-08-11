@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import compose from 'recompose/compose';
 import Box from '../../components/Box';
+import InterfaceCreatorPanel from '../../components/FieldWrapper';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
@@ -9,7 +10,6 @@ import ErrorsView from './errorsView';
 import FSMView from './fsm';
 import LibraryView from './libraryView';
 import MapperView from './mapperView';
-import InterfaceCreatorPanel from './panel';
 import Pipeline from './pipeline';
 import ServicesView from './servicesView';
 import Tab from './tab';

@@ -6,6 +6,7 @@ import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
+import InterfaceCreatorPanel, { IField } from '../../components/FieldWrapper';
 import Spacer from '../../components/Spacer';
 import { AppToaster } from '../../components/Toast';
 import { DraftsContext } from '../../context/drafts';
@@ -15,7 +16,6 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
 import MapperCreator from '../Mapper';
-import InterfaceCreatorPanel, { IField } from './panel';
 
 export const CreatorWrapper = styled.div`
   display: flex;

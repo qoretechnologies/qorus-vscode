@@ -1,7 +1,7 @@
 import { cloneDeep, every, first, last, reduce, values } from 'lodash';
 import React, { FunctionComponent, useState } from 'react';
 import { isArray } from 'util';
-import { IField } from '../containers/InterfaceCreator/panel';
+import { IField } from '../components/FieldWrapper';
 import { FieldContext } from '../context/fields';
 import { maybeSendOnChangeEvent } from '../helpers/common';
 import { validateField } from '../helpers/validations';

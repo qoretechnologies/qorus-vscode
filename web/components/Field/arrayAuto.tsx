@@ -5,7 +5,7 @@ import size from 'lodash/size';
 import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import { IField } from '.';
-import { IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { IFieldChange } from '../../components/FieldWrapper';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import AutoField from './auto';

@@ -9,6 +9,12 @@ import Field from '../../../components/Field';
 import { getProtocol } from '../../../components/Field/urlField';
 import FieldActions from '../../../components/FieldActions';
 import FieldLabel from '../../../components/FieldLabel';
+import {
+  ActionsWrapper,
+  FieldInputWrapper,
+  FieldWrapper,
+  IField,
+} from '../../../components/FieldWrapper';
 import Loader from '../../../components/Loader';
 import { Messages } from '../../../constants/messages';
 import { DraftsContext, IDraftData } from '../../../context/drafts';
@@ -18,7 +24,6 @@ import { TextContext } from '../../../context/text';
 import { deleteDraft, getDraftId, getTargetFile, hasValue } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import { addMessageListener, postMessage } from '../../../hocomponents/withMessageHandler';
-import { ActionsWrapper, FieldInputWrapper, FieldWrapper, IField } from '../panel';
 
 export interface IConnection {
   target_dir: string;

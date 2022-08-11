@@ -2,13 +2,13 @@ import { Button, Callout, Classes, ControlGroup, InputGroup } from '@blueprintjs
 import React, { FunctionComponent, useContext, useState } from 'react';
 import compose from 'recompose/compose';
 import { TTranslator } from '../../App';
-import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
 import {
   FieldInputWrapper,
   FieldWrapper,
   IField,
   IFieldChange,
-} from '../../containers/InterfaceCreator/panel';
+} from '../../components/FieldWrapper';
+import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
 import { MethodsContext } from '../../context/methods';
 import { validateField } from '../../helpers/validations';
 import withMessageHandler, {

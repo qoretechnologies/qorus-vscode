@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { IField } from '.';
 import { TTranslator } from '../../App';
-import { IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { IFieldChange } from '../../components/FieldWrapper';
 import { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import String from './string';
 import TreeField from './tree';

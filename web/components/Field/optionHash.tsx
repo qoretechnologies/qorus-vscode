@@ -3,7 +3,7 @@ import size from 'lodash/size';
 import React, { FunctionComponent, useContext } from 'react';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
-import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { InitialContext } from '../../context/init';
 import withTextContext from '../../hocomponents/withTextContext';
 import AutoField from './auto';

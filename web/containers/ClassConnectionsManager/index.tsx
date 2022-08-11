@@ -14,6 +14,7 @@ import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
 import String from '../../components/Field/string';
+import { ActionsWrapper, ContentWrapper, IField } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
 import { Messages } from '../../constants/messages';
@@ -26,7 +27,6 @@ import withMessageHandler, { TMessageListener } from '../../hocomponents/withMes
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
 import { StyledCompatibilityLoader } from '../InterfaceCreator/fsm';
-import { ActionsWrapper, ContentWrapper, IField } from '../InterfaceCreator/panel';
 import { MethodSelector, PanelWrapper } from '../InterfaceCreator/servicesView';
 import ClassConnectionsDiagram from './diagram';
 

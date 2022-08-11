@@ -4,7 +4,7 @@ import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import { isNull } from 'util';
 import { TTranslator } from '../../App';
-import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { getValueOrDefaultValue } from '../../helpers/validations';
 import withMessageHandler, {
   TMessageListener,

@@ -4,14 +4,14 @@ import classNames from 'classnames';
 import { size } from 'lodash';
 import React, { Component, useContext, useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
-import { Messages } from '../../constants/messages';
-import { calculateFontSize } from '../../containers/InterfaceCreator/fsm/state';
 import {
   ActionsWrapper,
   ContentWrapper,
   FieldInputWrapper,
   FieldWrapper,
-} from '../../containers/InterfaceCreator/panel';
+} from '../../components/FieldWrapper';
+import { Messages } from '../../constants/messages';
+import { calculateFontSize } from '../../containers/InterfaceCreator/fsm/state';
 import { ContextMenuContext } from '../../context/contextMenu';
 import { FieldContext } from '../../context/fields';
 import { InitialContext } from '../../context/init';
