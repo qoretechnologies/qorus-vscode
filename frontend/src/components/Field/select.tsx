@@ -448,7 +448,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                       }}
                                       hoverOpenDelay={500}
                                       interactionKind="hover"
-                                      content={<ReactMarkdown source={item.desc} />}
+                                      content={<ReactMarkdown>{item.desc}</ReactMarkdown>}
                                     >
                                       <StyledDialogSelectItem
                                         className={item.name === value ? 'selected' : ''}
@@ -467,7 +467,9 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                         </h5>
 
                                         <p className={Classes.TEXT_MUTED}>
-                                          <ReactMarkdown source={item.desc || t('NoDescription')} />
+                                          <ReactMarkdown>
+                                            {item.desc || t('NoDescription')}
+                                          </ReactMarkdown>
                                         </p>
                                       </StyledDialogSelectItem>
                                     </Tooltip>

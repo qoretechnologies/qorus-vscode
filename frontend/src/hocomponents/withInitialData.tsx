@@ -1,5 +1,6 @@
 import set from 'lodash/set';
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import shortid from 'shortid';
@@ -56,14 +57,16 @@ export default () =>
 
       useEffect(() => {
         const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
-          setInitialData({});
+          flushSync(() => setInitialData({}));
 
           let currentInitialData;
 
-          setInitialData((current) => {
-            currentInitialData = { ...current };
-            return null;
-          });
+          flushSync(() =>
+            setInitialData((current) => {
+              currentInitialData = { ...current };
+              return null;
+            })
+          );
 
           if (!data?.tab) {
             data.tab = 'ProjectConfig';
@@ -73,10 +76,12 @@ export default () =>
             setDraftData(data.draftData);
           }
 
-          setInitialData({
-            ...currentInitialData,
-            ...data,
-          });
+          flushSync(() =>
+            setInitialData({
+              ...currentInitialData,
+              ...data,
+            })
+          );
         });
 
         const interfaceDataListener = addMessageListener(
@@ -307,6 +312,8 @@ export default () =>
       if (!initialData) {
         return null;
       }
+
+      console.log('INITIAL DATA', initialData);
 
       return (
         <InitialContext.Provider

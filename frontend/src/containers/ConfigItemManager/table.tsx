@@ -341,7 +341,7 @@ let ItemsTable: Function = ({
                           definitionsOnly || disableAdding ? (groupName ? 6 : 7) : groupName ? 7 : 8
                         }
                       >
-                        <ReactMarkdown source={item.description} />
+                        <ReactMarkdown>{item.description}</ReactMarkdown>
                       </Td>
                     </Tr>
                   )}

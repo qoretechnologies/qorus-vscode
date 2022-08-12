@@ -13,7 +13,7 @@ import {
   reduce,
   size,
   uniqBy,
-  upperFirst,
+  upperFirst
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
@@ -36,7 +36,7 @@ import {
   FieldWrapper,
   IField,
   IInterfaceCreatorPanel,
-  SearchWrapper,
+  SearchWrapper
 } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
@@ -52,7 +52,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, {
   addMessageListener,
-  postMessage,
+  postMessage
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -131,6 +131,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   const initialData = useContext(InitialContext);
   const { maybeApplyDraft, draft } = useContext<IDraftsContext>(DraftsContext);
   const originalData = useRef(data);
+
+  console.log('DATA IN PANEL', data);
 
   useEffect(() => {
     originalData.current = data;
@@ -422,7 +424,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       // Remove the message listener if it exists
       messageListenerHandler();
     };
-  }, [activeId, interfaceId, initialInterfaceId]);
+  }, [activeId, interfaceId, initialInterfaceId, data]);
 
   const resetLocalFields: (newActiveId?: number) => void = async (newActiveId) => {
     resetAllInterfaceData(type, true);

@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useDrag } from 'react-dnd';
 import styled from 'styled-components';
 import { StyledMapperField } from '.';
@@ -45,6 +45,7 @@ const MapperInput: FC<IMapperInputProps> = ({
   hasError,
 }) => {
   const [{ opacity }, dragRef] = useDrag({
+    type: 'input',
     item: { type: 'input', types, id: path, usesContext, isWholeInput },
     collect: (monitor) => ({
       opacity: monitor.isDragging() ? 0.2 : 1,

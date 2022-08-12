@@ -195,7 +195,7 @@ export default class ConfigItemsModal extends Component {
         <StyledDialogBody style={{ flexFlow: 'column' }}>
           {item && item.description && (
             <Callout icon="info-sign" title={t('Description')}>
-              <ReactMarkdown source={item.description} />
+              <ReactMarkdown>{item.description}</ReactMarkdown>
               --
               <p>
                 {' '}

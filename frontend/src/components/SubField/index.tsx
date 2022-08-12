@@ -50,7 +50,7 @@ export const DescriptionField = ({ desc }: { desc?: string }) =>
       style={{ display: 'block', marginTop: '10px' }}
     >
       <StyledSubFieldMarkdown>
-        <ReactMarkdown source={desc} />
+        <ReactMarkdown>{desc}</ReactMarkdown>
       </StyledSubFieldMarkdown>
     </blockquote>
   ) : null;
