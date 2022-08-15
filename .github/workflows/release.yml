@@ -29,7 +29,8 @@ jobs:
         id: install_modules
         run: |
           npm install
-          cd frontend && yarn install
+          cd frontend
+          yarn install
       - name: Publish
         id: publish
         run: ./node_modules/.bin/vsce publish
