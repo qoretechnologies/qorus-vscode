@@ -19,7 +19,8 @@ import { qorus_request } from './QorusRequest';
 import * as msg from './qorus_message';
 import { deepCopy } from './qorus_utils';
 
-const web_path = path.join(__dirname, '..', 'dist');
+const web_path = path.join(__dirname, '..', 'frontend', 'build');
+const public_path = path.join(__dirname, '..', 'frontend', 'public');
 const images_path = path.join(__dirname, '..', 'images');
 
 export const unsavedFilesLocation = {
@@ -95,6 +96,15 @@ class QorusWebview {
     }
   };
 
+  private getNonce() {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0; i < 32; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+  }
+
   open(initial_data: any = {}, other_params: any = {}) {
     const project: QorusProject = projects.getProject();
 
@@ -130,7 +140,7 @@ class QorusWebview {
       return;
     }
 
-    vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(
+    vscode.workspace.openTextDocument(path.join(public_path, 'index.html')).then(
       (doc) => {
         this.panel = vscode.window.createWebviewPanel(
           'qorusWebview',
@@ -141,6 +151,7 @@ class QorusWebview {
             retainContextWhenHidden: true,
             enableCommandUris: true,
             enableFindWidget: true,
+            localResourceRoots: [vscode.Uri.file(path.join(web_path))],
           }
         );
 
@@ -149,9 +160,18 @@ class QorusWebview {
           dark: vscode.Uri.file(path.join(images_path, 'qorus_logo_28.png')),
         };
 
-        const uri = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path)) as unknown;
-        let html = doc.getText().replace(/{{ path }}/g, uri as string);
-        this.panel.webview.html = html.replace(/{{ csp }}/g, this.panel.webview.cspSource);
+        const uri = vscode.Uri.file(web_path).with({ scheme: 'vscode-resource' });
+
+        let html = doc.getText().replace(/%PUBLIC_URL%/g, uri.toString());
+        html = html.replace(
+          /%MAIN_SCRIPT_NAME%/g,
+          path.join(uri.toString(), 'static', 'js', 'bundle.js')
+        );
+        html = html.replace(
+          /%MAIN_CSS_NAME%/g,
+          path.join(uri.toString(), 'static', 'css', 'bundle.css')
+        );
+        this.panel.webview.html = html.replace(/%URL%/g, uri.toString());
 
         this.config_file_watcher = vscode.workspace.createFileSystemWatcher(
           '**/' + config_filename

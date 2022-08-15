@@ -3,7 +3,7 @@ stages:
 
 uitest:
   stage: build
-  image: alpine:3.10
+  image: alpine:3.16
   tags:
     - docker-exec
     - uitest
@@ -62,7 +62,7 @@ uitest:
 
 package_build:
   stage: build
-  image: alpine:3.10
+  image: alpine:3.16
   tags:
     - docker-exec
   artifacts:
@@ -72,8 +72,9 @@ package_build:
     when: on_success
     expire_in: 2 day
   script:
-    - apk add git nodejs npm
+    - apk add git nodejs npm yarn
     - npm -g i vsce@1.100.2
     - npm install
-    - npm run build
-    - vsce package --no-yarn
+    - cd frontend && yarn install
+    - yarn build
+    - cd .. && vsce package --no-yarn
