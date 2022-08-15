@@ -72,7 +72,7 @@ package_build:
     when: on_success
     expire_in: 2 day
   script:
-    - apk add git nodejs npm
+    - apk add git nodejs npm yarn
     - npm -g i vsce@1.100.2
     - npm install
     - npm run build
