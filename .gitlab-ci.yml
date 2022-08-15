@@ -75,5 +75,6 @@ package_build:
     - apk add git nodejs npm yarn
     - npm -g i vsce@1.100.2
     - npm install
+    - cd frontend && yarn install
     - npm run build
     - vsce package --no-yarn
