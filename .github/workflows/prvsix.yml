@@ -29,7 +29,11 @@ jobs:
         id: install_modules
         run: |
           npm install
+          cd frontend && yarn install
           cd frontend && yarn build
+      - name: Publish
+        id: publish
+        run: ./node_modules/.bin/vsce package --no-yarn
       - uses: actions/upload-artifact@v3
         with:
           name: IDE v${{ steps.save_release_version.outputs.version }}
