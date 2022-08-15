@@ -1736,7 +1736,7 @@
     "swagger-object-validator": "^1.1.7",
     "ttag": "^1.7.18",
     "url-join": "^4.0.1",
-    "url-parse": "^1.5.3",
+    "url-parse": "^1.5.9",
     "urldecode": "^1.0.1",
     "urlencode": "^1.1.0",
     "vscode-languageserver-types": "^3.14",
