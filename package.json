@@ -1726,7 +1726,7 @@
     "js-yaml": "^3.13.1",
     "markdown-it": "^11.0.0",
     "md5": "^2.3.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "os-tmpdir": "^2.0.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
