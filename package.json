@@ -1724,7 +1724,7 @@
     "hoist-non-react-statics": "^3.3.2",
     "java-parser": "^0.8.0",
     "js-yaml": "^3.13.1",
-    "markdown-it": "^11.0.0",
+    "markdown-it": "^12.3.2",
     "md5": "^2.3.0",
     "moment": "^2.24.0",
     "os-tmpdir": "^2.0.0",
