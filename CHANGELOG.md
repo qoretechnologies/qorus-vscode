@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 3.8.0
+
+#### Bug fixes
+
+- Mappers can now be opened and managed even if the input or output connection is down / broken
+- Opening a Class with connectors will no longer create a draft if nothing has changed
+
 ## Version 3.7.0
 
 #### New Features
