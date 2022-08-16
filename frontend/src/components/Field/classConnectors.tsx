@@ -41,6 +41,15 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
       pair['input-provider'] = null;
       pair['output-provider'] = null;
     }
+
+    if (!pair['input-provider']) {
+      delete pair['input-provider'];
+    }
+
+    if (!pair['output-provider']) {
+      delete pair['output-provider'];
+    }
+
     // Update the pairs
     onChange(name, newValue);
   };
