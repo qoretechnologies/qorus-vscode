@@ -1,11 +1,22 @@
 # Changelog
 
+## Version 3.8.0
+
+#### Bug fixes
+
+- Mappers can now be opened and managed even if the input or output connection is down / broken
+- Opening a Class with connectors will no longer create a draft if nothing has changed
+
 ## Version 3.7.0
 
 #### New Features
 
 - Implemented new FSM states - create, single record search, multiple record search, update, and delete
 - Requires Qorus 5.1.35+ to support new FSM functionality
+
+#### Bug Fixes
+
+- Fixed a bug that prevented creation of FSM Block states
 
 ## Version 3.6.7
 
