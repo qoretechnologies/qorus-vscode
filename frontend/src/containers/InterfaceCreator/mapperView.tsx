@@ -86,10 +86,13 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
 
   const fixedOptions = omit(mapper?.options, ['mapper-input', 'mapper-output']);
   const newMapper = cloneDeep(mapper);
-  newMapper.mapper_options = size(fixedOptions) ? fixedOptions : undefined;
 
-  if (!size(newMapper.mapper_options)) {
-    delete newMapper.mapper_options;
+  if (newMapper) {
+    newMapper.mapper_options = size(fixedOptions) ? fixedOptions : undefined;
+
+    if (!size(newMapper.mapper_options)) {
+      delete newMapper.mapper_options;
+    }
   }
 
   console.log(newMapper);
