@@ -4,6 +4,10 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools extension enables creating, editing, and extending reusable IT and AI building blocks for advanced automation challenges.
 
+## Version 3.8.1 overview - What's new:
+
+- Fixed a bug that prevented new Mappers from being created
+
 ## Version 3.8.0 overview - What's new:
 
 - Mappers can now be opened and managed even if the input or output connection is down / broken
@@ -16,59 +20,6 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 - Requires Qorus 5.1.35+ to support new FSM functionality
 
 ![update_state](https://github.com/qoretechnologies/qorus-vscode/blob/master/images/gif/update-state.gif?raw=true)
-
-## Version 3.6.7 overview - What's new:
-
-- Fixed a bug that would not allow to go to the 2nd page in Pipeline view
-
-## Version 3.6.6 overview - What's new:
-
-- Fixed a bug that left "null" value in an FSM state when removing all transitions
-
-## Version 3.6.5 overview - What's new:
-
-- Fixed a bug that caused a crash when creating a job while the Schedule field was empty
-
-## Version 3.6.4 overview - What's new:
-
-- Fixed Pipeline & FSM provider fields & unnecessary draft saving issue
-- Fixed a bug where deploying an FSM would not deploy Class dependencies
-- Fixed a bug where FSM drafts would be saved without any changes when editing FSMs
-- Fixed a bug where config items were left over in YAML when switching from connectors inside FSM states
-
-## Version 3.6.3 overview - What's new:
-
-- Fixed a bug where new mapper submit button would not be enabled unless the mapper page was left
-- Fixed draft changes being saved upon opening pipeline without any changes.
-
-## Version 3.6.2 overview - What's new:
-
-- Fixed draft changes being saved upon opening FSM without any changes.
-
-## Version 3.6.1 overview - What's new:
-
-- Fixed a bug where the FSM fields wrapper would not collapse when hidden.
-
-## Version 3.6.0 overview - What's new:
-
-- FSMs now support input & output types
-- FSMs created from API Manager service now automatically acquire the required input type for the given endpoint
-- Fixed a bug where the FSM would crash with an API call state
-- Fixed a bug that caused config items values with multiple curly brackets to be incorrectly interpreted
-
-## Version 3.5.0 overview - What's new:
-
-- It is now possible to create a custom release by selecting interfaces inside the `Release` tab.
-- Fixed a bug when validating various key-value fields that caused the IDE to crash.
-- Fixed bugs in "make release" functionality where it would refuse to make a release if there were untracked files in the repository and where release packages were not installable by Qorus
-- Fixed bugs in "make release" functionality where it would get stuck in a broken state if the connection to the Qorus server was lost while the release was being created
-- Requires Qorus 5.1.31+ to support remote release deployment from the IDE
-
-## Version 3.4.0 overview - What's new:
-
-- Added IDE support for API managers in services, allowing Qorus services to provide server-side API implementations with a low-code/no-code solution; these can also be microservices when Qorus is deployed in Kubernetes and the stateless flag is set
-- IF states no longer save the `input-output-type` flag to YAML if it's not defined
-- Many visual improvements and bug fixes
 
 ---
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 3.8.1
+
+- Fixed a bug that prevented new Mappers from being created
+
 ## Version 3.8.0
 
 #### Bug fixes
