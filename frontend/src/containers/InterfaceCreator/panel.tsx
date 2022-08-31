@@ -13,7 +13,7 @@ import {
   reduce,
   size,
   uniqBy,
-  upperFirst
+  upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
@@ -36,7 +36,7 @@ import {
   FieldWrapper,
   IField,
   IInterfaceCreatorPanel,
-  SearchWrapper
+  SearchWrapper,
 } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
@@ -52,7 +52,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, {
   addMessageListener,
-  postMessage
+  postMessage,
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -391,8 +391,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           // Create it if this is brand new interface
           setInterfaceId(type, currentInterfaceId, interfaceIndex);
         }
-        // Add draft if one exists
-        maybeApplyDraft(type, null, data, null, setClassConnectionsFromDraft);
+        if (!fields || !fields.length) {
+          // Add draft if one exists
+          maybeApplyDraft(type, null, data, null, setClassConnectionsFromDraft);
+        }
         // Set show
         setShow(true);
         // Fetch config items
