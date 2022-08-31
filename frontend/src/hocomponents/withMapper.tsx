@@ -1,5 +1,5 @@
 import { forEach, get, reduce, set, size, unset } from 'lodash';
-import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import { getUrlFromProvider as getRealUrlFromProvider } from '../components/Field/connectors';
@@ -80,7 +80,7 @@ export default () =>
       const [wrongKeysCount, setWrongKeysCount] = useState<number>(0);
       const [mapperSubmit, setMapperSubmit] = useState<any>(null);
       const [isContextLoaded, setIsContextLoaded] = useState<boolean>(true);
-      const [draftSavedForLater, setDraftSavedForLater] = useState<any>(null);
+      const draftSavedForLater = useRef<any>(null);
       const initialMapperDraftData = useRef(null);
 
       const handleMapperSubmitSet = (callback) => {
@@ -116,15 +116,15 @@ export default () =>
       const setMapperFromDraft = (data: any) => {
         // If mapper exists, save this data for later
         if (mapper) {
-          setDraftSavedForLater(data);
+          draftSavedForLater.current = data;
         } else {
           applyDraft(data);
         }
       };
 
       const maybeApplyStoredDraft = () => {
-        if (draftSavedForLater) {
-          applyDraft(draftSavedForLater);
+        if (draftSavedForLater.current) {
+          applyDraft(draftSavedForLater.current);
         }
       };
 
@@ -478,7 +478,7 @@ export default () =>
             }
           })();
         }
-      }, [qorus_instance, mapper, props.currentMapperContext, draftSavedForLater]);
+      }, [qorus_instance, mapper, props.currentMapperContext, draftSavedForLater.current]);
 
       useEffect(() => {
         if (props.mapper) {

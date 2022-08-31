@@ -1,6 +1,14 @@
 # Changelog
 
+## Version 3.8.2
+
+#### Bug fixes
+
+- Fixed an issue in Mappers that caused infinite draft saving loop which prevented options being added and eventually crashed the active Qorus connection
+
 ## Version 3.8.1
+
+#### Bug fixes
 
 - Fixed a bug that prevented new Mappers from being created
 
