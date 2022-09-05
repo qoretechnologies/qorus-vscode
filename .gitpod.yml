@@ -3,17 +3,14 @@ vscode:
     - qoretechnologies.qore-vscode
 tasks:
   - init: |
-      nvm install v14.18
-      npm install
+      yarn install
     command: |
-      nvm install v14.18
       git config --global http.sslverify false
       cd /workspace/qorus-vscode
-      npm run start
+      yarn start
 ports:
   - port: 3140-3199
     visibility: private
 additionalRepositories:
-  - url: https://git.qoretechnologies.com/qorus/building-blocks
   - url: https://git.qoretechnologies.com/qorus/demos.git
   - url: https://git.qoretechnologies.com/qorus/qorus.git
