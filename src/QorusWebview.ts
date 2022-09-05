@@ -165,11 +165,11 @@ class QorusWebview {
         let html = doc.getText().replace(/%PUBLIC_URL%/g, uri.toString());
         html = html.replace(
           /%MAIN_SCRIPT_NAME%/g,
-          path.join(uri.toString(), 'static', 'js', 'bundle.js')
+          `${uri.toString()}/static/js/bundle.js`
         );
         html = html.replace(
           /%MAIN_CSS_NAME%/g,
-          path.join(uri.toString(), 'static', 'css', 'bundle.css')
+          `${uri.toString()}/static/css/bundle.css`
         );
         this.panel.webview.html = html.replace(/%URL%/g, uri.toString());
 

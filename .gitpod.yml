@@ -3,10 +3,12 @@ vscode:
     - qoretechnologies.qore-vscode
 tasks:
   - init: |
-      yarn install
+      npm install
     command: |
       git config --global http.sslverify false
       cd /workspace/qorus-vscode
+      cd frontend
+      yarn install
       yarn start
 ports:
   - port: 3140-3199

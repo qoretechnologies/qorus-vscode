@@ -11,7 +11,7 @@ import { cloneDeep, omit } from 'lodash';
 import map from 'lodash/map';
 import nth from 'lodash/nth';
 import size from 'lodash/size';
-import React, { FC, useCallback, useContext, useState } from 'react';
+import { FC, useCallback, useContext, useState } from 'react';
 import { useDebounce } from 'react-use';
 import styled, { css } from 'styled-components';
 import CustomDialog from '../../components/CustomDialog';
@@ -284,7 +284,7 @@ const MapperProvider: FC<IProviderProps> = ({
     clear && clear(true);
     // Set loading
     setIsLoading(true);
-    const newSuffix = `${suffix}/childDetails`;
+    const newSuffix = realProviders[provider].withDetails ? `${suffix}/childDetails` : suffix;
     // Build the suffix
     let suffixString = realProviders[provider].suffixRequiresOptions
       ? optionString && optionString !== '' && size(options)
@@ -345,7 +345,12 @@ const MapperProvider: FC<IProviderProps> = ({
             // Save the mapper keys
             setMapperKeys && setMapperKeys(data.mapper_keys);
           }
-          const newSuffix = `${suffix}/childDetails`;
+
+          const newSuffix =
+            data.supports_children || data.has_type === false ? `${suffix}/childDetails` : suffix;
+
+          console.log('NEW SUFFIX', newSuffix);
+
           suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
               ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
