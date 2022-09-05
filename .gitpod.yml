@@ -11,6 +11,6 @@ tasks:
 ports:
   - port: 3140-3199
     visibility: private
-additionalRepositories:
-  - url: https://git.qoretechnologies.com/qorus/demos.git
-  - url: https://git.qoretechnologies.com/qorus/qorus.git
+# additionalRepositories:
+#   - url: https://git.qoretechnologies.com/qorus/demos.git
+#   - url: https://git.qoretechnologies.com/qorus/qorus.git
