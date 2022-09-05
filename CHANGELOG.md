@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 3.8.3
+
+#### Bug fixes
+
+- Fixed an issue where a Windows build would not work properly because of an internal path issue
+- Fixed a bug where it was not possible to select `request` `response` data providers in Mappers
+
 ## Version 3.8.2
 
 #### Bug fixes
