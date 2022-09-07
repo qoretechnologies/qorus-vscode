@@ -8,6 +8,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 
 - Fixed an issue where a Windows build would not work properly because of an internal path issue
 - Fixed a bug where it was not possible to select `request` `response` data providers in Mappers
+- Fixed a bug that caused the webview to crash when selecting a certain data provider factory in Mappers (csvread and csvwrite were affected)
 
 ## Version 3.8.2 overview - What's new:
 

@@ -340,6 +340,7 @@ const MapperProvider: FC<IProviderProps> = ({
         (requiresRequest && data.supports_request)
       ) {
         (async () => {
+          console.log('YEAH', data);
           setIsLoading(true);
           if (type === 'outputs' && data.mapper_keys) {
             // Save the mapper keys
@@ -356,7 +357,7 @@ const MapperProvider: FC<IProviderProps> = ({
               ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                   type === 'outputs' ? '&soft=true' : ''
                 }`
-              : `${newSuffix}`
+              : `${newSuffix}${data.has_record ? realProviders[provider].recordSuffix : ''}`
             : `${suffix}${realProviders[provider].recordSuffix}`;
 
           // Fetch the record
@@ -384,6 +385,8 @@ const MapperProvider: FC<IProviderProps> = ({
               .replace(`provider/`, ''),
             options,
           });
+
+          console.log('YEAH', data);
           if (data.has_type || isConfigItem) {
             // Set the record data
             setRecord &&
@@ -481,10 +484,11 @@ const MapperProvider: FC<IProviderProps> = ({
               ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                   type === 'outputs' ? '&soft=true' : ''
                 }`
-              : newSuffix
+              : `${newSuffix}${realProviders[provider].recordSuffix}`
             : `${suffix}${realProviders[provider].recordSuffix}`;
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
+          console.log('RECORD IN THE OTHER IF ELSE', `${url}/${value}${suffixString}`, record.data);
           // Remove loading
           setIsLoading(false);
           // Save the name by pulling the 3rd item from the split
@@ -524,6 +528,8 @@ const MapperProvider: FC<IProviderProps> = ({
       ),
     []
   );
+
+  console.log('OPTIONS CHANGED', optionsChanged);
 
   return (
     <>
@@ -733,7 +739,7 @@ const MapperProvider: FC<IProviderProps> = ({
               </ButtonGroup>
             </ControlGroup>
           )}
-          {record && (
+          {record && !optionsChanged ? (
             <Button
               intent="success"
               name={`provider-${type ? `${type}-` : ''}submit`}
@@ -743,7 +749,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 hide();
               }}
             />
-          )}
+          ) : null}
         </ButtonGroup>
       </StyledWrapper>
     </>

@@ -359,6 +359,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                   result.optionsChanged = true;
                 }
 
+                console.log('result', result);
+
                 return result;
               });
             }}
