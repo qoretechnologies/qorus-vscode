@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Colors, Icon, Intent, Tooltip } from '@blueprintjs/core';
+import { isEqual } from 'lodash';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
@@ -9,7 +10,10 @@ import { useDrop } from 'react-dnd';
 import compose from 'recompose/compose';
 import styled, { css } from 'styled-components';
 import { TTranslator } from '../../App';
-import { getUrlFromProvider as getRealUrlFromProvider } from '../../components/Field/connectors';
+import {
+  getUrlFromProvider as getRealUrlFromProvider,
+  IProviderType,
+} from '../../components/Field/connectors';
 import Options from '../../components/Field/systemOptions';
 import { ActionsWrapper, IField } from '../../components/FieldWrapper';
 import SubField from '../../components/SubField';
@@ -850,13 +854,27 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
               hide={() => setHideInputSelector(true)}
               canSelectNull
               compact
+              optionsChanged={inputOptionProvider?.optionsChanged}
               options={inputOptionProvider?.options}
             />
             {inputProvider === 'factory' && inputOptionProvider ? (
               <SubField title={t('FactoryOptions')}>
                 <Options
                   onChange={(nm, val) => {
-                    setInputOptionProvider((cur) => ({ ...cur, options: val }));
+                    setInputOptionProvider((cur: IProviderType | null) => {
+                      const result: IProviderType = {
+                        ...cur,
+                        options: val,
+                      } as IProviderType;
+
+                      if (!isEqual(inputOptionProvider.options, val)) {
+                        result.optionsChanged = true;
+                      }
+
+                      console.log('result', result);
+
+                      return result;
+                    });
                   }}
                   name="options"
                   value={inputOptionProvider.options}
@@ -889,12 +907,26 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
               hide={() => setHideOutputSelector(true)}
               compact
               options={outputOptionProvider?.options}
+              optionsChanged={outputOptionProvider?.optionsChanged}
             />
             {outputProvider === 'factory' && outputOptionProvider ? (
               <SubField title={t('FactoryOptions')}>
                 <Options
                   onChange={(nm, val) => {
-                    setOutputOptionProvider((cur) => ({ ...cur, options: val }));
+                    setOutputOptionProvider((cur: IProviderType | null) => {
+                      const result: IProviderType = {
+                        ...cur,
+                        options: val,
+                      } as IProviderType;
+
+                      if (!isEqual(outputOptionProvider.options, val)) {
+                        result.optionsChanged = true;
+                      }
+
+                      console.log('result', result);
+
+                      return result;
+                    });
                   }}
                   name="options"
                   value={outputOptionProvider.options}
