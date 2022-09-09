@@ -11,13 +11,14 @@ import { cloneDeep, omit } from 'lodash';
 import map from 'lodash/map';
 import nth from 'lodash/nth';
 import size from 'lodash/size';
-import React, { FC, useCallback, useContext, useState } from 'react';
+import { FC, useCallback, useContext, useState } from 'react';
 import { useDebounce } from 'react-use';
 import styled, { css } from 'styled-components';
 import CustomDialog from '../../components/CustomDialog';
 import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
+import SubField from '../../components/SubField';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -176,10 +177,12 @@ const MapperProvider: FC<IProviderProps> = ({
   onResetClick,
   optionProvider,
   recordType,
+  isPipeline,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [optionString, setOptionString] = useState('');
   const [descriptions, setDescriptions] = useState<string[]>([]);
+  const [error, onError] = useState<string | null>(null);
   const t = useContext(TextContext);
 
   console.log(descriptions);
@@ -211,7 +214,7 @@ const MapperProvider: FC<IProviderProps> = ({
     realProviders = omit(realProviders, ['datasource', 'type']);
   }
 
-  if (recordType) {
+  if (recordType || isPipeline) {
     realProviders = omit(realProviders, ['type']);
   }
 
@@ -227,6 +230,13 @@ const MapperProvider: FC<IProviderProps> = ({
         const { url, filter, inputFilter, outputFilter, withDetails } = realProviders[provider];
         // Get the data
         let { data, error } = await fetchData(`${url}${withDetails ? '/childDetails' : ''}`);
+
+        if (error) {
+          onError?.(error);
+        } else {
+          onError?.(null);
+        }
+
         // Remove loading
         setIsLoading(false);
         // Filter unwanted data if needed
@@ -284,7 +294,7 @@ const MapperProvider: FC<IProviderProps> = ({
     clear && clear(true);
     // Set loading
     setIsLoading(true);
-    const newSuffix = `${suffix}/childDetails`;
+    const newSuffix = realProviders[provider].withDetails ? `${suffix}/childDetails` : suffix;
     // Build the suffix
     let suffixString = realProviders[provider].suffixRequiresOptions
       ? optionString && optionString !== '' && size(options)
@@ -295,10 +305,12 @@ const MapperProvider: FC<IProviderProps> = ({
       : newSuffix;
     // Fetch the data
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
+    console.log('ERROR', error);
     if (error) {
-      console.error(`${url}/${value}${newSuffix}`, error);
-      //setIsLoading(false);
-      //return;
+      const errMessage = error?.error || error;
+      onError?.(errMessage);
+    } else {
+      onError?.(null);
     }
     // Reset loading
     setIsLoading(false);
@@ -341,21 +353,33 @@ const MapperProvider: FC<IProviderProps> = ({
       ) {
         (async () => {
           setIsLoading(true);
+
           if (type === 'outputs' && data.mapper_keys) {
             // Save the mapper keys
             setMapperKeys && setMapperKeys(data.mapper_keys);
           }
-          const newSuffix = `${suffix}/childDetails`;
+
+          const newSuffix =
+            data.supports_children || data.has_type === false ? `${suffix}/childDetails` : suffix;
+
           suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
               ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                   type === 'outputs' ? '&soft=true' : ''
                 }`
-              : `${newSuffix}`
+              : `${newSuffix}${data.has_record ? realProviders[provider].recordSuffix : ''}`
             : `${suffix}${realProviders[provider].recordSuffix}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
+
+          if (record.error) {
+            const errMessage = record.error?.error || record.error;
+            onError?.(errMessage);
+          } else {
+            onError?.(null);
+          }
+
           // Remove loading
           setIsLoading(false);
           // Save the name by pulling the 3rd item from the split
@@ -379,6 +403,7 @@ const MapperProvider: FC<IProviderProps> = ({
               .replace(`provider/`, ''),
             options,
           });
+
           if (data.has_type || isConfigItem) {
             // Set the record data
             setRecord &&
@@ -476,10 +501,18 @@ const MapperProvider: FC<IProviderProps> = ({
               ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                   type === 'outputs' ? '&soft=true' : ''
                 }`
-              : newSuffix
+              : `${newSuffix}${realProviders[provider].recordSuffix}`
             : `${suffix}${realProviders[provider].recordSuffix}`;
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
+
+          if (record.error) {
+            const errMessage = record.error?.error || record.error;
+            onError?.(errMessage);
+          } else {
+            onError?.(null);
+          }
+
           // Remove loading
           setIsLoading(false);
           // Save the name by pulling the 3rd item from the split
@@ -519,6 +552,8 @@ const MapperProvider: FC<IProviderProps> = ({
       ),
     []
   );
+
+  console.log('OPTIONS CHANGED', optionsChanged);
 
   return (
     <>
@@ -728,7 +763,7 @@ const MapperProvider: FC<IProviderProps> = ({
               </ButtonGroup>
             </ControlGroup>
           )}
-          {record && (
+          {record && !optionsChanged ? (
             <Button
               intent="success"
               name={`provider-${type ? `${type}-` : ''}submit`}
@@ -738,8 +773,19 @@ const MapperProvider: FC<IProviderProps> = ({
                 hide();
               }}
             />
-          )}
+          ) : null}
         </ButtonGroup>
+        {error && (
+          <SubField>
+            <Callout
+              title="An error occurred"
+              intent="danger"
+              style={{ wordBreak: 'break-all', maxHeight: '100px', overflow: 'auto' }}
+            >
+              {error}
+            </Callout>
+          </SubField>
+        )}
       </StyledWrapper>
     </>
   );

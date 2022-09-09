@@ -163,14 +163,8 @@ class QorusWebview {
         const uri = vscode.Uri.file(web_path).with({ scheme: 'vscode-resource' });
 
         let html = doc.getText().replace(/%PUBLIC_URL%/g, uri.toString());
-        html = html.replace(
-          /%MAIN_SCRIPT_NAME%/g,
-          path.join(uri.toString(), 'static', 'js', 'bundle.js')
-        );
-        html = html.replace(
-          /%MAIN_CSS_NAME%/g,
-          path.join(uri.toString(), 'static', 'css', 'bundle.css')
-        );
+        html = html.replace(/%MAIN_SCRIPT_NAME%/g, `${uri.toString()}/static/js/bundle.js`);
+        html = html.replace(/%MAIN_CSS_NAME%/g, `${uri.toString()}/static/css/bundle.css`);
         this.panel.webview.html = html.replace(/%URL%/g, uri.toString());
 
         this.config_file_watcher = vscode.workspace.createFileSystemWatcher(
