@@ -31,6 +31,7 @@ export interface IConnectorFieldProps {
   recordType?: TRecordType;
   minimal?: boolean;
   isConfigItem?: boolean;
+  isPipeline?: boolean;
 }
 
 export type TProviderTypeSupports = {
@@ -210,6 +211,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   isConfigItem,
   requiresRequest,
   recordType,
+  isPipeline,
   t,
 }) => {
   const [optionProvider, setOptionProvider] = useState<IProviderType | null>(
@@ -314,8 +316,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     return <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>;
   }
 
-  console.log(optionProvider);
-
   return (
     <div style={{ flex: 1 }}>
       <SubField title={!minimal ? t('SelectDataProvider') : undefined}>
@@ -343,6 +343,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           }}
           onResetClick={reset}
           recordType={recordType}
+          isPipeline={isPipeline}
         />
       </SubField>
       {provider === 'factory' && optionProvider ? (
