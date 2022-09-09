@@ -714,6 +714,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
                 name="input-provider"
                 onChange={handleMetadataChange}
                 providerType="inputs"
+                isPipeline
               />
             </FieldInputWrapper>
           </FieldWrapper>

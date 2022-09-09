@@ -18,6 +18,7 @@ import CustomDialog from '../../components/CustomDialog';
 import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
+import SubField from '../../components/SubField';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -176,10 +177,12 @@ const MapperProvider: FC<IProviderProps> = ({
   onResetClick,
   optionProvider,
   recordType,
+  isPipeline,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [optionString, setOptionString] = useState('');
   const [descriptions, setDescriptions] = useState<string[]>([]);
+  const [error, onError] = useState<string | null>(null);
   const t = useContext(TextContext);
 
   console.log(descriptions);
@@ -211,7 +214,7 @@ const MapperProvider: FC<IProviderProps> = ({
     realProviders = omit(realProviders, ['datasource', 'type']);
   }
 
-  if (recordType) {
+  if (recordType || isPipeline) {
     realProviders = omit(realProviders, ['type']);
   }
 
@@ -227,6 +230,13 @@ const MapperProvider: FC<IProviderProps> = ({
         const { url, filter, inputFilter, outputFilter, withDetails } = realProviders[provider];
         // Get the data
         let { data, error } = await fetchData(`${url}${withDetails ? '/childDetails' : ''}`);
+
+        if (error) {
+          onError?.(error);
+        } else {
+          onError?.(null);
+        }
+
         // Remove loading
         setIsLoading(false);
         // Filter unwanted data if needed
@@ -295,10 +305,12 @@ const MapperProvider: FC<IProviderProps> = ({
       : newSuffix;
     // Fetch the data
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
+    console.log('ERROR', error);
     if (error) {
-      console.error(`${url}/${value}${newSuffix}`, error);
-      //setIsLoading(false);
-      //return;
+      const errMessage = error?.error || error;
+      onError?.(errMessage);
+    } else {
+      onError?.(null);
     }
     // Reset loading
     setIsLoading(false);
@@ -340,8 +352,8 @@ const MapperProvider: FC<IProviderProps> = ({
         (requiresRequest && data.supports_request)
       ) {
         (async () => {
-          console.log('YEAH', data);
           setIsLoading(true);
+
           if (type === 'outputs' && data.mapper_keys) {
             // Save the mapper keys
             setMapperKeys && setMapperKeys(data.mapper_keys);
@@ -349,8 +361,6 @@ const MapperProvider: FC<IProviderProps> = ({
 
           const newSuffix =
             data.supports_children || data.has_type === false ? `${suffix}/childDetails` : suffix;
-
-          console.log('NEW SUFFIX', newSuffix);
 
           suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
@@ -362,6 +372,14 @@ const MapperProvider: FC<IProviderProps> = ({
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
+
+          if (record.error) {
+            const errMessage = record.error?.error || record.error;
+            onError?.(errMessage);
+          } else {
+            onError?.(null);
+          }
+
           // Remove loading
           setIsLoading(false);
           // Save the name by pulling the 3rd item from the split
@@ -386,7 +404,6 @@ const MapperProvider: FC<IProviderProps> = ({
             options,
           });
 
-          console.log('YEAH', data);
           if (data.has_type || isConfigItem) {
             // Set the record data
             setRecord &&
@@ -488,7 +505,14 @@ const MapperProvider: FC<IProviderProps> = ({
             : `${suffix}${realProviders[provider].recordSuffix}`;
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
-          console.log('RECORD IN THE OTHER IF ELSE', `${url}/${value}${suffixString}`, record.data);
+
+          if (record.error) {
+            const errMessage = record.error?.error || record.error;
+            onError?.(errMessage);
+          } else {
+            onError?.(null);
+          }
+
           // Remove loading
           setIsLoading(false);
           // Save the name by pulling the 3rd item from the split
@@ -751,6 +775,17 @@ const MapperProvider: FC<IProviderProps> = ({
             />
           ) : null}
         </ButtonGroup>
+        {error && (
+          <SubField>
+            <Callout
+              title="An error occurred"
+              intent="danger"
+              style={{ wordBreak: 'break-all', maxHeight: '100px', overflow: 'auto' }}
+            >
+              {error}
+            </Callout>
+          </SubField>
+        )}
       </StyledWrapper>
     </>
   );
