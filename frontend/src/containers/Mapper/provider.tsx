@@ -253,7 +253,7 @@ const MapperProvider: FC<IProviderProps> = ({
           }
         }
         // Save the children
-        const children = data.children || data;
+        let children = data.children || data;
         // Add new child
         setChildren([
           {
@@ -396,11 +396,14 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             can_manage_fields: record.data?.can_manage_fields,
+            subtype: value === 'request' || value === 'response' ? value : undefined,
             descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')
-              .replace(`provider/`, ''),
+              .replace(`provider/`, '')
+              .replace('request', '')
+              .replace('response', ''),
             options,
           });
 
@@ -414,12 +417,19 @@ const MapperProvider: FC<IProviderProps> = ({
       }
       // If this provider has children
       if (size(data.children)) {
+        const children = data.children.filter((child) => {
+          if (isPipeline) {
+            return child.has_record === true;
+          }
+
+          return true;
+        });
         // Return the updated items and add
         // the new item
         return [
           ...newItems,
           {
-            values: data.children.map((child) => {
+            values: children.map((child) => {
               if (typeof child === 'string') {
                 return {
                   name: child,
@@ -527,11 +537,14 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             can_manage_fields: record.data.can_manage_fields,
+            subtype: value === 'request' || value === 'response' ? value : undefined,
             descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')
-              .replace('provider/', ''),
+              .replace('provider/', '')
+              .replace('request', '')
+              .replace('response', ''),
             options,
           });
           // Set the record data
