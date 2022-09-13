@@ -232,9 +232,8 @@ const MapperProvider: FC<IProviderProps> = ({
         const { url, filter, inputFilter, outputFilter, withDetails } = realProviders[provider];
         // Get the data
         let { data, error } = await fetchData(`${url}`);
-
         if (error) {
-          onError?.(error);
+          onError?.(`${record.error.error.err}: ${record.error.error.desc}`);
         } else {
           onError?.(null);
         }
@@ -307,9 +306,10 @@ const MapperProvider: FC<IProviderProps> = ({
       : newSuffix;
     // Fetch the data
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
+    console.log('ERROR IN THE PROVIDER', error);
 
     if (error) {
-      const errMessage = error?.error || error;
+      const errMessage = `${error.error.err}: ${error.error.desc}`;
       onError?.(errMessage);
     } else {
       onError?.(null);
@@ -373,9 +373,10 @@ const MapperProvider: FC<IProviderProps> = ({
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
+          console.log('ERROR IN THE PROVIDER', record);
 
           if (record.error) {
-            const errMessage = record.error?.error || record.error;
+            const errMessage = `${record.error.error.err}: ${record.error.error.desc}`;
             onError?.(errMessage);
           } else {
             onError?.(null);
