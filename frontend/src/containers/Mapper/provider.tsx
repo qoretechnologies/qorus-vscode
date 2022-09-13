@@ -186,7 +186,7 @@ const MapperProvider: FC<IProviderProps> = ({
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [optionString, setOptionString] = useState('');
   const [descriptions, setDescriptions] = useState<string[]>([]);
-  const [error, onError] = useState<string | null>(null);
+  const [errorMessage, onError] = useState<string | null>(null);
   const t = useContext(TextContext);
 
   /* When the options hash changes, we want to update the query string. */
@@ -220,6 +220,25 @@ const MapperProvider: FC<IProviderProps> = ({
     realProviders = omit(realProviders, ['type']);
   }
 
+  /**
+   * It filters out children that don't have a record or request
+   * @param {any[]} children - any[] - the children of the current node
+   * @returns the children array after it has been filtered.
+   */
+  const filterChildren = (children: any[]) => {
+    return children.filter((child) => {
+      if (isPipeline || recordType) {
+        return child.has_record || child.children_can_support_records || child.has_provider;
+      }
+
+      if (requiresRequest) {
+        return child.supports_request || child.children_can_support_apis || child.has_provider;
+      }
+
+      return true;
+    });
+  };
+
   const handleProviderChange = (provider) => {
     setProvider((current) => {
       // Fetch the url of the provider
@@ -232,6 +251,7 @@ const MapperProvider: FC<IProviderProps> = ({
         const { url, filter, inputFilter, outputFilter, withDetails } = realProviders[provider];
         // Get the data
         let { data, error } = await fetchData(`${url}`);
+
         if (error) {
           onError?.(`${record.error.error.err}: ${record.error.error.desc}`);
         } else {
@@ -254,7 +274,8 @@ const MapperProvider: FC<IProviderProps> = ({
           }
         }
         // Save the children
-        let children = data.children || data;
+        let children = filterChildren(data.children || data);
+
         // Add new child
         setChildren([
           {
@@ -419,13 +440,7 @@ const MapperProvider: FC<IProviderProps> = ({
       }
       // If this provider has children
       if (size(data.children)) {
-        const children = data.children.filter((child) => {
-          if (isPipeline) {
-            return child.has_record === true || child.children_can_support_records;
-          }
-
-          return true;
-        });
+        const children = filterChildren(data.children);
         // Return the updated items and add
         // the new item
         return [
@@ -788,14 +803,14 @@ const MapperProvider: FC<IProviderProps> = ({
             />
           ) : null}
         </ButtonGroup>
-        {error && (
+        {errorMessage && (
           <SubField>
             <Callout
               title="An error occurred"
               intent="danger"
               style={{ wordBreak: 'break-all', maxHeight: '100px', overflow: 'auto' }}
             >
-              {error}
+              {errorMessage}
             </Callout>
           </SubField>
         )}
