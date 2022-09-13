@@ -91,6 +91,7 @@ export const providers: any = {
     suffix: '/provider',
     recordSuffix: '/record',
     requiresRecord: true,
+    withDetails: true,
     type: 'connection',
     desc: 'Qorus user connections; access a data provider through a user connection',
   },
@@ -103,6 +104,7 @@ export const providers: any = {
     suffix: '/provider',
     recordSuffix: '/record',
     requiresRecord: true,
+    withDetails: true,
     type: 'remote',
     desc: 'Qorus to Qorus remote connections; access a data provider through a remote Qorus instances (remote datasources and remote Qorus APIs)',
   },
@@ -115,6 +117,7 @@ export const providers: any = {
     suffix: '/provider',
     recordSuffix: '/record',
     requiresRecord: true,
+    withDetails: true,
     type: 'datasource',
     desc: 'Qorus database connections; access record-based data providers through a local datasource',
   },
@@ -129,6 +132,7 @@ export const providers: any = {
     desckey: 'desc',
     recordSuffix: '/record',
     requiresRecord: true,
+    withDetails: true,
     suffixRequiresOptions: true,
     type: 'factory',
     desc: 'Data provider factories for creating data providers from options',
@@ -185,8 +189,6 @@ const MapperProvider: FC<IProviderProps> = ({
   const [error, onError] = useState<string | null>(null);
   const t = useContext(TextContext);
 
-  console.log(descriptions);
-
   /* When the options hash changes, we want to update the query string. */
   useDebounce(
     () => {
@@ -229,7 +231,7 @@ const MapperProvider: FC<IProviderProps> = ({
         // Select the provider data
         const { url, filter, inputFilter, outputFilter, withDetails } = realProviders[provider];
         // Get the data
-        let { data, error } = await fetchData(`${url}${withDetails ? '/childDetails' : ''}`);
+        let { data, error } = await fetchData(`${url}`);
 
         if (error) {
           onError?.(error);
@@ -305,7 +307,7 @@ const MapperProvider: FC<IProviderProps> = ({
       : newSuffix;
     // Fetch the data
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
-    console.log('ERROR', error);
+
     if (error) {
       const errMessage = error?.error || error;
       onError?.(errMessage);
@@ -319,7 +321,6 @@ const MapperProvider: FC<IProviderProps> = ({
     if (data.desc) {
       // Add the description to the descriptions hash
       setDescriptions((current): string[] => {
-        console.log(itemIndex, data.desc);
         const newData = [...current];
         newData[itemIndex] = data.desc;
         return newData;
@@ -368,7 +369,7 @@ const MapperProvider: FC<IProviderProps> = ({
                   type === 'outputs' ? '&soft=true' : ''
                 }`
               : `${newSuffix}${data.has_record ? realProviders[provider].recordSuffix : ''}`
-            : `${suffix}${realProviders[provider].recordSuffix}`;
+            : `${newSuffix}${data.has_record ? realProviders[provider].recordSuffix : ''}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
@@ -419,7 +420,7 @@ const MapperProvider: FC<IProviderProps> = ({
       if (size(data.children)) {
         const children = data.children.filter((child) => {
           if (isPipeline) {
-            return child.has_record === true;
+            return child.has_record === true || child.children_can_support_records;
           }
 
           return true;
@@ -565,8 +566,6 @@ const MapperProvider: FC<IProviderProps> = ({
       ),
     []
   );
-
-  console.log('OPTIONS CHANGED', optionsChanged);
 
   return (
     <>
