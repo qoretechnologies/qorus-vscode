@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.8.4
+
+#### Bug fixes
+
+- It is no longer possible to select a non-record-based provider in Pipeline input provider
+
 ## Version 3.8.3
 
 #### New Features

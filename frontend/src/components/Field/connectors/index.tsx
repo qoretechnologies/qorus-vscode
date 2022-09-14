@@ -47,6 +47,7 @@ export interface IProviderType extends TProviderTypeSupports, TProviderTypeArgs 
   name: string;
   path?: string;
   options?: IOptions;
+  subtype?: 'request' | 'response';
   hasApiContext?: boolean;
   optionsChanged?: boolean;
   desc?: string;

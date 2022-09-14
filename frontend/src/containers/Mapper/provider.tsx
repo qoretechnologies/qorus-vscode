@@ -91,6 +91,7 @@ export const providers: any = {
     suffix: '/provider',
     recordSuffix: '/record',
     requiresRecord: true,
+    withDetails: true,
     type: 'connection',
     desc: 'Qorus user connections; access a data provider through a user connection',
   },
@@ -103,6 +104,7 @@ export const providers: any = {
     suffix: '/provider',
     recordSuffix: '/record',
     requiresRecord: true,
+    withDetails: true,
     type: 'remote',
     desc: 'Qorus to Qorus remote connections; access a data provider through a remote Qorus instances (remote datasources and remote Qorus APIs)',
   },
@@ -115,6 +117,7 @@ export const providers: any = {
     suffix: '/provider',
     recordSuffix: '/record',
     requiresRecord: true,
+    withDetails: true,
     type: 'datasource',
     desc: 'Qorus database connections; access record-based data providers through a local datasource',
   },
@@ -129,6 +132,7 @@ export const providers: any = {
     desckey: 'desc',
     recordSuffix: '/record',
     requiresRecord: true,
+    withDetails: true,
     suffixRequiresOptions: true,
     type: 'factory',
     desc: 'Data provider factories for creating data providers from options',
@@ -182,10 +186,8 @@ const MapperProvider: FC<IProviderProps> = ({
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [optionString, setOptionString] = useState('');
   const [descriptions, setDescriptions] = useState<string[]>([]);
-  const [error, onError] = useState<string | null>(null);
+  const [errorMessage, onError] = useState<string | null>(null);
   const t = useContext(TextContext);
-
-  console.log(descriptions);
 
   /* When the options hash changes, we want to update the query string. */
   useDebounce(
@@ -218,6 +220,25 @@ const MapperProvider: FC<IProviderProps> = ({
     realProviders = omit(realProviders, ['type']);
   }
 
+  /**
+   * It filters out children that don't have a record or request
+   * @param {any[]} children - any[] - the children of the current node
+   * @returns the children array after it has been filtered.
+   */
+  const filterChildren = (children: any[]) => {
+    return children.filter((child) => {
+      if (isPipeline || recordType) {
+        return child.has_record || child.children_can_support_records || child.has_provider;
+      }
+
+      if (requiresRequest) {
+        return child.supports_request || child.children_can_support_apis || child.has_provider;
+      }
+
+      return true;
+    });
+  };
+
   const handleProviderChange = (provider) => {
     setProvider((current) => {
       // Fetch the url of the provider
@@ -229,10 +250,10 @@ const MapperProvider: FC<IProviderProps> = ({
         // Select the provider data
         const { url, filter, inputFilter, outputFilter, withDetails } = realProviders[provider];
         // Get the data
-        let { data, error } = await fetchData(`${url}${withDetails ? '/childDetails' : ''}`);
+        let { data, error } = await fetchData(`${url}`);
 
         if (error) {
-          onError?.(error);
+          onError?.(`${record.error.error.err}: ${record.error.error.desc}`);
         } else {
           onError?.(null);
         }
@@ -253,7 +274,8 @@ const MapperProvider: FC<IProviderProps> = ({
           }
         }
         // Save the children
-        const children = data.children || data;
+        let children = filterChildren(data.children || data);
+
         // Add new child
         setChildren([
           {
@@ -305,9 +327,10 @@ const MapperProvider: FC<IProviderProps> = ({
       : newSuffix;
     // Fetch the data
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
-    console.log('ERROR', error);
+    console.log('ERROR IN THE PROVIDER', error);
+
     if (error) {
-      const errMessage = error?.error || error;
+      const errMessage = `${error.error.err}: ${error.error.desc}`;
       onError?.(errMessage);
     } else {
       onError?.(null);
@@ -319,7 +342,6 @@ const MapperProvider: FC<IProviderProps> = ({
     if (data.desc) {
       // Add the description to the descriptions hash
       setDescriptions((current): string[] => {
-        console.log(itemIndex, data.desc);
         const newData = [...current];
         newData[itemIndex] = data.desc;
         return newData;
@@ -368,13 +390,14 @@ const MapperProvider: FC<IProviderProps> = ({
                   type === 'outputs' ? '&soft=true' : ''
                 }`
               : `${newSuffix}${data.has_record ? realProviders[provider].recordSuffix : ''}`
-            : `${suffix}${realProviders[provider].recordSuffix}`;
+            : `${newSuffix}${data.has_record ? realProviders[provider].recordSuffix : ''}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
+          console.log('ERROR IN THE PROVIDER', record);
 
           if (record.error) {
-            const errMessage = record.error?.error || record.error;
+            const errMessage = `${record.error.error.err}: ${record.error.error.desc}`;
             onError?.(errMessage);
           } else {
             onError?.(null);
@@ -396,11 +419,14 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             can_manage_fields: record.data?.can_manage_fields,
+            subtype: value === 'request' || value === 'response' ? value : undefined,
             descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')
-              .replace(`provider/`, ''),
+              .replace(`provider/`, '')
+              .replace('request', '')
+              .replace('response', ''),
             options,
           });
 
@@ -414,12 +440,13 @@ const MapperProvider: FC<IProviderProps> = ({
       }
       // If this provider has children
       if (size(data.children)) {
+        const children = filterChildren(data.children);
         // Return the updated items and add
         // the new item
         return [
           ...newItems,
           {
-            values: data.children.map((child) => {
+            values: children.map((child) => {
               if (typeof child === 'string') {
                 return {
                   name: child,
@@ -527,11 +554,14 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             can_manage_fields: record.data.can_manage_fields,
+            subtype: value === 'request' || value === 'response' ? value : undefined,
             descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
               .replace(`${name}`, '')
               .replace(`${realProviders[provider].url}/`, '')
-              .replace('provider/', ''),
+              .replace('provider/', '')
+              .replace('request', '')
+              .replace('response', ''),
             options,
           });
           // Set the record data
@@ -552,8 +582,6 @@ const MapperProvider: FC<IProviderProps> = ({
       ),
     []
   );
-
-  console.log('OPTIONS CHANGED', optionsChanged);
 
   return (
     <>
@@ -775,14 +803,14 @@ const MapperProvider: FC<IProviderProps> = ({
             />
           ) : null}
         </ButtonGroup>
-        {error && (
+        {errorMessage && (
           <SubField>
             <Callout
               title="An error occurred"
               intent="danger"
               style={{ wordBreak: 'break-all', maxHeight: '100px', overflow: 'auto' }}
             >
-              {error}
+              {errorMessage}
             </Callout>
           </SubField>
         )}

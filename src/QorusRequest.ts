@@ -180,14 +180,16 @@ export class QorusRequest extends QorusLogin {
       method,
       uri,
       strictSSL: false,
+      json: true,
       headers: {
         'qorus-token': token,
+        'Content-Type': 'application/json',
       },
     };
 
     if (method !== 'GET') {
       // @ts-ignore
-      requestOptions = { ...requestOptions, body: body || {}, json: true };
+      requestOptions = { ...requestOptions, body: body || {} };
     }
 
     request(requestOptions).then(
