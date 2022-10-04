@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.9.0
+
+#### Bug fixes
+
+- Complex hash/object-editing is now supported throughout the application
+
 ## Version 3.8.4
 
 #### Bug fixes

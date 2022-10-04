@@ -141,15 +141,18 @@ export type IOptions =
     }
   | undefined;
 
+export interface IOptionsSchemaArg {
+  type: IQorusType | IQorusType[];
+  default_value?: any;
+  required?: boolean;
+  allowed_values?: any[];
+  sensitive?: boolean;
+  desc?: string;
+  arg_schema?: IOptionsSchema;
+}
+
 export interface IOptionsSchema {
-  [optionName: string]: {
-    type: IQorusType | IQorusType[];
-    default_value?: any;
-    required?: boolean;
-    allowed_values?: any[];
-    sensitive?: boolean;
-    desc?: string;
-  };
+  [optionName: string]: IOptionsSchemaArg;
 }
 
 export interface IOperator {
@@ -450,8 +453,10 @@ const Options = ({
                 key={optionName}
                 title={optionName}
                 isValid={
-                  validateField(getType(type), other.value, { has_to_have_value: true }) &&
-                  (operatorsUrl ? !!other.op : true)
+                  validateField(getType(type), other.value, {
+                    has_to_have_value: true,
+                    ...options[optionName],
+                  }) && (operatorsUrl ? !!other.op : true)
                 }
                 detail={getType(options[optionName].type)}
                 desc={options[optionName].desc}
@@ -534,10 +539,11 @@ const Options = ({
                       );
                     }
                   }}
+                  arg_schema={options[optionName]?.arg_schema}
                   noSoft={!!rest?.options}
                   value={other.value}
                   sensitive={options[optionName].sensitive}
-                  default_value={options[optionName].default}
+                  default_value={options[optionName].default_value}
                   allowed_values={options[optionName].allowed_values}
                 />
                 {operators && size(operators) && size(other.op) ? (

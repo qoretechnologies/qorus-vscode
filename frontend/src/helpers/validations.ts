@@ -10,7 +10,13 @@ import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
-import { fixOperatorValue, IOptions, TOption } from '../components/Field/systemOptions';
+import {
+  fixOperatorValue,
+  IOptions,
+  IOptionsSchemaArg,
+  IQorusType,
+  TOption,
+} from '../components/Field/systemOptions';
 import { getTemplateKey, getTemplateValue, isValueTemplate } from '../components/Field/template';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { IField } from '../components/FieldWrapper';
@@ -20,9 +26,9 @@ import { splitByteSize } from './functions';
 const cron = require('cron-validator');
 
 export const validateField: (
-  type: string,
+  type: string | IQorusType,
   value?: any,
-  field?: IField,
+  field?: IField & any,
   canBeNull?: boolean
 ) => boolean = (type, value, field, canBeNull) => {
   if (!type) {
@@ -179,8 +185,15 @@ export const validateField: (
       );
     case 'hash':
     case 'hash<auto>': {
+      if (field?.arg_schema) {
+        console.log('VALIDATING FIELD', type, value);
+        return every(field.arg_schema, (fieldData: IOptionsSchemaArg, argName: string) => {
+          console.log('RUNNING VALIDATION FOR ARG_SCHEMA', argName);
+          return validateField(fieldData.type as IQorusType, value?.[argName], fieldData);
+        });
+      }
       // Get the parsed yaml
-      const parsedValue: any = maybeParseYaml(value);
+      const parsedValue: any = typeof value === 'object' ? value : maybeParseYaml(value);
       // If the value is not an object or empty
       if (!parsedValue || !isObject(parsedValue)) {
         return false;
