@@ -316,13 +316,15 @@ const MapperProvider: FC<IProviderProps> = ({
     clear && clear(true);
     // Set loading
     setIsLoading(true);
-    const newSuffix = realProviders[provider].withDetails ? `${suffix}/childDetails` : suffix;
+    const newSuffix = realProviders[provider].withDetails
+      ? `${suffix}?action=childDetails`
+      : suffix;
     // Build the suffix
     let suffixString = realProviders[provider].suffixRequiresOptions
       ? optionString && optionString !== '' && size(options)
-        ? `${newSuffix}?${optionString}`
+        ? `${newSuffix}${realProviders[provider].withDetails ? '&' : '?'}${optionString}`
         : itemIndex === 1
-        ? '/childDetails'
+        ? '?action=childDetails'
         : newSuffix
       : newSuffix;
     // Fetch the data
@@ -381,16 +383,21 @@ const MapperProvider: FC<IProviderProps> = ({
             setMapperKeys && setMapperKeys(data.mapper_keys);
           }
 
-          const newSuffix =
-            data.supports_children || data.has_type === false ? `${suffix}/childDetails` : suffix;
+          const newSuffix = suffix;
+          const childDetailsSuffix =
+            data.supports_children || data.has_type === false ? `action=childDetails` : '';
 
           suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
               ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                   type === 'outputs' ? '&soft=true' : ''
                 }`
-              : `${newSuffix}${data.has_record ? realProviders[provider].recordSuffix : ''}`
-            : `${newSuffix}${data.has_record ? realProviders[provider].recordSuffix : ''}`;
+              : `${newSuffix}${
+                  data.has_record ? realProviders[provider].recordSuffix : '?'
+                }${childDetailsSuffix}`
+            : `${newSuffix}${
+                data.has_record ? realProviders[provider].recordSuffix : '?'
+              }${childDetailsSuffix}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
