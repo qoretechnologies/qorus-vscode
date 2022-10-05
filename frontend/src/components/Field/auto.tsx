@@ -7,6 +7,7 @@ import {
   getTypeFromValue,
   getValueOrDefaultValue,
   maybeParseYaml,
+  validateField,
 } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
 import SubField from '../SubField';
@@ -203,16 +204,21 @@ const AutoField: FunctionComponent<
           const currentPath = path ? `${path}.` : '';
           const transformedValue = typeof value === 'string' ? maybeParseYaml(value) : value;
 
-          console.log('VALUE HAS MAYBE UPDATED', value, transformedValue, 'ON LEVEL', level);
-
           return map(arg_schema, (schema, option) => {
-            console.log(
-              `${currentPath}${option}`,
-              get(transformedValue, `${currentPath}${option}`),
-              schema
-            );
             return (
-              <SubField title={option} {...schema} detail={schema.type}>
+              <SubField
+                title={option}
+                {...schema}
+                desc={`${currentPath}${option} <${schema.type}>`}
+                collapsible
+                nested={level > 0}
+                isValid={
+                  schema.required
+                    ? validateField(schema.type, get(transformedValue, `${option}`))
+                    : true
+                }
+                detail={schema.required ? 'Required' : 'Optional'}
+              >
                 <AutoField
                   {...schema}
                   path={`${currentPath}${option}`}
@@ -224,13 +230,10 @@ const AutoField: FunctionComponent<
                   onChange={(n, v) => {
                     if (v !== undefined) {
                       if (level === 0) {
-                        console.log('THE TRANSFORMED VALUE', transformedValue);
-                        console.log('CHANGING', n, 'TO', v);
                         const newValue = set(transformedValue || {}, n, v);
-                        console.log('THE NEW VALUE', newValue);
+
                         handleChange(name, newValue);
                       } else {
-                        console.log('CHANGING', n, 'TO', v);
                         handleChange(n, v);
                       }
                     }
@@ -422,11 +425,11 @@ const AutoField: FunctionComponent<
         fill
         style={{
           flexFlow: column || arg_schema ? 'column' : 'row',
-          marginLeft: 10 * level,
+          marginLeft: arg_schema ? 10 * level : 0,
           overflow: 'hidden',
           flexShrink: 0,
           width: `calc(100% - ${11 * level}px)`,
-          maxHeight: arg_schema && level === 0 ? '300px' : undefined,
+          maxHeight: arg_schema && level === 0 ? '500px' : undefined,
           overflowY: arg_schema && level === 0 ? 'auto' : undefined,
         }}
       >

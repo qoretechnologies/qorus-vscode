@@ -452,6 +452,7 @@ const Options = ({
                 subtle
                 key={optionName}
                 title={optionName}
+                collapsible
                 isValid={
                   validateField(getType(type), other.value, {
                     has_to_have_value: true,
