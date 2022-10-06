@@ -317,14 +317,18 @@ const MapperProvider: FC<IProviderProps> = ({
     // Set loading
     setIsLoading(true);
     const newSuffix = realProviders[provider].withDetails
-      ? `${suffix}?action=childDetails`
+      ? value === 'request' || value === 'response'
+        ? ''
+        : `${suffix}?action=childDetails`
       : suffix;
     // Build the suffix
     let suffixString = realProviders[provider].suffixRequiresOptions
       ? optionString && optionString !== '' && size(options)
         ? `${newSuffix}${realProviders[provider].withDetails ? '&' : '?'}${optionString}`
         : itemIndex === 1
-        ? '?action=childDetails'
+        ? value === 'request' || value === 'response'
+          ? ''
+          : '?action=childDetails'
         : newSuffix
       : newSuffix;
     // Fetch the data
@@ -385,7 +389,11 @@ const MapperProvider: FC<IProviderProps> = ({
 
           const newSuffix = suffix;
           const childDetailsSuffix =
-            data.supports_children || data.has_type === false ? `action=childDetails` : '';
+            data.supports_children || data.has_type === false
+              ? value === 'request' || value === 'response'
+                ? ''
+                : `action=childDetails`
+              : '';
 
           suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
