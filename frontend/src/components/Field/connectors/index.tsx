@@ -124,7 +124,11 @@ export const getUrlFromProvider: (
   // Check if the path ends in /request or /response
   const endsInSubtype = path.endsWith('/request') || path.endsWith('/response');
   const hasSubtype = subtype || endsInSubtype;
-  const finalPath = `${path.replace('/response', '').replace('/request', '')}/${subtype}`;
+  const finalPath = hasSubtype
+    ? `${path.replace('/response', '').replace('/request', '')}/${subtype}`
+    : path;
+
+  console.log(path, finalPath);
 
   // Build the suffix
   const realPath = `${suffix}${finalPath}${
