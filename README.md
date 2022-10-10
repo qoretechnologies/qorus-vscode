@@ -7,6 +7,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 ## Version 3.9.0 overview - What's new:
 
 - Complex hash/object-editing is now supported throughout the application
+- Fixed a bug where a response/request type was not working properly in mappers
 
 ## Version 3.8.4 overview - What's new:
 
