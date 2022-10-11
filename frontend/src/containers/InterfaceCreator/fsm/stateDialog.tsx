@@ -316,7 +316,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
         style={{
           width: newData.type === 'block' ? '80vw' : '80vw',
           paddingBottom: 0,
-          height: newData.type === 'block' ? '80vh' : undefined,
+          height: newData.type === 'block' ? '95vh' : undefined,
         }}
       >
         <Content style={{ padding: 10, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>

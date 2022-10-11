@@ -102,7 +102,7 @@ export const getUrlFromProvider: (
   if (typeof val === 'string') {
     return val;
   }
-  const { type, name, path = '', options, is_api_call, hasApiContext } = val;
+  const { type, name, path = '', options, is_api_call, hasApiContext, subtype } = val;
   let optionString;
 
   if (size(options)) {
@@ -123,11 +123,17 @@ export const getUrlFromProvider: (
 
   // Check if the path ends in /request or /response
   const endsInSubtype = path.endsWith('/request') || path.endsWith('/response');
+  const hasSubtype = subtype || endsInSubtype;
+  const finalPath = hasSubtype
+    ? `${path.replace('/response', '').replace('/request', '')}/${subtype}`
+    : path;
+
+  console.log(path, finalPath);
 
   // Build the suffix
-  const realPath = `${suffix}${path}${
-    endsInSubtype || is_api_call || isRecord ? '' : recordSuffix || ''
-  }${withOptions ? '/constructor_options' : ''}`;
+  const realPath = `${suffix}${finalPath}${
+    hasSubtype || is_api_call || isRecord ? '' : recordSuffix || ''
+  }`;
 
   const suffixString = suffixRequiresOptions
     ? optionString && optionString !== ''
@@ -136,7 +142,7 @@ export const getUrlFromProvider: (
     : realPath;
 
   // Build the URL based on the provider type
-  return `${url}/${name}${suffixString}${type === 'type' && endsInSubtype ? '?action=type' : ''}`;
+  return `${url}/${name}${suffixString}${type === 'type' && hasSubtype ? '?action=type' : ''}`;
 };
 
 export const maybeBuildOptionProvider = (provider) => {

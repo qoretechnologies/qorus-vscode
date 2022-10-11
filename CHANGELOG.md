@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 3.9.0
+
+#### Bug fixes
+
+- Complex hash/object-editing is now supported throughout the application
+- Fixed a bug where a response/request type was not working properly in mappers
+
 ## Version 3.8.4
 
 #### Bug fixes
