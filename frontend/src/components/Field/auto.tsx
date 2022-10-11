@@ -1,4 +1,5 @@
 import { Button, Callout, ControlGroup } from '@blueprintjs/core';
+import { get, map, set } from 'lodash';
 import { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import { IFieldChange } from '../../components/FieldWrapper';
@@ -6,8 +7,10 @@ import {
   getTypeFromValue,
   getValueOrDefaultValue,
   maybeParseYaml,
+  validateField,
 } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
+import SubField from '../SubField';
 import { IField } from './';
 import BooleanField from './boolean';
 import ByteSizeField from './byteSize';
@@ -21,8 +24,12 @@ import OptionHashField from './optionHash';
 import RadioField from './radioField';
 import SelectField from './select';
 import StringField from './string';
+import { IOptionsSchema } from './systemOptions';
 
-const AutoField: FunctionComponent<IField & IFieldChange> = ({
+const AutoField: FunctionComponent<
+  IField &
+    IFieldChange & { arg_schema?: IOptionsSchema; path?: string; column?: boolean; level?: number }
+> = ({
   name,
   onChange,
   value,
@@ -33,6 +40,10 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
   type,
   t,
   noSoft,
+  path,
+  arg_schema,
+  column,
+  level = 0,
   ...rest
 }) => {
   const [currentType, setType] = useState<string>(defaultInternalType || null);
@@ -188,7 +199,65 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
           />
         );
       case 'hash':
-      case 'hash<auto>':
+      case 'hash<auto>': {
+        if (arg_schema) {
+          const currentPath = path ? `${path}.` : '';
+          const transformedValue = typeof value === 'string' ? maybeParseYaml(value) : value;
+
+          return map(arg_schema, (schema, option) => {
+            return (
+              <SubField
+                title={option}
+                {...schema}
+                desc={`${currentPath}${option} <${schema.type}>`}
+                collapsible
+                nested={level > 0}
+                isValid={
+                  schema.required
+                    ? validateField(schema.type, get(transformedValue, `${option}`))
+                    : true
+                }
+                detail={schema.required ? 'Required' : 'Optional'}
+              >
+                <AutoField
+                  {...schema}
+                  path={`${currentPath}${option}`}
+                  name={`${currentPath}${option}`}
+                  level={level + 1}
+                  defaultType={schema.type}
+                  defaultInternalType={schema.type}
+                  value={get(transformedValue, `${option}`)}
+                  onChange={(n, v) => {
+                    if (v !== undefined) {
+                      if (level === 0) {
+                        const newValue = set(transformedValue || {}, n, v);
+
+                        handleChange(name, newValue);
+                      } else {
+                        handleChange(n, v);
+                      }
+                    }
+                  }}
+                  column
+                />
+              </SubField>
+            );
+          });
+        }
+
+        return (
+          <LongStringField
+            {...rest}
+            name={name}
+            onChange={handleChange}
+            value={value}
+            fill
+            type={currentType}
+            noWrap
+            placeholder={t('Yaml')}
+          />
+        );
+      }
       case 'list':
       case 'softlist<string>':
       case 'softlist':
@@ -352,7 +421,18 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
   // Render type picker if the type is auto or any
   return (
     <>
-      <ControlGroup fill>
+      <ControlGroup
+        fill
+        style={{
+          flexFlow: column || arg_schema ? 'column' : 'row',
+          marginLeft: arg_schema ? 10 * level : 0,
+          overflow: 'hidden',
+          flexShrink: 0,
+          width: `calc(100% - ${11 * level}px)`,
+          maxHeight: arg_schema && level === 0 ? '500px' : undefined,
+          overflowY: arg_schema && level === 0 ? 'auto' : undefined,
+        }}
+      >
         {showPicker && (
           <SelectField
             name="type"

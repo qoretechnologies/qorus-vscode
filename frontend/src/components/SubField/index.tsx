@@ -1,7 +1,7 @@
-import { Button, Classes, Colors, Icon } from '@blueprintjs/core';
+import { Button, Classes, Colors, ControlGroup, Icon } from '@blueprintjs/core';
 import { setupPreviews } from '@previewjs/plugin-react/setup';
 import { noop } from 'lodash';
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
 import HorizontalSpacer from '../HorizontalSpacer';
@@ -14,6 +14,8 @@ export interface ISubFieldProps {
   onRemove?: () => any;
   detail?: string;
   isValid?: boolean;
+  collapsible?: boolean;
+  nested?: boolean;
 }
 
 const StyledSubFieldTitle = styled.h4`
@@ -63,44 +65,61 @@ const SubField: React.FC<ISubFieldProps> = ({
   onRemove,
   detail,
   isValid,
-}) => (
-  <>
-    {title && (
-      <StyledSubFieldTitle subtle={subtle} isValid={isValid}>
-        <div>
-          {!subtle && (
-            <>
-              <Icon icon="dot" iconSize={16} color={isValid === false ? '#bd0000' : undefined} />
-              <HorizontalSpacer size={5} />
-            </>
-          )}
-          <span className="subfield-title">{title}</span>{' '}
-          {detail && (
-            <span className={Classes.TEXT_MUTED}>
-              {'<'}
-              {detail}
-              {'>'}
-            </span>
-          )}
-        </div>
-        {onRemove ? (
-          <Button
-            style={{ verticalAlign: 'sub' }}
-            minimal
-            icon="trash"
-            onClick={onRemove}
-            intent="danger"
-            small
-          />
-        ) : (
-          ''
-        )}
-      </StyledSubFieldTitle>
-    )}
-    <DescriptionField desc={desc} />
-    {children}
-  </>
-);
+  collapsible,
+  nested,
+}) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  return (
+    <>
+      {title && (
+        <StyledSubFieldTitle subtle={subtle} isValid={isValid}>
+          <div>
+            {!subtle && (
+              <>
+                <Icon
+                  icon={nested ? 'nest' : 'dot'}
+                  iconSize={16}
+                  color={isValid === false ? '#bd0000' : undefined}
+                />
+                <HorizontalSpacer size={5} />
+              </>
+            )}
+            <span className="subfield-title">{title}</span>{' '}
+            {detail && (
+              <span className={Classes.TEXT_MUTED}>
+                {'<'}
+                {detail}
+                {'>'}
+              </span>
+            )}
+          </div>
+          <ControlGroup>
+            {collapsible && (
+              <Button
+                icon={isCollapsed ? 'chevron-down' : 'chevron-up'}
+                minimal
+                onClick={() => setIsCollapsed(!isCollapsed)}
+              />
+            )}
+            {onRemove ? (
+              <Button
+                style={{ verticalAlign: 'sub' }}
+                minimal
+                icon="trash"
+                onClick={onRemove}
+                intent="danger"
+                small
+              />
+            ) : null}
+          </ControlGroup>
+        </StyledSubFieldTitle>
+      )}
+      <DescriptionField desc={desc} />
+      {!isCollapsed && children}
+    </>
+  );
+};
 
 setupPreviews(SubField, () => ({
   Basic: { title: 'SubField', children: <p> Hello </p> },

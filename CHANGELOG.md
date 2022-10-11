@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 3.9.0
+
+#### Bug fixes
+
+- Complex hash/object-editing is now supported throughout the application
+- Fixed a bug where a response/request type was not working properly in mappers
+
+## Version 3.8.4
+
+#### Bug fixes
+
+- It is no longer possible to select a non-record-based provider in Pipeline input provider
+
 ## Version 3.8.3
 
 #### New Features
