@@ -5,6 +5,7 @@ import { TRecordType } from '.';
 import { TTranslator } from '../../../App';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { insertUrlPartBeforeQuery } from '../../../helpers/functions';
 import Spacer from '../../Spacer';
 import SubField from '../../SubField';
 import Options, { IOptions, IOptionsSchema } from '../systemOptions';
@@ -36,7 +37,8 @@ export const RecordQueryArgs = ({
         // Set fields and operators to undefined
         setOptions(undefined);
         // Fetch the fields and operators
-        const fieldsData = await fetchData(`/${url}/record`);
+        const fieldsData = await fetchData(insertUrlPartBeforeQuery(`/${url}`, `/record`));
+        console.log(insertUrlPartBeforeQuery(`/${url}`, `/record`), fieldsData.data);
         // Set the data
         setOptions(fieldsData.data);
       })();
@@ -90,7 +92,11 @@ export const RecordQueryArgs = ({
                 }}
                 name={`${type}_args`}
                 value={options}
-                operatorsUrl={hasOperators ? `${url}/search_operators?context=ui` : undefined}
+                operatorsUrl={
+                  hasOperators
+                    ? insertUrlPartBeforeQuery(url, `/search_operators`, 'context=ui')
+                    : undefined
+                }
                 options={transformedOptions}
                 placeholder={t('AddArgument')}
                 noValueString={t('NoArgument')}
@@ -114,7 +120,9 @@ export const RecordQueryArgs = ({
       onChange={onChange}
       name={`${type}_args`}
       value={value as IOptions}
-      operatorsUrl={hasOperators ? `${url}/search_operators?context=ui` : undefined}
+      operatorsUrl={
+        hasOperators ? insertUrlPartBeforeQuery(url, '/search_operators', 'context=ui') : undefined
+      }
       options={transformedOptions}
       placeholder={t('AddArgument')}
       noValueString={t('NoArgument')}

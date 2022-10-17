@@ -6,6 +6,7 @@ import { useDebounce } from 'react-use';
 import compose from 'recompose/compose';
 import { TTranslator } from '../../../App';
 import Provider, { providers } from '../../../containers/Mapper/provider';
+import { insertUrlPartBeforeQuery } from '../../../helpers/functions';
 import withInitialDataConsumer from '../../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../../hocomponents/withTextContext';
 import SubField from '../../SubField';
@@ -448,7 +449,10 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
               }}
               name="search_options"
               value={optionProvider?.search_options}
-              customUrl={`${getUrlFromProvider(optionProvider, false, true)}/search_options`}
+              customUrl={insertUrlPartBeforeQuery(
+                getUrlFromProvider(optionProvider, false, true),
+                '/search_options'
+              )}
             />
           </SubField>
         </>
