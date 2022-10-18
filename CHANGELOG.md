@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.9.1
+
+#### Bug fixes
+
+- Fixed a bug where the data provider URL would not be built correctly when using the search states in FSM
+
 ## Version 3.9.0
 
 #### Bug fixes

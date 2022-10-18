@@ -499,6 +499,14 @@ export const getTargetFile = (data: any) => {
   return null;
 };
 
+export const insertUrlPartBeforeQuery = (url: string, part: string, query?: string) => {
+  const urlParts = url.split('?');
+  const urlWithoutQuery = urlParts[0];
+  const q = `?${urlParts[1] || ''}${urlParts[1] && query ? '&' : ''}${query ? query : ''}`;
+
+  return `${urlWithoutQuery}${part}${q}`;
+};
+
 export const hasValue = (value) => value && value !== '';
 export const getDraftId = (data, interfaceId) => {
   if (data && getTargetFile(data)) {
