@@ -238,16 +238,21 @@ export const validateField: (
         return false;
       }
 
-      if (
-        value.use_args &&
-        value.args &&
-        value.args?.type !== 'nothing' &&
-        !validateField(
-          value.args.type === 'hash' ? 'system-options' : value.args.type,
-          value.args.value
-        )
-      ) {
-        return false;
+      if (value.use_args) {
+        if (value.args?.type !== 'nothing') {
+          if (!value.args) {
+            return false;
+          }
+
+          if (
+            !validateField(
+              value.args.type === 'hash' ? 'system-options' : value.args.type,
+              value.args.value
+            )
+          ) {
+            return false;
+          }
+        }
       }
 
       if (
