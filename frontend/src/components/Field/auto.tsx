@@ -254,7 +254,7 @@ const AutoField: FunctionComponent<
             fill
             type={currentType}
             noWrap
-            placeholder={t('Yaml')}
+            placeholder={'Yaml'}
           />
         );
       }
@@ -271,7 +271,7 @@ const AutoField: FunctionComponent<
             fill
             type={currentType}
             noWrap
-            placeholder={t('Yaml')}
+            placeholder={'Yaml'}
           />
         );
       case 'int':

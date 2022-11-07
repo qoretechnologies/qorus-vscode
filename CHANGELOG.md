@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.9.2
+
+#### Bug fixes
+
+- Fixed a bug where the webview would crash when selecting certain data types when browsing data providers
+
 ## Version 3.9.1
 
 #### Bug fixes
