@@ -129,8 +129,6 @@ export const getUrlFromProvider: (
     ? `${path.replace('/response', '').replace('/request', '')}/${subtype}`
     : path;
 
-  console.log(path, finalPath);
-
   // Build the suffix
   const realPath = `${suffix}${finalPath}${
     hasSubtype || is_api_call || isRecord ? '' : recordSuffix || ''
@@ -367,8 +365,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                 if (!isEqual(optionProvider.options, val)) {
                   result.optionsChanged = true;
                 }
-
-                console.log('result', result);
 
                 return result;
               });

@@ -132,8 +132,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   const { maybeApplyDraft, draft } = useContext<IDraftsContext>(DraftsContext);
   const originalData = useRef(data);
 
-  console.log('DATA IN PANEL', data);
-
   useEffect(() => {
     originalData.current = data;
   }, [data]);

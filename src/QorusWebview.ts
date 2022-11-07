@@ -164,6 +164,7 @@ class QorusWebview {
 
         let html = doc.getText().replace(/%PUBLIC_URL%/g, uri.toString());
         html = html.replace(/%MAIN_SCRIPT_NAME%/g, `${uri.toString()}/static/js/bundle.js`);
+        //html = html.replace(/%MAIN_SCRIPT_MAP_NAME%/g, `${uri.toString()}/static/js/bundle.js.map`);
         html = html.replace(/%MAIN_CSS_NAME%/g, `${uri.toString()}/static/css/bundle.css`);
         this.panel.webview.html = html.replace(/%URL%/g, uri.toString());
 
