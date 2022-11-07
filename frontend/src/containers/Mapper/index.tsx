@@ -355,8 +355,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
   const [addDialog, setAddDialog] = useState({});
   const [mappingDialog, setMappingDialog] = useState({});
 
-  console.log(inputs, outputs);
-
   useEffect(() => {
     const mapper = selectedFields.mapper[interfaceIndex];
     const ctx = mapper.find((mapperField) => mapperField.name === 'context');
@@ -870,8 +868,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                         result.optionsChanged = true;
                       }
 
-                      console.log('result', result);
-
                       return result;
                     });
                   }}
@@ -921,8 +917,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                       if (!isEqual(outputOptionProvider.options, val)) {
                         result.optionsChanged = true;
                       }
-
-                      console.log('result', result);
 
                       return result;
                     });

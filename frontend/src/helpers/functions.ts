@@ -213,11 +213,6 @@ export const areTypesCompatible = async (
   output.options = await formatAndFixOptionsToKeyValuePairs(output.options);
   input.options = await formatAndFixOptionsToKeyValuePairs(input.options);
 
-  console.log({
-    base_type: input,
-    type: output,
-  });
-
   const comparison = await fetchData('/dataprovider/compareTypes', 'PUT', {
     base_type: input,
     type: output,

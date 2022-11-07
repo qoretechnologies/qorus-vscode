@@ -42,7 +42,6 @@ const StringField = ({
   sensitive,
   autoFocus,
 }: IStringField) => {
-  console.log('INSIDE STRING', value, default_value);
   // Fetch data on mount
   useMount(() => {
     // Populate default value

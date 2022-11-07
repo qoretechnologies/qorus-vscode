@@ -3200,6 +3200,9 @@ msgstr "Search options"
 msgid "LoadingArgs"
 msgstr "Loading arguments..."
 
+msgid "NoArgs"
+msgstr "No arguments available"
+
 msgid "search-single"
 msgstr "Single search"
 

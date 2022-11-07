@@ -186,9 +186,7 @@ export const validateField: (
     case 'hash':
     case 'hash<auto>': {
       if (field?.arg_schema) {
-        console.log('VALIDATING FIELD', type, value);
         return every(field.arg_schema, (fieldData: IOptionsSchemaArg, argName: string) => {
-          console.log('RUNNING VALIDATION FOR ARG_SCHEMA', argName);
           return validateField(fieldData.type as IQorusType, value?.[argName], fieldData);
         });
       }
@@ -257,8 +255,8 @@ export const validateField: (
 
       if (
         (type === 'search-single' || type === 'search') &&
-        (size(value.search_args) === 0 ||
-          !validateField('system-options-with-operators', value.search_args))
+        size(value.search_args) !== 0 &&
+        !validateField('system-options-with-operators', value.search_args)
       ) {
         return false;
       }
@@ -400,7 +398,6 @@ export const validateField: (
       return isValid(value);
     }
     case 'system-options-with-operators': {
-      console.log(value);
       const isValid = (val: IOptions) => {
         if (!val || size(val) === 0) {
           if (canBeNull) {

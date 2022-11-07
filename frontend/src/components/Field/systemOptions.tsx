@@ -199,8 +199,6 @@ const Options = ({
 
   const getUrl = () => customUrl || `/options/${url}`;
 
-  console.log('SYSTEM OPTIONS VALUE', value);
-
   useMount(() => {
     if (qorus_instance && (url || customUrl)) {
       (async () => {
