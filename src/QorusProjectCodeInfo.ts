@@ -352,6 +352,7 @@ export class QorusProjectCodeInfo {
     };
 
     const onSuccess = (response) => {
+      console.log('RESPONSE IN getFieldsFromType', response);
       const data = JSON.parse(response);
       postMessage(data);
     };
@@ -1037,7 +1038,8 @@ export class QorusProjectCodeInfo {
 
   private setMapperTypes = () => {
     qorus_request.doRequest('mappertypes', 'GET', (response) => {
-      const result = JSON.parse(response);
+      console.log(response);
+      const result = response;
       if (Array.isArray(result)) {
         this.mapper_types = result.map((type) => ({ name: type.name, desc: type.desc }));
       }
