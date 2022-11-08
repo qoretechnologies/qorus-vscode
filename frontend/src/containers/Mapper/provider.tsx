@@ -400,10 +400,10 @@ const MapperProvider: FC<IProviderProps> = ({
                   type === 'outputs' ? '&soft=true' : ''
                 }`
               : `${newSuffix}${
-                  data.has_record ? realProviders[provider].recordSuffix : '?'
+                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
                 }${childDetailsSuffix}`
             : `${newSuffix}${
-                data.has_record ? realProviders[provider].recordSuffix : '?'
+                data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
               }${childDetailsSuffix}`;
 
           // Fetch the record
@@ -441,6 +441,8 @@ const MapperProvider: FC<IProviderProps> = ({
               .replace('response', ''),
             options,
           });
+
+          console.log('DATA IN CHILD FIELD CHANGE', data);
 
           if (data.has_type || isConfigItem) {
             // Set the record data
@@ -546,7 +548,7 @@ const MapperProvider: FC<IProviderProps> = ({
           const record = await fetchData(`${url}/${value}${suffixString}`);
 
           if (record.error) {
-            const errMessage = record.error?.error || record.error;
+            const errMessage = `${record.error.error.err}: ${record.error.error.desc}`;
             onError?.(errMessage);
           } else {
             onError?.(null);

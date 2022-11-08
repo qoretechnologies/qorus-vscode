@@ -78,7 +78,7 @@ export const RecordQueryArgs = ({
   if (asList) {
     return (
       <>
-        {error && <Callout title={error.err}>{error.desc}</Callout>}
+        {error && <Callout title={error.title}>{error.desc}</Callout>}
         {value &&
           (value as IOptions[]).map((options: IOptions, index: number) => (
             <SubField

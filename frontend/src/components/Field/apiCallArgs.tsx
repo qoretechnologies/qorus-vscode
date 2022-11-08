@@ -1,5 +1,5 @@
 import { Callout } from '@blueprintjs/core';
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useAsyncRetry } from 'react-use';
 import styled from 'styled-components';
 import { InitialContext } from '../../context/init';
@@ -30,7 +30,8 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
       const data = await fetchData(`${url}/request?context=ui`);
 
       if (data.error) {
-        throw new Error(data.error);
+        console.log(data.error);
+        //throw new Error(data.error.error.desc);
       }
 
       return data.data;

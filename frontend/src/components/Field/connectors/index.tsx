@@ -157,15 +157,21 @@ export const maybeBuildOptionProvider = (provider) => {
   if (provider.startsWith('factory')) {
     // Get everything between the < and >
     //const factory = provider.substring(provider.indexOf('<') + 1, provider.indexOf('>'));
+    // Add / to the provider at the end if it doesn't already have it
+    const fixedProvider = provider.endsWith('/') ? provider : `${provider}/`;
     // Get the factory name
-    const [factoryType, nameWithOptions]: string[] = provider.split('/');
+    const [factoryType]: string[] = fixedProvider.split('/');
     // Get everything between the first / and { bracket
-    const [factoryName] = nameWithOptions.split('{');
-    // Get everything in the provider between first { and last }, which are the options
-    const options = nameWithOptions.substring(
-      nameWithOptions.indexOf('{') + 1,
-      nameWithOptions.lastIndexOf('}')
+    const factoryName = fixedProvider.substring(
+      fixedProvider.indexOf('/') + 1,
+      fixedProvider.lastIndexOf('{')
     );
+    // Get everything in the provider between first { and last }, which are the options
+    const options = fixedProvider.substring(
+      fixedProvider.indexOf('{') + 1,
+      fixedProvider.lastIndexOf('}')
+    );
+    console.log('options', options);
     // Split the options by comma
     const optionsArray = options.split(',');
     let optionsObject = {};
@@ -185,13 +191,15 @@ export const maybeBuildOptionProvider = (provider) => {
       type: factoryType,
       name: factoryName,
       // Get everything after the last }/ from the provider
-      path: provider.substring(provider.lastIndexOf('}/') + 2),
+      path: fixedProvider.substring(fixedProvider.lastIndexOf('}/') + 2),
       options: optionsObject,
     };
     // Add the optionsChanged key if the provider includes the "?options_changed" string
     if (provider.includes('?options_changed')) {
       result.optionsChanged = true;
     }
+
+    console.log('THE ACTUAL PROVIDER OBJECT', result);
 
     return result;
   }
@@ -288,6 +296,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           const newNodes = cloneDeep(nodes);
 
           if (type === 'factory') {
+            console.log('VALUE IN CONNECTORS FIELD', val);
+
             let options = reduce(
               val.options,
               (newOptions, optionData, optionName) => {

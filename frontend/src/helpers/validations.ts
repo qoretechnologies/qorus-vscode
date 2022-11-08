@@ -294,7 +294,7 @@ export const validateField: (
         const cont: string[] = value.split(':');
         return validateField('string', cont[0]) && validateField('string', cont[1]);
       }
-      return !!value.iface_kind && !!value.name;
+      return !!value?.iface_kind && !!value?.name;
     case 'auto':
     case 'any': {
       // Parse the string as yaml
