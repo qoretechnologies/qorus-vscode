@@ -30,8 +30,8 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
       const data = await fetchData(`${url}/request?context=ui`);
 
       if (data.error) {
-        console.log(data.error);
-        //throw new Error(data.error.error.desc);
+        //console.log(data.error);
+        throw new Error(data.error.error.desc);
       }
 
       return data.data;
@@ -46,11 +46,11 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
   }, [schema]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Callout>Loading...</Callout>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <Callout intent="danger">Error: {error.message}</Callout>;
   }
 
   if (schema?.type === 'nothing') {
