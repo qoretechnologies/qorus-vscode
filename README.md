@@ -10,6 +10,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 - Fixed a bug that prevented search providers with empty search arguments to be saved
 - Fixed a bug where the WebView would crash when trying to add a `Context` field to existing mappers
 - Fixed a bug where the WebView would crash when trying to edit a saved state which contained an action that included options with `/` in the value
+- Fixed enlarged + buttons in the Api Manager field in Services
 
 ## Version 3.9.1 overview - What's new:
 

@@ -1,6 +1,6 @@
 import { Callout, ControlGroup } from '@blueprintjs/core';
 import { reduce, size } from 'lodash';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { useAsyncRetry } from 'react-use';
 import styled from 'styled-components';
 import { Messages } from '../../constants/messages';
@@ -224,7 +224,7 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
           isValid={validateField('api-endpoints', value?.endpoints)}
         >
           {endpoints.loading || !endpoints.value ? (
-            <Callout intent="primary">Loading...</Callout>
+            <Callout>Loading...</Callout>
           ) : endpoints.error ? (
             <Callout intent="danger" title="Error">
               Failed to load endpoints
