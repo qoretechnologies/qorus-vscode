@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "3.9.1",
+  "version": "3.9.2",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
@@ -1658,6 +1658,7 @@
     "test": "npm run compile && node ./node_modules/vscode/bin/test",
     "start": "cd frontend && yarn start",
     "build": "cd frontend && yarn build",
+    "build:dev": "NODE_ENV=development cd frontend && yarn build",
     "ui-setup-tests": "ui-test/node_modules/.bin/extest setup-tests",
     "ui-run-tests": "rm -rf ui-test/test_project/* && rm -rf ui-test/out && npm run compile:test && ui-test/node_modules/.bin/extest run-tests -e ui-test/extensions/ 'ui-test/out/*.js' && rm -rf ui-test/test_project/* && rm -rf ui-test/out",
     "ui-run-single-test": "rm -rf ui-test/test_project/* && rm -rf ui-test/out && npm run compile:test && ui-test/node_modules/.bin/extest run-tests -e ui-test/extensions/ \"ui-test/out/{_setup,$TEST_NAME}.spec.js\" && rm -rf ui-test/test_project/* && rm -rf ui-test/out",

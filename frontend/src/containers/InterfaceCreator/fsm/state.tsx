@@ -178,7 +178,7 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
     return `${action.value.class}:${action.value.connector} ${action.type}`;
   }
 
-  if (action.value?.path) {
+  if (action.value?.path || action.value?.path === '') {
     return `${action.value.type}/${action.value.name}/${action.value.path}`;
   }
 

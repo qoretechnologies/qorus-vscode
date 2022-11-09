@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout } from '@blueprintjs/core';
 import { reduce, size } from 'lodash';
 import React, { useContext, useEffect } from 'react';
 import { TRecordType } from '.';
@@ -28,25 +28,37 @@ export const RecordQueryArgs = ({
   asList,
 }: ISearchArgsProps) => {
   const [options, setOptions] = React.useState<any>(undefined);
+  const [hasLoaded, setHasLoaded] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<any | undefined>(undefined);
   const t: TTranslator = useContext<TTranslator>(TextContext);
   const { fetchData, qorus_instance }: any = useContext(InitialContext);
 
   useEffect(() => {
     if (qorus_instance) {
       (async () => {
+        setHasLoaded(false);
+        setError(undefined);
         // Set fields and operators to undefined
         setOptions(undefined);
         // Fetch the fields and operators
         const fieldsData = await fetchData(insertUrlPartBeforeQuery(`/${url}`, `/record`));
-        console.log(insertUrlPartBeforeQuery(`/${url}`, `/record`), fieldsData.data);
         // Set the data
+        if (fieldsData.error) {
+          setError({ title: fieldsData.error.error.err, desc: fieldsData.error.error.desc });
+        }
+
+        setHasLoaded(true);
         setOptions(fieldsData.data);
       })();
     }
   }, [url, qorus_instance]);
 
+  if (!hasLoaded) {
+    return <Callout>{t(`LoadingArgs`)}</Callout>;
+  }
+
   if (!size(options)) {
-    return <p>{t(`LoadingArgs`)}</p>;
+    return <Callout intent="warning">{t(`NoArgs`)}</Callout>;
   }
 
   const transformedOptions: IOptionsSchema =
@@ -66,6 +78,7 @@ export const RecordQueryArgs = ({
   if (asList) {
     return (
       <>
+        {error && <Callout title={error.title}>{error.desc}</Callout>}
         {value &&
           (value as IOptions[]).map((options: IOptions, index: number) => (
             <SubField

@@ -99,7 +99,15 @@ const MethodSelector = ({ onChange, name, value }) => {
         />
       )}
       <ControlGroup fill>
-        <Button intent="success" icon="add" onClick={() => setAddingMethod(true)} />
+        <Button
+          intent="success"
+          icon="add"
+          onClick={() => setAddingMethod(true)}
+          className={Classes.FIXED}
+          style={{
+            maxHeight: '30px',
+          }}
+        />
         <Select
           fill
           forceDropdown

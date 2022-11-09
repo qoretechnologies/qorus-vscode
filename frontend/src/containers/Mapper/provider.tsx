@@ -333,7 +333,6 @@ const MapperProvider: FC<IProviderProps> = ({
       : newSuffix;
     // Fetch the data
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
-    console.log('ERROR IN THE PROVIDER', error);
 
     if (error) {
       const errMessage = `${error.error.err}: ${error.error.desc}`;
@@ -401,16 +400,14 @@ const MapperProvider: FC<IProviderProps> = ({
                   type === 'outputs' ? '&soft=true' : ''
                 }`
               : `${newSuffix}${
-                  data.has_record ? realProviders[provider].recordSuffix : '?'
+                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
                 }${childDetailsSuffix}`
             : `${newSuffix}${
-                data.has_record ? realProviders[provider].recordSuffix : '?'
+                data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
               }${childDetailsSuffix}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
-          console.log('ERROR IN THE PROVIDER', record);
-
           if (record.error) {
             const errMessage = `${record.error.error.err}: ${record.error.error.desc}`;
             onError?.(errMessage);
@@ -444,6 +441,8 @@ const MapperProvider: FC<IProviderProps> = ({
               .replace('response', ''),
             options,
           });
+
+          console.log('DATA IN CHILD FIELD CHANGE', data);
 
           if (data.has_type || isConfigItem) {
             // Set the record data
@@ -549,7 +548,7 @@ const MapperProvider: FC<IProviderProps> = ({
           const record = await fetchData(`${url}/${value}${suffixString}`);
 
           if (record.error) {
-            const errMessage = record.error?.error || record.error;
+            const errMessage = `${record.error.error.err}: ${record.error.error.desc}`;
             onError?.(errMessage);
           } else {
             onError?.(null);

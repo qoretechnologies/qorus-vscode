@@ -160,10 +160,11 @@ class QorusWebview {
           dark: vscode.Uri.file(path.join(images_path, 'qorus_logo_28.png')),
         };
 
-        const uri = vscode.Uri.file(web_path).with({ scheme: 'vscode-resource' });
+        const uri = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path));
 
         let html = doc.getText().replace(/%PUBLIC_URL%/g, uri.toString());
         html = html.replace(/%MAIN_SCRIPT_NAME%/g, `${uri.toString()}/static/js/bundle.js`);
+        //html = html.replace(/%MAIN_SCRIPT_MAP_NAME%/g, `${uri.toString()}/static/js/bundle.js.map`);
         html = html.replace(/%MAIN_CSS_NAME%/g, `${uri.toString()}/static/css/bundle.css`);
         this.panel.webview.html = html.replace(/%URL%/g, uri.toString());
 

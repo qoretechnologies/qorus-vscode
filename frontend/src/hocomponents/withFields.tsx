@@ -478,14 +478,14 @@ export default () =>
       };
 
       const validateAndFixField = (field: IField) => {
-        const { value, type = 'string', isValid, internal } = field;
+        const { value, type = 'string', isValid, internal, canBeNull } = field;
 
         if (internal) {
           field.isValid = true;
           return true;
         }
 
-        if (validateField(type, value, field)) {
+        if (validateField(type, value, field, canBeNull)) {
           if (!isValid) {
             field.isValid = true;
           }

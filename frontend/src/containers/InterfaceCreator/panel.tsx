@@ -132,8 +132,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   const { maybeApplyDraft, draft } = useContext<IDraftsContext>(DraftsContext);
   const originalData = useRef(data);
 
-  console.log('DATA IN PANEL', data);
-
   useEffect(() => {
     originalData.current = data;
   }, [data]);
@@ -604,6 +602,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     explicit?: boolean,
     metadata?: any
   ) => void = (fieldName, value, forcedType, canBeNull, explicit, metadata) => {
+    console.log('handleFieldChange', fieldName, value, forcedType, canBeNull, explicit, metadata);
     setSelectedFields(
       type,
       (currentFields: IField[]): IField[] => {
@@ -656,7 +655,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               // If this is a single field
               if (finalFieldType === 'auto') {
                 // Validate single field
-                isValid = validateField(fieldType, value, currentField);
+                isValid = validateField(fieldType, value, currentField, canBeNull);
               } else {
                 // Check if the type is in allowed types
                 if (allowedTypes.includes(fieldType)) {
@@ -674,6 +673,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             }
             // On change events
             maybeSendOnChangeEvent(currentField, value, type, interfaceId, isEditing);
+            console.log('IS FIELD VALID LMFAO', isValid);
             // Add the value
             return [
               ...newFields,
@@ -682,6 +682,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 value,
                 hasValueSet: !explicit,
                 isValid,
+                canBeNull,
               },
             ];
           }

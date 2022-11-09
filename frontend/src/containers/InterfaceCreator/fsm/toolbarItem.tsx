@@ -114,8 +114,6 @@ const StyledToolbarItem = styled.div<{ type: string; disabled?: boolean }>`
   }
 `;
 
-console.log('test');
-
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   children,
   count,

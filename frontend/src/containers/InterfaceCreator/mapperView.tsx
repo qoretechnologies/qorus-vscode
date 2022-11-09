@@ -95,8 +95,6 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     }
   }
 
-  console.log(newMapper);
-
   useUpdateEffect(() => {
     if (draft && showMapperConnections) {
       maybeApplyDraft('mapper', null, newMapper);

@@ -19,13 +19,11 @@ export const flattenFields: (
       const parentPath = level !== 0 && `${path}`;
       // Add the current field
       res = [...res, { name, ...{ ...field, isChild, level, parent, path: newPath, parentPath } }];
-      console.log('FIELD', field);
       // Check if this field has hierarchy
       if (size(field.type?.fields)) {
         // Recursively add deep fields
         res = [...res, ...flattenFields(field.type.fields, true, name, level + 1, newPath)];
       }
-      console.log('res', res);
       // Return the new fields
       return res;
     },
