@@ -9,6 +9,7 @@
 - Fixed a bug where the WebView would crash when trying to add a `Context` field to existing mappers
 - Fixed a bug where the WebView would crash when trying to edit a saved state which contained an action that included options with `/` in the value
 - Fixed enlarged + buttons in the Api Manager field in Services
+- Config items default value is now properly checked when `Can be undefined` is set, and the form can be submitted
 
 ## Version 3.9.1
 

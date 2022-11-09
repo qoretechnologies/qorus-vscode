@@ -94,6 +94,7 @@ export interface IField {
     return_value?: string;
     message_data?: any;
   };
+  canBeNull?: boolean;
   return_message?: { action: string; object_type: string; return_value?: string };
   style?: string;
   type: string;
