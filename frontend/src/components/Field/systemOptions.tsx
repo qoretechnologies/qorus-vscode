@@ -442,7 +442,7 @@ const Options = ({
 
   return (
     <>
-      <div>
+      <div style={{ maxHeight: '25vh', overflow: 'auto' }}>
         {map(fixedValue, ({ type, ...other }, optionName) =>
           !!options[optionName] ? (
             <StyledOptionField>
