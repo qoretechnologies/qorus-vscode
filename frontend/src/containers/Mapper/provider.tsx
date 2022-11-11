@@ -332,6 +332,7 @@ const MapperProvider: FC<IProviderProps> = ({
         : newSuffix
       : newSuffix;
     // Fetch the data
+
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
 
     if (error) {
@@ -442,8 +443,6 @@ const MapperProvider: FC<IProviderProps> = ({
             options,
           });
 
-          console.log('DATA IN CHILD FIELD CHANGE', data);
-
           if (data.has_type || isConfigItem) {
             // Set the record data
             setRecord &&
@@ -537,13 +536,27 @@ const MapperProvider: FC<IProviderProps> = ({
             // Save the mapper keys
             setMapperKeys && setMapperKeys(data.mapper_keys);
           }
+
+          const childDetailsSuffix =
+            data.supports_children || data.has_type === false
+              ? value === 'request' || value === 'response'
+                ? ''
+                : `action=childDetails`
+              : '';
+
+          const newSuffix = suffix;
           suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
               ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
                   type === 'outputs' ? '&soft=true' : ''
                 }`
-              : `${newSuffix}${realProviders[provider].recordSuffix}`
-            : `${suffix}${realProviders[provider].recordSuffix}`;
+              : `${newSuffix}${
+                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
+                }${childDetailsSuffix}`
+            : `${newSuffix}${
+                data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
+              }${childDetailsSuffix}`;
+
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
 

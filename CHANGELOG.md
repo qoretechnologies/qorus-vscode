@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 3.9.3
+
+#### Bug fixes
+
+- Fixed a bug where the provider URLs for Pipeline input provider were built incorrectly
+- The maximum height of the input & output providers on the mapper diagram page have been adjusted
+- The `Set as null` button's width has been adjusted to fit the text
+- Fixed a bug where deleting any interface from the Hierarchy view would result in the name of the interface to be shown as `undefined`
+
 ## Version 3.9.2
 
 #### Bug fixes

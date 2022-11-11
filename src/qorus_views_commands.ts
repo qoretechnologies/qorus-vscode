@@ -12,7 +12,11 @@ import { dash2Pascal } from './qorus_utils';
 
 const maybeDeleteInterface = (data: QorusDraftItem['data']) => {
   vswindow
-    .showWarningMessage(t`ConfirmDeleteInterface ${data.type} ${data.path}`, t`Yes`, t`No`)
+    .showWarningMessage(
+      t`ConfirmDeleteInterface ${data.type} ${data.path || data.name}`,
+      t`Yes`,
+      t`No`
+    )
     .then((selection) => {
       if (selection !== t`Yes`) {
         return;
