@@ -1,4 +1,4 @@
-import { Button, Callout, ControlGroup } from '@blueprintjs/core';
+import { Button, Callout, Classes, ControlGroup } from '@blueprintjs/core';
 import { get, map, set } from 'lodash';
 import { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -455,6 +455,7 @@ const AutoField: FunctionComponent<
             intent={isSetToNull ? 'warning' : 'none'}
             icon={isSetToNull && 'cross'}
             onClick={handleNullToggle}
+            className={Classes.FIXED}
           >
             {isSetToNull ? 'Unset null' : 'Set as null'}
           </Button>
