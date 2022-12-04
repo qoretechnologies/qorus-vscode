@@ -1415,7 +1415,14 @@ export class QorusProjectCodeInfo {
     this.setPending('modules', false);
   }
 
-  private getFileType(ext: string) {
+  private getFileType(file_path: string) {
+    const java_re: RegExp = /Test\.java$/;
+    const py_re: RegExp = /test\.py$/;
+
+    if (java_re.test(file_path) || py_re.test(file_path)) {
+        return 'tests';
+    }
+    var ext: string = path.extname(file_path);
     switch (ext) {
       case '.qsm':
         return 'schema-modules';
@@ -1439,9 +1446,13 @@ export class QorusProjectCodeInfo {
         continue;
       }
 
+      const java_re: RegExp = /Test\.java$/;
+      const py_re: RegExp = /test\.py$/;
+
       const files = filesInDir(
         full_dir,
         (path) => hasSuffix(path, 'qsm') || hasSuffix(path, 'qscript') || hasSuffix(path, 'qtest')
+            || java_re.test(path) || py_re.test(path)
       );
       for (const file of files) {
         otherFiles[file] = true;
@@ -1449,12 +1460,12 @@ export class QorusProjectCodeInfo {
     }
 
     /* The above code is creating a list of all the files in the directory that end with .qsm,
-    .qscript, or .qtest. */
+    .qscript, .qtest, Test.java, or test.py. */
     this.otherFiles = Object.keys(otherFiles).map((file_path) => ({
       path: file_path,
       // Get the file_path extension
       ext: path.extname(file_path),
-      type: this.getFileType(path.extname(file_path)),
+      type: this.getFileType(file_path),
       // Get the file_path basename
       name: path.basename(file_path, path.extname(file_path)),
     }));

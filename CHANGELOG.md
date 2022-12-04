@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.9.4
+
+#### Bug fixes
+
+- Recognize `*test.py` and `*Test.java` as tests
+
 ## Version 3.9.3
 
 #### Bug fixes

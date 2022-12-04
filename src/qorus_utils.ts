@@ -26,6 +26,8 @@ export const isDeployable = (file_path: string): boolean =>
     'yaml',
     'qmc',
     'qtest',
+    'py',
+    'java',
     'qsm',
   ]);
 
