@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "3.9.3",
+  "version": "3.9.4",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
@@ -1508,7 +1508,7 @@
           "group": "2_workspace@11"
         },
         {
-          "when": "resourceExtname == .qtest || resourceFilename =~ /Test\\.java$/",
+          "when": "resourceExtname == .qtest || resourceFilename =~ /Test\\.java$/ || resourceFilename =~ /test.py$/",
           "command": "qorus.explorer.testFile",
           "group": "2_workspace@21"
         },
