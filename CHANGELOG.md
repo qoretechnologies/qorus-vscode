@@ -5,6 +5,7 @@
 #### Bug fixes
 
 - Recognize `*test.py` and `*Test.java` as tests
+- Allow the extension to create custom releases without requiring an initialized git repository in the project directory
 
 ## Version 3.9.3
 

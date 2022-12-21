@@ -7,6 +7,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 ## Version 3.9.4 overview - What's new:
 
 - Recognize `*test.py` and `*Test.java` as tests
+- Allow the extension to create custom releases without requiring an initialized git repository in the project directory
 
 ## Version 3.9.3 overview - What's new:
 
