@@ -568,7 +568,7 @@ msgid "commit"
 msgstr "commit"
 
 msgid "GitBranchNotUpToDate"
-msgstr "Your branch is not synchronized with remote. All changes must be committed and pushed/pulled before you can continue."
+msgstr "Your branch is not synchronized with remote. Some release features will not work until you synchronize your changes."
 
 msgid "ReleasePackageTitle"
 msgstr "Make a release package"

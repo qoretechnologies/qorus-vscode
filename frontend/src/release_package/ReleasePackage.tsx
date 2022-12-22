@@ -1,20 +1,20 @@
+import { Button, Card, Colors, H3, H4, H5, Spinner } from '@blueprintjs/core';
 import {
-  Button,
-  Callout,
-  Card,
-  Collapse,
-  Colors,
-  H3,
-  H4,
-  H5,
-  Intent,
-  Spinner,
-} from '@blueprintjs/core';
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreH2,
+  ReqoreH5,
+  ReqoreMessage,
+  ReqorePanel,
+  ReqoreSpacer,
+  ReqoreTabs,
+  ReqoreTabsContent,
+  ReqoreTag,
+} from '@qoretechnologies/reqore';
 import { size } from 'lodash';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import compose from 'recompose/compose';
-import { MessageDialog } from '../common/MessageDialog';
 import { vscode } from '../common/vscode';
 import Select from '../components/Field/select';
 import Spacer from '../components/Spacer';
@@ -174,10 +174,10 @@ class ReleasePackage extends Component<
 
     const BranchInfo = (
       <div style={{ marginBottom: 24 }}>
-        <H5>{t('CurrentBranchInfo')}:</H5>
-        {t('branch')}: <strong>{this.props.branch.name}</strong>
-        <br />
-        {t('commit')}: <strong>{this.props.branch.commit}</strong>
+        <ReqoreH5>{t('CurrentBranchInfo')}:</ReqoreH5>
+        <ReqoreTag labelKey={t('branch')} label={this.props.branch.name} />
+        <ReqoreSpacer height={5} />
+        <ReqoreTag labelKey={t('commit')} label={this.props.branch.commit} />
       </div>
     );
 
@@ -198,11 +198,28 @@ class ReleasePackage extends Component<
       </>
     );
 
+    const notUpToDateMsg = () => {
+      return (
+        <ReqoreMessage inverted intent="danger">
+          {t('GitBranchNotUpToDate')} <ReqoreSpacer width={10} />
+          <ReqoreTag
+            label="Refresh"
+            icon="RefreshLine"
+            size="small"
+            onClick={() => {
+              this.backToStep(Step.Type);
+              this.props.setNotUpToDateMsgOpen(false);
+            }}
+          />
+        </ReqoreMessage>
+      );
+    };
+
     const ReleaseType = (
       <>
-        {this.props.branch.up_to_date || NotUpToDate}
+        {notUpToDateMsg()}
         <div>
-          <h2>{t('CreateRelease')}</h2>
+          <ReqoreH2>{t('CreateRelease')}</ReqoreH2>
           <SubField subtle desc="Select the type of release you would like to create">
             <Select
               fill
@@ -225,7 +242,7 @@ class ReleasePackage extends Component<
       <>
         <H3 style={{ marginBottom: 24 }}>{t('FullRelease')}</H3>
         {BranchInfo}
-        <div style={{ display: 'flex', flexFlow: 'row nowrap', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', flexFlow: 'row nowrap', justifyContent: 'flex-start' }}>
           <Button
             icon={this.props.pending ? <Spinner size={18} /> : 'arrow-right'}
             onClick={this.createFullPackage}
@@ -251,9 +268,17 @@ class ReleasePackage extends Component<
     );
 
     const ExistingRelease = (
-      <Button icon="folder-open" onClick={this.getReleaseFile}>
-        {t('PickReleaseFile')}
-      </Button>
+      <ReqoreControlGroup>
+        <ReqoreButton
+          icon="FolderAddLine"
+          intent="info"
+          flat={false}
+          minimal
+          onClick={this.getReleaseFile}
+        >
+          {t('PickReleaseFile')}
+        </ReqoreButton>
+      </ReqoreControlGroup>
     );
 
     const StepDiff = (
@@ -329,60 +354,45 @@ class ReleasePackage extends Component<
       </Card>
     );
 
-    const NotUpToDateMsg = (
-      <MessageDialog
-        isOpen={this.props.not_up_to_date_msg_open}
-        canEscapeKeyClose={false}
-        canOutsideClickClose={false}
-        text={t('GitBranchNotUpToDate')}
-        style={{ maxWidth: 400 }}
-        buttons={[
-          {
-            title: t('ButtonOk'),
-            intent: Intent.DANGER,
-            onClick: () => {
-              this.backToStep(Step.Type);
-              this.props.setNotUpToDateMsgOpen(false);
-            },
-          },
-        ]}
-      />
-    );
-
     return (
-      <div className="flex-start" style={{ width: '100%' }}>
-        {NotUpToDateMsg}
-
+      <ReqorePanel flat contentStyle={{ display: 'flex', overflow: 'hidden', flexFlow: 'column' }}>
+        {notUpToDateMsg()}
+        <ReqoreSpacer height={10} />
         {this.props.step == Step.Type && (
-          <Card
-            className="step-card bp3-elevation-2"
-            style={{
-              width: '100%',
-              overflowY: this.props.release_type === 'custom' ? 'hidden' : 'auto',
-              display: 'flex',
-              flexFlow: 'column nowrap',
-            }}
+          <ReqoreTabs
+            fillParent
+            activeTabIntent="info"
+            activeTab={this.props.branch.up_to_date ? 'full' : 'custom'}
+            tabs={[
+              { label: 'Full Release', id: 'full', disabled: !this.props.branch.up_to_date },
+              {
+                label: 'Incremental Release',
+                id: 'incremental',
+                disabled: !this.props.branch.up_to_date,
+              },
+              { label: 'Custom Release', id: 'custom' },
+              { label: 'Existing Release', id: 'existing' },
+            ]}
           >
-            {ReleaseType}
-            <Collapse isOpen={this.props.release_type == 'custom'} className="flex-fix-scroll-y">
-              <Callout
-                intent="primary"
-                style={{ display: 'flex', justifyContent: 'space-between' }}
-              >
-                <div>{t('SelectCustomReleaseInterfaces')}</div>
+            <ReqoreTabsContent tabId="full">{FullRelease}</ReqoreTabsContent>
+            <ReqoreTabsContent tabId="incremental">{IncrementalRelease}</ReqoreTabsContent>
+            <ReqoreTabsContent tabId="custom">
+              <ReqoreMessage intent="info" inverted flat>
+                {t('SelectCustomReleaseInterfaces')}
+                <ReqoreSpacer width={10} />
                 {size(selectedInterfaces) ? (
-                  <Button
+                  <ReqoreButton
                     onClick={this.createCustomPackage}
-                    intent="primary"
-                    icon="arrow-right"
+                    intent="info"
+                    icon="GitCommitLine"
                     disabled={this.props.pending}
                   >
                     {this.props.pending
                       ? t('Working')
                       : `${t('CreateCustomRelease')} (${size(selectedInterfaces)})`}
-                  </Button>
+                  </ReqoreButton>
                 ) : null}
-              </Callout>
+              </ReqoreMessage>
               <Spacer size={20} />
               <CustomRelease
                 selected={selectedInterfaces}
@@ -410,27 +420,98 @@ class ReleasePackage extends Component<
                   }
                 }}
               />
-            </Collapse>
-
-            <Collapse isOpen={this.props.release_type == 'full'}>{FullRelease}</Collapse>
-
-            <Collapse isOpen={this.props.release_type == 'incremental'}>
-              {IncrementalRelease}
-            </Collapse>
-
-            <Collapse isOpen={this.props.release_type == 'existing'} className="flex-center">
-              {ExistingRelease}
-            </Collapse>
-          </Card>
+            </ReqoreTabsContent>
+            <ReqoreTabsContent tabId="existing">{ExistingRelease}</ReqoreTabsContent>
+          </ReqoreTabs>
         )}
-
         {this.props.step == Step.Diff && StepDiff}
 
         {this.props.step == Step.Send && StepSend}
 
         {this.props.step == Step.Close && StepClose}
-      </div>
+      </ReqorePanel>
     );
+
+    //   return (
+    //     <div className="flex-start" style={{ width: '100%' }}>
+    //       {this.props.step == Step.Type && (
+    //         <Card
+    //           className="step-card bp3-elevation-2"
+    //           style={{
+    //             width: '100%',
+    //             overflowY: this.props.release_type === 'custom' ? 'hidden' : 'auto',
+    //             display: 'flex',
+    //             flexFlow: 'column nowrap',
+    //           }}
+    //         >
+    //           {ReleaseType}
+    //           <Collapse isOpen={this.props.release_type == 'custom'} className="flex-fix-scroll-y">
+    //             <Callout
+    //               intent="primary"
+    //               style={{ display: 'flex', justifyContent: 'space-between' }}
+    //             >
+    //               <div>{t('SelectCustomReleaseInterfaces')}</div>
+    //               {size(selectedInterfaces) ? (
+    //                 <Button
+    //                   onClick={this.createCustomPackage}
+    //                   intent="primary"
+    //                   icon="arrow-right"
+    //                   disabled={this.props.pending}
+    //                 >
+    //                   {this.props.pending
+    //                     ? t('Working')
+    //                     : `${t('CreateCustomRelease')} (${size(selectedInterfaces)})`}
+    //                 </Button>
+    //               ) : null}
+    //             </Callout>
+    //             <Spacer size={20} />
+    //             <CustomRelease
+    //               selected={selectedInterfaces}
+    //               onItemClick={(selectedItems: string[], isDeselect) => {
+    //                 // Remove or add items from the selected interfaces
+    //                 if (isDeselect) {
+    //                   this.setState({
+    //                     selectedInterfaces: selectedInterfaces.filter(
+    //                       (item) => !selectedItems.includes(item)
+    //                     ),
+    //                   });
+    //                 } else {
+    //                   // Add items to the selected interfaces
+    //                   const newSelectedInterfaces = [
+    //                     ...selectedInterfaces,
+    //                     ...selectedItems.filter((item) => {
+    //                       // Filter out duplicates
+    //                       return !selectedInterfaces.includes(item);
+    //                     }),
+    //                   ];
+
+    //                   this.setState({
+    //                     selectedInterfaces: newSelectedInterfaces,
+    //                   });
+    //                 }
+    //               }}
+    //             />
+    //           </Collapse>
+
+    //           <Collapse isOpen={this.props.release_type == 'full'}>{FullRelease}</Collapse>
+
+    //           <Collapse isOpen={this.props.release_type == 'incremental'}>
+    //             {IncrementalRelease}
+    //           </Collapse>
+
+    //           <Collapse isOpen={this.props.release_type == 'existing'} className="flex-center">
+    //             {ExistingRelease}
+    //           </Collapse>
+    //         </Card>
+    //       )}
+
+    //       {this.props.step == Step.Diff && StepDiff}
+
+    //       {this.props.step == Step.Send && StepSend}
+
+    //       {this.props.step == Step.Close && StepClose}
+    //     </div>
+    //   );
   }
 }
 
