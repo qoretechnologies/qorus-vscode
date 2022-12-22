@@ -1,9 +1,7 @@
-import { Button, Card, Colors, H3, H4, H5, Spinner } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreControlGroup,
-  ReqoreH2,
-  ReqoreH5,
+  ReqoreH3,
   ReqoreMessage,
   ReqorePanel,
   ReqoreSpacer,
@@ -16,9 +14,7 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 import { vscode } from '../common/vscode';
-import Select from '../components/Field/select';
 import Spacer from '../components/Spacer';
-import SubField from '../components/SubField';
 import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
 import withTextContext from '../hocomponents/withTextContext';
 import { BackForwardButtons } from './BackForwardButtons';
@@ -173,98 +169,66 @@ class ReleasePackage extends Component<
     const { selectedInterfaces } = this.state;
 
     const BranchInfo = (
-      <div style={{ marginBottom: 24 }}>
-        <ReqoreH5>{t('CurrentBranchInfo')}:</ReqoreH5>
-        <ReqoreTag labelKey={t('branch')} label={this.props.branch.name} />
-        <ReqoreSpacer height={5} />
-        <ReqoreTag labelKey={t('commit')} label={this.props.branch.commit} />
-      </div>
-    );
-
-    const NotUpToDate = (
       <>
-        <div className="flex-start">
-          <div style={{ maxWidth: 400, color: Colors.RED3, marginRight: 24 }}>
-            {t('GitBranchNotUpToDate')}
-          </div>
-          <Button
-            icon="refresh"
-            title={t('Refresh')}
-            style={{ margin: '-8px 0 8px 12px' }}
-            onClick={this.getBranch}
-          />
-        </div>
-        <hr style={{ marginTop: 16, marginBottom: 16 }} />
+        <ReqoreH3>{t('CurrentBranchInfo')}:</ReqoreH3>
+        <ReqoreSpacer height={15} />
+        <ReqoreTag icon="GitRepositoryLine" labelKey={t('branch')} label={this.props.branch.name} />
+        <ReqoreSpacer height={5} />
+        <ReqoreTag
+          icon="GitRepositoryLine"
+          labelKey={t('commit')}
+          label={this.props.branch.commit}
+        />
+        <ReqoreSpacer height={15} />
       </>
     );
 
     const notUpToDateMsg = () => {
-      return (
-        <ReqoreMessage inverted intent="danger">
-          {t('GitBranchNotUpToDate')} <ReqoreSpacer width={10} />
-          <ReqoreTag
-            label="Refresh"
-            icon="RefreshLine"
-            size="small"
-            onClick={() => {
-              this.backToStep(Step.Type);
-              this.props.setNotUpToDateMsgOpen(false);
-            }}
-          />
-        </ReqoreMessage>
-      );
+      if (!this.props.branch.up_to_date) {
+        return (
+          <ReqoreMessage inverted intent="danger">
+            {t('GitBranchNotUpToDate')} <ReqoreSpacer width={10} />
+            <ReqoreTag
+              label="Refresh"
+              icon="RefreshLine"
+              size="small"
+              onClick={() => {
+                this.backToStep(Step.Type);
+                this.props.setNotUpToDateMsgOpen(false);
+              }}
+            />
+          </ReqoreMessage>
+        );
+      }
+
+      return null;
     };
 
-    const ReleaseType = (
-      <>
-        {notUpToDateMsg()}
-        <div>
-          <ReqoreH2>{t('CreateRelease')}</ReqoreH2>
-          <SubField subtle desc="Select the type of release you would like to create">
-            <Select
-              fill
-              defaultItems={[
-                { name: 'custom' },
-                { name: 'full' },
-                { name: 'incremental' },
-                { name: 'existing' },
-              ]}
-              onChange={this.onReleaseTypeChange}
-              value={`Selected release type - ${this.props.release_type}`}
-            />
-          </SubField>
-        </div>
-        <Spacer size={20} />
-      </>
-    );
-
     const FullRelease = (
-      <>
-        <H3 style={{ marginBottom: 24 }}>{t('FullRelease')}</H3>
+      <div>
         {BranchInfo}
-        <div style={{ display: 'flex', flexFlow: 'row nowrap', justifyContent: 'flex-start' }}>
-          <Button
-            icon={this.props.pending ? <Spinner size={18} /> : 'arrow-right'}
-            onClick={this.createFullPackage}
-            disabled={!this.props.branch.up_to_date || this.props.pending}
-          >
-            {t('CreatePackage')}
-          </Button>
-        </div>
-      </>
+        <ReqoreSpacer height={15} />
+        <ReqoreButton
+          icon="CheckLine"
+          onClick={this.createFullPackage}
+          disabled={!this.props.branch.up_to_date || this.props.pending}
+          intent="info"
+        >
+          {t('CreatePackage')}
+        </ReqoreButton>
+      </div>
     );
 
     const IncrementalRelease = (
-      <>
-        <H3 style={{ marginBottom: 24 }}>{t('IncrementalRelease')}</H3>
+      <div>
         {BranchInfo}
-        <hr />
+        <ReqoreSpacer height={15} />
         <SelectCommit
           selectCommit={this.selectCommit}
           disabled={!this.props.branch.up_to_date || this.props.pending}
           pending={this.props.pending}
         />
-      </>
+      </div>
     );
 
     const ExistingRelease = (
@@ -282,7 +246,7 @@ class ReleasePackage extends Component<
     );
 
     const StepDiff = (
-      <Card className="step-card bp3-elevation-2">
+      <div>
         <BackForwardButtons
           onBack={() => this.backToStep(Step.Type)}
           onForward={this.createPackage}
@@ -290,16 +254,20 @@ class ReleasePackage extends Component<
           disabled={this.props.pending}
           pending={this.props.pending}
         />
-        <H4 style={{ marginTop: 12 }}>{t('PackageContents')}</H4>
-        <H5>
-          {t('SelectedBranch')}: <strong>{this.props.selected_commit}</strong>
-        </H5>
+
+        <ReqoreH3>{t('PackageContents')}</ReqoreH3>
+        <ReqoreSpacer height={15} />
+        <ReqoreTag
+          icon="GitRepositoryLine"
+          labelKey={t('SelectedBranch')}
+          label={this.props.selected_commit}
+        />
         {this.props.files && this.props.files.map((file) => <div>{file}</div>)}
-      </Card>
+      </div>
     );
 
     const StepSend = (
-      <Card className="step-card bp3-elevation-2">
+      <div>
         <BackForwardButtons
           onBack={() =>
             this.backToStep(this.props.release_type == 'incremental' ? Step.Diff : Step.Type)
@@ -309,49 +277,57 @@ class ReleasePackage extends Component<
           pending={this.props.pending}
           disabled={!this.props.initialData?.qorus_instance}
         />
-        <H5>
-          {this.props.release_type == 'existing'
-            ? t('ExistingReleaseFileWillBeSent')
-            : t('NewReleaseFileWillBeSent')}
-          :
-        </H5>
-        <div>{this.props.package_path}</div>
+        <ReqoreMessage
+          intent="info"
+          title={
+            this.props.release_type == 'existing'
+              ? t('ExistingReleaseFileWillBeSent')
+              : t('NewReleaseFileWillBeSent')
+          }
+          inverted
+        >
+          {this.props.package_path}
+        </ReqoreMessage>
         {this.props.release_type == 'existing' || (
           <>
-            <hr style={{ marginTop: 20, marginBottom: 20 }} />
+            <ReqoreSpacer height={15} />
             {this.props.saved_path == null && (
               <>
-                <H5>{t('ReleaseFileCanBeSaved')}:</H5>
-                <Button icon="floppy-disk" onClick={this.saveReleaseFile}>
+                <ReqoreButton icon="Save3Fill" onClick={this.saveReleaseFile} intent="info">
                   {t('SaveReleaseFile')}
-                </Button>
+                </ReqoreButton>
               </>
             )}
             {this.props.saved_path != null && (
               <>
-                <H5>{t('ReleaseFileHasBeenSavedAs')}</H5>
-                {this.props.saved_path}
+                <ReqoreSpacer height={15} />
+                <ReqoreMessage title={t('ReleaseFileHasBeenSavedAs')} intent="info" inverted>
+                  {this.props.saved_path}
+                </ReqoreMessage>
               </>
             )}
           </>
         )}
-      </Card>
+      </div>
     );
 
     const StepClose = (
-      <Card className="step-card bp3-elevation-2">
+      <div>
         <BackForwardButtons
           onBack={() => this.backToStep(Step.Send)}
           onClose={() => this.backToStep(Step.Type)}
         />
         {this.props.result && (
           <>
-            <H5>{t('WaitForDeploymentResult1')}</H5>
-            {t('WaitForDeploymentResult2')}
+            <ReqoreMessage intent="pending" title={t('WaitForDeploymentResult1')}>
+              {t('WaitForDeploymentResult2')}
+            </ReqoreMessage>
           </>
         )}
-        {!this.props.result && <H5>{t('PackageDeploymentFailed')}</H5>}
-      </Card>
+        {!this.props.result && (
+          <ReqoreMessage intent="danger">{t('PackageDeploymentFailed')}</ReqoreMessage>
+        )}
+      </div>
     );
 
     return (
@@ -431,87 +407,6 @@ class ReleasePackage extends Component<
         {this.props.step == Step.Close && StepClose}
       </ReqorePanel>
     );
-
-    //   return (
-    //     <div className="flex-start" style={{ width: '100%' }}>
-    //       {this.props.step == Step.Type && (
-    //         <Card
-    //           className="step-card bp3-elevation-2"
-    //           style={{
-    //             width: '100%',
-    //             overflowY: this.props.release_type === 'custom' ? 'hidden' : 'auto',
-    //             display: 'flex',
-    //             flexFlow: 'column nowrap',
-    //           }}
-    //         >
-    //           {ReleaseType}
-    //           <Collapse isOpen={this.props.release_type == 'custom'} className="flex-fix-scroll-y">
-    //             <Callout
-    //               intent="primary"
-    //               style={{ display: 'flex', justifyContent: 'space-between' }}
-    //             >
-    //               <div>{t('SelectCustomReleaseInterfaces')}</div>
-    //               {size(selectedInterfaces) ? (
-    //                 <Button
-    //                   onClick={this.createCustomPackage}
-    //                   intent="primary"
-    //                   icon="arrow-right"
-    //                   disabled={this.props.pending}
-    //                 >
-    //                   {this.props.pending
-    //                     ? t('Working')
-    //                     : `${t('CreateCustomRelease')} (${size(selectedInterfaces)})`}
-    //                 </Button>
-    //               ) : null}
-    //             </Callout>
-    //             <Spacer size={20} />
-    //             <CustomRelease
-    //               selected={selectedInterfaces}
-    //               onItemClick={(selectedItems: string[], isDeselect) => {
-    //                 // Remove or add items from the selected interfaces
-    //                 if (isDeselect) {
-    //                   this.setState({
-    //                     selectedInterfaces: selectedInterfaces.filter(
-    //                       (item) => !selectedItems.includes(item)
-    //                     ),
-    //                   });
-    //                 } else {
-    //                   // Add items to the selected interfaces
-    //                   const newSelectedInterfaces = [
-    //                     ...selectedInterfaces,
-    //                     ...selectedItems.filter((item) => {
-    //                       // Filter out duplicates
-    //                       return !selectedInterfaces.includes(item);
-    //                     }),
-    //                   ];
-
-    //                   this.setState({
-    //                     selectedInterfaces: newSelectedInterfaces,
-    //                   });
-    //                 }
-    //               }}
-    //             />
-    //           </Collapse>
-
-    //           <Collapse isOpen={this.props.release_type == 'full'}>{FullRelease}</Collapse>
-
-    //           <Collapse isOpen={this.props.release_type == 'incremental'}>
-    //             {IncrementalRelease}
-    //           </Collapse>
-
-    //           <Collapse isOpen={this.props.release_type == 'existing'} className="flex-center">
-    //             {ExistingRelease}
-    //           </Collapse>
-    //         </Card>
-    //       )}
-
-    //       {this.props.step == Step.Diff && StepDiff}
-
-    //       {this.props.step == Step.Send && StepSend}
-
-    //       {this.props.step == Step.Close && StepClose}
-    //     </div>
-    //   );
   }
 }
 

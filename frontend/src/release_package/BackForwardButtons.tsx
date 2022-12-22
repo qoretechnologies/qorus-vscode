@@ -1,30 +1,35 @@
-import { Button, Spinner } from '@blueprintjs/core';
-import React from 'react';
+import { ReqoreButton, ReqoreSpacer } from '@qoretechnologies/reqore';
 import withTextContext from '../hocomponents/withTextContext';
 
 export const BackForwardButtons = withTextContext()((props) => (
   <>
     <div className={props.onBack ? 'flex-space-between' : 'flex-end'}>
       {props.onBack && (
-        <Button icon="arrow-left" onClick={props.onBack} disabled={props.pending}>
+        <ReqoreButton
+          icon="ArrowLeftLine"
+          onClick={props.onBack}
+          disabled={props.pending}
+          flat={false}
+        >
           {props.t(props.backward_text_id || 'Back')}
-        </Button>
+        </ReqoreButton>
       )}
       {props.onForward && (
-        <Button
-          icon={props.pending ? <Spinner size={18} /> : 'arrow-right'}
+        <ReqoreButton
+          rightIcon="ArrowRightLine"
+          intent="info"
           onClick={props.onForward}
           disabled={props.pending || props.disabled}
         >
           {props.t(props.forward_text_id)}
-        </Button>
+        </ReqoreButton>
       )}
       {props.onClose && (
-        <Button icon="selection" onClick={props.onClose} disabled={props.pending}>
+        <ReqoreButton icon="CloseLine" onClick={props.onClose} disabled={props.pending}>
           {props.t('Close')}
-        </Button>
+        </ReqoreButton>
       )}
     </div>
-    <hr style={{ marginTop: 20, marginBottom: 20 }} />
+    <ReqoreSpacer height={20} />
   </>
 ));
