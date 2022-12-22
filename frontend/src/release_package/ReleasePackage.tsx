@@ -170,7 +170,7 @@ class ReleasePackage extends Component<
 
     const BranchInfo = (
       <>
-        <ReqoreH3>{t('CurrentBranchInfo')}:</ReqoreH3>
+        <ReqoreH3>{t('CurrentBranchInfo')}</ReqoreH3>
         <ReqoreSpacer height={15} />
         <ReqoreTag icon="GitRepositoryLine" labelKey={t('branch')} label={this.props.branch.name} />
         <ReqoreSpacer height={5} />
