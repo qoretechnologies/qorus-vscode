@@ -1,16 +1,14 @@
-import { Button, ButtonGroup, ProgressBar, Tooltip } from '@blueprintjs/core';
+import { ReqorePanel, ReqoreTag, ReqoreTagGroup } from '@qoretechnologies/reqore';
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
-import { lighten } from 'polished';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
-import styled, { css, keyframes } from 'styled-components';
-import Spacer from '../../../components/Spacer';
+import styled, { keyframes } from 'styled-components';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { insertAtIndex } from '../../../helpers/functions';
-import { IFSMState, IF_STATE_SIZE, STATE_HEIGHT, STATE_ITEM_TYPE, STATE_WIDTH } from './';
-import { getStateStyle } from './toolbarItem';
+import { IFSMState, STATE_ITEM_TYPE } from './';
 
 export interface IFSMStateProps extends IFSMState {
   selected?: boolean;
@@ -27,6 +25,7 @@ export interface IFSMStateProps extends IFSMState {
   onExecutionOrderClick: () => void;
   id: string;
   isIsolated: boolean;
+  category: TStateTypes;
 }
 
 export interface IFSMStateStyleProps {
@@ -41,6 +40,21 @@ export interface IFSMStateStyleProps {
   isIncompatible?: boolean;
   error?: boolean;
 }
+
+export type TStateTypes = 'interfaces' | 'logic' | 'api' | 'other';
+
+export const getStateColor = (stateType: TStateTypes) => {
+  switch (stateType) {
+    case 'interfaces':
+      return '#1d1295';
+    case 'logic':
+      return '#e7b52d';
+    case 'api':
+      return '#087421';
+    default:
+      return '#950ea1';
+  }
+};
 
 const wiggleAnimation = (type) => keyframes`
     0% {
@@ -84,63 +98,26 @@ export const StyledStateTextWrapper = styled.div`
   flex-flow: column;
 `;
 
-const StyledFSMState = styled.div<IFSMStateStyleProps>`
+// IS ISOLATED
+// SELECTED
+// INITIAL
+// FINAL
+// TYPE
+// IS AVAILABLE FOR TRANSITION
+// IS INCOMPATIBLE
+// ERROR
+const StyledFSMState = styled(ReqorePanel)`
   left: ${({ x }) => `${x}px`};
   top: ${({ y }) => `${y}px`};
-  position: absolute;
-  width: ${({ type }) => (type === 'if' ? IF_STATE_SIZE : STATE_WIDTH)}px;
-  height: ${({ type }) => (type === 'if' ? IF_STATE_SIZE : STATE_HEIGHT)}px;
+  min-width: 250px;
+  max-width: 330px;
 
+  position: absolute !important;
   z-index: 20;
-  border: 1px solid;
-  transition: all 0.2s linear;
-  border-radius: 3px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-flow: column;
 
-  ${StyledStateName}, ${StyledStateAction} {
-    opacity: ${({ isIsolated }) => (isIsolated ? 0.4 : 1)};
+  &:hover {
+    box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1);
   }
-
-  ${({ selected, initial, final, isIncompatible, error }) => {
-    let color: string = '#a9a9a9';
-
-    if (error) {
-      color = '#d13913';
-    } else if (isIncompatible) {
-      color = '#ce7909';
-    } else if (selected) {
-      color = '#277fba';
-    } else if (final) {
-      color = '#81358a';
-    } else if (initial) {
-      color = '#7fba27';
-    }
-
-    return css`
-      border-color: ${color};
-      border-style: solid;
-
-      &:hover {
-        box-shadow: 0 0 5px 0px ${color};
-      }
-    `;
-  }};
-
-  ${({ error }) => css`
-    background-color: ${error ? lighten(0.3, '#d13913') : '#fff'};
-  `}
-
-  ${({ isAvailableForTransition, type }) =>
-    isAvailableForTransition &&
-    css`
-      animation: ${wiggleAnimation(type)} 0.3s linear infinite;
-    `}
-
-    ${({ type }) => getStateStyle(type)}
 `;
 
 export const calculateFontSize = (name, isAction?: boolean) => {
@@ -155,6 +132,38 @@ export const calculateFontSize = (name, isAction?: boolean) => {
   }
 
   return undefined;
+};
+
+export const getStateCategory = (type: string): TStateTypes => {
+  if (type === 'mapper') {
+    return 'interfaces';
+  }
+
+  if (type === 'connector') {
+    return 'interfaces';
+  }
+
+  if (type === 'pipeline') {
+    return 'interfaces';
+  }
+
+  if (type === 'fsm') {
+    return 'logic';
+  }
+
+  if (type === 'block') {
+    return 'logic';
+  }
+
+  if (type === 'if') {
+    return 'logic';
+  }
+
+  if (type === 'apicall') {
+    return 'api';
+  }
+
+  return 'other';
 };
 
 export const getStateType = ({ type, action, ...rest }: IFSMState) => {
@@ -179,7 +188,7 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
   }
 
   if (action.value?.path || action.value?.path === '') {
-    return `${action.value.type}/${action.value.name}/${action.value.path}`;
+    return `${action.value.type}/${action.value.name}${action.value.path}`;
   }
 
   return action.value;
@@ -245,13 +254,11 @@ const FSMState: React.FC<IFSMStateProps> = ({
   }, [selectedState]);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: string) => any) => {
-    event.stopPropagation();
-
     func(id);
   };
 
   const handleMouseEnter = (event) => {
-    event.stopPropagation();
+    event?.stopPropagation();
     setIsHovered(true);
     toggleDragging(false);
   };
@@ -264,10 +271,24 @@ const FSMState: React.FC<IFSMStateProps> = ({
   return (
     <StyledFSMState
       key={id}
+      id={`state-${id}`}
       ref={drag}
+      intent={shouldWiggle ? 'info' : undefined}
+      //customTheme={{ main: getStateColor(getStateCategory(type)) }}
+      contentEffect={{
+        gradient: {
+          direction: 'to right bottom',
+          colors: {
+            0: '#ffffff',
+            150: `${getStateColor(getStateCategory(type))}30`,
+          },
+          borderColor: getStateColor(getStateCategory(type)),
+        },
+      }}
+      icon="CodeLine"
       name={`fsm-state-${name}`}
-      x={position.x}
-      y={position.y}
+      x={position?.x}
+      y={position?.y}
       onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}
       onClick={!selectedState || !shouldWiggle ? undefined : (e) => handleClick(e, onClick)}
       selected={selected}
@@ -275,12 +296,38 @@ const FSMState: React.FC<IFSMStateProps> = ({
       onMouseLeave={handleMouseLeave}
       initial={initial}
       final={final}
+      minimal
+      tooltip={type === 'block' && !qorus_instance ? t('CannotManageBlock') : undefined}
       isIsolated={isIsolated}
       className={isIsolated ? 'isolated-state' : ''}
       isAvailableForTransition={shouldWiggle}
       isIncompatible={selectedState && !isCompatible}
       error={error}
       type={action?.type || type}
+      label={!isLoadingCheck ? name : t('LoadingCompatibilityCheck')}
+      actions={[
+        {
+          icon: 'More2Line' as IReqoreIconName,
+          minimal: true,
+          flat: true,
+          actions: [
+            {
+              icon: 'Edit2Line' as IReqoreIconName,
+              disabled: type === 'block' && !qorus_instance,
+              onClick: (e) => handleClick(e, onEditClick),
+              label: 'Edit state',
+            },
+            {
+              icon: 'DeleteBin4Fill' as IReqoreIconName,
+              onClick: (e) => handleClick(e, onDeleteClick),
+              intent: 'danger',
+              label: 'Remove state',
+              minimal: true,
+              flat: false,
+            },
+          ],
+        },
+      ]}
       onContextMenu={(event) => {
         event.persist();
         event.preventDefault();
@@ -345,43 +392,11 @@ const FSMState: React.FC<IFSMStateProps> = ({
         });
       }}
     >
-      <Tooltip
-        intent="warning"
-        content={type === 'block' && !qorus_instance ? t('CannotManageBlock') : undefined}
-      >
-        <StyledStateTextWrapper>
-          {isLoadingCheck ? (
-            <>
-              <StyledStateName style={{ fontSize: '12px' }}>
-                {t('LoadingCompatibilityCheck')}
-              </StyledStateName>
-              <Spacer size={6} />
-              <ProgressBar intent="primary" />
-            </>
-          ) : (
-            <>
-              <StyledStateName style={{ fontSize: calculateFontSize(name) }}>
-                {name}
-              </StyledStateName>
-              <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
-                {getStateType({ type, action, ...rest })}
-              </StyledStateAction>
-            </>
-          )}
-        </StyledStateTextWrapper>
-      </Tooltip>
-      {isHovered && !isDragging ? (
-        <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
-          <Button
-            icon="edit"
-            disabled={type === 'block' && !qorus_instance}
-            title={type === 'block' && !qorus_instance ? t('CannotManageBlock') : t('Edit')}
-            intent="warning"
-            onClick={(e) => handleClick(e, onEditClick)}
-          />
-          <Button icon="trash" intent="danger" onClick={(e) => handleClick(e, onDeleteClick)} />
-        </ButtonGroup>
-      ) : null}
+      <ReqoreTagGroup size="small">
+        <ReqoreTag label={getStateType({ type, action, ...rest })} />
+        {final && <ReqoreTag color="#6e1977" label={t('Final')} />}
+        {initial && <ReqoreTag color="#7fbb26" label={t('Initial')} />}
+      </ReqoreTagGroup>
     </StyledFSMState>
   );
 };

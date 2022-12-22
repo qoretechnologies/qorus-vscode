@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
+import { ReqoreMenu, ReqoreMenuDivider } from '@qoretechnologies/reqore';
 import { every, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -47,6 +48,7 @@ import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
+import TinyGrid from '../../../images/tiny_grid.png';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMInitialOrderDialog from './initialOrderDialog';
 import FSMState from './state';
@@ -154,17 +156,18 @@ const StyledDiagramWrapper = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
+  border: 1px solid #d7d7d7;
+  border-radius: 5px;
 `;
 
 const StyledDiagram = styled.div<{ path: string }>`
   width: ${DIAGRAM_SIZE}px;
   height: ${DIAGRAM_SIZE}px;
-  background: ${({ path }) => `url(${path}/tiny_grid.png)`};
+  background: ${({ path }) => `url(${TinyGrid})`};
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  box-shadow: inset 10px 10px 80px -50px red, inset -10px -10px 80px -50px red;
 `;
 
 export const StyledCompatibilityLoader = styled.div`
@@ -367,11 +370,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const getXDiff = (type) => {
-    return type === 'if' ? IF_STATE_SIZE / 2 : STATE_WIDTH / 2;
+    return STATE_WIDTH / 2;
   };
 
   const getYDiff = (type) => {
-    return type === 'if' ? IF_STATE_SIZE / 2 : STATE_HEIGHT / 2;
+    return STATE_HEIGHT / 2;
   };
 
   const areStatesValid = (states: IFSMStates): boolean => {
@@ -506,7 +509,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   );
 
   useEffect(() => {
-    if (qorus_instance && isReady) {
+    if (qorus_instance && isReady && isMetadataHidden) {
       if (embedded || fsm) {
         let newStates = embedded ? states : cloneDeep(fsm?.states || {});
 
@@ -541,7 +544,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         setFsmReset(null);
       }
     };
-  }, [qorus_instance, isReady]);
+  }, [qorus_instance, isReady, isMetadataHidden]);
 
   useEffect(() => {
     if (states && onStatesChange) {
@@ -1241,57 +1244,61 @@ const FSMView: React.FC<IFSMViewProps> = ({
     return '';
   };
 
-  const getTargetStatePosition = (x1, y1, x2, y2, stateType, targetStateType) => {
+  const getTargetStatePosition = (x1, y1, x2, y2, startStateId, endStateId) => {
     const modifiedX1 = x1 + 10000;
     const modifiedX2 = x2 + 10000;
     const modifiedY1 = y1 + 10000;
     const modifiedY2 = y2 + 10000;
 
+    const startStateData = document
+      .getElementById(`state-${startStateId}`)
+      ?.getBoundingClientRect();
+    const endStateData = document.getElementById(`state-${endStateId}`)?.getBoundingClientRect();
+
+    if (!startStateData || !endStateData) {
+      return { x2: 0, y2: 0 };
+    }
+
     const sides = [];
+    const horizontalSides = [];
+    const verticalSides = [];
 
     const horizontal = modifiedX1 - modifiedX2;
     const vertical = modifiedY1 - modifiedY2;
 
     if (x1 > x2) {
       sides.push({ side: 'left', value: Math.abs(horizontal) });
+      horizontalSides.push({ side: 'left', value: Math.abs(horizontal) });
     } else {
       sides.push({ side: 'right', value: Math.abs(horizontal) });
+      horizontalSides.push({ side: 'right', value: Math.abs(horizontal) });
     }
 
     if (y1 > y2) {
       sides.push({ side: 'top', value: Math.abs(vertical) });
+      verticalSides.push({ side: 'top', value: Math.abs(vertical) });
     } else {
       sides.push({ side: 'bottom', value: Math.abs(vertical) });
+      verticalSides.push({ side: 'bottom', value: Math.abs(vertical) });
     }
 
     const { side } = maxBy(sides, 'value');
+    const { side: horizontalSide } = maxBy(horizontalSides, 'value');
+    const { side: verticalSide } = maxBy(verticalSides, 'value');
 
-    switch (side) {
-      case 'right': {
-        return { x2: targetStateType === 'if' ? x2 - 16 : x2, y2: y2 + getYDiff(targetStateType) };
-      }
-      case 'left': {
-        return {
-          x2: x2 + getXDiff(targetStateType) * 2 + (targetStateType === 'if' ? 16 : 0),
-          y2: y2 + getYDiff(targetStateType),
-        };
-      }
-      case 'bottom': {
-        return { x2: x2 + getXDiff(targetStateType), y2: targetStateType === 'if' ? y2 - 16 : y2 };
-      }
-      case 'top': {
-        return {
-          x2: x2 + getXDiff(targetStateType),
-          y2: y2 + getYDiff(targetStateType) * 2 + (targetStateType === 'if' ? 16 : 0),
-        };
-      }
-      default: {
-        return {
-          x2: 0,
-          y2: 0,
-        };
-      }
-    }
+    console.log(horizontalSide, verticalSide);
+
+    const newX1 = horizontalSide === 'left' ? x1 : x1 + startStateData.width;
+    const newY1 = verticalSide === 'top' ? y1 : y1 + startStateData.height;
+    const newX2 = horizontalSide === 'left' ? x2 + endStateData.width : x2;
+    const newY2 = verticalSide === 'top' ? y2 + endStateData.height : y2;
+
+    return {
+      x1: newX1,
+      y1: newY1,
+      x2: newX2,
+      y2: newY2,
+    };
   };
 
   const calculateMargin = () => (zoom - 1) * 1000;
@@ -1334,9 +1341,10 @@ const FSMView: React.FC<IFSMViewProps> = ({
         ref={fieldsWrapperRef}
         id="fsm-fields-wrapper"
         style={{
-          maxHeight: !isMetadataHidden ? '50%' : undefined,
           overflowY: 'auto',
           overflowX: 'hidden',
+          flex: 1,
+          display: isMetadataHidden ? 'none' : 'block',
         }}
       >
         {!isMetadataHidden && (
@@ -1547,252 +1555,243 @@ const FSMView: React.FC<IFSMViewProps> = ({
           editingData={editingTransition}
         />
       ) : null}
-      {selectedState ? (
+      {isMetadataHidden && (
         <>
-          <Callout icon="info-sign" intent="primary">
-            {t('FSMSelectTargetState')}
-          </Callout>
-          <Spacer size={10} />
-        </>
-      ) : (
-        <StyledToolbarWrapper id="fsm-toolbar">
-          <FSMToolbarItem
-            name="state"
-            type="mapper"
-            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'mapper'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('Mapper')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="state"
-            type="pipeline"
-            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'pipeline'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('Pipeline')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="state"
-            type="connector"
-            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'connector'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('Connector')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="fsm"
-            type="fsm"
-            count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('FSM')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="block"
-            type="block"
-            disabled={!qorus_instance}
-            count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('Block')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="if"
-            type="if"
-            count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('If')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="state"
-            type="apicall"
-            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'apicall'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('field-label-apicall')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="state"
-            type="search-single"
-            count={size(
-              filter(states, ({ action }: IFSMState) => action?.type === 'search-single')
-            )}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('field-label-search-single')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="state"
-            type="search"
-            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'search'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('field-label-search')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="state"
-            type="update"
-            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'update'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('field-label-update')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="state"
-            type="create"
-            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'create'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('field-label-create')}
-          </FSMToolbarItem>
-          <FSMToolbarItem
-            name="state"
-            type="delete"
-            count={size(filter(states, ({ action }: IFSMState) => action?.type === 'delete'))}
-            onDoubleClick={handleToolbarItemDblClick}
-          >
-            {t('field-label-delete')}
-          </FSMToolbarItem>
-          <ButtonGroup style={{ float: 'right' }}>
-            <Button
-              onClick={() => {
-                currentHistoryPosition.current -= 1;
-                setStates(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
-              }}
-              disabled={currentHistoryPosition.current <= 0}
-              text={`(${currentHistoryPosition.current})`}
-              icon="undo"
-              name="fsm-undo-button"
-            />
-            <Button
-              onClick={() => {
-                currentHistoryPosition.current += 1;
-                setStates(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
-              }}
-              disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
-              text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
-              icon="redo"
-              name="fsm-redo-button"
-            />
-            <Button
-              onClick={() =>
-                embedded ? onHideMetadataClick((cur) => !cur) : setIsMetadataHidden((cur) => !cur)
-              }
-              icon={getIsMetadataHidden() ? 'eye-open' : 'eye-off'}
-              name="fsm-hide-metadata-button"
-            />
-          </ButtonGroup>
-        </StyledToolbarWrapper>
-      )}
-      <div style={{ flex: 1, overflow: 'hidden', minHeight: 100 }}>
-        <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
-          <FSMDiagramWrapper
-            wrapperDimensions={wrapperDimensions}
-            setPan={setWrapperPan}
-            isHoldingShiftKey={isHoldingShiftKey && !selectedState}
-            zoom={zoom}
-            items={map(states, (state) => ({
-              x: state.position.x,
-              y: state.position.y,
-              type: getStateType(state),
-            }))}
-          >
-            <StyledDiagram
-              name="fsm-drop-zone"
-              key={JSON.stringify(wrapperDimensions)}
-              ref={drop}
-              path={image_path}
-              onClick={() => setSelectedState(null)}
-              style={{
-                transform: `scale(${zoom})`,
-                marginLeft: `${calculateMargin()}px`,
-                marginTop: `${calculateMargin()}px`,
-              }}
-            >
-              {map(states, (state, id) => (
-                <FSMState
-                  key={id}
-                  {...state}
-                  id={id}
-                  selected={selectedState === id}
-                  onDblClick={handleStateClick}
-                  onClick={handleStateClick}
-                  onUpdate={updateStateData}
-                  onEditClick={handleStateEditClick}
-                  onDeleteClick={handleStateDeleteClick}
-                  selectedState={selectedState}
-                  isAvailableForTransition={isAvailableForTransition}
-                  toggleDragging={setIsHoldingShiftKey}
-                  onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
-                  onExecutionOrderClick={() => setEditingInitialOrder(true)}
-                  isIsolated={isStateIsolated(id, states)}
-                />
-              ))}
-              <svg height="100%" width="100%" style={{ position: 'absolute' }}>
-                {transitions.map(
-                  (
-                    { x1, x2, y1, y2, state, targetState, isError, branch, transitionIndex },
-                    index
-                  ) =>
-                    isTransitionToSelf(state, targetState) ? (
-                      <StyledFSMCircle
-                        cx={x1 + 90}
-                        cy={y1 + 50}
-                        r={25}
-                        fill="transparent"
-                        stroke={isError ? 'red' : '#a9a9a9'}
-                        strokeWidth={2}
-                        strokeDasharray={isError ? '10 2' : undefined}
-                        key={index}
-                        onClick={() =>
-                          setEditingTransition([{ stateId: state, index: transitionIndex }])
-                        }
-                      />
-                    ) : (
-                      <>
-                        <StyledFSMLine
-                          onClick={() => {
-                            setEditingTransition((cur) => {
-                              const result = [...cur];
-
-                              result.push({ stateId: state, index: transitionIndex });
-
-                              const hasBothWay = hasBothWayTransition(state, targetState);
-
-                              if (hasBothWay) {
-                                result.push(hasBothWay);
-                              }
-
-                              return result;
-                            });
-                          }}
-                          key={index}
-                          name={`fsm-transition${isError ? '-error' : branch ? `-${branch}` : ''}`}
-                          stroke={getTransitionColor(isError, branch)}
-                          strokeWidth={isError ? 2 : 1}
-                          strokeDasharray={isError ? '10 2' : undefined}
-                          markerEnd={`url(#arrowhead${getTransitionEndMarker(isError, branch)})`}
-                          x1={x1 + getXDiff(states[state].type)}
-                          y1={y1 + getYDiff(states[state].type)}
-                          {...getTargetStatePosition(
-                            x1,
-                            y1,
-                            x2,
-                            y2,
-                            states[state].type,
-                            states[targetState].type
-                          )}
-                        />
-                      </>
-                    )
+          <div style={{ display: 'flex', overflow: 'hidden' }}>
+            <ReqoreMenu>
+              <ReqoreMenuDivider label="Interfaces" effect={{ textAlign: 'left' }} size="huge" />
+              <FSMToolbarItem
+                name="state"
+                category="interfaces"
+                type="mapper"
+                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'mapper'))}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('Mapper')}
+              </FSMToolbarItem>
+              <FSMToolbarItem
+                name="state"
+                category="interfaces"
+                type="pipeline"
+                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'pipeline'))}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('Pipeline')}
+              </FSMToolbarItem>
+              <FSMToolbarItem
+                name="state"
+                category="interfaces"
+                type="connector"
+                count={size(
+                  filter(states, ({ action }: IFSMState) => action?.type === 'connector')
                 )}
-              </svg>
-            </StyledDiagram>
-          </FSMDiagramWrapper>
-        </StyledDiagramWrapper>
-      </div>
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('Connector')}
+              </FSMToolbarItem>
+              <ReqoreMenuDivider label="Logic" effect={{ textAlign: 'left' }} size="huge" />
+              <FSMToolbarItem
+                name="fsm"
+                category="logic"
+                type="fsm"
+                count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('FSM')}
+              </FSMToolbarItem>
+              <FSMToolbarItem
+                name="block"
+                type="block"
+                category="logic"
+                disabled={!qorus_instance}
+                count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('Block')}
+              </FSMToolbarItem>
+              <FSMToolbarItem
+                name="if"
+                category="logic"
+                type="if"
+                count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('If')}
+              </FSMToolbarItem>
+              <ReqoreMenuDivider label="API" effect={{ textAlign: 'left' }} size="huge" />
+              <FSMToolbarItem
+                name="state"
+                type="apicall"
+                category="api"
+                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'apicall'))}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('field-label-apicall')}
+              </FSMToolbarItem>
+              <ReqoreMenuDivider label="Other" effect={{ textAlign: 'left' }} size="huge" />
+              <FSMToolbarItem
+                name="state"
+                category="other"
+                type="search-single"
+                count={size(
+                  filter(states, ({ action }: IFSMState) => action?.type === 'search-single')
+                )}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('field-label-search-single')}
+              </FSMToolbarItem>
+              <FSMToolbarItem
+                name="state"
+                category="other"
+                type="search"
+                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'search'))}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('field-label-search')}
+              </FSMToolbarItem>
+              <FSMToolbarItem
+                name="state"
+                category="other"
+                type="update"
+                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'update'))}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('field-label-update')}
+              </FSMToolbarItem>
+              <FSMToolbarItem
+                name="state"
+                category="other"
+                type="create"
+                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'create'))}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('field-label-create')}
+              </FSMToolbarItem>
+              <FSMToolbarItem
+                name="state"
+                category="other"
+                type="delete"
+                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'delete'))}
+                onDoubleClick={handleToolbarItemDblClick}
+              >
+                {t('field-label-delete')}
+              </FSMToolbarItem>
+            </ReqoreMenu>
+
+            <div style={{ flex: 1, overflow: 'hidden', minHeight: 100 }}>
+              {selectedState && (
+                <>
+                  <Callout icon="info-sign" intent="primary">
+                    {t('FSMSelectTargetState')}
+                  </Callout>
+                  <Spacer size={10} />
+                </>
+              )}
+              <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
+                <FSMDiagramWrapper
+                  wrapperDimensions={wrapperDimensions}
+                  setPan={setWrapperPan}
+                  isHoldingShiftKey={isHoldingShiftKey && !selectedState}
+                  zoom={zoom}
+                  items={map(states, (state) => ({
+                    x: state.position.x,
+                    y: state.position.y,
+                    type: getStateType(state),
+                  }))}
+                >
+                  <StyledDiagram
+                    name="fsm-drop-zone"
+                    key={JSON.stringify(wrapperDimensions)}
+                    ref={drop}
+                    path={image_path}
+                    onClick={() => setSelectedState(null)}
+                    style={{
+                      transform: `scale(${zoom})`,
+                      marginLeft: `${calculateMargin()}px`,
+                      marginTop: `${calculateMargin()}px`,
+                    }}
+                  >
+                    {map(states, (state, id) => (
+                      <FSMState
+                        key={id}
+                        {...state}
+                        id={id}
+                        selected={selectedState === id}
+                        onDblClick={handleStateClick}
+                        onClick={handleStateClick}
+                        onUpdate={updateStateData}
+                        onEditClick={handleStateEditClick}
+                        onDeleteClick={handleStateDeleteClick}
+                        selectedState={selectedState}
+                        isAvailableForTransition={isAvailableForTransition}
+                        toggleDragging={setIsHoldingShiftKey}
+                        onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
+                        onExecutionOrderClick={() => setEditingInitialOrder(true)}
+                        isIsolated={isStateIsolated(id, states)}
+                      />
+                    ))}
+                    <svg height="100%" width="100%" style={{ position: 'absolute' }}>
+                      {transitions.map(
+                        (
+                          { x1, x2, y1, y2, state, targetState, isError, branch, transitionIndex },
+                          index
+                        ) =>
+                          isTransitionToSelf(state, targetState) ? (
+                            <StyledFSMCircle
+                              cx={x1 + 90}
+                              cy={y1 + 50}
+                              r={25}
+                              fill="transparent"
+                              stroke={isError ? 'red' : '#a9a9a9'}
+                              strokeWidth={2}
+                              strokeDasharray={isError ? '10 2' : undefined}
+                              key={index}
+                              onClick={() =>
+                                setEditingTransition([{ stateId: state, index: transitionIndex }])
+                              }
+                            />
+                          ) : (
+                            <>
+                              <StyledFSMLine
+                                onClick={() => {
+                                  setEditingTransition((cur) => {
+                                    const result = [...cur];
+
+                                    result.push({ stateId: state, index: transitionIndex });
+
+                                    const hasBothWay = hasBothWayTransition(state, targetState);
+
+                                    if (hasBothWay) {
+                                      result.push(hasBothWay);
+                                    }
+
+                                    return result;
+                                  });
+                                }}
+                                key={index}
+                                name={`fsm-transition${
+                                  isError ? '-error' : branch ? `-${branch}` : ''
+                                }`}
+                                stroke={getTransitionColor(isError, branch)}
+                                strokeWidth={isError ? 2 : 1}
+                                strokeDasharray={isError ? '10 2' : undefined}
+                                markerEnd={`url(#arrowhead${getTransitionEndMarker(
+                                  isError,
+                                  branch
+                                )})`}
+                                {...getTargetStatePosition(x1, y1, x2, y2, state, targetState)}
+                              />
+                            </>
+                          )
+                      )}
+                    </svg>
+                  </StyledDiagram>
+                </FSMDiagramWrapper>
+              </StyledDiagramWrapper>
+            </div>
+          </div>
+        </>
+      )}
       {!embedded && (
         <ActionsWrapper>
           <div style={{ float: 'right', width: '100%' }}>
@@ -1813,14 +1812,40 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   }}
                 />
               </Tooltip>
-              <Button
-                text={t('Submit')}
-                onClick={handleSubmitClick}
-                disabled={!isFSMValid()}
-                name="fsm-submit"
-                icon="tick"
-                intent={Intent.SUCCESS}
-              />
+              {getIsMetadataHidden() ? (
+                <>
+                  <Button
+                    text={t('Back')}
+                    onClick={() => {
+                      embedded
+                        ? onHideMetadataClick((cur) => !cur)
+                        : setIsMetadataHidden((cur) => !cur);
+                    }}
+                    name="fsm-back"
+                    icon="arrow-left"
+                  />
+                  <Button
+                    text={t('Submit')}
+                    onClick={handleSubmitClick}
+                    disabled={!isFSMValid()}
+                    name="fsm-submit"
+                    icon="tick"
+                    intent={Intent.SUCCESS}
+                  />
+                </>
+              ) : (
+                <Button
+                  text={t('Go to flow builder')}
+                  onClick={() => {
+                    embedded
+                      ? onHideMetadataClick((cur) => !cur)
+                      : setIsMetadataHidden((cur) => !cur);
+                  }}
+                  name="fsm-next-step"
+                  icon="arrow-right"
+                  intent={Intent.PRIMARY}
+                />
+              )}
             </ButtonGroup>
           </div>
         </ActionsWrapper>

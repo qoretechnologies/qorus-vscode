@@ -1,9 +1,10 @@
-import { Tooltip } from '@blueprintjs/core';
-import React, { useContext } from 'react';
+import { ReqoreMenuItem } from '@qoretechnologies/reqore';
+import { useContext } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { css } from 'styled-components';
 import { TOOLBAR_ITEM_TYPE } from '.';
 import { TextContext } from '../../../context/text';
+import { getStateColor, TStateTypes } from './state';
 
 export interface IFSMToolbarItemProps {
   children: any;
@@ -12,6 +13,7 @@ export interface IFSMToolbarItemProps {
   type: string;
   disabled?: boolean;
   onDoubleClick: (name: string, type: string, stateType: string) => any;
+  category: TStateTypes;
 }
 
 export const getStateStyle = (type, toolbar?: boolean) => {
@@ -114,6 +116,21 @@ const StyledToolbarItem = styled.div<{ type: string; disabled?: boolean }>`
   }
 `;
 
+const typeToColor = {
+  mapper: '#f1ca00',
+  pipeline: '#6e1977',
+  fsm: '#0d5ba5',
+  block: '#ff5dfd',
+  connector: '#eb0e8c',
+  if: '#38fdb2',
+  apicall: '#ff47a3',
+  'search-single': '#658b30',
+  search: '#0d0113',
+  create: '#ec522c',
+  update: '#d0b7ff',
+  delete: '#160437',
+};
+
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   children,
   count,
@@ -121,6 +138,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   type,
   disabled,
   onDoubleClick,
+  category,
 }) => {
   const t = useContext(TextContext);
   const [, drag] = useDrag({
@@ -129,22 +147,28 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   });
 
   return (
-    <Tooltip intent="warning" content={disabled ? t('CannotManageBlock') : undefined}>
-      <StyledToolbarItem
-        ref={!disabled ? drag : undefined}
-        type={type}
-        name={`fsm-toolbar-${type}`}
-        toolbar
-        onDoubleClick={() => {
-          onDoubleClick(name, TOOLBAR_ITEM_TYPE, type);
-        }}
-        className={disabled ? 'disabled' : undefined}
-      >
-        <span>
-          {children} {count ? `(${count}) ` : ''}
-        </span>
-      </StyledToolbarItem>
-    </Tooltip>
+    <ReqoreMenuItem
+      ref={!disabled ? drag : undefined}
+      minimal
+      flat={false}
+      description="This is a test description kek"
+      badge={count}
+      effect={{
+        gradient: {
+          direction: 'to right bottom',
+          colors: {
+            0: '#ffffff',
+            100: `${getStateColor(category)}30`,
+          },
+          borderColor: getStateColor(category),
+        },
+      }}
+      onDoubleClick={() => {
+        onDoubleClick(name, TOOLBAR_ITEM_TYPE, type);
+      }}
+    >
+      {children}
+    </ReqoreMenuItem>
   );
 };
 
