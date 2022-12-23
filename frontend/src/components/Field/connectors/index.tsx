@@ -171,7 +171,6 @@ export const maybeBuildOptionProvider = (provider) => {
       fixedProvider.indexOf('{') + 1,
       fixedProvider.lastIndexOf('}')
     );
-    console.log('options', options);
     // Split the options by comma
     const optionsArray = options.split(',');
     let optionsObject = {};
@@ -198,8 +197,6 @@ export const maybeBuildOptionProvider = (provider) => {
     if (provider.includes('?options_changed')) {
       result.optionsChanged = true;
     }
-
-    console.log('THE ACTUAL PROVIDER OBJECT', result);
 
     return result;
   }
@@ -296,8 +293,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           const newNodes = cloneDeep(nodes);
 
           if (type === 'factory') {
-            console.log('VALUE IN CONNECTORS FIELD', val);
-
             let options = reduce(
               val.options,
               (newOptions, optionData, optionName) => {

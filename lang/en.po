@@ -558,6 +558,9 @@ msgstr "Use existing release file"
 msgid "CurrentBranchInfo"
 msgstr "Git information"
 
+msgid "ReleaseNoRepository"
+msgstr "No repository detected, some release features are disabled."
+
 msgid "QoreLangClientNotFound"
 msgstr "Qore Language Client Unavailable"
 

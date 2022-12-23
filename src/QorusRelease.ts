@@ -240,6 +240,14 @@ class QorusRelease {
 
   private checkUpToDate() {
     const branch = this.repository.currentBranch();
+
+    // @ts-ignore
+    if (!this.repository.repository) {
+      qorus_webview.postMessage({
+        action: 'release-no-repository',
+      });
+      return true;
+    }
     if (!branch.up_to_date) {
       qorus_webview.postMessage({
         action: 'release-branch-not-up-to-date',

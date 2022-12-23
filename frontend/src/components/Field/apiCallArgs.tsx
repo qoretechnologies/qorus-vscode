@@ -30,7 +30,6 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
       const data = await fetchData(`${url}/request?context=ui`);
 
       if (data.error) {
-        //console.log(data.error);
         throw new Error(data.error.error.desc);
       }
 

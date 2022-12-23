@@ -27,10 +27,12 @@ class ReleasePackage extends Component<
   any,
   {
     selectedInterfaces: string[];
+    hasRepository?: boolean;
   }
 > {
-  state: { selectedInterfaces: string[] } = {
+  state: { selectedInterfaces: string[]; hasRepository?: boolean } = {
     selectedInterfaces: [],
+    hasRepository: true,
   };
 
   constructor() {
@@ -64,6 +66,9 @@ class ReleasePackage extends Component<
           this.props.setNotUpToDateMsgOpen(true);
           this.props.setBranch(event.data.branch);
           this.props.setPending(false);
+          break;
+        case 'release-no-repository':
+          this.setState({ hasRepository: false });
           break;
         case 'release-package-saved':
           this.props.setSavedPath(event.data.saved_path);
@@ -333,18 +338,27 @@ class ReleasePackage extends Component<
     return (
       <ReqorePanel flat contentStyle={{ display: 'flex', overflow: 'hidden', flexFlow: 'column' }}>
         {notUpToDateMsg()}
+        {!this.state.hasRepository && (
+          <ReqoreMessage intent="danger" inverted>
+            {t('ReleaseNoRepository')}
+          </ReqoreMessage>
+        )}
         <ReqoreSpacer height={10} />
         {this.props.step == Step.Type && (
           <ReqoreTabs
             fillParent
             activeTabIntent="info"
-            activeTab={this.props.branch.up_to_date ? 'full' : 'custom'}
+            activeTab={this.props.branch.up_to_date && this.state.hasRepository ? 'full' : 'custom'}
             tabs={[
-              { label: 'Full Release', id: 'full', disabled: !this.props.branch.up_to_date },
+              {
+                label: 'Full Release',
+                id: 'full',
+                disabled: !this.props.branch.up_to_date || !this.state.hasRepository,
+              },
               {
                 label: 'Incremental Release',
                 id: 'incremental',
-                disabled: !this.props.branch.up_to_date,
+                disabled: !this.props.branch.up_to_date || !this.state.hasRepository,
               },
               { label: 'Custom Release', id: 'custom' },
               { label: 'Existing Release', id: 'existing' },
