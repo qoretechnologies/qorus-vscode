@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.9.5
+
+#### Features
+
+- Releases view was rewritten to use the new in-house UI library
+
 ## Version 3.9.4
 
 #### Bug fixes
