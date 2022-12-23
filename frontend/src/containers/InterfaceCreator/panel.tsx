@@ -602,7 +602,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     explicit?: boolean,
     metadata?: any
   ) => void = (fieldName, value, forcedType, canBeNull, explicit, metadata) => {
-    console.log('handleFieldChange', fieldName, value, forcedType, canBeNull, explicit, metadata);
     setSelectedFields(
       type,
       (currentFields: IField[]): IField[] => {
@@ -673,7 +672,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             }
             // On change events
             maybeSendOnChangeEvent(currentField, value, type, interfaceId, isEditing);
-            console.log('IS FIELD VALID LMFAO', isValid);
             // Add the value
             return [
               ...newFields,

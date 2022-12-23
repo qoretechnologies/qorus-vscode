@@ -9,7 +9,7 @@ import { t } from 'ttag';
 import * as vscode from 'vscode';
 import * as zlib from 'zlib';
 import { deployer } from './QorusDeploy';
-import { projects, QorusProject } from './QorusProject';
+import { QorusProject, projects } from './QorusProject';
 import { QorusRepository } from './QorusRepository';
 import { QorusRepositoryGit } from './QorusRepositoryGit';
 import { qorus_webview } from './QorusWebview';
@@ -240,6 +240,14 @@ class QorusRelease {
 
   private checkUpToDate() {
     const branch = this.repository.currentBranch();
+
+    // @ts-ignore
+    if (!this.repository.repository) {
+      qorus_webview.postMessage({
+        action: 'release-no-repository',
+      });
+      return true;
+    }
     if (!branch.up_to_date) {
       qorus_webview.postMessage({
         action: 'release-branch-not-up-to-date',
@@ -285,21 +293,17 @@ class QorusRelease {
   }
 
   createCustomPackage(files) {
-    if (this.checkUpToDate()) {
-      this.files = files.map((file) => vscode.workspace.asRelativePath(file, false));
-      this.createReleaseFile();
-    }
+    this.files = files.map((file) => vscode.workspace.asRelativePath(file, false));
+    this.createReleaseFile();
   }
 
   deployPackage() {
-    if (this.checkUpToDate()) {
-      deployer.deployPackage(this.package_path).then((result) => {
-        qorus_webview.postMessage({
-          action: 'release-deployment-result',
-          result: result,
-        });
+    deployer.deployPackage(this.package_path).then((result) => {
+      qorus_webview.postMessage({
+        action: 'release-deployment-result',
+        result: result,
       });
-    }
+    });
   }
 
   getPackage() {

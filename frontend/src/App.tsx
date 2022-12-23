@@ -7,6 +7,7 @@ import {
   Navbar,
   NavbarGroup,
 } from '@blueprintjs/core';
+import { ReqoreUIProvider } from '@qoretechnologies/reqore';
 import last from 'lodash/last';
 import size from 'lodash/size';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
@@ -14,6 +15,7 @@ import { connect } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
+import { DraftsView } from './DraftsView';
 import ContextMenu from './components/ContextMenu';
 import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
@@ -29,7 +31,6 @@ import { DraftsContext, IDraftData } from './context/drafts';
 import { ErrorsContext } from './context/errors';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
-import { DraftsView } from './DraftsView';
 import { callBackendBasic, getTargetFile } from './helpers/functions';
 import withErrors from './hocomponents/withErrors';
 import withFields from './hocomponents/withFields';
@@ -38,10 +39,10 @@ import withGlobalOptions from './hocomponents/withGlobalOptions';
 import withInitialData from './hocomponents/withInitialData';
 import withMapper from './hocomponents/withMapper';
 import {
-  addMessageListener,
-  postMessage,
   TMessageListener,
   TPostMessage,
+  addMessageListener,
+  postMessage,
 } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
@@ -375,115 +376,117 @@ const App: FunctionComponent<IApp> = ({
 
   return (
     <>
-      <DraftsContext.Provider
-        value={{
-          addDraft,
-          removeDraft,
-          maybeApplyDraft,
-          maybeDeleteDraft,
-          draft,
-        }}
-      >
-        <ContextMenuContext.Provider
+      <ReqoreUIProvider theme={{ main: '#ffffff' }} options={{ animations: { buttons: false } }}>
+        <DraftsContext.Provider
           value={{
-            addMenu: setContextMenu,
-            removeMenu: (onClose?: () => any) => {
-              setContextMenu(null);
-              if (onClose) {
-                onClose();
-              }
-            },
+            addDraft,
+            removeDraft,
+            maybeApplyDraft,
+            maybeDeleteDraft,
+            draft,
           }}
         >
-          <DialogsContext.Provider value={{ addDialog, removeDialog }}>
-            {contextMenu && <ContextMenu {...contextMenu} onClick={() => setContextMenu(null)} />}
-            <Navbar fixedToTop={true} className="dark">
-              <NavbarGroup>
-                <img style={{ maxWidth: 30, maxHeight: 30, marginRight: 10 }} src={QorusLogo} />
-                <StyledInfo>
-                  {t('Project')}: <span>{project_folder}</span>
-                </StyledInfo>
-                <StyledInfo>
-                  {t('ActiveQorusInstance')}:{' '}
-                  <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
-                </StyledInfo>
-              </NavbarGroup>
-              <Pull right>
+          <ContextMenuContext.Provider
+            value={{
+              addMenu: setContextMenu,
+              removeMenu: (onClose?: () => any) => {
+                setContextMenu(null);
+                if (onClose) {
+                  onClose();
+                }
+              },
+            }}
+          >
+            <DialogsContext.Provider value={{ addDialog, removeDialog }}>
+              {contextMenu && <ContextMenu {...contextMenu} onClick={() => setContextMenu(null)} />}
+              <Navbar fixedToTop={true} className="dark">
                 <NavbarGroup>
-                  <ButtonGroup minimal>
-                    <AnchorButton
-                      icon="refresh"
-                      href="command:workbench.action.webview.reloadWebviewAction"
-                      onClick={() =>
-                        AppToaster.show({
-                          message: t('ReloadingWebview'),
-                          intent: 'warning',
-                          icon: 'refresh',
-                        })
-                      }
-                    />
-                  </ButtonGroup>
+                  <img style={{ maxWidth: 30, maxHeight: 30, marginRight: 10 }} src={QorusLogo} />
+                  <StyledInfo>
+                    {t('Project')}: <span>{project_folder}</span>
+                  </StyledInfo>
+                  <StyledInfo>
+                    {t('ActiveQorusInstance')}:{' '}
+                    <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
+                  </StyledInfo>
                 </NavbarGroup>
-              </Pull>
-            </Navbar>
-            <TextContext.Provider value={t}>
-              <StyledApp>
-                {tab !== 'Login' && <Menu isCollapsed menu={MENU} />}
-                <>
-                  {tab == 'Login' && <LoginContainer />}
-                  {tab == 'Loading' && <Loader text={t('Loading')} />}
-                  {tab == 'ProjectConfig' && <ProjectConfig />}
-                  {tab == 'ReleasePackage' && <ReleasePackage />}
-                  {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
-                  {tab === 'Drafts' && <DraftsView />}
-                  {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
-                </>
-              </StyledApp>
-            </TextContext.Provider>
-            {confirmDialog.isOpen && (
-              <CustomDialog
-                isOpen
-                icon="warning-sign"
-                title={t('ConfirmDialogTitle')}
-                onClose={() => {
-                  confirmDialog.onCancel && confirmDialog.onCancel();
-                  setConfirmDialog({});
-                }}
-                style={{ backgroundColor: '#fff' }}
-              >
-                <div className={Classes.DIALOG_BODY}>
-                  <Callout intent={confirmDialog.btnStyle || 'danger'}>
-                    {t(confirmDialog.text)}
-                  </Callout>
-                </div>
-                <div className={Classes.DIALOG_FOOTER}>
-                  <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                    <ButtonGroup>
-                      <Button
-                        text={t('Cancel')}
-                        onClick={() => {
-                          confirmDialog.onCancel && confirmDialog.onCancel();
-                          setConfirmDialog({});
-                        }}
-                        id="global-dialog-cancel"
-                      />
-                      <Button
-                        id="global-dialog-confirm"
-                        text={t(confirmDialog.btnText || 'Remove')}
-                        intent={confirmDialog.btnStyle || 'danger'}
-                        onClick={() => {
-                          confirmDialog.onSubmit();
-                          setConfirmDialog({});
-                        }}
+                <Pull right>
+                  <NavbarGroup>
+                    <ButtonGroup minimal>
+                      <AnchorButton
+                        icon="refresh"
+                        href="command:workbench.action.webview.reloadWebviewAction"
+                        onClick={() =>
+                          AppToaster.show({
+                            message: t('ReloadingWebview'),
+                            intent: 'warning',
+                            icon: 'refresh',
+                          })
+                        }
                       />
                     </ButtonGroup>
+                  </NavbarGroup>
+                </Pull>
+              </Navbar>
+              <TextContext.Provider value={t}>
+                <StyledApp>
+                  {tab !== 'Login' && <Menu isCollapsed menu={MENU} />}
+                  <>
+                    {tab == 'Login' && <LoginContainer />}
+                    {tab == 'Loading' && <Loader text={t('Loading')} />}
+                    {tab == 'ProjectConfig' && <ProjectConfig />}
+                    {tab == 'ReleasePackage' && <ReleasePackage />}
+                    {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
+                    {tab === 'Drafts' && <DraftsView />}
+                    {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
+                  </>
+                </StyledApp>
+              </TextContext.Provider>
+              {confirmDialog.isOpen && (
+                <CustomDialog
+                  isOpen
+                  icon="warning-sign"
+                  title={t('ConfirmDialogTitle')}
+                  onClose={() => {
+                    confirmDialog.onCancel && confirmDialog.onCancel();
+                    setConfirmDialog({});
+                  }}
+                  style={{ backgroundColor: '#fff' }}
+                >
+                  <div className={Classes.DIALOG_BODY}>
+                    <Callout intent={confirmDialog.btnStyle || 'danger'}>
+                      {t(confirmDialog.text)}
+                    </Callout>
                   </div>
-                </div>
-              </CustomDialog>
-            )}
-          </DialogsContext.Provider>
-        </ContextMenuContext.Provider>
-      </DraftsContext.Provider>
+                  <div className={Classes.DIALOG_FOOTER}>
+                    <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                      <ButtonGroup>
+                        <Button
+                          text={t('Cancel')}
+                          onClick={() => {
+                            confirmDialog.onCancel && confirmDialog.onCancel();
+                            setConfirmDialog({});
+                          }}
+                          id="global-dialog-cancel"
+                        />
+                        <Button
+                          id="global-dialog-confirm"
+                          text={t(confirmDialog.btnText || 'Remove')}
+                          intent={confirmDialog.btnStyle || 'danger'}
+                          onClick={() => {
+                            confirmDialog.onSubmit();
+                            setConfirmDialog({});
+                          }}
+                        />
+                      </ButtonGroup>
+                    </div>
+                  </div>
+                </CustomDialog>
+              )}
+            </DialogsContext.Provider>
+          </ContextMenuContext.Provider>
+        </DraftsContext.Provider>
+      </ReqoreUIProvider>
     </>
   );
 };
