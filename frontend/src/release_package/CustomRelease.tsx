@@ -1,9 +1,9 @@
-import { Button, Classes, Colors, ControlGroup, Icon } from '@blueprintjs/core';
+import { Classes, Colors, Icon } from '@blueprintjs/core';
+import { ReqoreInput, ReqorePanel } from '@qoretechnologies/reqore';
 import { map, size } from 'lodash';
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useAsyncRetry, useBoolean } from 'react-use';
 import styled, { css } from 'styled-components';
-import StringField from '../components/Field/string';
 import Loader from '../components/Loader';
 import { MENU } from '../constants/menu';
 import { TextContext } from '../context/text';
@@ -50,8 +50,6 @@ const StyledInterfaceListTitle = styled.div`
 `;
 
 const StyledInterfaceItem = styled.div`
-  border: 1px solid #e6e6e6;
-  border-radius: 3px;
   margin-bottom: 20px;
 `;
 
@@ -134,80 +132,64 @@ export const CustomReleaseGroup = ({
 
   return (
     <StyledInterfaceItem key={interfaceKind}>
-      <StyledInterfaceListTitle
-        disabled={!size(interfaces)}
-        onClick={() => {
-          // Add this interface to the collapsed list if it's not already there
-          // and remove it if it is
-          setIsCollapsed(!isCollapsed);
-        }}
-      >
-        <div>
-          <Icon
-            iconSize={18}
-            icon={size(interfaces) ? (isCollapsed ? 'chevron-right' : 'chevron-down') : 'disable'}
-          />{' '}
-          <Icon
-            iconSize={18}
-            icon={
-              MENU.CreateInterface[0].submenu.find(
-                (interfaceMenuData) => interfaceMenuData.subtab === interfaceKind
-              )?.icon || otherInterfaceIcons[interfaceKind]
-            }
-          />{' '}
-          {MENU.CreateInterface[0].submenu.find(
+      <ReqorePanel
+        collapsible={size(interfaces) > 0}
+        padded={false}
+        minimal
+        intent={size(interfaces) ? 'muted' : undefined}
+        isCollapsed
+        label={`${
+          MENU.CreateInterface[0].submenu.find(
             (interfaceMenuData) => interfaceMenuData.subtab === interfaceKind
-          )?.name || otherInterfaceNames[interfaceKind]}{' '}
-          <span className={Classes.TEXT_MUTED}>({filteredInterfaces.length})</span>
-        </div>
-        {size(interfaces) > 0 && (
-          <ControlGroup>
-            <StringField
-              name="query"
-              value={query}
-              onChange={(n, q) => setQuery(q)}
-              placeholder={t('Filter')}
+          )?.name || otherInterfaceNames[interfaceKind]
+        } (${filteredInterfaces.length})`}
+        actions={
+          size(interfaces)
+            ? [
+                {
+                  as: ReqoreInput,
+                  props: {
+                    value: query,
+                    onChange: (e: any) => setQuery(e.target.value),
+                    placeholder: t('Filter'),
+                  },
+                },
+                {
+                  label: query && query !== '' ? t('SelectFiltered') : t('SelectAll'),
+                  icon: 'CheckboxMultipleLine',
+                  intent: 'info',
+                  onClick: () => {
+                    if (query && query !== '') {
+                      handleSelectFiltered();
+                    } else {
+                      onSelectAll(interfaceKind);
+                    }
+                  },
+                },
+              ]
+            : undefined
+        }
+      >
+        {map(filteredInterfaces, (interfaceData, index) => (
+          <StyledInterfaceListItem
+            key={index}
+            selected={isSelected(getItemFile(interfaceData))}
+            onClick={() => {
+              onItemClick([getItemFile(interfaceData)], isSelected(getItemFile(interfaceData)));
+            }}
+          >
+            <Icon
+              iconSize={15}
+              style={{ marginRight: 10 }}
+              icon={isSelected(getItemFile(interfaceData)) ? 'tick-circle' : 'circle'}
             />
-            {size(filteredInterfaces) > 0 && (
-              <Button
-                onClick={(event) => {
-                  event.stopPropagation();
-                  if (query && query !== '') {
-                    handleSelectFiltered();
-                  } else {
-                    onSelectAll(interfaceKind);
-                  }
-                }}
-                intent="primary"
-                icon="multi-select"
-              >
-                {query && query !== '' ? t('SelectFiltered') : t('SelectAll')}
-              </Button>
-            )}
-          </ControlGroup>
-        )}
-      </StyledInterfaceListTitle>
-      {!isCollapsed
-        ? map(filteredInterfaces, (interfaceData, index) => (
-            <StyledInterfaceListItem
-              key={index}
-              selected={isSelected(getItemFile(interfaceData))}
-              onClick={() => {
-                onItemClick([getItemFile(interfaceData)], isSelected(getItemFile(interfaceData)));
-              }}
-            >
-              <Icon
-                iconSize={15}
-                style={{ marginRight: 10 }}
-                icon={isSelected(getItemFile(interfaceData)) ? 'tick-circle' : 'circle'}
-              />
-              <span className={Classes.TEXT_MUTED}>
-                {interfaceData.data?.version && `[v${interfaceData.data.version}] `}
-              </span>
-              {interfaceData.data?.name || interfaceData.name}
-            </StyledInterfaceListItem>
-          ))
-        : null}
+            <span className={Classes.TEXT_MUTED}>
+              {interfaceData.data?.version && `[v${interfaceData.data.version}] `}
+            </span>
+            {interfaceData.data?.name || interfaceData.name}
+          </StyledInterfaceListItem>
+        ))}
+      </ReqorePanel>
     </StyledInterfaceItem>
   );
 };

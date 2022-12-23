@@ -28,7 +28,9 @@ export class QorusRepositoryGit implements QorusRepository {
               return Promise.resolve();
             }
           }
-          return Promise.reject(t`UnableDetermineRepository`);
+          // issue #1118: work without a git repository
+          this.repository = undefined;
+          return Promise.resolve();
         },
         (error) => {
           return Promise.reject(t`ErrorInActivatingGitExtension` + ': ' + JSON.stringify(error));
@@ -37,13 +39,13 @@ export class QorusRepositoryGit implements QorusRepository {
   }
 
   currentBranch(): QorusRepositoryCurrentBranch {
-    const branch: Branch | undefined = this.repository.state.HEAD;
+    // issue #1118: work without a git repository
+    const branch: Branch | undefined = this.repository?.state.HEAD;
     if (!branch) {
-      msg.error(t`UnableDetermineRepositoryBranch`);
       return {
         name: '',
         commit: '',
-        up_to_date: false,
+        up_to_date: true,
       };
     }
     return {
@@ -54,6 +56,11 @@ export class QorusRepositoryGit implements QorusRepository {
   }
 
   commits(hash_filter = '', branch_filter = '', tag_filter = ''): string[] {
+    // issue #1118: work without a git repository
+    if (typeof this.repository == 'undefined') {
+      return [];
+    }
+
     const current_commit = this.currentBranch().commit;
     const commits = this.repository.state.refs.reduce((accumulator, ref: Ref) => {
       if (ref.commit.indexOf(hash_filter) != 0 || ref.commit == current_commit) {
@@ -90,6 +97,13 @@ export class QorusRepositoryGit implements QorusRepository {
   }
 
   changedFiles(commit: string, folder: string, source_dirs: string[]): Promise<string[]> {
+    // issue #1118: work without a git repository
+    if (typeof this.repository == 'undefined') {
+      return new Promise((resolve) => {
+        resolve([]);
+      });
+    }
+
     return this.repository.diffWith(commit, folder).then((diff) => {
       const lines = diff.split(/\r?\n/).filter((line) => line.indexOf('+++ b/') == 0);
       return lines
@@ -106,6 +120,10 @@ export class QorusRepositoryGit implements QorusRepository {
   }
 
   private upToDate(): boolean {
+    // issue #1118: work without a git repository
+    if (typeof this.repository == 'undefined') {
+      return true;
+    }
     // issue #975: cannot return false if 'this.repository.state.workingTreeChanges.length' is non-zero; this
     // would be a false positive returning false if there are untracked files, which should be ignored
     if (this.repository.state.indexChanges.length) {

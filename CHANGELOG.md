@@ -1,10 +1,17 @@
 # Changelog
 
+## Version 3.9.5
+
+#### Features
+
+- Releases view was rewritten to use the new in-house UI library
+
 ## Version 3.9.4
 
 #### Bug fixes
 
 - Recognize `*test.py` and `*Test.java` as tests
+- Allow the extension to create custom releases without requiring an initialized git repository in the project directory
 
 ## Version 3.9.3
 

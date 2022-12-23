@@ -13,16 +13,16 @@ import {
 import * as path from 'path';
 import { gettext, t } from 'ttag';
 import * as vscode from 'vscode';
-import * as globals from './global_config_item_values';
-import { field } from './interface_creator/common_constants';
 import { drafts_tree, otherFilesNames } from './QorusDraftsTree';
 import { interface_tree } from './QorusInterfaceTree';
-import { config_filename, projects, QorusProject } from './QorusProject';
+import { QorusProject, config_filename, projects } from './QorusProject';
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import { QorusProjectYamlInfo } from './QorusProjectYamlInfo';
 import { qorus_request } from './QorusRequest';
 import { qorus_webview } from './QorusWebview';
+import * as globals from './global_config_item_values';
+import { field } from './interface_creator/common_constants';
 import {
   all_root_classes,
   default_lang,
@@ -352,7 +352,6 @@ export class QorusProjectCodeInfo {
     };
 
     const onSuccess = (response) => {
-      console.log('RESPONSE IN getFieldsFromType', response);
       const data = JSON.parse(response);
       postMessage(data);
     };
@@ -1038,7 +1037,6 @@ export class QorusProjectCodeInfo {
 
   private setMapperTypes = () => {
     qorus_request.doRequest('mappertypes', 'GET', (response) => {
-      console.log(response);
       const result = response;
       if (Array.isArray(result)) {
         this.mapper_types = result.map((type) => ({ name: type.name, desc: type.desc }));
@@ -1420,7 +1418,7 @@ export class QorusProjectCodeInfo {
     const py_re: RegExp = /test\.py$/;
 
     if (java_re.test(file_path) || py_re.test(file_path)) {
-        return 'tests';
+      return 'tests';
     }
     var ext: string = path.extname(file_path);
     switch (ext) {
@@ -1451,8 +1449,12 @@ export class QorusProjectCodeInfo {
 
       const files = filesInDir(
         full_dir,
-        (path) => hasSuffix(path, 'qsm') || hasSuffix(path, 'qscript') || hasSuffix(path, 'qtest')
-            || java_re.test(path) || py_re.test(path)
+        (path) =>
+          hasSuffix(path, 'qsm') ||
+          hasSuffix(path, 'qscript') ||
+          hasSuffix(path, 'qtest') ||
+          java_re.test(path) ||
+          py_re.test(path)
       );
       for (const file of files) {
         otherFiles[file] = true;
