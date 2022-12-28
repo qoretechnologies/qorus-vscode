@@ -1,187 +1,193 @@
-import React, { FunctionComponent, useContext, useState } from 'react';
+import { FunctionComponent, useContext, useState } from 'react';
 
 import styled from 'styled-components';
 
-import { Button, ButtonGroup, Classes, Icon } from '@blueprintjs/core';
-
+import {
+  ReqoreContext,
+  ReqoreH4,
+  ReqoreMessage,
+  ReqoreP,
+  ReqorePanel,
+  ReqoreSpacer,
+} from '@qoretechnologies/reqore';
 import { TTranslator } from '../App';
-import { InitialContext } from '../context/init';
 import withTextContext from '../hocomponents/withTextContext';
-import Add from './add';
-import { StyledNoData, StyledSubHeader } from './environment';
 import { IQorusInstance } from './ProjectConfig';
+import Add from './add';
 import QorusUrl from './url';
 
 export interface IQorusInstanceProps extends IQorusInstance {
-    onDataChange: (instanceId: number, name: string, url?: string) => void;
-    onDelete: (id: number) => void;
-    onUrlSubmit: (envId: number, instanceId: number, name: string, url: string, isOtherUrl: boolean) => void;
-    onUrlDelete: (envId: number, instanceId: number, name: string) => void;
-    onSetActive: (url: string, set: boolean) => void;
-    envId: number;
-    isActive: boolean;
-    t: TTranslator;
+  onDataChange: (instanceId: number, name: string, url?: string) => void;
+  onDelete: (id: number) => void;
+  onUrlSubmit: (
+    envId: number,
+    instanceId: number,
+    name: string,
+    url: string,
+    isOtherUrl: boolean
+  ) => void;
+  onUrlDelete: (envId: number, instanceId: number, name: string) => void;
+  onSetActive: (url: string, set: boolean) => void;
+  envId: number;
+  isActive: boolean;
+  t: TTranslator;
 }
 
 const StyledInstanceWrapper = styled.div`
-    width: 100%;
-    background-color: #f1f1f1;
-    padding: 0 10px;
-    border-radius: 3px;
-    cursor: pointer;
-    min-height: 35px;
-    overflow: hidden;
-    line-height: 35px;
-    margin-bottom: 10px;
-    transition: all 0.2s linear;
+  width: 100%;
+  background-color: #f1f1f1;
+  padding: 0 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  min-height: 35px;
+  overflow: hidden;
+  line-height: 35px;
+  margin-bottom: 10px;
+  transition: all 0.2s linear;
 
-    &:hover {
-        background-color: #e7e7e7;
-
-        .bp3-icon {
-            opacity: 0.7;
-        }
-    }
-
-    &.expanded {
-        background-color: #add8e6ad;
-
-        .bp3-icon {
-            opacity: 0.7;
-        }
-    }
+  &:hover {
+    background-color: #e7e7e7;
 
     .bp3-icon {
-        opacity: 0.4;
+      opacity: 0.7;
     }
+  }
 
-    .button-wrapper {
-        margin-top: 3px;
+  &.expanded {
+    background-color: #add8e6ad;
+
+    .bp3-icon {
+      opacity: 0.7;
     }
+  }
+
+  .bp3-icon {
+    opacity: 0.4;
+  }
+
+  .button-wrapper {
+    margin-top: 3px;
+  }
 `;
 
 const StyledUrlWrapper = styled.div`
-    border: 1px solid #eee;
-    border-radius: 3px;
-    padding: 10px;
-    margin-bottom: 10px;
-    overflow: hidden;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
 `;
 
 const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
-    name,
-    url,
-    id,
-    urls,
-    onDelete,
-    onDataChange,
-    isActive,
-    onUrlSubmit,
-    onUrlDelete,
-    envId,
-    safe_url,
-    onSetActive,
-    t,
+  name,
+  url,
+  id,
+  urls,
+  onDelete,
+  onDataChange,
+  isActive,
+  onUrlSubmit,
+  onUrlDelete,
+  envId,
+  safe_url,
+  onSetActive,
+  t,
 }) => {
-    const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [isExpanded, setExpanded] = useState<boolean>(false);
-    const initContext = useContext(InitialContext);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const { confirmAction } = useContext(ReqoreContext);
 
-    const handleDataChange: (newName: string, url: string) => void = (newName, url) => {
-        // Change the data of this instance
-        onDataChange(id, newName, url);
-        // Turn off editing
-        setIsEditing(false);
-    };
+  const handleDataChange: (newName: string, url: string) => void = (newName, url) => {
+    // Change the data of this instance
+    onDataChange(id, newName, url);
+    // Turn off editing
+    setIsEditing(false);
+  };
 
-    const handleAddCancel: () => void = () => {
-        // Turn off editing
-        setIsEditing(false);
-    };
+  const handleAddCancel: () => void = () => {
+    // Turn off editing
+    setIsEditing(false);
+  };
 
-    const handleUrlSubmit: (newName: string, url: string) => void = (newName, url) => {
-        // Submit the url
-        onUrlSubmit(envId, id, newName, url, true);
-    };
+  const handleUrlSubmit: (newName: string, url: string) => void = (newName, url) => {
+    // Submit the url
+    onUrlSubmit(envId, id, newName, url, true);
+  };
 
-    return (
-        <>
-            {isEditing ? (
-                <Add
-                    name={name}
-                    url={url}
-                    withUrl
-                    defaultAdding
-                    fill
-                    id="instance"
-                    onCancel={handleAddCancel}
-                    onSubmit={handleDataChange}
-                />
-            ) : (
-                <StyledInstanceWrapper className={isExpanded && 'expanded'} name="instance-item">
-                    <div className="pull-left" style={{ width: '68%', wordBreak: 'break-word' }}>
-                        <Icon icon="dot" intent={isActive ? 'success' : 'none'} />
-                        <span className={Classes.TEXT_MUTED}>
-                            {' '}
-                            <a href={url} name="instance-link">
-                                {name}
-                            </a>
-                        </span>
-                    </div>
-                    <div className="button-wrapper pull-right">
-                        <ButtonGroup minimal>
-                            <Button
-                                icon="chevron-down"
-                                small
-                                onClick={() => setExpanded(!isExpanded)}
-                                name="instance-expand"
-                            />
-                            <Button
-                                name="set-active-instance"
-                                icon="power"
-                                intent={isActive ? 'success' : 'none'}
-                                small
-                                onClick={() => onSetActive(url, !isActive)}
-                            />
-                            <Button icon="edit" small onClick={() => setIsEditing(true)} name="instance-edit" />
-                            <Button
-                                icon="trash"
-                                intent="danger"
-                                small
-                                name="instance-delete"
-                                onClick={() => initContext.confirmAction('ConfirmRemoveInstance', () => onDelete(id))}
-                            />
-                        </ButtonGroup>
-                    </div>
-                </StyledInstanceWrapper>
-            )}
-            {isExpanded && (
-                <>
-                    <StyledUrlWrapper name="instance-url">
-                        <span>
-                            {t('MainUrl')} - <a href={url}>{safe_url}</a>
-                        </span>
-                    </StyledUrlWrapper>
-                    <StyledUrlWrapper name="instance-other-urls">
-                        <StyledSubHeader>
-                            <span>{t('OtherUrls')}</span>
-                            <div className="pull-right">
-                                <Add withUrl fill text={t('AddNewUrl')} onSubmit={handleUrlSubmit} id="other-url" />
-                            </div>
-                        </StyledSubHeader>
-                        {urls.length === 0 && (
-                            <StyledNoData>
-                                <Icon icon="disable" iconSize={16} /> {t('NoUrls')}
-                            </StyledNoData>
-                        )}
-                        {urls.map((url, index: number) => (
-                            <QorusUrl id={index} {...url} onDelete={onUrlDelete} envId={envId} instanceId={id} />
-                        ))}
-                    </StyledUrlWrapper>
-                </>
-            )}
-        </>
-    );
+  return (
+    <>
+      {isEditing ? (
+        <Add
+          name={name}
+          url={url}
+          withUrl
+          defaultAdding
+          fill
+          id="instance"
+          onCancel={handleAddCancel}
+          onSubmit={handleDataChange}
+        />
+      ) : (
+        <ReqorePanel
+          collapsible
+          isCollapsed
+          // @ts-expect-error
+          name="instance-item"
+          label={name}
+          intent={isActive ? 'info' : undefined}
+          headerSize={4}
+          actions={[
+            {
+              icon: isActive ? 'StopCircleFill' : 'RestartFill',
+              intent: isActive ? 'info' : undefined,
+              onClick: () => onSetActive(url, !isActive),
+            },
+            {
+              icon: 'EditLine',
+              onClick: () => setIsEditing(true),
+            },
+            {
+              icon: 'DeleteBinLine',
+              intent: 'danger',
+              onClick: () =>
+                confirmAction({
+                  description: t('ConfirmRemoveInstance'),
+                  onConfirm: () => onDelete(id),
+                }),
+            },
+          ]}
+        >
+          <>
+            <ReqoreMessage title={t('MainUrl')}>
+              <div>
+                <ReqoreP style={{ wordBreak: 'break-all' }}>
+                  <a href={url}>{safe_url}</a>
+                </ReqoreP>
+                <ReqoreSpacer height={10} />
+                <ReqoreH4>{t('OtherUrls')}</ReqoreH4>
+                {urls.length === 0 && (
+                  <ReqoreMessage icon="Forbid2Line">{t('NoUrls')}</ReqoreMessage>
+                )}
+                <ReqoreSpacer height={10} />
+                {urls.map((url, index: number) => (
+                  <QorusUrl
+                    id={index}
+                    {...url}
+                    onDelete={onUrlDelete}
+                    envId={envId}
+                    instanceId={id}
+                    key={index}
+                    t={t}
+                  />
+                ))}
+              </div>
+            </ReqoreMessage>
+            <ReqoreSpacer height={10} />
+            <Add withUrl fill text={t('AddNewUrl')} onSubmit={handleUrlSubmit} id="other-url" />
+          </>
+        </ReqorePanel>
+      )}
+    </>
+  );
 };
 
 export default withTextContext()(QorusInstance);

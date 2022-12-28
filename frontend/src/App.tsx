@@ -1,28 +1,25 @@
+import { Button, ButtonGroup, Callout, Classes } from '@blueprintjs/core';
 import {
-  AnchorButton,
-  Button,
-  ButtonGroup,
-  Callout,
-  Classes,
-  Navbar,
-  NavbarGroup,
-} from '@blueprintjs/core';
-import { ReqoreUIProvider } from '@qoretechnologies/reqore';
+  ReqoreContent,
+  ReqoreHeader,
+  ReqoreIcon,
+  ReqoreNavbarGroup,
+  ReqoreNavbarItem,
+  ReqoreTag,
+  ReqoreUIProvider,
+} from '@qoretechnologies/reqore';
 import last from 'lodash/last';
 import size from 'lodash/size';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
-import styled from 'styled-components';
 import { DraftsView } from './DraftsView';
 import ContextMenu from './components/ContextMenu';
 import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
 import Menu from './components/Menu';
-import Pull from './components/Pull';
 import { AppToaster } from './components/Toast';
-import { MENU } from './constants/menu';
 import { Messages } from './constants/messages';
 import InterfaceCreator from './containers/InterfaceCreator';
 import { ContextMenuContext, IContextMenu } from './context/contextMenu';
@@ -46,41 +43,11 @@ import {
 } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
-import QorusLogo from './images/qorus_logo_256.png';
 import { LoginContainer } from './login/Login';
 import ProjectConfig from './project_config/ProjectConfig';
+import SourceDirectories from './project_config/sourceDirs';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
 const md5 = require('md5');
-
-const StyledApp = styled.div`
-  display: flex;
-  flex-flow: row;
-  margin-top: 50px;
-  flex: 1 1 auto;
-  overflow: hidden;
-`;
-
-const StyledInfo = styled.p`
-  display: inline-block;
-  line-height: 20px;
-  margin: 0;
-  font-family: 'Arial';
-  font-size: 18px;
-  padding: 0 10px;
-  font-weight: bold;
-  color: #fff;
-
-  span {
-    display: inline-block;
-    padding: 0 0 0 5px;
-    font-weight: normal;
-    color: unset;
-  }
-
-  &:first-of-type {
-    border-right: 1px solid #474c57;
-  }
-`;
 
 export interface IApp {
   addMessageListener: TMessageListener;
@@ -95,6 +62,7 @@ export interface IApp {
   setActiveInstance: (inst: string) => void;
   setCurrentProjectFolder: (folder: string) => void;
   path: string;
+  main_color: string;
 }
 
 export type TTranslator = (id: string) => string;
@@ -109,6 +77,7 @@ const App: FunctionComponent<IApp> = ({
   project_folder,
   qorus_instance,
   changeTab,
+  main_color,
   path,
   image_path,
   confirmDialog,
@@ -129,6 +98,9 @@ const App: FunctionComponent<IApp> = ({
   const [contextMenu, setContextMenu] = useState<IContextMenu>(null);
   const [draft, setDraft] = useState<IDraftData>(null);
   const { setErrorsFromDraft }: any = useContext(ErrorsContext);
+  const [isDirsDialogOpen, setIsDirsDialogOpen] = useState<boolean>(false);
+
+  console.log(main_color);
 
   const addDraft = (draftData: any) => {
     setDraft(draftData);
@@ -366,8 +338,38 @@ const App: FunctionComponent<IApp> = ({
     };
   });
 
+  const styles = getComputedStyle(document.querySelector('html')!);
+  let editorBackground = styles.getPropertyValue('--vscode-editor-background');
+
+  console.log(editorBackground);
+  // Transform editorBackground to hex
+  if (editorBackground.startsWith('rgb')) {
+    // Create RGB to Hex function
+    const rgbToHex = (rgb: string) => {
+      const [r, g, b] = rgb
+        .replace(/[^\d,]/g, '')
+        .split(',')
+        .map(Number);
+      return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+    };
+
+    editorBackground = rgbToHex(editorBackground);
+  }
+
+  // if editorBackground hex has transparency, remove it
+  if (editorBackground.length === 9) {
+    editorBackground = editorBackground.slice(0, 7);
+  }
+
   if (!texts) {
-    return <Loader text="Loading translations..." />;
+    return (
+      <ReqoreUIProvider
+        theme={{ main: editorBackground }}
+        options={{ animations: { buttons: false }, withSidebar: true }}
+      >
+        <Loader text="Loading translations..." />
+      </ReqoreUIProvider>
+    );
   }
 
   const t: TTranslator = (text_id) => {
@@ -376,7 +378,10 @@ const App: FunctionComponent<IApp> = ({
 
   return (
     <>
-      <ReqoreUIProvider theme={{ main: '#ffffff' }} options={{ animations: { buttons: false } }}>
+      <ReqoreUIProvider
+        theme={{ main: editorBackground }}
+        options={{ animations: { buttons: false }, withSidebar: true }}
+      >
         <DraftsContext.Provider
           value={{
             addDraft,
@@ -399,22 +404,35 @@ const App: FunctionComponent<IApp> = ({
           >
             <DialogsContext.Provider value={{ addDialog, removeDialog }}>
               {contextMenu && <ContextMenu {...contextMenu} onClick={() => setContextMenu(null)} />}
-              <Navbar fixedToTop={true} className="dark">
-                <NavbarGroup>
-                  <img style={{ maxWidth: 30, maxHeight: 30, marginRight: 10 }} src={QorusLogo} />
-                  <StyledInfo>
-                    {t('Project')}: <span>{project_folder}</span>
-                  </StyledInfo>
-                  <StyledInfo>
-                    {t('ActiveQorusInstance')}:{' '}
-                    <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
-                  </StyledInfo>
-                </NavbarGroup>
-                <Pull right>
-                  <NavbarGroup>
-                    <ButtonGroup minimal>
-                      <AnchorButton
-                        icon="refresh"
+              <TextContext.Provider value={t}>
+                {tab !== 'Login' && <Menu />}
+                <ReqoreContent>
+                  <ReqoreHeader>
+                    <ReqoreNavbarGroup position="left">
+                      <ReqoreNavbarItem>
+                        <ReqoreTag
+                          icon="Folder3Line"
+                          labelKey={t('Project')}
+                          label={project_folder}
+                        />
+                      </ReqoreNavbarItem>
+                      <ReqoreNavbarItem>
+                        <ReqoreTag
+                          icon="ServerLine"
+                          labelKey={t('ActiveQorusInstance')}
+                          label={qorus_instance ? qorus_instance.name : t('N/A')}
+                          color={qorus_instance ? '#7e2d90' : undefined}
+                        />
+                      </ReqoreNavbarItem>
+                    </ReqoreNavbarGroup>
+                    <ReqoreNavbarGroup position="right">
+                      <ReqoreNavbarItem interactive onClick={() => setIsDirsDialogOpen(true)}>
+                        <ReqoreIcon icon="Folder3Line" size="20px" margin="right" /> Manage source
+                        directories
+                      </ReqoreNavbarItem>
+                      <ReqoreNavbarItem
+                        interactive
+                        as="a"
                         href="command:workbench.action.webview.reloadWebviewAction"
                         onClick={() =>
                           AppToaster.show({
@@ -423,14 +441,14 @@ const App: FunctionComponent<IApp> = ({
                             icon: 'refresh',
                           })
                         }
-                      />
-                    </ButtonGroup>
-                  </NavbarGroup>
-                </Pull>
-              </Navbar>
-              <TextContext.Provider value={t}>
-                <StyledApp>
-                  {tab !== 'Login' && <Menu isCollapsed menu={MENU} />}
+                      >
+                        <ReqoreIcon icon="RefreshLine" size="20px" />
+                      </ReqoreNavbarItem>
+                    </ReqoreNavbarGroup>
+                  </ReqoreHeader>
+                  {isDirsDialogOpen && (
+                    <SourceDirectories onClose={() => setIsDirsDialogOpen(false)} />
+                  )}
                   <>
                     {tab == 'Login' && <LoginContainer />}
                     {tab == 'Loading' && <Loader text={t('Loading')} />}
@@ -440,7 +458,7 @@ const App: FunctionComponent<IApp> = ({
                     {tab === 'Drafts' && <DraftsView />}
                     {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
                   </>
-                </StyledApp>
+                </ReqoreContent>
               </TextContext.Provider>
               {confirmDialog.isOpen && (
                 <CustomDialog

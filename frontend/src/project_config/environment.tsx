@@ -1,18 +1,19 @@
-import React, { FunctionComponent, useContext, useState } from 'react';
+import { FunctionComponent } from 'react';
 
 import size from 'lodash/size';
 import styled from 'styled-components';
 
-import { Button, ButtonGroup, Icon, InputGroup } from '@blueprintjs/core';
-
+import {
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqorePanel,
+  ReqoreSpacer,
+} from '@qoretechnologies/reqore';
 import { TTranslator } from '../App';
-import { InitialContext } from '../context/init';
 import withTextContext from '../hocomponents/withTextContext';
-import QorusLogo from '../images/qorus_logo_256.png';
-import QorusLogoGrayscale from '../images/qorus_logo_256_bw.png';
+import { IQorusInstance } from './ProjectConfig';
 import Add from './add';
 import QorusInstance from './instance';
-import { IQorusInstance } from './ProjectConfig';
 
 export interface IEnvironmentPanel {
   id: number;
@@ -124,30 +125,6 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
   activeInstance,
   t,
 }) => {
-  const initContext = useContext(InitialContext);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [envName, setEnvName] = useState<string>(name);
-
-  const handleNameChange: (event: React.FormEvent<HTMLElement>) => void = (event) => {
-    setEnvName(event.target.value);
-  };
-
-  const handleNameSubmit: () => void = () => {
-    // Check if the name is not empty
-    if (envName !== '') {
-      // Save the new name and set editing to false
-      onEnvironmentNameChange(id, envName);
-      setIsEditing(false);
-    }
-  };
-
-  const handleEditingCancel: () => void = () => {
-    // Cancel the editing and set the original
-    // name back
-    setEnvName(name);
-    setIsEditing(false);
-  };
-
   const handleInstanceSubmit: (name: string, url: string) => void = (name, url) => {
     // Submit the new instance
     onInstanceSubmit(id, name, url);
@@ -168,67 +145,10 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
   };
 
   return (
-    <StyledEnvWrapper className="env-panel">
-      <StyledEnvHeader>
-        <StyledQorusLogo active={active}>
-          <img
-            style={{ maxWidth: 30, maxHeight: 30 }}
-            src={active ? QorusLogo : QorusLogoGrayscale}
-          />
-        </StyledQorusLogo>
-        <StyledNameWrapper>
-          {isEditing ? (
-            <InputGroup
-              fill
-              value={envName}
-              name="environment-edit-input"
-              onChange={handleNameChange}
-              onKeyUp={(event: React.KeyboardEvent) => {
-                if (event.key === 'Enter') {
-                  handleNameSubmit();
-                }
-              }}
-            />
-          ) : (
-            <StyledName name="environment-name">{envName}</StyledName>
-          )}
-
-          <ButtonGroup minimal>
-            {isEditing && <Button icon={'cross'} onClick={handleEditingCancel} small />}
-            <Button
-              icon={isEditing ? 'small-tick' : 'edit'}
-              intent={isEditing ? 'success' : 'none'}
-              name={isEditing ? 'edit-environment-submit' : 'edit-environment'}
-              onClick={() => {
-                if (isEditing) {
-                  handleNameSubmit();
-                } else {
-                  setIsEditing(true);
-                }
-              }}
-              small
-            />
-            <Button
-              icon="trash"
-              name="delete-environment"
-              intent="danger"
-              onClick={() =>
-                initContext.confirmAction('ConfirmRemoveEnv', () => onEnvironmentDeleteClick(id))
-              }
-              small
-            />
-          </ButtonGroup>
-        </StyledNameWrapper>
-      </StyledEnvHeader>
-      <StyledInstanceList>
-        <StyledSubHeader>
-          <span>{t('Instances')} </span>
-          <div className="pull-right">
-            <Add withUrl onSubmit={handleInstanceSubmit} id="instance" text={t('AddInstance')} />
-          </div>
-        </StyledSubHeader>
-        {size(qoruses) ? (
-          qoruses.map((qorusInstance: IQorusInstance) => (
+    <ReqorePanel minimal padded={false} opacity={0}>
+      {size(qoruses) ? (
+        qoruses.map((qorusInstance: IQorusInstance) => (
+          <>
             <QorusInstance
               {...qorusInstance}
               envId={id}
@@ -239,14 +159,19 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
               onSetActive={onSetActiveInstanceClick}
               isActive={qorusInstance.name === activeInstance}
             />
-          ))
-        ) : (
-          <StyledNoData>
-            <Icon icon="disable" iconSize={16} /> {t('NoInstances')}
-          </StyledNoData>
-        )}
-      </StyledInstanceList>
-    </StyledEnvWrapper>
+            <ReqoreSpacer height={15} />
+          </>
+        ))
+      ) : (
+        <>
+          <ReqoreMessage icon="Forbid2Line">{t('NoInstances')}</ReqoreMessage>
+          <ReqoreSpacer height={15} />
+        </>
+      )}
+      <ReqoreControlGroup fluid>
+        <Add withUrl onSubmit={handleInstanceSubmit} id="instance" text={t('AddInstance')} />
+      </ReqoreControlGroup>
+    </ReqorePanel>
   );
 };
 

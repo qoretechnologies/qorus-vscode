@@ -1,6 +1,7 @@
 import {
   ReqoreButton,
   ReqoreControlGroup,
+  ReqoreH1,
   ReqoreH3,
   ReqoreMessage,
   ReqorePanel,
@@ -337,6 +338,8 @@ class ReleasePackage extends Component<
 
     return (
       <ReqorePanel flat contentStyle={{ display: 'flex', overflow: 'hidden', flexFlow: 'column' }}>
+        <ReqoreH1>Release Management</ReqoreH1>
+        <ReqoreSpacer height={15} />
         {notUpToDateMsg()}
         {!this.state.hasRepository && (
           <ReqoreMessage intent="danger" inverted>

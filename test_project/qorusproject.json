@@ -2,11 +2,12 @@
   "qorus_instances": {
     "local": [
       {
-        "name": "Rippy",
+        "name": "Rippy2",
         "url": "https://hq.qoretechnologies.com:8092/",
         "custom_urls": []
       }
-    ]
+    ],
+    "test": []
   },
   "source_directories": ["."]
 }

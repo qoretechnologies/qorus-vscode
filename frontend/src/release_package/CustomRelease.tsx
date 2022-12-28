@@ -1,11 +1,13 @@
 import { Classes, Colors, Icon } from '@blueprintjs/core';
 import { ReqoreInput, ReqorePanel } from '@qoretechnologies/reqore';
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { map, size } from 'lodash';
 import { useContext, useState } from 'react';
 import { useAsyncRetry, useBoolean } from 'react-use';
 import styled, { css } from 'styled-components';
 import Loader from '../components/Loader';
-import { MENU } from '../constants/menu';
+import { interfaceNameToKind } from '../constants/interfaces';
+import { MenuSubItems } from '../constants/menu';
 import { TextContext } from '../context/text';
 import { callBackendBasic } from '../helpers/functions';
 
@@ -51,6 +53,13 @@ const StyledInterfaceListTitle = styled.div`
 
 const StyledInterfaceItem = styled.div`
   margin-bottom: 20px;
+
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      opacity: 0.5;
+      pointer-events: none;
+    `}
 `;
 
 const StyledInterfaceListItem = styled.div`
@@ -84,10 +93,10 @@ export interface ICustomReleaseProps {
   onItemClick: (item: string[], isDeselect?: boolean) => void;
 }
 
-export const otherInterfaceIcons = {
-  'schema-modules': 'database',
-  scripts: 'shapes',
-  tests: 'lab-test',
+export const otherInterfaceIcons: Record<string, IReqoreIconName> = {
+  'schema-modules': 'Database2Line',
+  scripts: 'Shape2Line',
+  tests: 'TestTubeLine',
 };
 
 export const otherInterfaceNames = {
@@ -131,18 +140,22 @@ export const CustomReleaseGroup = ({
   };
 
   return (
-    <StyledInterfaceItem key={interfaceKind}>
+    <StyledInterfaceItem key={interfaceKind} disabled={!size(interfaces)}>
       <ReqorePanel
         collapsible={size(interfaces) > 0}
         padded={false}
         minimal
-        intent={size(interfaces) ? 'muted' : undefined}
         isCollapsed
         label={`${
-          MENU.CreateInterface[0].submenu.find(
-            (interfaceMenuData) => interfaceMenuData.subtab === interfaceKind
-          )?.name || otherInterfaceNames[interfaceKind]
+          MenuSubItems.find((interfaceMenuData) => {
+            return interfaceNameToKind[interfaceMenuData.name] === interfaceKind;
+          })?.name || otherInterfaceNames[interfaceKind]
         } (${filteredInterfaces.length})`}
+        icon={
+          MenuSubItems.find(
+            (interfaceMenuData) => interfaceNameToKind[interfaceMenuData.name] === interfaceKind
+          )?.icon || otherInterfaceIcons[interfaceKind]
+        }
         actions={
           size(interfaces)
             ? [

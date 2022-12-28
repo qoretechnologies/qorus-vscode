@@ -1,67 +1,71 @@
-import React, { FunctionComponent, useContext } from 'react';
+import { FunctionComponent, useContext } from 'react';
 
 import styled from 'styled-components';
 
-import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
-
+import { ReqoreButton, ReqoreContext, ReqoreControlGroup } from '@qoretechnologies/reqore';
 import { InitialContext } from '../context/init';
 
 export interface IQorusUrlProps {
-    name: string;
-    url: string;
-    safe_url: string;
-    onDelete: (envId: number, instanceId: number, name: string) => void;
-    instanceId: number;
-    envId: number;
-    id: number;
+  name: string;
+  url: string;
+  safe_url: string;
+  onDelete: (envId: number, instanceId: number, name: string) => void;
+  instanceId: number;
+  envId: number;
+  id: number;
+  t: any;
 }
 
 const StyledUrl = styled.div`
-    width: 100%;
-    border-radius: 3px;
-    min-height: 35px;
-    overflow: hidden;
-    word-break: break-all;
-    line-height: 35px;
-    margin-bottom: 5px;
-    transition: all 0.2s linear;
+  width: 100%;
+  border-radius: 3px;
+  min-height: 35px;
+  overflow: hidden;
+  word-break: break-all;
+  line-height: 35px;
+  margin-bottom: 5px;
+  transition: all 0.2s linear;
 
-    .bp3-icon {
-        opacity: 0.7;
-    }
+  .bp3-icon {
+    opacity: 0.7;
+  }
 
-    .button-wrapper {
-        margin-top: 3px;
-    }
+  .button-wrapper {
+    margin-top: 3px;
+  }
 `;
 
-const QorusUrl: FunctionComponent<IQorusUrlProps> = ({ name, url, safe_url, instanceId, onDelete, envId, id }) => {
-    const initContext = useContext(InitialContext);
+const QorusUrl: FunctionComponent<IQorusUrlProps> = ({
+  name,
+  url,
+  safe_url,
+  instanceId,
+  onDelete,
+  envId,
+  id,
+  t,
+}) => {
+  const initContext = useContext(InitialContext);
+  const { confirmAction } = useContext(ReqoreContext);
 
-    return (
-        <StyledUrl name="other-url-item">
-            {id + 1}. {name}
-            <span className={Classes.TEXT_MUTED}>
-                {' '}
-                <a href={url} name="other-url-link">
-                    [{safe_url}]
-                </a>
-            </span>
-            <div className="button-wrapper pull-right">
-                <ButtonGroup minimal>
-                    <Button
-                        icon="trash"
-                        intent="danger"
-                        small
-                        name="other-url-delete"
-                        onClick={() =>
-                            initContext.confirmAction('ConfirmRemoveUrl', () => onDelete(envId, instanceId, name))
-                        }
-                    />
-                </ButtonGroup>
-            </div>
-        </StyledUrl>
-    );
+  return (
+    <ReqoreControlGroup fluid stack>
+      <ReqoreButton description={`[${safe_url}]`}>{name}</ReqoreButton>
+      <ReqoreButton
+        fixed
+        icon="DeleteBinLine"
+        intent="danger"
+        //@ts-ignore
+        name="other-url-delete"
+        onClick={() =>
+          confirmAction({
+            description: t('ConfirmRemoveUrl'),
+            onConfirm: () => onDelete(envId, instanceId, name),
+          })
+        }
+      />
+    </ReqoreControlGroup>
+  );
 };
 
 export default QorusUrl;
