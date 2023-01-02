@@ -12,8 +12,8 @@ import {
 } from '@qoretechnologies/reqore';
 import { TTranslator } from '../App';
 import withTextContext from '../hocomponents/withTextContext';
-import { IQorusInstance } from './ProjectConfig';
 import Add from './add';
+import { IQorusInstance } from './ProjectConfig';
 import QorusUrl from './url';
 
 export interface IQorusInstanceProps extends IQorusInstance {
@@ -133,6 +133,8 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
           // @ts-expect-error
           name="instance-item"
           label={name}
+          flat
+          padded={false}
           intent={isActive ? 'info' : undefined}
           headerSize={4}
           actions={[
@@ -157,6 +159,7 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
           ]}
         >
           <>
+            <ReqoreSpacer height={10} />
             <ReqoreMessage title={t('MainUrl')}>
               <div>
                 <ReqoreP style={{ wordBreak: 'break-all' }}>
@@ -165,7 +168,10 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
                 <ReqoreSpacer height={10} />
                 <ReqoreH4>{t('OtherUrls')}</ReqoreH4>
                 {urls.length === 0 && (
-                  <ReqoreMessage icon="Forbid2Line">{t('NoUrls')}</ReqoreMessage>
+                  <>
+                    <ReqoreSpacer height={10} />
+                    <ReqoreMessage icon="Forbid2Line">{t('NoUrls')}</ReqoreMessage>
+                  </>
                 )}
                 <ReqoreSpacer height={10} />
                 {urls.map((url, index: number) => (

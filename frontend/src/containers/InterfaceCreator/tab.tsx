@@ -1,4 +1,6 @@
-import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
+import { Button, Classes } from '@blueprintjs/core';
+import { ReqorePanel } from '@qoretechnologies/reqore';
+import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
 import { capitalize, forEach, size } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import { useUnmount } from 'react-use';
@@ -8,7 +10,6 @@ import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { DraftsTable } from '../../components/DraftsTable';
-import HorizontalSpacer from '../../components/HorizontalSpacer';
 import { TimeAgo } from '../../components/TimeAgo';
 import Tutorial from '../../components/Tutorial';
 import { interfaceKindTransform } from '../../constants/interfaces';
@@ -371,104 +372,82 @@ const Tab: React.FC<ITabProps> = ({
     }
   }, [recreateDialog]);
 
+  const getActions = () => {
+    const actions: IReqorePanelAction[] = [];
+
+    if (tutorials[type]) {
+      // Add tutorial button
+      actions.push({
+        as: TutorialButton,
+        props: {
+          type,
+          onClick: (elements) =>
+            setTutorialData({
+              isOpen: true,
+              elements,
+            }),
+        },
+      });
+    }
+
+    actions.push({
+      label: 'Create new',
+      icon: 'AddLine',
+      intent: 'info',
+      onClick: () => {
+        setIsDraftSaved(false);
+        resetAllInterfaceData(type);
+      },
+    });
+
+    if (isEditing()) {
+      if (getFilePath()) {
+        actions.push({
+          icon: 'File2Line',
+          label: 'View File',
+          onClick: () => {
+            postMessage('open-file', {
+              file_path: getFilePath(),
+            });
+          },
+        });
+      }
+
+      actions.push({
+        icon: 'DeleteBinLine',
+        label: 'Delete',
+        intent: 'danger',
+        onClick: () => {
+          data.confirmAction('ConfirmDeleteInterface', () => {
+            postMessage('delete-interface', {
+              iface_kind: type,
+              name: name,
+            });
+            setIsDraftSaved(false);
+            resetAllInterfaceData(type);
+          });
+        },
+      });
+    }
+
+    if (!isEditing()) {
+      actions.push({
+        id: 'button-show-drafts',
+        icon: 'ListUnordered',
+        label: 'Drafts',
+        badge: draftsCount,
+        disabled: !draftsCount,
+        onClick: () => {
+          setDraftsOpen(true);
+        },
+      });
+    }
+
+    return actions;
+  };
+
   return (
-    <StyledTab>
-      {tutorialData.isOpen && (
-        <Tutorial data={tutorialData.elements} onClose={() => setTutorialData({ isOpen: false })} />
-      )}
-      <StyledHeader>
-        <div>
-          <h2 id={`${type}-interface-title`}>
-            {isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`}
-          </h2>
-        </div>
-        {isDraftSaved ? (
-          <Button
-            minimal
-            loading={isSavingDraft}
-            intent={isSavingDraft ? 'warning' : 'success'}
-            icon="small-tick"
-          >
-            {isSavingDraft ? (
-              t('SavingDraft')
-            ) : (
-              <>
-                {t('DraftSaved')} <TimeAgo time={Date.now()} />
-              </>
-            )}
-          </Button>
-        ) : null}
-        <div>
-          <ButtonGroup>
-            {tutorials[type] && (
-              <TutorialButton
-                type={type}
-                onClick={(elements) =>
-                  setTutorialData({
-                    isOpen: true,
-                    elements,
-                  })
-                }
-              />
-            )}
-            <Button
-              id="button-create-new"
-              icon="add"
-              text="Create new"
-              intent="success"
-              onClick={() => {
-                setIsDraftSaved(false);
-                resetAllInterfaceData(type);
-              }}
-            />
-            {isEditing() && (
-              <>
-                {getFilePath() && (
-                  <Button
-                    icon="document-share"
-                    text="View File"
-                    onClick={() => {
-                      postMessage('open-file', {
-                        file_path: getFilePath(),
-                      });
-                    }}
-                  />
-                )}
-                <Button
-                  icon="trash"
-                  text="Delete"
-                  intent="danger"
-                  onClick={() => {
-                    data.confirmAction('ConfirmDeleteInterface', () => {
-                      postMessage('delete-interface', {
-                        iface_kind: type,
-                        name: name,
-                      });
-                      setIsDraftSaved(false);
-                      resetAllInterfaceData(type);
-                    });
-                  }}
-                />
-              </>
-            )}
-          </ButtonGroup>
-          <HorizontalSpacer size={10} />
-          <ButtonGroup>
-            {!isEditing() && (
-              <Button
-                id="button-show-drafts"
-                icon="list"
-                text={`Drafts (${draftsCount})`}
-                disabled={!draftsCount}
-                onClick={() => {
-                  setDraftsOpen(true);
-                }}
-              />
-            )}
-          </ButtonGroup>
-        </div>
-      </StyledHeader>
-      <StyledContent>{children}</StyledContent>
+    <>
       {draftsOpen && (
         <CustomDialog
           isOpen
@@ -494,7 +473,31 @@ const Tab: React.FC<ITabProps> = ({
           </div>
         </CustomDialog>
       )}
-    </StyledTab>
+      <ReqorePanel
+        label={
+          isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`
+        }
+        fill
+        badge={
+          isSavingDraft ? (
+            t('SavingDraft')
+          ) : (
+            <>
+              {t('DraftSaved')} <TimeAgo time={Date.now()} />
+            </>
+          )
+        }
+        actions={getActions()}
+      >
+        {tutorialData.isOpen && (
+          <Tutorial
+            data={tutorialData.elements}
+            onClose={() => setTutorialData({ isOpen: false })}
+          />
+        )}
+        {children}
+      </ReqorePanel>
+    </>
   );
 };
 

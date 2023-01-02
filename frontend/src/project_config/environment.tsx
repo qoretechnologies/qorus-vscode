@@ -11,9 +11,9 @@ import {
 } from '@qoretechnologies/reqore';
 import { TTranslator } from '../App';
 import withTextContext from '../hocomponents/withTextContext';
-import { IQorusInstance } from './ProjectConfig';
 import Add from './add';
 import QorusInstance from './instance';
+import { IQorusInstance } from './ProjectConfig';
 
 export interface IEnvironmentPanel {
   id: number;
@@ -149,6 +149,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
       {size(qoruses) ? (
         qoruses.map((qorusInstance: IQorusInstance) => (
           <>
+            <ReqoreSpacer height={10} />
             <QorusInstance
               {...qorusInstance}
               envId={id}
@@ -159,15 +160,17 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
               onSetActive={onSetActiveInstanceClick}
               isActive={qorusInstance.name === activeInstance}
             />
-            <ReqoreSpacer height={15} />
           </>
         ))
       ) : (
         <>
-          <ReqoreMessage icon="Forbid2Line">{t('NoInstances')}</ReqoreMessage>
-          <ReqoreSpacer height={15} />
+          <ReqoreSpacer height={10} />
+          <ReqoreMessage icon="Forbid2Line" flat>
+            {t('NoInstances')}
+          </ReqoreMessage>
         </>
       )}
+      <ReqoreSpacer height={15} />
       <ReqoreControlGroup fluid>
         <Add withUrl onSubmit={handleInstanceSubmit} id="instance" text={t('AddInstance')} />
       </ReqoreControlGroup>

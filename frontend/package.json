@@ -13,7 +13,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@previewjs/plugin-react": "^3.1.2",
     "@qoretechnologies/python-parser": "^0.4.10",
-    "@qoretechnologies/reqore": "^0.27.6",
+    "@qoretechnologies/reqore": "^0.28.1",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
@@ -121,7 +121,8 @@
   "scripts": {
     "start": "BROWSER=none node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "update-reqore": "yarn add @qoretechnologies/reqore@beta"
   },
   "eslintConfig": {
     "extends": [

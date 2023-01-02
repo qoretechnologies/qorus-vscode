@@ -9,6 +9,7 @@ import {
 } from '@qoretechnologies/reqore';
 import { IReqoreCollectionProps } from '@qoretechnologies/reqore/dist/components/Collection';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
+import { size } from 'lodash';
 import map from 'lodash/map';
 import { FunctionComponent, useContext, useState } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
@@ -399,8 +400,10 @@ const Project: FunctionComponent<IProject> = ({
             changedOnDisk={changedOnDisk}
             flat
             opacity={0}
-            label="Environments"
+            label={`Environments`}
+            badge={size(projectData.qorus_instances)}
             headerSize={1}
+            minColumnWidth="500px"
             filterable
             fill
             sortable
@@ -418,9 +421,9 @@ const Project: FunctionComponent<IProject> = ({
             items={map(
               projectData.qorus_instances,
               (data): IReqoreCollectionItemProps => ({
-                flat: false,
                 icon: 'ServerLine',
                 intent: isEnvironmentActive(data.qoruses) ? 'info' : undefined,
+                badge: size(data.qoruses),
                 label:
                   selectedEnvironmentForEditing && selectedEnvironmentForEditing === data.name ? (
                     <ReqoreControlGroup stack>
@@ -453,7 +456,7 @@ const Project: FunctionComponent<IProject> = ({
                       />
                     </ReqoreControlGroup>
                   ) : (
-                    data.name
+                    `${data.name}`
                   ),
                 actions: [
                   {

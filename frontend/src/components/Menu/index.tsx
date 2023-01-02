@@ -44,7 +44,6 @@ const Sidebar: Function = ({ projectFolder, qorusInstance }: SidebarProps) => {
                   <ReqoreSpacer height={20} />
                   <ReqoreH3
                     effect={{
-                      gradient: { colors: { 0: '#7e2d90', 100: '#22022a' } },
                       textAlign: 'center',
                     }}
                   >

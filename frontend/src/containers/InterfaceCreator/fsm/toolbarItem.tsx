@@ -1,4 +1,4 @@
-import { ReqoreMenuItem } from '@qoretechnologies/reqore';
+import { ReqoreMenuItem, ReqoreThemeContext } from '@qoretechnologies/reqore';
 import { useContext } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { css } from 'styled-components';
@@ -141,6 +141,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   category,
 }) => {
   const t = useContext(TextContext);
+  const theme = useContext(ReqoreThemeContext);
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
     item: { name, type: TOOLBAR_ITEM_TYPE, stateType: type },
@@ -157,8 +158,8 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
         gradient: {
           direction: 'to right bottom',
           colors: {
-            0: '#ffffff',
-            100: `${getStateColor(category)}30`,
+            0: theme.main,
+            150: `${getStateColor(category)}`,
           },
           borderColor: getStateColor(category),
         },

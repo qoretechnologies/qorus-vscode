@@ -1,6 +1,12 @@
-import { ReqorePanel, ReqoreTag, ReqoreTagGroup } from '@qoretechnologies/reqore';
+import {
+  ReqorePanel,
+  ReqoreTag,
+  ReqoreTagGroup,
+  ReqoreThemeContext,
+} from '@qoretechnologies/reqore';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
+import { darken } from 'polished';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { keyframes } from 'styled-components';
@@ -135,6 +141,8 @@ export const calculateFontSize = (name, isAction?: boolean) => {
 };
 
 export const getStateCategory = (type: string): TStateTypes => {
+  console.log(type);
+
   if (type === 'mapper') {
     return 'interfaces';
   }
@@ -236,6 +244,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const { addMenu } = useContext(ContextMenuContext);
   const t = useContext(TextContext);
   const { qorus_instance } = useContext(InitialContext);
+  const theme = useContext(ReqoreThemeContext);
 
   useEffect(() => {
     (async () => {
@@ -268,6 +277,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
     toggleDragging(true);
   };
 
+  console.log(action);
+
   return (
     <StyledFSMState
       key={id}
@@ -279,10 +290,10 @@ const FSMState: React.FC<IFSMStateProps> = ({
         gradient: {
           direction: 'to right bottom',
           colors: {
-            0: '#ffffff',
-            150: `${getStateColor(getStateCategory(type))}30`,
+            0: darken(0.3, getStateColor(getStateCategory(action?.type || type))),
+            150: `${getStateColor(getStateCategory(action?.type || type))}`,
           },
-          borderColor: getStateColor(getStateCategory(type)),
+          borderColor: getStateColor(getStateCategory(action?.type || type)),
         },
       }}
       icon="CodeLine"
@@ -310,6 +321,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           icon: 'More2Line' as IReqoreIconName,
           minimal: true,
           flat: true,
+          size: 'small',
           actions: [
             {
               icon: 'Edit2Line' as IReqoreIconName,
@@ -322,8 +334,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
               onClick: (e) => handleClick(e, onDeleteClick),
               intent: 'danger',
               label: 'Remove state',
-              minimal: true,
-              flat: false,
             },
           ],
         },
@@ -392,8 +402,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
         });
       }}
     >
-      <ReqoreTagGroup size="small">
-        <ReqoreTag label={getStateType({ type, action, ...rest })} />
+      <ReqoreTagGroup size="small" hasBottomMargin={false}>
+        <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
         {final && <ReqoreTag color="#6e1977" label={t('Final')} />}
         {initial && <ReqoreTag color="#7fbb26" label={t('Initial')} />}
       </ReqoreTagGroup>

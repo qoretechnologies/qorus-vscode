@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
-import { ReqoreMenu, ReqoreMenuDivider } from '@qoretechnologies/reqore';
+import { ReqoreMenu, ReqoreMenuDivider, ReqoreThemeContext } from '@qoretechnologies/reqore';
 import { every, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -163,7 +163,7 @@ const StyledDiagramWrapper = styled.div`
 const StyledDiagram = styled.div<{ path: string }>`
   width: ${DIAGRAM_SIZE}px;
   height: ${DIAGRAM_SIZE}px;
-  background: ${({ path }) => `url(${TinyGrid})`};
+  background-image: ${({ bgColor }) => `${bgColor} url(${TinyGrid})`};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -276,6 +276,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   });
   const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(embedded ? true : false);
   const [zoom, setZoom] = useState<number>(1);
+  const theme = useContext(ReqoreThemeContext);
 
   const [, drop] = useDrop({
     accept: DROP_ACCEPTS,
@@ -1705,6 +1706,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     ref={drop}
                     path={image_path}
                     onClick={() => setSelectedState(null)}
+                    bgColor={theme.main}
                     style={{
                       transform: `scale(${zoom})`,
                       marginLeft: `${calculateMargin()}px`,
