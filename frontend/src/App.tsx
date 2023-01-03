@@ -406,7 +406,7 @@ const App: FunctionComponent<IApp> = ({
               {contextMenu && <ContextMenu {...contextMenu} onClick={() => setContextMenu(null)} />}
               <TextContext.Provider value={t}>
                 {tab !== 'Login' && <Menu />}
-                <ReqoreContent>
+                <ReqoreContent style={{ overflow: 'hidden', display: 'flex', flexFlow: 'column' }}>
                   <ReqoreHeader>
                     <ReqoreNavbarGroup position="left">
                       <ReqoreNavbarItem>
@@ -446,18 +446,20 @@ const App: FunctionComponent<IApp> = ({
                       </ReqoreNavbarItem>
                     </ReqoreNavbarGroup>
                   </ReqoreHeader>
-                  {isDirsDialogOpen && (
-                    <SourceDirectories onClose={() => setIsDirsDialogOpen(false)} />
-                  )}
-                  <>
-                    {tab == 'Login' && <LoginContainer />}
-                    {tab == 'Loading' && <Loader text={t('Loading')} />}
-                    {tab == 'ProjectConfig' && <ProjectConfig />}
-                    {tab == 'ReleasePackage' && <ReleasePackage />}
-                    {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
-                    {tab === 'Drafts' && <DraftsView />}
-                    {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
-                  </>
+                  <div style={{ margin: '10px 20px', overflow: 'auto', display: 'flex', flex: 1 }}>
+                    {isDirsDialogOpen && (
+                      <SourceDirectories onClose={() => setIsDirsDialogOpen(false)} />
+                    )}
+                    <>
+                      {tab == 'Login' && <LoginContainer />}
+                      {tab == 'Loading' && <Loader text={t('Loading')} />}
+                      {tab == 'ProjectConfig' && <ProjectConfig />}
+                      {tab == 'ReleasePackage' && <ReleasePackage />}
+                      {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
+                      {tab === 'Drafts' && <DraftsView />}
+                      {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
+                    </>
+                  </div>
                 </ReqoreContent>
               </TextContext.Provider>
               {confirmDialog.isOpen && (

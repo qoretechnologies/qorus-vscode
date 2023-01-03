@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Classes, InputGroup } from '@blueprintjs/core';
+import { ReqoreInput } from '@qoretechnologies/reqore';
 import { ChangeEvent, FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -68,12 +68,11 @@ const StringField = ({
   };
 
   return (
-    <InputGroup
-      name={`field-${name}`}
+    <ReqoreInput
       placeholder={placeholder}
       disabled={disabled}
       readOnly={read_only}
-      className={fill && Classes.FILL}
+      fluid={fill}
       value={
         canBeNull && isNull(value) ? 'Value set to [null]' : !value ? default_value || '' : value
       }
@@ -82,16 +81,7 @@ const StringField = ({
       onChange={handleInputChange}
       type={sensitive ? 'password' : 'text'}
       autoFocus={autoFocus}
-      rightElement={
-        value &&
-        value !== '' &&
-        !read_only &&
-        !disabled && (
-          <ButtonGroup minimal>
-            <Button name={`reset-field-${name}`} onClick={handleResetClick} icon={'cross'} />
-          </ButtonGroup>
-        )
-      }
+      onClearClick={value && value !== '' && !read_only && !disabled && handleResetClick}
     />
   );
 };

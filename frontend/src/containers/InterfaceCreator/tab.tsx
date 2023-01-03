@@ -1,6 +1,7 @@
 import { Button, Classes } from '@blueprintjs/core';
 import { ReqorePanel } from '@qoretechnologies/reqore';
 import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
+import timeago from 'epoch-timeago';
 import { capitalize, forEach, size } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import { useUnmount } from 'react-use';
@@ -10,7 +11,6 @@ import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { DraftsTable } from '../../components/DraftsTable';
-import { TimeAgo } from '../../components/TimeAgo';
 import Tutorial from '../../components/Tutorial';
 import { interfaceKindTransform } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
@@ -478,16 +478,15 @@ const Tab: React.FC<ITabProps> = ({
           isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`
         }
         fill
-        badge={
-          isSavingDraft ? (
-            t('SavingDraft')
-          ) : (
-            <>
-              {t('DraftSaved')} <TimeAgo time={Date.now()} />
-            </>
-          )
-        }
+        flat
+        opacity={0}
+        headerSize={2}
+        badge={isSavingDraft ? t('SavingDraft') : `${t('DraftSaved')} ${timeago(Date.now())}`}
         actions={getActions()}
+        contentStyle={{
+          overflow: 'hidden',
+          display: 'flex',
+        }}
       >
         {tutorialData.isOpen && (
           <Tutorial

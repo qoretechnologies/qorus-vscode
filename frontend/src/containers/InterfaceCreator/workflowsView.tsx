@@ -27,6 +27,7 @@ export const CreatorWrapper = styled.div`
   flex: 1;
   flex-flow: row;
   overflow: hidden;
+  height: 100%;
 `;
 
 export interface IServicesView {

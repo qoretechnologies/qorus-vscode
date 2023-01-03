@@ -1,3 +1,5 @@
+import { ReqoreControlGroup } from '@qoretechnologies/reqore';
+import { IReqoreControlGroupProps } from '@qoretechnologies/reqore/dist/components/ControlGroup';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
@@ -9,7 +11,7 @@ export const FieldWrapper = styled.div<{ padded?: boolean }>`
   flex: none;
 
   &:nth-child(even) {
-    background-color: #fafafa;
+    background-color: #00000040;
   }
 `;
 
@@ -25,13 +27,11 @@ export const ContentWrapper = styled.div`
   flex: 1;
   overflow-y: auto;
   overflow-x: auto;
-  padding-right: 10px;
 `;
 
-export const ActionsWrapper = styled.div`
-  flex: 0;
-  margin-top: 10px;
-`;
+export const ActionsWrapper = ({ children, ...rest }: IReqoreControlGroupProps) => (
+  <ReqoreControlGroup {...rest}>{children}</ReqoreControlGroup>
+);
 
 export interface IInterfaceCreatorPanel {
   type: string;

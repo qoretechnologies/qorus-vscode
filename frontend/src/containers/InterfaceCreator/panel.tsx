@@ -1,4 +1,12 @@
-import { Button, ButtonGroup, Classes, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreInput,
+  ReqoreMenu,
+  ReqoreMenuDivider,
+  ReqoreMessage,
+  ReqoreSpacer
+} from '@qoretechnologies/reqore';
 import {
   camelCase,
   cloneDeep,
@@ -13,7 +21,7 @@ import {
   reduce,
   size,
   uniqBy,
-  upperFirst,
+  upperFirst
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
@@ -35,8 +43,7 @@ import {
   FieldInputWrapper,
   FieldWrapper,
   IField,
-  IInterfaceCreatorPanel,
-  SearchWrapper,
+  IInterfaceCreatorPanel
 } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
@@ -52,7 +59,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, {
   addMessageListener,
-  postMessage,
+  postMessage
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -1125,19 +1132,20 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
   return (
     <>
-      <SidePanel title={t(stepOneTitle)}>
-        <SearchWrapper>
-          <InputGroup
+      <SidePanel>
+        <ReqoreMenu style={{ flex: 1 }} width="250px" rounded>
+          <ReqoreMenuDivider label={t(stepOneTitle)} size="small" />
+          <ReqoreInput
+            onClearClick={() => setQuery(type, '')}
             placeholder={t('FilterAvailableFields')}
             value={query}
             onChange={(event: FormEvent<HTMLInputElement>) =>
               setQuery(type, event.currentTarget.value)
             }
-            leftIcon={'search'}
-            intent={query !== '' ? Intent.PRIMARY : Intent.NONE}
+            icon={'Search2Line'}
+            intent={query ? 'info' : undefined}
+            flat={false}
           />
-        </SearchWrapper>
-        <ContentWrapper>
           {fieldList.length ? (
             map(fieldList, (field: any) => (
               <FieldSelector
@@ -1148,36 +1156,34 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               />
             ))
           ) : (
-            <p className={Classes.TEXT_MUTED}>No fields available</p>
+            <ReqoreMessage intent="muted">No fields available</ReqoreMessage>
           )}
-        </ContentWrapper>
+        </ReqoreMenu>
         {fieldList.length ? (
-          <ActionsWrapper>
-            <ButtonGroup fill>
-              <Tooltip content={t('SelectAllTooltip')}>
-                <Button
-                  text={t('SelectAll')}
-                  icon={'plus'}
-                  onClick={handleAddAll}
-                  name="add-all-fields"
-                />
-              </Tooltip>
-            </ButtonGroup>
-          </ActionsWrapper>
+          <>
+            <ReqoreSpacer height={10} />
+            <ActionsWrapper fluid>
+              <ReqoreButton icon={'AddLine'} onClick={handleAddAll} tooltip={t('SelectAllTooltip')}>
+                {t('SelectAll')}
+              </ReqoreButton>
+            </ActionsWrapper>
+          </>
         ) : null}
       </SidePanel>
-      <Content title={t(stepTwoTitle)} style={{ paddingLeft: 0 }}>
-        <SearchWrapper style={{ marginLeft: '15px' }}>
-          <InputGroup
-            placeholder={t('FilterSelectedFields')}
-            value={selectedQuery}
-            onChange={(event: FormEvent<HTMLInputElement>) =>
-              setSelectedQuery(type, event.currentTarget.value)
-            }
-            leftIcon={'search'}
-            intent={selectedQuery !== '' ? Intent.PRIMARY : Intent.NONE}
-          />
-        </SearchWrapper>
+      <ReqoreSpacer width={10} />
+      <Content title={t(stepTwoTitle)}>
+        <ReqoreInput
+          placeholder={t('FilterSelectedFields')}
+          value={selectedQuery}
+          onChange={(event: FormEvent<HTMLInputElement>) =>
+            setSelectedQuery(type, event.currentTarget.value)
+          }
+          wrapperStyle={{ margin: '0 15px' }}
+          icon={'Search2Line'}
+          intent={selectedQuery !== '' ? 'info' : undefined}
+          onClearClick={() => setSelectedQuery(type, '')}
+        />
+
         <ContentWrapper>
           {map(
             selectedFieldList,

@@ -20,6 +20,6 @@
     "jsx": "react-jsx",
     "types": ["node", "react", "react-dom", "lodash", "@qoretechnologies/reqore"]
   },
-  "exclude": ["node_modules", ".vscode-test"],
+  "exclude": ["node_modules", ".vscode-test", "../node_modules", "../src", "../ui-test"],
   "include": ["./**/*.ts", "./**/*.tsx"]
 }
