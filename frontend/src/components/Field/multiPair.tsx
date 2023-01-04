@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreControlGroup } from '@qoretechnologies/reqore';
 import { size } from 'lodash';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
@@ -64,9 +64,24 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
           />
         </StyledPairField>
       ))}
-      <ButtonGroup fill>
-        <Button text={t('AddNew')} icon={'add'} onClick={handleAddClick} />
-      </ButtonGroup>
+      <ReqoreControlGroup fluid>
+        <ReqoreButton
+          icon={'AddLine'}
+          fluid
+          onClick={handleAddClick}
+          effect={{
+            gradient: {
+              direction: 'to right bottom',
+              colors: {
+                0: 'info',
+                100: 'info:darken',
+              },
+            },
+          }}
+        >
+          {t('AddNew')}
+        </ReqoreButton>
+      </ReqoreControlGroup>
     </>
   );
 };

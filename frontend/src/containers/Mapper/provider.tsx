@@ -232,7 +232,10 @@ const MapperProvider: FC<IProviderProps> = ({
       }
 
       if (requiresRequest) {
-        return child.supports_request || child.children_can_support_apis || child.has_provider;
+        return (
+          child.up &&
+          (child.supports_request || child.children_can_support_apis || child.has_provider)
+        );
       }
 
       return true;

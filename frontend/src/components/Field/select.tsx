@@ -1,16 +1,14 @@
+import { Button, ButtonGroup, Classes, Icon, IconName, Tooltip } from '@blueprintjs/core';
 import {
-  Button,
-  ButtonGroup,
-  Classes,
-  ControlGroup,
-  Icon,
-  IconName,
-  Menu,
-  MenuItem,
-  Tooltip,
-} from '@blueprintjs/core';
-import { Select } from '@blueprintjs/select';
-import { capitalize, get, noop, size } from 'lodash';
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreDropdown,
+  ReqoreMenu,
+  ReqoreMenuItem,
+  ReqoreTag,
+} from '@qoretechnologies/reqore';
+import { IReqoreMenuItemProps } from '@qoretechnologies/reqore/dist/components/Menu/item';
+import { capitalize, get, size } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import useMount from 'react-use/lib/useMount';
@@ -26,7 +24,7 @@ import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
 import Spacer from '../Spacer';
-import SubField, { DescriptionField } from '../SubField';
+import SubField from '../SubField';
 import StringField from './string';
 import { StyledOptionField } from './systemOptions';
 
@@ -262,20 +260,21 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     filteredItems = filteredItems.filter((item) => predicate(item.name));
   }
 
+  const reqoreItems: IReqoreMenuItemProps[] = filteredItems.map((item) => ({
+    label: item.name,
+    description: item.desc,
+    value: item.name,
+    selected: item.name === value,
+    onClick: () => handleSelectClick(item),
+  }));
+
   if (autoSelect && filteredItems.length === 1) {
     // Automaticaly select the first item
     if (filteredItems[0].name !== value) {
       handleSelectClick(filteredItems[0]);
     }
     // Show readonly string
-    return (
-      <StringField
-        value={value || filteredItems[0].name}
-        read_only
-        name={name}
-        onChange={() => noop()}
-      />
-    );
+    return <ReqoreTag label={value || filteredItems[0].name} />;
   }
 
   /**
@@ -304,7 +303,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
       let isMatch = true;
 
       if (query) {
-        isMatch = item.name.toLowerCase().includes(query.toLowerCase());
+        isMatch = item.label.toLowerCase().includes(query.toLowerCase());
       }
 
       if (appliedFilters.length > 0) {
@@ -320,7 +319,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   };
 
   return (
-    <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
+    <ReqoreControlGroup>
       <FieldEnhancer
         context={{
           iface_kind,
@@ -330,50 +329,50 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
       >
         {(onEditClick, onCreateClick) => (
           <>
-            <ControlGroup fill={fill} style={{ flex: 'none' }}>
+            <ReqoreControlGroup fluid={fill}>
               {reference && (
                 <>
                   {!editOnly && (
-                    <Button
-                      icon="add"
-                      className={Classes.FIXED}
+                    <ReqoreButton
+                      icon="AddLine"
+                      fixed
                       intent="success"
-                      name={`field-${name}-reference-add-new`}
                       onClick={() => onCreateClick(reference, handleEditSubmit)}
                     />
                   )}
                   {value && (
-                    <Button
-                      icon="edit"
-                      className={Classes.FIXED}
-                      name={`field-${name}-edit-reference`}
+                    <ReqoreButton
+                      icon="EditLine"
+                      fixed
                       onClick={() => onEditClick(value, reference, handleEditSubmit)}
                     />
                   )}
                 </>
               )}
               {!filteredItems || filteredItems.length === 0 ? (
-                <StringField
-                  value={t('NothingToSelect')}
-                  read_only
-                  disabled
-                  name={name}
-                  onChange={() => {}}
-                />
+                <ReqoreTag label={t('NothingToSelect')} />
               ) : (
                 <>
                   {hasItemsWithDesc(items) && !forceDropdown ? (
                     <>
-                      <Button
-                        name={`field-${name}`}
-                        fill={fill}
-                        text={value ? value : placeholder || t('PleaseSelect')}
-                        rightIcon="widget-header"
-                        intent={value ? 'primary' : undefined}
+                      <ReqoreButton
+                        fluid={fill}
+                        rightIcon="ListUnordered"
                         onClick={() => setSelectDialogOpen(true)}
+                        description={getItemDescription(value)}
                         disabled={disabled}
-                        style={{ whiteSpace: 'nowrap' }}
-                      />
+                        effect={{
+                          gradient: {
+                            direction: 'to left bottom',
+                            colors: {
+                              0: 'main',
+                              100: 'main:lighten',
+                            },
+                          },
+                        }}
+                      >
+                        {value ? value : placeholder || t('PleaseSelect')}
+                      </ReqoreButton>
                       {isSelectDialogOpen && (
                         <CustomDialog
                           isOpen
@@ -482,11 +481,11 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                       )}
                     </>
                   ) : asMenu ? (
-                    <Menu>
+                    <ReqoreMenu>
                       {filteredItems.map((item) => (
-                        <MenuItem
+                        <ReqoreMenuItem
                           key={item.name}
-                          text={item.name}
+                          label={item.name}
                           onClick={() => {
                             handleSelectClick(item);
                             setSelectDialogOpen(false);
@@ -494,57 +493,34 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                           }}
                         />
                       ))}
-                    </Menu>
+                    </ReqoreMenu>
                   ) : (
-                    <Select
-                      items={query === '' ? filteredItems : filterItems(filteredItems)}
-                      itemRenderer={(item, data) => (
-                        <MenuItem
-                          name={`field-${name}-item`}
-                          title={item.desc}
-                          icon={value && item.name === value ? 'tick' : 'blank'}
-                          text={item.name}
-                          onClick={data.handleClick}
-                        />
-                      )}
-                      inputProps={{
-                        placeholder: t('Filter'),
-                        name: 'field-select-filter',
-                        autoFocus: true,
-                      }}
-                      popoverProps={{
-                        popoverClassName: 'custom-popover',
-                        targetClassName: fill ? 'select-popover' : '',
-                        position: 'left',
-                      }}
-                      className={fill ? Classes.FILL : ''}
-                      onItemSelect={(item: any) => handleSelectClick(item)}
-                      query={query}
-                      onQueryChange={(newQuery: string) => setQuery(newQuery)}
+                    <ReqoreDropdown
+                      items={query === '' ? reqoreItems : filterItems(reqoreItems)}
+                      filterable
+                      fluid={fill}
                       disabled={disabled}
+                      description={getItemDescription(value)}
+                      effect={{
+                        gradient: {
+                          direction: 'to left bottom',
+                          colors: {
+                            0: 'main',
+                            100: 'main:lighten',
+                          },
+                        },
+                      }}
                     >
-                      <Button
-                        name={`field-${name}`}
-                        fill={fill}
-                        intent={value ? 'primary' : undefined}
-                        text={value ? value : placeholder || t('PleaseSelect')}
-                        rightIcon={'caret-down'}
-                        onClick={handleClick}
-                        icon={icon}
-                        style={{ whiteSpace: 'nowrap' }}
-                      />
-                    </Select>
+                      {value ? value : placeholder || t('PleaseSelect')}
+                    </ReqoreDropdown>
                   )}
                 </>
               )}
-            </ControlGroup>
-            <div>
-              <DescriptionField desc={getItemDescription(value)} />
-            </div>
+            </ReqoreControlGroup>
           </>
         )}
       </FieldEnhancer>
-    </ButtonGroup>
+    </ReqoreControlGroup>
   );
 };
 

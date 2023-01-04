@@ -379,7 +379,7 @@ const App: FunctionComponent<IApp> = ({
   return (
     <>
       <ReqoreUIProvider
-        theme={{ main: '#222222' }}
+        theme={{ main: editorBackground }}
         options={{ animations: { buttons: false }, withSidebar: true }}
       >
         <DraftsContext.Provider

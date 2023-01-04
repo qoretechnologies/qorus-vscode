@@ -7,7 +7,7 @@ import { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHa
 export const FieldWrapper = styled.div<{ padded?: boolean }>`
   display: flex;
   flex-flow: row;
-  padding: 15px ${({ padded }) => (padded ? '20px' : 0)};
+  padding: 15px;
   flex: none;
 
   &:nth-child(even) {
@@ -99,7 +99,13 @@ export interface IField {
   style?: string;
   type: string;
   default_value?: string;
-  items?: { value: string; icon_filename: string }[];
+  items?: {
+    value: string;
+    icon_filename?: string;
+    icon?: string;
+    isDivider?: boolean;
+    title?: string;
+  }[];
   prefill?: any;
   name: string;
   mandatory?: boolean;

@@ -393,7 +393,14 @@ const Tab: React.FC<ITabProps> = ({
     actions.push({
       label: 'Create new',
       icon: 'AddLine',
-      intent: 'info',
+      effect: {
+        gradient: {
+          colors: {
+            0: 'info',
+            100: 'info:darken',
+          },
+        },
+      },
       onClick: () => {
         setIsDraftSaved(false);
         resetAllInterfaceData(type);
@@ -481,7 +488,13 @@ const Tab: React.FC<ITabProps> = ({
         flat
         opacity={0}
         headerSize={2}
-        badge={isSavingDraft ? t('SavingDraft') : `${t('DraftSaved')} ${timeago(Date.now())}`}
+        badge={
+          isSavingDraft
+            ? t('SavingDraft')
+            : isDraftSaved
+            ? `${t('DraftSaved')} ${timeago(Date.now())}`
+            : undefined
+        }
         actions={getActions()}
         contentStyle={{
           overflow: 'hidden',

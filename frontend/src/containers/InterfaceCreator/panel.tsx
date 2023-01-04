@@ -1,11 +1,10 @@
-import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 import {
-  ReqoreButton,
   ReqoreInput,
   ReqoreMenu,
   ReqoreMenuDivider,
+  ReqoreMenuItem,
   ReqoreMessage,
-  ReqoreSpacer
+  ReqoreSpacer,
 } from '@qoretechnologies/reqore';
 import {
   camelCase,
@@ -21,7 +20,7 @@ import {
   reduce,
   size,
   uniqBy,
-  upperFirst
+  upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
@@ -38,12 +37,11 @@ import FieldActions from '../../components/FieldActions';
 import FieldLabel from '../../components/FieldLabel';
 import FieldSelector from '../../components/FieldSelector';
 import {
-  ActionsWrapper,
   ContentWrapper,
   FieldInputWrapper,
   FieldWrapper,
   IField,
-  IInterfaceCreatorPanel
+  IInterfaceCreatorPanel,
 } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
@@ -59,7 +57,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, {
   addMessageListener,
-  postMessage
+  postMessage,
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -1147,6 +1145,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             flat={false}
           />
           {fieldList.length ? (
+            <ReqoreMenuItem
+              icon={'MenuAddLine'}
+              rightIcon="ArrowRightSLine"
+              onClick={handleAddAll}
+              tooltip={t('SelectAllTooltip')}
+            >
+              {t('SelectAll')}
+            </ReqoreMenuItem>
+          ) : null}
+          {fieldList.length ? (
             map(fieldList, (field: any) => (
               <FieldSelector
                 name={field.name}
@@ -1159,19 +1167,68 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             <ReqoreMessage intent="muted">No fields available</ReqoreMessage>
           )}
         </ReqoreMenu>
-        {fieldList.length ? (
-          <>
-            <ReqoreSpacer height={10} />
-            <ActionsWrapper fluid>
-              <ReqoreButton icon={'AddLine'} onClick={handleAddAll} tooltip={t('SelectAllTooltip')}>
-                {t('SelectAll')}
-              </ReqoreButton>
-            </ActionsWrapper>
-          </>
-        ) : null}
       </SidePanel>
       <ReqoreSpacer width={10} />
-      <Content title={t(stepTwoTitle)}>
+      <Content
+        title={t(stepTwoTitle)}
+        bottomActions={[
+          {
+            icon: areClassConnectionsValid?.() ? 'CodeBoxLine' : 'AlarmWarningLine',
+            intent: areClassConnectionsValid?.() ? undefined : 'warning',
+            disabled: !isClassConnectionsManagerEnabled?.(interfaceIndex),
+            onClick: () => setShowClassConnectionsManager?.(true),
+            show: hasClassConnections === true,
+            label: t('ManageClassConnections'),
+            badge: size(classConnectionsData),
+          },
+          {
+            as: ManageConfigButton,
+            props: {
+              type,
+              disabled: !isConfigManagerEnabled(),
+              onClick: () => setShowConfigItemsManager(true),
+            },
+            show: hasConfigManager,
+          },
+          {
+            label: t('Back'),
+            icon: 'ArrowGoBackLine',
+            onClick: () => onBackClick?.(),
+            show: !!onBackClick,
+          },
+          {
+            label: t('DiscardChangesButton'),
+            icon: 'HistoryLine',
+            tooltip: t('ResetTooltip'),
+            onClick: () => {
+              initialData.confirmAction(
+                'ResetFieldsConfirm',
+                () => {
+                  resetLocalFields(activeId);
+                },
+                'Discard changes',
+                'warning'
+              );
+            },
+            position: 'right',
+          },
+          {
+            label: t(submitLabel),
+            disabled: !canSubmit(),
+            icon: 'CheckLine',
+            effect: {
+              gradient: {
+                colors: {
+                  0: 'success',
+                  100: 'success:darken',
+                },
+              },
+            },
+            onClick: handleSubmitClick,
+            position: 'right',
+          },
+        ]}
+      >
         <ReqoreInput
           placeholder={t('FilterSelectedFields')}
           value={selectedQuery}
@@ -1237,70 +1294,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               )
           )}
         </ContentWrapper>
-        <ActionsWrapper>
-          {(hasConfigManager || hasClassConnections) && (
-            <div style={{ float: 'left', width: '48%' }}>
-              <ButtonGroup fill>
-                {hasClassConnections && (
-                  <Button
-                    icon={areClassConnectionsValid() ? 'code-block' : 'warning-sign'}
-                    intent={areClassConnectionsValid() ? 'none' : 'warning'}
-                    disabled={!isClassConnectionsManagerEnabled(interfaceIndex)}
-                    onClick={() => setShowClassConnectionsManager(true)}
-                    name={`${type}-class-connections-button`}
-                  >
-                    {t('ManageClassConnections')} ({size(classConnectionsData)})
-                  </Button>
-                )}
-                {hasConfigManager && (
-                  <ManageConfigButton
-                    type={type}
-                    disabled={!isConfigManagerEnabled()}
-                    onClick={() => setShowConfigItemsManager(true)}
-                  />
-                )}
-              </ButtonGroup>
-            </div>
-          )}
-          <div
-            style={{
-              float: 'right',
-              width: hasConfigManager || hasClassConnections ? '48%' : '100%',
-            }}
-          >
-            <ButtonGroup fill>
-              {onBackClick && (
-                <Tooltip content={t('BackTooltip')}>
-                  <Button text={t('Back')} icon={'undo'} onClick={() => onBackClick()} />
-                </Tooltip>
-              )}
-              <Tooltip content={t('ResetTooltip')}>
-                <Button
-                  text={t('DiscardChangesButton')}
-                  icon={'history'}
-                  onClick={() => {
-                    initialData.confirmAction(
-                      'ResetFieldsConfirm',
-                      () => {
-                        resetLocalFields(activeId);
-                      },
-                      'Discard changes',
-                      'warning'
-                    );
-                  }}
-                />
-              </Tooltip>
-              <Button
-                text={t(submitLabel)}
-                disabled={!canSubmit()}
-                icon={'tick'}
-                name={`interface-creator-submit-${type}`}
-                intent={Intent.SUCCESS}
-                onClick={handleSubmitClick}
-              />
-            </ButtonGroup>
-          </div>
-        </ActionsWrapper>
       </Content>
       {showClassConnectionsManager && hasClassConnections && initialData.qorus_instance && (
         <CustomDialog

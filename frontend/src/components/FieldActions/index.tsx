@@ -1,7 +1,6 @@
-import { Button, ButtonGroup, Tooltip } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreControlGroup, ReqoreTag } from '@qoretechnologies/reqore';
 import size from 'lodash/size';
 import { FunctionComponent, useContext } from 'react';
-import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
@@ -42,47 +41,51 @@ const FieldActions: FunctionComponent<IFieldActions> = ({
 
   return (
     <StyledFieldLabel>
-      <ButtonGroup minimal>
+      <ReqoreControlGroup>
         {isSet && parentValue !== undefined && !disabled ? (
-          <Tooltip content={t('ResetFieldToOriginal')}>
-            <Button
-              icon={'history'}
-              intent="warning"
-              onClick={() => {
-                initContext.confirmAction(
-                  'ConfirmResetField',
-                  () => onResetClick(),
-                  'Reset',
-                  'warning'
-                );
-              }}
-            />
-          </Tooltip>
+          <ReqoreButton
+            icon={'HistoryLine'}
+            tooltip={t('ResetFieldToOriginal')}
+            intent="warning"
+            onClick={() => {
+              initContext.confirmAction(
+                'ConfirmResetField',
+                () => onResetClick(),
+                'Reset',
+                'warning'
+              );
+            }}
+          />
         ) : null}
         {removable && (
-          <Tooltip content={t('RemoveField')}>
-            <Button
-              name={`remove-field-${name}`}
-              icon={'trash'}
-              intent="danger"
-              onClick={() => {
-                if (onClick) {
-                  if (size(value)) {
-                    initContext.confirmAction('ConfirmRemoveField', () => onClick(name));
-                  } else {
-                    onClick(name);
-                  }
+          <ReqoreButton
+            icon={'DeleteBin6Line'}
+            tooltip={t('RemoveField')}
+            intent="danger"
+            onClick={() => {
+              if (onClick) {
+                if (size(value)) {
+                  initContext.confirmAction('ConfirmRemoveField', () => onClick(name));
+                } else {
+                  onClick(name);
                 }
-              }}
-            />
-          </Tooltip>
+              }
+            }}
+          />
         )}
         {desc && (
-          <Tooltip content={<ReactMarkdown>{desc}</ReactMarkdown>}>
-            <Button icon={'info-sign'} />
-          </Tooltip>
+          <ReqoreTag
+            tooltip={{
+              content: desc,
+              intent: 'info',
+              placement: 'left',
+              flat: false,
+              maxWidth: '600px',
+            }}
+            icon={'QuestionMark'}
+          />
         )}
-      </ButtonGroup>
+      </ReqoreControlGroup>
     </StyledFieldLabel>
   );
 };

@@ -1,5 +1,5 @@
-import { TextArea } from '@blueprintjs/core';
-import { ChangeEvent, FunctionComponent } from 'react';
+import { ReqoreTextarea } from '@qoretechnologies/reqore';
+import { FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import { TTranslator } from '../../App';
@@ -47,7 +47,7 @@ const TextareaField: FunctionComponent<ITextareaField & IField & IFieldChange> =
   });
 
   // When input value changes
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+  const handleInputChange = (event: any): void => {
     onChange(name, event.target.value);
   };
 
@@ -57,11 +57,12 @@ const TextareaField: FunctionComponent<ITextareaField & IField & IFieldChange> =
   };
 
   return (
-    <TextArea
+    <ReqoreTextarea
       placeholder={placeholder}
-      fill={fill}
+      fluid={fill}
       value={!value ? default_value || '' : value}
       onChange={handleInputChange}
+      scaleWithContent
     />
   );
 };

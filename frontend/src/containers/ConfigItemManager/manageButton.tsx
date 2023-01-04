@@ -1,6 +1,6 @@
-import { Button, Tooltip } from '@blueprintjs/core';
+import { ReqoreButton } from '@qoretechnologies/reqore';
 import size from 'lodash/size';
-import React, { FunctionComponent, useState } from 'react';
+import { FunctionComponent, useState } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import { TTranslator } from '../../App';
@@ -43,15 +43,15 @@ const ManageConfigButton: FunctionComponent<IManageConfigButton> = ({
   });
 
   return (
-    <Tooltip content={t('ManageConfigItems')} disabled={disabled}>
-      <Button
-        name={'interface-creator-manage-config-items'}
-        disabled={disabled}
-        text={`${t('ManageConfigItems')}(${configCount})`}
-        icon={'cog'}
-        onClick={onClick}
-      />
-    </Tooltip>
+    <ReqoreButton
+      disabled={disabled}
+      badge={configCount}
+      icon={'SettingsLine'}
+      onClick={onClick}
+      tooltip={t('ManageConfigItems')}
+    >
+      {t('ManageConfigItems')}
+    </ReqoreButton>
   );
 };
 

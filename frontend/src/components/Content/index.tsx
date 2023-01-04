@@ -1,5 +1,6 @@
 import { ReqorePanel } from '@qoretechnologies/reqore';
-import { FunctionComponent, ReactNode } from 'react';
+import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
+import { ReactNode } from 'react';
 import styled from 'styled-components';
 
 const StyledContent = styled.div`
@@ -15,13 +16,13 @@ const StyledContent = styled.div`
   }
 `;
 
-export interface IContent {
+export interface IContent extends IReqorePanelProps {
   children: ReactNode;
   title?: string;
   style?: any;
 }
 
-const Content: FunctionComponent<IContent> = ({ children, title, style }) => (
+const Content = ({ children, title, style, ...rest }: IContent) => (
   <ReqorePanel
     style={style}
     label={title}
@@ -34,6 +35,7 @@ const Content: FunctionComponent<IContent> = ({ children, title, style }) => (
       uppercase: true,
       textSize: 'small',
     }}
+    {...rest}
   >
     {children}
   </ReqorePanel>

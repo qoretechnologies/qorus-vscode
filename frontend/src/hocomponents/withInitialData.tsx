@@ -1,5 +1,6 @@
+import { ReqoreContext } from '@qoretechnologies/reqore';
 import set from 'lodash/set';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
@@ -31,6 +32,7 @@ export default () =>
       const [draftData, setDraftData] = useState(null);
       const [isSavingDraft, setIsSavingDraft] = useState(false);
       const [lastDraft, setLastDraft] = useState(null);
+      const { confirmAction: confirmActionReqore } = useContext(ReqoreContext);
 
       useMount(() => {
         postMessage(Messages.GET_INITIAL_DATA);
@@ -121,6 +123,22 @@ export default () =>
           onSubmit: action,
           btnStyle: btnIntent,
           btnText,
+        });
+        const blueprintIntentToReqoreMapper = {
+          primary: 'info',
+          danger: 'danger',
+          success: 'success',
+          warning: 'warning',
+          default: undefined,
+          muted: 'muted',
+        };
+
+        confirmActionReqore({
+          onConfirm: action,
+          onCancel,
+          confirmLabel: blueprintIntentToReqoreMapper[btnText],
+          description: text,
+          intent: btnIntent,
         });
       };
 

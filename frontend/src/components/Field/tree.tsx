@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Callout, Icon, Intent, ITreeNode, Tree } from '@blueprintjs/core';
+import { ReqoreMessage, ReqorePanel } from '@qoretechnologies/reqore';
 import { size } from 'lodash';
 import { FunctionComponent, useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -298,35 +299,33 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
           }}
         />
       )}
-      <StyledTreeWrapper
-        onClick={() => setRootExpanded((cur) => !cur)}
-        name={`folder-expander-${name}`}
+      <ReqorePanel
+        label="Source Directories"
+        collapsible
+        actions={[
+          {
+            label: isRootExpanded ? 'Hide folders' : 'Show folders',
+            icon: isRootExpanded ? 'FolderLine' : 'FolderOpenLine',
+            onClick: () => setRootExpanded((cur) => !cur),
+          },
+          {
+            icon: 'Settings3Fill',
+            onClick: () => setManageSourceDirs(true),
+            tooltip: 'Manage source directories',
+            show: canManageSourceDirs === true,
+          },
+        ]}
       >
         {single && (
           <>
             {value && (
-              <StyledTreeValue empty={!size(value)}>
+              <ReqoreMessage intent={!size(value) ? 'warning' : 'info'}>
                 {!size(value) ? t('ValueIsEmpty') : value}
-              </StyledTreeValue>
+              </ReqoreMessage>
             )}
           </>
         )}
-        <div>
-          <Icon icon={isRootExpanded ? 'folder-open' : 'folder-close'} />{' '}
-          {isRootExpanded ? 'Hide' : 'Show'} folders{' '}
-          {canManageSourceDirs && (
-            <p
-              style={{ float: 'right', padding: 0, margin: 0 }}
-              onClick={(event) => {
-                event.stopPropagation();
-                setManageSourceDirs(true);
-              }}
-            >
-              Manage <Icon icon="cog" />
-            </p>
-          )}
-        </div>
-      </StyledTreeWrapper>
+      </ReqorePanel>
       {notFixed ? (
         <>
           {isRootExpanded && (

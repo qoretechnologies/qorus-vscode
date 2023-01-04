@@ -1,4 +1,4 @@
-import { Button, Classes, ControlGroup } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreControlGroup, ReqoreTag } from '@qoretechnologies/reqore';
 import { FunctionComponent, useContext } from 'react';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { InitialContext } from '../../context/init';
@@ -45,8 +45,8 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
     <FieldEnhancer context={context}>
       {(onEditClick, onCreateClick) => (
         <div>
-          <ControlGroup fill>
-            <Button text={`${index}.`} className={Classes.FIXED} />
+          <ReqoreControlGroup fluid>
+            <ReqoreTag label={`${index}.`} />
             {selectFirst ? (
               <>
                 <SelectField
@@ -103,14 +103,14 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
               </>
             )}
             {canBeRemoved && (
-              <Button
-                className={Classes.FIXED}
-                icon={'trash'}
+              <ReqoreButton
+                fixed
+                icon={'DeleteBinLine'}
                 intent="danger"
                 onClick={() => initContext.confirmAction('ConfirmRemoveItem', onRemoveClick)}
               />
             )}
-          </ControlGroup>
+          </ReqoreControlGroup>
         </div>
       )}
     </FieldEnhancer>
