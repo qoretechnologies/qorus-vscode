@@ -955,7 +955,7 @@ msgid "NoExecutableFilesInDir ${ dir }"
 msgstr "No executable files in the directory ${ dir }"
 
 msgid "TestRunning"
-msgstr "Qorus test is running"
+msgstr "Qorus file execution is running"
 
 msgid "NothingToTest"
 msgstr "Nothing to test"
