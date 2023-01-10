@@ -925,31 +925,31 @@ msgid "FilesToTest"
 msgstr "Files to test:"
 
 msgid "TestHasStarted ${ name } ${ url }"
-msgstr "Test execution to ${ name } - ${ url } has started ..."
+msgstr "Execution to ${ name } - ${ url } has started ..."
 
 msgid "TestStartFailed"
-msgstr "Test execution failed to start"
+msgstr "Execution failed to start"
 
 msgid "CancellingTest"
-msgstr "Cancelling test execution"
+msgstr "Cancelling execution"
 
 msgid "TestCancellationFailed"
-msgstr "Test execution cancellation failed"
+msgstr "Execution cancellation failed"
 
 msgid "checkingTestProgress"
-msgstr "checking test execution progress"
+msgstr "checking execution progress"
 
 msgid "TestFinishedSuccessfully"
-msgstr "Test execution finished successfully"
+msgstr "Execution finished successfully"
 
 msgid "TestCancelled"
-msgstr "Test execution cancelled"
+msgstr "Execution cancelled"
 
 msgid "TestFailed"
-msgstr "Test execution failed"
+msgstr "Execution failed"
 
 msgid "CheckingTestStatusFailed"
-msgstr "Checking test execution status failed"
+msgstr "Checking execution status failed"
 
 msgid "NoExecutableFilesInDir ${ dir }"
 msgstr "No executable files in the directory ${ dir }"

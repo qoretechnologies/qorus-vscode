@@ -55,7 +55,7 @@ const hasOneOfSuffixes = (file_path: string, suffixes: string[]): boolean => {
 export const isTest = (file_path: string): boolean => {
   const suffix: string | undefined = getSuffix(file_path);
 
-  if (suffix === 'qtest') {
+  if (suffix === 'qtest' || suffix === 'qsm' || suffix === 'qscript') {
     return true;
   }
   if (suffix === 'java') {

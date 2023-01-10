@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "3.9.5",
+  "version": "3.9.6",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
@@ -1565,7 +1565,7 @@
         },
         {
           "command": "qorus.views.deployInterface",
-          "when": "view == qorusInterfaces && viewItem =~ /^interface/",
+          "when": "view == qorusInterfaces && viewItem =~ /^interface/ && viewItem !~ /isTest/",
           "group": "inline"
         },
         {
