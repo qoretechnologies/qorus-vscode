@@ -1,5 +1,7 @@
-import { Button, Classes, ControlGroup, Icon, MenuItem, Tag, Tooltip } from '@blueprintjs/core';
+import { Button, ControlGroup, Icon, MenuItem, Tag } from '@blueprintjs/core';
 import { MultiSelect } from '@blueprintjs/select';
+import { ReqoreButton, ReqoreControlGroup, ReqoreMultiSelect } from '@qoretechnologies/reqore';
+import { TReqoreMultiSelectItem } from '@qoretechnologies/reqore/dist/components/MultiSelect';
 import { includes, size } from 'lodash';
 import { FunctionComponent, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -186,7 +188,29 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
               </StyledDialogBody>
             </CustomDialog>
           )}
-          <ControlGroup fill>
+          <ReqoreControlGroup fluid>
+            <ReqoreMultiSelect
+              items={items.map(
+                (item): TReqoreMultiSelectItem => ({
+                  value: item.name,
+                  icon: canEdit && onEditClick ? 'EditLine' : undefined,
+                })
+              )}
+              enterKeySelects
+              canCreateItems={!reference}
+              onItemClickIcon="EditLine"
+              onItemClick={
+                canEdit
+                  ? (item) => {
+                      if (onEditClick && reference) {
+                        onEditClick(item.value, reference, handleSaveTagEdit);
+                      } else {
+                        handleTagClick(item.value);
+                      }
+                    }
+                  : undefined
+              }
+            />
             <MultiSelect
               key={activeId}
               items={items}
@@ -256,16 +280,15 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
               activeItem={null}
             />
             {reference && (
-              <Tooltip content={t('CreateAndAddNewItem')} className={Classes.FIXED}>
-                <Button
-                  className={Classes.FIXED}
-                  icon="add"
-                  intent="success"
-                  onClick={() => onCreateClick(reference, handleSaveTagCreate)}
-                />
-              </Tooltip>
+              <ReqoreButton
+                fixed
+                tooltip={t('CreateAndAddNewItem')}
+                icon="AddLine"
+                intent="success"
+                onClick={() => onCreateClick(reference, handleSaveTagCreate)}
+              />
             )}
-          </ControlGroup>
+          </ReqoreControlGroup>
         </>
       )}
     </FieldEnhancer>

@@ -35,6 +35,11 @@ const BooleanField: FunctionComponent<IField & IFieldChange> = ({
       checked={value || false}
       onClick={handleEnabledChange}
       asSwitch
+      onText="Yes"
+      offText="No"
+      checkedIcon="CheckLine"
+      uncheckedIcon="CloseLine"
+      margin="none"
     />
   );
 };

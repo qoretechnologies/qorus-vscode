@@ -116,6 +116,7 @@ const FieldSelector: FunctionComponent<IFieldSelector> = ({
         tooltip={{
           content: t(`field-desc-${name}`),
           maxWidth: '300px',
+          delay: 200,
         }}
         icon="AddLine"
         wrap

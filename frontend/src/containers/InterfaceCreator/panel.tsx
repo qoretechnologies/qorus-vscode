@@ -1216,12 +1216,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             label: t(submitLabel),
             disabled: !canSubmit(),
             icon: 'CheckLine',
+            flat: false,
             effect: {
               gradient: {
                 colors: {
                   0: 'success',
                   100: 'success:darken',
                 },
+                animate: canSubmit() ? 'always' : 'never',
               },
             },
             onClick: handleSubmitClick,
@@ -1253,6 +1255,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 >
                   <FieldLabel
                     info={field.markdown && t('MarkdownSupported')}
+                    type={field.type}
                     label={t(`field-label-${field.name}`)}
                     isValid={field.isValid}
                   />

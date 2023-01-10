@@ -76,10 +76,11 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
         label: item.title || t(`field-label-${item.value}`),
         disabled,
         value: item.value,
-        effect: {
+        labelEffect: {
           spaced: 1,
           weight: 'bold',
           uppercase: true,
+          textSize: 'small',
         },
         image:
           item.icon_filename || item.icon

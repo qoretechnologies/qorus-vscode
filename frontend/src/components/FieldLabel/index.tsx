@@ -5,9 +5,10 @@ export interface IFieldLabel {
   label?: string;
   isValid: boolean;
   info?: string;
+  type?: string;
 }
 
-const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info }) => (
+const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info, type }) => (
   <>
     <ReqoreControlGroup vertical>
       <ReqoreTag
@@ -17,6 +18,7 @@ const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info }) =>
         icon={isValid ? undefined : 'ErrorWarningLine'}
         minimal
       />
+      {type && <ReqoreTag label={type} asBadge minimal size="small" icon="CodeLine" />}
       {info && (
         <ReqoreTag
           label={info}

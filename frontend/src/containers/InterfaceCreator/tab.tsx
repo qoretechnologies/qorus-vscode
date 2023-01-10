@@ -393,12 +393,14 @@ const Tab: React.FC<ITabProps> = ({
     actions.push({
       label: 'Create new',
       icon: 'AddLine',
+      flat: false,
       effect: {
         gradient: {
           colors: {
             0: 'info',
             100: 'info:darken',
           },
+          animate: 'hover',
         },
       },
       onClick: () => {

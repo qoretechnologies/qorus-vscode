@@ -45,6 +45,10 @@ const Sidebar: Function = ({ projectFolder, qorusInstance }: SidebarProps) => {
                   <ReqoreH3
                     effect={{
                       textAlign: 'center',
+                      glow: {
+                        color: '#7e2d90',
+                        blur: 0.1,
+                      },
                     }}
                   >
                     Qorus Developer Tools

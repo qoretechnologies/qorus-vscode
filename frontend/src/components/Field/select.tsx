@@ -350,7 +350,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                 </>
               )}
               {!filteredItems || filteredItems.length === 0 ? (
-                <ReqoreTag label={t('NothingToSelect')} />
+                <ReqoreTag label={t('NothingToSelect')} color="transparent" />
               ) : (
                 <>
                   {hasItemsWithDesc(items) && !forceDropdown ? (
@@ -359,15 +359,18 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                         fluid={fill}
                         rightIcon="ListUnordered"
                         onClick={() => setSelectDialogOpen(true)}
-                        description={getItemDescription(value)}
+                        description="Hover to see description"
+                        tooltip={{
+                          delay: 300,
+                          content: getItemDescription(value),
+                          maxWidth: '50vh',
+                          blur: 2,
+                        }}
                         disabled={disabled}
                         effect={{
                           gradient: {
                             direction: 'to left bottom',
-                            colors: {
-                              0: 'main',
-                              100: 'main:lighten',
-                            },
+                            colors: value ? 'info' : 'main',
                           },
                         }}
                       >
