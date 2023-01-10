@@ -224,8 +224,11 @@ class QorusDraftItem extends TreeItem {
         interfaceKind === 'schema-modules' ||
         interfaceKind === 'scripts'
           ? '|isTest'
-          : ''
+          : '|isNotTest'
       }`;
+
+      console.log(this.contextValue);
+
       this.command = {
         title: 'Open Interface',
         command: otherFilesNames.includes(interfaceKind)

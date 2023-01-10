@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 3.9.7
+
+#### Bug fixes
+
+- Fixed regression bug caused by version 3.9.6, where the `Deploy Interface` button disappeared from deployable interfaces
+
+## Version 3.9.6
+
+#### Bug fixes
+
+- Schema modules & Scripts & Tests can no longer be deployed and can instead be run against the active Qorus instance
+
 ## Version 3.9.5
 
 #### Features

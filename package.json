@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "3.9.6",
+  "version": "3.9.7",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
@@ -153,12 +153,12 @@
       },
       {
         "command": "qorus.testCurrentFile",
-        "title": "Execute Current Test File",
+        "title": "Execute Current File against active Qorus instance",
         "category": "Qorus"
       },
       {
         "command": "qorus.testDir",
-        "title": "Execute Test Files from Directory",
+        "title": "Execute files from directory against active Qorus instance",
         "category": "Qorus"
       },
       {
@@ -371,12 +371,12 @@
       },
       {
         "command": "qorus.explorer.testFile",
-        "title": "Execute Test File",
+        "title": "Execute file against active Qorus instance",
         "category": "Qorus"
       },
       {
         "command": "qorus.views.testFile",
-        "title": "1. Execute Test",
+        "title": "1. Execute file against active Qorus instance",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/play.svg",
@@ -1565,7 +1565,7 @@
         },
         {
           "command": "qorus.views.deployInterface",
-          "when": "view == qorusInterfaces && viewItem =~ /^interface/ && viewItem !~ /isTest/",
+          "when": "view == qorusInterfaces && viewItem =~ /^interface/ && viewItem =~ /isNotTest/",
           "group": "inline"
         },
         {
