@@ -2,8 +2,8 @@ import { Button, ControlGroup, Icon, MenuItem, Tag } from '@blueprintjs/core';
 import { MultiSelect } from '@blueprintjs/select';
 import { ReqoreButton, ReqoreControlGroup, ReqoreMultiSelect } from '@qoretechnologies/reqore';
 import { TReqoreMultiSelectItem } from '@qoretechnologies/reqore/dist/components/MultiSelect';
-import { includes, size } from 'lodash';
-import { FunctionComponent, useState } from 'react';
+import { includes, isEqual, size } from 'lodash';
+import { FunctionComponent, useMemo, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
@@ -163,6 +163,12 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
   canEdit = !!reference || canEdit;
 
+  const val = useMemo(
+    () => value.map((item: any) => (typeof item === 'object' ? item.name : item)),
+    [value]
+  );
+  console.log(val);
+
   return (
     <FieldEnhancer context={context}>
       {(onEditClick, onCreateClick) => (
@@ -198,7 +204,14 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
               )}
               enterKeySelects
               canCreateItems={!reference}
+              canRemoveItems
               onItemClickIcon="EditLine"
+              onValueChange={(newValue) => {
+                if (!isEqual(value, newValue)) {
+                  setSelectedItems(value);
+                }
+              }}
+              value={val}
               onItemClick={
                 canEdit
                   ? (item) => {
