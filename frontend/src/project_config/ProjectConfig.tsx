@@ -69,18 +69,6 @@ const StyledProjectWrapper: React.FC<IReqoreCollectionProps> = styled(ReqoreColl
   pointer-events: ${({ changedOnDisk }) => (changedOnDisk ? 'none' : 'initial')};
 `;
 
-const StyledProjectHeader = styled.div`
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-between;
-`;
-
-const StyledMasonryWrapper = styled.div`
-  column-count: 2;
-  column-gap: 10px;
-  margin-top: 10px;
-`;
-
 const Project: FunctionComponent<IProject> = ({
   addMessageListener,
   postMessage,

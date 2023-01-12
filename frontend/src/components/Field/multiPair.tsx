@@ -1,4 +1,5 @@
 import { ReqoreButton, ReqoreControlGroup } from '@qoretechnologies/reqore';
+import { IReqoreEffect } from '@qoretechnologies/reqore/dist/components/Effect';
 import { size } from 'lodash';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
@@ -15,6 +16,16 @@ type IPair = {
 export const StyledPairField = styled.div`
   margin-bottom: 10px;
 `;
+
+export const PositiveColorEffect: IReqoreEffect = {
+  gradient: {
+    direction: 'to right bottom',
+    colors: {
+      0: 'info',
+      100: 'info:darken',
+    },
+  },
+};
 
 const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = ({
   fields,
@@ -65,20 +76,7 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
         </StyledPairField>
       ))}
       <ReqoreControlGroup fluid>
-        <ReqoreButton
-          icon={'AddLine'}
-          fluid
-          onClick={handleAddClick}
-          effect={{
-            gradient: {
-              direction: 'to right bottom',
-              colors: {
-                0: 'info',
-                100: 'info:darken',
-              },
-            },
-          }}
-        >
+        <ReqoreButton icon={'AddLine'} fluid onClick={handleAddClick} effect={PositiveColorEffect}>
           {t('AddNew')}
         </ReqoreButton>
       </ReqoreControlGroup>

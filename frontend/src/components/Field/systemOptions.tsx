@@ -1,5 +1,6 @@
-import { Button, ButtonGroup, Callout, Classes, ControlGroup, Icon, Tag } from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout, Classes, ControlGroup, Tag } from '@blueprintjs/core';
 import { setupPreviews } from '@previewjs/plugin-react/setup';
+import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { cloneDeep, findKey, forEach, last } from 'lodash';
 import isArray from 'lodash/isArray';
 import map from 'lodash/map';
@@ -21,8 +22,7 @@ import SelectField from './select';
 import { TemplateField } from './template';
 
 export const StyledOptionField = styled.div`
-  padding: 10px;
-  border-bottom: 1px solid #e6e6e6;
+  /* border-bottom: 1px solid #e6e6e6;
   border-right: 1px solid #e6e6e6;
   border-left: 1px solid #e6e6e6;
 
@@ -43,7 +43,7 @@ export const StyledOptionField = styled.div`
   &:last-child {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
-  }
+  } */
 `;
 
 const getType = (
@@ -447,7 +447,6 @@ const Options = ({
           !!options[optionName] ? (
             <StyledOptionField>
               <SubField
-                subtle
                 key={optionName}
                 title={optionName}
                 collapsible
@@ -560,11 +559,11 @@ const Options = ({
         )}
       </div>
       {size(fixedValue) === 0 && (
-        <p className={Classes.TEXT_MUTED}>
-          <Icon icon="info-sign" /> {t(noValueString || 'NoOptionsSelected')}
-        </p>
+        <ReqoreMessage minimal intent="muted">
+          {t(noValueString || 'NoOptionsSelected')}
+        </ReqoreMessage>
       )}
-      <Spacer size={10} />
+      <ReqoreVerticalSpacer height={10} />
       {size(filteredOptions) >= 1 && (
         <SelectField
           name="options"

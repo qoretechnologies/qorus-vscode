@@ -107,7 +107,6 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
           }}
           title={t(editManager.changeType)}
           isOpen
-          style={{ width: '95vw', height: '95vh' }}
         >
           <CreateInterface
             initialData={{ ...initialData, subtab: editManager.interfaceKind }}

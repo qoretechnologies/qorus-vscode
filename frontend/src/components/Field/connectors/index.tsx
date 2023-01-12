@@ -1,4 +1,4 @@
-import { Callout } from '@blueprintjs/core';
+import { ReqoreMessage } from '@qoretechnologies/reqore';
 import { cloneDeep, isEqual, map, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useState } from 'react';
@@ -324,7 +324,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   );
 
   if (!initialData.qorus_instance) {
-    return <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>;
+    return <ReqoreMessage intent="warning">{t('ActiveInstanceProvidersConnectors')}</ReqoreMessage>;
   }
 
   return (

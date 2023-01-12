@@ -1,5 +1,12 @@
-import { Button, Callout, Classes, ControlGroup, Tab, Tabs } from '@blueprintjs/core';
-import React, { useContext, useState } from 'react';
+import {
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqoreTabs,
+  ReqoreTabsContent,
+  ReqoreTag,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
+import { useContext, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
 import { templatesList } from '../../containers/ConfigItemManager/modal';
 import { TextContext } from '../../context/text';
@@ -62,11 +69,24 @@ export const TemplateField = ({ value, name, onChange, component: Comp, ...rest 
   const t = useContext(TextContext);
 
   return (
-    <Tabs
-      defaultSelectedTabId={'custom'}
-      id={'TemplateFieldTabs'}
-      renderActiveTabPanelOnly
-      onChange={(newTabId: string): void => {
+    <ReqoreTabs
+      activeTab={isTemplate ? 'template' : 'custom'}
+      activeTabIntent="info"
+      fill
+      flat
+      tabs={[
+        {
+          id: 'custom',
+          label: t('Custom'),
+          icon: 'EditLine',
+        },
+        {
+          id: 'template',
+          label: t('Template'),
+          icon: 'ExchangeDollarLine',
+        },
+      ]}
+      onTabChange={(newTabId: string): void => {
         if (newTabId === 'custom') {
           setIsTemplate(false);
           setTemplateKey(null);
@@ -77,40 +97,33 @@ export const TemplateField = ({ value, name, onChange, component: Comp, ...rest 
           onChange(name, null);
         }
       }}
-      selectedTabId={isTemplate ? 'template' : 'custom'}
     >
-      <Tab
-        id={'custom'}
-        title={t('Custom')}
-        panel={<Comp value={value} onChange={onChange} name={name} {...rest} />}
-      />
-      <Tab
-        id={'template'}
-        title={t('Template')}
-        panel={
-          <>
-            <Callout intent="primary" icon="info-sign">
-              {`${t('ConfigTemplatesFormat')} $<type>:<key>`}
-            </Callout>
-            <ControlGroup fill>
-              <Select
-                defaultItems={templatesList.map((template) => ({ name: template }))}
-                onChange={(_n, val) => setTemplateKey(val)}
-                value={templateKey}
-                icon="dollar"
-              />
-              <Button text=":" className={Classes.FIXED} />
-              <String
-                fill
-                type="string"
-                name="templateVal"
-                value={templateValue}
-                onChange={(_n, val) => setTemplateValue(val)}
-              />
-            </ControlGroup>
-          </>
-        }
-      />
-    </Tabs>
+      <ReqoreTabsContent tabId={'custom'}>
+        <Comp value={value} onChange={onChange} name={name} {...rest} />
+      </ReqoreTabsContent>
+      <ReqoreTabsContent tabId={'template'}>
+        <ReqoreMessage intent="info" size="small">
+          {`${t('ConfigTemplatesFormat')} $<type>:<key>`}
+        </ReqoreMessage>
+        <ReqoreVerticalSpacer height={10} />
+        <ReqoreControlGroup fluid stack>
+          <Select
+            defaultItems={templatesList.map((template) => ({ name: template }))}
+            onChange={(_n, val) => setTemplateKey(val)}
+            value={templateKey}
+            name="templateKey"
+            icon="dollar"
+          />
+          <ReqoreTag label=":" />
+          <String
+            fill
+            type="string"
+            name="templateVal"
+            value={templateValue}
+            onChange={(_n, val) => setTemplateValue(val)}
+          />
+        </ReqoreControlGroup>
+      </ReqoreTabsContent>
+    </ReqoreTabs>
   );
 };

@@ -1,10 +1,12 @@
 import { ReqoreContext } from '@qoretechnologies/reqore';
+import { TReqoreIntent } from '@qoretechnologies/reqore/dist/constants/theme';
 import set from 'lodash/set';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { useUpdateEffect } from 'react-use';
+import { useEffectOnce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import shortid from 'shortid';
+import Loader from '../components/Loader';
 import { AppToaster } from '../components/Toast';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
@@ -12,6 +14,8 @@ import { InitialContext } from '../context/init';
 import { callBackendBasic } from '../helpers/functions';
 import withFieldsConsumer from './withFieldsConsumer';
 import { addMessageListener, postMessage } from './withMessageHandler';
+
+const pastTexts: { [id: string]: { isTranslated: boolean; text: string } } = {};
 
 // A HoC helper that holds all the initial data
 export default () =>
@@ -33,6 +37,8 @@ export default () =>
       const [isSavingDraft, setIsSavingDraft] = useState(false);
       const [lastDraft, setLastDraft] = useState(null);
       const { confirmAction: confirmActionReqore } = useContext(ReqoreContext);
+      const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
+      const [t, setT] = useState<(text_id) => string>(undefined);
 
       useMount(() => {
         postMessage(Messages.GET_INITIAL_DATA);
@@ -58,6 +64,49 @@ export default () =>
       }, [initialData?.qorus_instance?.url]);
 
       useEffect(() => {
+        if (texts) {
+          setT(() => {
+            return (text_id) => {
+              return texts.find((textItem) => textItem.id === text_id)?.text || text_id;
+            };
+          });
+        }
+      }, [texts]);
+
+      useEffectOnce(() => {
+        const listeners: any = [];
+        // New text was received
+        listeners.push(
+          addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
+            setTexts((currentTexts) => {
+              // Do not modify state if the text already
+              // exists
+              if (!currentTexts[data.text_id]) {
+                pastTexts[data.text_id] = { isTranslated: true, text: data.text };
+                return {
+                  ...currentTexts,
+                  [data.text_id]: data.text,
+                };
+              }
+              // Return current state
+              return currentTexts;
+            });
+          })
+        );
+        listeners.push(
+          addMessageListener('return-all-text', ({ data }): void => {
+            setTexts(data);
+          })
+        );
+        postMessage('get-all-text');
+
+        return () => {
+          // remove all listeners
+          listeners.forEach((l) => l());
+        };
+      });
+
+      useEffect(() => {
         const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
           flushSync(() => setInitialData({}));
 
@@ -74,7 +123,7 @@ export default () =>
             data.tab = 'ProjectConfig';
           }
 
-          if (data.draftData) {
+          if (data?.draftData) {
             setDraftData(data.draftData);
           }
 
@@ -106,6 +155,10 @@ export default () =>
         };
       });
 
+      if (!texts || !t) {
+        return <Loader text="Loading translations..." />;
+      }
+
       // this action is called when the user clicks the confirm button
       /*
       This is a function that takes a string, a function, and two optional parameters and returns a function.
@@ -114,16 +167,10 @@ export default () =>
         text: string,
         action: () => any,
         btnText?: string,
-        btnIntent?: string
-      ) => void = (text, action, btnText, btnIntent, onCancel) => {
-        setConfirmDialog({
-          isOpen: true,
-          text,
-          onCancel,
-          onSubmit: action,
-          btnStyle: btnIntent,
-          btnText,
-        });
+        btnIntent?: string,
+        onCancel?: () => any,
+        intent?: TReqoreIntent
+      ) => void = (text, action, btnText, btnIntent, onCancel, intent) => {
         const blueprintIntentToReqoreMapper = {
           primary: 'info',
           danger: 'danger',
@@ -136,9 +183,10 @@ export default () =>
         confirmActionReqore({
           onConfirm: action,
           onCancel,
-          confirmLabel: blueprintIntentToReqoreMapper[btnText],
-          description: text,
-          intent: btnIntent,
+          confirmLabel: btnText,
+          description: t(text),
+          intent,
+          confirmButtonIntent: btnIntent ? blueprintIntentToReqoreMapper[btnIntent] : 'success',
         });
       };
 
@@ -309,8 +357,6 @@ export default () =>
       const saveDraft = async (interfaceKind, interfaceId, fileData, name?: string) => {
         setIsSavingDraft(true);
 
-        console.log('saving draft', interfaceKind, interfaceId, fileData, name);
-
         await callBackendBasic(Messages.SAVE_DRAFT, undefined, {
           iface_id: interfaceId,
           iface_kind: interfaceKindTransform[interfaceKind],
@@ -353,6 +399,9 @@ export default () =>
             lastDraft,
             setLastDraft,
             changeDraft,
+            t,
+            texts,
+            setTexts,
           }}
         >
           <InitialContext.Consumer>

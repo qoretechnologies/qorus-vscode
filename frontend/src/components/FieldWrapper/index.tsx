@@ -26,7 +26,7 @@ export const SearchWrapper = styled.div`
 export const ContentWrapper = styled.div`
   flex: 1;
   overflow-y: auto;
-  overflow-x: auto;
+  overflow-x: hidden;
 `;
 
 export const ActionsWrapper = ({ children, ...rest }: IReqoreControlGroupProps) => (
@@ -96,8 +96,8 @@ export interface IField {
   };
   canBeNull?: boolean;
   return_message?: { action: string; object_type: string; return_value?: string };
-  style?: string;
-  type: string;
+  style?: React.CSSProperties;
+  type?: string;
   default_value?: string;
   items?: {
     value: string;

@@ -1,12 +1,15 @@
 import { Button, ButtonGroup, Classes, Icon, IconName, Tooltip } from '@blueprintjs/core';
 import {
   ReqoreButton,
+  ReqoreCollection,
   ReqoreControlGroup,
   ReqoreDropdown,
   ReqoreMenu,
   ReqoreMenuItem,
   ReqoreTag,
+  ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
+import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import { IReqoreMenuItemProps } from '@qoretechnologies/reqore/dist/components/Menu/item';
 import { capitalize, get, size } from 'lodash';
 import React, { useEffect, useState } from 'react';
@@ -23,7 +26,6 @@ import withMessageHandler, {
 import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
-import Spacer from '../Spacer';
 import SubField from '../SubField';
 import StringField from './string';
 import { StyledOptionField } from './systemOptions';
@@ -129,6 +131,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   asMenu,
   icon,
   filters,
+  ...rest
 }) => {
   const [items, setItems] = useState<any[]>(defaultItems || []);
   const [query, setQuery] = useState<string>('');
@@ -318,8 +321,215 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     return items.find((item) => item.name === itemName)?.desc;
   };
 
+  console.log(name, rest);
+
   return (
-    <ReqoreControlGroup>
+    <>
+      <CustomDialog
+        isOpen={isSelectDialogOpen}
+        icon="ListOrdered"
+        onClose={() => {
+          setSelectDialogOpen(false);
+          setQuery('');
+        }}
+        title={t('SelectItem')}
+      >
+        <ReqoreCollection
+          maxItemHeight={200}
+          label="Items"
+          badge={size(items)}
+          filterable
+          sortable
+          fill
+          items={filterItems(filteredItems).map(
+            (item): IReqoreCollectionItemProps => ({
+              label: item.name,
+              content: <ReactMarkdown>{item.desc}</ReactMarkdown>,
+              flat: false,
+              minimal: false,
+              tooltip: !!item.desc
+                ? {
+                    delay: 300,
+                    content: <ReactMarkdown>{item.desc}</ReactMarkdown>,
+                    maxWidth: '70vw',
+                  }
+                : undefined,
+              headerEffect: { color: '#ffffff' },
+              contentEffect:
+                item.name === value
+                  ? { gradient: { colors: 'main' } }
+                  : { color: 'muted:lighten:2' },
+              onClick: () => {
+                handleSelectClick(item);
+                setSelectDialogOpen(false);
+              },
+            })
+          )}
+          actions={filters?.map((filter) => ({
+            label: capitalize(filter.replace('_', ' ')),
+            badge: items.filter((item) => item[filter]).length,
+            active: appliedFilters.includes(filter),
+            onClick: () => {
+              // Add this filter to the applied filters if it's not already there
+              if (!appliedFilters.includes(filter)) {
+                setAppliedFilters([...appliedFilters, filter]);
+              } else {
+                // Remove this filter from the applied filters
+                setAppliedFilters(
+                  appliedFilters.filter((appliedFilter) => appliedFilter !== filter)
+                );
+              }
+            },
+          }))}
+        />
+        <StyledOptionField>
+          <SubField title="Filters">
+            <StringField
+              onChange={(_name, value) => setQuery(value)}
+              value={query}
+              name="select-filter"
+              placeholder={t('Filter')}
+              autoFocus
+            />
+            <ReqoreVerticalSpacer height={10} />
+            <ButtonGroup>
+              {filters?.map((filter) => (
+                <Button
+                  key={filter}
+                  intent={appliedFilters.includes(filter) ? 'primary' : 'none'}
+                  onClick={() => {
+                    // Add this filter to the applied filters if it's not already there
+                    if (!appliedFilters.includes(filter)) {
+                      setAppliedFilters([...appliedFilters, filter]);
+                    } else {
+                      // Remove this filter from the applied filters
+                      setAppliedFilters(appliedFilters.filter((f) => f !== filter));
+                    }
+                  }}
+                >
+                  {capitalize(filter.replace('_', ' '))} (
+                  {items.filter((item) => item[filter]).length})
+                </Button>
+              ))}
+            </ButtonGroup>
+          </SubField>
+        </StyledOptionField>
+        <StyledOptionField style={{ overflowY: 'auto', overflowX: 'hidden' }}>
+          <SubField
+            title="Items"
+            detail={size(filterItems(filteredItems)).toString()}
+            isValid={!!size(filterItems(filteredItems))}
+          >
+            <div>
+              {filterItems(filteredItems).map((item) => (
+                <Tooltip
+                  key={item.name}
+                  position="top"
+                  boundary="viewport"
+                  targetProps={{
+                    style: {
+                      width: '100%',
+                    },
+                  }}
+                  hoverOpenDelay={500}
+                  interactionKind="hover"
+                  content={<ReactMarkdown>{item.desc}</ReactMarkdown>}
+                >
+                  <StyledDialogSelectItem
+                    className={item.name === value ? 'selected' : ''}
+                    name={`field-${name}-item`}
+                    onClick={() => {
+                      handleSelectClick(item);
+                      setSelectDialogOpen(false);
+                      setQuery('');
+                    }}
+                  >
+                    <h5>
+                      {item.name === value && (
+                        <Icon icon="small-tick" style={{ color: '#7fba27' }} />
+                      )}{' '}
+                      {item.name}
+                    </h5>
+
+                    <p className={Classes.TEXT_MUTED}>
+                      <ReactMarkdown>{item.desc || t('NoDescription')}</ReactMarkdown>
+                    </p>
+                  </StyledDialogSelectItem>
+                </Tooltip>
+              ))}
+            </div>
+          </SubField>
+        </StyledOptionField>
+      </CustomDialog>
+      {!filteredItems || filteredItems.length === 0 ? (
+        <ReqoreTag label={t('NothingToSelect')} color="transparent" />
+      ) : null}
+      <ReqoreControlGroup {...rest} fluid={!!fill}>
+        {hasItemsWithDesc(items) && !forceDropdown ? (
+          <ReqoreButton
+            fluid={!!fill}
+            rightIcon="ListUnordered"
+            onClick={() => setSelectDialogOpen(true)}
+            description={
+              !!getItemDescription(value)
+                ? 'Hover to see description'
+                : 'Select from available items'
+            }
+            tooltip={
+              !!getItemDescription(value)
+                ? {
+                    delay: 300,
+                    content: getItemDescription(value),
+                    maxWidth: '50vh',
+                    blur: 2,
+                  }
+                : undefined
+            }
+            disabled={disabled}
+            effect={{
+              gradient: {
+                direction: 'to left bottom',
+                colors: value ? 'info' : 'main',
+              },
+            }}
+          >
+            {value ? value : placeholder || t('PleaseSelect')}
+          </ReqoreButton>
+        ) : asMenu ? (
+          <ReqoreMenu>
+            {filteredItems.map((item) => (
+              <ReqoreMenuItem
+                key={item.name}
+                label={item.name}
+                onClick={() => {
+                  handleSelectClick(item);
+                  setSelectDialogOpen(false);
+                  setQuery('');
+                }}
+              />
+            ))}
+          </ReqoreMenu>
+        ) : (
+          <ReqoreDropdown
+            items={query === '' ? reqoreItems : filterItems(reqoreItems)}
+            filterable
+            disabled={disabled}
+            description={getItemDescription(value)}
+            effect={{
+              gradient: {
+                direction: 'to left bottom',
+                colors: {
+                  0: 'main',
+                  100: 'main:lighten',
+                },
+              },
+            }}
+          >
+            {value ? value : placeholder || t('PleaseSelect')}
+          </ReqoreDropdown>
+        )}
+      </ReqoreControlGroup>
+
       <FieldEnhancer
         context={{
           iface_kind,
@@ -327,203 +537,29 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
           ...context,
         }}
       >
-        {(onEditClick, onCreateClick) => (
-          <>
-            <ReqoreControlGroup fluid={fill}>
-              {reference && (
-                <>
-                  {!editOnly && (
-                    <ReqoreButton
-                      icon="AddLine"
-                      fixed
-                      intent="success"
-                      onClick={() => onCreateClick(reference, handleEditSubmit)}
-                    />
-                  )}
-                  {value && (
-                    <ReqoreButton
-                      icon="EditLine"
-                      fixed
-                      onClick={() => onEditClick(value, reference, handleEditSubmit)}
-                    />
-                  )}
-                </>
+        {(onEditClick, onCreateClick) =>
+          reference ? (
+            <ReqoreControlGroup fluid={false} stack>
+              {!editOnly && (
+                <ReqoreButton
+                  icon="AddLine"
+                  fixed
+                  intent="success"
+                  onClick={() => onCreateClick(reference, handleEditSubmit)}
+                />
               )}
-              {!filteredItems || filteredItems.length === 0 ? (
-                <ReqoreTag label={t('NothingToSelect')} color="transparent" />
-              ) : (
-                <>
-                  {hasItemsWithDesc(items) && !forceDropdown ? (
-                    <>
-                      <ReqoreButton
-                        fluid={fill}
-                        rightIcon="ListUnordered"
-                        onClick={() => setSelectDialogOpen(true)}
-                        description="Hover to see description"
-                        tooltip={{
-                          delay: 300,
-                          content: getItemDescription(value),
-                          maxWidth: '50vh',
-                          blur: 2,
-                        }}
-                        disabled={disabled}
-                        effect={{
-                          gradient: {
-                            direction: 'to left bottom',
-                            colors: value ? 'info' : 'main',
-                          },
-                        }}
-                      >
-                        {value ? value : placeholder || t('PleaseSelect')}
-                      </ReqoreButton>
-                      {isSelectDialogOpen && (
-                        <CustomDialog
-                          isOpen
-                          icon="list"
-                          onClose={() => {
-                            setSelectDialogOpen(false);
-                            setQuery('');
-                          }}
-                          title={t('SelectItem')}
-                          style={{
-                            maxHeight: '80vh',
-                            width: '50vw',
-                            minWidth: '500px',
-                            overflow: 'auto',
-                            padding: 0,
-                          }}
-                        >
-                          <div
-                            className={Classes.DIALOG_BODY}
-                            style={{ display: 'flex', flexFlow: 'column', overflow: 'hidden' }}
-                          >
-                            <StyledOptionField>
-                              <SubField title="Filters">
-                                <StringField
-                                  onChange={(_name, value) => setQuery(value)}
-                                  value={query}
-                                  name="select-filter"
-                                  placeholder={t('Filter')}
-                                  autoFocus
-                                />
-                                <Spacer size={10} />
-                                <ButtonGroup>
-                                  {filters?.map((filter) => (
-                                    <Button
-                                      key={filter}
-                                      intent={appliedFilters.includes(filter) ? 'primary' : 'none'}
-                                      onClick={() => {
-                                        // Add this filter to the applied filters if it's not already there
-                                        if (!appliedFilters.includes(filter)) {
-                                          setAppliedFilters([...appliedFilters, filter]);
-                                        } else {
-                                          // Remove this filter from the applied filters
-                                          setAppliedFilters(
-                                            appliedFilters.filter((f) => f !== filter)
-                                          );
-                                        }
-                                      }}
-                                    >
-                                      {capitalize(filter.replace('_', ' '))} (
-                                      {items.filter((item) => item[filter]).length})
-                                    </Button>
-                                  ))}
-                                </ButtonGroup>
-                              </SubField>
-                            </StyledOptionField>
-                            <StyledOptionField style={{ overflowY: 'auto', overflowX: 'hidden' }}>
-                              <SubField
-                                title="Items"
-                                detail={size(filterItems(filteredItems)).toString()}
-                                isValid={!!size(filterItems(filteredItems))}
-                              >
-                                <div>
-                                  {filterItems(filteredItems).map((item) => (
-                                    <Tooltip
-                                      key={item.name}
-                                      position="top"
-                                      boundary="viewport"
-                                      targetProps={{
-                                        style: {
-                                          width: '100%',
-                                        },
-                                      }}
-                                      hoverOpenDelay={500}
-                                      interactionKind="hover"
-                                      content={<ReactMarkdown>{item.desc}</ReactMarkdown>}
-                                    >
-                                      <StyledDialogSelectItem
-                                        className={item.name === value ? 'selected' : ''}
-                                        name={`field-${name}-item`}
-                                        onClick={() => {
-                                          handleSelectClick(item);
-                                          setSelectDialogOpen(false);
-                                          setQuery('');
-                                        }}
-                                      >
-                                        <h5>
-                                          {item.name === value && (
-                                            <Icon icon="small-tick" style={{ color: '#7fba27' }} />
-                                          )}{' '}
-                                          {item.name}
-                                        </h5>
-
-                                        <p className={Classes.TEXT_MUTED}>
-                                          <ReactMarkdown>
-                                            {item.desc || t('NoDescription')}
-                                          </ReactMarkdown>
-                                        </p>
-                                      </StyledDialogSelectItem>
-                                    </Tooltip>
-                                  ))}
-                                </div>
-                              </SubField>
-                            </StyledOptionField>
-                          </div>
-                        </CustomDialog>
-                      )}
-                    </>
-                  ) : asMenu ? (
-                    <ReqoreMenu>
-                      {filteredItems.map((item) => (
-                        <ReqoreMenuItem
-                          key={item.name}
-                          label={item.name}
-                          onClick={() => {
-                            handleSelectClick(item);
-                            setSelectDialogOpen(false);
-                            setQuery('');
-                          }}
-                        />
-                      ))}
-                    </ReqoreMenu>
-                  ) : (
-                    <ReqoreDropdown
-                      items={query === '' ? reqoreItems : filterItems(reqoreItems)}
-                      filterable
-                      fluid={fill}
-                      disabled={disabled}
-                      description={getItemDescription(value)}
-                      effect={{
-                        gradient: {
-                          direction: 'to left bottom',
-                          colors: {
-                            0: 'main',
-                            100: 'main:lighten',
-                          },
-                        },
-                      }}
-                    >
-                      {value ? value : placeholder || t('PleaseSelect')}
-                    </ReqoreDropdown>
-                  )}
-                </>
+              {value && (
+                <ReqoreButton
+                  icon="EditLine"
+                  fixed
+                  onClick={() => onEditClick(value, reference, handleEditSubmit)}
+                />
               )}
             </ReqoreControlGroup>
-          </>
-        )}
+          ) : null
+        }
       </FieldEnhancer>
-    </ReqoreControlGroup>
+    </>
   );
 };
 

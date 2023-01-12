@@ -1261,7 +1261,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                   />
                   <FieldInputWrapper>
                     <Field
-                      {...field}
+                      {...omit(field, ['style'])}
                       onChange={handleFieldChange}
                       requestFieldData={requestFieldData}
                       resetClassConnections={resetClassConnections}

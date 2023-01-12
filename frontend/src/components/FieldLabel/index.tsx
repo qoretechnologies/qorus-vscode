@@ -15,7 +15,7 @@ const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info, type
         width="200px"
         color={isValid ? 'transparent' : 'danger'}
         label={label}
-        icon={isValid ? undefined : 'ErrorWarningLine'}
+        icon={isValid ? 'CheckboxBlankCircleFill' : 'ErrorWarningLine'}
         minimal
       />
       {type && <ReqoreTag label={type} asBadge minimal size="small" icon="CodeLine" />}

@@ -28,7 +28,7 @@ const PairField: FunctionComponent<IPairField & IFieldChange> = ({
   const initContext = useContext(InitialContext);
   return (
     <div>
-      <ReqoreControlGroup>
+      <ReqoreControlGroup stack>
         <ReqoreTag label={`${index}.`} />
         <StringField
           placeholder={keyName}

@@ -2,6 +2,8 @@ import { AnchorButton, ButtonGroup, Callout } from '@blueprintjs/core';
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css';
 import '@blueprintjs/table/lib/css/table.css';
+import { ReqoreUIProvider } from '@qoretechnologies/reqore';
+import { TReqoreHexColor } from '@qoretechnologies/reqore/dist/components/Effect';
 import 'normalize.css/normalize.css';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -76,10 +78,38 @@ window.onerror = (msg, url, line, col) => {
   );
 };
 
+const styles = getComputedStyle(document.querySelector('html')!);
+let editorBackground: TReqoreHexColor = styles.getPropertyValue(
+  '--vscode-editor-background'
+) as TReqoreHexColor;
+// Transform editorBackground to hex
+if (editorBackground.startsWith('rgb')) {
+  // Create RGB to Hex function
+  const rgbToHex = (rgb: string) => {
+    const [r, g, b] = rgb
+      .replace(/[^\d,]/g, '')
+      .split(',')
+      .map(Number);
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+  };
+
+  editorBackground = rgbToHex(editorBackground) as TReqoreHexColor;
+}
+
+// if editorBackground hex has transparency, remove it
+if (editorBackground.length === 9) {
+  editorBackground = editorBackground.slice(0, 7) as TReqoreHexColor;
+}
+
 root.render(
   <DndProvider backend={HTML5Backend}>
     <Provider store={store}>
-      <AppContainer />
+      <ReqoreUIProvider
+        theme={{ main: '#222222' }}
+        options={{ animations: { buttons: false }, withSidebar: true }}
+      >
+        <AppContainer />
+      </ReqoreUIProvider>
     </Provider>
   </DndProvider>
 );

@@ -1,8 +1,7 @@
-import { Button, ControlGroup, Icon, MenuItem, Tag } from '@blueprintjs/core';
-import { MultiSelect } from '@blueprintjs/select';
+import { Button, ControlGroup } from '@blueprintjs/core';
 import { ReqoreButton, ReqoreControlGroup, ReqoreMultiSelect } from '@qoretechnologies/reqore';
 import { TReqoreMultiSelectItem } from '@qoretechnologies/reqore/dist/components/MultiSelect';
-import { includes, isEqual, size } from 'lodash';
+import { size } from 'lodash';
 import { FunctionComponent, useMemo, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -167,7 +166,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     () => value.map((item: any) => (typeof item === 'object' ? item.name : item)),
     [value]
   );
-  console.log(val);
 
   return (
     <FieldEnhancer context={context}>
@@ -207,9 +205,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
               canRemoveItems
               onItemClickIcon="EditLine"
               onValueChange={(newValue) => {
-                if (!isEqual(value, newValue)) {
-                  setSelectedItems(value);
-                }
+                setSelectedItems(newValue);
               }}
               value={val}
               onItemClick={
@@ -223,74 +219,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                     }
                   : undefined
               }
-            />
-            <MultiSelect
-              key={activeId}
-              items={items}
-              name={`field-${name}`}
-              createNewItemFromQuery={(query: string) =>
-                query
-                  ? {
-                      name: query,
-                    }
-                  : undefined
-              }
-              createNewItemRenderer={(query, _active, handleClick) => (
-                <MenuItem
-                  icon={'add'}
-                  name={'multiselect-menu-item'}
-                  text={`${t('AddNew')} ${query}`}
-                  onClick={handleClick}
-                />
-              )}
-              itemRenderer={(item, { handleClick }) => (
-                <MenuItem
-                  name={'multiselect-menu-item'}
-                  icon={includes(value, item) ? 'tick' : 'blank'}
-                  text={item.name}
-                  onClick={handleClick}
-                  title={item.desc}
-                />
-              )}
-              popoverProps={{
-                targetClassName: 'select-popover',
-                popoverClassName: 'custom-popover',
-              }}
-              tagRenderer={(item) => (
-                <Tag
-                  minimal
-                  style={{ cursor: 'pointer', backgroundColor: 'transparent' }}
-                  onClick={(event) => {
-                    if (canEdit) {
-                      event.stopPropagation();
-                      if (onEditClick && reference) {
-                        onEditClick(item.name, reference, handleSaveTagEdit);
-                      } else {
-                        handleTagClick(item.name);
-                      }
-                    }
-                  }}
-                  rightIcon={
-                    canEdit && <Icon iconSize={12} icon="edit" style={{ opacity: '0.6' }} />
-                  }
-                >
-                  {item.name}
-                </Tag>
-              )}
-              tagInputProps={{
-                onRemove: handleTagRemoveClick,
-                fill: true,
-                rightElement: ClearButton,
-                leftIcon: 'list',
-                tagProps: {
-                  minimal: true,
-                },
-              }}
-              selectedItems={value || []}
-              onItemSelect={(item: any) => handleSelectClick(item)}
-              resetOnQuery
-              resetOnSelect
-              activeItem={null}
             />
             {reference && (
               <ReqoreButton

@@ -359,7 +359,7 @@ const Tab: React.FC<ITabProps> = ({
           setRecreateDialog(null);
         },
         'Recreate',
-        undefined,
+        'warning',
         () => {
           if (orig_lang) {
             updateField(iface_kind, 'lang', orig_lang, iface_id);
@@ -367,7 +367,8 @@ const Tab: React.FC<ITabProps> = ({
             resetAllInterfaceData(iface_kind);
           }
           setRecreateDialog(null);
-        }
+        },
+        'warning'
       );
     }
   }, [recreateDialog]);

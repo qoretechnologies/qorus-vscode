@@ -1,4 +1,4 @@
-import { ReqoreInput } from '@qoretechnologies/reqore';
+import { ReqoreControlGroup, ReqoreInput, ReqoreTag } from '@qoretechnologies/reqore';
 import { ChangeEvent, FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -23,6 +23,7 @@ export interface IStringField extends IField {
   sensitive?: boolean;
   autoFocus?: boolean;
   onChange?: IFieldChange;
+  label?: string | number;
 }
 
 const StringField = ({
@@ -30,7 +31,7 @@ const StringField = ({
   onChange,
   value,
   default_value,
-  fill,
+  fill = true,
   postMessage,
   addMessageListener,
   get_message,
@@ -41,6 +42,8 @@ const StringField = ({
   canBeNull,
   sensitive,
   autoFocus,
+  label,
+  ...rest
 }: IStringField) => {
   // Fetch data on mount
   useMount(() => {
@@ -68,21 +71,24 @@ const StringField = ({
   };
 
   return (
-    <ReqoreInput
-      placeholder={placeholder}
-      disabled={disabled}
-      readOnly={read_only}
-      fluid={fill}
-      value={
-        canBeNull && isNull(value) ? 'Value set to [null]' : !value ? default_value || '' : value
-      }
-      onFocus={(event) => event.stopPropagation()}
-      onClick={(event) => event.stopPropagation()}
-      onChange={handleInputChange}
-      type={sensitive ? 'password' : 'text'}
-      autoFocus={autoFocus}
-      onClearClick={value && value !== '' && !read_only && !disabled && handleResetClick}
-    />
+    <ReqoreControlGroup {...rest} fluid={!!fill}>
+      {label || label === 0 ? <ReqoreTag label={label} /> : null}
+      <ReqoreInput
+        placeholder={placeholder}
+        disabled={disabled}
+        readOnly={read_only}
+        fluid={!!fill}
+        value={
+          canBeNull && isNull(value) ? 'Value set to [null]' : !value ? default_value || '' : value
+        }
+        onFocus={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+        onChange={handleInputChange}
+        type={sensitive ? 'password' : 'text'}
+        autoFocus={autoFocus}
+        onClearClick={value && value !== '' && !read_only && !disabled && handleResetClick}
+      />
+    </ReqoreControlGroup>
   );
 };
 

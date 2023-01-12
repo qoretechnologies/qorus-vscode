@@ -1,10 +1,12 @@
-import { Button, ButtonGroup, Callout } from '@blueprintjs/core';
+import { Callout } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreControlGroup } from '@qoretechnologies/reqore';
 import { size } from 'lodash';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
 import withTextContext from '../../hocomponents/withTextContext';
+import { PositiveColorEffect } from './multiPair';
 import SelectPairField from './selectPair';
 
 type IPair = {
@@ -102,9 +104,11 @@ const ClassArrayField: FunctionComponent<
           />
         </StyledPairField>
       ))}
-      <ButtonGroup fill style={{ marginBottom: '10px' }}>
-        <Button text={t('AddAnother')} icon={'add'} onClick={handleAddClick} />
-      </ButtonGroup>
+      <ReqoreControlGroup fluid>
+        <ReqoreButton icon={'AddLine'} onClick={handleAddClick} effect={PositiveColorEffect}>
+          {t('AddAnother')}
+        </ReqoreButton>
+      </ReqoreControlGroup>
     </>
   );
 };

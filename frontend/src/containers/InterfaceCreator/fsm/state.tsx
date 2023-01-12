@@ -141,8 +141,6 @@ export const calculateFontSize = (name, isAction?: boolean) => {
 };
 
 export const getStateCategory = (type: string): TStateTypes => {
-  console.log(type);
-
   if (type === 'mapper') {
     return 'interfaces';
   }
@@ -276,8 +274,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
     setIsHovered(false);
     toggleDragging(true);
   };
-
-  console.log(action);
 
   return (
     <StyledFSMState

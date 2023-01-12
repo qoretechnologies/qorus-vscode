@@ -1,12 +1,10 @@
+import { Button, Callout, Classes, Spinner } from '@blueprintjs/core';
 import {
-  Button,
-  ButtonGroup,
-  Callout,
-  Classes,
-  ControlGroup,
-  Spinner,
-  Tooltip,
-} from '@blueprintjs/core';
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqorePanel,
+} from '@qoretechnologies/reqore';
 import { cloneDeep, omit } from 'lodash';
 import map from 'lodash/map';
 import nth from 'lodash/nth';
@@ -646,205 +644,147 @@ const MapperProvider: FC<IProviderProps> = ({
           </div>
         </CustomDialog>
       )}
-      <StyledWrapper compact={compact} hasTitle={!!title} style={style}>
-        {!compact && <StyledHeader>{title}</StyledHeader>}
-        {compact && title && <span>{title}: </span>}{' '}
-        <ButtonGroup>
-          <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
-            <SelectField
-              fill
-              name={`provider${type ? `-${type}` : ''}`}
-              disabled={isLoading}
-              defaultItems={getDefaultItems()}
-              onChange={(_name, value) => {
-                handleProviderChange(value);
-              }}
-              value={provider}
-            />
-          </ButtonGroup>
+      <ReqorePanel label={title} minimal={compact} style={style}>
+        <ReqoreControlGroup fluid wrap>
+          <SelectField
+            name={`provider${type ? `-${type}` : ''}`}
+            disabled={isLoading}
+            defaultItems={getDefaultItems()}
+            onChange={(_name, value) => {
+              handleProviderChange(value);
+            }}
+            value={provider}
+          />
           {nodes.map((child, index) => (
-            <ControlGroup key={index}>
-              <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
-                <SelectField
-                  fill
-                  key={`${title}-${index}`}
-                  name={`provider-${type ? `${type}-` : ''}${index}`}
-                  disabled={isLoading}
-                  filters={['supports_read', 'supports_request', 'has_record']}
-                  defaultItems={child.values}
-                  onChange={(_name, value) => {
+            <ReqoreControlGroup fluid={false} key={index}>
+              <SelectField
+                key={`${title}-${index}`}
+                name={`provider-${type ? `${type}-` : ''}${index}`}
+                disabled={isLoading}
+                filters={['supports_read', 'supports_request', 'has_record']}
+                defaultItems={child.values}
+                onChange={(_name, value) => {
+                  // Get the child data
+                  const { url, suffix } = child.values.find((val) => val.name === value);
+                  // If the value is a wildcard present a dialog that the user has to fill
+                  if (value === '*') {
+                    setWildcardDiagram({
+                      index,
+                      isOpen: true,
+                      url,
+                      suffix,
+                    });
+                  } else {
+                    // Change the child
+                    handleChildFieldChange(value, url, index, suffix);
+                  }
+                }}
+                value={child.value}
+              />
+              {index === 0 && optionsChanged ? (
+                <ReqoreButton
+                  tooltip="Apply the current options to move forward"
+                  icon="RefreshLine"
+                  intent="info"
+                  fixed
+                  onClick={() => {
                     // Get the child data
-                    const { url, suffix } = child.values.find((val) => val.name === value);
+                    const { url, suffix } = child.values.find((val) => val.name === child.value);
                     // If the value is a wildcard present a dialog that the user has to fill
-                    if (value === '*') {
+                    if (child.value === '*') {
                       setWildcardDiagram({
-                        index,
+                        index: 0,
                         isOpen: true,
                         url,
                         suffix,
                       });
                     } else {
                       // Change the child
-                      handleChildFieldChange(value, url, index, suffix);
+                      handleChildFieldChange(child.value, url, 0, suffix);
                     }
                   }}
-                  value={child.value}
-                />
-              </ButtonGroup>
-              {index === 0 && optionsChanged ? (
-                <Tooltip
-                  position="top"
-                  boundary="viewport"
-                  targetProps={{
-                    style: {
-                      width: '100%',
-                    },
-                  }}
-                  hoverOpenDelay={500}
-                  interactionKind="hover"
-                  content="Apply the current options to move forward"
                 >
-                  <div>
-                    <Button
-                      icon="refresh"
-                      intent="success"
-                      onClick={() => {
-                        // Get the child data
-                        const { url, suffix } = child.values.find(
-                          (val) => val.name === child.value
-                        );
-                        // If the value is a wildcard present a dialog that the user has to fill
-                        if (child.value === '*') {
-                          setWildcardDiagram({
-                            index: 0,
-                            isOpen: true,
-                            url,
-                            suffix,
-                          });
-                        } else {
-                          // Change the child
-                          handleChildFieldChange(child.value, url, 0, suffix);
-                        }
-                      }}
-                    >
-                      {' '}
-                      Apply options{' '}
-                    </Button>
-                  </div>
-                </Tooltip>
+                  Apply options
+                </ReqoreButton>
               ) : null}
-            </ControlGroup>
+            </ReqoreControlGroup>
           ))}
           {isLoading && <Spinner size={15} />}
           {nodes.length > 0 && (
-            <ControlGroup>
-              <ButtonGroup>
-                <Tooltip
-                  position="top"
-                  boundary="viewport"
-                  targetProps={{
-                    style: {
-                      width: '100%',
-                    },
-                  }}
-                  hoverOpenDelay={100}
-                  interactionKind="hover"
-                  content="Go back a step"
-                >
-                  <div>
-                    <Button
-                      intent="danger"
-                      name={`provider-${type ? `${type}-` : ''}back`}
-                      icon="step-backward"
-                      className={Classes.FIXED}
-                      onClick={() => {
-                        setChildren((cur) => {
-                          const result = [...cur];
+            <ReqoreControlGroup fluid={false}>
+              <ReqoreButton
+                tooltip="Go back a step"
+                intent="danger"
+                icon="ArrowGoBackLine"
+                fixed
+                onClick={() => {
+                  setChildren((cur) => {
+                    const result = [...cur];
 
-                          result.pop();
+                    result.pop();
 
-                          const lastChild = nth(result, -2);
+                    const lastChild = nth(result, -2);
 
-                          if (lastChild) {
-                            const index = size(result) - 2;
-                            const { value, values } = lastChild;
-                            const { url, suffix } = values.find((val) => val.name === value);
+                    if (lastChild) {
+                      const index = size(result) - 2;
+                      const { value, values } = lastChild;
+                      const { url, suffix } = values.find((val) => val.name === value);
 
-                            // If the value is a wildcard present a dialog that the user has to fill
-                            if (value === '*') {
-                              setWildcardDiagram({
-                                index,
-                                isOpen: true,
-                                url,
-                                suffix,
-                              });
-                            } else {
-                              // Change the child
-                              handleChildFieldChange(value, url, index, suffix);
-                            }
-                          }
-
-                          // If there are no children then we need to reset the provider
-                          if (size(result) === 0) {
-                            handleProviderChange(provider);
-                          }
-
-                          return result;
+                      // If the value is a wildcard present a dialog that the user has to fill
+                      if (value === '*') {
+                        setWildcardDiagram({
+                          index,
+                          isOpen: true,
+                          url,
+                          suffix,
                         });
-                      }}
-                    />
-                  </div>
-                </Tooltip>
-                {onResetClick && (
-                  <Tooltip
-                    position="top"
-                    boundary="viewport"
-                    targetProps={{
-                      style: {
-                        width: '100%',
-                      },
-                    }}
-                    hoverOpenDelay={100}
-                    interactionKind="hover"
-                    content="Remove all data"
-                  >
-                    <div>
-                      <Button
-                        intent="danger"
-                        icon="cross"
-                        onClick={onResetClick}
-                        className={Classes.FIXED}
-                      />
-                    </div>
-                  </Tooltip>
-                )}
-              </ButtonGroup>
-            </ControlGroup>
+                      } else {
+                        // Change the child
+                        handleChildFieldChange(value, url, index, suffix);
+                      }
+                    }
+
+                    // If there are no children then we need to reset the provider
+                    if (size(result) === 0) {
+                      handleProviderChange(provider);
+                    }
+
+                    return result;
+                  });
+                }}
+              />
+
+              {onResetClick && (
+                <ReqoreButton
+                  tooltip="Remove all data"
+                  intent="danger"
+                  icon="CloseLine"
+                  onClick={onResetClick}
+                  fixed
+                />
+              )}
+            </ReqoreControlGroup>
           )}
           {record && !optionsChanged ? (
-            <Button
+            <ReqoreButton
               intent="success"
-              name={`provider-${type ? `${type}-` : ''}submit`}
-              icon="small-tick"
+              icon="CheckLine"
+              fixed
               onClick={() => {
                 setFields(record);
                 hide();
               }}
             />
           ) : null}
-        </ButtonGroup>
+        </ReqoreControlGroup>
         {errorMessage && (
           <SubField>
-            <Callout
-              title="An error occurred"
-              intent="danger"
-              style={{ wordBreak: 'break-all', maxHeight: '100px', overflow: 'auto' }}
-            >
+            <ReqoreMessage title="An error occurred" intent="danger">
               {errorMessage}
-            </Callout>
+            </ReqoreMessage>
           </SubField>
         )}
-      </StyledWrapper>
+      </ReqorePanel>
     </>
   );
 };

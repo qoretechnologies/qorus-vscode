@@ -6,7 +6,6 @@ import {
   ReqoreNavbarGroup,
   ReqoreNavbarItem,
   ReqoreTag,
-  ReqoreUIProvider,
 } from '@qoretechnologies/reqore';
 import last from 'lodash/last';
 import size from 'lodash/size';
@@ -14,6 +13,7 @@ import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
+import { DraftsView } from './DraftsView';
 import ContextMenu from './components/ContextMenu';
 import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
@@ -25,9 +25,9 @@ import { ContextMenuContext, IContextMenu } from './context/contextMenu';
 import { DialogsContext } from './context/dialogs';
 import { DraftsContext, IDraftData } from './context/drafts';
 import { ErrorsContext } from './context/errors';
+import { InitialContext } from './context/init';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
-import { DraftsView } from './DraftsView';
 import { callBackendBasic, getTargetFile } from './helpers/functions';
 import withErrors from './hocomponents/withErrors';
 import withFields from './hocomponents/withFields';
@@ -36,10 +36,10 @@ import withGlobalOptions from './hocomponents/withGlobalOptions';
 import withInitialData from './hocomponents/withInitialData';
 import withMapper from './hocomponents/withMapper';
 import {
-  addMessageListener,
-  postMessage,
   TMessageListener,
   TPostMessage,
+  addMessageListener,
+  postMessage,
 } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
@@ -67,8 +67,6 @@ export interface IApp {
 
 export type TTranslator = (id: string) => string;
 
-const pastTexts: { [id: string]: { isTranslated: boolean; text: string } } = {};
-
 const App: FunctionComponent<IApp> = ({
   closeLogin,
   setActiveInstance,
@@ -93,14 +91,12 @@ const App: FunctionComponent<IApp> = ({
   setFieldsFromDraft,
   ...rest
 }) => {
-  const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
   const [openedDialogs, setOpenedDialogs] = useState<{ id: string; onClose: () => void }[]>([]);
   const [contextMenu, setContextMenu] = useState<IContextMenu>(null);
   const [draft, setDraft] = useState<IDraftData>(null);
   const { setErrorsFromDraft }: any = useContext(ErrorsContext);
   const [isDirsDialogOpen, setIsDirsDialogOpen] = useState<boolean>(false);
-
-  console.log(main_color);
+  const { t } = useContext(InitialContext);
 
   const addDraft = (draftData: any) => {
     setDraft(draftData);
@@ -215,7 +211,7 @@ const App: FunctionComponent<IApp> = ({
       }
 
       if (classConnections) {
-        applyClassConnectionsFunc(classConnections);
+        applyClassConnectionsFunc?.(classConnections);
       }
 
       // Remove the draft
@@ -266,30 +262,12 @@ const App: FunctionComponent<IApp> = ({
       // Get the last opened dialog
       const dialogData = last(openedDialogs);
       // Run the close function
-      dialogData.onClose();
+      dialogData?.onClose();
     }
   };
 
   useEffectOnce(() => {
-    const listeners = [];
-    // New text was received
-    listeners.push(
-      addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
-        setTexts((currentTexts) => {
-          // Do not modify state if the text already
-          // exists
-          if (!currentTexts[data.text_id]) {
-            pastTexts[data.text_id] = { isTranslated: true, text: data.text };
-            return {
-              ...currentTexts,
-              [data.text_id]: data.text,
-            };
-          }
-          // Return current state
-          return currentTexts;
-        });
-      })
-    );
+    const listeners: any = [];
     // Close login
     listeners.push(
       addMessageListener(Messages.CLOSE_LOGIN, (data: any): void => {
@@ -311,11 +289,6 @@ const App: FunctionComponent<IApp> = ({
       })
     );
     listeners.push(
-      addMessageListener('return-all-text', ({ data }): void => {
-        setTexts(data);
-      })
-    );
-    listeners.push(
       addMessageListener('display-notifications', ({ data }) => {
         if (data.length) {
           data.forEach(({ message, intent, timeout }) => {
@@ -330,7 +303,6 @@ const App: FunctionComponent<IApp> = ({
     );
     // Get the current project folder
     postMessage(Messages.GET_PROJECT_FOLDER);
-    postMessage('get-all-text');
 
     return () => {
       // remove all listeners
@@ -338,175 +310,136 @@ const App: FunctionComponent<IApp> = ({
     };
   });
 
-  const styles = getComputedStyle(document.querySelector('html')!);
-  let editorBackground = styles.getPropertyValue('--vscode-editor-background');
-
-  console.log(editorBackground);
-  // Transform editorBackground to hex
-  if (editorBackground.startsWith('rgb')) {
-    // Create RGB to Hex function
-    const rgbToHex = (rgb: string) => {
-      const [r, g, b] = rgb
-        .replace(/[^\d,]/g, '')
-        .split(',')
-        .map(Number);
-      return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-    };
-
-    editorBackground = rgbToHex(editorBackground);
+  if (!t) {
+    return <Loader text="Loading app..." />;
   }
-
-  // if editorBackground hex has transparency, remove it
-  if (editorBackground.length === 9) {
-    editorBackground = editorBackground.slice(0, 7);
-  }
-
-  if (!texts) {
-    return (
-      <ReqoreUIProvider
-        theme={{ main: editorBackground }}
-        options={{ animations: { buttons: false }, withSidebar: true }}
-      >
-        <Loader text="Loading translations..." />
-      </ReqoreUIProvider>
-    );
-  }
-
-  const t: TTranslator = (text_id) => {
-    return texts.find((textItem) => textItem.id === text_id)?.text || text_id;
-  };
 
   return (
     <>
-      <ReqoreUIProvider
-        theme={{ main: '#222222' }}
-        options={{ animations: { buttons: false }, withSidebar: true }}
+      <DraftsContext.Provider
+        value={{
+          addDraft,
+          removeDraft,
+          maybeApplyDraft,
+          maybeDeleteDraft,
+          draft,
+        }}
       >
-        <DraftsContext.Provider
+        <ContextMenuContext.Provider
           value={{
-            addDraft,
-            removeDraft,
-            maybeApplyDraft,
-            maybeDeleteDraft,
-            draft,
+            addMenu: setContextMenu,
+            removeMenu: (onClose?: () => any) => {
+              setContextMenu(null);
+              if (onClose) {
+                onClose();
+              }
+            },
           }}
         >
-          <ContextMenuContext.Provider
-            value={{
-              addMenu: setContextMenu,
-              removeMenu: (onClose?: () => any) => {
-                setContextMenu(null);
-                if (onClose) {
-                  onClose();
-                }
-              },
-            }}
-          >
-            <DialogsContext.Provider value={{ addDialog, removeDialog }}>
-              {contextMenu && <ContextMenu {...contextMenu} onClick={() => setContextMenu(null)} />}
-              <TextContext.Provider value={t}>
-                {tab !== 'Login' && <Menu />}
-                <ReqoreContent style={{ overflow: 'hidden', display: 'flex', flexFlow: 'column' }}>
-                  <ReqoreHeader>
-                    <ReqoreNavbarGroup position="left">
-                      <ReqoreNavbarItem>
-                        <ReqoreTag
-                          icon="Folder3Line"
-                          labelKey={t('Project')}
-                          label={project_folder}
-                        />
-                      </ReqoreNavbarItem>
-                      <ReqoreNavbarItem>
-                        <ReqoreTag
-                          icon="ServerLine"
-                          labelKey={t('ActiveQorusInstance')}
-                          label={qorus_instance ? qorus_instance.name : t('N/A')}
-                          color={qorus_instance ? '#7e2d90' : undefined}
-                        />
-                      </ReqoreNavbarItem>
-                    </ReqoreNavbarGroup>
-                    <ReqoreNavbarGroup position="right">
-                      <ReqoreNavbarItem interactive onClick={() => setIsDirsDialogOpen(true)}>
-                        <ReqoreIcon icon="Folder3Line" size="20px" margin="right" /> Manage source
-                        directories
-                      </ReqoreNavbarItem>
-                      <ReqoreNavbarItem
-                        interactive
-                        as="a"
-                        href="command:workbench.action.webview.reloadWebviewAction"
-                        onClick={() =>
-                          AppToaster.show({
-                            message: t('ReloadingWebview'),
-                            intent: 'warning',
-                            icon: 'refresh',
-                          })
-                        }
-                      >
-                        <ReqoreIcon icon="RefreshLine" size="20px" />
-                      </ReqoreNavbarItem>
-                    </ReqoreNavbarGroup>
-                  </ReqoreHeader>
-                  <div style={{ margin: '10px 20px', overflow: 'auto', display: 'flex', flex: 1 }}>
-                    {isDirsDialogOpen && (
-                      <SourceDirectories onClose={() => setIsDirsDialogOpen(false)} />
-                    )}
-                    <>
-                      {tab == 'Login' && <LoginContainer />}
-                      {tab == 'Loading' && <Loader text={t('Loading')} />}
-                      {tab == 'ProjectConfig' && <ProjectConfig />}
-                      {tab == 'ReleasePackage' && <ReleasePackage />}
-                      {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
-                      {tab === 'Drafts' && <DraftsView />}
-                      {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
-                    </>
+          <DialogsContext.Provider value={{ addDialog, removeDialog }}>
+            {contextMenu && <ContextMenu {...contextMenu} onClick={() => setContextMenu(null)} />}
+            <TextContext.Provider value={t}>
+              {tab !== 'Login' && <Menu />}
+              <ReqoreContent style={{ overflow: 'hidden', display: 'flex', flexFlow: 'column' }}>
+                <ReqoreHeader>
+                  <ReqoreNavbarGroup position="left">
+                    <ReqoreNavbarItem>
+                      <ReqoreTag
+                        icon="Folder3Line"
+                        labelKey={t('Project')}
+                        label={project_folder}
+                      />
+                    </ReqoreNavbarItem>
+                    <ReqoreNavbarItem>
+                      <ReqoreTag
+                        icon="ServerLine"
+                        labelKey={t('ActiveQorusInstance')}
+                        label={qorus_instance ? qorus_instance.name : t('N/A')}
+                        color={qorus_instance ? '#7e2d90' : undefined}
+                      />
+                    </ReqoreNavbarItem>
+                  </ReqoreNavbarGroup>
+                  <ReqoreNavbarGroup position="right">
+                    <ReqoreNavbarItem interactive onClick={() => setIsDirsDialogOpen(true)}>
+                      <ReqoreIcon icon="Folder3Line" size="20px" margin="right" /> Manage source
+                      directories
+                    </ReqoreNavbarItem>
+                    <ReqoreNavbarItem
+                      interactive
+                      as="a"
+                      href="command:workbench.action.webview.reloadWebviewAction"
+                      onClick={() =>
+                        AppToaster.show({
+                          message: t('ReloadingWebview'),
+                          intent: 'warning',
+                          icon: 'refresh',
+                        })
+                      }
+                    >
+                      <ReqoreIcon icon="RefreshLine" size="20px" />
+                    </ReqoreNavbarItem>
+                  </ReqoreNavbarGroup>
+                </ReqoreHeader>
+                <div style={{ margin: '10px 20px', overflow: 'auto', display: 'flex', flex: 1 }}>
+                  {isDirsDialogOpen && (
+                    <SourceDirectories onClose={() => setIsDirsDialogOpen(false)} />
+                  )}
+                  <>
+                    {tab == 'Login' && <LoginContainer />}
+                    {tab == 'Loading' && <Loader text={t('Loading')} />}
+                    {tab == 'ProjectConfig' && <ProjectConfig />}
+                    {tab == 'ReleasePackage' && <ReleasePackage />}
+                    {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
+                    {tab === 'Drafts' && <DraftsView />}
+                    {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
+                  </>
+                </div>
+              </ReqoreContent>
+            </TextContext.Provider>
+            {confirmDialog.isOpen && (
+              <CustomDialog
+                isOpen
+                icon="warning-sign"
+                title={t('ConfirmDialogTitle')}
+                onClose={() => {
+                  confirmDialog.onCancel && confirmDialog.onCancel();
+                  setConfirmDialog({});
+                }}
+                style={{ backgroundColor: '#fff' }}
+              >
+                <div className={Classes.DIALOG_BODY}>
+                  <Callout intent={confirmDialog.btnStyle || 'danger'}>
+                    {t(confirmDialog.text)}
+                  </Callout>
+                </div>
+                <div className={Classes.DIALOG_FOOTER}>
+                  <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                    <ButtonGroup>
+                      <Button
+                        text={t('Cancel')}
+                        onClick={() => {
+                          confirmDialog.onCancel && confirmDialog.onCancel();
+                          setConfirmDialog({});
+                        }}
+                        id="global-dialog-cancel"
+                      />
+                      <Button
+                        id="global-dialog-confirm"
+                        text={t(confirmDialog.btnText || 'Remove')}
+                        intent={confirmDialog.btnStyle || 'danger'}
+                        onClick={() => {
+                          confirmDialog.onSubmit();
+                          setConfirmDialog({});
+                        }}
+                      />
+                    </ButtonGroup>
                   </div>
-                </ReqoreContent>
-              </TextContext.Provider>
-              {confirmDialog.isOpen && (
-                <CustomDialog
-                  isOpen
-                  icon="warning-sign"
-                  title={t('ConfirmDialogTitle')}
-                  onClose={() => {
-                    confirmDialog.onCancel && confirmDialog.onCancel();
-                    setConfirmDialog({});
-                  }}
-                  style={{ backgroundColor: '#fff' }}
-                >
-                  <div className={Classes.DIALOG_BODY}>
-                    <Callout intent={confirmDialog.btnStyle || 'danger'}>
-                      {t(confirmDialog.text)}
-                    </Callout>
-                  </div>
-                  <div className={Classes.DIALOG_FOOTER}>
-                    <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                      <ButtonGroup>
-                        <Button
-                          text={t('Cancel')}
-                          onClick={() => {
-                            confirmDialog.onCancel && confirmDialog.onCancel();
-                            setConfirmDialog({});
-                          }}
-                          id="global-dialog-cancel"
-                        />
-                        <Button
-                          id="global-dialog-confirm"
-                          text={t(confirmDialog.btnText || 'Remove')}
-                          intent={confirmDialog.btnStyle || 'danger'}
-                          onClick={() => {
-                            confirmDialog.onSubmit();
-                            setConfirmDialog({});
-                          }}
-                        />
-                      </ButtonGroup>
-                    </div>
-                  </div>
-                </CustomDialog>
-              )}
-            </DialogsContext.Provider>
-          </ContextMenuContext.Provider>
-        </DraftsContext.Provider>
-      </ReqoreUIProvider>
+                </div>
+              </CustomDialog>
+            )}
+          </DialogsContext.Provider>
+        </ContextMenuContext.Provider>
+      </DraftsContext.Provider>
     </>
   );
 };
