@@ -1,4 +1,5 @@
-import { Button, ButtonGroup, Classes, ControlGroup } from '@blueprintjs/core';
+import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreControlGroup } from '@qoretechnologies/reqore';
 import React, { useContext } from 'react';
 import { FieldContext } from '../../context/fields';
 import { MethodsContext } from '../../context/methods';
@@ -98,16 +99,7 @@ const MethodSelector = ({ onChange, name, value }) => {
           }}
         />
       )}
-      <ControlGroup fill>
-        <Button
-          intent="success"
-          icon="add"
-          onClick={() => setAddingMethod(true)}
-          className={Classes.FIXED}
-          style={{
-            maxHeight: '30px',
-          }}
-        />
+      <ReqoreControlGroup fluid>
         <Select
           fill
           forceDropdown
@@ -116,7 +108,8 @@ const MethodSelector = ({ onChange, name, value }) => {
           onChange={onChange}
           name={name}
         />
-      </ControlGroup>
+        <ReqoreButton intent="success" icon="AddLine" onClick={() => setAddingMethod(true)} fixed />
+      </ReqoreControlGroup>
     </>
   );
 };

@@ -5,6 +5,7 @@ import {
   ReqoreMenuItem,
   ReqoreMessage,
   ReqoreSpacer,
+  ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import {
   camelCase,
@@ -33,12 +34,9 @@ import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
 import Field from '../../components/Field';
 import { allowedTypes } from '../../components/Field/arrayAuto';
-import FieldActions from '../../components/FieldActions';
-import FieldLabel from '../../components/FieldLabel';
 import FieldSelector from '../../components/FieldSelector';
 import {
   ContentWrapper,
-  FieldInputWrapper,
   FieldWrapper,
   IField,
   IInterfaceCreatorPanel,
@@ -1132,7 +1130,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     <>
       <SidePanel>
         <ReqoreMenu style={{ flex: 1 }} width="250px" rounded>
-          <ReqoreMenuDivider label={t(stepOneTitle)} size="small" />
+          <ReqoreMenuDivider label={t(stepOneTitle)} />
           <ReqoreInput
             onClearClick={() => setQuery(type, '')}
             placeholder={t('FilterAvailableFields')}
@@ -1142,7 +1140,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             }
             icon={'Search2Line'}
             intent={query ? 'info' : undefined}
-            flat={false}
           />
           {fieldList.length ? (
             <ReqoreMenuItem
@@ -1237,12 +1234,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           onChange={(event: FormEvent<HTMLInputElement>) =>
             setSelectedQuery(type, event.currentTarget.value)
           }
-          wrapperStyle={{ margin: '0 15px' }}
+          flat
           icon={'Search2Line'}
           intent={selectedQuery !== '' ? 'info' : undefined}
           onClearClick={() => setSelectedQuery(type, '')}
         />
-
+        <ReqoreVerticalSpacer height={10} />
         <ContentWrapper>
           {map(
             selectedFieldList,
@@ -1250,48 +1247,38 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               !field.internal && (
                 <FieldWrapper
                   key={field.name}
-                  name="selected-field"
-                  style={{ paddingLeft: '15px' }}
+                  info={field.markdown && t('MarkdownSupported')}
+                  type={field.type}
+                  label={t(`field-label-${field.name}`)}
+                  isValid={field.isValid}
+                  value={field.value}
+                  parentValue={field['parent-value']}
+                  desc={t(`field-desc-${field.name}`)}
+                  name={field.name}
+                  onResetClick={() => {
+                    handleFieldChange(field.name, field['parent-value']);
+                  }}
+                  isSet={field['is-set']}
+                  disabled={isFieldDisabled(field)}
+                  onClick={removeField}
+                  removable={field.mandatory === false}
                 >
-                  <FieldLabel
-                    info={field.markdown && t('MarkdownSupported')}
-                    type={field.type}
-                    label={t(`field-label-${field.name}`)}
-                    isValid={field.isValid}
-                  />
-                  <FieldInputWrapper>
-                    <Field
-                      {...omit(field, ['style'])}
-                      onChange={handleFieldChange}
-                      requestFieldData={requestFieldData}
-                      resetClassConnections={resetClassConnections}
-                      showClassesWarning={hasClassConnections}
-                      interfaceKind={type}
-                      iface_kind={type}
-                      activeId={activeId}
-                      interfaceId={interfaceId}
-                      prefill={
-                        field.prefill &&
-                        selectedFieldList.find(
-                          (preField: IField) => preField.name === field.prefill
-                        )
-                      }
-                      disabled={isFieldDisabled(field)}
-                      context={getContext()}
-                    />
-                  </FieldInputWrapper>
-                  <FieldActions
-                    value={field.value}
-                    parentValue={field['parent-value']}
-                    desc={t(`field-desc-${field.name}`)}
-                    name={field.name}
-                    onResetClick={() => {
-                      handleFieldChange(field.name, field['parent-value']);
-                    }}
-                    isSet={field['is-set']}
+                  <Field
+                    {...omit(field, ['style'])}
+                    onChange={handleFieldChange}
+                    requestFieldData={requestFieldData}
+                    resetClassConnections={resetClassConnections}
+                    showClassesWarning={hasClassConnections}
+                    interfaceKind={type}
+                    iface_kind={type}
+                    activeId={activeId}
+                    interfaceId={interfaceId}
+                    prefill={
+                      field.prefill &&
+                      selectedFieldList.find((preField: IField) => preField.name === field.prefill)
+                    }
                     disabled={isFieldDisabled(field)}
-                    onClick={removeField}
-                    removable={field.mandatory === false}
+                    context={getContext()}
                   />
                 </FieldWrapper>
               )

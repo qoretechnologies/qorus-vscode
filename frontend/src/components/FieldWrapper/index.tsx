@@ -1,19 +1,117 @@
-import { ReqoreControlGroup } from '@qoretechnologies/reqore';
+import {
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqorePanel,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import { IReqoreControlGroupProps } from '@qoretechnologies/reqore/dist/components/ControlGroup';
+import ReqoreIcon, { IReqoreIconProps } from '@qoretechnologies/reqore/dist/components/Icon';
+import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
+import { IReqoreTooltip } from '@qoretechnologies/reqore/dist/types/global';
+import size from 'lodash/size';
+import { useContext } from 'react';
+import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
+import { InitialContext } from '../../context/init';
+import { TextContext } from '../../context/text';
 import { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 
-export const FieldWrapper = styled.div<{ padded?: boolean }>`
-  display: flex;
-  flex-flow: row;
-  padding: 15px;
-  flex: none;
+export interface IFieldWrapper {
+  label?: string;
+  isValid: boolean;
+  info?: string;
+  type?: string;
+  desc?: string;
+  name?: string;
+  onClick: (name: string) => any;
+  removable: boolean;
+  value: any;
+  parentValue?: any;
+  onResetClick: () => any;
+  isSet: boolean;
+  disabled: boolean;
+  children: React.ReactNode;
+}
 
-  &:nth-child(even) {
-    background-color: #00000040;
-  }
-`;
+export const getGlobalDescriptionTooltip = (desc?: string, title?: string): IReqoreTooltip => ({
+  content: <ReactMarkdown>{desc}</ReactMarkdown>,
+  intent: 'info',
+  placement: 'right',
+  maxWidth: '600px',
+  title,
+});
+
+export const getFieldDescriptionAction = (desc?: string, title?: string): IReqorePanelAction => ({
+  as: ReqoreIcon,
+  props: {
+    icon: 'QuestionMark',
+    tooltip: getGlobalDescriptionTooltip(desc, title),
+  } as IReqoreIconProps,
+  show: !!desc,
+});
+
+export const FieldWrapper = ({
+  children,
+  label,
+  isValid,
+  info,
+  type,
+  desc,
+  name,
+  onClick,
+  removable,
+  value,
+  parentValue,
+  onResetClick,
+  isSet,
+  disabled,
+}: IFieldWrapper) => {
+  const initContext = useContext(InitialContext);
+  const t = useContext(TextContext);
+
+  return (
+    <ReqorePanel
+      label={label}
+      flat
+      collapsible
+      rounded={false}
+      icon={isValid ? 'CheckLine' : 'ErrorWarningLine'}
+      intent={isValid ? undefined : 'danger'}
+      iconColor={isValid ? undefined : 'danger'}
+      badge={type}
+      unMountContentOnCollapse={false}
+      actions={[
+        getFieldDescriptionAction(desc),
+        {
+          icon: 'DeleteBinLine',
+          show: removable,
+          intent: 'danger',
+          tooltip: t('RemoveField'),
+          onClick: () => {
+            if (onClick) {
+              if (size(value)) {
+                initContext.confirmAction('ConfirmRemoveField', () => onClick(name));
+              } else {
+                onClick(name);
+              }
+            }
+          },
+        },
+      ]}
+    >
+      {info && (
+        <>
+          <ReqoreMessage intent="info" size="small">
+            {info}
+          </ReqoreMessage>
+          <ReqoreVerticalSpacer height={10} />
+        </>
+      )}
+      {children}
+    </ReqorePanel>
+  );
+};
 
 export const FieldInputWrapper = styled.div`
   flex: 1 auto;
@@ -27,6 +125,13 @@ export const ContentWrapper = styled.div`
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  display: flex;
+  flex-flow: column;
+  gap: 25px;
+
+  > * {
+    flex-shrink: 0 !important;
+  }
 `;
 
 export const ActionsWrapper = ({ children, ...rest }: IReqoreControlGroupProps) => (

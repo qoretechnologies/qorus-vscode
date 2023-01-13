@@ -7,7 +7,6 @@ import { useDebounce, useMount, useUpdateEffect } from 'react-use';
 import shortid from 'shortid';
 import Field from '../../../components/Field';
 import { getProtocol } from '../../../components/Field/urlField';
-import FieldActions from '../../../components/FieldActions';
 import FieldLabel from '../../../components/FieldLabel';
 import {
   ActionsWrapper,
@@ -192,6 +191,7 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
           <FieldWrapper name="selected-field">
             <FieldLabel
               label={t(`field-label-${field.name}`)}
+              desc={t(`field-desc-${field.name}`)}
               info={
                 field.markdown
                   ? t('MarkdownSupported')
@@ -217,11 +217,14 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
                 onChange={handleDataChange}
               />
             </FieldInputWrapper>
-            <FieldActions desc={t(`field-desc-${field.name}`)} />
           </FieldWrapper>
         ))}
         <FieldWrapper name="selected-field">
-          <FieldLabel label={t('field-label-url')} isValid={validateField('url', data.url)} />
+          <FieldLabel
+            desc={t(`field-desc-url`)}
+            label={t('field-label-url')}
+            isValid={validateField('url', data.url)}
+          />
           <FieldInputWrapper>
             <Field
               type="url"
@@ -231,11 +234,11 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
               name="url"
             />
           </FieldInputWrapper>
-          <FieldActions desc={t(`field-desc-url`)} />
         </FieldWrapper>
         {getProtocol(data.url) && (
           <FieldWrapper name="selected-field">
             <FieldLabel
+              desc={t(`field-desc-connection_options`)}
               label={t('field-label-options')}
               info={t('Optional')}
               isValid={
@@ -253,7 +256,6 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
                 name="connection_options"
               />
             </FieldInputWrapper>
-            <FieldActions desc={t(`field-desc-connection_options`)} />
           </FieldWrapper>
         )}
       </div>

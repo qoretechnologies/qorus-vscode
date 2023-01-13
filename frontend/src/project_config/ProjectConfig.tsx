@@ -403,6 +403,7 @@ const Project: FunctionComponent<IProject> = ({
                   id: 'new-environment',
                   minimal: false,
                   big: true,
+                  text: 'Add new environment',
                 },
               },
             ]}
@@ -450,7 +451,6 @@ const Project: FunctionComponent<IProject> = ({
                   {
                     label: t('Edit'),
                     icon: 'Edit2Line',
-                    value: 'edit',
                     onClick: () => {
                       setEnvName(data.name);
                       selectEnvironmentForEditing(data.name);
@@ -459,7 +459,6 @@ const Project: FunctionComponent<IProject> = ({
                   {
                     label: t('Delete'),
                     icon: 'DeleteBinLine',
-                    value: 'delete',
                     onClick: () => {
                       confirmAction({
                         title: t('DeleteEnvironment'),
@@ -494,27 +493,5 @@ const Project: FunctionComponent<IProject> = ({
     </>
   );
 };
-
-{
-  /* <StyledMasonryWrapper>
-              {map(projectData.qorus_instances, (data) => (
-                <EnvironmentPanel
-                  {...data}
-                  path={initialData.path}
-                  image_path={initialData.image_path}
-                  active={isEnvironmentActive(data.qoruses)}
-                  activeInstance={qorus_instance && qorus_instance.name}
-                  onEnvironmentNameChange={handleEnvironmentNameChange}
-                  onEnvironmentDeleteClick={handleEnvironmentDelete}
-                  onInstanceSubmit={handleInstanceSubmit}
-                  onInstanceDelete={handleInstanceDelete}
-                  onInstanceChange={handleInstanceDataChange}
-                  onUrlSubmit={handleInstanceDataChange}
-                  onUrlDelete={handleUrlDelete}
-                  onSetActiveInstanceClick={handleSetInstanceActive}
-                />
-              ))}
-            </StyledMasonryWrapper> */
-}
 
 export default compose(withTextContext(), withMessageHandler(), withInitialDataConsumer())(Project);

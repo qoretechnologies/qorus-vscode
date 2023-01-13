@@ -1,4 +1,5 @@
-import { Button, Callout, Classes, ControlGroup } from '@blueprintjs/core';
+import { Callout } from '@blueprintjs/core';
+import { ReqoreButton } from '@qoretechnologies/reqore';
 import { get, map, set } from 'lodash';
 import { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -357,23 +358,21 @@ const AutoField: FunctionComponent<
       }
       case 'file-as-string': {
         return (
-          <div>
-            <FileField
-              name={name}
-              value={value}
-              onChange={handleChange}
-              type={currentType}
-              get_message={{
-                action: 'creator-get-resources',
-                object_type: 'files',
-              }}
-              return_message={{
-                action: 'creator-return-resources',
-                object_type: 'files',
-                return_value: 'resources',
-              }}
-            />
-          </div>
+          <FileField
+            name={name}
+            value={value}
+            onChange={handleChange}
+            type={currentType}
+            get_message={{
+              action: 'creator-get-resources',
+              object_type: 'files',
+            }}
+            return_message={{
+              action: 'creator-return-resources',
+              object_type: 'files',
+              return_value: 'resources',
+            }}
+          />
         );
       }
       case 'any':
@@ -421,44 +420,41 @@ const AutoField: FunctionComponent<
 
   // Render type picker if the type is auto or any
   return (
-    <>
-      <ControlGroup
-        fill
-        style={{
-          flexFlow: column || arg_schema ? 'column' : 'row',
-          marginLeft: arg_schema ? 10 * level : 0,
-          overflow: 'hidden',
-          flexShrink: 0,
-          width: `calc(100% - ${11 * level}px)`,
-          maxHeight: arg_schema && level === 0 ? '500px' : undefined,
-          overflowY: arg_schema && level === 0 ? 'auto' : undefined,
-        }}
-      >
-        {showPicker && (
-          <SelectField
-            name="type"
-            defaultItems={types}
-            value={currentInternalType}
-            onChange={(_name, value) => {
-              handleChange(name, null);
-              setInternalType(value);
-            }}
-          />
-        )}
+    <div
+      style={{
+        flexFlow: column || arg_schema ? 'column' : 'row',
+        marginLeft: arg_schema ? 10 * level : 0,
+        overflow: 'hidden',
+        flexShrink: 0,
+        width: `calc(100% - ${11 * level}px)`,
+        maxHeight: arg_schema && level === 0 ? '500px' : undefined,
+        overflowY: arg_schema && level === 0 ? 'auto' : undefined,
+      }}
+    >
+      {showPicker && (
+        <SelectField
+          name="type"
+          defaultItems={types}
+          value={currentInternalType}
+          onChange={(_name, value) => {
+            handleChange(name, null);
+            setInternalType(value);
+          }}
+        />
+      )}
 
-        {renderField(currentInternalType)}
-        {canBeNull() && (
-          <Button
-            intent={isSetToNull ? 'warning' : 'none'}
-            icon={isSetToNull && 'cross'}
-            onClick={handleNullToggle}
-            className={Classes.FIXED}
-          >
-            {isSetToNull ? 'Unset null' : 'Set as null'}
-          </Button>
-        )}
-      </ControlGroup>
-    </>
+      {renderField(currentInternalType)}
+      {canBeNull() && (
+        <ReqoreButton
+          intent={isSetToNull ? 'warning' : undefined}
+          icon={isSetToNull ? 'CloseLine' : undefined}
+          onClick={handleNullToggle}
+          fixed
+        >
+          {isSetToNull ? 'Unset null' : 'Set as null'}
+        </ReqoreButton>
+      )}
+    </div>
   );
 };
 

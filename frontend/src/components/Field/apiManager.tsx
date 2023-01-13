@@ -1,4 +1,10 @@
-import { Callout, ControlGroup } from '@blueprintjs/core';
+import {
+  ReqoreColumn,
+  ReqoreColumns,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import { reduce, size } from 'lodash';
 import { useContext } from 'react';
 import { useAsyncRetry } from 'react-use';
@@ -8,7 +14,6 @@ import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { callBackendBasic, fetchData } from '../../helpers/functions';
 import { validateField } from '../../helpers/validations';
-import Spacer from '../Spacer';
 import SubField from '../SubField';
 import { IProviderType } from './connectors';
 import MethodSelector from './methodSelector';
@@ -184,145 +189,147 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
     <>
       <SubField title={t('ApiManagerSchema')} isValid={validateField('string', value?.factory)}>
         {schemas.loading ? (
-          <Callout intent="primary">Loading...</Callout>
+          <ReqoreMessage intent="pending">Loading...</ReqoreMessage>
         ) : schemas.error ? (
-          <Callout intent="danger" title="Error">
+          <ReqoreMessage intent="danger" title="Error">
             {schemas.error}
-          </Callout>
+          </ReqoreMessage>
         ) : (
           <Select
             defaultItems={schemas.value}
             value={value?.factory}
+            fill
             onChange={(_n, schema) => handleSchemaChange(schema)}
           />
         )}
       </SubField>
-      {isAvailable(providerOptions) && (
-        <SubField
-          title={t('ApiManagerProviderOptions')}
-          isValid={validateField('system-options', value?.['provider-options'])}
-        >
-          {providerOptions.loading ? (
-            <Callout intent="primary">Loading...</Callout>
-          ) : providerOptions.error ? (
-            <Callout intent="danger" title="Error">
-              {providerOptions.error}
-            </Callout>
-          ) : (
-            <Options
-              options={providerOptions.value}
-              value={value?.['provider-options']}
-              name="provider-options"
-              onChange={(_n, data) => handleOptionsChange(data)}
-            />
-          )}
-        </SubField>
-      )}
-      {isAvailable(endpoints) && (
-        <SubField
-          title={t('ApiManagerEndpoints')}
-          isValid={validateField('api-endpoints', value?.endpoints)}
-        >
-          {endpoints.loading || !endpoints.value ? (
-            <Callout>Loading...</Callout>
-          ) : endpoints.error ? (
-            <Callout intent="danger" title="Error">
-              Failed to load endpoints
-            </Callout>
-          ) : (
-            <>
-              <div>
-                {value?.endpoints &&
-                  value.endpoints.map((endpoint, index) => (
-                    <StyledEndpointWrapper>
-                      <SubField
-                        title={`${index + 1}. ${endpoint.endpoint}`}
-                        key={endpoint.endpoint}
-                        subtle
-                        onRemove={() => {
-                          confirmAction('RemoveEndpoint', () => {
-                            handleDeleteEndpoint(endpoint.endpoint);
-                          });
-                        }}
-                        isValid={!!endpoint.value}
-                      >
-                        <ControlGroup fill>
-                          <Select
-                            defaultItems={[
-                              {
-                                name: 'fsm',
-                              },
-                              {
-                                name: 'method',
-                              },
-                            ]}
-                            value={endpoint.type || t('Type')}
-                            onChange={(_n, v) => {
-                              handleUpdateEndpoint(endpoint.endpoint, v, endpoint.value);
+      <ReqoreColumns columnsGap="20px" minColumnWidth="400px">
+        {isAvailable(providerOptions) && (
+          <ReqoreColumn flexFlow="column">
+            {providerOptions.loading ? (
+              <ReqoreMessage intent="pending">Loading...</ReqoreMessage>
+            ) : providerOptions.error ? (
+              <ReqoreMessage intent="danger" title="Error">
+                {providerOptions.error}
+              </ReqoreMessage>
+            ) : (
+              <Options
+                options={providerOptions.value}
+                value={value?.['provider-options']}
+                name="provider-options"
+                isValid={validateField('system-options', value?.['provider-options'])}
+                onChange={(_n, data) => handleOptionsChange(data)}
+              />
+            )}
+          </ReqoreColumn>
+        )}
+        {isAvailable(endpoints) && (
+          <ReqoreColumn flexFlow="column">
+            <SubField
+              title={t('ApiManagerEndpoints')}
+              isValid={validateField('api-endpoints', value?.endpoints)}
+            >
+              {endpoints.loading || !endpoints.value ? (
+                <ReqoreMessage intent="pending">Loading...</ReqoreMessage>
+              ) : endpoints.error ? (
+                <ReqoreMessage intent="danger" title="Error">
+                  Failed to load endpoints
+                </ReqoreMessage>
+              ) : (
+                <>
+                  <div style={{ flex: 1 }}>
+                    {value?.endpoints &&
+                      value.endpoints.map((endpoint, index) => (
+                        <StyledEndpointWrapper key={index}>
+                          <SubField
+                            title={`${index + 1}. ${endpoint.endpoint}`}
+                            key={endpoint.endpoint}
+                            subtle
+                            onRemove={() => {
+                              confirmAction('RemoveEndpoint', () => {
+                                handleDeleteEndpoint(endpoint.endpoint);
+                              });
                             }}
-                          />
-                          {endpoint.type === 'fsm' && (
-                            <Select
-                              fill
-                              onChange={(_name, value) =>
-                                handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
-                              }
-                              name="fsm"
-                              value={endpoint.value}
-                              get_message={{
-                                action: 'creator-get-objects',
-                                object_type: 'fsm',
-                              }}
-                              return_message={{
-                                action: 'creator-return-objects',
-                                object_type: 'fsm',
-                                return_value: 'objects',
-                              }}
-                              reference={{
-                                iface_kind: 'fsm',
-                                context: {
-                                  inputType: {
-                                    type: 'factory',
-                                    name: value?.factory,
-                                    path: endpoint.endpoint,
-                                    options: value?.['provider-options'],
-                                    hasApiContext: true,
-                                  } as IProviderType,
-                                },
-                              }}
-                            />
-                          )}
-                          {endpoint.type === 'method' && (
-                            <MethodSelector
-                              name="method-selector"
-                              value={endpoint.value}
-                              onChange={(_name, value) =>
-                                handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
-                              }
-                            />
-                          )}
-                        </ControlGroup>
-                      </SubField>
-                    </StyledEndpointWrapper>
-                  ))}
-              </div>
-              <Spacer size={10} />
-              <SubField>
-                <Select
-                  defaultItems={availableEndpoints.map((endpoint) => ({
-                    name: endpoint.endpoint,
-                    desc: `API endpoint for ${endpoint.endpoint}`,
-                  }))}
-                  value={`${t('ManageEndpoints')} (${size(availableEndpoints)})`}
-                  onChange={(_n, v) => {
-                    handleAddEndpoint(v);
-                  }}
-                />
-              </SubField>
-            </>
-          )}
-        </SubField>
-      )}
+                            isValid={!!endpoint.value}
+                          >
+                            <ReqoreControlGroup fluid>
+                              <Select
+                                defaultItems={[
+                                  {
+                                    name: 'fsm',
+                                  },
+                                  {
+                                    name: 'method',
+                                  },
+                                ]}
+                                value={endpoint.type || t('Type')}
+                                onChange={(_n, v) => {
+                                  handleUpdateEndpoint(endpoint.endpoint, v, endpoint.value);
+                                }}
+                              />
+                              {endpoint.type === 'fsm' && (
+                                <Select
+                                  fill
+                                  onChange={(_name, value) =>
+                                    handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
+                                  }
+                                  name="fsm"
+                                  value={endpoint.value}
+                                  get_message={{
+                                    action: 'creator-get-objects',
+                                    object_type: 'fsm',
+                                  }}
+                                  return_message={{
+                                    action: 'creator-return-objects',
+                                    object_type: 'fsm',
+                                    return_value: 'objects',
+                                  }}
+                                  reference={{
+                                    iface_kind: 'fsm',
+                                    context: {
+                                      inputType: {
+                                        type: 'factory',
+                                        name: value?.factory,
+                                        path: endpoint.endpoint,
+                                        options: value?.['provider-options'],
+                                        hasApiContext: true,
+                                      } as IProviderType,
+                                    },
+                                  }}
+                                />
+                              )}
+                              {endpoint.type === 'method' && (
+                                <MethodSelector
+                                  name="method-selector"
+                                  value={endpoint.value}
+                                  onChange={(_name, value) =>
+                                    handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
+                                  }
+                                />
+                              )}
+                            </ReqoreControlGroup>
+                          </SubField>
+                        </StyledEndpointWrapper>
+                      ))}
+                  </div>
+                  <ReqoreVerticalSpacer height={10} />
+                  <Select
+                    defaultItems={availableEndpoints.map((endpoint) => ({
+                      name: endpoint.endpoint,
+                      desc: `API endpoint for ${endpoint.endpoint}`,
+                    }))}
+                    fill
+                    placeholder={`${t('ManageEndpoints')} (${size(availableEndpoints)})`}
+                    onChange={(_n, v) => {
+                      handleAddEndpoint(v);
+                    }}
+                  />
+                </>
+              )}
+            </SubField>
+          </ReqoreColumn>
+        )}
+      </ReqoreColumns>
     </>
   );
 };

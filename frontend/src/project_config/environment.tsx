@@ -9,6 +9,7 @@ import {
   ReqorePanel,
   ReqoreSpacer,
 } from '@qoretechnologies/reqore';
+import React from 'react';
 import { TTranslator } from '../App';
 import withTextContext from '../hocomponents/withTextContext';
 import Add from './add';
@@ -145,10 +146,10 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
   };
 
   return (
-    <ReqorePanel minimal padded={false} opacity={0}>
+    <ReqorePanel minimal padded={false} transparent flat>
       {size(qoruses) ? (
-        qoruses.map((qorusInstance: IQorusInstance) => (
-          <>
+        qoruses.map((qorusInstance: IQorusInstance, index: number) => (
+          <React.Fragment key={index}>
             <ReqoreSpacer height={10} />
             <QorusInstance
               {...qorusInstance}
@@ -160,7 +161,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
               onSetActive={onSetActiveInstanceClick}
               isActive={qorusInstance.name === activeInstance}
             />
-          </>
+          </React.Fragment>
         ))
       ) : (
         <>

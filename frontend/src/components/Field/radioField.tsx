@@ -72,10 +72,12 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
 
   return (
     <ReqoreRadioGroup
+      vertical={false}
       items={(items || []).map((item) => ({
         label: item.title || t(`field-label-${item.value}`),
         disabled,
         value: item.value,
+        margin: 'right',
         labelEffect: {
           spaced: 1,
           weight: 'bold',

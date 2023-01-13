@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Callout, Icon, Intent, ITreeNode, Tree } from '@blueprintjs/core';
-import { ReqoreMessage, ReqorePanel } from '@qoretechnologies/reqore';
+import { ReqoreMessage, ReqorePanel, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { size } from 'lodash';
 import { FunctionComponent, useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -302,6 +302,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
       <ReqorePanel
         label="Source Directories"
         collapsible
+        fluid
         actions={[
           {
             label: isRootExpanded ? 'Hide folders' : 'Show folders',
@@ -316,39 +317,38 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
           },
         ]}
       >
-        {single && (
+        {single && value ? (
           <>
-            {value && (
-              <ReqoreMessage intent={!size(value) ? 'warning' : 'info'}>
-                {!size(value) ? t('ValueIsEmpty') : value}
-              </ReqoreMessage>
+            <ReqoreMessage intent={!size(value) ? 'warning' : 'info'}>
+              {!size(value) ? t('ValueIsEmpty') : value}
+            </ReqoreMessage>
+            <ReqoreVerticalSpacer height={10} />
+          </>
+        ) : null}
+        {notFixed ? (
+          <>
+            {isRootExpanded && (
+              <Tree
+                contents={transformItems(items)}
+                onNodeClick={handleNodeClick}
+                onNodeCollapse={handleNodeCollapse}
+                onNodeExpand={handleNodeExpand}
+              />
             )}
           </>
+        ) : (
+          <StyledTreeScroller>
+            {isRootExpanded && (
+              <Tree
+                contents={transformItems(items)}
+                onNodeClick={handleNodeClick}
+                onNodeCollapse={handleNodeCollapse}
+                onNodeExpand={handleNodeExpand}
+              />
+            )}
+          </StyledTreeScroller>
         )}
       </ReqorePanel>
-      {notFixed ? (
-        <>
-          {isRootExpanded && (
-            <Tree
-              contents={transformItems(items)}
-              onNodeClick={handleNodeClick}
-              onNodeCollapse={handleNodeCollapse}
-              onNodeExpand={handleNodeExpand}
-            />
-          )}
-        </>
-      ) : (
-        <StyledTreeScroller>
-          {isRootExpanded && (
-            <Tree
-              contents={transformItems(items)}
-              onNodeClick={handleNodeClick}
-              onNodeCollapse={handleNodeCollapse}
-              onNodeExpand={handleNodeExpand}
-            />
-          )}
-        </StyledTreeScroller>
-      )}
     </>
   );
 };

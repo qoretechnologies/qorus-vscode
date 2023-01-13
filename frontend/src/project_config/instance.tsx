@@ -134,7 +134,7 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
           name="instance-item"
           label={name}
           flat
-          padded={false}
+          padded={isActive}
           intent={isActive ? 'info' : undefined}
           headerSize={4}
           actions={[

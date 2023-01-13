@@ -73,17 +73,24 @@ export const TemplateField = ({ value, name, onChange, component: Comp, ...rest 
       activeTab={isTemplate ? 'template' : 'custom'}
       activeTabIntent="info"
       fill
+      size="small"
       flat
+      padded={false}
+      tabsPadding="vertical"
       tabs={[
         {
           id: 'custom',
           label: t('Custom'),
           icon: 'EditLine',
+          minimal: true,
+          flat: false,
         },
         {
           id: 'template',
           label: t('Template'),
           icon: 'ExchangeDollarLine',
+          minimal: true,
+          flat: false,
         },
       ]}
       onTabChange={(newTabId: string): void => {

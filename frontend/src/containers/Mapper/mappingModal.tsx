@@ -12,7 +12,6 @@ import Field from '../../components/Field';
 import MapperCodeField from '../../components/Field/mapperCode';
 import OptionHashField from '../../components/Field/optionHash';
 import SelectField from '../../components/Field/select';
-import FieldActions from '../../components/FieldActions';
 import FieldLabel from '../../components/FieldLabel';
 import FieldSelector from '../../components/FieldSelector';
 import {
@@ -300,7 +299,13 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                 <>
                   <p>{mapperKeys[key].desc}</p>
                   <FieldWrapper>
-                    <FieldLabel label={key} isValid={getIsFieldValid(key, value)} />
+                    <FieldLabel
+                      name={key}
+                      onClick={handleRemoveClick}
+                      removable
+                      label={key}
+                      isValid={getIsFieldValid(key, value)}
+                    />
                     <FieldInputWrapper>
                       {getKeyType(key, mapperKeys, output) === 'mapper-code' ? (
                         <MapperCodeField
@@ -334,7 +339,6 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                         />
                       )}
                     </FieldInputWrapper>
-                    <FieldActions name={key} onClick={handleRemoveClick} removable />
                   </FieldWrapper>
                 </>
               ))

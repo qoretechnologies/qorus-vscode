@@ -1,5 +1,9 @@
-import { Callout } from '@blueprintjs/core';
-import { ReqoreButton, ReqoreControlGroup } from '@qoretechnologies/reqore';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import { size } from 'lodash';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
@@ -79,7 +83,12 @@ const ClassArrayField: FunctionComponent<
 
   return (
     <>
-      {showClassesWarning && <Callout intent="warning">{t('ClassChangesWarning')}</Callout>}
+      {showClassesWarning && (
+        <>
+          <ReqoreMessage intent="warning">{t('ClassChangesWarning')}</ReqoreMessage>
+          <ReqoreVerticalSpacer height={10} />
+        </>
+      )}
       {value.map((pair: IPair, index: number) => (
         <StyledPairField key={index + 1}>
           <SelectPairField

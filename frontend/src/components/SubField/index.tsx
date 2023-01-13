@@ -4,6 +4,7 @@ import { noop } from 'lodash';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
+import { getFieldDescriptionAction } from '../FieldWrapper';
 
 const StyledDescriptionField = styled(ReqoreMessage)`
   p:last-child {
@@ -53,20 +54,34 @@ const SubField: React.FC<ISubFieldProps> = ({
     <>
       <ReqorePanel
         flat={!!subtle}
+        transparent={subtle}
         minimal
+        style={{ width: '100%' }}
+        contentStyle={{ display: 'flex', flexFlow: 'column' }}
+        contentEffect={
+          subtle ? undefined : { gradient: { colors: '#111111', direction: 'to right bottom' } }
+        }
         intent={isValid ? undefined : 'danger'}
         label={title}
         badge={detail}
-        icon={title || detail ? 'SettingsLine' : undefined}
+        icon={subtle ? undefined : title || detail ? 'SettingsLine' : undefined}
         collapsible={collapsible}
-        actions={
-          onRemove ? [{ icon: 'DeleteBackLine', intent: 'danger', onClick: onRemove }] : undefined
-        }
+        unMountContentOnCollapse={false}
+        actions={[
+          getFieldDescriptionAction(desc),
+          {
+            icon: 'DeleteBackLine',
+            intent: 'danger',
+            onClick: onRemove,
+            size: 'small',
+            show: !!onRemove,
+          },
+        ]}
       >
-        <DescriptionField desc={desc} />
         {desc ? <ReqoreVerticalSpacer height={10} /> : null}
         {children}
       </ReqorePanel>
+      <ReqoreVerticalSpacer height={10} />
     </>
   );
 };

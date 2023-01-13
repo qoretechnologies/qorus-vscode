@@ -1,37 +1,117 @@
-import { ReqoreControlGroup, ReqoreSpacer, ReqoreTag } from '@qoretechnologies/reqore';
-import { FunctionComponent } from 'react';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreSpacer,
+  ReqoreTag,
+} from '@qoretechnologies/reqore';
+import { size } from 'lodash';
+import { FunctionComponent, useContext } from 'react';
+import { InitialContext } from '../../context/init';
+import { TextContext } from '../../context/text';
 
-export interface IFieldLabel {
+export interface IFieldActions {
+  desc?: string;
+  name?: string;
+  onClick: (name: string) => any;
+  removable: boolean;
+  value: any;
+  parentValue?: any;
+  onResetClick: () => any;
+  isSet: boolean;
+  disabled: boolean;
+}
+
+export interface IFieldLabel extends IFieldActions {
   label?: string;
   isValid: boolean;
   info?: string;
   type?: string;
 }
 
-const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info, type }) => (
-  <>
-    <ReqoreControlGroup vertical>
-      <ReqoreTag
-        width="200px"
-        color={isValid ? 'transparent' : 'danger'}
-        label={label}
-        icon={isValid ? 'CheckboxBlankCircleFill' : 'ErrorWarningLine'}
-        minimal
-      />
-      {type && <ReqoreTag label={type} asBadge minimal size="small" icon="CodeLine" />}
-      {info && (
+const FieldLabel: FunctionComponent<IFieldLabel> = ({
+  label,
+  isValid,
+  info,
+  type,
+  desc,
+  name,
+  onClick,
+  removable,
+  value,
+  parentValue,
+  onResetClick,
+  isSet,
+  disabled,
+}) => {
+  const initContext = useContext(InitialContext);
+  const t = useContext(TextContext);
+  return (
+    <>
+      <ReqoreControlGroup vertical>
         <ReqoreTag
-          label={info}
-          minimal
           width="200px"
-          size="small"
-          icon="InformationLine"
-          intent="muted"
+          color={isValid ? 'success' : 'danger'}
+          label={label}
+          icon={isValid ? 'CheckLine' : 'ErrorWarningLine'}
+          actions={[
+            {
+              icon: 'QuestionMark',
+              tooltip: {
+                content: desc,
+                intent: 'info',
+                placement: 'right',
+                maxWidth: '600px',
+              },
+            },
+            {
+              icon: 'DeleteBinLine',
+              intent: 'danger',
+              tooltip: t('RemoveField'),
+              onClick: () => {
+                if (onClick) {
+                  if (size(value)) {
+                    initContext.confirmAction('ConfirmRemoveField', () => onClick(name));
+                  } else {
+                    onClick(name);
+                  }
+                }
+              },
+            },
+          ]}
+          minimal
         />
-      )}
-    </ReqoreControlGroup>
-    <ReqoreSpacer width={10} />
-  </>
-);
+        {type && <ReqoreTag label={type} asBadge minimal icon="CodeLine" />}
+        {info && (
+          <ReqoreTag
+            label={info}
+            minimal
+            width="200px"
+            size="small"
+            icon="InformationLine"
+            intent="muted"
+          />
+        )}
+      </ReqoreControlGroup>
+      <ReqoreSpacer width={10} />
+      <ReqoreControlGroup>
+        {isSet && parentValue !== undefined && !disabled ? (
+          <ReqoreButton
+            icon={'HistoryLine'}
+            tooltip={t('ResetFieldToOriginal')}
+            intent="warning"
+            onClick={() => {
+              initContext.confirmAction(
+                'ConfirmResetField',
+                () => onResetClick(),
+                'Reset',
+                'warning'
+              );
+            }}
+          />
+        ) : null}
+      </ReqoreControlGroup>
+    </>
+  );
+};
 
 export default FieldLabel;

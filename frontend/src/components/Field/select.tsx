@@ -6,6 +6,7 @@ import {
   ReqoreDropdown,
   ReqoreMenu,
   ReqoreMenuItem,
+  ReqoreMessage,
   ReqoreTag,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
@@ -290,15 +291,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   };
 
   if (!reference && (!filteredItems || filteredItems.length === 0)) {
-    return (
-      <Button
-        fill={fill}
-        text={t('NoDataAvailable')}
-        rightIcon={'caret-down'}
-        icon="disable"
-        disabled
-      />
-    );
+    return <ReqoreMessage intent="muted">{t('NoDataAvailable')}</ReqoreMessage>;
   }
 
   const filterItems = (items) => {

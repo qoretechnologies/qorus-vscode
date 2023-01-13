@@ -67,7 +67,7 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
       {type === 'method-name' && <MethodNameField {...rest} type={type} />}
       {type === 'boolean' && <BooleanField {...rest} type={type} />}
       {type === 'array-of-pairs' && <MultiPairField {...rest} type={type} />}
-      {type === 'select-string' && <SelectField {...rest} type={type} />}
+      {type === 'select-string' && <SelectField {...rest} type={type} fill />}
       {type === 'select-array' && <MultiSelect {...rest} type={type} />}
       {type === 'array' && <MultiSelect simple {...rest} type={type} />}
       {type === 'enum' && <RadioField {...rest} type={type} />}

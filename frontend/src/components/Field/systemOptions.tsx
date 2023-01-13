@@ -1,6 +1,7 @@
 import { Button, ButtonGroup, Callout, Classes, ControlGroup, Tag } from '@blueprintjs/core';
 import { setupPreviews } from '@previewjs/plugin-react/setup';
-import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import { ReqoreCollection, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import { cloneDeep, findKey, forEach, last } from 'lodash';
 import isArray from 'lodash/isArray';
 import map from 'lodash/map';
@@ -15,8 +16,8 @@ import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { insertAtIndex } from '../../helpers/functions';
 import { validateField } from '../../helpers/validations';
+import { getGlobalDescriptionTooltip } from '../FieldWrapper';
 import Spacer from '../Spacer';
-import SubField from '../SubField';
 import AutoField from './auto';
 import SelectField from './select';
 import { TemplateField } from './template';
@@ -177,6 +178,7 @@ export interface IOptionsProps {
   placeholder?: string;
   operatorsUrl?: string;
   noValueString?: string;
+  isValid?: boolean;
 }
 
 const Options = ({
@@ -188,6 +190,7 @@ const Options = ({
   placeholder,
   operatorsUrl,
   noValueString,
+  isValid,
   ...rest
 }: IOptionsProps) => {
   const t: any = useContext(TextContext);
@@ -442,32 +445,48 @@ const Options = ({
 
   return (
     <>
-      <div style={{ maxHeight: '25vh', overflow: 'auto' }}>
-        {map(fixedValue, ({ type, ...other }, optionName) =>
-          !!options[optionName] ? (
-            <StyledOptionField>
-              <SubField
-                key={optionName}
-                title={optionName}
-                collapsible
-                isValid={
-                  validateField(getType(type), other.value, {
-                    has_to_have_value: true,
-                    ...options[optionName],
-                  }) && (operatorsUrl ? !!other.op : true)
-                }
-                detail={getType(options[optionName].type)}
-                desc={options[optionName].desc}
-                onRemove={
-                  !options[optionName].required
-                    ? () => {
-                        confirmAction('RemoveSelectedOption', () =>
-                          removeSelectedOption(optionName)
-                        );
-                      }
-                    : undefined
-                }
-              >
+      <ReqoreCollection
+        label="Options"
+        minColumnWidth="400px"
+        headerSize={4}
+        filterable
+        sortable
+        flat={false}
+        minimal
+        badge={size(fixedValue)}
+        intent={isValid ? undefined : 'danger'}
+        style={{ width: '100%' }}
+        items={map(
+          fixedValue,
+          ({ type, ...other }, optionName): IReqoreCollectionItemProps => ({
+            label: optionName,
+            customTheme: {
+              main: '#181818',
+            },
+            intent:
+              validateField(getType(type), other.value, {
+                has_to_have_value: true,
+                ...options[optionName],
+              }) && (operatorsUrl ? !!other.op : true)
+                ? undefined
+                : 'danger',
+            badge: getType(options[optionName].type),
+            tooltip: {
+              ...getGlobalDescriptionTooltip(options[optionName].desc, optionName),
+              placement: 'top',
+            },
+            actions: [
+              {
+                icon: 'DeleteBinLine',
+                intent: 'danger',
+                show: !options[optionName].required,
+                onClick: () => {
+                  confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
+                },
+              },
+            ],
+            content: (
+              <>
                 {operators && size(operators) ? (
                   <>
                     <ControlGroup fill>
@@ -553,16 +572,12 @@ const Options = ({
                     </span>
                   </>
                 ) : null}
-              </SubField>
-            </StyledOptionField>
-          ) : null
+              </>
+            ),
+          })
         )}
-      </div>
-      {size(fixedValue) === 0 && (
-        <ReqoreMessage minimal intent="muted">
-          {t(noValueString || 'NoOptionsSelected')}
-        </ReqoreMessage>
-      )}
+      />
+
       <ReqoreVerticalSpacer height={10} />
       {size(filteredOptions) >= 1 && (
         <SelectField
@@ -571,6 +586,7 @@ const Options = ({
             name: option,
             desc: options[option].desc,
           }))}
+          fill
           onChange={(_name, value) => addSelectedOption(value)}
           placeholder={`${t(placeholder || 'AddNewOption')} (${size(filteredOptions)})`}
         />
