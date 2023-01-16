@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Classes, Icon, IconName, Tooltip } from '@blueprintjs/core';
+import { IconName } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreCollection,
@@ -8,7 +8,6 @@ import {
   ReqoreMenuItem,
   ReqoreMessage,
   ReqoreTag,
-  ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import { IReqoreMenuItemProps } from '@qoretechnologies/reqore/dist/components/Menu/item';
@@ -27,9 +26,6 @@ import withMessageHandler, {
 import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
-import SubField from '../SubField';
-import StringField from './string';
-import { StyledOptionField } from './systemOptions';
 
 export interface ISelectField {
   addMessageListener: TMessageListener;
@@ -333,6 +329,8 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
           badge={size(items)}
           filterable
           sortable
+          showSelectedFirst
+          selectedIcon="CheckLine"
           fill
           items={filterItems(filteredItems).map(
             (item): IReqoreCollectionItemProps => ({
@@ -340,9 +338,10 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
               content: <ReactMarkdown>{item.desc}</ReactMarkdown>,
               flat: false,
               minimal: false,
+              selected: item.name === value,
               tooltip: !!item.desc
                 ? {
-                    delay: 300,
+                    delay: 800,
                     content: <ReactMarkdown>{item.desc}</ReactMarkdown>,
                     maxWidth: '70vw',
                   }
@@ -375,87 +374,9 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
             },
           }))}
         />
-        <StyledOptionField>
-          <SubField title="Filters">
-            <StringField
-              onChange={(_name, value) => setQuery(value)}
-              value={query}
-              name="select-filter"
-              placeholder={t('Filter')}
-              autoFocus
-            />
-            <ReqoreVerticalSpacer height={10} />
-            <ButtonGroup>
-              {filters?.map((filter) => (
-                <Button
-                  key={filter}
-                  intent={appliedFilters.includes(filter) ? 'primary' : 'none'}
-                  onClick={() => {
-                    // Add this filter to the applied filters if it's not already there
-                    if (!appliedFilters.includes(filter)) {
-                      setAppliedFilters([...appliedFilters, filter]);
-                    } else {
-                      // Remove this filter from the applied filters
-                      setAppliedFilters(appliedFilters.filter((f) => f !== filter));
-                    }
-                  }}
-                >
-                  {capitalize(filter.replace('_', ' '))} (
-                  {items.filter((item) => item[filter]).length})
-                </Button>
-              ))}
-            </ButtonGroup>
-          </SubField>
-        </StyledOptionField>
-        <StyledOptionField style={{ overflowY: 'auto', overflowX: 'hidden' }}>
-          <SubField
-            title="Items"
-            detail={size(filterItems(filteredItems)).toString()}
-            isValid={!!size(filterItems(filteredItems))}
-          >
-            <div>
-              {filterItems(filteredItems).map((item) => (
-                <Tooltip
-                  key={item.name}
-                  position="top"
-                  boundary="viewport"
-                  targetProps={{
-                    style: {
-                      width: '100%',
-                    },
-                  }}
-                  hoverOpenDelay={500}
-                  interactionKind="hover"
-                  content={<ReactMarkdown>{item.desc}</ReactMarkdown>}
-                >
-                  <StyledDialogSelectItem
-                    className={item.name === value ? 'selected' : ''}
-                    name={`field-${name}-item`}
-                    onClick={() => {
-                      handleSelectClick(item);
-                      setSelectDialogOpen(false);
-                      setQuery('');
-                    }}
-                  >
-                    <h5>
-                      {item.name === value && (
-                        <Icon icon="small-tick" style={{ color: '#7fba27' }} />
-                      )}{' '}
-                      {item.name}
-                    </h5>
-
-                    <p className={Classes.TEXT_MUTED}>
-                      <ReactMarkdown>{item.desc || t('NoDescription')}</ReactMarkdown>
-                    </p>
-                  </StyledDialogSelectItem>
-                </Tooltip>
-              ))}
-            </div>
-          </SubField>
-        </StyledOptionField>
       </CustomDialog>
       {!filteredItems || filteredItems.length === 0 ? (
-        <ReqoreTag label={t('NothingToSelect')} color="transparent" />
+        <ReqoreTag color="transparent" icon="ForbidLine" label={t('NothingToSelect')} />
       ) : null}
       <ReqoreControlGroup {...rest} fluid={!!fill}>
         {hasItemsWithDesc(items) && !forceDropdown ? (
@@ -521,37 +442,37 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
             {value ? value : placeholder || t('PleaseSelect')}
           </ReqoreDropdown>
         )}
-      </ReqoreControlGroup>
 
-      <FieldEnhancer
-        context={{
-          iface_kind,
-          target_dir: (requestFieldData && requestFieldData('target_dir', 'value')) || target_dir,
-          ...context,
-        }}
-      >
-        {(onEditClick, onCreateClick) =>
-          reference ? (
-            <ReqoreControlGroup fluid={false} stack>
-              {!editOnly && (
-                <ReqoreButton
-                  icon="AddLine"
-                  fixed
-                  intent="success"
-                  onClick={() => onCreateClick(reference, handleEditSubmit)}
-                />
-              )}
-              {value && (
-                <ReqoreButton
-                  icon="EditLine"
-                  fixed
-                  onClick={() => onEditClick(value, reference, handleEditSubmit)}
-                />
-              )}
-            </ReqoreControlGroup>
-          ) : null
-        }
-      </FieldEnhancer>
+        <FieldEnhancer
+          context={{
+            iface_kind,
+            target_dir: (requestFieldData && requestFieldData('target_dir', 'value')) || target_dir,
+            ...context,
+          }}
+        >
+          {(onEditClick, onCreateClick) =>
+            reference ? (
+              <ReqoreControlGroup fluid={false} stack>
+                {!editOnly && (
+                  <ReqoreButton
+                    icon="AddLine"
+                    fixed
+                    intent="success"
+                    onClick={() => onCreateClick(reference, handleEditSubmit)}
+                  />
+                )}
+                {value && (
+                  <ReqoreButton
+                    icon="EditLine"
+                    fixed
+                    onClick={() => onEditClick(value, reference, handleEditSubmit)}
+                  />
+                )}
+              </ReqoreControlGroup>
+            ) : null
+          }
+        </FieldEnhancer>
+      </ReqoreControlGroup>
     </>
   );
 };

@@ -4,6 +4,7 @@ import { splitByteSize } from '../../helpers/functions';
 import { getValueOrDefaultValue } from '../../helpers/validations';
 import Number from './number';
 import SelectField from './select';
+//import String from './string';
 
 const ByteSizeField = ({
   value,

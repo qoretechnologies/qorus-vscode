@@ -72,7 +72,7 @@ const StringField = ({
 
   return (
     <ReqoreControlGroup {...rest} fluid={!!fill}>
-      {label || label === 0 ? <ReqoreTag label={label} /> : null}
+      {label || label === 0 ? <ReqoreTag label={label} fixed /> : null}
       <ReqoreInput
         placeholder={placeholder}
         disabled={disabled}

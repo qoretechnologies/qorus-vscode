@@ -28,6 +28,7 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
   addMessageListener,
   get_message,
   return_message,
+  ...rest
 }) => {
   // Fetch data on mount
   useMount(() => {
@@ -63,6 +64,7 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
 
   return (
     <ReqoreInput
+      {...rest}
       fluid={fill}
       value={value ?? default_value ?? ''}
       onChange={handleInputChange}

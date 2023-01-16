@@ -98,7 +98,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
           <ReqoreColumn flexFlow="column">
             <ReqoreControlGroup fluid stack vertical>
               <ReqoreControlGroup>
-                <ReqoreTag label={`${index + 1}.`} />
+                <ReqoreTag label={`${index + 1}.`} fixed />
                 <SelectField
                   defaultItems={[
                     { name: 'input' },

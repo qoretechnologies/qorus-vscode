@@ -46,7 +46,7 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
       {(onEditClick, onCreateClick) => (
         <div>
           <ReqoreControlGroup fluid>
-            <ReqoreTag label={`${index}.`} />
+            <ReqoreTag label={`${index}.`} fixed />
             {selectFirst ? (
               <>
                 <SelectField
