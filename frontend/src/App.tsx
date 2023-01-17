@@ -13,7 +13,6 @@ import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
-import { DraftsView } from './DraftsView';
 import ContextMenu from './components/ContextMenu';
 import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
@@ -28,6 +27,7 @@ import { ErrorsContext } from './context/errors';
 import { InitialContext } from './context/init';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
+import { DraftsView } from './DraftsView';
 import { callBackendBasic, getTargetFile } from './helpers/functions';
 import withErrors from './hocomponents/withErrors';
 import withFields from './hocomponents/withFields';
@@ -36,10 +36,10 @@ import withGlobalOptions from './hocomponents/withGlobalOptions';
 import withInitialData from './hocomponents/withInitialData';
 import withMapper from './hocomponents/withMapper';
 import {
-  TMessageListener,
-  TPostMessage,
   addMessageListener,
   postMessage,
+  TMessageListener,
+  TPostMessage,
 } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
@@ -380,7 +380,7 @@ const App: FunctionComponent<IApp> = ({
                     </ReqoreNavbarItem>
                   </ReqoreNavbarGroup>
                 </ReqoreHeader>
-                <div style={{ margin: '10px 20px', overflow: 'auto', display: 'flex', flex: 1 }}>
+                <div style={{ margin: '10px', overflow: 'auto', display: 'flex', flex: 1 }}>
                   {isDirsDialogOpen && (
                     <SourceDirectories onClose={() => setIsDirsDialogOpen(false)} />
                   )}

@@ -1,5 +1,6 @@
-import { ButtonGroup, Spinner } from '@blueprintjs/core';
-import React, { useEffect, useState } from 'react';
+import { Spinner } from '@blueprintjs/core';
+import { ReqoreControlGroup } from '@qoretechnologies/reqore';
+import { useEffect, useState } from 'react';
 import SelectField from '../../../components/Field/select';
 import withMessageHandler, {
   TMessageListener,
@@ -42,10 +43,12 @@ const ConnectorSelector = ({
   useEffect(() => {
     const listener = addMessageListener('creator-return-objects', (data) => {
       if (data.object_type === 'class-with-connectors') {
+        console.log('SETTING CLASSES');
         setClasses(data.objects);
       }
     });
 
+    console.log('GETTING CLASSES');
     postMessage('creator-get-objects', {
       object_type: 'class-with-connectors',
       custom_data: {
@@ -56,7 +59,7 @@ const ConnectorSelector = ({
     return () => {
       listener();
     };
-  });
+  }, []);
 
   const getConnectors = (): IConnector[] => {
     const selectedClass: IClass = classes.find((clss) => clss.name === value['class']);
@@ -89,8 +92,10 @@ const ConnectorSelector = ({
     return <Spinner size={16} />;
   }
 
+  console.log(getConnectors());
+
   return (
-    <ButtonGroup>
+    <ReqoreControlGroup>
       <SelectField
         fill
         onChange={handleChange}
@@ -111,7 +116,7 @@ const ConnectorSelector = ({
           name="connector"
         />
       )}
-    </ButtonGroup>
+    </ReqoreControlGroup>
   );
 };
 

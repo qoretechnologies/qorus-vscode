@@ -22,29 +22,29 @@ const IFSMListTriggers: React.FC<IFSMListTriggersProps> = ({
   const t = useContext(TextContext);
 
   return (
-    <ReqoreControlGroup>
+    <ReqoreControlGroup wrap fluid>
       {triggers.length === 0 && (
         <ReqoreTag icon="ForbidLine" color="transparent" label={t('NoTriggersYet')} />
       )}
       {triggers.map((trigger: TTrigger, index: number) => (
-        <>
-          <ReqoreTag
-            onClick={() => {
-              setTriggerManager({ isOpen: true, data: trigger, fsmIndex, index });
-            }}
-            onRemoveClick={(e) => {
-              e.stopPropagation();
-              handleTriggerRemove(trigger, fsmIndex);
-            }}
-            label={getTriggerName(trigger)}
-          />
-        </>
+        <ReqoreTag
+          key={index}
+          onClick={() => {
+            setTriggerManager({ isOpen: true, data: trigger, fsmIndex, index });
+          }}
+          fixed
+          onRemoveClick={(e) => {
+            e.stopPropagation();
+            handleTriggerRemove(trigger, fsmIndex);
+          }}
+          label={getTriggerName(trigger)}
+        />
       ))}
       <ReqoreButton
         icon="AddLine"
         intent="info"
         disabled={disabled}
-        fluid
+        fixed
         onClick={() => setTriggerManager({ isOpen: true, fsmIndex })}
       />
     </ReqoreControlGroup>

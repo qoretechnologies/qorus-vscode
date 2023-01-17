@@ -916,6 +916,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     }
   });
 
+  const unselectedFieldCount = size(filter(fields, (field) => !field.selected));
+
   // Filter out the selected fields
   const selectedFieldList: IField[] = filter(selectedFields, (field: IField) => {
     // Only included unselected fields
@@ -976,7 +978,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       return !!size(steps);
     }
     // Find the base class name field
-    const baseClassName: IField = [...fieldList, ...selectedFields].find(
+    const baseClassName: IField = [...fieldList, ...(selectedFields || [])].find(
       (field: IField) => field.name === 'base-class-name'
     );
     // Check if the field exists
@@ -1128,44 +1130,48 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
   return (
     <>
-      <SidePanel>
-        <ReqoreMenu style={{ flex: 1 }} width="250px" rounded>
-          <ReqoreMenuDivider label={t(stepOneTitle)} />
-          <ReqoreInput
-            onClearClick={() => setQuery(type, '')}
-            placeholder={t('FilterAvailableFields')}
-            value={query}
-            onChange={(event: FormEvent<HTMLInputElement>) =>
-              setQuery(type, event.currentTarget.value)
-            }
-            icon={'Search2Line'}
-            intent={query ? 'info' : undefined}
-          />
-          {fieldList.length ? (
-            <ReqoreMenuItem
-              icon={'MenuAddLine'}
-              rightIcon="ArrowRightSLine"
-              onClick={handleAddAll}
-              tooltip={t('SelectAllTooltip')}
-            >
-              {t('SelectAll')}
-            </ReqoreMenuItem>
-          ) : null}
-          {fieldList.length ? (
-            map(fieldList, (field: any) => (
-              <FieldSelector
-                name={field.name}
-                type={field.type}
-                disabled={isFieldDisabled(field)}
-                onClick={handleAddClick}
+      {unselectedFieldCount ? (
+        <>
+          <SidePanel>
+            <ReqoreMenu style={{ flex: 1 }} width="250px" rounded>
+              <ReqoreMenuDivider label={t(stepOneTitle)} />
+              <ReqoreInput
+                onClearClick={() => setQuery(type, '')}
+                placeholder={t('FilterAvailableFields')}
+                value={query}
+                onChange={(event: FormEvent<HTMLInputElement>) =>
+                  setQuery(type, event.currentTarget.value)
+                }
+                icon={'Search2Line'}
+                intent={query ? 'info' : undefined}
               />
-            ))
-          ) : (
-            <ReqoreMessage intent="muted">No fields available</ReqoreMessage>
-          )}
-        </ReqoreMenu>
-      </SidePanel>
-      <ReqoreSpacer width={10} />
+              {fieldList.length ? (
+                <ReqoreMenuItem
+                  icon={'MenuAddLine'}
+                  rightIcon="ArrowRightSLine"
+                  onClick={handleAddAll}
+                  tooltip={t('SelectAllTooltip')}
+                >
+                  {t('SelectAll')}
+                </ReqoreMenuItem>
+              ) : null}
+              {fieldList.length ? (
+                map(fieldList, (field: any) => (
+                  <FieldSelector
+                    name={field.name}
+                    type={field.type}
+                    disabled={isFieldDisabled(field)}
+                    onClick={handleAddClick}
+                  />
+                ))
+              ) : (
+                <ReqoreMessage intent="muted">No fields available</ReqoreMessage>
+              )}
+            </ReqoreMenu>
+          </SidePanel>
+          <ReqoreSpacer width={10} />
+        </>
+      ) : null}
       <Content
         title={t(stepTwoTitle)}
         bottomActions={[
@@ -1192,6 +1198,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             icon: 'ArrowGoBackLine',
             onClick: () => onBackClick?.(),
             show: !!onBackClick,
+            responsive: false,
           },
           {
             label: t('DiscardChangesButton'),
@@ -1213,6 +1220,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             label: t(submitLabel),
             disabled: !canSubmit(),
             icon: 'CheckLine',
+            responsive: false,
             flat: false,
             effect: {
               gradient: {

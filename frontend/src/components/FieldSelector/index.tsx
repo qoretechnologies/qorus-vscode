@@ -2,6 +2,7 @@ import { ReqoreMenuItem } from '@qoretechnologies/reqore';
 import { FunctionComponent } from 'react';
 import styled, { css } from 'styled-components';
 import { TextContext } from '../../context/text';
+import { SelectorColorEffect } from '../Field/multiPair';
 
 const StyledFieldSelector = styled.div`
   width: 100%;
@@ -120,15 +121,7 @@ const FieldSelector: FunctionComponent<IFieldSelector> = ({
         }}
         icon="AddLine"
         wrap
-        effect={{
-          gradient: {
-            direction: 'to right bottom',
-            colors: {
-              0: 'main:lighten',
-              100: 'main',
-            },
-          },
-        }}
+        effect={SelectorColorEffect}
       >
         {translateName ? t(`field-label-${name}`) : name}
       </ReqoreMenuItem>

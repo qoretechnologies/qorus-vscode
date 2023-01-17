@@ -1773,10 +1773,10 @@
   dependencies:
     lodash "^4.17.15"
 
-"@qoretechnologies/reqore@^0.30.1":
-  version "0.30.1"
-  resolved "https://registry.yarnpkg.com/@qoretechnologies/reqore/-/reqore-0.30.1.tgz#c077cbc470697b3c71c9ba94e068f6f7713f8e53"
-  integrity sha512-ZuMPjCWQEaM64ysEpKpqnocvrLr9YJwRxKN3pvxrM1p4MSF/D0uD7FJWsCEIhoo00rNs7N0FiEpmsGp0vbls/w==
+"@qoretechnologies/reqore@^0.30.2":
+  version "0.30.2"
+  resolved "https://registry.yarnpkg.com/@qoretechnologies/reqore/-/reqore-0.30.2.tgz#63b80f9979700b3ba808148994f16a6aff672c43"
+  integrity sha512-dDUCkCsyaqoceHAFLxmU1uri4e32x17I9Qb3iHOY+3TqiO2KYVwcnYb5o0YBJl6PCGE5BCWk89E56f3i619knQ==
   dependencies:
     "@popperjs/core" "^2.10.2"
     "@react-spring/web" "^9.2.4"

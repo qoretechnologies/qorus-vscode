@@ -310,8 +310,6 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     return items.find((item) => item.name === itemName)?.desc;
   };
 
-  console.log(name, rest);
-
   return (
     <>
       <CustomDialog
@@ -378,80 +376,80 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
       {!filteredItems || filteredItems.length === 0 ? (
         <ReqoreTag color="transparent" icon="ForbidLine" label={t('NothingToSelect')} />
       ) : null}
-      <ReqoreControlGroup {...rest} fluid={!!fill}>
-        {hasItemsWithDesc(items) && !forceDropdown ? (
-          <ReqoreButton
-            fluid={!!fill}
-            rightIcon="ListUnordered"
-            onClick={() => setSelectDialogOpen(true)}
-            description={
-              !!getItemDescription(value)
-                ? 'Hover to see description'
-                : 'Select from available items'
-            }
-            tooltip={
-              !!getItemDescription(value)
-                ? {
-                    delay: 300,
-                    content: getItemDescription(value),
-                    maxWidth: '50vh',
-                    blur: 2,
-                  }
-                : undefined
-            }
-            disabled={disabled}
-            effect={{
-              gradient: {
-                direction: 'to left bottom',
-                colors: value ? 'info' : 'main',
-              },
-            }}
-          >
-            {value ? value : placeholder || t('PleaseSelect')}
-          </ReqoreButton>
-        ) : asMenu ? (
-          <ReqoreMenu>
-            {filteredItems.map((item) => (
-              <ReqoreMenuItem
-                key={item.name}
-                label={item.name}
-                onClick={() => {
-                  handleSelectClick(item);
-                  setSelectDialogOpen(false);
-                  setQuery('');
+      <FieldEnhancer
+        context={{
+          iface_kind,
+          target_dir: (requestFieldData && requestFieldData('target_dir', 'value')) || target_dir,
+          ...context,
+        }}
+      >
+        {(onEditClick, onCreateClick, otherRest) => (
+          <ReqoreControlGroup {...rest} {...otherRest} fluid={!!fill}>
+            {hasItemsWithDesc(items) && !forceDropdown ? (
+              <ReqoreButton
+                fluid={!!fill}
+                rightIcon="ListUnordered"
+                onClick={() => setSelectDialogOpen(true)}
+                description={
+                  !!getItemDescription(value)
+                    ? 'Hover to see description'
+                    : 'Select from available items'
+                }
+                tooltip={
+                  !!getItemDescription(value)
+                    ? {
+                        delay: 300,
+                        content: getItemDescription(value),
+                        maxWidth: '50vh',
+                        blur: 2,
+                      }
+                    : undefined
+                }
+                disabled={disabled}
+                effect={{
+                  gradient: {
+                    direction: 'to left bottom',
+                    colors: value ? 'info' : 'main',
+                  },
                 }}
-              />
-            ))}
-          </ReqoreMenu>
-        ) : (
-          <ReqoreDropdown
-            items={query === '' ? reqoreItems : filterItems(reqoreItems)}
-            filterable
-            disabled={disabled}
-            description={getItemDescription(value)}
-            effect={{
-              gradient: {
-                direction: 'to left bottom',
-                colors: {
-                  0: 'main',
-                  100: 'main:lighten',
-                },
-              },
-            }}
-          >
-            {value ? value : placeholder || t('PleaseSelect')}
-          </ReqoreDropdown>
-        )}
+              >
+                {value ? value : placeholder || t('PleaseSelect')}
+              </ReqoreButton>
+            ) : asMenu ? (
+              <ReqoreMenu>
+                {filteredItems.map((item) => (
+                  <ReqoreMenuItem
+                    key={item.name}
+                    label={item.name}
+                    onClick={() => {
+                      handleSelectClick(item);
+                      setSelectDialogOpen(false);
+                      setQuery('');
+                    }}
+                  />
+                ))}
+              </ReqoreMenu>
+            ) : (
+              <ReqoreDropdown
+                items={query === '' ? reqoreItems : filterItems(reqoreItems)}
+                filterable
+                disabled={disabled}
+                description={getItemDescription(value)}
+                effect={{
+                  gradient: {
+                    direction: 'to left bottom',
+                    colors: {
+                      0: 'main',
+                      100: 'main:lighten',
+                    },
+                  },
+                }}
+              >
+                {value ? value : placeholder || t('PleaseSelect')}
+              </ReqoreDropdown>
+            )}
 
-        <FieldEnhancer
-          context={{
-            iface_kind,
-            target_dir: (requestFieldData && requestFieldData('target_dir', 'value')) || target_dir,
-            ...context,
-          }}
-        >
-          {(onEditClick, onCreateClick) =>
-            reference ? (
+            {reference ? (
               <ReqoreControlGroup fluid={false} stack>
                 {!editOnly && (
                   <ReqoreButton
@@ -469,10 +467,10 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                   />
                 )}
               </ReqoreControlGroup>
-            ) : null
-          }
-        </FieldEnhancer>
-      </ReqoreControlGroup>
+            ) : null}
+          </ReqoreControlGroup>
+        )}
+      </FieldEnhancer>
     </>
   );
 };

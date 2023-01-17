@@ -21,8 +21,28 @@ export const PositiveColorEffect: IReqoreEffect = {
   gradient: {
     direction: 'to right bottom',
     colors: {
-      0: 'info',
+      0: 'info:lighten',
       100: 'info:darken',
+    },
+  },
+};
+
+export const SaveColorEffect: IReqoreEffect = {
+  gradient: {
+    colors: {
+      0: 'success:lighten',
+      100: 'success:darken',
+    },
+    animate: 'hover',
+  },
+};
+
+export const SelectorColorEffect: IReqoreEffect = {
+  gradient: {
+    direction: 'to right bottom',
+    colors: {
+      0: 'main:lighten',
+      100: 'main',
     },
   },
 };

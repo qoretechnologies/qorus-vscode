@@ -19,19 +19,20 @@ import { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHa
 
 export interface IFieldWrapper {
   label?: string;
-  isValid: boolean;
+  isValid?: boolean;
   info?: string;
   type?: string;
   desc?: string;
   name?: string;
-  onClick: (name: string) => any;
-  removable: boolean;
-  value: any;
+  onClick?: (name: string) => any;
+  removable?: boolean;
+  value?: any;
   parentValue?: any;
-  onResetClick: () => any;
-  isSet: boolean;
-  disabled: boolean;
+  onResetClick?: () => any;
+  isSet?: boolean;
+  disabled?: boolean;
   children: React.ReactNode;
+  collapsible?: boolean;
 }
 
 export const getGlobalDescriptionTooltip = (desc?: string, title?: string): IReqoreTooltip => ({
@@ -62,6 +63,7 @@ export const FieldWrapper = ({
   onClick,
   removable,
   value,
+  collapsible = true,
   parentValue,
   onResetClick,
   isSet,
@@ -74,18 +76,18 @@ export const FieldWrapper = ({
     <ReqorePanel
       label={label}
       flat
-      collapsible
+      collapsible={collapsible}
       rounded={false}
-      icon={isValid ? 'CheckLine' : 'ErrorWarningLine'}
+      icon={label || collapsible ? (isValid ? 'CheckLine' : 'ErrorWarningLine') : undefined}
       intent={isValid ? undefined : 'danger'}
-      iconColor={isValid ? undefined : 'danger'}
+      iconColor={isValid ? undefined : 'danger:lighten'}
       badge={type}
       unMountContentOnCollapse={false}
       actions={[
         getFieldDescriptionAction(desc),
         {
           icon: 'DeleteBinLine',
-          show: removable,
+          show: !!removable,
           intent: 'danger',
           tooltip: t('RemoveField'),
           onClick: () => {

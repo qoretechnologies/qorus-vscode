@@ -24,6 +24,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
   addMessageListener,
   postMessage,
   context,
+  ...rest
 }) => {
   const [editManager, setEditManager] = useState<{
     interfaceKind?: string;
@@ -125,7 +126,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
           />
         </CustomDialog>
       )}
-      {children(handleEditClick, handleCreateClick)}
+      {children(handleEditClick, handleCreateClick, rest)}
     </>
   );
 };
