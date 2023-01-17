@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
+import { useReqoreTheme } from '@qoretechnologies/reqore';
 import { isArray, omit, reduce, size } from 'lodash';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { useDebounce, useUpdateEffect } from 'react-use';
@@ -8,7 +8,8 @@ import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
 import StepDiagram from '../../components/Diagram';
-import { ActionsWrapper, ContentWrapper, IField } from '../../components/FieldWrapper';
+import { SaveColorEffect } from '../../components/Field/multiPair';
+import { ContentWrapper, IField } from '../../components/FieldWrapper';
 import { Messages } from '../../constants/messages';
 import { DraftsContext } from '../../context/drafts';
 import { deleteDraft, getDraftId, getTargetFile } from '../../helpers/functions';
@@ -83,6 +84,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
   const [workflowIndex, setWorkflowIndex] = useState(size(interfaceId.workflow));
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
+  const theme = useReqoreTheme();
 
   useEffect(() => {
     // if (showSteps) {
@@ -123,6 +125,42 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     [steps, stepsData]
   );
 
+  const handleSubmitClick = async () => {
+    // Build the finished object
+    const newData = reduce(
+      selectedFields.workflow[workflowIndex],
+      (result: { [key: string]: any }, field: IField) => ({
+        ...result,
+        [field.name]: field.value,
+      }),
+      {}
+    );
+    newData.steps = processSteps(steps, stepsData);
+    const result = await initialData.callBackend(
+      !!workflow ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
+      undefined,
+      {
+        iface_kind: 'workflow',
+        orig_data: workflow,
+        data: newData,
+        iface_id: workflow?.iface_id || interfaceId.workflow[workflowIndex],
+        open_file_on_success: !onSubmitSuccess,
+        no_data_return: !!onSubmitSuccess,
+      },
+      t('Saving workflow...')
+    );
+
+    if (result.ok) {
+      if (onSubmitSuccess) {
+        onSubmitSuccess(newData);
+      }
+      const fileName = getDraftId(initialData.type, interfaceId.workflow[workflowIndex]);
+      // Delete the draft for this interface
+      deleteDraft('workflow', fileName, false);
+      resetAllInterfaceData('workflow');
+    }
+  };
+
   return (
     <CreatorWrapper>
       {!showSteps && (
@@ -140,15 +178,55 @@ const ServicesView: FunctionComponent<IServicesView> = ({
       )}
       {showSteps && (
         <>
-          <Content>
+          <Content
+            title={t('AddSteps')}
+            bottomActions={[
+              {
+                label: 'Back',
+                icon: 'ArrowGoBackLine',
+                tooltip: t('BackTooltip'),
+                onClick: () => {
+                  setShowSteps(false);
+                },
+                responsive: false,
+              },
+              {
+                as: ManageButton,
+                props: {
+                  type: 'workflow',
+                  disabled: !size(steps),
+                  onClick: () => setShowConfigItemsManager(true),
+                },
+              },
+              {
+                label: t('Submit'),
+                icon: 'CheckLine',
+                onClick: handleSubmitClick,
+                disabled: steps.length === 0,
+                effect: SaveColorEffect,
+                responsive: false,
+                position: 'right',
+              },
+            ]}
+          >
             <ContentWrapper
-              scrollX
               style={{
-                background: `url(${initialData.image_path}/tiny_grid.png)`,
+                //backgroundImage: `url(${TinyGrid})`,
                 paddingRight: 0,
+                overflow: 'hidden',
               }}
             >
-              <div style={{ width: '100%', display: 'flex', flex: '1 1 auto', flexFlow: 'column' }}>
+              <div
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  flex: '1 0 auto',
+                  flexFlow: 'column',
+                  overflow: 'hidden',
+                  height: '100%',
+                  padding: '15px',
+                }}
+              >
                 <StepDiagram
                   steps={parsedSteps}
                   stepsData={stepsData}
@@ -158,76 +236,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                 />
               </div>
             </ContentWrapper>
-
-            <ActionsWrapper>
-              <div style={{ float: 'left', width: '48%' }}>
-                <ButtonGroup fill>
-                  <ManageButton
-                    type="workflow"
-                    disabled={!size(steps)}
-                    onClick={() => setShowConfigItemsManager(true)}
-                  />
-                </ButtonGroup>
-              </div>
-              <div style={{ float: 'right', width: '48%' }}>
-                <ButtonGroup fill>
-                  <Tooltip content={'BackToooltip'}>
-                    <Button
-                      text={t('Back')}
-                      icon={'undo'}
-                      onClick={() => {
-                        setShowSteps(false);
-                      }}
-                    />
-                  </Tooltip>
-                  <Button
-                    name="interface-creator-submit-workflow-steps"
-                    text={t('Submit')}
-                    disabled={steps.length === 0}
-                    icon={'tick'}
-                    intent={Intent.SUCCESS}
-                    onClick={async () => {
-                      // Build the finished object
-                      const newData = reduce(
-                        selectedFields.workflow[workflowIndex],
-                        (result: { [key: string]: any }, field: IField) => ({
-                          ...result,
-                          [field.name]: field.value,
-                        }),
-                        {}
-                      );
-                      newData.steps = processSteps(steps, stepsData);
-                      const result = await initialData.callBackend(
-                        !!workflow ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
-                        undefined,
-                        {
-                          iface_kind: 'workflow',
-                          orig_data: workflow,
-                          data: newData,
-                          iface_id: workflow?.iface_id || interfaceId.workflow[workflowIndex],
-                          open_file_on_success: !onSubmitSuccess,
-                          no_data_return: !!onSubmitSuccess,
-                        },
-                        t('Saving workflow...')
-                      );
-
-                      if (result.ok) {
-                        if (onSubmitSuccess) {
-                          onSubmitSuccess(newData);
-                        }
-                        const fileName = getDraftId(
-                          initialData.type,
-                          interfaceId.workflow[workflowIndex]
-                        );
-                        // Delete the draft for this interface
-                        deleteDraft('workflow', fileName, false);
-                        resetAllInterfaceData('workflow');
-                      }
-                    }}
-                  />
-                </ButtonGroup>
-              </div>
-            </ActionsWrapper>
           </Content>
           {showConfigItemsManager ? (
             <CustomDialog

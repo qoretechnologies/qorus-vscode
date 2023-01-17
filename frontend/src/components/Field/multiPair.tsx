@@ -24,6 +24,18 @@ export const PositiveColorEffect: IReqoreEffect = {
       0: 'info:lighten',
       100: 'info:darken',
     },
+    animate: 'hover',
+  },
+};
+
+export const NegativeColorEffect: IReqoreEffect = {
+  gradient: {
+    direction: 'to right bottom',
+    colors: {
+      0: 'danger:lighten',
+      100: 'danger:darken',
+    },
+    animate: 'hover',
   },
 };
 

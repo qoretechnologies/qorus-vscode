@@ -1,5 +1,5 @@
 import { map, size } from 'lodash';
-import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import mapProps from 'recompose/mapProps';
 import { MethodsContext } from '../context/methods';
 
@@ -61,6 +61,7 @@ export default () =>
         setLastMethodId((current) => current + 1);
         setMethods((current: any[]) => [...current, { id: lastMethodId + 1 }]);
         setMethodsCount((current: number) => current + 1);
+        setActiveMethod(lastMethodId + 1);
       };
 
       const addNewMethodWithData = (data): number => {

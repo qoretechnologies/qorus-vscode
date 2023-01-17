@@ -1,5 +1,4 @@
 import { Spinner } from '@blueprintjs/core';
-import { ReqoreP } from '@qoretechnologies/reqore';
 import styled from 'styled-components';
 
 const StyledLoader = styled.div`
@@ -19,7 +18,7 @@ const Loader = ({ text }) => (
   <StyledLoader>
     <div>
       <Spinner size={60} />
-      <ReqoreP>{text}</ReqoreP>
+      <p>{text}</p>
     </div>
   </StyledLoader>
 );

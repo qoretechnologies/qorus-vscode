@@ -155,7 +155,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     return undefined;
   };
 
-  const fetchConfigItems: (currentIfaceId: string) => void = (currentIfaceId) => {
+  const fetchConfigItems: (currentIfaceId?: string) => void = (currentIfaceId) => {
     postMessage(Messages.GET_CONFIG_ITEMS, {
       iface_id: currentIfaceId || interfaceId,
       iface_kind: type,
@@ -1176,6 +1176,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         title={t(stepTwoTitle)}
         bottomActions={[
           {
+            label: t('Back'),
+            icon: 'ArrowGoBackLine',
+            onClick: () => onBackClick?.(),
+            show: !!onBackClick,
+            responsive: false,
+          },
+          {
             icon: areClassConnectionsValid?.() ? 'CodeBoxLine' : 'AlarmWarningLine',
             intent: areClassConnectionsValid?.() ? undefined : 'warning',
             disabled: !isClassConnectionsManagerEnabled?.(interfaceIndex),
@@ -1190,15 +1197,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               type,
               disabled: !isConfigManagerEnabled(),
               onClick: () => setShowConfigItemsManager(true),
+              fetchCall: fetchConfigItems,
             },
             show: hasConfigManager,
-          },
-          {
-            label: t('Back'),
-            icon: 'ArrowGoBackLine',
-            onClick: () => onBackClick?.(),
-            show: !!onBackClick,
-            responsive: false,
           },
           {
             label: t('DiscardChangesButton'),
@@ -1298,12 +1299,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           isOpen
           title={t('ClassConnectionsManager')}
           onClose={() => setShowClassConnectionsManager(false)}
-          style={{
-            width: '80vw',
-            minHeight: '40vh',
-            maxHeight: '90vh',
-            backgroundColor: '#fff',
-          }}
         >
           <ClassConnectionsManager
             ifaceType={type === 'service-methods' ? 'service' : type}
@@ -1350,7 +1345,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           isOpen
           title={t('ConfigItemsManager')}
           onClose={() => setShowConfigItemsManager(false)}
-          style={{ width: '80vw', backgroundColor: '#fff' }}
         >
           <ConfigItemManager
             type={type}

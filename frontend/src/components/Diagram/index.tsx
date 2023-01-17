@@ -1,10 +1,16 @@
 // @flow
-import { Button, ButtonGroup, Icon, Intent, NonIdealState, Tooltip } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreIcon,
+  ReqoreMessage,
+  ReqoreVerticalSpacer,
+  useReqoreTheme,
+} from '@qoretechnologies/reqore';
 import classNames from 'classnames';
 import { size } from 'lodash';
+import { lighten } from 'polished';
 import { Component, useContext, useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
-import { ActionsWrapper, ContentWrapper, FieldInputWrapper } from '../../components/FieldWrapper';
 import { Messages } from '../../constants/messages';
 import { calculateFontSize } from '../../containers/InterfaceCreator/fsm/state';
 import { ContextMenuContext } from '../../context/contextMenu';
@@ -12,15 +18,14 @@ import { FieldContext } from '../../context/fields';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
-import Content from '../Content';
 import CustomDialog from '../CustomDialog';
 import Field from '../Field';
-import FieldLabel from '../FieldLabel';
+import { SaveColorEffect } from '../Field/multiPair';
 import { FieldName, FieldType } from '../FieldSelector';
 import { FieldWrapper } from '../FieldWrapper';
-import Spacer from '../Spacer';
 
 /**
  * Typical list of arguments for step-specific functions.
@@ -545,6 +550,7 @@ class GraphBuilder {
 }
 
 @withTextContext()
+@withFieldsConsumer()
 export default class StepDiagram extends Component<IStepDiagramProps> {
   state = {
     rows: null,
@@ -796,7 +802,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
   };
 
   render() {
-    const { t, steps } = this.props;
+    const { t, steps, requestInterfaceData } = this.props;
 
     if (size(steps) && !this.state.rows) {
       return 'Loading...';
@@ -807,43 +813,79 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
         {this.state.dialog && (
           <StepDialog onClose={() => this.setState({ dialog: null })} {...this.state.dialog} />
         )}
-        <Spacer size={10} />
-        <Button
-          text={t('AddNewStepBefore')}
+        <ReqoreVerticalSpacer height={10} />
+        {/* <Field
+          type="select-string"
+          onChange={(n, v) => {
+            this.props.handleStepInsert(
+              {
+                name: v.split(':')[0],
+                version: v.split(':')[1],
+              },
+              null,
+              true
+            );
+          }}
+          name="step"
+          reference={{ iface_kind: 'step' }}
+          get_message={{
+            action: 'creator-get-objects',
+            object_type: 'workflow-step',
+          }}
+          return_message={{
+            action: 'creator-return-objects',
+            object_type: 'workflow-step',
+            return_value: 'objects',
+          }}
+          requestFieldData={(field) => {
+            if (field === 'target_dir') {
+              return requestInterfaceData('workflow', 'target_dir')?.value;
+            }
+          }}
+        /> */}
+        <ReqoreButton
           minimal
-          intent="success"
-          icon="add"
+          fixed
+          textAlign="center"
+          style={{
+            margin: 'auto',
+          }}
+          intent="info"
+          icon="AddLine"
           onClick={() => this.handleAddStep(true, t('AddNewStepBefore'))}
-          name="add-step-before-all"
-        />
-        <Spacer size={10} />
+        >
+          {t('AddNewStepBefore')}
+        </ReqoreButton>
+        <ReqoreVerticalSpacer height={10} />
         {size(steps) ? (
           <div
             style={{
               display: 'flex',
               flexFlow: 'column',
               flex: '1 1 auto',
+              overflow: 'auto',
             }}
           >
             {this.renderGraph()}
           </div>
         ) : (
-          <NonIdealState
-            title={t('DiagramIsEmpty')}
-            description={t('DiagramEmptyDescription')}
-            icon="diagram-tree"
-          />
+          <ReqoreMessage title={t('DiagramIsEmpty')} icon="NodeTree" style={{ margin: 'auto' }}>
+            {t('DiagramEmptyDescription')}
+          </ReqoreMessage>
         )}
-        <Spacer size={10} />
-        <Button
-          text={t('AddNewStepAfter')}
+        <ReqoreVerticalSpacer height={10} />
+        <ReqoreButton
           minimal
-          intent="success"
-          icon="add"
+          style={{
+            margin: 'auto',
+          }}
+          intent="info"
+          icon="AddLine"
           onClick={() => this.handleAddStep(false, t('AddNewStepAfter'))}
-          name="add-step-after-all"
-        />
-        <Spacer size={10} />
+        >
+          {t('AddNewStepAfter')}
+        </ReqoreButton>
+        <ReqoreVerticalSpacer height={10} />
       </>
     );
   }
@@ -860,76 +902,58 @@ const StepDialog = ({ step, onClose, onSubmit, title, stepName }) => {
       isOpen
       title={`${title}${stepName ? ` - ${stepName}` : ''}`}
       onClose={onClose}
-      style={{
-        paddingBottom: 0,
-        width: '90vw',
-      }}
+      bottomActions={[
+        {
+          label: t('Reset'),
+          icon: 'HistoryLine',
+          onClick: () => {
+            confirmAction(
+              'ResetFieldsConfirm',
+              () => {
+                setStepState(step);
+              },
+              'Reset',
+              'warning',
+              undefined,
+              'warning'
+            );
+          },
+        },
+        {
+          label: t('Submit'),
+          icon: 'CheckLine',
+          effect: SaveColorEffect,
+          onClick: () => {
+            onSubmit(stepState);
+          },
+          disabled: !validateField('string', stepState),
+          position: 'right',
+        },
+      ]}
     >
-      <Content style={{ padding: 10, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
-        <ContentWrapper
-          style={{ display: 'flex', flexFlow: 'column', paddingRight: 0, position: 'relative' }}
-        >
-          <FieldWrapper>
-            <FieldLabel
-              label={t('field-label-step')}
-              isValid={validateField('string', stepState)}
-            />
-            <FieldInputWrapper>
-              <Field
-                type="select-string"
-                onChange={(_name, value) => setStepState(value)}
-                name="step"
-                reference={{ iface_kind: 'step' }}
-                value={stepState}
-                get_message={{
-                  action: 'creator-get-objects',
-                  object_type: 'workflow-step',
-                }}
-                return_message={{
-                  action: 'creator-return-objects',
-                  object_type: 'workflow-step',
-                  return_value: 'objects',
-                }}
-                requestFieldData={(field) => {
-                  if (field === 'target_dir') {
-                    return requestInterfaceData('workflow', 'target_dir')?.value;
-                  }
-                }}
-              />
-            </FieldInputWrapper>
-          </FieldWrapper>
-        </ContentWrapper>
-        <ActionsWrapper style={{ padding: '10px' }}>
-          <ButtonGroup fill>
-            <Tooltip content={t('ResetTooltip')}>
-              <Button
-                text={t('Reset')}
-                icon={'history'}
-                onClick={() => {
-                  confirmAction(
-                    'ResetFieldsConfirm',
-                    () => {
-                      setStepState(step);
-                    },
-                    'Reset',
-                    'warning'
-                  );
-                }}
-              />
-            </Tooltip>
-            <Button
-              text={t('Submit')}
-              disabled={!validateField('string', stepState)}
-              icon={'tick'}
-              name={`workflow-submit-step`}
-              intent={Intent.SUCCESS}
-              onClick={() => {
-                onSubmit(stepState);
-              }}
-            />
-          </ButtonGroup>
-        </ActionsWrapper>
-      </Content>
+      <FieldWrapper isValid={validateField('string', stepState)} collapsible={false}>
+        <Field
+          type="select-string"
+          onChange={(_name, value) => setStepState(value)}
+          name="step"
+          reference={{ iface_kind: 'step' }}
+          value={stepState}
+          get_message={{
+            action: 'creator-get-objects',
+            object_type: 'workflow-step',
+          }}
+          return_message={{
+            action: 'creator-return-objects',
+            object_type: 'workflow-step',
+            return_value: 'objects',
+          }}
+          requestFieldData={(field) => {
+            if (field === 'target_dir') {
+              return requestInterfaceData('workflow', 'target_dir')?.value;
+            }
+          }}
+        />
+      </FieldWrapper>
     </CustomDialog>
   );
 };
@@ -938,8 +962,7 @@ const StyledAddStepButton = styled.div<{ position: string }>`
   width: 20px;
   height: 20px;
   border-radius: 99px;
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: ${({ theme }) => theme.intents.info};
   position: fixed;
   display: flex;
   justify-content: center;
@@ -984,20 +1007,22 @@ const StyledStep = styled.div<{ isHighlighted?: boolean }>`
   margin: 10px;
   max-height: 56px;
   padding: 7px;
-  background-color: #fff;
-  border: ${({ isHighlighted }) => (isHighlighted ? '2px dashed #137cbd' : '1px solid #ccc')};
+  background-color: ${({ theme }) => theme.main};
+  color: ${({ theme }) => theme.text.color};
+  border: ${({ isHighlighted, theme }) =>
+    isHighlighted ? `2px dashed ${theme.intents.info}` : `1px solid ${lighten(0.1, '#222222')}`};
   border-radius: 5px;
   transform: ${({ isHighlighted }) => (isHighlighted ? 1.05 : 1)};
-  box-shadow: 0 0 ${({ isHighlighted }) => (isHighlighted ? 15 : 2)}px 0px #ccc;
+  box-shadow: 0 0 ${({ isHighlighted }) => (isHighlighted ? 15 : 10)}px 0px #00000080;
   position: relative;
 
   &:hover {
     cursor: pointer;
-    box-shadow: 0 0 10px 2px #ccc;
-    border: 1px solid #ccc;
+    box-shadow: 0 0 10px 2px #00000080;
+    border: ${`1px solid ${lighten(0.2, '#222222')}`};
 
     ${StyledAddStepButton} {
-      display: block;
+      display: flex;
     }
   }
 `;
@@ -1013,6 +1038,7 @@ const StepBox = ({
   onStepUpdate,
 }) => {
   const t = useContext(TextContext);
+  const theme = useReqoreTheme();
   const { addMenu } = useContext(ContextMenuContext);
   const [dialog, setDialog] = useState(null);
   const [stepData, setStepData] = useState(
@@ -1093,6 +1119,7 @@ const StepBox = ({
       {dialog && <StepDialog onClose={() => setDialog(null)} {...dialog} />}
       <StyledStep
         name="workflow-diagram-step"
+        theme={theme}
         isHighlighted={highlightedSteps.includes(stepId)}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
@@ -1140,31 +1167,35 @@ const StepBox = ({
       >
         <StyledAddStepButton
           position="top"
+          theme={theme}
           onClick={(event) => handleAddStep(event, true, false, t('AddSequentialStepBefore'))}
           name={`add-sequential-step-before-${stepData.name}`}
         >
-          <Icon intent="success" icon="add" iconSize={16} />
+          <ReqoreIcon icon="AddLine" size="14px" color="#ffffff" />
         </StyledAddStepButton>
         <StyledAddStepButton
           position="left"
+          theme={theme}
           onClick={(event) => handleAddStep(event, true, true, t('AddParallelStepBefore'))}
           name={`add-parallel-step-before-${stepData.name}`}
         >
-          <Icon intent="success" icon="add" iconSize={16} />
+          <ReqoreIcon icon="AddLine" size="14px" color="#ffffff" />
         </StyledAddStepButton>
         <StyledAddStepButton
           position="bottom"
+          theme={theme}
           onClick={(event) => handleAddStep(event, false, false, t('AddSequentialStepAfter'))}
           name={`add-sequential-step-after-${stepData.name}`}
         >
-          <Icon intent="success" icon="add" iconSize={16} />
+          <ReqoreIcon icon="AddLine" size="14px" color="#ffffff" />
         </StyledAddStepButton>
         <StyledAddStepButton
           position="right"
+          theme={theme}
           onClick={(event) => handleAddStep(event, false, true, t('AddParallelStepAfter'))}
           name={`add-parallel-step-after-${stepData.name}`}
         >
-          <Icon intent="success" icon="add" iconSize={16} />
+          <ReqoreIcon icon="AddLine" size="14px" color="#ffffff" />
         </StyledAddStepButton>
         <div
           style={{
@@ -1177,6 +1208,7 @@ const StepBox = ({
         >
           <FieldName
             title={`${stepData.name}:${stepData.version}`}
+            theme={theme}
             style={{
               fontSize: calculateFontSize(`${stepData.name}:${stepData.version}`),
             }}

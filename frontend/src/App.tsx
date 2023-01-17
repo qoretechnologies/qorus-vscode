@@ -6,6 +6,7 @@ import {
   ReqoreNavbarGroup,
   ReqoreNavbarItem,
   ReqoreTag,
+  useReqore,
 } from '@qoretechnologies/reqore';
 import last from 'lodash/last';
 import size from 'lodash/size';
@@ -97,6 +98,9 @@ const App: FunctionComponent<IApp> = ({
   const { setErrorsFromDraft }: any = useContext(ErrorsContext);
   const [isDirsDialogOpen, setIsDirsDialogOpen] = useState<boolean>(false);
   const { t } = useContext(InitialContext);
+  const { getAndIncreaseZIndex } = useReqore();
+
+  console.log(getAndIncreaseZIndex());
 
   const addDraft = (draftData: any) => {
     setDraft(draftData);
@@ -380,10 +384,11 @@ const App: FunctionComponent<IApp> = ({
                     </ReqoreNavbarItem>
                   </ReqoreNavbarGroup>
                 </ReqoreHeader>
-                <div style={{ margin: '10px', overflow: 'auto', display: 'flex', flex: 1 }}>
-                  {isDirsDialogOpen && (
-                    <SourceDirectories onClose={() => setIsDirsDialogOpen(false)} />
-                  )}
+                <div style={{ margin: '0 10px', overflow: 'auto', display: 'flex', flex: 1 }}>
+                  <SourceDirectories
+                    isOpen={isDirsDialogOpen}
+                    onClose={() => setIsDirsDialogOpen(false)}
+                  />
                   <>
                     {tab == 'Login' && <LoginContainer />}
                     {tab == 'Loading' && <Loader text={t('Loading')} />}

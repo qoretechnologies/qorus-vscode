@@ -2,6 +2,7 @@ import { ReqoreButton, ReqoreControlGroup, ReqoreInput } from '@qoretechnologies
 import React, { FunctionComponent, useState } from 'react';
 import urlParse from 'url-parse';
 import { TTranslator } from '../App';
+import { PositiveColorEffect, SaveColorEffect } from '../components/Field/multiPair';
 import withTextContext from '../hocomponents/withTextContext';
 
 const getUrlWithoutCredentials = (url) => {
@@ -179,7 +180,7 @@ export default withTextContext()(
               </ReqoreButton>
               <ReqoreButton
                 icon="CheckLine"
-                intent="success"
+                effect={SaveColorEffect}
                 onClick={handleCreateClick}
                 // @ts-expect-error
                 name={`${id}-submit`}
@@ -192,8 +193,8 @@ export default withTextContext()(
           <ReqoreControlGroup fluid>
             <ReqoreButton
               icon="AddLine"
+              effect={PositiveColorEffect}
               onClick={handleAddClick}
-              intent="success"
               // @ts-expect-error
               name={`${id}-add`}
             >

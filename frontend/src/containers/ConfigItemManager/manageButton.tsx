@@ -1,7 +1,7 @@
 import { ReqoreButton } from '@qoretechnologies/reqore';
 import size from 'lodash/size';
-import { FunctionComponent, useState } from 'react';
-import useEffectOnce from 'react-use/lib/useEffectOnce';
+import { FunctionComponent, memo, useState } from 'react';
+import { useMount } from 'react-use';
 import compose from 'recompose/compose';
 import { TTranslator } from '../../App';
 import { Messages } from '../../constants/messages';
@@ -14,45 +14,44 @@ export interface IManageConfigButton {
   disabled: boolean;
   onClick: () => void;
   type?: string;
+  fetchCall?: (ifaceId?: string) => void;
 }
 
-const ManageConfigButton: FunctionComponent<IManageConfigButton> = ({
-  t,
-  addMessageListener,
-  disabled,
-  onClick,
-  type,
-}) => {
-  const [configCount, setConfigCount] = useState<number>(0);
+const ManageConfigButton: FunctionComponent<IManageConfigButton> = memo(
+  ({ t, addMessageListener, disabled, onClick, type, fetchCall }) => {
+    const [configCount, setConfigCount] = useState<number>(0);
 
-  useEffectOnce(() => {
-    // Listen for changes in config items for
-    // this interface
-    const messageHandler = addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
-      const itemCount =
-        type === 'workflow'
-          ? size(data.workflow_items?.filter((item) => item.is_set))
-          : size(data.items);
-      // Set the new config count
-      setConfigCount(itemCount);
+    useMount(() => {
+      // Listen for changes in config items for
+      // this interface
+      const messageHandler = addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
+        const itemCount =
+          type === 'workflow'
+            ? size(data.workflow_items?.filter((item) => item.is_set))
+            : size(data.items);
+        // Set the new config count
+        setConfigCount(itemCount);
+      });
+
+      fetchCall?.();
+      // Unregister the message handler
+      return () => {
+        messageHandler();
+      };
     });
-    // Unregister the message handler
-    return () => {
-      messageHandler();
-    };
-  });
 
-  return (
-    <ReqoreButton
-      disabled={disabled}
-      badge={configCount}
-      icon={'SettingsLine'}
-      onClick={onClick}
-      tooltip={t('ManageConfigItems')}
-    >
-      {t('ManageConfigItems')}
-    </ReqoreButton>
-  );
-};
+    return (
+      <ReqoreButton
+        disabled={disabled}
+        badge={configCount}
+        icon={'SettingsLine'}
+        onClick={onClick}
+        tooltip={t('ManageConfigItems')}
+      >
+        {t('ManageConfigItems')}
+      </ReqoreButton>
+    );
+  }
+);
 
 export default compose(withTextContext(), withMessageHandler())(ManageConfigButton);

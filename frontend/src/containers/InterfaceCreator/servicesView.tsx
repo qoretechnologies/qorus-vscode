@@ -12,7 +12,7 @@ import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { TApiManagerEndpoint } from '../../components/Field/apiManager';
-import { SelectorColorEffect } from '../../components/Field/multiPair';
+import { PositiveColorEffect, SelectorColorEffect } from '../../components/Field/multiPair';
 import SidePanel from '../../components/SidePanel';
 import { DraftsContext } from '../../context/drafts';
 import { MethodsContext } from '../../context/methods';
@@ -179,7 +179,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
 
   const handleDataFinishLoadingRecur = (id) => {
     if (!hasAllMethodsLoaded) {
-      if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
+      if ((id || 1) + 1 <= lastMethodId) {
         setActiveMethod(id + 1);
       } else {
         hasAllMethodsLoaded = true;
@@ -226,6 +226,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                   icon={'MenuAddLine'}
                   onClick={handleAddMethodClick}
                   tooltip={t('AddMethod')}
+                  effect={PositiveColorEffect}
                 >
                   {t('AddMethod')}
                 </ReqoreMenuItem>
@@ -243,7 +244,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                       isValid={isSubItemValid(method.id, 'service-methods', methodsIndex)}
                       onClick={() => setActiveMethod(method.id)}
                       onRemoveClick={
-                        methodsCount !== 1 && !initialData.lang_client_unavailable
+                        methodsCount !== 1
                           ? () => {
                               setMethods((current) =>
                                 current.filter((currentMethod) => currentMethod.id !== method.id)

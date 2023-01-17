@@ -42,7 +42,7 @@ const StyledFieldSelector = styled.div`
 export const FieldName = styled.h4`
   margin: 0;
   padding: 0;
-  color: #333;
+  color: ${({ theme }) => theme?.text?.color || '#ffffff'};
   line-height: 20px;
   word-break: keep-all;
   text-overflow: ellipsis;
@@ -52,7 +52,7 @@ export const FieldName = styled.h4`
 export const FieldType = styled.p`
   margin: 0;
   padding: 0;
-  color: #aaa;
+  color: ${({ theme }) => theme?.text?.color || '#ffffff'}50;
   font-size: 12px;
   line-height: 20px;
 `;

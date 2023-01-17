@@ -5,7 +5,7 @@ import {
   ReqoreControlGroup,
   ReqoreInput,
   ReqoreMessage,
-  ReqoreSpacer,
+  ReqoreSpacer
 } from '@qoretechnologies/reqore';
 import { IReqoreCollectionProps } from '@qoretechnologies/reqore/dist/components/Collection';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
@@ -16,12 +16,13 @@ import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../App';
+import { NegativeColorEffect, SaveColorEffect } from '../components/Field/multiPair';
 import Loader from '../components/Loader';
 import { Messages } from '../constants/messages';
 import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
 import withMessageHandler, {
   TMessageListener,
-  TPostMessage,
+  TPostMessage
 } from '../hocomponents/withMessageHandler';
 import withTextContext from '../hocomponents/withTextContext';
 import Add from './add';
@@ -437,7 +438,7 @@ const Project: FunctionComponent<IProject> = ({
                           handleEnvironmentNameChange(data.id, envName);
                           selectEnvironmentForEditing(undefined);
                         }}
-                        intent="success"
+                        effect={SaveColorEffect}
                       />
                       <ReqoreButton
                         icon="CloseLine"
@@ -459,11 +460,13 @@ const Project: FunctionComponent<IProject> = ({
                   {
                     label: t('Delete'),
                     icon: 'DeleteBinLine',
+                    effect: NegativeColorEffect,
                     onClick: () => {
                       confirmAction({
                         title: t('DeleteEnvironment'),
                         description: t('ConfirmRemoveEnv'),
                         onConfirm: () => handleEnvironmentDelete(data.id),
+                        intent: 'danger',
                       });
                     },
                   },

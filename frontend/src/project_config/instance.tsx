@@ -11,6 +11,7 @@ import {
   ReqoreSpacer,
 } from '@qoretechnologies/reqore';
 import { TTranslator } from '../App';
+import { NegativeColorEffect } from '../components/Field/multiPair';
 import withTextContext from '../hocomponents/withTextContext';
 import Add from './add';
 import { IQorusInstance } from './ProjectConfig';
@@ -136,7 +137,6 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
           flat
           padded={isActive}
           intent={isActive ? 'info' : undefined}
-          headerSize={4}
           actions={[
             {
               icon: isActive ? 'StopCircleFill' : 'RestartFill',
@@ -149,11 +149,12 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
             },
             {
               icon: 'DeleteBinLine',
-              intent: 'danger',
+              effect: NegativeColorEffect,
               onClick: () =>
                 confirmAction({
                   description: t('ConfirmRemoveInstance'),
                   onConfirm: () => onDelete(id),
+                  intent: 'danger',
                 }),
             },
           ]}
