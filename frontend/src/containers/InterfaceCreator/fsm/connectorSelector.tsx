@@ -8,7 +8,7 @@ import withMessageHandler, {
 } from '../../../hocomponents/withMessageHandler';
 
 export interface IConnectorSelectorProps {
-  value: {
+  value?: {
     class: string;
     connector: string;
   };
@@ -62,7 +62,7 @@ const ConnectorSelector = ({
   }, []);
 
   const getConnectors = (): IConnector[] => {
-    const selectedClass: IClass = classes.find((clss) => clss.name === value['class']);
+    const selectedClass: IClass = classes.find((clss) => clss.name === value?.['class']);
 
     return selectedClass?.['class-connectors'].filter((connector) =>
       types.includes(connector.type)
@@ -92,10 +92,8 @@ const ConnectorSelector = ({
     return <Spinner size={16} />;
   }
 
-  console.log(getConnectors());
-
   return (
-    <ReqoreControlGroup>
+    <ReqoreControlGroup stack fill>
       <SelectField
         fill
         onChange={handleChange}
@@ -114,6 +112,7 @@ const ConnectorSelector = ({
           onChange={handleChange}
           value={value?.connector}
           name="connector"
+          description={'Class connector'}
         />
       )}
     </ReqoreControlGroup>

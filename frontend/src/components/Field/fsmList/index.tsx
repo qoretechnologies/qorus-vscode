@@ -154,7 +154,7 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({
                 <Select
                   onChange={(_name, value) => updateFSMData(index, 'name', value)}
                   name={`fsm-${index}`}
-                  fill
+                  description={t('FiniteStateMachine')}
                   value={datum.name}
                   requestFieldData={requestFieldData}
                   get_message={{
@@ -187,6 +187,7 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({
       <ReqoreButton
         onClick={() => setData((cur) => [...cur, { name: null, triggers: [] }])}
         fluid
+        rightIcon="AddLine"
         intent="info"
         icon="AddLine"
       >

@@ -26,6 +26,7 @@ import withMessageHandler, {
 import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
+import { PositiveColorEffect } from './multiPair';
 
 export interface ISelectField {
   addMessageListener: TMessageListener;
@@ -34,7 +35,6 @@ export interface ISelectField {
   defaultItems?: any[];
   predicate: (name: string) => boolean;
   placeholder: string;
-  fill?: boolean;
   disabled?: boolean;
   position?: any;
   requestFieldData: (name: string, key?: string) => any;
@@ -108,13 +108,13 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   addMessageListener,
   postMessage,
   name,
+  description,
   onChange,
   value,
   defaultItems,
   t,
   predicate,
   placeholder,
-  fill,
   disabled,
   requestFieldData,
   warningMessageOnEmpty,
@@ -384,10 +384,10 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
         }}
       >
         {(onEditClick, onCreateClick, otherRest) => (
-          <ReqoreControlGroup {...rest} {...otherRest} fluid={!!fill}>
+          <ReqoreControlGroup {...rest} {...otherRest} stack fill>
             {hasItemsWithDesc(items) && !forceDropdown ? (
               <ReqoreButton
-                fluid={!!fill}
+                fluid
                 rightIcon="ListUnordered"
                 onClick={() => setSelectDialogOpen(true)}
                 description={
@@ -408,7 +408,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                 disabled={disabled}
                 effect={{
                   gradient: {
-                    direction: 'to left bottom',
+                    direction: 'to left',
                     colors: value ? 'info' : 'main',
                   },
                 }}
@@ -434,7 +434,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                 items={query === '' ? reqoreItems : filterItems(reqoreItems)}
                 filterable
                 disabled={disabled}
-                description={getItemDescription(value)}
+                description={getItemDescription(value) || description}
                 effect={{
                   gradient: {
                     direction: 'to left bottom',
@@ -455,7 +455,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                   <ReqoreButton
                     icon="AddLine"
                     fixed
-                    intent="success"
+                    effect={PositiveColorEffect}
                     onClick={() => onCreateClick(reference, handleEditSubmit)}
                   />
                 )}

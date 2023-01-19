@@ -189,7 +189,13 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
         ))}
       </ReqoreColumns>
       <ReqoreControlGroup fluid>
-        <ReqoreButton icon={'AddLine'} onClick={handleAddClick} effect={PositiveColorEffect}>
+        <ReqoreButton
+          icon={'AddLine'}
+          rightIcon={'AddLine'}
+          textAlign="center"
+          onClick={handleAddClick}
+          effect={PositiveColorEffect}
+        >
           {t('AddNew')}
         </ReqoreButton>
       </ReqoreControlGroup>

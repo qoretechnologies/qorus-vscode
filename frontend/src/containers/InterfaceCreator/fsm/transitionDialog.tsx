@@ -1,4 +1,5 @@
-import { Button, ButtonGroup, Callout, Intent, Spinner, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
+import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import cloneDeep from 'lodash/cloneDeep';
 import every from 'lodash/every';
 import forEach from 'lodash/forEach';
@@ -13,14 +14,8 @@ import CustomDialog from '../../../components/CustomDialog';
 import MultiSelect from '../../../components/Field/multiSelect';
 import RadioField from '../../../components/Field/radioField';
 import String from '../../../components/Field/string';
-import FieldLabel from '../../../components/FieldLabel';
-import {
-  ActionsWrapper,
-  ContentWrapper,
-  FieldInputWrapper,
-  FieldWrapper,
-} from '../../../components/FieldWrapper';
-import Spacer from '../../../components/Spacer';
+import { ActionsWrapper, ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
+import Loader from '../../../components/Loader';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { validateField } from '../../../helpers/validations';
@@ -114,57 +109,51 @@ export const ConditionField = ({ data, onChange, required }) => {
 
   return (
     <>
-      <FieldWrapper padded>
-        <FieldLabel label={t('Condition')} isValid={isConditionValid(data)} info={t('Optional')} />
-        <FieldInputWrapper>
-          <RadioField
-            name="conditionType"
-            onChange={(_name, value) => {
-              onChange(
-                'condition',
-                value === 'none' ? null : value === 'custom' ? '' : { class: null }
-              );
-            }}
-            value={conditionType || 'none'}
-            items={
-              required
-                ? [{ value: 'custom' }, { value: 'connector' }]
-                : [{ value: 'custom' }, { value: 'connector' }, { value: 'none' }]
-            }
-          />
-          {conditionType && conditionType !== 'none' ? (
-            <>
-              <Spacer size={20} />
-              {renderConditionField(conditionType, data, onChange)}
-            </>
-          ) : null}
-        </FieldInputWrapper>
+      <FieldWrapper label={t('Condition')} isValid={isConditionValid(data)} type={t('Optional')}>
+        <RadioField
+          name="conditionType"
+          onChange={(_name, value) => {
+            onChange(
+              'condition',
+              value === 'none' ? null : value === 'custom' ? '' : { class: null }
+            );
+          }}
+          value={conditionType || 'none'}
+          items={
+            required
+              ? [{ value: 'custom' }, { value: 'connector' }]
+              : [{ value: 'custom' }, { value: 'connector' }, { value: 'none' }]
+          }
+        />
+        {conditionType && conditionType !== 'none' ? (
+          <>
+            <ReqoreVerticalSpacer height={10} />
+            {renderConditionField(conditionType, data, onChange)}
+          </>
+        ) : null}
       </FieldWrapper>
       {conditionType === 'custom' && (
-        <FieldWrapper padded>
-          <FieldLabel
-            label={t('field-label-lang')}
-            isValid={validateField('string', data?.language || 'qore')}
+        <FieldWrapper
+          label={t('field-label-lang')}
+          isValid={validateField('string', data?.language || 'qore')}
+        >
+          <RadioField
+            name="language"
+            onChange={(name, value) => {
+              onChange(name, value);
+            }}
+            value={data?.language || 'qore'}
+            items={[
+              {
+                value: 'qore',
+                icon_filename: 'qore-106x128.png',
+              },
+              {
+                value: 'python',
+                icon_filename: 'python-129x128.png',
+              },
+            ]}
           />
-          <FieldInputWrapper>
-            <RadioField
-              name="language"
-              onChange={(name, value) => {
-                onChange(name, value);
-              }}
-              value={data?.language || 'qore'}
-              items={[
-                {
-                  value: 'qore',
-                  icon_filename: 'qore-106x128.png',
-                },
-                {
-                  value: 'python',
-                  icon_filename: 'python-129x128.png',
-                },
-              ]}
-            />
-          </FieldInputWrapper>
         </FieldWrapper>
       )}
     </>
@@ -176,7 +165,7 @@ export const TransitionEditor = ({ onChange, transitionData, errors, qorus_insta
 
   const renderErrorsField: (transitionData: IFSMTransition) => any = (transitionData) => {
     if (qorus_instance && !errors) {
-      return <Spinner size={14} />;
+      return <Loader text="Loading..." />;
     }
 
     return (
@@ -193,34 +182,28 @@ export const TransitionEditor = ({ onChange, transitionData, errors, qorus_insta
   return (
     <>
       {transitionData.branch && (
-        <FieldWrapper padded>
-          <FieldLabel label={t('Branch')} isValid />
-          <FieldInputWrapper>
-            <RadioField
-              name="branch"
-              onChange={(_name, value) => {
-                onChange('branch', value);
-              }}
-              value={transitionData.branch}
-              items={[{ value: 'true' }, { value: 'false' }]}
-            />
-          </FieldInputWrapper>
+        <FieldWrapper label={t('Branch')} isValid>
+          <RadioField
+            name="branch"
+            onChange={(_name, value) => {
+              onChange('branch', value);
+            }}
+            value={transitionData.branch}
+            items={[{ value: 'true' }, { value: 'false' }]}
+          />
         </FieldWrapper>
       )}
       {!transitionData.branch && (
         <>
           <ConditionField onChange={onChange} data={transitionData} />
-          <FieldWrapper padded>
-            <FieldLabel label={t('Errors')} isValid info={t('Optional')} />
-            <FieldInputWrapper>
-              {!qorus_instance && (
-                <>
-                  <Callout intent={Intent.WARNING}>{t('TransitionErrorsNoInstance')}</Callout>
-                  <Spacer size={10} />
-                </>
-              )}
-              {renderErrorsField(transitionData)}
-            </FieldInputWrapper>
+          <FieldWrapper label={t('Errors')} isValid type={t('Optional')}>
+            {!qorus_instance && (
+              <>
+                <ReqoreMessage intent="warning">{t('TransitionErrorsNoInstance')}</ReqoreMessage>
+                <ReqoreVerticalSpacer height={10} />
+              </>
+            )}
+            {renderErrorsField(transitionData)}
           </FieldWrapper>
         </>
       )}

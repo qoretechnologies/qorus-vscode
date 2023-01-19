@@ -3,6 +3,7 @@ import { FunctionComponent, useContext } from 'react';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { InitialContext } from '../../context/init';
 import FieldEnhancer from '../FieldEnhancer';
+import { NegativeColorEffect } from './multiPair';
 import SelectField from './select';
 import StringField from './string';
 
@@ -44,74 +45,72 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
   return (
     <FieldEnhancer context={context}>
       {(onEditClick, onCreateClick) => (
-        <div>
-          <ReqoreControlGroup fluid>
-            <ReqoreTag label={`${index}.`} fixed />
-            {selectFirst ? (
-              <>
-                <SelectField
-                  name={valueName}
-                  value={valueValue}
-                  get_message={get_message}
-                  return_message={return_message}
-                  defaultItems={defaultSelectItems}
-                  reference={reference}
-                  iface_kind={iface_kind}
-                  onChange={(fieldName: string, value: string) => {
-                    onChange(fieldName, value);
-                  }}
-                  requestFieldData={requestFieldData}
-                  fill
-                />
-                {hideTextField && (
-                  <StringField
-                    name={keyName}
-                    value={keyValue}
-                    onChange={(fieldName: string, value: string): void => {
-                      onChange(fieldName, value);
-                    }}
-                    fill
-                  />
-                )}
-              </>
-            ) : (
-              <>
-                {!hideTextField && (
-                  <StringField
-                    name={keyName}
-                    value={keyValue}
-                    onChange={(fieldName: string, value: string): void => {
-                      onChange(fieldName, value);
-                    }}
-                    fill
-                  />
-                )}
-                <SelectField
-                  name={valueName}
-                  value={valueValue}
-                  get_message={get_message}
-                  return_message={return_message}
-                  defaultItems={defaultSelectItems}
-                  reference={reference}
-                  requestFieldData={requestFieldData}
-                  iface_kind={iface_kind}
-                  onChange={(fieldName: string, value: string) => {
-                    onChange(fieldName, value);
-                  }}
-                  fill
-                />
-              </>
-            )}
-            {canBeRemoved && (
-              <ReqoreButton
-                fixed
-                icon={'DeleteBinLine'}
-                intent="danger"
-                onClick={() => initContext.confirmAction('ConfirmRemoveItem', onRemoveClick)}
+        <ReqoreControlGroup fluid stack fill>
+          <ReqoreTag label={`${index}.`} fixed />
+          {selectFirst ? (
+            <>
+              <SelectField
+                name={valueName}
+                value={valueValue}
+                get_message={get_message}
+                return_message={return_message}
+                defaultItems={defaultSelectItems}
+                reference={reference}
+                iface_kind={iface_kind}
+                onChange={(fieldName: string, value: string) => {
+                  onChange(fieldName, value);
+                }}
+                requestFieldData={requestFieldData}
+                fill
               />
-            )}
-          </ReqoreControlGroup>
-        </div>
+              {hideTextField && (
+                <StringField
+                  name={keyName}
+                  value={keyValue}
+                  onChange={(fieldName: string, value: string): void => {
+                    onChange(fieldName, value);
+                  }}
+                  fill
+                />
+              )}
+            </>
+          ) : (
+            <>
+              {!hideTextField && (
+                <StringField
+                  name={keyName}
+                  value={keyValue}
+                  onChange={(fieldName: string, value: string): void => {
+                    onChange(fieldName, value);
+                  }}
+                  fill
+                />
+              )}
+              <SelectField
+                name={valueName}
+                value={valueValue}
+                get_message={get_message}
+                return_message={return_message}
+                defaultItems={defaultSelectItems}
+                reference={reference}
+                requestFieldData={requestFieldData}
+                iface_kind={iface_kind}
+                onChange={(fieldName: string, value: string) => {
+                  onChange(fieldName, value);
+                }}
+                fill
+              />
+            </>
+          )}
+          {canBeRemoved && (
+            <ReqoreButton
+              fixed
+              icon={'DeleteBinLine'}
+              effect={NegativeColorEffect}
+              onClick={() => initContext.confirmAction('ConfirmRemoveItem', onRemoveClick)}
+            />
+          )}
+        </ReqoreControlGroup>
       )}
     </FieldEnhancer>
   );

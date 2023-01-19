@@ -19,10 +19,10 @@ export const StyledPairField = styled.div`
 
 export const PositiveColorEffect: IReqoreEffect = {
   gradient: {
-    direction: 'to right bottom',
+    direction: 'to right',
     colors: {
       0: 'info:lighten',
-      100: 'info:darken',
+      100: 'info',
     },
     animate: 'hover',
   },
@@ -108,7 +108,14 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
         </StyledPairField>
       ))}
       <ReqoreControlGroup fluid>
-        <ReqoreButton icon={'AddLine'} fluid onClick={handleAddClick} effect={PositiveColorEffect}>
+        <ReqoreButton
+          icon={'AddLine'}
+          rightIcon={'AddLine'}
+          textAlign="center"
+          fluid
+          onClick={handleAddClick}
+          effect={PositiveColorEffect}
+        >
           {t('AddNew')}
         </ReqoreButton>
       </ReqoreControlGroup>

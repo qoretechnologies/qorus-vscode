@@ -4,9 +4,9 @@ import {
   ReqoreTagGroup,
   ReqoreThemeContext,
 } from '@qoretechnologies/reqore';
+import { IReqoreEffect } from '@qoretechnologies/reqore/dist/components/Effect';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
-import { darken } from 'polished';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { keyframes } from 'styled-components';
@@ -49,17 +49,31 @@ export interface IFSMStateStyleProps {
 
 export type TStateTypes = 'interfaces' | 'logic' | 'api' | 'other';
 
-export const getStateColor = (stateType: TStateTypes) => {
+export const getStateColor = (stateType: TStateTypes): IReqoreEffect['gradient'] => {
+  let color;
   switch (stateType) {
     case 'interfaces':
-      return '#1d1295';
+      color = '#e8970b';
+      break;
     case 'logic':
-      return '#e7b52d';
+      color = '#3b3b3b';
+      break;
     case 'api':
-      return '#087421';
+      color = '#1914b0';
+      break;
     default:
-      return '#950ea1';
+      color = '#950ea1';
+      break;
   }
+
+  return {
+    colors: {
+      0: 'main',
+      100: color,
+    },
+    animate: 'hover',
+    direction: 'to right bottom',
+  };
 };
 
 const wiggleAnimation = (type) => keyframes`
@@ -283,14 +297,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       intent={shouldWiggle ? 'info' : undefined}
       //customTheme={{ main: getStateColor(getStateCategory(type)) }}
       contentEffect={{
-        gradient: {
-          direction: 'to right bottom',
-          colors: {
-            0: darken(0.3, getStateColor(getStateCategory(action?.type || type))),
-            150: `${getStateColor(getStateCategory(action?.type || type))}`,
-          },
-          borderColor: getStateColor(getStateCategory(action?.type || type)),
-        },
+        gradient: getStateColor(getStateCategory(action?.type || type)),
       }}
       icon="CodeLine"
       name={`fsm-state-${name}`}
@@ -298,6 +305,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       y={position?.y}
       onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}
       onClick={!selectedState || !shouldWiggle ? undefined : (e) => handleClick(e, onClick)}
+      size="small"
       selected={selected}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -314,22 +322,22 @@ const FSMState: React.FC<IFSMStateProps> = ({
       label={!isLoadingCheck ? name : t('LoadingCompatibilityCheck')}
       actions={[
         {
-          icon: 'More2Line' as IReqoreIconName,
-          minimal: true,
-          flat: true,
-          size: 'small',
-          actions: [
+          group: [
             {
               icon: 'Edit2Line' as IReqoreIconName,
               disabled: type === 'block' && !qorus_instance,
               onClick: (e) => handleClick(e, onEditClick),
-              label: 'Edit state',
+              minimal: true,
+              flat: true,
+              size: 'small',
             },
             {
               icon: 'DeleteBin4Fill' as IReqoreIconName,
               onClick: (e) => handleClick(e, onDeleteClick),
               intent: 'danger',
-              label: 'Remove state',
+              minimal: true,
+              flat: true,
+              size: 'small',
             },
           ],
         },

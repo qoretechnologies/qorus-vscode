@@ -1,5 +1,11 @@
-import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
-import { ReqoreMenu, ReqoreMenuDivider, ReqoreThemeContext } from '@qoretechnologies/reqore';
+import { Callout } from '@blueprintjs/core';
+import {
+  ReqoreMenu,
+  ReqoreMenuDivider,
+  ReqoreMessage,
+  ReqoreThemeContext,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import { every, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -10,19 +16,20 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useDrop, XYCoord } from 'react-dnd';
+import { XYCoord, useDrop } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled from 'styled-components';
+import Content from '../../../components/Content';
 import Field from '../../../components/Field';
 import Connectors, { IProviderType } from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
+import { PositiveColorEffect, SaveColorEffect } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
-import FieldLabel from '../../../components/FieldLabel';
-import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../../../components/FieldWrapper';
+import { FieldWrapper } from '../../../components/FieldWrapper';
 import Loader from '../../../components/Loader';
 import Spacer from '../../../components/Spacer';
 import { AppToaster } from '../../../components/Toast';
@@ -32,6 +39,7 @@ import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import {
+  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -42,13 +50,12 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
-import TinyGrid from '../../../images/tiny_grid.png';
+import TinyGrid from '../../../images/repeated-square-dark.png';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMInitialOrderDialog from './initialOrderDialog';
 import FSMState from './state';
@@ -163,7 +170,8 @@ const StyledDiagramWrapper = styled.div`
 const StyledDiagram = styled.div<{ path: string }>`
   width: ${DIAGRAM_SIZE}px;
   height: ${DIAGRAM_SIZE}px;
-  background-image: ${({ bgColor }) => `${bgColor} url(${TinyGrid})`};
+  background: ${({ bgColor }) => `${bgColor} url(${TinyGrid})`};
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -174,9 +182,8 @@ export const StyledCompatibilityLoader = styled.div`
   position: absolute;
   width: 100%;
   height: 100%;
-  background: white;
+  background: #00000030;
   z-index: 2000;
-  opacity: 0.6;
 `;
 
 const StyledFSMLine = styled.line`
@@ -1338,24 +1345,78 @@ const FSMView: React.FC<IFSMViewProps> = ({
           <Loader text={t('CheckingCompatibility')} />
         </StyledCompatibilityLoader>
       )}
-      <div
-        ref={fieldsWrapperRef}
-        id="fsm-fields-wrapper"
-        style={{
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          flex: 1,
-          display: isMetadataHidden ? 'none' : 'block',
-        }}
+
+      <Content
+        title={getIsMetadataHidden() ? t('CreateFlowDiagram') : t('DescribeYourFSM')}
+        bottomActions={
+          !embedded
+            ? [
+                {
+                  label: t('Reset'),
+                  icon: 'HistoryLine',
+                  onClick: () => {
+                    confirmAction(
+                      'ResetFieldsConfirm',
+                      () => {
+                        reset();
+                      },
+                      'Reset',
+                      'warning'
+                    );
+                  },
+                },
+                {
+                  label: t('Back'),
+                  onClick: () => {
+                    embedded
+                      ? onHideMetadataClick((cur) => !cur)
+                      : setIsMetadataHidden((cur) => !cur);
+                  },
+                  icon: 'ArrowLeftLine',
+                  show: getIsMetadataHidden(),
+                },
+                {
+                  label: t('Submit'),
+                  onClick: handleSubmitClick,
+                  disabled: !isFSMValid(),
+                  icon: 'CheckLine',
+                  effect: SaveColorEffect,
+                  position: 'right',
+                  show: getIsMetadataHidden(),
+                },
+                {
+                  label: t('Go to flow builder'),
+                  onClick: () => {
+                    embedded
+                      ? onHideMetadataClick((cur) => !cur)
+                      : setIsMetadataHidden((cur) => !cur);
+                  },
+                  icon: 'ArrowRightLine',
+                  effect: PositiveColorEffect,
+                  position: 'right',
+                  show: !getIsMetadataHidden(),
+                },
+              ]
+            : undefined
+        }
       >
-        {!isMetadataHidden && (
-          <>
-            <FieldWrapper name="selected-field">
-              <FieldLabel
+        <div
+          ref={fieldsWrapperRef}
+          id="fsm-fields-wrapper"
+          style={{
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            flex: 1,
+            display: isMetadataHidden ? 'none' : 'block',
+          }}
+        >
+          {!isMetadataHidden && (
+            <>
+              <FieldWrapper
+                name="selected-field"
                 label={t('field-label-target_dir')}
                 isValid={validateField('file-string', metadata.target_dir)}
-              />
-              <FieldInputWrapper>
+              >
                 <FileString
                   onChange={handleMetadataChange}
                   name="target_dir"
@@ -1370,23 +1431,19 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     return_value: 'directories',
                   }}
                 />
-              </FieldInputWrapper>
-            </FieldWrapper>
-            <FieldWrapper name="selected-field">
-              <FieldLabel
+              </FieldWrapper>
+              <FieldWrapper
+                name="selected-field"
                 isValid={validateField('string', metadata.name)}
                 label={t('field-label-name')}
-              />
-              <FieldInputWrapper>
+              >
                 <String onChange={handleMetadataChange} value={metadata.name} name="name" />
-              </FieldInputWrapper>
-            </FieldWrapper>
-            <FieldWrapper name="selected-field">
-              <FieldLabel
+              </FieldWrapper>
+              <FieldWrapper
+                name="selected-field"
                 isValid={validateField('string', metadata.desc)}
                 label={t('field-label-desc')}
-              />
-              <FieldInputWrapper>
+              >
                 <Field
                   type="long-string"
                   onChange={handleMetadataChange}
@@ -1394,19 +1451,17 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   name="desc"
                   markdown
                 />
-              </FieldInputWrapper>
-            </FieldWrapper>
-            <FieldWrapper name="selected-field">
-              <FieldLabel
+              </FieldWrapper>
+              <FieldWrapper
+                name="selected-field"
                 isValid={
                   metadata.groups.length === 0
                     ? true
                     : validateField('select-array', metadata.groups)
                 }
-                info={t('Optional')}
+                detail={t('Optional')}
                 label={t('field-label-groups')}
-              />
-              <FieldInputWrapper>
+              >
                 <MultiSelect
                   onChange={handleMetadataChange}
                   get_message={{
@@ -1425,24 +1480,22 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   value={metadata.groups}
                   name="groups"
                 />
-              </FieldInputWrapper>
-            </FieldWrapper>
-            <FieldWrapper name="selected-field">
-              <FieldLabel
+              </FieldWrapper>
+              <FieldWrapper
+                name="selected-field"
                 isValid={
                   !metadata['input-type']
                     ? true
                     : validateField('type-selector', metadata['input-type']) &&
                       isTypeCompatible('input')
                 }
-                info={t('Optional')}
+                detail={t('Optional')}
                 label={t('InputType')}
-              />
-              <FieldInputWrapper>
+              >
                 {!isTypeCompatible('input') && (
                   <>
-                    <Callout intent="danger">{t('FSMInputTypeError')}</Callout>
-                    <Spacer size={20} />
+                    <ReqoreMessage intent="danger">{t('FSMInputTypeError')}</ReqoreMessage>
+                    <ReqoreVerticalSpacer height={20} />
                   </>
                 )}
                 <Connectors
@@ -1453,24 +1506,22 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   name="input-type"
                   isInitialEditing={fsm?.['input-type']}
                 />
-              </FieldInputWrapper>
-            </FieldWrapper>
-            <FieldWrapper name="selected-field">
-              <FieldLabel
+              </FieldWrapper>
+              <FieldWrapper
+                name="selected-field"
                 isValid={
                   !metadata['output-type']
                     ? true
                     : validateField('type-selector', metadata['output-type']) &&
                       isTypeCompatible('output')
                 }
-                info={t('Optional')}
+                detail={t('Optional')}
                 label={t('OutputType')}
-              />
-              <FieldInputWrapper>
+              >
                 {!isTypeCompatible('output') && (
                   <>
-                    <Callout intent="danger">{t('FSMOutputTypeError')}</Callout>
-                    <Spacer size={20} />
+                    <ReqoreMessage intent="danger">{t('FSMOutputTypeError')}</ReqoreMessage>
+                    <ReqoreVerticalSpacer height={20} />
                   </>
                 )}
                 <Connectors
@@ -1481,377 +1532,333 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   name="output-type"
                   isInitialEditing={fsm?.['output-type']}
                 />
-              </FieldInputWrapper>
-            </FieldWrapper>
+              </FieldWrapper>
+            </>
+          )}
+        </div>
+        {editingState && (
+          <FSMStateDialog
+            fsmName={metadata.name}
+            target_dir={metadata.target_dir}
+            onSubmit={updateStateData}
+            onClose={() => setEditingState(null)}
+            data={states[editingState]}
+            id={editingState}
+            deleteState={handleStateDeleteClick}
+            interfaceId={interfaceId}
+            otherStates={reduce(
+              states,
+              (newStates, state, id) =>
+                id === editingState ? { ...newStates } : { ...newStates, [id]: state },
+              {}
+            )}
+          />
+        )}
+        {editingTransitionOrder && (
+          <FSMTransitionOrderDialog
+            transitions={states[editingTransitionOrder].transitions}
+            id={editingTransitionOrder}
+            onClose={() => setEditingTransitionOrder(null)}
+            getStateData={(id) => states[id]}
+            onSubmit={updateStateData}
+            states={states}
+          />
+        )}
+        {editingInitialOrder && (
+          <FSMInitialOrderDialog
+            onClose={() => setEditingInitialOrder(null)}
+            onSubmit={(data) =>
+              setStates((cur) => {
+                const result = { ...cur };
+
+                forEach(data, (stateData, keyId) => {
+                  result[keyId] = stateData;
+                });
+
+                updateHistory(result);
+
+                return result;
+              })
+            }
+            allStates={states}
+            states={reduce(
+              states,
+              (initialStates, state, stateId) => {
+                if (state.initial) {
+                  return { ...initialStates, [stateId]: state };
+                }
+
+                return initialStates;
+              },
+              {}
+            )}
+            fsmName={metadata.name}
+            interfaceId={interfaceId}
+          />
+        )}
+        {size(editingTransition) ? (
+          <FSMTransitionDialog
+            onSubmit={async (newData) => {
+              await updateMultipleTransitionData(newData);
+            }}
+            onClose={() => setEditingTransition([])}
+            states={states}
+            editingData={editingTransition}
+          />
+        ) : null}
+        {isMetadataHidden && (
+          <>
+            <div style={{ display: 'flex', overflow: 'hidden' }}>
+              <ReqoreMenu>
+                <ReqoreMenuDivider label="Interfaces" effect={{ textAlign: 'left' }} />
+                <FSMToolbarItem
+                  name="state"
+                  category="interfaces"
+                  type="mapper"
+                  count={size(filter(states, ({ action }: IFSMState) => action?.type === 'mapper'))}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('Mapper')}
+                </FSMToolbarItem>
+                <FSMToolbarItem
+                  name="state"
+                  category="interfaces"
+                  type="pipeline"
+                  count={size(
+                    filter(states, ({ action }: IFSMState) => action?.type === 'pipeline')
+                  )}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('Pipeline')}
+                </FSMToolbarItem>
+                <FSMToolbarItem
+                  name="state"
+                  category="interfaces"
+                  type="connector"
+                  count={size(
+                    filter(states, ({ action }: IFSMState) => action?.type === 'connector')
+                  )}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('Connector')}
+                </FSMToolbarItem>
+                <ReqoreMenuDivider label="Logic" effect={{ textAlign: 'left' }} />
+                <FSMToolbarItem
+                  name="fsm"
+                  category="logic"
+                  type="fsm"
+                  count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('FSM')}
+                </FSMToolbarItem>
+                <FSMToolbarItem
+                  name="block"
+                  type="block"
+                  category="logic"
+                  disabled={!qorus_instance}
+                  count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('Block')}
+                </FSMToolbarItem>
+                <FSMToolbarItem
+                  name="if"
+                  category="logic"
+                  type="if"
+                  count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('If')}
+                </FSMToolbarItem>
+                <ReqoreMenuDivider label="API" effect={{ textAlign: 'left' }} />
+                <FSMToolbarItem
+                  name="state"
+                  type="apicall"
+                  category="api"
+                  count={size(
+                    filter(states, ({ action }: IFSMState) => action?.type === 'apicall')
+                  )}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('field-label-apicall')}
+                </FSMToolbarItem>
+                <ReqoreMenuDivider label="Data" effect={{ textAlign: 'left' }} />
+                <FSMToolbarItem
+                  name="state"
+                  category="other"
+                  type="search-single"
+                  count={size(
+                    filter(states, ({ action }: IFSMState) => action?.type === 'search-single')
+                  )}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('field-label-search-single')}
+                </FSMToolbarItem>
+                <FSMToolbarItem
+                  name="state"
+                  category="other"
+                  type="search"
+                  count={size(filter(states, ({ action }: IFSMState) => action?.type === 'search'))}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('field-label-search')}
+                </FSMToolbarItem>
+                <FSMToolbarItem
+                  name="state"
+                  category="other"
+                  type="update"
+                  count={size(filter(states, ({ action }: IFSMState) => action?.type === 'update'))}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('field-label-update')}
+                </FSMToolbarItem>
+                <FSMToolbarItem
+                  name="state"
+                  category="other"
+                  type="create"
+                  count={size(filter(states, ({ action }: IFSMState) => action?.type === 'create'))}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('field-label-create')}
+                </FSMToolbarItem>
+                <FSMToolbarItem
+                  name="state"
+                  category="other"
+                  type="delete"
+                  count={size(filter(states, ({ action }: IFSMState) => action?.type === 'delete'))}
+                  onDoubleClick={handleToolbarItemDblClick}
+                >
+                  {t('field-label-delete')}
+                </FSMToolbarItem>
+              </ReqoreMenu>
+
+              <div style={{ flex: 1, overflow: 'hidden', minHeight: 100 }}>
+                {selectedState && (
+                  <>
+                    <Callout icon="info-sign" intent="primary">
+                      {t('FSMSelectTargetState')}
+                    </Callout>
+                    <Spacer size={10} />
+                  </>
+                )}
+                <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
+                  <FSMDiagramWrapper
+                    wrapperDimensions={wrapperDimensions}
+                    setPan={setWrapperPan}
+                    isHoldingShiftKey={isHoldingShiftKey && !selectedState}
+                    zoom={zoom}
+                    items={map(states, (state) => ({
+                      x: state.position.x,
+                      y: state.position.y,
+                      type: getStateType(state),
+                    }))}
+                  >
+                    <StyledDiagram
+                      name="fsm-drop-zone"
+                      key={JSON.stringify(wrapperDimensions)}
+                      ref={drop}
+                      path={image_path}
+                      onClick={() => setSelectedState(null)}
+                      bgColor={theme.main}
+                      style={{
+                        transform: `scale(${zoom})`,
+                        marginLeft: `${calculateMargin()}px`,
+                        marginTop: `${calculateMargin()}px`,
+                      }}
+                    >
+                      {map(states, (state, id) => (
+                        <FSMState
+                          key={id}
+                          {...state}
+                          id={id}
+                          selected={selectedState === id}
+                          onDblClick={handleStateClick}
+                          onClick={handleStateClick}
+                          onUpdate={updateStateData}
+                          onEditClick={handleStateEditClick}
+                          onDeleteClick={handleStateDeleteClick}
+                          selectedState={selectedState}
+                          isAvailableForTransition={isAvailableForTransition}
+                          toggleDragging={setIsHoldingShiftKey}
+                          onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
+                          onExecutionOrderClick={() => setEditingInitialOrder(true)}
+                          isIsolated={isStateIsolated(id, states)}
+                        />
+                      ))}
+                      <svg height="100%" width="100%" style={{ position: 'absolute' }}>
+                        {transitions.map(
+                          (
+                            {
+                              x1,
+                              x2,
+                              y1,
+                              y2,
+                              state,
+                              targetState,
+                              isError,
+                              branch,
+                              transitionIndex,
+                            },
+                            index
+                          ) =>
+                            isTransitionToSelf(state, targetState) ? (
+                              <StyledFSMCircle
+                                cx={x1 + 90}
+                                cy={y1 + 50}
+                                r={25}
+                                fill="transparent"
+                                stroke={isError ? 'red' : '#a9a9a9'}
+                                strokeWidth={2}
+                                strokeDasharray={isError ? '10 2' : undefined}
+                                key={index}
+                                onClick={() =>
+                                  setEditingTransition([{ stateId: state, index: transitionIndex }])
+                                }
+                              />
+                            ) : (
+                              <>
+                                <StyledFSMLine
+                                  onClick={() => {
+                                    setEditingTransition((cur) => {
+                                      const result = [...cur];
+
+                                      result.push({ stateId: state, index: transitionIndex });
+
+                                      const hasBothWay = hasBothWayTransition(state, targetState);
+
+                                      if (hasBothWay) {
+                                        result.push(hasBothWay);
+                                      }
+
+                                      return result;
+                                    });
+                                  }}
+                                  key={index}
+                                  name={`fsm-transition${
+                                    isError ? '-error' : branch ? `-${branch}` : ''
+                                  }`}
+                                  stroke={getTransitionColor(isError, branch)}
+                                  strokeWidth={isError ? 2 : 1}
+                                  strokeDasharray={isError ? '10 2' : undefined}
+                                  markerEnd={`url(#arrowhead${getTransitionEndMarker(
+                                    isError,
+                                    branch
+                                  )})`}
+                                  {...getTargetStatePosition(x1, y1, x2, y2, state, targetState)}
+                                />
+                              </>
+                            )
+                        )}
+                      </svg>
+                    </StyledDiagram>
+                  </FSMDiagramWrapper>
+                </StyledDiagramWrapper>
+              </div>
+            </div>
           </>
         )}
-      </div>
-      {editingState && (
-        <FSMStateDialog
-          fsmName={metadata.name}
-          target_dir={metadata.target_dir}
-          onSubmit={updateStateData}
-          onClose={() => setEditingState(null)}
-          data={states[editingState]}
-          id={editingState}
-          deleteState={handleStateDeleteClick}
-          interfaceId={interfaceId}
-          otherStates={reduce(
-            states,
-            (newStates, state, id) =>
-              id === editingState ? { ...newStates } : { ...newStates, [id]: state },
-            {}
-          )}
-        />
-      )}
-      {editingTransitionOrder && (
-        <FSMTransitionOrderDialog
-          transitions={states[editingTransitionOrder].transitions}
-          id={editingTransitionOrder}
-          onClose={() => setEditingTransitionOrder(null)}
-          getStateData={(id) => states[id]}
-          onSubmit={updateStateData}
-          states={states}
-        />
-      )}
-      {editingInitialOrder && (
-        <FSMInitialOrderDialog
-          onClose={() => setEditingInitialOrder(null)}
-          onSubmit={(data) =>
-            setStates((cur) => {
-              const result = { ...cur };
-
-              forEach(data, (stateData, keyId) => {
-                result[keyId] = stateData;
-              });
-
-              updateHistory(result);
-
-              return result;
-            })
-          }
-          allStates={states}
-          states={reduce(
-            states,
-            (initialStates, state, stateId) => {
-              if (state.initial) {
-                return { ...initialStates, [stateId]: state };
-              }
-
-              return initialStates;
-            },
-            {}
-          )}
-          fsmName={metadata.name}
-          interfaceId={interfaceId}
-        />
-      )}
-      {size(editingTransition) ? (
-        <FSMTransitionDialog
-          onSubmit={async (newData) => {
-            await updateMultipleTransitionData(newData);
-          }}
-          onClose={() => setEditingTransition([])}
-          states={states}
-          editingData={editingTransition}
-        />
-      ) : null}
-      {isMetadataHidden && (
-        <>
-          <div style={{ display: 'flex', overflow: 'hidden' }}>
-            <ReqoreMenu>
-              <ReqoreMenuDivider label="Interfaces" effect={{ textAlign: 'left' }} size="huge" />
-              <FSMToolbarItem
-                name="state"
-                category="interfaces"
-                type="mapper"
-                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'mapper'))}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('Mapper')}
-              </FSMToolbarItem>
-              <FSMToolbarItem
-                name="state"
-                category="interfaces"
-                type="pipeline"
-                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'pipeline'))}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('Pipeline')}
-              </FSMToolbarItem>
-              <FSMToolbarItem
-                name="state"
-                category="interfaces"
-                type="connector"
-                count={size(
-                  filter(states, ({ action }: IFSMState) => action?.type === 'connector')
-                )}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('Connector')}
-              </FSMToolbarItem>
-              <ReqoreMenuDivider label="Logic" effect={{ textAlign: 'left' }} size="huge" />
-              <FSMToolbarItem
-                name="fsm"
-                category="logic"
-                type="fsm"
-                count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('FSM')}
-              </FSMToolbarItem>
-              <FSMToolbarItem
-                name="block"
-                type="block"
-                category="logic"
-                disabled={!qorus_instance}
-                count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('Block')}
-              </FSMToolbarItem>
-              <FSMToolbarItem
-                name="if"
-                category="logic"
-                type="if"
-                count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('If')}
-              </FSMToolbarItem>
-              <ReqoreMenuDivider label="API" effect={{ textAlign: 'left' }} size="huge" />
-              <FSMToolbarItem
-                name="state"
-                type="apicall"
-                category="api"
-                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'apicall'))}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('field-label-apicall')}
-              </FSMToolbarItem>
-              <ReqoreMenuDivider label="Other" effect={{ textAlign: 'left' }} size="huge" />
-              <FSMToolbarItem
-                name="state"
-                category="other"
-                type="search-single"
-                count={size(
-                  filter(states, ({ action }: IFSMState) => action?.type === 'search-single')
-                )}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('field-label-search-single')}
-              </FSMToolbarItem>
-              <FSMToolbarItem
-                name="state"
-                category="other"
-                type="search"
-                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'search'))}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('field-label-search')}
-              </FSMToolbarItem>
-              <FSMToolbarItem
-                name="state"
-                category="other"
-                type="update"
-                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'update'))}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('field-label-update')}
-              </FSMToolbarItem>
-              <FSMToolbarItem
-                name="state"
-                category="other"
-                type="create"
-                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'create'))}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('field-label-create')}
-              </FSMToolbarItem>
-              <FSMToolbarItem
-                name="state"
-                category="other"
-                type="delete"
-                count={size(filter(states, ({ action }: IFSMState) => action?.type === 'delete'))}
-                onDoubleClick={handleToolbarItemDblClick}
-              >
-                {t('field-label-delete')}
-              </FSMToolbarItem>
-            </ReqoreMenu>
-
-            <div style={{ flex: 1, overflow: 'hidden', minHeight: 100 }}>
-              {selectedState && (
-                <>
-                  <Callout icon="info-sign" intent="primary">
-                    {t('FSMSelectTargetState')}
-                  </Callout>
-                  <Spacer size={10} />
-                </>
-              )}
-              <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
-                <FSMDiagramWrapper
-                  wrapperDimensions={wrapperDimensions}
-                  setPan={setWrapperPan}
-                  isHoldingShiftKey={isHoldingShiftKey && !selectedState}
-                  zoom={zoom}
-                  items={map(states, (state) => ({
-                    x: state.position.x,
-                    y: state.position.y,
-                    type: getStateType(state),
-                  }))}
-                >
-                  <StyledDiagram
-                    name="fsm-drop-zone"
-                    key={JSON.stringify(wrapperDimensions)}
-                    ref={drop}
-                    path={image_path}
-                    onClick={() => setSelectedState(null)}
-                    bgColor={theme.main}
-                    style={{
-                      transform: `scale(${zoom})`,
-                      marginLeft: `${calculateMargin()}px`,
-                      marginTop: `${calculateMargin()}px`,
-                    }}
-                  >
-                    {map(states, (state, id) => (
-                      <FSMState
-                        key={id}
-                        {...state}
-                        id={id}
-                        selected={selectedState === id}
-                        onDblClick={handleStateClick}
-                        onClick={handleStateClick}
-                        onUpdate={updateStateData}
-                        onEditClick={handleStateEditClick}
-                        onDeleteClick={handleStateDeleteClick}
-                        selectedState={selectedState}
-                        isAvailableForTransition={isAvailableForTransition}
-                        toggleDragging={setIsHoldingShiftKey}
-                        onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
-                        onExecutionOrderClick={() => setEditingInitialOrder(true)}
-                        isIsolated={isStateIsolated(id, states)}
-                      />
-                    ))}
-                    <svg height="100%" width="100%" style={{ position: 'absolute' }}>
-                      {transitions.map(
-                        (
-                          { x1, x2, y1, y2, state, targetState, isError, branch, transitionIndex },
-                          index
-                        ) =>
-                          isTransitionToSelf(state, targetState) ? (
-                            <StyledFSMCircle
-                              cx={x1 + 90}
-                              cy={y1 + 50}
-                              r={25}
-                              fill="transparent"
-                              stroke={isError ? 'red' : '#a9a9a9'}
-                              strokeWidth={2}
-                              strokeDasharray={isError ? '10 2' : undefined}
-                              key={index}
-                              onClick={() =>
-                                setEditingTransition([{ stateId: state, index: transitionIndex }])
-                              }
-                            />
-                          ) : (
-                            <>
-                              <StyledFSMLine
-                                onClick={() => {
-                                  setEditingTransition((cur) => {
-                                    const result = [...cur];
-
-                                    result.push({ stateId: state, index: transitionIndex });
-
-                                    const hasBothWay = hasBothWayTransition(state, targetState);
-
-                                    if (hasBothWay) {
-                                      result.push(hasBothWay);
-                                    }
-
-                                    return result;
-                                  });
-                                }}
-                                key={index}
-                                name={`fsm-transition${
-                                  isError ? '-error' : branch ? `-${branch}` : ''
-                                }`}
-                                stroke={getTransitionColor(isError, branch)}
-                                strokeWidth={isError ? 2 : 1}
-                                strokeDasharray={isError ? '10 2' : undefined}
-                                markerEnd={`url(#arrowhead${getTransitionEndMarker(
-                                  isError,
-                                  branch
-                                )})`}
-                                {...getTargetStatePosition(x1, y1, x2, y2, state, targetState)}
-                              />
-                            </>
-                          )
-                      )}
-                    </svg>
-                  </StyledDiagram>
-                </FSMDiagramWrapper>
-              </StyledDiagramWrapper>
-            </div>
-          </div>
-        </>
-      )}
-      {!embedded && (
-        <ActionsWrapper>
-          <div style={{ float: 'right', width: '100%' }}>
-            <ButtonGroup fill>
-              <Tooltip content={t('ResetTooltip')}>
-                <Button
-                  text={t('Reset')}
-                  icon={'history'}
-                  onClick={() => {
-                    confirmAction(
-                      'ResetFieldsConfirm',
-                      () => {
-                        reset();
-                      },
-                      'Reset',
-                      'warning'
-                    );
-                  }}
-                />
-              </Tooltip>
-              {getIsMetadataHidden() ? (
-                <>
-                  <Button
-                    text={t('Back')}
-                    onClick={() => {
-                      embedded
-                        ? onHideMetadataClick((cur) => !cur)
-                        : setIsMetadataHidden((cur) => !cur);
-                    }}
-                    name="fsm-back"
-                    icon="arrow-left"
-                  />
-                  <Button
-                    text={t('Submit')}
-                    onClick={handleSubmitClick}
-                    disabled={!isFSMValid()}
-                    name="fsm-submit"
-                    icon="tick"
-                    intent={Intent.SUCCESS}
-                  />
-                </>
-              ) : (
-                <Button
-                  text={t('Go to flow builder')}
-                  onClick={() => {
-                    embedded
-                      ? onHideMetadataClick((cur) => !cur)
-                      : setIsMetadataHidden((cur) => !cur);
-                  }}
-                  name="fsm-next-step"
-                  icon="arrow-right"
-                  intent={Intent.PRIMARY}
-                />
-              )}
-            </ButtonGroup>
-          </div>
-        </ActionsWrapper>
-      )}
+      </Content>
     </>
   );
 };

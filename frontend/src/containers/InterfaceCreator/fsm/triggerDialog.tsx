@@ -132,6 +132,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
               value={newData.method}
               onChange={handleDataUpdate}
               name="method"
+              description={t('Trigger')}
               fill
             />
           )}
@@ -176,7 +177,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
         },
       ]}
     >
-      <FieldWrapper isValid={isTriggerValid()} label={t('Trigger')}>
+      <FieldWrapper isValid={isTriggerValid()} collapsible={false}>
         <RadioField
           name="conditionType"
           onChange={(_name, value) => {

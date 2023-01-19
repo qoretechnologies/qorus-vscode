@@ -105,7 +105,7 @@ root.render(
   <DndProvider backend={HTML5Backend}>
     <Provider store={store}>
       <ReqoreUIProvider
-        theme={{ main: '#222222' }}
+        theme={{ main: '#222222', intents: { success: '#4a7110' } }}
         options={{ animations: { buttons: false }, withSidebar: true, tooltips: { delay: 200 } }}
       >
         <AppContainer />

@@ -24,7 +24,7 @@ const IFSMListTriggers: React.FC<IFSMListTriggersProps> = ({
   return (
     <ReqoreControlGroup wrap fluid>
       {triggers.length === 0 && (
-        <ReqoreTag icon="ForbidLine" color="transparent" label={t('NoTriggersYet')} />
+        <ReqoreTag icon="ForbidLine" color="transparent" label={t('NoTriggersYet')} fixed />
       )}
       {triggers.map((trigger: TTrigger, index: number) => (
         <ReqoreTag

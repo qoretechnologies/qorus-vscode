@@ -4,7 +4,7 @@ import { useDrag } from 'react-dnd';
 import styled, { css } from 'styled-components';
 import { TOOLBAR_ITEM_TYPE } from '.';
 import { TextContext } from '../../../context/text';
-import { getStateColor, TStateTypes } from './state';
+import { TStateTypes, getStateColor } from './state';
 
 export interface IFSMToolbarItemProps {
   children: any;
@@ -150,19 +150,11 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   return (
     <ReqoreMenuItem
       ref={!disabled ? drag : undefined}
-      minimal
       flat={false}
       description="This is a test description kek"
       badge={count}
       effect={{
-        gradient: {
-          direction: 'to right bottom',
-          colors: {
-            0: theme.main,
-            150: `${getStateColor(category)}`,
-          },
-          borderColor: getStateColor(category),
-        },
+        gradient: getStateColor(category),
       }}
       onDoubleClick={() => {
         onDoubleClick(name, TOOLBAR_ITEM_TYPE, type);

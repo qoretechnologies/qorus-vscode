@@ -647,6 +647,7 @@ const MapperProvider: FC<IProviderProps> = ({
       <ReqorePanel label={title} minimal={compact} style={style}>
         <ReqoreControlGroup fluid wrap>
           <SelectField
+            fixed
             name={`provider${type ? `-${type}` : ''}`}
             disabled={isLoading}
             defaultItems={getDefaultItems()}

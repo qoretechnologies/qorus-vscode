@@ -1,7 +1,5 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
-import { FieldInputWrapper } from '../../components/FieldWrapper';
-import { FieldWrapper } from '../FieldWrapper';
+import styled from 'styled-components';
 
 export interface IFieldGroupProps {
   children: any;
@@ -10,28 +8,10 @@ export interface IFieldGroupProps {
 
 const StyledFieldGroup = styled.div<{ transparent: boolean }>`
   display: flex;
-  justify-content: space-between;
+  justify-content: stretch;
 
-  // If transparent is not set
-  ${({ transparent }) =>
-    !transparent &&
-    css`
-      &:nth-child(even) {
-        background-color: #fafafa;
-      }
-    `}
-
-  ${FieldWrapper} {
-    flex: 1;
-    background-color: transparent;
-    &:not(:last-child) {
-      border-right: 1px solid #eaeaea;
-    }
-  }
-
-  ${FieldInputWrapper} {
-    display: flex;
-    align-items: center;
+  > * {
+    flex: 1 0 auto !important;
   }
 `;
 
