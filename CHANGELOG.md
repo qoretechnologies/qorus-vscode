@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.9.8
+
+#### Bug fixes
+
+- Fixed regression bug caused by version 3.6.4, where config all items would always be reset when opening FSM states
+
 ## Version 3.9.7
 
 #### Bug fixes
