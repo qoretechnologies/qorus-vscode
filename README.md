@@ -4,6 +4,10 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools extension enables creating, editing, and extending reusable IT and AI building blocks for advanced automation challenges.
 
+## Version 3.9.8 overview - What's new:
+
+- Fixed regression bug caused by version 3.6.4, where config all items would always be reset when opening FSM states
+
 ## Version 3.9.7 overview - What's new:
 
 - Fixed regression bug caused by version 3.9.6, where the `Deploy Interface` button disappeared from deployable interfaces
