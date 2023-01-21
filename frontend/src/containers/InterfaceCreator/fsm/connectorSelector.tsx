@@ -43,12 +43,10 @@ const ConnectorSelector = ({
   useEffect(() => {
     const listener = addMessageListener('creator-return-objects', (data) => {
       if (data.object_type === 'class-with-connectors') {
-        console.log('SETTING CLASSES');
         setClasses(data.objects);
       }
     });
 
-    console.log('GETTING CLASSES');
     postMessage('creator-get-objects', {
       object_type: 'class-with-connectors',
       custom_data: {

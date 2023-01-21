@@ -4,7 +4,7 @@ import { useDrag } from 'react-dnd';
 import styled, { css } from 'styled-components';
 import { TOOLBAR_ITEM_TYPE } from '.';
 import { TextContext } from '../../../context/text';
-import { TStateTypes, getStateColor } from './state';
+import { getStateColor, TStateTypes } from './state';
 
 export interface IFSMToolbarItemProps {
   children: any;
@@ -145,6 +145,10 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
     item: { name, type: TOOLBAR_ITEM_TYPE, stateType: type },
+    previewOptions: {
+      anchorX: 0,
+      anchorY: 0,
+    },
   });
 
   return (

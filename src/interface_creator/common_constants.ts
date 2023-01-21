@@ -104,6 +104,7 @@ export const classFields = ({ default_target_dir, limited_editing }) => [
     name: 'class-class-name',
     has_to_be_valid_identifier: true,
     disabled: limited_editing,
+    compact: true,
   },
   field.lang,
   {
@@ -122,6 +123,7 @@ export const classFields = ({ default_target_dir, limited_editing }) => [
     on_change: 'get-config-items',
     notify_on_remove: true,
     disabled: limited_editing,
+    compact: true,
   },
   {
     name: 'requires',
@@ -175,14 +177,17 @@ export const field = {
   targetFile: {
     name: 'target_file',
     mandatory: false,
+    compact: true,
   },
   name: {
     name: 'name',
+    compact: true,
   },
   desc: {
     name: 'desc',
     type: 'long-string',
     markdown: true,
+    compact: true,
   },
   author: {
     name: 'author',
@@ -200,12 +205,14 @@ export const field = {
   },
   version: {
     name: 'version',
+    compact: true,
   },
   class_name: {
     name: 'class-name',
     prefill: 'name',
     has_to_be_valid_identifier: true,
     style: 'PascalCase',
+    compact: true,
   },
   lang: {
     name: 'lang',
@@ -226,6 +233,7 @@ export const field = {
     ],
     default_value: default_lang,
     on_change: 'lang-changed',
+    compact: true,
   },
   mappers: {
     name: 'mappers',

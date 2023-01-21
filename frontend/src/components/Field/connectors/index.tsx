@@ -329,7 +329,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 
   return (
     <div style={{ flex: 1, width: inline ? undefined : '100%' }}>
-      <SubField title={!minimal ? t('SelectDataProvider') : undefined} isValid>
+      <SubField title={!minimal ? title || t('SelectDataProvider') : undefined} isValid>
         <Provider
           isConfigItem={isConfigItem}
           nodes={nodes}

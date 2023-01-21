@@ -227,8 +227,6 @@ class QorusDraftItem extends TreeItem {
           : '|isNotTest'
       }`;
 
-      console.log(this.contextValue);
-
       this.command = {
         title: 'Open Interface',
         command: otherFilesNames.includes(interfaceKind)

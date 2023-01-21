@@ -1,5 +1,6 @@
 import { Callout } from '@blueprintjs/core';
 import {
+  ReqoreHorizontalSpacer,
   ReqoreMenu,
   ReqoreMenuDivider,
   ReqoreMessage,
@@ -16,7 +17,7 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { XYCoord, useDrop } from 'react-dnd';
+import { useDrop, XYCoord } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -29,7 +30,7 @@ import FileString from '../../../components/Field/fileString';
 import { PositiveColorEffect, SaveColorEffect } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
-import { FieldWrapper } from '../../../components/FieldWrapper';
+import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import Loader from '../../../components/Loader';
 import Spacer from '../../../components/Spacer';
 import { AppToaster } from '../../../components/Toast';
@@ -38,8 +39,8 @@ import { DraftsContext, IDraftData } from '../../../context/drafts';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
-  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -50,12 +51,13 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
-import TinyGrid from '../../../images/repeated-square-dark.png';
+import TinyGrid from '../../../images/graphy-dark.png';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMInitialOrderDialog from './initialOrderDialog';
 import FSMState from './state';
@@ -163,8 +165,8 @@ const StyledDiagramWrapper = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
-  border: 1px solid #d7d7d7;
-  border-radius: 5px;
+  border-radius: 10px;
+  overflow: hidden;
 `;
 
 const StyledDiagram = styled.div<{ path: string }>`
@@ -209,7 +211,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   setFsmReset,
   interfaceContext,
   postMessage,
-  embedded,
+  embedded = false,
   states,
   setStates,
   parentStateName,
@@ -275,13 +277,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
     { stateId: number; index: number }[] | null
   >([]);
   const [editingTransitionOrder, setEditingTransitionOrder] = useState<number | null>(null);
-  const [isHoldingShiftKey, setIsHoldingShiftKey] = useState<boolean>(true);
   const [editingInitialOrder, setEditingInitialOrder] = useState<boolean>(false);
   const [wrapperDimensions, setWrapperDimensions] = useState<{ width: number; height: number }>({
     width: 0,
     height: 0,
   });
-  const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(embedded ? true : false);
+  const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(embedded);
   const [zoom, setZoom] = useState<number>(1);
   const theme = useContext(ReqoreThemeContext);
 
@@ -289,18 +290,26 @@ const FSMView: React.FC<IFSMViewProps> = ({
     accept: DROP_ACCEPTS,
     drop: (item: IDraggableItem, monitor) => {
       if (item.type === TOOLBAR_ITEM_TYPE) {
+        console.log(
+          monitor.getClientOffset(),
+          monitor.getDifferenceFromInitialOffset(),
+          monitor.getInitialClientOffset(),
+          monitor.getInitialSourceClientOffset(),
+          monitor.getSourceClientOffset()
+        );
+
+        const diagram = document.getElementById('fsm-diagram')!.getBoundingClientRect();
+
+        console.log(diagram.left, diagram.top);
+
         let { x, y } = monitor.getClientOffset();
         const calculatePercDiff = (value) => value + (value / 100) * Math.abs(100 * (zoom - 1));
         x = x / zoom;
         y = y / zoom;
-        x =
-          x +
-          calculatePercDiff(currentXPan.current) -
-          (!embedded && sidebarOpen ? 333 : embedded ? 233 : 153);
-        y =
-          y +
-          calculatePercDiff(currentYPan.current) -
-          (fieldsWrapperRef.current.getBoundingClientRect().height + (embedded ? 380 : 200));
+        x = x - diagram.left + calculatePercDiff(currentXPan.current);
+        y = y - diagram.top + calculatePercDiff(currentYPan.current);
+
+        console.log(x, y);
 
         addNewState(item, x, y);
       } else if (item.type === STATE_ITEM_TYPE) {
@@ -540,14 +549,9 @@ const FSMView: React.FC<IFSMViewProps> = ({
       currentYPan.current = 0;
 
       setWrapperDimensions({ width, height });
-
-      window.addEventListener('keydown', handleKeyDown);
-      window.addEventListener('keyup', handleKeyUp);
     }
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
       if (!embedded) {
         setFsmReset(null);
       }
@@ -568,18 +572,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
     1000,
     [metadata?.['input-type'], metadata?.['output-type'], states]
   );
-
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === DIAGRAM_DRAG_KEY) {
-      setIsHoldingShiftKey(true);
-    }
-  };
-
-  const handleKeyUp = (event: KeyboardEvent) => {
-    if (event.key === DIAGRAM_DRAG_KEY) {
-      setIsHoldingShiftKey(false);
-    }
-  };
 
   const setWrapperPan = (x, y) => {
     currentXPan.current = x;
@@ -1258,10 +1250,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
     const modifiedY1 = y1 + 10000;
     const modifiedY2 = y2 + 10000;
 
-    const startStateData = document
-      .getElementById(`state-${startStateId}`)
-      ?.getBoundingClientRect();
-    const endStateData = document.getElementById(`state-${endStateId}`)?.getBoundingClientRect();
+    const startStateData = getStateBoundingRect(startStateId);
+    const endStateData = getStateBoundingRect(endStateId);
 
     if (!startStateData || !endStateData) {
       return { x2: 0, y2: 0 };
@@ -1311,7 +1301,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
   const calculateMargin = () => (zoom - 1) * 1000;
   const getIsMetadataHidden = () => {
-    return embedded ? isExternalMetadataHidden : isMetadataHidden;
+    return isMetadataHidden;
   };
 
   if (!qorus_instance) {
@@ -1347,7 +1337,14 @@ const FSMView: React.FC<IFSMViewProps> = ({
       )}
 
       <Content
-        title={getIsMetadataHidden() ? t('CreateFlowDiagram') : t('DescribeYourFSM')}
+        padded={getIsMetadataHidden()}
+        title={
+          embedded
+            ? undefined
+            : getIsMetadataHidden()
+            ? t('CreateFlowDiagram')
+            : t('DescribeYourFSM')
+        }
         bottomActions={
           !embedded
             ? [
@@ -1400,9 +1397,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
             : undefined
         }
       >
-        <div
-          ref={fieldsWrapperRef}
-          id="fsm-fields-wrapper"
+        <ContentWrapper
           style={{
             overflowY: 'auto',
             overflowX: 'hidden',
@@ -1410,7 +1405,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
             display: isMetadataHidden ? 'none' : 'block',
           }}
         >
-          {!isMetadataHidden && (
+          {!isMetadataHidden && !embedded ? (
             <>
               <FieldWrapper
                 name="selected-field"
@@ -1534,8 +1529,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 />
               </FieldWrapper>
             </>
-          )}
-        </div>
+          ) : null}
+        </ContentWrapper>
         {editingState && (
           <FSMStateDialog
             fsmName={metadata.name}
@@ -1732,7 +1727,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   {t('field-label-delete')}
                 </FSMToolbarItem>
               </ReqoreMenu>
-
+              <ReqoreHorizontalSpacer width={10} />
               <div style={{ flex: 1, overflow: 'hidden', minHeight: 100 }}>
                 {selectedState && (
                   <>
@@ -1746,12 +1741,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   <FSMDiagramWrapper
                     wrapperDimensions={wrapperDimensions}
                     setPan={setWrapperPan}
-                    isHoldingShiftKey={isHoldingShiftKey && !selectedState}
                     zoom={zoom}
-                    items={map(states, (state) => ({
+                    items={map(states, (state, id) => ({
                       x: state.position.x,
                       y: state.position.y,
                       type: getStateType(state),
+                      id,
                     }))}
                   >
                     <StyledDiagram
@@ -1780,13 +1775,16 @@ const FSMView: React.FC<IFSMViewProps> = ({
                           onDeleteClick={handleStateDeleteClick}
                           selectedState={selectedState}
                           isAvailableForTransition={isAvailableForTransition}
-                          toggleDragging={setIsHoldingShiftKey}
                           onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
                           onExecutionOrderClick={() => setEditingInitialOrder(true)}
                           isIsolated={isStateIsolated(id, states)}
                         />
                       ))}
-                      <svg height="100%" width="100%" style={{ position: 'absolute' }}>
+                      <svg
+                        height="100%"
+                        width="100%"
+                        style={{ position: 'absolute', boxShadow: 'inset 0 0 50px 2px #00000080' }}
+                      >
                         {transitions.map(
                           (
                             {

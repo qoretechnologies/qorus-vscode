@@ -58,7 +58,6 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
 
   // When input value changes
   const handleInputChange = (event: any): void => {
-    console.log(event.target.value);
     onChange(name, event.target.value);
   };
 
@@ -66,8 +65,6 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
   const handleResetClick = (): void => {
     onChange(name, null);
   };
-
-  console.log(value, default_value);
 
   return (
     <StyledDateField

@@ -1,4 +1,4 @@
-import { ReqoreMenuDivider, ReqorePanel } from '@qoretechnologies/reqore';
+import { ReqorePanel } from '@qoretechnologies/reqore';
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { ReactNode } from 'react';
 
@@ -14,16 +14,10 @@ const Content = ({ children, title, style, ...rest }: IContent) => (
     flat
     fluid
     minimal
-    padded={false}
+    label={title}
     contentStyle={{ display: 'flex', flexFlow: 'column', overflowY: 'auto' }}
-    headerEffect={{
-      spaced: 2,
-      uppercase: true,
-      textSize: 'small',
-    }}
     {...rest}
   >
-    <ReqoreMenuDivider label={title} style={{ padding: '15px' }} align="left" />
     {children}
   </ReqorePanel>
 );

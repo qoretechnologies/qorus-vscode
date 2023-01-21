@@ -1,9 +1,12 @@
 import {
   ReqoreControlGroup,
+  ReqoreHorizontalSpacer,
   ReqoreMessage,
   ReqorePanel,
+  ReqoreTag,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
+import ReqoreButton, { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreControlGroupProps } from '@qoretechnologies/reqore/dist/components/ControlGroup';
 import ReqoreIcon, { IReqoreIconProps } from '@qoretechnologies/reqore/dist/components/Icon';
 import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
@@ -33,6 +36,7 @@ export interface IFieldWrapper {
   disabled?: boolean;
   children: React.ReactNode;
   collapsible?: boolean;
+  compact?: boolean;
 }
 
 export const getGlobalDescriptionTooltip = (desc?: string, title?: string): IReqoreTooltip => ({
@@ -64,6 +68,7 @@ export const FieldWrapper = ({
   removable,
   value,
   collapsible = true,
+  compact,
   parentValue,
   onResetClick,
   isSet,
@@ -72,12 +77,46 @@ export const FieldWrapper = ({
   const initContext = useContext(InitialContext);
   const t = useContext(TextContext);
 
+  const removeButtonProps = {
+    icon: 'DeleteBinLine',
+    intent: 'danger',
+    tooltip: t('RemoveField'),
+    onClick: () => {
+      if (onClick) {
+        if (size(value)) {
+          initContext.confirmAction('ConfirmRemoveField', () => onClick(name));
+        } else {
+          onClick(name);
+        }
+      }
+    },
+  };
+
+  if (compact) {
+    return (
+      <ReqorePanel size="small" flat padded={false}>
+        <ReqoreControlGroup fluid verticalAlign="flex-start">
+          <ReqoreTag
+            fixed
+            label={label}
+            intent={isValid ? undefined : 'danger'}
+            icon={label ? (isValid ? 'CheckLine' : 'ErrorWarningLine') : undefined}
+          />
+          <ReqoreHorizontalSpacer width={5} />
+          <ReqoreControlGroup vertical>{children}</ReqoreControlGroup>
+          {removable && <ReqoreButton {...(removeButtonProps as IReqoreButtonProps)} fixed />}
+        </ReqoreControlGroup>
+      </ReqorePanel>
+    );
+  }
+
   return (
     <ReqorePanel
       label={label}
       flat
+      minimal
+      size="small"
       collapsible={collapsible}
-      rounded={false}
       icon={label || collapsible ? (isValid ? 'CheckLine' : 'ErrorWarningLine') : undefined}
       intent={isValid ? undefined : 'danger'}
       iconColor={isValid ? undefined : 'danger:lighten'}
@@ -86,19 +125,8 @@ export const FieldWrapper = ({
       actions={[
         getFieldDescriptionAction(desc),
         {
-          icon: 'DeleteBinLine',
           show: !!removable,
-          intent: 'danger',
-          tooltip: t('RemoveField'),
-          onClick: () => {
-            if (onClick) {
-              if (size(value)) {
-                initContext.confirmAction('ConfirmRemoveField', () => onClick(name));
-              } else {
-                onClick(name);
-              }
-            }
-          },
+          ...(removeButtonProps as IReqorePanelAction),
         },
       ]}
     >
@@ -195,6 +223,7 @@ export interface IInterfaceCreatorPanel {
 }
 
 export interface IField {
+  compact?: boolean;
   get_message?: {
     action: string;
     object_type: string;

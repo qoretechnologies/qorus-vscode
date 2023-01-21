@@ -27,7 +27,7 @@
     "Other",
     "Snippets"
   ],
-  "icon": "images/qorus_logo_256.png",
+  "icon": "images/QorusDeveloperTools_Medium.png",
   "galleryBanner": {
     "color": "#333333",
     "theme": "dark"
@@ -75,7 +75,7 @@
         {
           "id": "qorusViews",
           "title": "Qorus Development",
-          "icon": "images/qorus_logo_28.png"
+          "icon": "images/QorusDeveloperTools_Small.png"
         }
       ]
     },
@@ -165,7 +165,7 @@
         "command": "qorus.openWebview",
         "title": "1. Open Webview",
         "category": "Qorus",
-        "icon": "images/qorus_logo_28.png"
+        "icon": "images/QorusDeveloperTools_Small.png"
       },
       {
         "command": "qorus.openDrafts",
@@ -189,7 +189,7 @@
         "command": "qorus.openDraft",
         "title": "Open Draft",
         "category": "Qorus",
-        "icon": "images/qorus_logo_28.png"
+        "icon": "images/QorusDeveloperTools_Small.png"
       },
       {
         "command": "qorus.closeWebview",

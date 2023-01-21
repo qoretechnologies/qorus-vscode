@@ -12,7 +12,7 @@ import { buildMenu } from '../../constants/menu';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { transformMenu } from '../../helpers/menu';
-import QorusLogo from '../../images/qorus_logo_256.png';
+import QorusLogo from '../../images/QorusDeveloperTools_Medium.png';
 
 type SidebarProps = {
   isCollapsed: boolean;
@@ -34,6 +34,9 @@ const Sidebar: Function = ({ projectFolder, qorusInstance }: SidebarProps) => {
 
   return (
     <ReqoreSidebar
+      onCollapseChange={(isCollapsed) => {
+        initialData.toggleSidebar(isCollapsed);
+      }}
       customItems={[
         {
           element: ({ isCollapsed }) => (

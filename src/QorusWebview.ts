@@ -4,18 +4,18 @@ import * as os from 'os';
 import * as path from 'path';
 import { gettext, t } from 'ttag';
 import * as vscode from 'vscode';
+import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
+import { FormChangesResponder } from './interface_creator/FormChangesResponder';
+import { triggers } from './interface_creator/standard_methods';
 import { deleter } from './QorusDelete';
 import { QorusDraftsInstance } from './QorusDrafts';
 import { drafts_tree } from './QorusDraftsTree';
 import { instance_tree } from './QorusInstanceTree';
 import { qorus_locale } from './QorusLocale';
-import { QorusProject, config_filename, projects } from './QorusProject';
+import { config_filename, projects, QorusProject } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { releaser } from './QorusRelease';
 import { qorus_request } from './QorusRequest';
-import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
-import { FormChangesResponder } from './interface_creator/FormChangesResponder';
-import { triggers } from './interface_creator/standard_methods';
 import * as msg from './qorus_message';
 import { deepCopy } from './qorus_utils';
 
@@ -156,8 +156,8 @@ class QorusWebview {
         );
 
         this.panel.iconPath = {
-          light: vscode.Uri.file(path.join(images_path, 'qorus_logo_28.png')),
-          dark: vscode.Uri.file(path.join(images_path, 'qorus_logo_28.png')),
+          light: vscode.Uri.file(path.join(images_path, 'QorusDeveloperTools_Small.png')),
+          dark: vscode.Uri.file(path.join(images_path, 'QorusDeveloperTools_Small.png')),
         };
 
         const uri = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path));

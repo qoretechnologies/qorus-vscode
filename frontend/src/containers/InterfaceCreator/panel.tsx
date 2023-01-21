@@ -1,12 +1,5 @@
-import {
-  ReqoreInput,
-  ReqoreMenu,
-  ReqoreMenuDivider,
-  ReqoreMenuItem,
-  ReqoreMessage,
-  ReqoreSpacer,
-  ReqoreVerticalSpacer,
-} from '@qoretechnologies/reqore';
+import { ReqoreDropdown, ReqoreInput, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import { IReqoreDropdownItemProps } from '@qoretechnologies/reqore/dist/components/Dropdown/item';
 import {
   camelCase,
   cloneDeep,
@@ -21,10 +14,11 @@ import {
   reduce,
   size,
   uniqBy,
-  upperFirst,
+  upperFirst
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
+import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import { useDebounce, useMount, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
@@ -34,15 +28,14 @@ import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
 import Field from '../../components/Field';
 import { allowedTypes } from '../../components/Field/arrayAuto';
-import FieldSelector from '../../components/FieldSelector';
+import { PositiveColorEffect, SelectorColorEffect } from '../../components/Field/multiPair';
 import {
   ContentWrapper,
   FieldWrapper,
   IField,
-  IInterfaceCreatorPanel,
+  IInterfaceCreatorPanel
 } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
-import SidePanel from '../../components/SidePanel';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData, IDraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
@@ -55,7 +48,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, {
   addMessageListener,
-  postMessage,
+  postMessage
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -1130,50 +1123,46 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
   return (
     <>
-      {unselectedFieldCount ? (
-        <>
-          <SidePanel>
-            <ReqoreMenu style={{ flex: 1 }} width="250px" rounded>
-              <ReqoreMenuDivider label={t(stepOneTitle)} />
-              <ReqoreInput
-                onClearClick={() => setQuery(type, '')}
-                placeholder={t('FilterAvailableFields')}
-                value={query}
-                onChange={(event: FormEvent<HTMLInputElement>) =>
-                  setQuery(type, event.currentTarget.value)
-                }
-                icon={'Search2Line'}
-                intent={query ? 'info' : undefined}
-              />
-              {fieldList.length ? (
-                <ReqoreMenuItem
-                  icon={'MenuAddLine'}
-                  rightIcon="ArrowRightSLine"
-                  onClick={handleAddAll}
-                  tooltip={t('SelectAllTooltip')}
-                >
-                  {t('SelectAll')}
-                </ReqoreMenuItem>
-              ) : null}
-              {fieldList.length ? (
-                map(fieldList, (field: any) => (
-                  <FieldSelector
-                    name={field.name}
-                    type={field.type}
-                    disabled={isFieldDisabled(field)}
-                    onClick={handleAddClick}
-                  />
-                ))
-              ) : (
-                <ReqoreMessage intent="muted">No fields available</ReqoreMessage>
-              )}
-            </ReqoreMenu>
-          </SidePanel>
-          <ReqoreSpacer width={10} />
-        </>
-      ) : null}
       <Content
-        title={t(stepTwoTitle)}
+        title={'Fill in the details'}
+        actions={[
+          {
+            as: ReqoreDropdown,
+            props: {
+              onItemSelect: ({ label }) => handleAddClick(label as string),
+              effect: PositiveColorEffect,
+              filterable: true,
+              label: `Optional fields available (${size(fieldList)})`,
+              disabled: !size(fieldList),
+              blur: 3,
+              items: [
+                {
+                  label: t('SelectAll'),
+                  onClick: handleAddAll,
+                  icon: 'MenuAddLine',
+                  tooltip: t('SelectAllTooltip'),
+                },
+                ...map(
+                  fieldList,
+                  (field: any): IReqoreDropdownItemProps => ({
+                    label: field.name,
+                    badge: {
+                      label: field.type,
+                      icon: 'CodeLine',
+                    },
+                    disabled: isFieldDisabled(field),
+                    tooltip: {
+                      content: <ReactMarkdown>{t(`field-desc-${field.name}`)}</ReactMarkdown>,
+                      maxWidth: '300px',
+                      delay: 200,
+                    },
+                    effect: SelectorColorEffect,
+                  })
+                ),
+              ],
+            },
+          },
+        ]}
         bottomActions={[
           {
             label: t('Back'),
@@ -1243,11 +1232,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           onChange={(event: FormEvent<HTMLInputElement>) =>
             setSelectedQuery(type, event.currentTarget.value)
           }
-          flat
           icon={'Search2Line'}
           intent={selectedQuery !== '' ? 'info' : undefined}
           onClearClick={() => setSelectedQuery(type, '')}
         />
+
         <ReqoreVerticalSpacer height={10} />
         <ContentWrapper>
           {map(
@@ -1271,6 +1260,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                   disabled={isFieldDisabled(field)}
                   onClick={removeField}
                   removable={field.mandatory === false}
+                  compact={field.compact}
                 >
                   <Field
                     {...omit(field, ['style'])}

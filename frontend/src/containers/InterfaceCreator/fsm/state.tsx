@@ -3,13 +3,15 @@ import {
   ReqoreTag,
   ReqoreTagGroup,
   ReqoreThemeContext,
+  ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
-import { IReqoreEffect } from '@qoretechnologies/reqore/dist/components/Effect';
+import { IReqoreEffect, ReqoreTextEffect } from '@qoretechnologies/reqore/dist/components/Effect';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { keyframes } from 'styled-components';
+import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
@@ -130,14 +132,10 @@ const StyledFSMState = styled(ReqorePanel)`
   left: ${({ x }) => `${x}px`};
   top: ${({ y }) => `${y}px`};
   min-width: 250px;
-  max-width: 330px;
+  max-width: 350px !important;
 
   position: absolute !important;
   z-index: 20;
-
-  &:hover {
-    box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1);
-  }
 `;
 
 export const calculateFontSize = (name, isAction?: boolean) => {
@@ -196,7 +194,9 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
   }
 
   if (type === 'if') {
-    return `if statement`;
+    return typeof rest.condition === 'string'
+      ? rest.condition
+      : `${rest.condition?.class}:${rest.condition?.connector}`;
   }
 
   if (!action || !action.type || !action.value) {
@@ -224,6 +224,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   onDeleteClick,
   onTransitionOrderClick,
   name,
+  desc,
   action,
   initial,
   final,
@@ -249,7 +250,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
     },
   });
 
-  const [isHovered, setIsHovered] = useState<boolean>(false);
   const [shouldWiggle, setShouldWiggle] = useState<boolean>(false);
   const [isCompatible, setIsCompatible] = useState<boolean>(null);
   const [isLoadingCheck, setIsLoadingCheck] = useState<boolean>(false);
@@ -278,27 +278,28 @@ const FSMState: React.FC<IFSMStateProps> = ({
     func(id);
   };
 
-  const handleMouseEnter = (event) => {
-    event?.stopPropagation();
-    setIsHovered(true);
-    toggleDragging(false);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    toggleDragging(true);
-  };
-
   return (
     <StyledFSMState
       key={id}
       id={`state-${id}`}
       ref={drag}
-      intent={shouldWiggle ? 'info' : undefined}
       //customTheme={{ main: getStateColor(getStateCategory(type)) }}
-      contentEffect={{
-        gradient: getStateColor(getStateCategory(action?.type || type)),
-      }}
+      contentEffect={
+        {
+          gradient: {
+            ...getStateColor(getStateCategory(action?.type || type)),
+            animate: shouldWiggle ? 'always' : 'hover',
+          },
+          glow: shouldWiggle
+            ? {
+                color: 'info',
+                size: 5,
+                blur: 30,
+              }
+            : undefined,
+          opacity: isIsolated ? 0.7 : 1,
+        } as IReqoreEffect
+      }
       icon="CodeLine"
       name={`fsm-state-${name}`}
       x={position?.x}
@@ -307,14 +308,11 @@ const FSMState: React.FC<IFSMStateProps> = ({
       onClick={!selectedState || !shouldWiggle ? undefined : (e) => handleClick(e, onClick)}
       size="small"
       selected={selected}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       initial={initial}
       final={final}
+      onMouseDown={(e) => e.stopPropagation()}
       minimal
       tooltip={type === 'block' && !qorus_instance ? t('CannotManageBlock') : undefined}
-      isIsolated={isIsolated}
-      className={isIsolated ? 'isolated-state' : ''}
       isAvailableForTransition={shouldWiggle}
       isIncompatible={selectedState && !isCompatible}
       error={error}
@@ -406,10 +404,20 @@ const FSMState: React.FC<IFSMStateProps> = ({
         });
       }}
     >
-      <ReqoreTagGroup size="small" hasBottomMargin={false}>
-        <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
+      {desc ? (
+        <>
+          <ReqoreTextEffect effect={{ textSize: 'small', opacity: 0.8 }}>{desc}</ReqoreTextEffect>
+          <ReqoreVerticalSpacer height={10} />
+        </>
+      ) : null}
+      <ReqoreTagGroup size="small">
+        {isIsolated && (
+          <ReqoreTag effect={NegativeColorEffect} label={t('Isolated')} icon="AlarmWarningLine" />
+        )}
         {final && <ReqoreTag color="#6e1977" label={t('Final')} />}
-        {initial && <ReqoreTag color="#7fbb26" label={t('Initial')} />}
+        {initial && <ReqoreTag effect={PositiveColorEffect} label={t('Initial')} />}
+        <ReqoreTag minimal label={action?.type || type} />
+        <ReqoreTag minimal wrap fluid label={getStateType({ type, action, ...rest })} />
       </ReqoreTagGroup>
     </StyledFSMState>
   );

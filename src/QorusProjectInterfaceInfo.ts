@@ -59,6 +59,9 @@ export class QorusProjectInterfaceInfo {
     if (!this.iface_by_id[iface_id]) {
       this.iface_by_id[iface_id] = {};
     }
+
+    this.iface_by_id[iface_id].type = iface_kind;
+
     if (hasConfigItems(iface_kind) && !this.iface_by_id[iface_id]['config-items']) {
       this.iface_by_id[iface_id]['config-items'] = [];
     }
@@ -120,6 +123,7 @@ export class QorusProjectInterfaceInfo {
     }
 
     const iface = this.iface_by_id[iface_id];
+
     if (this.hasSpecificData(iface.type)) {
       const specific_data_id = this.specificDataId(iface.type, state_id, processor_id);
       const specific_data_ids = specific_data_id
@@ -165,6 +169,7 @@ export class QorusProjectInterfaceInfo {
     this.iface_by_id[iface_id] = {
       ...this.iface_by_id[iface_id],
       ...data,
+      type: iface_kind,
     };
 
     if (iface_kind === 'fsm') {

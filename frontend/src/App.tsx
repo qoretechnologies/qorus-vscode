@@ -6,7 +6,6 @@ import {
   ReqoreNavbarGroup,
   ReqoreNavbarItem,
   ReqoreTag,
-  useReqore,
 } from '@qoretechnologies/reqore';
 import last from 'lodash/last';
 import size from 'lodash/size';
@@ -98,9 +97,6 @@ const App: FunctionComponent<IApp> = ({
   const { setErrorsFromDraft }: any = useContext(ErrorsContext);
   const [isDirsDialogOpen, setIsDirsDialogOpen] = useState<boolean>(false);
   const { t } = useContext(InitialContext);
-  const { getAndIncreaseZIndex } = useReqore();
-
-  console.log(getAndIncreaseZIndex());
 
   const addDraft = (draftData: any) => {
     setDraft(draftData);

@@ -1,4 +1,4 @@
-import { Callout } from '@blueprintjs/core';
+import { ReqoreMessage } from '@qoretechnologies/reqore';
 import isArray from 'lodash/isArray';
 import { useContext } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -60,7 +60,7 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
   return (
     <>
       {rest.has_to_be_valid_identifier && rest.value && !rest.isValid ? (
-        <Callout intent="danger">{t('AllowedCharsOnly')}</Callout>
+        <ReqoreMessage intent="danger">{t('AllowedCharsOnly')}</ReqoreMessage>
       ) : null}
       {(!type || type === 'string') && <StringField {...rest} type={type} />}
       {type === 'long-string' && <LongStringField {...rest} type={type} />}

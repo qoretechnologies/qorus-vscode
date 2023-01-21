@@ -235,10 +235,10 @@ export default () =>
         });
       };
 
-      const toggleSidebar: () => void = () => {
+      const toggleSidebar: (isCollapsed: boolean) => void = (isCollapsed) => {
         setInitialData((current) => {
           const result = { ...current };
-          result.sidebarOpen = !result.sidebarOpen;
+          result.sidebarOpen = !isCollapsed;
           return result;
         });
       };
