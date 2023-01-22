@@ -105,6 +105,7 @@ export const classFields = ({ default_target_dir, limited_editing }) => [
     has_to_be_valid_identifier: true,
     disabled: limited_editing,
     compact: true,
+    group: 'info',
   },
   field.lang,
   {
@@ -124,6 +125,7 @@ export const classFields = ({ default_target_dir, limited_editing }) => [
     notify_on_remove: true,
     disabled: limited_editing,
     compact: true,
+    group: 'info',
   },
   {
     name: 'requires',
@@ -178,16 +180,19 @@ export const field = {
     name: 'target_file',
     mandatory: false,
     compact: true,
+    group: 'info',
   },
   name: {
     name: 'name',
     compact: true,
+    group: 'info',
   },
   desc: {
     name: 'desc',
     type: 'long-string',
     markdown: true,
     compact: true,
+    group: 'info',
   },
   author: {
     name: 'author',
@@ -202,10 +207,13 @@ export const field = {
       object_type: 'author',
       return_value: 'objects',
     },
+    compact: true,
+    group: 'info',
   },
   version: {
     name: 'version',
     compact: true,
+    group: 'info',
   },
   class_name: {
     name: 'class-name',
@@ -213,6 +221,7 @@ export const field = {
     has_to_be_valid_identifier: true,
     style: 'PascalCase',
     compact: true,
+    group: 'info',
   },
   lang: {
     name: 'lang',
@@ -234,6 +243,7 @@ export const field = {
     default_value: default_lang,
     on_change: 'lang-changed',
     compact: true,
+    group: 'info',
   },
   mappers: {
     name: 'mappers',
@@ -251,6 +261,8 @@ export const field = {
     reference: {
       iface_kind: 'mapper',
     },
+    compact: true,
+    group: 'resources',
   },
   vmaps: {
     name: 'vmaps',
@@ -265,6 +277,8 @@ export const field = {
       object_type: 'value-map',
       return_value: 'objects',
     },
+    compact: true,
+    group: 'resources',
   },
   modules: {
     name: 'modules',
@@ -279,12 +293,16 @@ export const field = {
       object_type: 'module',
       return_value: 'objects',
     },
+    group: 'resources',
+    compact: true,
   },
   remote: {
     name: 'remote',
     mandatory: false,
     type: 'boolean',
     default_value: true,
+    compact: true,
+    group: 'scaling',
   },
   groups: {
     name: 'groups',
@@ -302,6 +320,8 @@ export const field = {
     reference: {
       iface_kind: 'group',
     },
+    compact: true,
+    group: 'resources',
   },
   tags: {
     name: 'tags',
@@ -360,5 +380,7 @@ export const field = {
     mandatory: false,
     type: 'array-of-pairs',
     fields: ['key', 'value'],
+    compact: true,
+    group: 'resources',
   },
 };

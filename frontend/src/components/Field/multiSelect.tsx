@@ -192,7 +192,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
               </StyledDialogBody>
             </CustomDialog>
           )}
-          <ReqoreControlGroup fluid>
+          <ReqoreControlGroup fluid verticalAlign="flex-start">
             <ReqoreMultiSelect
               items={items.map(
                 (item): TReqoreMultiSelectItem => ({

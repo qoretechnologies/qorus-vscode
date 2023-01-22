@@ -1,7 +1,14 @@
-import { ReqoreDropdown, ReqoreInput, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import {
+  ReqoreColumns,
+  ReqoreDropdown,
+  ReqoreInput,
+  ReqorePanel,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import { IReqoreDropdownItemProps } from '@qoretechnologies/reqore/dist/components/Dropdown/item';
 import {
   camelCase,
+  capitalize,
   cloneDeep,
   filter,
   find,
@@ -14,10 +21,17 @@ import {
   reduce,
   size,
   uniqBy,
-  upperFirst
+  upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
-import { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  FormEvent,
+  FunctionComponent,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import { useDebounce, useMount, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
@@ -33,13 +47,13 @@ import {
   ContentWrapper,
   FieldWrapper,
   IField,
-  IInterfaceCreatorPanel
+  IInterfaceCreatorPanel,
 } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData, IDraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
-import { maybeSendOnChangeEvent } from '../../helpers/common';
+import { mapFieldsToGroups, maybeSendOnChangeEvent } from '../../helpers/common';
 import { deleteDraft, getDraftId, getTargetFile } from '../../helpers/functions';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
@@ -48,7 +62,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, {
   addMessageListener,
-  postMessage
+  postMessage,
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -1121,6 +1135,81 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     return isValid;
   };
 
+  const fieldsToRender = mapFieldsToGroups(selectedFieldList);
+
+  const renderFields = (fields: IField[]) => {
+    return map(
+      fields,
+      (field: IField) =>
+        !field.internal && (
+          <FieldWrapper
+            key={field.name}
+            info={field.markdown && t('MarkdownSupported')}
+            type={field.type}
+            label={t(`field-label-${field.name}`)}
+            isValid={field.isValid}
+            value={field.value}
+            parentValue={field['parent-value']}
+            desc={t(`field-desc-${field.name}`)}
+            name={field.name}
+            onResetClick={() => {
+              handleFieldChange(field.name, field['parent-value']);
+            }}
+            isSet={field['is-set']}
+            disabled={isFieldDisabled(field)}
+            onClick={removeField}
+            removable={field.mandatory === false}
+            compact={field.compact}
+          >
+            <Field
+              {...omit(field, ['style'])}
+              onChange={handleFieldChange}
+              requestFieldData={requestFieldData}
+              resetClassConnections={resetClassConnections}
+              showClassesWarning={hasClassConnections}
+              interfaceKind={type}
+              iface_kind={type}
+              activeId={activeId}
+              interfaceId={interfaceId}
+              prefill={
+                field.prefill &&
+                selectedFieldList.find((preField: IField) => preField.name === field.prefill)
+              }
+              disabled={isFieldDisabled(field)}
+              context={getContext()}
+            />
+          </FieldWrapper>
+        )
+    );
+  };
+
+  const renderGroups = (groups: Record<string, IField[]>) => {
+    return map(groups, (fields, groupName) => {
+      if (size(fields) > 1) {
+        return (
+          <React.Fragment key={groupName}>
+            <ReqorePanel
+              collapsible
+              label={capitalize(groupName)}
+              minimal
+              icon="Group2Line"
+              size="small"
+              intent={fields.some((field) => field.isValid === false) ? 'danger' : undefined}
+            >
+              <ReqoreColumns columnsGap="20px" minColumnWidth="550px">
+                {renderFields(fields)}
+              </ReqoreColumns>
+            </ReqorePanel>
+          </React.Fragment>
+        );
+      }
+
+      return <React.Fragment key={groupName}>{renderFields(fields)}</React.Fragment>;
+    });
+  };
+
+  console.log('fieldsToRender', fieldsToRender);
+
   return (
     <>
       <Content
@@ -1133,7 +1222,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               effect: PositiveColorEffect,
               filterable: true,
               label: `Optional fields available (${size(fieldList)})`,
-              disabled: !size(fieldList),
+              disabled: size(fieldList) === 0,
               blur: 3,
               items: [
                 {
@@ -1238,51 +1327,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         />
 
         <ReqoreVerticalSpacer height={10} />
-        <ContentWrapper>
-          {map(
-            selectedFieldList,
-            (field: IField) =>
-              !field.internal && (
-                <FieldWrapper
-                  key={field.name}
-                  info={field.markdown && t('MarkdownSupported')}
-                  type={field.type}
-                  label={t(`field-label-${field.name}`)}
-                  isValid={field.isValid}
-                  value={field.value}
-                  parentValue={field['parent-value']}
-                  desc={t(`field-desc-${field.name}`)}
-                  name={field.name}
-                  onResetClick={() => {
-                    handleFieldChange(field.name, field['parent-value']);
-                  }}
-                  isSet={field['is-set']}
-                  disabled={isFieldDisabled(field)}
-                  onClick={removeField}
-                  removable={field.mandatory === false}
-                  compact={field.compact}
-                >
-                  <Field
-                    {...omit(field, ['style'])}
-                    onChange={handleFieldChange}
-                    requestFieldData={requestFieldData}
-                    resetClassConnections={resetClassConnections}
-                    showClassesWarning={hasClassConnections}
-                    interfaceKind={type}
-                    iface_kind={type}
-                    activeId={activeId}
-                    interfaceId={interfaceId}
-                    prefill={
-                      field.prefill &&
-                      selectedFieldList.find((preField: IField) => preField.name === field.prefill)
-                    }
-                    disabled={isFieldDisabled(field)}
-                    context={getContext()}
-                  />
-                </FieldWrapper>
-              )
-          )}
-        </ContentWrapper>
+        <ContentWrapper>{renderGroups(fieldsToRender)}</ContentWrapper>
       </Content>
       {showClassConnectionsManager && hasClassConnections && initialData.qorus_instance && (
         <CustomDialog

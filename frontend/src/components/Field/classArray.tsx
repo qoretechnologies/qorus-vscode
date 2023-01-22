@@ -89,30 +89,33 @@ const ClassArrayField: FunctionComponent<
           <ReqoreVerticalSpacer height={10} />
         </>
       )}
-      {value.map((pair: IPair, index: number) => (
-        <StyledPairField key={index + 1}>
-          <SelectPairField
-            index={index + 1}
-            canBeRemoved={canRemoveLast || size(value) !== 1}
-            onRemoveClick={() => handleRemoveClick(index)}
-            key={index + 1}
-            keyName="prefix"
-            valueName="name"
-            keyValue={pair.prefix}
-            valueValue={pair.name}
-            get_message={get_message}
-            defaultSelectItems={defaultSelectItems}
-            reference={reference}
-            iface_kind={iface_kind}
-            return_message={return_message}
-            requestFieldData={requestFieldData}
-            onChange={(fieldName: string, value: any) => {
-              changePairData(index, fieldName, value);
-            }}
-            hideTextField={!withTextField}
-          />
-        </StyledPairField>
-      ))}
+      <ReqoreControlGroup fluid wrap>
+        {value.map((pair: IPair, index: number) => (
+          <StyledPairField key={index + 1}>
+            <SelectPairField
+              index={index + 1}
+              canBeRemoved={canRemoveLast || size(value) !== 1}
+              onRemoveClick={() => handleRemoveClick(index)}
+              key={index + 1}
+              keyName="prefix"
+              valueName="name"
+              keyValue={pair.prefix}
+              valueValue={pair.name}
+              get_message={get_message}
+              defaultSelectItems={defaultSelectItems}
+              reference={reference}
+              iface_kind={iface_kind}
+              return_message={return_message}
+              requestFieldData={requestFieldData}
+              onChange={(fieldName: string, value: any) => {
+                changePairData(index, fieldName, value);
+              }}
+              hideTextField={!withTextField}
+            />
+          </StyledPairField>
+        ))}
+      </ReqoreControlGroup>
+      <ReqoreVerticalSpacer height={10} />
       <ReqoreControlGroup fluid>
         <ReqoreButton
           icon={'AddLine'}

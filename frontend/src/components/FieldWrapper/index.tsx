@@ -6,10 +6,10 @@ import {
   ReqoreTag,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
-import ReqoreButton, { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreControlGroupProps } from '@qoretechnologies/reqore/dist/components/ControlGroup';
 import ReqoreIcon, { IReqoreIconProps } from '@qoretechnologies/reqore/dist/components/Icon';
 import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
+import { IReqoreTagAction } from '@qoretechnologies/reqore/dist/components/Tag';
 import { IReqoreTooltip } from '@qoretechnologies/reqore/dist/types/global';
 import size from 'lodash/size';
 import { useContext } from 'react';
@@ -98,13 +98,21 @@ export const FieldWrapper = ({
         <ReqoreControlGroup fluid verticalAlign="flex-start">
           <ReqoreTag
             fixed
+            width="150px"
+            wrap
             label={label}
+            minimal
             intent={isValid ? undefined : 'danger'}
             icon={label ? (isValid ? 'CheckLine' : 'ErrorWarningLine') : undefined}
+            actions={[
+              {
+                show: !!removable,
+                ...(removeButtonProps as IReqoreTagAction),
+              },
+            ]}
           />
           <ReqoreHorizontalSpacer width={5} />
           <ReqoreControlGroup vertical>{children}</ReqoreControlGroup>
-          {removable && <ReqoreButton {...(removeButtonProps as IReqoreButtonProps)} fixed />}
         </ReqoreControlGroup>
       </ReqorePanel>
     );
@@ -117,9 +125,8 @@ export const FieldWrapper = ({
       minimal
       size="small"
       collapsible={collapsible}
-      icon={label || collapsible ? (isValid ? 'CheckLine' : 'ErrorWarningLine') : undefined}
+      icon="PriceTagLine"
       intent={isValid ? undefined : 'danger'}
-      iconColor={isValid ? undefined : 'danger:lighten'}
       badge={type}
       unMountContentOnCollapse={false}
       actions={[
@@ -223,6 +230,7 @@ export interface IInterfaceCreatorPanel {
 }
 
 export interface IField {
+  group?: string;
   compact?: boolean;
   get_message?: {
     action: string;
