@@ -6,6 +6,7 @@ import {
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import { IReqoreEffect, ReqoreTextEffect } from '@qoretechnologies/reqore/dist/components/Effect';
+import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
@@ -98,21 +99,6 @@ const wiggleAnimation = (type) => keyframes`
     }
 `;
 
-const StyledStateName = styled.p`
-  padding: 0;
-  margin: 0;
-  font-weight: 500;
-  text-align: center;
-`;
-
-const StyledStateAction = styled.p`
-  padding: 0;
-  margin: 0;
-  color: #a9a9a9;
-  font-size: 11px;
-  text-align: center;
-`;
-
 export const StyledStateTextWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -128,7 +114,7 @@ export const StyledStateTextWrapper = styled.div`
 // IS AVAILABLE FOR TRANSITION
 // IS INCOMPATIBLE
 // ERROR
-const StyledFSMState = styled(ReqorePanel)`
+const StyledFSMState: React.FC<IReqorePanelProps> = styled(ReqorePanel)`
   left: ${({ x }) => `${x}px`};
   top: ${({ y }) => `${y}px`};
   min-width: 250px;
@@ -302,6 +288,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       }
       icon="CodeLine"
       name={`fsm-state-${name}`}
+      responsiveActions={false}
       x={position?.x}
       y={position?.y}
       onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}
@@ -417,7 +404,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
         {final && <ReqoreTag color="#6e1977" label={t('Final')} />}
         {initial && <ReqoreTag effect={PositiveColorEffect} label={t('Initial')} />}
         <ReqoreTag minimal label={action?.type || type} />
-        <ReqoreTag minimal wrap fluid label={getStateType({ type, action, ...rest })} />
+        <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
       </ReqoreTagGroup>
     </StyledFSMState>
   );

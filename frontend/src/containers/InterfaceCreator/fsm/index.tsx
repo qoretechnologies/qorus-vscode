@@ -32,7 +32,6 @@ import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import Loader from '../../../components/Loader';
-import Spacer from '../../../components/Spacer';
 import { AppToaster } from '../../../components/Toast';
 import { Messages } from '../../../constants/messages';
 import { DraftsContext, IDraftData } from '../../../context/drafts';
@@ -148,7 +147,7 @@ export interface IFSMStates {
 export const TOOLBAR_ITEM_TYPE = 'toolbar-item';
 export const STATE_ITEM_TYPE = 'state';
 
-const DIAGRAM_SIZE = 2000;
+const DIAGRAM_SIZE = 4000;
 export const IF_STATE_SIZE = 80;
 export const STATE_WIDTH = 180;
 export const STATE_HEIGHT = 50;
@@ -1729,14 +1728,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
               </ReqoreMenu>
               <ReqoreHorizontalSpacer width={10} />
               <div style={{ flex: 1, overflow: 'hidden', minHeight: 100 }}>
-                {selectedState && (
-                  <>
-                    <Callout icon="info-sign" intent="primary">
-                      {t('FSMSelectTargetState')}
-                    </Callout>
-                    <Spacer size={10} />
-                  </>
-                )}
                 <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
                   <FSMDiagramWrapper
                     wrapperDimensions={wrapperDimensions}

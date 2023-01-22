@@ -17,6 +17,7 @@ import withMessageHandler, {
 import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
+import { PositiveColorEffect } from './multiPair';
 import String from './string';
 
 export interface IMultiSelectField {
@@ -192,7 +193,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
               </StyledDialogBody>
             </CustomDialog>
           )}
-          <ReqoreControlGroup fluid verticalAlign="flex-start">
+          <ReqoreControlGroup fluid fill>
             <ReqoreMultiSelect
               items={items.map(
                 (item): TReqoreMultiSelectItem => ({
@@ -225,7 +226,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                 fixed
                 tooltip={t('CreateAndAddNewItem')}
                 icon="AddLine"
-                intent="success"
+                effect={PositiveColorEffect}
                 onClick={() => onCreateClick(reference, handleSaveTagCreate)}
               />
             )}

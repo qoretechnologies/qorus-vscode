@@ -1223,7 +1223,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               filterable: true,
               label: `Optional fields available (${size(fieldList)})`,
               disabled: size(fieldList) === 0,
-              blur: 3,
               items: [
                 {
                   label: t('SelectAll'),

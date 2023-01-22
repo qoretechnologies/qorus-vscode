@@ -645,7 +645,7 @@ const MapperProvider: FC<IProviderProps> = ({
         </CustomDialog>
       )}
       <ReqorePanel minimal={compact} style={style} flat transparent padded={!!title}>
-        <ReqoreControlGroup fluid wrap>
+        <ReqoreControlGroup fluid wrap fill>
           <SelectField
             fixed
             name={`provider${type ? `-${type}` : ''}`}
