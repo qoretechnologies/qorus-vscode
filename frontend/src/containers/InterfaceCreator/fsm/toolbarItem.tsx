@@ -1,4 +1,5 @@
 import { ReqoreMenuItem, ReqoreThemeContext } from '@qoretechnologies/reqore';
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { useContext } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { css } from 'styled-components';
@@ -131,6 +132,21 @@ const typeToColor = {
   delete: '#160437',
 };
 
+export const FSMItemIconByType: Record<string, IReqoreIconName> = {
+  mapper: 'FileTransferLine',
+  pipeline: 'Database2Line',
+  fsm: 'ShareLine',
+  block: 'NodeTree',
+  connector: 'ExchangeLine',
+  if: 'QuestionMark',
+  apicall: 'ArrowLeftRightLine',
+  'search-single': 'SearchLine',
+  search: 'FileSearchLine',
+  create: 'FolderAddLine',
+  update: 'Edit2Line',
+  delete: 'DeleteBin2Line',
+};
+
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   children,
   count,
@@ -157,6 +173,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
       flat={false}
       description="This is a test description kek"
       badge={count}
+      icon={FSMItemIconByType[type]}
       effect={{
         gradient: getStateColor(category),
       }}

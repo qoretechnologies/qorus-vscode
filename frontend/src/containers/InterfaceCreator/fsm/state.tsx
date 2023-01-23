@@ -3,12 +3,12 @@ import {
   ReqorePanel,
   ReqoreTag,
   ReqoreThemeContext,
-  ReqoreVerticalSpacer,
+  ReqoreVerticalSpacer
 } from '@qoretechnologies/reqore';
 import {
   IReqoreEffect,
   ReqoreTextEffect,
-  TReqoreHexColor,
+  TReqoreHexColor
 } from '@qoretechnologies/reqore/dist/components/Effect';
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
@@ -22,6 +22,7 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { insertAtIndex } from '../../../helpers/functions';
 import { IFSMState, STATE_ITEM_TYPE } from './';
+import { FSMItemIconByType } from './toolbarItem';
 
 export interface IFSMStateProps extends IFSMState {
   selected?: boolean;
@@ -305,7 +306,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           opacity: isIsolated ? 0.7 : 1,
         } as IReqoreEffect
       }
-      icon="CodeLine"
+      icon={FSMItemIconByType[action?.type || type]}
       name={`fsm-state-${name}`}
       responsiveActions={false}
       x={position?.x}
