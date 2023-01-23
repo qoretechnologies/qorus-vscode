@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { ReqoreEffect, StyledEffect } from '@qoretechnologies/reqore/dist/components/Effect';
+import { ReqoreEffect } from '@qoretechnologies/reqore/dist/components/Effect';
 import map from 'lodash/map';
 import useMount from 'react-use/lib/useMount';
 import ResizeObserver from 'resize-observer-polyfill';
 import styled, { css } from 'styled-components';
-import { IF_STATE_SIZE, STATE_HEIGHT, STATE_WIDTH } from '../../../containers/InterfaceCreator/fsm';
 import { getStateCategory, getStateColor } from '../../../containers/InterfaceCreator/fsm/state';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 
@@ -17,20 +16,10 @@ const StyledMinimapWrapper = styled.div<{ show: boolean }>`
   cursor: no-drop;
 `;
 
-const StyledMinimapItem = styled(StyledEffect)<{ top: number; left: number; type: string }>`
-  ${({ top, left, type }) => css`
-    left: ${left / 10}px;
-    top: ${top / 10}px;
-    width: ${(type === 'if' ? IF_STATE_SIZE : STATE_WIDTH) / 10}px;
-    height: ${(type === 'if' ? IF_STATE_SIZE : STATE_HEIGHT) / 10}px;
-    position: absolute;
-  `}
-`;
-
 const StyledMinimapView = styled.div<{ height: number; width: number }>`
   ${({ width, height }) => css`
-    width: ${width / 10}px;
-    height: ${height / 10}px;
+    width: ${width / 20}px;
+    height: ${height / 20}px;
     box-shadow: inset 1px 1px 0 0 #277fba, inset -1px -1px 0 0 #277fba,
       inset 1px 1px 3px -1px #277fba, inset -1px -1px 3px -1px #277fba;
     position: absolute;
@@ -100,9 +89,9 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panEle
   });
 
   useEffect(() => {
-    setPosition({ x: x / 10, y: y / 10 });
-    staticPosition.x = x / 10;
-    staticPosition.y = y / 10;
+    setPosition({ x: x / 20, y: y / 20 });
+    staticPosition.x = x / 20;
+    staticPosition.y = y / 20;
   }, [x, y]);
 
   const onDragStart = (e) => {
@@ -143,7 +132,7 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panEle
     viewRef.current.style.top = `${staticPosition.y}px`;
     viewRef.current.style.left = `${staticPosition.x}px`;
 
-    onDrag(e.movementX * 10, e.movementY * 10);
+    onDrag(e.movementX * 20, e.movementY * 20);
   };
 
   const onDragStop = () => {
@@ -159,10 +148,10 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panEle
       <ReqoreEffect
         key={index}
         style={{
-          left: `${x / 10}px`,
-          top: `${y / 10}px`,
-          width: `${width / 10}px`,
-          height: `${height / 10}px`,
+          left: `${x / 20}px`,
+          top: `${y / 20}px`,
+          width: `${width / 20}px`,
+          height: `${height / 20}px`,
           position: 'absolute',
         }}
         effect={{

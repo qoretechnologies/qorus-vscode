@@ -161,6 +161,7 @@ export const serviceFields = ({
       object_type: 'resource',
       return_value: 'resources',
     },
+    group: 'files',
   },
   {
     name: 'text-resource',
@@ -175,6 +176,7 @@ export const serviceFields = ({
       object_type: 'text-resource',
       return_value: 'resources',
     },
+    group: 'files',
   },
   {
     name: 'bin-resource',
@@ -189,6 +191,7 @@ export const serviceFields = ({
       object_type: 'bin-resource',
       return_value: 'resources',
     },
+    group: 'files',
   },
   {
     name: 'template',
@@ -203,6 +206,7 @@ export const serviceFields = ({
       object_type: 'template',
       return_value: 'resources',
     },
+    group: 'files',
   },
   {
     name: 'fsm',

@@ -19,7 +19,7 @@ const CustomDialog = ({ children, ...rest }: ICustomDialogProps) => {
   // });
 
   return (
-    <ReqoreModal {...rest} label={rest.title} blur={5}>
+    <ReqoreModal {...rest} label={rest.title || rest.label} blur={5}>
       {children}
     </ReqoreModal>
   );

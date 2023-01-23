@@ -121,7 +121,6 @@ export const FieldWrapper = ({
   return (
     <ReqorePanel
       label={label}
-      flat
       minimal
       size="small"
       collapsible={collapsible}

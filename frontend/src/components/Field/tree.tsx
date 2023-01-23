@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Callout, Icon, Intent, ITreeNode, Tree } from '@blueprintjs/core';
+import { Icon, Intent, ITreeNode, Tree } from '@blueprintjs/core';
 import { ReqoreMessage, ReqorePanel, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { size } from 'lodash';
 import { FunctionComponent, useContext, useState } from 'react';
@@ -6,13 +6,7 @@ import useMount from 'react-use/lib/useMount';
 import styled, { css } from 'styled-components';
 import Field from '.';
 import { TTranslator } from '../../App';
-import {
-  ActionsWrapper,
-  ContentWrapper,
-  FieldInputWrapper,
-  IField,
-  IFieldChange,
-} from '../../components/FieldWrapper';
+import { ContentWrapper, IField, IFieldChange } from '../../components/FieldWrapper';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
@@ -23,9 +17,7 @@ import withMessageHandler, {
   TPostMessage,
 } from '../../hocomponents/withMessageHandler';
 import SourceDirs from '../../project_config/sourceDirs';
-import Content from '../Content';
 import CustomDialog from '../CustomDialog';
-import FieldLabel from '../FieldLabel';
 import { FieldWrapper } from '../FieldWrapper';
 
 export interface ITreeField {
@@ -232,83 +224,81 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     <>
       {folderDialog && (
         <CustomDialog
-          icon="folder-new"
+          icon="FolderAddLine"
           isOpen
-          title={t('CreateNewDir')}
+          label={t('CreateNewDir')}
           onClose={() => {
             setFolderDialog(undefined);
           }}
-          style={{ maxWidth: '70vw', paddingBottom: 0 }}
+          bottomActions={[
+            {
+              label: t('CreateFolder'),
+              disabled: folderDialog.loading || !validateField('string', folderDialog.newPath),
+              icon: 'CheckLine',
+              intent: Intent.SUCCESS,
+              onClick: () => handleCreateDirSubmit(),
+              position: 'right',
+            },
+            {
+              label: t('CreateFolderAndAddSource'),
+              disabled: folderDialog.loading || !validateField('string', folderDialog.newPath),
+              icon: 'CheckDoubleLine',
+              intent: Intent.SUCCESS,
+              onClick: () => handleCreateDirSubmit(true),
+              position: 'right',
+            },
+          ]}
         >
-          <Content
-            style={{ paddingLeft: 0, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}
-          >
-            <Callout intent="primary">
-              {t('AddingNewDirectoryTo')} <strong>{folderDialog.abs_path}</strong>.{' '}
-              {t('MultipleSubdirectoriesNewDir')}
-            </Callout>
-            {folderDialog.error && <Callout intent="danger">{folderDialog.error}</Callout>}
-            <ContentWrapper>
-              <FieldWrapper padded>
-                <FieldLabel
-                  label={t('field-label-newDir')}
-                  isValid={validateField('string', folderDialog.newPath)}
-                />
-                <FieldInputWrapper>
-                  <Field
-                    type="string"
-                    value={folderDialog.newPath}
-                    onChange={(_name, value) =>
-                      setFolderDialog((cur) => ({ ...cur, newPath: value }))
-                    }
-                    name="new-directory"
-                  />
-                </FieldInputWrapper>
-              </FieldWrapper>
-            </ContentWrapper>
-            <ActionsWrapper style={{ padding: '10px' }}>
-              <ButtonGroup fill>
-                <Button
-                  text={t('CreateFolder')}
-                  disabled={!validateField('string', folderDialog.newPath)}
-                  icon={'tick'}
-                  name={`submit-new-folder`}
-                  intent={Intent.SUCCESS}
-                  onClick={() => handleCreateDirSubmit()}
-                  loading={folderDialog.loading}
-                />
-                <Button
-                  text={t('CreateFolderAndAddSource')}
-                  disabled={!validateField('string', folderDialog.newPath)}
-                  icon={'tick'}
-                  name={`submit-new-folder-add-source`}
-                  intent={Intent.SUCCESS}
-                  onClick={() => handleCreateDirSubmit(true)}
-                  loading={folderDialog.loading}
-                />
-              </ButtonGroup>
-            </ActionsWrapper>
-          </Content>
+          <ReqoreMessage intent="info" size="small">
+            {t('AddingNewDirectoryTo')} <strong>{folderDialog.abs_path}</strong>.{' '}
+            {t('MultipleSubdirectoriesNewDir')}
+          </ReqoreMessage>
+          <ReqoreVerticalSpacer height={10} />
+          {folderDialog.error && (
+            <ReqoreMessage intent="danger">{folderDialog.error}</ReqoreMessage>
+          )}
+          <ContentWrapper>
+            <FieldWrapper
+              compact
+              label={t('field-label-newDir')}
+              isValid={validateField('string', folderDialog.newPath)}
+            >
+              <Field
+                type="string"
+                value={folderDialog.newPath}
+                onChange={(_name, value) => setFolderDialog((cur) => ({ ...cur, newPath: value }))}
+                name="new-directory"
+              />
+            </FieldWrapper>
+          </ContentWrapper>
         </CustomDialog>
       )}
       {manageSourceDirs && (
         <SourceDirs
+          isOpen
           onClose={() => {
             setManageSourceDirs(false);
             postMessage(get_message.action, { object_type: get_message.object_type });
           }}
         />
       )}
+      {single && value ? (
+        <>
+          <ReqoreMessage intent={!size(value) ? 'warning' : 'info'} size="small">
+            {!size(value) ? t('ValueIsEmpty') : value}
+          </ReqoreMessage>
+          <ReqoreVerticalSpacer height={10} />
+        </>
+      ) : null}
       <ReqorePanel
         label="Source Directories"
         collapsible
+        isCollapsed={true}
+        icon="FolderAddLine"
         fluid
+        size="small"
+        minimal
         actions={[
-          {
-            label: isRootExpanded ? 'Hide folders' : 'Show folders',
-            icon: isRootExpanded ? 'FolderLine' : 'FolderOpenLine',
-            onClick: () => setRootExpanded((cur) => !cur),
-          },
           {
             icon: 'Settings3Fill',
             onClick: () => setManageSourceDirs(true),
@@ -317,37 +307,14 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
           },
         ]}
       >
-        {single && value ? (
-          <>
-            <ReqoreMessage intent={!size(value) ? 'warning' : 'info'}>
-              {!size(value) ? t('ValueIsEmpty') : value}
-            </ReqoreMessage>
-            <ReqoreVerticalSpacer height={10} />
-          </>
-        ) : null}
-        {notFixed ? (
-          <>
-            {isRootExpanded && (
-              <Tree
-                contents={transformItems(items)}
-                onNodeClick={handleNodeClick}
-                onNodeCollapse={handleNodeCollapse}
-                onNodeExpand={handleNodeExpand}
-              />
-            )}
-          </>
-        ) : (
-          <StyledTreeScroller>
-            {isRootExpanded && (
-              <Tree
-                contents={transformItems(items)}
-                onNodeClick={handleNodeClick}
-                onNodeCollapse={handleNodeCollapse}
-                onNodeExpand={handleNodeExpand}
-              />
-            )}
-          </StyledTreeScroller>
-        )}
+        <StyledTreeScroller>
+          <Tree
+            contents={transformItems(items)}
+            onNodeClick={handleNodeClick}
+            onNodeCollapse={handleNodeCollapse}
+            onNodeExpand={handleNodeExpand}
+          />
+        </StyledTreeScroller>
       </ReqorePanel>
     </>
   );
