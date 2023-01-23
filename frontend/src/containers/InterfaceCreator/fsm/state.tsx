@@ -1,11 +1,15 @@
 import {
+  ReqoreControlGroup,
   ReqorePanel,
   ReqoreTag,
-  ReqoreTagGroup,
   ReqoreThemeContext,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
-import { IReqoreEffect, ReqoreTextEffect } from '@qoretechnologies/reqore/dist/components/Effect';
+import {
+  IReqoreEffect,
+  ReqoreTextEffect,
+  TReqoreHexColor,
+} from '@qoretechnologies/reqore/dist/components/Effect';
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
@@ -51,6 +55,21 @@ export interface IFSMStateStyleProps {
 }
 
 export type TStateTypes = 'interfaces' | 'logic' | 'api' | 'other';
+
+export const getCategoryColor = (category: TStateTypes): TReqoreHexColor => {
+  switch (category) {
+    case 'interfaces':
+      return '#e8970b';
+
+    case 'logic':
+      return '#3b3b3b';
+
+    case 'api':
+      return '#1914b0';
+    default:
+      return '#950ea1';
+  }
+};
 
 export const getStateColor = (stateType: TStateTypes): IReqoreEffect['gradient'] => {
   let color;
@@ -397,15 +416,28 @@ const FSMState: React.FC<IFSMStateProps> = ({
           <ReqoreVerticalSpacer height={10} />
         </>
       ) : null}
-      <ReqoreTagGroup size="small">
+      <ReqoreControlGroup size="small" wrap fluid fill>
         {isIsolated && (
-          <ReqoreTag effect={NegativeColorEffect} label={t('Isolated')} icon="AlarmWarningLine" />
+          <ReqoreTag
+            effect={NegativeColorEffect}
+            label={t('Isolated')}
+            icon="AlarmWarningLine"
+            fixed
+          />
         )}
-        {final && <ReqoreTag color="#6e1977" label={t('Final')} />}
-        {initial && <ReqoreTag effect={PositiveColorEffect} label={t('Initial')} />}
-        <ReqoreTag minimal label={action?.type || type} />
-        <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
-      </ReqoreTagGroup>
+        {final && <ReqoreTag color="#6e1977" fixed label={t('Final')} />}
+        {initial && <ReqoreTag effect={PositiveColorEffect} fixed label={t('Initial')} />}
+        <ReqoreControlGroup stack fill fluid>
+          <ReqoreTag
+            wrap
+            fixed
+            color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
+            effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
+            label={action?.type || type}
+          />
+          <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
+        </ReqoreControlGroup>
+      </ReqoreControlGroup>
     </StyledFSMState>
   );
 };

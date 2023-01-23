@@ -99,6 +99,8 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
     });
   };
 
+  console.log(rest);
+
   return (
     <>
       {editManager.isOpen && (

@@ -332,6 +332,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 deleteState(id, true);
               },
               show: !isMetadataHidden,
+              responsive: false,
             },
             {
               label: t('Back'),
@@ -374,6 +375,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               icon: 'CheckLine',
               intent: isLoading ? Intent.WARNING : isCustomBlockFirstPage() ? 'info' : 'success',
               position: 'right',
+              responsive: false,
               onClick: () => {
                 if (!isCustomBlockFirstPage()) {
                   setIsLoading(true);
@@ -413,11 +415,11 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
         >
           <ContentWrapper
             style={{
-              display: isCustomBlockSecondPage() ? 'none' : 'block',
+              display: isCustomBlockSecondPage() ? 'none' : undefined,
             }}
           >
-            <FieldGroup>
-              <FieldWrapper label={t('Name')} isValid={isNameValid(newData.name)}>
+            <FieldGroup label={t('Info')} isValid={isNameValid(newData.name)}>
+              <FieldWrapper label={t('Name')} isValid={isNameValid(newData.name)} compact>
                 {newData.type === 'fsm' ? (
                   <SelectField
                     get_message={{
@@ -439,12 +441,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                   <String name="name" onChange={handleDataUpdate} value={newData.name} />
                 )}
               </FieldWrapper>
-              <FieldWrapper label={t('Description')} isValid>
+              <FieldWrapper label={t('Description')} isValid compact>
                 <LongStringField name="desc" onChange={handleDataUpdate} value={newData.desc} />
               </FieldWrapper>
-            </FieldGroup>
-            <FieldGroup>
-              <FieldWrapper label={t('Type')} isValid>
+              <FieldWrapper label={t('Type')} isValid compact>
                 <SelectField
                   defaultItems={
                     qorus_instance
@@ -457,7 +457,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                   name="type"
                 />
               </FieldWrapper>
-              <FieldWrapper label={t('Initial')} isValid>
+              <FieldWrapper label={t('Initial')} isValid compact>
                 <BooleanField
                   disabled={disableInitial}
                   name="initial"
@@ -467,28 +467,26 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               </FieldWrapper>
             </FieldGroup>
             {newData.type === 'block' && (
-              <>
-                <FieldGroup>
-                  <FieldWrapper label={t('field-label-block-logic')} isValid>
-                    <RadioField
-                      name="block-logic"
-                      onChange={(_name, value) => {
-                        setBlockLogicType(value);
-                      }}
-                      value={blockLogicType}
-                      items={[{ value: 'custom' }, { value: 'fsm' }]}
-                    />
-                  </FieldWrapper>
-                  <FieldWrapper label={t('field-label-block-type')} isValid>
-                    <RadioField
-                      name="block-type"
-                      onChange={handleDataUpdate}
-                      value={newData?.['block-type'] || 'for'}
-                      items={[{ value: 'for' }, { value: 'foreach' }, { value: 'while' }]}
-                    />
-                  </FieldWrapper>
-                </FieldGroup>
-                <FieldWrapper label={t('field-label-block-config')} isValid>
+              <FieldGroup label="Block configuration">
+                <FieldWrapper label={t('field-label-block-logic')} isValid compact>
+                  <RadioField
+                    name="block-logic"
+                    onChange={(_name, value) => {
+                      setBlockLogicType(value);
+                    }}
+                    value={blockLogicType}
+                    items={[{ value: 'custom' }, { value: 'fsm' }]}
+                  />
+                </FieldWrapper>
+                <FieldWrapper label={t('field-label-block-type')} isValid compact>
+                  <RadioField
+                    name="block-type"
+                    onChange={handleDataUpdate}
+                    value={newData?.['block-type'] || 'for'}
+                    items={[{ value: 'for' }, { value: 'foreach' }, { value: 'while' }]}
+                  />
+                </FieldWrapper>
+                <FieldWrapper label={t('field-label-block-config')} isValid compact>
                   <Options
                     name="block-config"
                     onChange={handleDataUpdate}
@@ -496,7 +494,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     url={`/block/${newData?.['block-type'] || 'for'}`}
                   />
                 </FieldWrapper>
-              </>
+              </FieldGroup>
             )}
             {newData.type === 'block' && blockLogicType === 'fsm' ? (
               <FieldWrapper label={t('FSM')} isValid={validateField('string', newData?.fsm)}>
@@ -520,13 +518,19 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               </FieldWrapper>
             ) : null}
             {newData.type === 'state' && (
-              <FieldGroup>
-                <FieldWrapper label={t('Action')} isValid={isActionValid()} type={t('Optional')}>
+              <FieldGroup label="Action configuration" isValid={isActionValid()}>
+                <FieldWrapper
+                  label={t('Action')}
+                  isValid={isActionValid()}
+                  type={t('Optional')}
+                  collapsible={false}
+                >
                   <SelectField
                     defaultItems={map(StateTypes, (stateType) => ({
                       name: stateType,
                       desc: t(`field-desc-state-${stateType}`),
                     }))}
+                    fluid
                     onChange={(_name, value) => {
                       handleDataUpdate(
                         'action',
@@ -542,14 +546,18 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                   />
                 </FieldWrapper>
                 {actionType && actionType !== 'none' ? (
-                  <FieldWrapper isValid={isActionValid()} label={t('ActionValue')}>
+                  <FieldWrapper
+                    isValid={isActionValid()}
+                    label={t('ActionValue')}
+                    collapsible={false}
+                  >
                     {renderActionField()}
                   </FieldWrapper>
                 ) : null}
               </FieldGroup>
             )}
             {newData.type === 'block' ? (
-              <>
+              <FieldGroup label="Types">
                 <FieldWrapper label={t('InputType')} isValid type={t('Optional')}>
                   <Connectors
                     name="input-type"
@@ -558,7 +566,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     value={newData?.['input-type']}
                   />
                 </FieldWrapper>
-                <FieldWrapper label={t('OutputType')} isValid info={t('Optional')}>
+                <FieldWrapper label={t('OutputType')} isValid type={t('Optional')}>
                   <Connectors
                     name="output-type"
                     isInitialEditing={data?.['output-type']}
@@ -566,10 +574,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     value={newData?.['output-type']}
                   />
                 </FieldWrapper>
-              </>
+              </FieldGroup>
             ) : null}
             {newData.type === 'if' && (
-              <>
+              <FieldGroup label="Condition configuration">
                 <ConditionField onChange={handleDataUpdate} data={newData} required />
                 <FieldWrapper label={t('InputOutputType')} isValid type={t('Optional')}>
                   <Connectors
@@ -579,7 +587,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     value={newData['input-output-type']}
                   />
                 </FieldWrapper>
-              </>
+              </FieldGroup>
             )}
           </ContentWrapper>
           {isCustomBlockSecondPage() ? (

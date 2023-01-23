@@ -1,10 +1,4 @@
-import {
-  ReqoreColumns,
-  ReqoreDropdown,
-  ReqoreInput,
-  ReqorePanel,
-  ReqoreVerticalSpacer,
-} from '@qoretechnologies/reqore';
+import { ReqoreDropdown, ReqoreInput, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { IReqoreDropdownItemProps } from '@qoretechnologies/reqore/dist/components/Dropdown/item';
 import {
   camelCase,
@@ -43,6 +37,7 @@ import CustomDialog from '../../components/CustomDialog';
 import Field from '../../components/Field';
 import { allowedTypes } from '../../components/Field/arrayAuto';
 import { PositiveColorEffect, SelectorColorEffect } from '../../components/Field/multiPair';
+import FieldGroup from '../../components/FieldGroup';
 import {
   ContentWrapper,
   FieldWrapper,
@@ -1187,28 +1182,19 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     return map(groups, (fields, groupName) => {
       if (size(fields) > 1) {
         return (
-          <React.Fragment key={groupName}>
-            <ReqorePanel
-              collapsible
-              label={capitalize(groupName)}
-              minimal
-              icon="Group2Line"
-              size="small"
-              intent={fields.some((field) => field.isValid === false) ? 'danger' : undefined}
-            >
-              <ReqoreColumns columnsGap="20px" minColumnWidth="550px">
-                {renderFields(fields)}
-              </ReqoreColumns>
-            </ReqorePanel>
-          </React.Fragment>
+          <FieldGroup
+            key={groupName}
+            label={capitalize(groupName)}
+            isValid={!fields.some((field) => field.isValid === false)}
+          >
+            {renderFields(fields)}
+          </FieldGroup>
         );
       }
 
       return <React.Fragment key={groupName}>{renderFields(fields)}</React.Fragment>;
     });
   };
-
-  console.log('fieldsToRender', fieldsToRender);
 
   return (
     <>

@@ -91,9 +91,8 @@ const ConnectorSelector = ({
   }
 
   return (
-    <ReqoreControlGroup stack fill>
+    <ReqoreControlGroup stack fluid vertical>
       <SelectField
-        fill
         onChange={handleChange}
         value={value?.['class']}
         name="class"
@@ -105,7 +104,6 @@ const ConnectorSelector = ({
       />
       {value?.['class'] && (
         <SelectField
-          fill
           defaultItems={getConnectors()}
           onChange={handleChange}
           value={value?.connector}

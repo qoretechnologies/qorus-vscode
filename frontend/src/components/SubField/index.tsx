@@ -53,7 +53,7 @@ const SubField: React.FC<ISubFieldProps> = ({
   return (
     <>
       <ReqorePanel
-        flat={!!subtle}
+        flat
         transparent={subtle}
         minimal
         style={{ width: '100%' }}

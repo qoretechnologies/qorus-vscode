@@ -1,22 +1,19 @@
-import React from 'react';
-import styled from 'styled-components';
+import { ReqoreColumns } from '@qoretechnologies/reqore';
+import { IReqorePanelProps, ReqorePanel } from '@qoretechnologies/reqore/dist/components/Panel';
 
-export interface IFieldGroupProps {
-  children: any;
-  transparent?: boolean;
-}
-
-const StyledFieldGroup = styled.div<{ transparent: boolean }>`
-  display: flex;
-  justify-content: stretch;
-
-  > * {
-    flex: 1 0 auto !important;
-  }
-`;
-
-const FieldGroup: React.FC<IFieldGroupProps> = ({ children, transparent }) => (
-  <StyledFieldGroup transparent={transparent}>{children}</StyledFieldGroup>
+const FieldGroup = ({ children, isValid, ...rest }: IReqorePanelProps & { isValid?: boolean }) => (
+  <ReqorePanel
+    collapsible
+    minimal
+    icon="Group2Line"
+    size="small"
+    {...rest}
+    intent={isValid ? rest.intent : 'danger'}
+  >
+    <ReqoreColumns columnsGap="20px" minColumnWidth="450px">
+      {children}
+    </ReqoreColumns>
+  </ReqorePanel>
 );
 
 export default FieldGroup;

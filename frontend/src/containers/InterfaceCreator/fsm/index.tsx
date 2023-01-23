@@ -17,7 +17,7 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useDrop, XYCoord } from 'react-dnd';
+import { XYCoord, useDrop } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -30,6 +30,7 @@ import FileString from '../../../components/Field/fileString';
 import { PositiveColorEffect, SaveColorEffect } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
+import FieldGroup from '../../../components/FieldGroup';
 import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import Loader from '../../../components/Loader';
 import { AppToaster } from '../../../components/Toast';
@@ -40,6 +41,7 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
+  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -50,7 +52,6 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -1336,7 +1337,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
       )}
 
       <Content
-        padded={getIsMetadataHidden()}
         title={
           embedded
             ? undefined
@@ -1398,10 +1398,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
       >
         <ContentWrapper
           style={{
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            flex: 1,
-            display: isMetadataHidden ? 'none' : 'block',
+            display: isMetadataHidden ? 'none' : undefined,
           }}
         >
           {!isMetadataHidden && !embedded ? (
@@ -1426,26 +1423,35 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   }}
                 />
               </FieldWrapper>
-              <FieldWrapper
-                name="selected-field"
-                isValid={validateField('string', metadata.name)}
-                label={t('field-label-name')}
+              <FieldGroup
+                label={t('Info')}
+                isValid={
+                  validateField('string', metadata.name) && validateField('string', metadata.desc)
+                }
               >
-                <String onChange={handleMetadataChange} value={metadata.name} name="name" />
-              </FieldWrapper>
-              <FieldWrapper
-                name="selected-field"
-                isValid={validateField('string', metadata.desc)}
-                label={t('field-label-desc')}
-              >
-                <Field
-                  type="long-string"
-                  onChange={handleMetadataChange}
-                  value={metadata.desc}
-                  name="desc"
-                  markdown
-                />
-              </FieldWrapper>
+                <FieldWrapper
+                  compact
+                  name="selected-field"
+                  isValid={validateField('string', metadata.name)}
+                  label={t('field-label-name')}
+                >
+                  <String onChange={handleMetadataChange} value={metadata.name} name="name" />
+                </FieldWrapper>
+                <FieldWrapper
+                  compact
+                  name="selected-field"
+                  isValid={validateField('string', metadata.desc)}
+                  label={t('field-label-desc')}
+                >
+                  <Field
+                    type="long-string"
+                    onChange={handleMetadataChange}
+                    value={metadata.desc}
+                    name="desc"
+                    markdown
+                  />
+                </FieldWrapper>
+              </FieldGroup>
               <FieldWrapper
                 name="selected-field"
                 isValid={
@@ -1475,58 +1481,72 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   name="groups"
                 />
               </FieldWrapper>
-              <FieldWrapper
-                name="selected-field"
+              <FieldGroup
+                label={t('Types')}
                 isValid={
-                  !metadata['input-type']
+                  (!metadata['input-type']
                     ? true
                     : validateField('type-selector', metadata['input-type']) &&
-                      isTypeCompatible('input')
-                }
-                detail={t('Optional')}
-                label={t('InputType')}
-              >
-                {!isTypeCompatible('input') && (
-                  <>
-                    <ReqoreMessage intent="danger">{t('FSMInputTypeError')}</ReqoreMessage>
-                    <ReqoreVerticalSpacer height={20} />
-                  </>
-                )}
-                <Connectors
-                  inline
-                  minimal
-                  value={metadata['input-type']}
-                  onChange={(n, v) => handleMetadataChange(n, v)}
-                  name="input-type"
-                  isInitialEditing={fsm?.['input-type']}
-                />
-              </FieldWrapper>
-              <FieldWrapper
-                name="selected-field"
-                isValid={
-                  !metadata['output-type']
+                      isTypeCompatible('input')) &&
+                  (!metadata['output-type']
                     ? true
                     : validateField('type-selector', metadata['output-type']) &&
-                      isTypeCompatible('output')
+                      isTypeCompatible('output'))
                 }
-                detail={t('Optional')}
-                label={t('OutputType')}
               >
-                {!isTypeCompatible('output') && (
-                  <>
-                    <ReqoreMessage intent="danger">{t('FSMOutputTypeError')}</ReqoreMessage>
-                    <ReqoreVerticalSpacer height={20} />
-                  </>
-                )}
-                <Connectors
-                  inline
-                  minimal
-                  value={metadata['output-type']}
-                  onChange={(n, v) => handleMetadataChange(n, v)}
-                  name="output-type"
-                  isInitialEditing={fsm?.['output-type']}
-                />
-              </FieldWrapper>
+                <FieldWrapper
+                  name="selected-field"
+                  isValid={
+                    !metadata['input-type']
+                      ? true
+                      : validateField('type-selector', metadata['input-type']) &&
+                        isTypeCompatible('input')
+                  }
+                  detail={t('Optional')}
+                  label={t('InputType')}
+                >
+                  {!isTypeCompatible('input') && (
+                    <>
+                      <ReqoreMessage intent="danger">{t('FSMInputTypeError')}</ReqoreMessage>
+                      <ReqoreVerticalSpacer height={20} />
+                    </>
+                  )}
+                  <Connectors
+                    inline
+                    minimal
+                    value={metadata['input-type']}
+                    onChange={(n, v) => handleMetadataChange(n, v)}
+                    name="input-type"
+                    isInitialEditing={fsm?.['input-type']}
+                  />
+                </FieldWrapper>
+                <FieldWrapper
+                  name="selected-field"
+                  isValid={
+                    !metadata['output-type']
+                      ? true
+                      : validateField('type-selector', metadata['output-type']) &&
+                        isTypeCompatible('output')
+                  }
+                  detail={t('Optional')}
+                  label={t('OutputType')}
+                >
+                  {!isTypeCompatible('output') && (
+                    <>
+                      <ReqoreMessage intent="danger">{t('FSMOutputTypeError')}</ReqoreMessage>
+                      <ReqoreVerticalSpacer height={20} />
+                    </>
+                  )}
+                  <Connectors
+                    inline
+                    minimal
+                    value={metadata['output-type']}
+                    onChange={(n, v) => handleMetadataChange(n, v)}
+                    name="output-type"
+                    isInitialEditing={fsm?.['output-type']}
+                  />
+                </FieldWrapper>
+              </FieldGroup>
             </>
           ) : null}
         </ContentWrapper>
