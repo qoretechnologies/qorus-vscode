@@ -241,6 +241,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
   toggleDragging,
   onExecutionOrderClick,
   isIsolated,
+  onMouseEnter,
+  onMouseLeave,
   error,
   ...rest
 }) => {
@@ -316,15 +318,11 @@ const FSMState: React.FC<IFSMStateProps> = ({
       selected={selected}
       size="small"
       headerSize={2}
-      initial={initial}
-      final={final}
       onMouseDown={(e) => e.stopPropagation()}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       minimal
       tooltip={type === 'block' && !qorus_instance ? t('CannotManageBlock') : undefined}
-      isAvailableForTransition={shouldWiggle}
-      isIncompatible={selectedState && !isCompatible}
-      error={error}
-      type={action?.type || type}
       label={`[${id}] ${name}`}
       actions={[
         {

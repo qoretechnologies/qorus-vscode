@@ -22,7 +22,7 @@ import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
-import styled from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import Content from '../../../components/Content';
 import Field from '../../../components/Field';
 import Connectors, { IProviderType } from '../../../components/Field/connectors';
@@ -188,10 +188,40 @@ export const StyledCompatibilityLoader = styled.div`
   z-index: 2000;
 `;
 
+const StyledFSMLineAnimation = keyframes`
+  to {
+    stroke-dashoffset: 0;
+  }
+`;
+
 const StyledFSMLine = styled.path`
   cursor: pointer;
   fill: none;
   filter: drop-shadow(0 0 2px #000000);
+  transition: all 0.2s linear;
+  stroke-dashoffset: 1000;
+
+  ${({ deselected }) =>
+    deselected &&
+    css`
+      opacity: 0.2;
+    `}
+
+  ${({ selected }) =>
+    selected &&
+    css`
+      opacity: 1;
+      stroke-dasharray: 7;
+      animation: ${StyledFSMLineAnimation} 10s linear infinite;
+    `}
+`;
+
+const StyledLineText = styled.text`
+  ${({ deselected }) =>
+    deselected &&
+    css`
+      opacity: 0.2;
+    `}
 `;
 
 const StyledFSMCircle = styled.circle`
@@ -261,6 +291,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     'output-type': fsm?.['output-type'] || null,
   });
   const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
   const [outputCompatibility, setOutputCompatibility] = useState<
     { [key: string]: boolean } | undefined
@@ -1948,6 +1979,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
                           onUpdate={updateStateData}
                           onEditClick={handleStateEditClick}
                           onDeleteClick={handleStateDeleteClick}
+                          onMouseEnter={() => setHoveredState(id)}
+                          onMouseLeave={() => setHoveredState(null)}
                           selectedState={selectedState}
                           isAvailableForTransition={isAvailableForTransition}
                           onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
@@ -2072,14 +2105,16 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                   id={`fsm-transition-${index}`}
                                   stroke={getTransitionColor(isError, branch)}
                                   strokeWidth={isError || branch ? 2 : 1}
-                                  strokeDasharray={isError || branch ? '5 10' : undefined}
+                                  strokeDasharray={isError || branch ? '7' : undefined}
                                   markerEnd={`url(#arrowhead${getTransitionEndMarker(
                                     isError,
                                     branch
                                   )})`}
                                   d={path}
+                                  deselected={hoveredState && hoveredState !== state}
+                                  selected={hoveredState === state}
                                 />
-                                <text
+                                <StyledLineText
                                   style={{
                                     transform: `rotate(${calculateTextRotation(
                                       side
@@ -2087,6 +2122,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                     transformBox: 'fill-box',
                                     transformOrigin: 'center',
                                   }}
+                                  deselected={hoveredState && hoveredState !== state}
                                 >
                                   <textPath
                                     href={`#fsm-transition-${index}`}
@@ -2095,7 +2131,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                   >
                                     {targetState}
                                   </textPath>
-                                </text>
+                                </StyledLineText>
                               </>
                             )
                         )}
