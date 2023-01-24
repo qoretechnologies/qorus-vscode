@@ -8,7 +8,7 @@ import { MapperContext } from '../../context/mapper';
 import { TextContext } from '../../context/text';
 import withMessageHandler, {
   TMessageListener,
-  TPostMessage,
+  TPostMessage
 } from '../../hocomponents/withMessageHandler';
 import CustomDialog from '../CustomDialog';
 
@@ -98,8 +98,6 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
       name: iface_name,
     });
   };
-
-  console.log(rest);
 
   return (
     <>

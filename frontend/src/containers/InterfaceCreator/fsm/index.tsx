@@ -16,8 +16,8 @@ import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { XYCoord, useDrop } from 'react-dnd';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useDrop, XYCoord } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -41,7 +41,6 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
-  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -52,6 +51,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -188,13 +188,10 @@ export const StyledCompatibilityLoader = styled.div`
   z-index: 2000;
 `;
 
-const StyledFSMLine = styled.line`
-  transition: all 0.2s linear;
+const StyledFSMLine = styled.path`
   cursor: pointer;
-
-  &:hover {
-    stroke-width: 6;
-  }
+  fill: none;
+  filter: drop-shadow(0 0 2px #000000);
 `;
 
 const StyledFSMCircle = styled.circle`
@@ -290,17 +287,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     accept: DROP_ACCEPTS,
     drop: (item: IDraggableItem, monitor) => {
       if (item.type === TOOLBAR_ITEM_TYPE) {
-        console.log(
-          monitor.getClientOffset(),
-          monitor.getDifferenceFromInitialOffset(),
-          monitor.getInitialClientOffset(),
-          monitor.getInitialSourceClientOffset(),
-          monitor.getSourceClientOffset()
-        );
-
         const diagram = document.getElementById('fsm-diagram')!.getBoundingClientRect();
-
-        console.log(diagram.left, diagram.top);
 
         let { x, y } = monitor.getClientOffset();
         const calculatePercDiff = (value) => value + (value / 100) * Math.abs(100 * (zoom - 1));
@@ -308,8 +295,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
         y = y / zoom;
         x = x - diagram.left + calculatePercDiff(currentXPan.current);
         y = y - diagram.top + calculatePercDiff(currentYPan.current);
-
-        console.log(x, y);
 
         addNewState(item, x, y);
       } else if (item.type === STATE_ITEM_TYPE) {
@@ -584,6 +569,18 @@ const FSMView: React.FC<IFSMViewProps> = ({
     return transitions?.find((transition) => transition.state === targetId);
   };
 
+  const getTransitionsCountForTargetState = (targetId: string): number => {
+    return Object.values(states).reduce((acc, state) => {
+      const { transitions } = state;
+
+      if (transitions) {
+        return transitions.find((transition) => transition.state === targetId) ? acc + 1 : acc;
+      }
+
+      return acc;
+    }, 0);
+  };
+
   // This function gets all the states that do not have any transitions out of them
   const getEndStates = (): IFSMState[] => {
     return filter(states, (state: IFSMState) => {
@@ -595,6 +592,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
     return filter(states, (state: IFSMState) => {
       return !!state.initial;
     });
+  };
+
+  const getStateDisplayName = (id: string): string => {
+    const state = states[id];
+
+    return state.name;
   };
 
   const getStateDataForComparison = (
@@ -1176,32 +1179,218 @@ const FSMView: React.FC<IFSMViewProps> = ({
     });
   };
 
-  const transitions = reduce(
-    states,
-    (newTransitions: any[], state: IFSMState, id: string) => {
-      if (!state.transitions) {
-        return newTransitions;
+  const getTargetStateLocation = ({
+    x1,
+    y1,
+    x2,
+    y2,
+    startStateId,
+    endStateId,
+  }): 'left' | 'right' | 'bottom' | 'top' => {
+    const modifiedX1 = x1 + 10000;
+    const modifiedX2 = x2 + 10000;
+    const modifiedY1 = y1 + 10000;
+    const modifiedY2 = y2 + 10000;
+
+    const startStateData = getStateBoundingRect(startStateId);
+    const endStateData = getStateBoundingRect(endStateId);
+    const endOfStartState = x1 + startStateData.width;
+    const endOfEndState = x2 + endStateData.width;
+
+    if (!startStateData || !endStateData) {
+      return 'left';
+    }
+
+    const sides = [];
+    const horizontal = modifiedX1 - modifiedX2;
+    const vertical = modifiedY1 - modifiedY2;
+
+    if (
+      (x1 > x2 && x1 < endOfEndState) ||
+      (endOfStartState > x2 && endOfStartState < endOfEndState)
+    ) {
+      if (y1 > y2) {
+        sides.push({ side: 'top', value: Math.abs(vertical) });
+      } else {
+        sides.push({ side: 'bottom', value: Math.abs(vertical) });
+      }
+    } else {
+      if (x1 > x2) {
+        sides.push({ side: 'left', value: Math.abs(horizontal) });
+      } else {
+        sides.push({ side: 'right', value: Math.abs(horizontal) });
       }
 
-      const stateTransitions = state.transitions.map(
-        (transition: IFSMTransition, index: number) => ({
-          isError: !!transition.errors,
-          transitionIndex: index,
-          state: id,
-          targetState: transition.state,
-          x1: state.position.x,
-          y1: state.position.y,
-          x2: states[transition.state].position.x,
-          y2: states[transition.state].position.y,
-          order: !!transition.errors ? 0 : 1,
-          branch: transition.branch,
-        })
-      );
+      if (y1 > y2) {
+        sides.push({ side: 'top', value: Math.abs(vertical) });
+      } else {
+        sides.push({ side: 'bottom', value: Math.abs(vertical) });
+      }
+    }
 
-      return [...newTransitions, ...stateTransitions];
-    },
-    []
-  ).sort((a, b) => a.order - b.order);
+    const { side } = maxBy(sides, 'value');
+
+    return side;
+  };
+
+  const getTransitionPath = ({
+    x1,
+    y1,
+    x2,
+    y2,
+    startStateId,
+    endStateId,
+    transitionIndexPerStateSide,
+    transitionIndexPerTargetStateSide,
+  }): string => {
+    const side = getTargetStateLocation({ x1, x2, y1, y2, startStateId, endStateId });
+    const startStateData = getStateBoundingRect(startStateId);
+    const endStateData = getStateBoundingRect(endStateId);
+
+    let path = '';
+    const startStateCenter = {
+      x: x1 + startStateData.width / 2,
+      y: y1 + startStateData.height / 2,
+    };
+    const endStateCenter = {
+      x: x2 + endStateData.width / 2,
+      y: y2 + endStateData.height / 2,
+    };
+    const startEndVerticalDifference = Math.abs(y1 - y2);
+
+    // If we are going to the bottom
+    if (side === 'bottom') {
+      path = `M ${startStateCenter.x - 20 * transitionIndexPerStateSide} ${
+        startStateCenter.y + startStateData.height / 2
+      } V ${startStateCenter.y + startEndVerticalDifference / 2 + 10 * transitionIndexPerStateSide}
+      H ${endStateCenter.x + 20 * transitionIndexPerTargetStateSide}
+      V ${endStateCenter.y - endStateData.height / 2}`;
+    }
+
+    if (side === 'top') {
+      path = `M ${startStateCenter.x - 20 * transitionIndexPerStateSide} ${
+        startStateCenter.y - startStateData.height / 2
+      } V ${
+        startStateCenter.y - startEndVerticalDifference / 2 - 10 * transitionIndexPerStateSide
+      } H ${endStateCenter.x + 20 * transitionIndexPerTargetStateSide} V ${
+        endStateCenter.y + endStateData.height / 2
+      }`;
+    }
+
+    if (side === 'left') {
+      const horizontalDiff = x1 - (x2 + endStateData.width);
+      path = `M ${startStateCenter.x - startStateData.width / 2} ${
+        startStateCenter.y - 20 * transitionIndexPerStateSide
+      } H ${x2 + endStateData.width + horizontalDiff / 2 - 10 * transitionIndexPerStateSide} V ${
+        endStateCenter.y + 20 * transitionIndexPerTargetStateSide
+      } H ${endStateCenter.x + endStateData.width / 2}`;
+    }
+
+    if (side === 'right') {
+      const endOfStartState = x1 + startStateData.width;
+      const horizontalDiff = x2 - endOfStartState;
+      path = `M ${endOfStartState} ${startStateCenter.y - 20 * transitionIndexPerStateSide} H ${
+        endOfStartState + horizontalDiff / 2 + 10 * transitionIndexPerStateSide
+      } V ${endStateCenter.y + 20 * transitionIndexPerTargetStateSide} H ${x2}`;
+    }
+
+    return path;
+  };
+
+  const mirrorSide = (side) => {
+    switch (side) {
+      case 'top':
+        return 'bottom';
+      case 'bottom':
+        return 'top';
+      case 'left':
+        return 'right';
+      case 'right':
+        return 'left';
+      default:
+        return side;
+    }
+  };
+
+  const transitions = useMemo(() => {
+    const targetStatesTransitionIndexes: Record<
+      string | number,
+      Record<'left' | 'right' | 'top' | 'bottom', number>
+    > = {};
+    const statesTransitionIndexes: Record<
+      string | number,
+      Record<'left' | 'right' | 'top' | 'bottom', number>
+    > = {};
+
+    return reduce(
+      states,
+      (newTransitions: any[], state: IFSMState, id: string) => {
+        if (!state.transitions) {
+          return newTransitions;
+        }
+
+        const stateTransitions = state.transitions.map(
+          (transition: IFSMTransition, index: number) => {
+            const transitionData: any = {
+              isError: !!transition.errors,
+              transitionIndex: index,
+              state: id,
+              targetState: transition.state,
+              startStateId: id,
+              endStateId: transition.state,
+              x1: state.position.x,
+              y1: state.position.y,
+              x2: states[transition.state].position.x,
+              y2: states[transition.state].position.y,
+              order: !!transition.errors ? 0 : 1,
+              branch: transition.branch,
+            };
+
+            // Get the transition line path and the locaiton of the target state
+            const side = getTargetStateLocation(transitionData);
+
+            if (!targetStatesTransitionIndexes[transition.state]) {
+              targetStatesTransitionIndexes[transition.state] = {
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+              };
+            }
+            targetStatesTransitionIndexes[transition.state][mirrorSide(side)] += 1;
+
+            if (!statesTransitionIndexes[id]) {
+              statesTransitionIndexes[id] = {
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+              };
+            } else {
+              statesTransitionIndexes[id][side] += 1;
+            }
+
+            transitionData.transitionIndexPerStateSide = statesTransitionIndexes[id][side];
+            transitionData.transitionIndexPerTargetStateSide =
+              targetStatesTransitionIndexes[transition.state][mirrorSide(side)];
+
+            const path = getTransitionPath(transitionData);
+
+            return {
+              ...transitionData,
+              path,
+              side,
+            };
+          }
+        );
+
+        return [...newTransitions, ...stateTransitions];
+      },
+      []
+    ).sort((a, b) => a.order - b.order);
+  }, [states]);
+
+  console.log(transitions);
 
   const reset = () => {
     postMessage(Messages.RESET_CONFIG_ITEMS, {
@@ -1229,7 +1418,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
       return 'green';
     }
 
-    return '#a9a9a9';
+    return '#068df5';
   };
 
   const getTransitionEndMarker = (isError, branch) => {
@@ -1242,61 +1431,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
     }
 
     return '';
-  };
-
-  const getTargetStatePosition = (x1, y1, x2, y2, startStateId, endStateId) => {
-    const modifiedX1 = x1 + 10000;
-    const modifiedX2 = x2 + 10000;
-    const modifiedY1 = y1 + 10000;
-    const modifiedY2 = y2 + 10000;
-
-    const startStateData = getStateBoundingRect(startStateId);
-    const endStateData = getStateBoundingRect(endStateId);
-
-    if (!startStateData || !endStateData) {
-      return { x2: 0, y2: 0 };
-    }
-
-    const sides = [];
-    const horizontalSides = [];
-    const verticalSides = [];
-
-    const horizontal = modifiedX1 - modifiedX2;
-    const vertical = modifiedY1 - modifiedY2;
-
-    if (x1 > x2) {
-      sides.push({ side: 'left', value: Math.abs(horizontal) });
-      horizontalSides.push({ side: 'left', value: Math.abs(horizontal) });
-    } else {
-      sides.push({ side: 'right', value: Math.abs(horizontal) });
-      horizontalSides.push({ side: 'right', value: Math.abs(horizontal) });
-    }
-
-    if (y1 > y2) {
-      sides.push({ side: 'top', value: Math.abs(vertical) });
-      verticalSides.push({ side: 'top', value: Math.abs(vertical) });
-    } else {
-      sides.push({ side: 'bottom', value: Math.abs(vertical) });
-      verticalSides.push({ side: 'bottom', value: Math.abs(vertical) });
-    }
-
-    const { side } = maxBy(sides, 'value');
-    const { side: horizontalSide } = maxBy(horizontalSides, 'value');
-    const { side: verticalSide } = maxBy(verticalSides, 'value');
-
-    console.log(horizontalSide, verticalSide);
-
-    const newX1 = horizontalSide === 'left' ? x1 : x1 + startStateData.width;
-    const newY1 = verticalSide === 'top' ? y1 : y1 + startStateData.height;
-    const newX2 = horizontalSide === 'left' ? x2 + endStateData.width : x2;
-    const newY2 = verticalSide === 'top' ? y2 + endStateData.height : y2;
-
-    return {
-      x1: newX1,
-      y1: newY1,
-      x2: newX2,
-      y2: newY2,
-    };
   };
 
   const calculateMargin = () => (zoom - 1) * 1000;
@@ -1326,6 +1460,36 @@ const FSMView: React.FC<IFSMViewProps> = ({
       intent: 'warning',
     });
     showTransitionsToaster.current = 0;
+  }
+
+  function calculateTextRotation(side: any) {
+    switch (side) {
+      case 'top':
+        return 90;
+      case 'bottom':
+        return 270;
+      case 'left':
+        return 180;
+      case 'right':
+        return 0;
+      default:
+        return 0;
+    }
+  }
+
+  function calculateTextTranslation(side: any) {
+    switch (side) {
+      case 'top':
+        return 5;
+      case 'bottom':
+        return -15;
+      case 'left':
+        return 20;
+      case 'right':
+        return -5;
+      default:
+        return 0;
+    }
   }
 
   return (
@@ -1796,18 +1960,76 @@ const FSMView: React.FC<IFSMViewProps> = ({
                         width="100%"
                         style={{ position: 'absolute', boxShadow: 'inset 0 0 50px 2px #00000080' }}
                       >
+                        <defs>
+                          <marker
+                            id="arrowhead"
+                            markerUnits="userSpaceOnUse"
+                            markerWidth="30"
+                            markerHeight="30"
+                            refX="20"
+                            refY="10"
+                            orient="auto"
+                          >
+                            <path
+                              d="M2,2 L2,20 L20,10 L2,2"
+                              fill={getTransitionColor(null, null)}
+                            />
+                          </marker>
+                          <marker
+                            id="arrowheaderror"
+                            markerUnits="userSpaceOnUse"
+                            markerWidth="30"
+                            markerHeight="30"
+                            refX="20"
+                            refY="10"
+                            orient="auto"
+                          >
+                            <path
+                              d="M2,2 L2,20 L20,10 L2,2"
+                              fill={getTransitionColor(null, 'false')}
+                            />
+                          </marker>
+                          <marker
+                            id="arrowheadtrue"
+                            markerUnits="userSpaceOnUse"
+                            markerWidth="30"
+                            markerHeight="30"
+                            refX="20"
+                            refY="10"
+                            orient="auto"
+                          >
+                            <path
+                              d="M2,2 L2,20 L20,10 L2,2"
+                              fill={getTransitionColor(null, 'true')}
+                            />
+                          </marker>
+                          <marker
+                            id="arrowheadfalse"
+                            markerUnits="userSpaceOnUse"
+                            markerWidth="30"
+                            markerHeight="30"
+                            refX="20"
+                            refY="10"
+                            orient="auto"
+                          >
+                            <path
+                              d="M2,2 L2,20 L20,10 L2,2"
+                              fill={getTransitionColor(null, 'false')}
+                            />
+                          </marker>
+                        </defs>
                         {transitions.map(
                           (
                             {
                               x1,
-                              x2,
                               y1,
-                              y2,
                               state,
                               targetState,
                               isError,
                               branch,
                               transitionIndex,
+                              path,
+                              side,
                             },
                             index
                           ) =>
@@ -1847,15 +2069,33 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                   name={`fsm-transition${
                                     isError ? '-error' : branch ? `-${branch}` : ''
                                   }`}
+                                  id={`fsm-transition-${index}`}
                                   stroke={getTransitionColor(isError, branch)}
-                                  strokeWidth={isError ? 2 : 1}
-                                  strokeDasharray={isError ? '10 2' : undefined}
+                                  strokeWidth={isError || branch ? 2 : 1}
+                                  strokeDasharray={isError || branch ? '5 10' : undefined}
                                   markerEnd={`url(#arrowhead${getTransitionEndMarker(
                                     isError,
                                     branch
                                   )})`}
-                                  {...getTargetStatePosition(x1, y1, x2, y2, state, targetState)}
+                                  d={path}
                                 />
+                                <text
+                                  style={{
+                                    transform: `rotate(${calculateTextRotation(
+                                      side
+                                    )}deg) translateY(${calculateTextTranslation(side)}px)`,
+                                    transformBox: 'fill-box',
+                                    transformOrigin: 'center',
+                                  }}
+                                >
+                                  <textPath
+                                    href={`#fsm-transition-${index}`}
+                                    startOffset="10px"
+                                    fill="#ffffff"
+                                  >
+                                    {targetState}
+                                  </textPath>
+                                </text>
                               </>
                             )
                         )}

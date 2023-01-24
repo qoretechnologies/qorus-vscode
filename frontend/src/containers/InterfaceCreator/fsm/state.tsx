@@ -3,12 +3,12 @@ import {
   ReqorePanel,
   ReqoreTag,
   ReqoreThemeContext,
-  ReqoreVerticalSpacer
+  ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import {
   IReqoreEffect,
   ReqoreTextEffect,
-  TReqoreHexColor
+  TReqoreHexColor,
 } from '@qoretechnologies/reqore/dist/components/Effect';
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
@@ -313,8 +313,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
       y={position?.y}
       onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}
       onClick={!selectedState || !shouldWiggle ? undefined : (e) => handleClick(e, onClick)}
-      size="small"
       selected={selected}
+      size="small"
+      headerSize={2}
       initial={initial}
       final={final}
       onMouseDown={(e) => e.stopPropagation()}
@@ -324,7 +325,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       isIncompatible={selectedState && !isCompatible}
       error={error}
       type={action?.type || type}
-      label={!isLoadingCheck ? name : t('LoadingCompatibilityCheck')}
+      label={`[${id}] ${name}`}
       actions={[
         {
           group: [
