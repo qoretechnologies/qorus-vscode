@@ -123,7 +123,7 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
       <OrderDialog
         onClose={onClose}
         data={newTransitions}
-        title="TransitionToState"
+        title={t('TransitionToState')}
         metadata={renderMetadata}
         dialogTitle="EditTransitionsOrder"
         changeOrder={changeOrder}

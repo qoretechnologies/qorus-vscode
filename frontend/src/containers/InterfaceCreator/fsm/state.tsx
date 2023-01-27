@@ -15,7 +15,7 @@ import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
@@ -34,12 +34,13 @@ export interface IFSMStateProps extends IFSMState {
   onTransitionOrderClick: (id: string) => any;
   startTransitionDrag: (id: string) => any;
   stopTransitionDrag: (id: string) => any;
-  selectedState?: number;
+  selectedState?: number | string;
   isAvailableForTransition: (stateId: string, id: string) => boolean;
   onExecutionOrderClick: () => void;
   id: string;
   isIsolated: boolean;
   category: TStateTypes;
+  hasTransitionToItself?: boolean;
 }
 
 export interface IFSMStateStyleProps {
@@ -98,26 +99,6 @@ export const getStateColor = (stateType: TStateTypes): IReqoreEffect['gradient']
     direction: 'to right bottom',
   };
 };
-
-const wiggleAnimation = (type) => keyframes`
-    0% {
-        transform: ${type === 'if' ? 'rotate(43deg)' : 'rotate(-2deg)'} ${
-  type === 'connector' ? 'skew(15deg)' : ''
-};
-    }
-
-    50% {
-        transform: ${type === 'if' ? 'rotate(47deg)' : 'rotate(2deg)'} ${
-  type === 'connector' ? 'skew(15deg)' : ''
-};
-    }
-
-    100% {
-        transform: ${type === 'if' ? 'rotate(43deg)' : 'rotate(-2deg)'} ${
-  type === 'connector' ? 'skew(15deg)' : ''
-};
-    }
-`;
 
 export const StyledStateTextWrapper = styled.div`
   display: flex;
@@ -243,6 +224,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
   isIsolated,
   onMouseEnter,
   onMouseLeave,
+  showStateIds,
+  hasTransitionToItself,
   error,
   ...rest
 }) => {
@@ -271,9 +254,16 @@ const FSMState: React.FC<IFSMStateProps> = ({
       if (selectedState) {
         setIsLoadingCheck(true);
         const isAvailable = await isAvailableForTransition(selectedState, id);
-        setIsCompatible(isAvailable);
-        setIsLoadingCheck(false);
-        setShouldWiggle(true);
+
+        if (selectedState) {
+          setIsCompatible(isAvailable);
+          setIsLoadingCheck(false);
+          setShouldWiggle(true);
+        } else {
+          setShouldWiggle(false);
+          setIsLoadingCheck(false);
+          setIsCompatible(null);
+        }
       } else {
         setShouldWiggle(false);
         setIsLoadingCheck(false);
@@ -291,6 +281,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       key={id}
       id={`state-${id}`}
       ref={drag}
+      intent={selectedState === id ? 'info' : undefined}
       //customTheme={{ main: getStateColor(getStateCategory(type)) }}
       contentEffect={
         {
@@ -300,9 +291,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
           },
           glow: shouldWiggle
             ? {
-                color: 'info',
-                size: 5,
-                blur: 30,
+                color: selectedState === id ? 'info' : 'success',
+                size: 2,
+                blur: 40,
               }
             : undefined,
           opacity: isIsolated ? 0.7 : 1,
@@ -317,13 +308,16 @@ const FSMState: React.FC<IFSMStateProps> = ({
       onClick={!selectedState || !shouldWiggle ? undefined : (e) => handleClick(e, onClick)}
       selected={selected}
       size="small"
+      tooltip={{
+        title: name,
+        content: desc || '-',
+      }}
       headerSize={2}
       onMouseDown={(e) => e.stopPropagation()}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       minimal
-      tooltip={type === 'block' && !qorus_instance ? t('CannotManageBlock') : undefined}
-      label={`[${id}] ${name}`}
+      label={showStateIds ? `[${id}] ${name}` : name}
       actions={[
         {
           group: [
@@ -424,6 +418,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
             icon="AlarmWarningLine"
             fixed
           />
+        )}
+        {hasTransitionToItself && (
+          <ReqoreTag color="#1f91d3" fixed label={t('Connected To Itself')} />
         )}
         {final && <ReqoreTag color="#6e1977" fixed label={t('Final')} />}
         {initial && <ReqoreTag effect={PositiveColorEffect} fixed label={t('Initial')} />}

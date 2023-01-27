@@ -1,5 +1,13 @@
-import { Button, ButtonGroup, Colors, Icon, Intent, Tooltip } from '@blueprintjs/core';
-import { isEqual } from 'lodash';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreModal,
+  ReqorePanel,
+  useReqoreTheme,
+} from '@qoretechnologies/reqore';
+import { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
+import { IReqoreControlGroupProps } from '@qoretechnologies/reqore/dist/components/ControlGroup';
+import { find, isEqual } from 'lodash';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
@@ -7,15 +15,19 @@ import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
-import compose from 'recompose/compose';
 import styled, { css } from 'styled-components';
 import { TTranslator } from '../../App';
 import {
   getUrlFromProvider as getRealUrlFromProvider,
   IProviderType,
 } from '../../components/Field/connectors';
+import {
+  NegativeColorEffect,
+  PositiveColorEffect,
+  SaveColorEffect,
+} from '../../components/Field/multiPair';
 import Options from '../../components/Field/systemOptions';
-import { ActionsWrapper, IField } from '../../components/FieldWrapper';
+import { IField } from '../../components/FieldWrapper';
 import SubField from '../../components/SubField';
 import { AppToaster } from '../../components/Toast';
 import { Messages } from '../../constants/messages';
@@ -26,22 +38,26 @@ import {
   getStaticDataFieldname,
   hasStaticDataField,
 } from '../../helpers/mapper';
-import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
-import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import withMapperConsumer from '../../hocomponents/withMapperConsumer';
-import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
-import withTextContext from '../../hocomponents/withTextContext';
+import TinyGrid from '../../images/graphy-dark.png';
 import MapperInput from './input';
 import MappingModal, { getKeyType } from './mappingModal';
 import MapperFieldModal from './modal';
 import MapperOutput from './output';
 import Provider from './provider';
 
-const FIELD_HEIGHT = 35;
-const FIELD_MARGIN = 14;
-const TYPE_COLORS = {
+import compose from 'recompose/compose';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
+
+const FIELD_HEIGHT = 31;
+const FIELD_MARGIN = 5;
+export const TYPE_COLORS = {
   int: '#3a9c52',
+  integer: '#3a9c52',
   float: '#1f8c71',
   number: '#217536',
 
@@ -59,18 +75,16 @@ const TYPE_COLORS = {
 };
 
 export const StyledMapperWrapper = styled.div`
-  width: 920px;
+  width: 900px;
   display: flex;
   flex-flow: row;
   justify-content: space-between;
+  align-items: flex-start;
   margin: 0 auto;
-  height: 100%;
 `;
 
-export const StyledFieldsWrapper = styled.div`
-  flex: 1 1 auto;
-  height: 100%;
-  width: 300px;
+export const StyledFieldsWrapper: React.FC<IReqoreControlGroupProps> = styled(ReqoreControlGroup)`
+  width: 300px !important;
 `;
 
 const StyledConnectionsWrapper = styled.div`
@@ -79,31 +93,17 @@ const StyledConnectionsWrapper = styled.div`
   width: 300px;
 `;
 
-export const StyledMapperField = styled.div`
-  width: ${({ isChild, level }) => (isChild ? `${300 - level * 15}px` : '300px')};
+export const StyledMapperFieldWrapper = styled(ReqoreControlGroup)`
+  transition: all 0.2s ease-in-out;
+  width: ${({ isMapperChild, level }) =>
+    isMapperChild ? `${300 - level * 15}px` : '300px'} !important;
+  position: relative;
 
-  ${({ input, isChild, level }) =>
+  ${({ input, isMapperChild, level }) =>
     input &&
     css`
-      margin-left: ${isChild ? `${level * 15}px` : '0'};
+      margin-left: ${isMapperChild ? `${level * 15}px` : '0'} !important;
     `}
-
-  height: ${({ isInputHash }) => (isInputHash ? '55px' : `${FIELD_HEIGHT}px`)};
-  border: 1px solid ${({ hasError }) => (hasError ? Colors.ORANGE3 : '#d7d7d7')};
-  border-radius: 3px;
-  margin-bottom: ${FIELD_MARGIN}px;
-  transition: all 0.3s;
-  background-color: ${({ hasError }) => (hasError ? 'rgba(217, 130, 43, 0.15)' : '#fff')};
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
-  position: relative;
-  cursor: ${({ isDisabled }) => (isDisabled ? 'initial' : 'pointer')};
-
-  ${({ isDisabled, hasError }) =>
-    css`
-      &:hover {
-        border-color: ${isDisabled ? (hasError ? Colors.ORANGE1 : '#d7d7d7') : '#137cbd'};
-      }
-    `};
 
   ${({ childrenCount, isDragging }) =>
     childrenCount !== 0 && !isDragging
@@ -116,97 +116,45 @@ export const StyledMapperField = styled.div`
             ${({ input }) =>
               input
                 ? css`
-                    left: -1px;
+                    left: 5px;
                   `
                 : css`
-                    right: -1px;
+                    right: 5px;
                   `};
-            top: ${FIELD_HEIGHT / 2}px;
-            height: ${childrenCount * (FIELD_HEIGHT + FIELD_MARGIN)}px;
-            background-color: #d7d7d7;
+            top: ${FIELD_HEIGHT}px;
+            height: ${childrenCount * (FIELD_HEIGHT + FIELD_MARGIN) - FIELD_HEIGHT / 2}px;
+            background-color: ${({ theme }) => theme.intents.muted};
             z-index: 0;
           }
         `
       : null}
 
-  ${({ isChild, isDragging }) =>
-    isChild && !isDragging
+  ${({ isMapperChild, isDragging }) =>
+    isMapperChild && !isDragging
       ? css`
           &:before {
             content: '';
             display: table;
             position: absolute;
-            width: 15px;
+            width: 10px;
             height: 1px;
             ${({ input }) =>
               input
                 ? css`
-                    left: -15px;
+                    left: -10px;
                   `
                 : css`
-                    right: -15px;
+                    right: -10px;
                   `};
             top: ${FIELD_HEIGHT / 2}px;
-            background-color: #d7d7d7;
+            background-color: ${({ theme }) => theme.intents.muted};
             z-index: 0;
           }
         `
       : null}
-
-    h4 {
-    text-align: center;
-    font-size: 14px;
-    line-height: 34px;
-    margin: 0;
-    padding: 0;
-  }
-
-  p.type {
-    background-color: #d7d7d7;
-
-    &.string {
-      background-color: ${TYPE_COLORS.string};
-    }
-    &.int {
-      background-color: ${TYPE_COLORS.int};
-    }
-    &.number {
-      background-color: ${TYPE_COLORS.number};
-    }
-    &.float {
-      background-color: ${TYPE_COLORS.float};
-    }
-    &.date {
-      background-color: ${TYPE_COLORS.date};
-    }
-    &.listauto {
-      background-color: ${TYPE_COLORS.listauto};
-    }
-    &.hashauto {
-      background-color: ${TYPE_COLORS.hashauto};
-    }
-    &.binary {
-      background-color: ${TYPE_COLORS.binary};
-    }
-    &.bool {
-      background-color: ${TYPE_COLORS.bool};
-    }
-    &.any {
-      background-color: ${TYPE_COLORS.any};
-    }
-    border-radius: 3px;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    font-size: 10px;
-    line-height: 14px;
-    top: -8px;
-    margin: 0;
-    padding: 0 3px;
-    color: #fff;
-  }
 `;
+
+export const StyledMapperField: React.FC<IReqoreButtonProps> = styled(ReqoreButton)``;
 
 const StyledInfoMessage = styled.p`
   text-align: center;
@@ -235,10 +183,11 @@ const StyledFieldHeader = styled.h3`
 `;
 
 const StyledLine = styled.line`
-  stroke-width: 3px;
+  stroke-width: 1px;
   cursor: pointer;
 
   &:hover {
+    stroke-width: 3px;
     stroke: #ff0000;
   }
 `;
@@ -354,6 +303,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
   });
   const [addDialog, setAddDialog] = useState({});
   const [mappingDialog, setMappingDialog] = useState({});
+  const theme = useReqoreTheme();
+  const [selectedField, setSelectedField] = useState(undefined);
 
   useEffect(() => {
     const mapper = selectedFields.mapper[interfaceIndex];
@@ -826,393 +777,418 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     }
   };
 
+  const getProviderInfoHeight = (id: string): number => {
+    return 45;
+  };
+
+  const hasInputRelation = (path: string): boolean => {
+    return find(
+      relations,
+      (relation) =>
+        relation.name === path ||
+        (relation.context && path === getStaticDataFieldname(relation.context))
+    );
+  };
+
+  const hasOutputRelation = (path: string): boolean => {
+    return find(
+      relations,
+      (relation, outputPath) =>
+        outputPath === path &&
+        ('name' in relation || ('context' in relation && relation.context.startsWith('$static:')))
+    );
+  };
+
   return (
     <>
-      <div style={{ display: 'flex' }}>
-        {!hideInputSelector && (
-          <div style={{ width: '50%' }}>
-            <Provider
-              type="inputs"
-              title={t('InputProvider')}
-              provider={inputProvider}
-              setProvider={(provider) => {
-                setInputOptionProvider(null);
-                setInputProvider(provider);
-              }}
-              record={inputRecord}
-              setRecord={setInputRecord}
-              nodes={inputChildren}
-              setChildren={setInputChildren}
-              isLoading={inputsLoading}
-              setIsLoading={setInputsLoading}
-              setFields={setInputs}
-              clear={clearInputs}
-              setOptionProvider={setInputOptionProvider}
-              hide={() => setHideInputSelector(true)}
-              canSelectNull
-              compact
-              optionsChanged={inputOptionProvider?.optionsChanged}
-              options={inputOptionProvider?.options}
-            />
-            {inputProvider === 'factory' && inputOptionProvider ? (
-              <SubField title={t('FactoryOptions')}>
-                <Options
-                  onChange={(nm, val) => {
-                    setInputOptionProvider((cur: IProviderType | null) => {
-                      const result: IProviderType = {
-                        ...cur,
-                        options: val,
-                      } as IProviderType;
-
-                      if (!isEqual(inputOptionProvider.options, val)) {
-                        result.optionsChanged = true;
-                      }
-
-                      return result;
-                    });
-                  }}
-                  name="options"
-                  value={inputOptionProvider.options}
-                  customUrl={`${getRealUrlFromProvider(inputOptionProvider, true)}`}
-                />
-              </SubField>
-            ) : null}
-          </div>
-        )}
-        {!hideOutputSelector && (
-          <div style={{ width: '50%' }}>
-            <Provider
-              type="outputs"
-              title={t('OutputProvider')}
-              provider={outputProvider}
-              setProvider={(provider) => {
-                setOutputOptionProvider(null);
-                setOutputProvider(provider);
-              }}
-              record={outputRecord}
-              setRecord={setOutputRecord}
-              nodes={outputChildren}
-              setChildren={setOutputChildren}
-              isLoading={outputsLoading}
-              setIsLoading={setOutputsLoading}
-              setFields={setOutputs}
-              clear={clearOutputs}
-              setMapperKeys={setMapperKeys}
-              setOptionProvider={setOutputOptionProvider}
-              hide={() => setHideOutputSelector(true)}
-              compact
-              options={outputOptionProvider?.options}
-              optionsChanged={outputOptionProvider?.optionsChanged}
-            />
-            {outputProvider === 'factory' && outputOptionProvider ? (
-              <SubField title={t('FactoryOptions')}>
-                <Options
-                  onChange={(nm, val) => {
-                    setOutputOptionProvider((cur: IProviderType | null) => {
-                      const result: IProviderType = {
-                        ...cur,
-                        options: val,
-                      } as IProviderType;
-
-                      if (!isEqual(outputOptionProvider.options, val)) {
-                        result.optionsChanged = true;
-                      }
-
-                      return result;
-                    });
-                  }}
-                  name="options"
-                  value={outputOptionProvider.options}
-                  customUrl={`${getRealUrlFromProvider(outputOptionProvider, true)}`}
-                />
-              </SubField>
-            ) : null}
-          </div>
-        )}
-      </div>
-      <div
-        style={{
-          width: '100%',
-          marginTop:
-            isFromConnectors || isEditing || (hideInputSelector && hideOutputSelector) ? 0 : '15px',
-          padding: 10,
-          flex: 1,
-          overflow: 'auto',
-          background: `url(${initialData.image_path}/tiny_grid.png)`,
+      {selectedField && (
+        <ReqoreModal
+          isOpen
+          label={selectedField?.name}
+          badge={selectedField.type.base_type}
+          onClose={() => setSelectedField(undefined)}
+          blur={3}
+          responsiveActions={false}
+          actions={[
+            {
+              label: t('Manage field mappings'),
+              icon: 'NodeTree',
+              onClick: () => {
+                handleManageClick(selectedField);
+              },
+              effect: PositiveColorEffect,
+              flat: false,
+              show: selectedField.fieldType === 'outputs',
+            },
+            {
+              label: t('Add child field'),
+              icon: 'AddLine',
+              onClick: () => {
+                handleClick(selectedField.fieldType)(selectedField);
+              },
+              effect: PositiveColorEffect,
+              flat: false,
+              show: selectedField.type.can_manage_fields === true,
+            },
+            {
+              label: t('Edit'),
+              icon: 'EditLine',
+              onClick: () => {
+                handleClick(selectedField.fieldType)(selectedField, true);
+              },
+              show: selectedField.isCustom === true,
+            },
+            {
+              label: t('Remove'),
+              icon: 'DeleteBinLine',
+              effect: NegativeColorEffect,
+              onClick: () => {
+                handleClick(selectedField.fieldType)(selectedField, false, true);
+              },
+              show: selectedField.isCustom === true,
+            },
+          ]}
+        >
+          {selectedField?.desc || 'No description'}
+        </ReqoreModal>
+      )}
+      <ReqorePanel
+        minimal
+        flat
+        fill
+        contentStyle={{
+          display: 'flex',
+          flexFlow: 'column',
         }}
+        bottomActions={[
+          {
+            label: t('Reset'),
+            icon: 'HistoryLine',
+            disabled: inputsLoading || outputsLoading,
+            onClick: () => {
+              initialData.confirmAction('ResetFieldsConfirm', reset, 'Reset', 'warning');
+            },
+          },
+          {
+            label: t('Back'),
+            icon: 'ArrowLeftLine',
+            disabled: inputsLoading || outputsLoading,
+            onClick: () => onBackClick(),
+          },
+          {
+            label: t('Submit'),
+            onClick: handleSubmitClick,
+            disabled: !isMapperValid(),
+            icon: 'CheckLine',
+            effect: SaveColorEffect,
+            position: 'right',
+          },
+        ]}
       >
-        <StyledMapperWrapper>
-          <StyledFieldsWrapper>
-            <StyledFieldHeader>
-              <MapperInput
-                hasError={inputsError}
-                name={
-                  <>
-                    <span> Input </span>
-                    {hideInputSelector ? (
-                      <>
-                        {isFromConnectors && hasInitialInput ? (
-                          <Tooltip content={getUrlFromProvider('input')}>
-                            <Icon
-                              style={{ lineHeight: '10px' }}
-                              icon="info-sign"
-                              iconSize={16}
-                              color="#a9a9a9"
-                            />
-                          </Tooltip>
-                        ) : (
-                          <Tooltip content={t('EditProvider')}>
-                            <Button
-                              icon="edit"
-                              small
-                              minimal
-                              onClick={() => {
-                                setHideInputSelector(false);
-                                if (isEditing) {
-                                  clearInputs();
-                                }
-                              }}
-                            />
-                          </Tooltip>
-                        )}
-                        <Tooltip targetTagName="div" content={getUrlFromProvider('input')}>
-                          <StyledUrlMessage
-                            style={{
-                              height: '12px',
-                              lineHeight: '12px',
-                            }}
-                          >
-                            {getUrlFromProvider('input') === '' ? '-' : getUrlFromProvider('input')}
-                          </StyledUrlMessage>
-                        </Tooltip>
-                      </>
-                    ) : (
-                      <StyledUrlMessage style={{ height: '12px', lineHeight: '12px' }}>
-                        -
-                      </StyledUrlMessage>
-                    )}
-                  </>
-                }
-                types={['hash<auto>']}
-                type={{
-                  base_type: 'hash<auto>',
+        <div style={{ display: 'flex' }}>
+          {!hideInputSelector && (
+            <div style={{ width: '50%' }}>
+              <Provider
+                type="inputs"
+                title={t('InputProvider')}
+                provider={inputProvider}
+                setProvider={(provider) => {
+                  setInputOptionProvider(null);
+                  setInputProvider(provider);
                 }}
-                id={1}
-                isWholeInput
-                lastChildIndex={0}
-                hasAvailableOutput={hasAvailableRelation(['hash<auto>'])}
+                record={inputRecord}
+                setRecord={setInputRecord}
+                nodes={inputChildren}
+                setChildren={setInputChildren}
+                isLoading={inputsLoading}
+                setIsLoading={setInputsLoading}
+                setFields={setInputs}
+                clear={clearInputs}
+                setOptionProvider={setInputOptionProvider}
+                hide={() => setHideInputSelector(true)}
+                canSelectNull
+                compact
+                optionsChanged={inputOptionProvider?.optionsChanged}
+                options={inputOptionProvider?.options}
               />
-            </StyledFieldHeader>
-            {size(flattenedInputs) !== 0
-              ? map(flattenedInputs, (input, index) => (
-                  <MapperInput
-                    key={input.path}
-                    name={input.name}
-                    types={input.type.types_returned}
-                    {...input}
-                    field={input}
-                    id={index + 1}
-                    lastChildIndex={getLastChildIndex(input, flattenedInputs) - index}
-                    onClick={handleClick('inputs')}
-                    hasAvailableOutput={hasAvailableRelation(input.type.types_returned)}
-                  />
-                ))
-              : null}
-            {!inputsError &&
-            size(flattenedInputs) === 0 &&
-            !(hideInputSelector && inputOptionProvider?.can_manage_fields) ? (
-              <StyledInfoMessage>
-                {inputOptionProvider?.type === 'factory'
-                  ? t('NoMapperFieldsAvailable')
-                  : t('MapperNoInputFields')}
-              </StyledInfoMessage>
-            ) : null}
-            {!inputsError && hideInputSelector && inputOptionProvider?.can_manage_fields && (
-              <Button
-                fill
-                text={t('AddNewField')}
-                minimal
-                intent="success"
-                icon="add"
-                style={{ marginBottom: '10px' }}
-                onClick={() => handleClick('inputs')()}
-              />
-            )}
-            {size(flattenedContextInputs) !== 0 && (
-              <MapperInput
-                name={
-                  <>
-                    <span>{t('StaticData')}</span>
+              {inputProvider === 'factory' && inputOptionProvider ? (
+                <SubField title={t('FactoryOptions')}>
+                  <Options
+                    onChange={(nm, val) => {
+                      setInputOptionProvider((cur: IProviderType | null) => {
+                        const result: IProviderType = {
+                          ...cur,
+                          options: val,
+                        } as IProviderType;
 
-                    <StyledUrlMessage style={{ height: '12px', lineHeight: '12px' }}>
-                      {t('StaticDataFieldDesc')}
-                    </StyledUrlMessage>
-                  </>
-                }
-                types={['hash<auto>']}
-                type={{
-                  base_type: 'hash<auto>',
-                }}
-                id={1}
-                isWholeInput
-                usesContext
-                lastChildIndex={0}
-                hasAvailableOutput={hasAvailableRelation(['hash<auto>'])}
-              />
-            )}
-            {size(flattenedContextInputs) !== 0
-              ? map(flattenedContextInputs, (input, index) => (
-                  <MapperInput
-                    key={input.path}
-                    name={input.name}
-                    types={input.type.types_returned}
-                    {...input}
-                    field={input}
-                    id={(flattenedInputs?.length || 0) + (index + 1)}
-                    lastChildIndex={getLastChildIndex(input, flattenedContextInputs) - index}
-                    usesContext
-                    hasAvailableOutput={hasAvailableRelation(input.type.types_returned)}
+                        if (!isEqual(inputOptionProvider.options, val)) {
+                          result.optionsChanged = true;
+                        }
+
+                        return result;
+                      });
+                    }}
+                    name="options"
+                    value={inputOptionProvider.options}
+                    customUrl={`${getRealUrlFromProvider(inputOptionProvider, true)}`}
                   />
-                ))
-              : null}
-          </StyledFieldsWrapper>
-          <StyledConnectionsWrapper>
-            {!inputsError && !outputsError && size(relations) ? (
-              <svg
-                height={
-                  Math.max(
-                    [...(flattenedInputs || []), ...(flattenedContextInputs || [])]?.length,
-                    flattenedOutputs?.length
-                  ) *
-                    (FIELD_HEIGHT + FIELD_MARGIN) +
-                  126
-                }
-              >
-                {map(relations, (relation, outputPath) => (
-                  <>
-                    {!!relation.name && (
-                      <>
-                        <defs>
-                          <linearGradient
-                            id={outputPath.replace(/ /g, '').replace(/\./g, '').replace(/\\/g, '')}
-                            x1="0"
+                </SubField>
+              ) : null}
+            </div>
+          )}
+          {!hideOutputSelector && (
+            <div style={{ width: '50%' }}>
+              <Provider
+                type="outputs"
+                title={t('OutputProvider')}
+                provider={outputProvider}
+                setProvider={(provider) => {
+                  setOutputOptionProvider(null);
+                  setOutputProvider(provider);
+                }}
+                record={outputRecord}
+                setRecord={setOutputRecord}
+                nodes={outputChildren}
+                setChildren={setOutputChildren}
+                isLoading={outputsLoading}
+                setIsLoading={setOutputsLoading}
+                setFields={setOutputs}
+                clear={clearOutputs}
+                setMapperKeys={setMapperKeys}
+                setOptionProvider={setOutputOptionProvider}
+                hide={() => setHideOutputSelector(true)}
+                compact
+                options={outputOptionProvider?.options}
+                optionsChanged={outputOptionProvider?.optionsChanged}
+              />
+              {outputProvider === 'factory' && outputOptionProvider ? (
+                <SubField title={t('FactoryOptions')}>
+                  <Options
+                    onChange={(nm, val) => {
+                      setOutputOptionProvider((cur: IProviderType | null) => {
+                        const result: IProviderType = {
+                          ...cur,
+                          options: val,
+                        } as IProviderType;
+
+                        if (!isEqual(outputOptionProvider.options, val)) {
+                          result.optionsChanged = true;
+                        }
+
+                        return result;
+                      });
+                    }}
+                    name="options"
+                    value={outputOptionProvider.options}
+                    customUrl={`${getRealUrlFromProvider(outputOptionProvider, true)}`}
+                  />
+                </SubField>
+              ) : null}
+            </div>
+          )}
+        </div>
+        <div
+          style={{
+            width: '100%',
+            marginTop:
+              isFromConnectors || isEditing || (hideInputSelector && hideOutputSelector)
+                ? 0
+                : '15px',
+            padding: 10,
+            flex: 1,
+            overflow: 'auto',
+            borderRadius: '10px',
+            background: `${theme.main} url(${TinyGrid})`,
+          }}
+        >
+          <StyledMapperWrapper>
+            <StyledFieldsWrapper vertical fluid>
+              {hideInputSelector ? (
+                <ReqorePanel
+                  badge={'hash<auto>'}
+                  label={'Input'}
+                  size="small"
+                  id="input-provider-info"
+                  responsiveActions={false}
+                  flat
+                  isCollapsed
+                  contentStyle={{
+                    overflow: 'hidden',
+                    wordBreak: 'break-all',
+                  }}
+                  tooltip={{
+                    content: (
+                      <p style={{ wordBreak: 'break-all' }}>{getUrlFromProvider('input')}</p>
+                    ),
+                  }}
+                  actions={[
+                    {
+                      icon: 'EditLine',
+                      onClick: () => {
+                        setHideInputSelector(false);
+                        if (isEditing) {
+                          clearInputs();
+                        }
+                      },
+                      show: !(isFromConnectors && hasInitialInput),
+                      tooltip: t('EditProvider'),
+                    },
+                  ]}
+                  intent={inputsError ? 'danger' : undefined}
+                />
+              ) : null}
+              {size(flattenedInputs) !== 0
+                ? map(flattenedInputs, (input, index) => (
+                    <MapperInput
+                      key={input.path}
+                      name={input.name}
+                      types={input.type.types_returned}
+                      {...input}
+                      field={input}
+                      hasRelation={hasInputRelation(input.path)}
+                      id={index + 1}
+                      lastChildIndex={getLastChildIndex(input, flattenedInputs) - index}
+                      onClick={() => {
+                        setSelectedField({
+                          ...input,
+                          fieldType: 'inputs',
+                        });
+                      }}
+                      hasAvailableOutput={hasAvailableRelation(input.type.types_returned)}
+                    />
+                  ))
+                : null}
+              {!inputsError &&
+              size(flattenedInputs) === 0 &&
+              !(hideInputSelector && inputOptionProvider?.can_manage_fields) ? (
+                <ReqorePanel intent="warning">
+                  {inputOptionProvider?.type === 'factory'
+                    ? t('NoMapperFieldsAvailable')
+                    : t('MapperNoInputFields')}
+                </ReqorePanel>
+              ) : null}
+              {!inputsError && hideInputSelector && inputOptionProvider?.can_manage_fields && (
+                <ReqoreButton
+                  fluid
+                  minimal
+                  intent="success"
+                  icon="AddLine"
+                  onClick={() => handleClick('inputs')()}
+                >
+                  {t('AddNewField')}
+                </ReqoreButton>
+              )}
+              {size(flattenedContextInputs) !== 0 && (
+                <ReqorePanel
+                  badge={'hash<auto>'}
+                  label={t('StaticData')}
+                  size="small"
+                  id="input-provider-info-static-data"
+                  responsiveActions={false}
+                  flat
+                  isCollapsed
+                  contentStyle={{
+                    overflow: 'hidden',
+                    wordBreak: 'break-all',
+                  }}
+                  tooltip={{
+                    content: <p style={{ wordBreak: 'break-all' }}>{t('StaticDataFieldDesc')}</p>,
+                  }}
+                />
+              )}
+              {size(flattenedContextInputs) !== 0
+                ? map(flattenedContextInputs, (input, index) => (
+                    <MapperInput
+                      key={input.path}
+                      name={input.name}
+                      types={input.type.types_returned}
+                      {...input}
+                      field={input}
+                      id={(flattenedInputs?.length || 0) + (index + 1)}
+                      lastChildIndex={getLastChildIndex(input, flattenedContextInputs) - index}
+                      usesContext
+                      hasRelation={hasInputRelation(input.path)}
+                      onClick={() => {
+                        setSelectedField({
+                          ...input,
+                          fieldType: 'inputs',
+                        });
+                      }}
+                      hasAvailableOutput={hasAvailableRelation(input.type.types_returned)}
+                    />
+                  ))
+                : null}
+            </StyledFieldsWrapper>
+            <StyledConnectionsWrapper>
+              {!inputsError && !outputsError && size(relations) ? (
+                <svg
+                  height={
+                    Math.max(
+                      [...(flattenedInputs || []), ...(flattenedContextInputs || [])]?.length,
+                      flattenedOutputs?.length
+                    ) *
+                      (FIELD_HEIGHT + FIELD_MARGIN) +
+                    126
+                  }
+                >
+                  {map(relations, (relation, outputPath) => (
+                    <>
+                      {!!relation.name && (
+                        <>
+                          <StyledLine
+                            key={outputPath.replace(/ /g, '')}
+                            onClick={() => removeRelation(outputPath)}
+                            stroke={theme.intents.success}
+                            x1={0}
                             y1={
                               (flattenedInputs.findIndex((input) => input.path === relation.name) +
                                 1) *
                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                               (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                              68 -
-                              0.5
+                              getProviderInfoHeight('input-provider-info')
                             }
-                            x2={0}
+                            x2={300}
                             y2={
                               (flattenedOutputs.findIndex((output) => output.path === outputPath) +
                                 1) *
                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                               (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                              61 +
-                              0.5
+                              getProviderInfoHeight('input-provider-info')
                             }
-                            gradientUnits="userSpaceOnUse"
-                          >
-                            <stop
-                              stop-color={getFieldTypeColor('inputs', relation.name)}
-                              offset="0"
-                            />
-                            <stop
-                              stop-color={getFieldTypeColor('outputs', outputPath)}
-                              offset="1"
-                            />
-                          </linearGradient>
-                        </defs>
-                        <StyledLine
-                          key={outputPath.replace(/ /g, '')}
-                          stroke={`url(#${outputPath
-                            .replace(/ /g, '')
-                            .replace(/\./g, '')
-                            .replace(/\\/g, '')})`}
-                          onClick={() => removeRelation(outputPath)}
-                          x1={0}
-                          y1={
-                            (flattenedInputs.findIndex((input) => input.path === relation.name) +
-                              1) *
-                              (FIELD_HEIGHT + FIELD_MARGIN) -
-                            (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                            68 -
-                            1.5
-                          }
-                          x2={300}
-                          y2={
-                            (flattenedOutputs.findIndex((output) => output.path === outputPath) +
-                              1) *
-                              (FIELD_HEIGHT + FIELD_MARGIN) -
-                            (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                            61 +
-                            1.5
-                          }
-                        />
-                      </>
-                    )}
-                    {relation.use_input_record && (
-                      <>
-                        <defs>
-                          <linearGradient
-                            id={outputPath.replace(/ /g, '').replace(/\./g, '').replace(/\\/g, '')}
-                            x1="0"
-                            y1={27}
-                            x2={0}
+                          />
+                        </>
+                      )}
+                      {relation.use_input_record && (
+                        <>
+                          <StyledLine
+                            key={outputPath.replace(/ /g, '')}
+                            onClick={() => removeRelation(outputPath, false, true)}
+                            stroke={theme.intents.success}
+                            x1={0}
+                            y1={20}
+                            x2={300}
                             y2={
                               (flattenedOutputs.findIndex((output) => output.path === outputPath) +
                                 1) *
                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                               (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                              61 +
-                              0.5
+                              getProviderInfoHeight('input-provider-info')
                             }
-                            gradientUnits="userSpaceOnUse"
-                          >
-                            <stop
-                              stop-color={getFieldTypeColor('inputs', null, ['hash<auto>'])}
-                              offset="0"
-                            />
-                            <stop
-                              stop-color={getFieldTypeColor('outputs', outputPath)}
-                              offset="1"
-                            />
-                          </linearGradient>
-                        </defs>
-                        <StyledLine
-                          key={outputPath.replace(/ /g, '')}
-                          stroke={`url(#${outputPath
-                            .replace(/ /g, '')
-                            .replace(/\./g, '')
-                            .replace(/\\/g, '')})`}
-                          onClick={() => removeRelation(outputPath, false, true)}
-                          x1={0}
-                          y1={27}
-                          x2={300}
-                          y2={
-                            (flattenedOutputs.findIndex((output) => output.path === outputPath) +
-                              1) *
-                              (FIELD_HEIGHT + FIELD_MARGIN) -
-                            (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                            61 +
-                            1.5
-                          }
-                        />
-                      </>
-                    )}
-                    {!!relation.context &&
-                    hasStaticDataField(relation.context) &&
-                    size(flattenedContextInputs) ? (
-                      <>
-                        <defs>
-                          <linearGradient
-                            id={outputPath.replace(/ /g, '').replace(/\./g, '').replace(/\\/g, '')}
-                            x1="0"
+                          />
+                        </>
+                      )}
+                      {!!relation.context &&
+                      hasStaticDataField(relation.context) &&
+                      size(flattenedContextInputs) ? (
+                        <>
+                          <StyledLine
+                            key={outputPath}
+                            onClick={() => removeRelation(outputPath, true, true)}
+                            stroke={theme.intents.success}
+                            x1={0}
                             y1={
-                              63 +
-                              63 +
+                              getProviderInfoHeight('input-provider-info') +
+                              getProviderInfoHeight('input-provider-info') +
                               (size(flattenedInputs) +
                                 (inputOptionProvider?.can_manage_fields ? 1 : 0) +
                                 flattenedContextInputs.findIndex(
@@ -1222,232 +1198,137 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                               (FIELD_HEIGHT / 2 + FIELD_MARGIN)
                             }
-                            x2={0}
+                            x2={300}
                             y2={
                               (flattenedOutputs.findIndex((output) => output.path === outputPath) +
                                 1) *
                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                               (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                              61 +
-                              0.5
+                              getProviderInfoHeight('input-provider-info')
                             }
-                            gradientUnits="userSpaceOnUse"
-                          >
-                            <stop
-                              stop-color={getFieldTypeColor(
-                                'context',
-                                getStaticDataFieldname(relation.context)
-                              )}
-                              offset="0"
-                            />
-                            <stop
-                              stop-color={getFieldTypeColor('outputs', outputPath)}
-                              offset="1"
-                            />
-                          </linearGradient>
-                        </defs>
-                        <StyledLine
-                          key={outputPath}
-                          stroke={`url(#${outputPath
-                            .replace(/ /g, '')
-                            .replace(/\./g, '')
-                            .replace(/\\/g, '')})`}
-                          onClick={() => removeRelation(outputPath, true, true)}
-                          x1={0}
-                          y1={
-                            63 +
-                            63 +
-                            (size(flattenedInputs) +
-                              (inputOptionProvider?.can_manage_fields ? 1 : 0) +
-                              flattenedContextInputs.findIndex(
-                                (input) => input.path === getStaticDataFieldname(relation.context)
-                              ) +
-                              1) *
-                              (FIELD_HEIGHT + FIELD_MARGIN) -
-                            (FIELD_HEIGHT / 2 + FIELD_MARGIN)
-                          }
-                          x2={300}
-                          y2={
-                            (flattenedOutputs.findIndex((output) => output.path === outputPath) +
-                              1) *
-                              (FIELD_HEIGHT + FIELD_MARGIN) -
-                            (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                            61 +
-                            1.5
-                          }
-                        />
-                      </>
-                    ) : null}
-                    {!!relation.context &&
-                    relation.context === '$static:*' &&
-                    size(flattenedContextInputs) ? (
-                      <>
-                        <defs>
-                          <linearGradient
-                            id={outputPath.replace(/ /g, '').replace(/\./g, '').replace(/\\/g, '')}
-                            x1="0"
+                          />
+                        </>
+                      ) : null}
+                      {!!relation.context &&
+                      relation.context === '$static:*' &&
+                      size(flattenedContextInputs) ? (
+                        <>
+                          <StyledLine
+                            key={outputPath}
+                            onClick={() => removeRelation(outputPath, true)}
+                            stroke={theme.intents.success}
+                            x1={0}
                             y1={
-                              63 +
-                              63 +
+                              getProviderInfoHeight('input-provider-info') +
+                              getProviderInfoHeight('input-provider-info') +
                               (size(flattenedInputs) +
                                 (inputOptionProvider?.can_manage_fields ? 1 : 0)) *
-                                (FIELD_HEIGHT + FIELD_MARGIN) -
-                              31.5
+                                (FIELD_HEIGHT + FIELD_MARGIN)
                             }
-                            x2={0}
+                            x2={300}
                             y2={
                               (flattenedOutputs.findIndex((output) => output.path === outputPath) +
                                 1) *
                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                               (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                              61 +
-                              0.5
+                              getProviderInfoHeight('input-provider-info')
                             }
-                            gradientUnits="userSpaceOnUse"
-                          >
-                            <stop
-                              stop-color={getFieldTypeColor('context', null, ['hash<auto>'])}
-                              offset="0"
-                            />
-                            <stop
-                              stop-color={getFieldTypeColor('outputs', outputPath)}
-                              offset="1"
-                            />
-                          </linearGradient>
-                        </defs>
-                        <StyledLine
-                          key={outputPath}
-                          stroke={`url(#${outputPath
-                            .replace(/ /g, '')
-                            .replace(/\./g, '')
-                            .replace(/\\/g, '')})`}
-                          onClick={() => removeRelation(outputPath, true)}
-                          x1={0}
-                          y1={
-                            63 +
-                            63 +
-                            (size(flattenedInputs) +
-                              (inputOptionProvider?.can_manage_fields ? 1 : 0)) *
-                              (FIELD_HEIGHT + FIELD_MARGIN) -
-                            31.5
-                          }
-                          x2={300}
-                          y2={
-                            (flattenedOutputs.findIndex((output) => output.path === outputPath) +
-                              1) *
-                              (FIELD_HEIGHT + FIELD_MARGIN) -
-                            (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                            61 +
-                            1.5
-                          }
-                        />
-                      </>
-                    ) : null}
-                  </>
-                ))}
-              </svg>
-            ) : null}
-          </StyledConnectionsWrapper>
-          <StyledFieldsWrapper>
-            <StyledFieldHeader>
-              {t('Output')}{' '}
-              {hideOutputSelector && (
-                <>
-                  {isFromConnectors && hasInitialOutput ? (
-                    <Tooltip content={outputRecord}>
-                      <Icon icon="info-sign" iconSize={16} color="#a9a9a9" />
-                    </Tooltip>
-                  ) : (
-                    <Tooltip content={t('EditProvider')}>
-                      <Button
-                        icon="edit"
-                        small
-                        minimal
-                        onClick={() => {
-                          setHideOutputSelector(false);
-                          if (isEditing) {
-                            clearOutputs();
-                          }
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                  <Tooltip targetTagName="div" content={getUrlFromProvider('output')}>
-                    <StyledUrlMessage>{getUrlFromProvider('output')}</StyledUrlMessage>
-                  </Tooltip>
-                </>
+                          />
+                        </>
+                      ) : null}
+                    </>
+                  ))}
+                </svg>
+              ) : null}
+            </StyledConnectionsWrapper>
+            <StyledFieldsWrapper vertical fluid>
+              {hideOutputSelector ? (
+                <ReqorePanel
+                  badge={'hash<auto>'}
+                  label={'Output'}
+                  size="small"
+                  id="output-provider-info"
+                  responsiveActions={false}
+                  flat
+                  isCollapsed
+                  contentStyle={{
+                    overflow: 'hidden',
+                    wordBreak: 'break-all',
+                  }}
+                  actions={[
+                    {
+                      icon: 'EditLine',
+                      onClick: () => {
+                        setHideOutputSelector(false);
+                        if (isEditing) {
+                          clearOutputs();
+                        }
+                      },
+                      show: !(isFromConnectors && hasInitialOutput),
+                      tooltip: t('EditProvider'),
+                    },
+                  ]}
+                  tooltip={{
+                    content: (
+                      <p style={{ wordBreak: 'break-all' }}>{getUrlFromProvider('output')}</p>
+                    ),
+                  }}
+                  intent={outputsError ? 'danger' : undefined}
+                />
+              ) : null}
+              {size(flattenedOutputs) !== 0
+                ? map(flattenedOutputs, (output, index) => (
+                    <MapperOutput
+                      key={output.path}
+                      name={output.name}
+                      hasRelation={hasOutputRelation(output.path)}
+                      hasData={!isAvailableForDrop(output.path)}
+                      highlight={!!size(relations[output.path])}
+                      {...output}
+                      field={output}
+                      onDrop={handleDrop}
+                      id={index + 1}
+                      accepts={output.type.types_accepted}
+                      lastChildIndex={getLastChildIndex(output, flattenedOutputs) - index}
+                      onClick={() => {
+                        setSelectedField({
+                          ...output,
+                          fieldType: 'outputs',
+                        });
+                      }}
+                      onManageClick={() => handleManageClick(output)}
+                      hasError={inputsError || outputsError}
+                      t={t}
+                    />
+                  ))
+                : null}
+              {!outputsError && size(flattenedOutputs) === 0 ? (
+                <ReqorePanel intent="warning">{t('MapperNoOutputFields')}</ReqorePanel>
+              ) : null}
+              {!outputsError && hideOutputSelector && outputOptionProvider?.can_manage_fields && (
+                <ReqoreButton
+                  fluid
+                  minimal
+                  intent="success"
+                  icon="AddLine"
+                  onClick={() => handleClick('outputs')()}
+                >
+                  {t('AddNewField')}
+                </ReqoreButton>
               )}
-            </StyledFieldHeader>
-            {size(flattenedOutputs) !== 0
-              ? map(flattenedOutputs, (output, index) => (
-                  <MapperOutput
-                    key={output.path}
-                    name={output.name}
-                    hasRelation={!isAvailableForDrop(output.path)}
-                    highlight={!!size(relations[output.path])}
-                    {...output}
-                    field={output}
-                    onDrop={handleDrop}
-                    id={index + 1}
-                    accepts={output.type.types_accepted}
-                    lastChildIndex={getLastChildIndex(output, flattenedOutputs) - index}
-                    onClick={handleClick('outputs')}
-                    onManageClick={() => handleManageClick(output)}
-                    hasError={inputsError || outputsError}
-                    t={t}
-                  />
-                ))
-              : null}
-            {!outputsError && size(flattenedOutputs) === 0 ? (
-              <StyledInfoMessage>{t('MapperNoOutputFields')}</StyledInfoMessage>
-            ) : null}
-            {!outputsError && hideOutputSelector && outputOptionProvider?.can_manage_fields && (
-              <Button
-                fill
-                text={t('AddNewField')}
-                minimal
-                intent="success"
-                icon="add"
-                onClick={() => handleClick('outputs')()}
-              />
-            )}
-          </StyledFieldsWrapper>
-        </StyledMapperWrapper>
-      </div>
-      <ActionsWrapper>
-        <div style={{ float: 'right', width: '100%' }}>
-          <ButtonGroup fill>
-            <Tooltip content={t('ResetTooltip')}>
-              <Button
-                text={t('Reset')}
-                icon={'history'}
-                disabled={inputsLoading || outputsLoading}
-                onClick={() => {
-                  initialData.confirmAction('ResetFieldsConfirm', reset, 'Reset', 'warning');
-                }}
-              />
-            </Tooltip>
-            <Tooltip content={t('BackTooltip')}>
-              <Button
-                text={t('Back')}
-                icon={'undo'}
-                disabled={inputsLoading || outputsLoading}
-                onClick={() => onBackClick()}
-              />
-            </Tooltip>
-            <Button
-              name={'interface-creator-submit-mapper'}
-              text={t('Submit')}
-              onClick={handleSubmitClick}
-              disabled={!isMapperValid()}
-              icon={'tick'}
-              intent={Intent.SUCCESS}
-            />
-          </ButtonGroup>
+            </StyledFieldsWrapper>
+          </StyledMapperWrapper>
         </div>
-      </ActionsWrapper>
+      </ReqorePanel>
       {addDialog.isOpen && (
-        <MapperFieldModal t={t} onClose={() => setAddDialog({})} {...addDialog} />
+        <MapperFieldModal
+          t={t}
+          onClose={() => {
+            setSelectedField(undefined);
+            setAddDialog({});
+          }}
+          {...addDialog}
+        />
       )}
       {mappingDialog.isOpen && (
         <MappingModal

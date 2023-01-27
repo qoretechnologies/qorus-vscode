@@ -502,6 +502,7 @@ const Tab: React.FC<ITabProps> = ({
         contentStyle={{
           overflow: 'hidden',
           display: 'flex',
+          flexFlow: 'column',
         }}
       >
         {tutorialData.isOpen && (

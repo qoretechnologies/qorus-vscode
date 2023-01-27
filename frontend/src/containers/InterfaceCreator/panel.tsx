@@ -1262,7 +1262,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               onClick: () => setShowConfigItemsManager(true),
               fetchCall: fetchConfigItems,
             },
-            show: hasConfigManager,
+            show: !!hasConfigManager,
           },
           {
             label: t('DiscardChangesButton'),

@@ -1,4 +1,3 @@
-import { Callout } from '@blueprintjs/core';
 import {
   ReqoreHorizontalSpacer,
   ReqoreMenu,
@@ -201,6 +200,10 @@ const StyledFSMLine = styled.path`
   transition: all 0.2s linear;
   stroke-dashoffset: 1000;
 
+  &:hover {
+    stroke-width: 6;
+  }
+
   ${({ deselected }) =>
     deselected &&
     css`
@@ -292,6 +295,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
   });
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [hoveredState, setHoveredState] = useState<string | null>(null);
+  const [showStateIds, setShowStateIds] = useState<boolean>(false);
+
   const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
   const [outputCompatibility, setOutputCompatibility] = useState<
     { [key: string]: boolean } | undefined
@@ -1164,6 +1169,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
     return stateId === targetId;
   };
 
+  const hasTransitionToItself = (stateId: string): boolean => {
+    return !!states[stateId].transitions?.find((transition) =>
+      isTransitionToSelf(stateId, transition.state)
+    );
+  };
+
   const handleStateDeleteClick = (id: string, unfilled?: boolean): void => {
     setStates((current) => {
       let newStates: IFSMStates = { ...current };
@@ -1289,9 +1300,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
     };
     const startEndVerticalDifference = Math.abs(y1 - y2);
 
+    const outGoingTransitionsCount = transitionIndexPerStateSide;
+
     // If we are going to the bottom
     if (side === 'bottom') {
-      path = `M ${startStateCenter.x - 20 * transitionIndexPerStateSide} ${
+      path = `M ${startStateCenter.x - 20 * outGoingTransitionsCount} ${
         startStateCenter.y + startStateData.height / 2
       } V ${startStateCenter.y + startEndVerticalDifference / 2 + 10 * transitionIndexPerStateSide}
       H ${endStateCenter.x + 20 * transitionIndexPerTargetStateSide}
@@ -1299,7 +1312,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     }
 
     if (side === 'top') {
-      path = `M ${startStateCenter.x - 20 * transitionIndexPerStateSide} ${
+      path = `M ${startStateCenter.x - 20 * outGoingTransitionsCount} ${
         startStateCenter.y - startStateData.height / 2
       } V ${
         startStateCenter.y - startEndVerticalDifference / 2 - 10 * transitionIndexPerStateSide
@@ -1311,8 +1324,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
     if (side === 'left') {
       const horizontalDiff = x1 - (x2 + endStateData.width);
       path = `M ${startStateCenter.x - startStateData.width / 2} ${
-        startStateCenter.y - 20 * transitionIndexPerStateSide
-      } H ${x2 + endStateData.width + horizontalDiff / 2 - 10 * transitionIndexPerStateSide} V ${
+        startStateCenter.y - 20 * outGoingTransitionsCount
+      } H ${x2 + endStateData.width + horizontalDiff / 2 - 10 * outGoingTransitionsCount} V ${
         endStateCenter.y + 20 * transitionIndexPerTargetStateSide
       } H ${endStateCenter.x + endStateData.width / 2}`;
     }
@@ -1320,8 +1333,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
     if (side === 'right') {
       const endOfStartState = x1 + startStateData.width;
       const horizontalDiff = x2 - endOfStartState;
-      path = `M ${endOfStartState} ${startStateCenter.y - 20 * transitionIndexPerStateSide} H ${
-        endOfStartState + horizontalDiff / 2 + 10 * transitionIndexPerStateSide
+      path = `M ${endOfStartState} ${startStateCenter.y - 20 * outGoingTransitionsCount} H ${
+        endOfStartState + horizontalDiff / 2 + 10 * outGoingTransitionsCount
       } V ${endStateCenter.y + 20 * transitionIndexPerTargetStateSide} H ${x2}`;
     }
 
@@ -1388,6 +1401,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 bottom: 0,
               };
             }
+
             targetStatesTransitionIndexes[transition.state][mirrorSide(side)] += 1;
 
             if (!statesTransitionIndexes[id]) {
@@ -1397,9 +1411,9 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 top: 0,
                 bottom: 0,
               };
-            } else {
-              statesTransitionIndexes[id][side] += 1;
             }
+
+            statesTransitionIndexes[id][side] += 1;
 
             transitionData.transitionIndexPerStateSide = statesTransitionIndexes[id][side];
             transitionData.transitionIndexPerTargetStateSide =
@@ -1420,8 +1434,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
       []
     ).sort((a, b) => a.order - b.order);
   }, [states]);
-
-  console.log(transitions);
 
   const reset = () => {
     postMessage(Messages.RESET_CONFIG_ITEMS, {
@@ -1471,17 +1483,17 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
   if (!qorus_instance) {
     return (
-      <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
+      <ReqoreMessage title={t('NoInstanceTitle')} intent="warning">
         {t('NoInstance')}
-      </Callout>
+      </ReqoreMessage>
     );
   }
 
   if (!isReady) {
     return (
-      <Callout title={t('Loading')} icon="info-sign" intent="warning">
+      <ReqoreMessage title={t('Loading')} intent="pending">
         {t('Loading FSM...')}
-      </Callout>
+      </ReqoreMessage>
     );
   }
 
@@ -1947,6 +1959,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   <FSMDiagramWrapper
                     wrapperDimensions={wrapperDimensions}
                     setPan={setWrapperPan}
+                    setShowStateIds={setShowStateIds}
+                    showStateIds={showStateIds}
                     zoom={zoom}
                     items={map(states, (state, id) => ({
                       x: state.position.x,
@@ -1981,6 +1995,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
                           onDeleteClick={handleStateDeleteClick}
                           onMouseEnter={() => setHoveredState(id)}
                           onMouseLeave={() => setHoveredState(null)}
+                          hasTransitionToItself={hasTransitionToItself(id)}
+                          showStateIds={showStateIds}
                           selectedState={selectedState}
                           isAvailableForTransition={isAvailableForTransition}
                           onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
@@ -2066,21 +2082,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                             },
                             index
                           ) =>
-                            isTransitionToSelf(state, targetState) ? (
-                              <StyledFSMCircle
-                                cx={x1 + 90}
-                                cy={y1 + 50}
-                                r={25}
-                                fill="transparent"
-                                stroke={isError ? 'red' : '#a9a9a9'}
-                                strokeWidth={2}
-                                strokeDasharray={isError ? '10 2' : undefined}
-                                key={index}
-                                onClick={() =>
-                                  setEditingTransition([{ stateId: state, index: transitionIndex }])
-                                }
-                              />
-                            ) : (
+                            !isTransitionToSelf(state, targetState) ? (
                               <>
                                 <StyledFSMLine
                                   onClick={() => {
@@ -2114,26 +2116,28 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                   deselected={hoveredState && hoveredState !== state}
                                   selected={hoveredState === state}
                                 />
-                                <StyledLineText
-                                  style={{
-                                    transform: `rotate(${calculateTextRotation(
-                                      side
-                                    )}deg) translateY(${calculateTextTranslation(side)}px)`,
-                                    transformBox: 'fill-box',
-                                    transformOrigin: 'center',
-                                  }}
-                                  deselected={hoveredState && hoveredState !== state}
-                                >
-                                  <textPath
-                                    href={`#fsm-transition-${index}`}
-                                    startOffset="10px"
-                                    fill="#ffffff"
+                                {showStateIds && (
+                                  <StyledLineText
+                                    style={{
+                                      transform: `rotate(${calculateTextRotation(
+                                        side
+                                      )}deg) translateY(${calculateTextTranslation(side)}px)`,
+                                      transformBox: 'fill-box',
+                                      transformOrigin: 'center',
+                                    }}
+                                    deselected={hoveredState && hoveredState !== state}
                                   >
-                                    {targetState}
-                                  </textPath>
-                                </StyledLineText>
+                                    <textPath
+                                      href={`#fsm-transition-${index}`}
+                                      startOffset="10px"
+                                      fill="#ffffff"
+                                    >
+                                      {targetState}
+                                    </textPath>
+                                  </StyledLineText>
+                                )}
                               </>
-                            )
+                            ) : null
                         )}
                       </svg>
                     </StyledDiagram>

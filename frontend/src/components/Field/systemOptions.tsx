@@ -454,7 +454,7 @@ const Options = ({
         flat={false}
         minimal
         badge={size(fixedValue)}
-        intent={isValid ? undefined : 'danger'}
+        intent={isValid === false ? 'danger' : undefined}
         style={{ width: '100%' }}
         items={map(
           fixedValue,

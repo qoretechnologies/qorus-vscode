@@ -1,14 +1,15 @@
+import { useReqoreTheme } from '@qoretechnologies/reqore';
+import { IReqoreEffect } from '@qoretechnologies/reqore/dist/components/Effect';
 import { FC } from 'react';
 import { useDrag } from 'react-dnd';
 import styled from 'styled-components';
-import { StyledMapperField } from '.';
-import AddFieldButton from './add';
+import { StyledMapperField, StyledMapperFieldWrapper, TYPE_COLORS } from '.';
 
 export interface IMapperInputProps {
   id: number;
   types: string[];
   name: string;
-  isChild: boolean;
+  isMapperChild: boolean;
   level: number;
   lastChildIndex: number;
   onClick: any;
@@ -17,6 +18,7 @@ export interface IMapperInputProps {
   isCustom: boolean;
   path: string;
   hasAvailableOutput: boolean;
+  hasRelation: boolean;
   usesContext?: boolean;
   isWholeInput?: boolean;
   hasError?: boolean;
@@ -32,7 +34,7 @@ const MapperInput: FC<IMapperInputProps> = ({
   field,
   types,
   name,
-  isChild,
+  isMapperChild,
   level,
   isCustom,
   lastChildIndex,
@@ -40,8 +42,10 @@ const MapperInput: FC<IMapperInputProps> = ({
   type,
   path,
   hasAvailableOutput,
+  hasRelation,
   usesContext,
   isWholeInput,
+  description,
   hasError,
 }) => {
   const [{ opacity }, dragRef] = useDrag({
@@ -51,44 +55,58 @@ const MapperInput: FC<IMapperInputProps> = ({
       opacity: monitor.isDragging() ? 0.2 : 1,
     }),
   });
-
-  const finalOpacity = hasAvailableOutput ? opacity : 0.5;
+  const theme = useReqoreTheme();
 
   return (
-    <StyledMapperField
-      style={{ opacity }}
-      input
-      isChild={isChild}
+    <StyledMapperFieldWrapper
+      stack
+      fill
+      isMapperChild={isMapperChild}
       isInputHash={isWholeInput}
-      isDisabled={!hasAvailableOutput || hasError}
-      hasError={hasError}
       level={level}
       childrenCount={lastChildIndex}
-      title={field?.desc}
-      name="diagram-field"
+      fluid
+      flat={false}
+      input
+      theme={theme}
     >
-      <StyledDragHandle
+      <StyledMapperField
+        maxWidth="300px"
+        icon={hasRelation ? 'CheckLine' : hasAvailableOutput ? 'DragMoveLine' : 'ForbidLine'}
+        rightIcon={
+          hasRelation ? 'ArrowRightFill' : hasAvailableOutput ? 'DragMoveLine' : 'ForbidLine'
+        }
+        rightIconColor={hasRelation ? 'success:lighten:2' : undefined}
+        textAlign="center"
+        onClick={onClick}
+        effect={
+          !hasRelation
+            ? undefined
+            : ({
+                gradient: {
+                  colors: {
+                    0: 'main',
+                    50: 'main',
+                    130: 'success:darken',
+                  },
+                },
+              } as IReqoreEffect)
+        }
+        intent={hasError ? 'danger' : undefined}
+        tooltip={{
+          content: field?.desc,
+          delay: 200,
+        }}
         ref={hasAvailableOutput ? dragRef : undefined}
-        style={{ opacity: finalOpacity }}
+        badge={{
+          label: `${types.includes('nothing') ? '*' : ''}${type.base_type}`,
+          color: TYPE_COLORS[`${types[0].replace(/</g, '').replace(/>/g, '')}`],
+        }}
+        description={description}
       >
-        <h4 style={{ fontSize: isWholeInput ? '16px' : '14px' }}>
-          {typeof name === 'string' ? name.replace(/\\./g, '.') : name}
-        </h4>
-        {!isWholeInput && (
-          <p className={`${types.join(' ').replace(/</g, '').replace(/>/g, '')} type`}>
-            {`${types.includes('nothing') ? '*' : ''}${type.base_type}`}
-          </p>
-        )}
-      </StyledDragHandle>
-      {!usesContext && field && (
-        <AddFieldButton
-          field={field}
-          isCustom={isCustom}
-          canManageFields={type.can_manage_fields}
-          onClick={onClick}
-        />
-      )}
-    </StyledMapperField>
+        {typeof name === 'string' ? name.replace(/\\./g, '.') : name}
+      </StyledMapperField>
+    </StyledMapperFieldWrapper>
   );
 };
 

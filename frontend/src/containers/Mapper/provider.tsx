@@ -224,7 +224,6 @@ const MapperProvider: FC<IProviderProps> = ({
    * @returns the children array after it has been filtered.
    */
   const filterChildren = (children: any[]) => {
-    console.log(children);
     return children.filter((child) => {
       if (isPipeline || recordType) {
         return child.has_record || child.children_can_support_records || child.has_provider;

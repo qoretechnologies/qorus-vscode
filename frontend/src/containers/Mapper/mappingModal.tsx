@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
+import { ReqoreMenu, ReqoreMenuDivider, ReqoreMessage } from '@qoretechnologies/reqore';
 import every from 'lodash/every';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
@@ -10,18 +10,11 @@ import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
 import Field from '../../components/Field';
 import MapperCodeField from '../../components/Field/mapperCode';
+import { SaveColorEffect } from '../../components/Field/multiPair';
 import OptionHashField from '../../components/Field/optionHash';
 import SelectField from '../../components/Field/select';
-import FieldLabel from '../../components/FieldLabel';
 import FieldSelector from '../../components/FieldSelector';
-import {
-  ActionsWrapper,
-  ContentWrapper,
-  FieldInputWrapper,
-  FieldWrapper,
-  IField,
-} from '../../components/FieldWrapper';
-import Box from '../../components/ResponsiveBox';
+import { ContentWrapper, FieldWrapper, IField } from '../../components/FieldWrapper';
 import SidePanel from '../../components/SidePanel';
 import { unEscapeMapperName } from '../../helpers/mapper';
 import { validateField } from '../../helpers/validations';
@@ -274,94 +267,95 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
   return (
     <CustomDialog
       isOpen
-      title={`${t('ManageOutputMapping')} for field "${unEscapeMapperName(output.name)}"`}
+      label={`${t('ManageOutputMapping')} for field "${unEscapeMapperName(output.name)}"`}
       onClose={onClose}
-      style={{ paddingBottom: 0, width: '70vw' }}
+      contentStyle={{
+        display: 'flex',
+        overflow: 'hidden',
+      }}
+      bottomActions={[
+        {
+          label: 'Reset',
+          icon: 'HistoryLine',
+          onClick: () => setRelation(relationData || {}),
+        },
+        {
+          effect: SaveColorEffect,
+          label: 'Submit',
+          icon: 'CheckLine',
+          disabled: !isMappingValid(),
+          onClick: handleSubmit,
+          position: 'right',
+        },
+      ]}
     >
-      <Box top fill scrollY style={{ flexFlow: 'row' }}>
-        <SidePanel title={t('AddValue')}>
-          <ContentWrapper>
-            {map(mapperKeysList, (_field: any, fieldName: string) => (
-              <FieldSelector
-                name={fieldName}
-                translateName={false}
-                type={getKeyType(fieldName, mapperKeys, output)}
-                disabled={isKeyDisabled(fieldName)}
-                onClick={handleAddClick}
-              />
-            ))}
-          </ContentWrapper>
-        </SidePanel>
-        <Content title={t('FillValues')} style={{ height: 'unset' }}>
-          <ContentWrapper style={{ padding: '15px' }}>
-            {size(relation) ? (
-              map(relation, (value: string, key: string) => (
-                <>
-                  <p>{mapperKeys[key].desc}</p>
-                  <FieldWrapper>
-                    <FieldLabel
-                      name={key}
-                      onClick={handleRemoveClick}
-                      removable
-                      label={key}
-                      isValid={getIsFieldValid(key, value)}
-                    />
-                    <FieldInputWrapper>
-                      {getKeyType(key, mapperKeys, output) === 'mapper-code' ? (
-                        <MapperCodeField
-                          onChange={handleChange}
-                          defaultCode={value && value.split('::')[0]}
-                          defaultMethod={value && value.split('::')[1]}
-                        />
-                      ) : getKeyType(key, mapperKeys, output) === 'option_hash' ? (
-                        <OptionHashField
-                          name={key}
-                          value={value || undefined}
-                          onChange={handleOptionHashChange}
-                          items={getOptions()}
-                          options={output.type.supported_options}
-                        />
-                      ) : key === 'name' ? (
-                        <SelectField
-                          name={key}
-                          value={unEscapeMapperName(value)}
-                          defaultItems={getPossibleInputs}
-                          onChange={handleChange}
-                        />
-                      ) : (
-                        <Field
-                          name={key}
-                          value={value}
-                          type="auto"
-                          noSoft={true}
-                          defaultType={getKeyType(key, mapperKeys, output)}
-                          onChange={handleChange}
-                        />
-                      )}
-                    </FieldInputWrapper>
-                  </FieldWrapper>
-                </>
-              ))
-            ) : (
-              <p className={Classes.TEXT_MUTED}>No fields available</p>
-            )}
-          </ContentWrapper>
-
-          <ActionsWrapper style={{ marginTop: 20 }}>
-            <ButtonGroup fill>
-              <Button text="Reset" icon="history" onClick={() => setRelation(relationData || {})} />
-              <Button
-                name="submit-mapping-modal"
-                intent="success"
-                text="Submit"
-                icon="small-tick"
-                disabled={!isMappingValid()}
-                onClick={handleSubmit}
-              />
-            </ButtonGroup>
-          </ActionsWrapper>
-        </Content>
-      </Box>
+      <SidePanel>
+        <ReqoreMenu style={{ flex: 1 }} width="250px" rounded>
+          <ReqoreMenuDivider label={'Available keys'} />
+          {map(mapperKeysList, (_field: any, fieldName: string) => (
+            <FieldSelector
+              name={fieldName}
+              translateName={false}
+              type={getKeyType(fieldName, mapperKeys, output)}
+              disabled={isKeyDisabled(fieldName)}
+              onClick={handleAddClick}
+            />
+          ))}
+        </ReqoreMenu>
+      </SidePanel>
+      <Content>
+        <ContentWrapper>
+          {size(relation) ? (
+            map(relation, (value: string, key: string) => (
+              <FieldWrapper
+                name={key}
+                onClick={handleRemoveClick}
+                removable
+                label={key}
+                isValid={getIsFieldValid(key, value)}
+                compact
+              >
+                <ReqoreMessage size="small" intent="info">
+                  {mapperKeys[key].desc}
+                </ReqoreMessage>
+                {getKeyType(key, mapperKeys, output) === 'mapper-code' ? (
+                  <MapperCodeField
+                    onChange={handleChange}
+                    defaultCode={value && value.split('::')[0]}
+                    defaultMethod={value && value.split('::')[1]}
+                  />
+                ) : getKeyType(key, mapperKeys, output) === 'option_hash' ? (
+                  <OptionHashField
+                    name={key}
+                    value={value || undefined}
+                    onChange={handleOptionHashChange}
+                    items={getOptions()}
+                    options={output.type.supported_options}
+                  />
+                ) : key === 'name' ? (
+                  <SelectField
+                    name={key}
+                    value={unEscapeMapperName(value)}
+                    defaultItems={getPossibleInputs}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <Field
+                    name={key}
+                    value={value}
+                    type="auto"
+                    noSoft={true}
+                    defaultType={getKeyType(key, mapperKeys, output)}
+                    onChange={handleChange}
+                  />
+                )}
+              </FieldWrapper>
+            ))
+          ) : (
+            <ReqoreMessage intent="muted">No fields available</ReqoreMessage>
+          )}
+        </ContentWrapper>
+      </Content>
     </CustomDialog>
   );
 };

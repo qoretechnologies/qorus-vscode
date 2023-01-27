@@ -8,6 +8,8 @@ export interface IFSMDiagramWrapperProps {
   setPan: (x: number, y: number) => void;
   children: any;
   zoom: number;
+  setShowStateIds: (show: boolean) => void;
+  showStateIds: boolean;
 }
 
 const FSMDiagramWrapper: React.FC<IFSMDiagramWrapperProps> = ({
@@ -15,7 +17,7 @@ const FSMDiagramWrapper: React.FC<IFSMDiagramWrapperProps> = ({
   children,
   setPan,
   zoom,
-  items,
+  ...rest
 }) => {
   const t = useContext(TextContext);
 
@@ -29,7 +31,7 @@ const FSMDiagramWrapper: React.FC<IFSMDiagramWrapperProps> = ({
       onPan={({ x, y }) => setPan(x, y)}
       enableDragging
       zoom={zoom}
-      items={items}
+      {...rest}
       t={t}
     >
       {children}

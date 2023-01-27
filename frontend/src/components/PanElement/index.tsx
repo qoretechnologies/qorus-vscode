@@ -1,4 +1,5 @@
 import { ReqorePanel } from '@qoretechnologies/reqore';
+import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
 import React from 'react';
 import shortid from 'shortid';
 import styled, { css } from 'styled-components';
@@ -29,6 +30,13 @@ const StyledToolbar = styled(ReqorePanel)`
   right: 15px;
   top: 15px;
   z-index: 10;
+  opacity: 0.3;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  transition: opacity 0.2s ease-in-out;
 `;
 
 const StyledToolbarActions = styled.div<{ show: boolean }>`
@@ -285,9 +293,11 @@ export class ElementPan extends React.Component<
           padded={false}
           actions={[
             {
-              icon: 'VoiceRecognitionLine',
-              tooltip: t('Recenter'),
-            },
+              icon: 'PriceTag2Line',
+              tooltip: 'Show state & path IDs',
+              active: this.props.showStateIds,
+              onClick: () => this.props.setShowStateIds(!this.props.showStateIds),
+            } as IReqorePanelAction,
           ]}
           collapsible
         >
