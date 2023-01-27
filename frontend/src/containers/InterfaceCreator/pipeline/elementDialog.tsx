@@ -1,17 +1,10 @@
-import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
+import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { useContext, useEffect, useState } from 'react';
 import shortid from 'shortid';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
 import SelectField from '../../../components/Field/select';
-import FieldLabel from '../../../components/FieldLabel';
-import {
-  ActionsWrapper,
-  ContentWrapper,
-  FieldInputWrapper,
-  FieldWrapper,
-} from '../../../components/FieldWrapper';
-import Spacer from '../../../components/Spacer';
+import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import { Messages } from '../../../constants/messages';
 import { TextContext } from '../../../context/text';
 import { areTypesCompatible, getPipelineClosestParentOutputData } from '../../../helpers/functions';
@@ -19,21 +12,21 @@ import { validateField } from '../../../helpers/validations';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
 import ConfigItemManager from '../../ConfigItemManager';
 import ManageButton from '../../ConfigItemManager/manageButton';
+import { resetControl, submitControl } from '../controls';
 
 export const CompatibilityCheckIndicator = ({ isCompatible, isCheckingCompatibility, title }) => {
   const t = useContext(TextContext);
 
   return (
     <>
-      <Callout
-        name={`compatibility-check-${isCompatible.toString()}`}
+      <ReqoreMessage
         intent={isCheckingCompatibility ? 'warning' : isCompatible ? 'success' : 'danger'}
       >
         {isCheckingCompatibility
           ? t('CheckingCompatibility')
           : t(`${title || 'PipelineElement'}${isCompatible ? 'Compatible' : 'Incompatible'}`)}
-      </Callout>
-      <Spacer size={8} />
+      </ReqoreMessage>
+      <ReqoreVerticalSpacer height={8} />
     </>
   );
 };
@@ -122,117 +115,100 @@ const PipelineElementDialog = ({
       <CustomDialog
         onClose={onClose}
         isOpen
-        title={t('ManagePipeElement')}
-        style={{ width: '50vw', paddingBottom: 0 }}
+        label={t('ManagePipeElement')}
+        bottomActions={[
+          resetControl(() => {
+            if (newData.type === 'processor' && newData.name) {
+              postMessage(Messages.RESET_CONFIG_ITEMS, {
+                iface_id: interfaceId,
+                processor_id: newData.pid,
+              });
+            }
+            setNewData(data);
+          }),
+          {
+            as: ManageButton,
+            props: {
+              type: 'pipeline',
+              key: newData.type,
+              disabled: !isCompatible,
+              onClick: () => setShowConfigItemsManager(true),
+            },
+            show: newData.type === 'processor' && newData.name,
+          },
+          submitControl(
+            () => {
+              if (newData.type === 'processor') {
+                postMessage('submit-processor', {
+                  iface_id: interfaceId,
+                  processor_id: newData.pid,
+                });
+              }
+              onSubmit(newData);
+              onClose();
+            },
+            {
+              disabled: !isDataValid(),
+            }
+          ),
+        ]}
       >
-        <Content
-          style={{ paddingLeft: 0, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}
-        >
+        <Content>
           <ContentWrapper>
-            <FieldWrapper padded>
-              <FieldLabel label={t('Type')} isValid={validateField('string', newData.type)} />
-              <FieldInputWrapper>
-                <SelectField
-                  defaultItems={
-                    onlyQueue
-                      ? [{ name: 'queue' }]
-                      : [{ name: 'queue' }, { name: 'mapper' }, { name: 'processor' }]
-                  }
-                  onChange={handleDataUpdate}
-                  value={newData.type}
-                  name="type"
-                />
-              </FieldInputWrapper>
+            <FieldWrapper label={t('Type')} isValid={validateField('string', newData.type)} compact>
+              <SelectField
+                defaultItems={
+                  onlyQueue
+                    ? [{ name: 'queue' }]
+                    : [{ name: 'queue' }, { name: 'mapper' }, { name: 'processor' }]
+                }
+                onChange={handleDataUpdate}
+                value={newData.type}
+                name="type"
+              />
             </FieldWrapper>
             {newData?.type && newData.type !== 'queue' ? (
-              <FieldWrapper padded>
-                <FieldLabel
-                  label={t('Name')}
-                  isValid={validateField('string', newData.name) && isCompatible}
-                />
-                <FieldInputWrapper>
-                  {newData.name || isCheckingCompatibility ? (
-                    <CompatibilityCheckIndicator
-                      isCompatible={isCompatible}
-                      isCheckingCompatibility={isCheckingCompatibility}
-                    />
-                  ) : null}
-                  <SelectField
-                    reference={{
-                      iface_kind: newData.type === 'processor' ? 'class' : newData.type,
-                    }}
-                    key={newData.type}
-                    onChange={(_n, value) => handleDataUpdate('name', value)}
-                    value={newData.name}
-                    name="interface-name"
-                    get_message={{
-                      action: 'creator-get-objects',
-                      object_type:
-                        newData.type === 'processor' ? 'class-with-processor' : newData.type,
-                    }}
-                    return_message={{
-                      action: 'creator-return-objects',
-                      object_type:
-                        newData.type === 'processor' ? 'class-with-processor' : newData.type,
-                      return_value: 'objects',
-                    }}
+              <FieldWrapper
+                label={t('Name')}
+                isValid={validateField('string', newData.name) && isCompatible}
+                compact
+              >
+                {newData.name || isCheckingCompatibility ? (
+                  <CompatibilityCheckIndicator
+                    isCompatible={isCompatible}
+                    isCheckingCompatibility={isCheckingCompatibility}
                   />
-                </FieldInputWrapper>
+                ) : null}
+                <SelectField
+                  reference={{
+                    iface_kind: newData.type === 'processor' ? 'class' : newData.type,
+                  }}
+                  key={newData.type}
+                  onChange={(_n, value) => handleDataUpdate('name', value)}
+                  value={newData.name}
+                  name="interface-name"
+                  get_message={{
+                    action: 'creator-get-objects',
+                    object_type:
+                      newData.type === 'processor' ? 'class-with-processor' : newData.type,
+                  }}
+                  return_message={{
+                    action: 'creator-return-objects',
+                    object_type:
+                      newData.type === 'processor' ? 'class-with-processor' : newData.type,
+                    return_value: 'objects',
+                  }}
+                />
               </FieldWrapper>
             ) : null}
           </ContentWrapper>
-          <ActionsWrapper style={{ padding: '10px' }}>
-            <ButtonGroup fill>
-              <Tooltip content={t('ResetTooltip')}>
-                <Button
-                  text={t('Reset')}
-                  icon={'history'}
-                  onClick={() => {
-                    if (newData.type === 'processor' && newData.name) {
-                      postMessage(Messages.RESET_CONFIG_ITEMS, {
-                        iface_id: interfaceId,
-                        processor_id: newData.pid,
-                      });
-                    }
-                    setNewData(data);
-                  }}
-                />
-              </Tooltip>
-              {newData.type === 'processor' && newData.name ? (
-                <ManageButton
-                  type="pipeline"
-                  key={newData.type}
-                  disabled={!isCompatible}
-                  onClick={() => setShowConfigItemsManager(true)}
-                />
-              ) : null}
-              <Button
-                text={t('Submit')}
-                disabled={!isDataValid()}
-                icon={'tick'}
-                name="pipeline-submit-element"
-                intent={Intent.SUCCESS}
-                onClick={() => {
-                  if (newData.type === 'processor') {
-                    postMessage('submit-processor', {
-                      iface_id: interfaceId,
-                      processor_id: newData.pid,
-                    });
-                  }
-                  onSubmit(newData);
-                  onClose();
-                }}
-              />
-            </ButtonGroup>
-          </ActionsWrapper>
         </Content>
       </CustomDialog>
       {showConfigItemsManager && (
         <CustomDialog
           isOpen
-          title={t('ConfigItemsManager')}
+          label={t('ConfigItemsManager')}
           onClose={() => setShowConfigItemsManager(false)}
-          style={{ width: '80vw', backgroundColor: '#fff' }}
         >
           <ConfigItemManager
             type="pipeline"

@@ -91,7 +91,7 @@ const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = (
 
   return (
     <ReqoreMultiSelect
-      items={items.map((item) => ({
+      items={[value, ...items].map((item) => ({
         label: item,
         value: item,
         wrap: true,
