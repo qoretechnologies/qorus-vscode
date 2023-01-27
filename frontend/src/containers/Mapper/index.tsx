@@ -844,6 +844,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
               effect: NegativeColorEffect,
               onClick: () => {
                 handleClick(selectedField.fieldType)(selectedField, false, true);
+                setSelectedField(undefined);
               },
               show: selectedField.isCustom === true,
             },

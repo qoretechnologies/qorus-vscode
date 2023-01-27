@@ -1,5 +1,5 @@
 import { ReqoreControlGroup, ReqoreInput, ReqoreTag } from '@qoretechnologies/reqore';
-import { ChangeEvent, FunctionComponent } from 'react';
+import { ChangeEvent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import { isNull } from 'util';
@@ -92,6 +92,7 @@ const StringField = ({
   );
 };
 
-export default compose(withMessageHandler(), withTextContext())(StringField) as FunctionComponent<
-  IStringField & IField & IFieldChange
->;
+export default compose<IStringField & IField & IFieldChange>(
+  withMessageHandler(),
+  withTextContext()
+)(StringField);

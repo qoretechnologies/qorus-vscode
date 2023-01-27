@@ -1,15 +1,22 @@
-import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
+import { Callout } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreModal, useReqoreTheme } from '@qoretechnologies/reqore';
 import { cloneDeep, get, isEqual, map, reduce, set, size, unset } from 'lodash';
 import { useContext, useState } from 'react';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
+import Content from '../../components/Content';
 import FileField from '../../components/Field/fileString';
+import {
+  NegativeColorEffect,
+  PositiveColorEffect,
+  SaveColorEffect,
+} from '../../components/Field/multiPair';
 import String from '../../components/Field/string';
 import Suggest from '../../components/Field/suggest';
-import FieldLabel from '../../components/FieldLabel';
-import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../../components/FieldWrapper';
+import FieldGroup from '../../components/FieldGroup';
+import { ContentWrapper, FieldWrapper } from '../../components/FieldWrapper';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData } from '../../context/drafts';
 import { deleteDraft, getDraftId, getTargetFile, hasValue } from '../../helpers/functions';
@@ -19,6 +26,7 @@ import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsu
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
+import TinyGrid from '../../images/graphy-dark.png';
 import { StyledFieldsWrapper, StyledMapperWrapper } from '../Mapper';
 import MapperInput from '../Mapper/input';
 import MapperFieldModal from '../Mapper/modal';
@@ -51,12 +59,14 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
   const [interfaceId, setInterfaceId] = useState(null);
   const [val, setVal] = useState(initialData?.type?.path || '');
   const [types, setTypes] = useState([]);
-  const [addDialog, setAddDialog] = useState({});
+  const [addDialog, setAddDialog] = useState<any>({});
   const [fields, setFields] = useState(
     formatFields(initialData.type ? cloneDeep(initialData.type.typeinfo.fields) : {})
   );
   const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
   const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
+  const [selectedField, setSelectedField] = useState(undefined);
+  const theme = useReqoreTheme();
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
 
   const reset = (soft?: boolean) => {
@@ -318,13 +328,80 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
   const flattenedFields = flattenFields(fields);
 
   return (
-    <>
-      <FieldWrapper name="selected-field">
-        <FieldLabel
+    <Content
+      bottomActions={[
+        {
+          label: t('Reset'),
+          icon: 'HistoryLine',
+          onClick: () => {
+            initialData.confirmAction(
+              'ResetFieldsConfirm',
+              () => {
+                reset(true);
+              },
+              'Reset',
+              'warning'
+            );
+          },
+        },
+        {
+          label: t('Submit'),
+          onClick: handleSubmitClick,
+          disabled: !(size(fields) && validateField('string', val)),
+          icon: 'CheckLine',
+          effect: SaveColorEffect,
+          position: 'right',
+        },
+      ]}
+    >
+      {selectedField && (
+        <ReqoreModal
+          isOpen
+          label={selectedField?.name}
+          badge={selectedField.type.base_type}
+          onClose={() => setSelectedField(undefined)}
+          blur={3}
+          responsiveActions={false}
+          actions={[
+            {
+              label: t('Add child field'),
+              icon: 'AddLine',
+              onClick: () => {
+                handleClick(selectedField);
+              },
+              effect: PositiveColorEffect,
+              flat: false,
+              show: selectedField.type.can_manage_fields === true,
+            },
+            {
+              label: t('Edit'),
+              icon: 'EditLine',
+              onClick: () => {
+                handleClick(selectedField, true);
+              },
+              show: selectedField.isCustom === true,
+            },
+            {
+              label: t('Remove'),
+              icon: 'DeleteBinLine',
+              effect: NegativeColorEffect,
+              onClick: () => {
+                handleClick(selectedField, false, true);
+                setSelectedField(undefined);
+              },
+              show: selectedField.isCustom === true,
+            },
+          ]}
+        >
+          {selectedField?.desc || 'No description'}
+        </ReqoreModal>
+      )}
+      <ContentWrapper style={{ flex: '0 auto' }}>
+        <FieldWrapper
+          name="selected-field"
           label={t('field-label-target_dir')}
           isValid={validateField('file-string', targetDir)}
-        />
-        <FieldInputWrapper>
+        >
           <FileField
             onChange={(_name, value) => setTargetDir(value)}
             name="target_dir"
@@ -339,29 +416,37 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
               return_value: 'directories',
             }}
           />
-        </FieldInputWrapper>
-      </FieldWrapper>
-      <FieldWrapper name="selected-field">
-        <FieldLabel label={t('field-label-target_file')} info={t('Optional')} isValid />
-        <FieldInputWrapper>
-          <String
-            onChange={(_name, value) => setTargetFile(value)}
-            name="target-dir"
-            value={targetFile}
-          />
-        </FieldInputWrapper>
-      </FieldWrapper>
-      <FieldWrapper name="selected-field">
-        <FieldLabel label={t('Path')} isValid={validateField('string', val)} />
-        <FieldInputWrapper>
-          <Suggest
-            defaultItems={types}
-            value={val}
-            name="path"
-            onChange={(_name, value) => setVal(value)}
-          />
-        </FieldInputWrapper>
-      </FieldWrapper>
+        </FieldWrapper>
+        <FieldGroup isValid={validateField('string', val)}>
+          <FieldWrapper
+            compact
+            name="selected-field"
+            label={t('field-label-target_file')}
+            type={t('Optional')}
+            isValid
+          >
+            <String
+              onChange={(_name, value) => setTargetFile(value)}
+              name="target-dir"
+              value={targetFile}
+            />
+          </FieldWrapper>
+
+          <FieldWrapper
+            name="selected-field"
+            label={t('Path')}
+            isValid={validateField('string', val)}
+            compact
+          >
+            <Suggest
+              defaultItems={types}
+              value={val}
+              name="path"
+              onChange={(_name, value) => setVal(value)}
+            />
+          </FieldWrapper>
+        </FieldGroup>
+      </ContentWrapper>
       <div
         style={{
           width: '100%',
@@ -369,11 +454,14 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
           padding: 10,
           flex: 1,
           overflow: 'auto',
-          background: `url(${initialData.image_path}/tiny_grid.png)`,
+          background: `${theme.main} url(${TinyGrid})`,
+          borderRadius: '10px',
         }}
       >
-        <StyledMapperWrapper style={{ justifyContent: 'center', paddingTop: '10px' }}>
-          <StyledFieldsWrapper style={{ flex: '0 1 auto' }}>
+        <StyledMapperWrapper
+          style={{ justifyContent: 'center', paddingTop: '10px', width: '300px' }}
+        >
+          <StyledFieldsWrapper vertical>
             {size(flattenedFields) !== 0
               ? map(flattenedFields, (input, index) => (
                   <MapperInput
@@ -384,57 +472,31 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                     field={input}
                     id={index + 1}
                     lastChildIndex={getLastChildIndex(input, flattenedFields) - index}
-                    onClick={handleClick}
+                    onClick={() => {
+                      setSelectedField(input);
+                    }}
                     hasAvailableOutput={true}
                   />
                 ))
               : null}
-            <Button
-              fill
-              text={t('AddNewField')}
+            <ReqoreButton
               minimal
-              intent="success"
-              icon="add"
-              name="type-add-field"
+              fluid
+              effect={SaveColorEffect}
+              icon="AddLine"
+              rightIcon="AddLine"
+              textAlign="center"
               onClick={() => handleClick()}
-            />
+            >
+              {t('AddNewField')}
+            </ReqoreButton>
           </StyledFieldsWrapper>
         </StyledMapperWrapper>
       </div>
-      <ActionsWrapper>
-        <div style={{ float: 'right', width: '100%' }}>
-          <ButtonGroup fill>
-            <Tooltip content={t('ResetTooltip')}>
-              <Button
-                text={t('Reset')}
-                icon={'history'}
-                onClick={() => {
-                  initialData.confirmAction(
-                    'ResetFieldsConfirm',
-                    () => {
-                      reset(true);
-                    },
-                    'Reset',
-                    'warning'
-                  );
-                }}
-              />
-            </Tooltip>
-            <Button
-              text={t('Submit')}
-              onClick={handleSubmitClick}
-              disabled={!(size(fields) && validateField('string', val))}
-              icon={'tick'}
-              name="type-submit"
-              intent={Intent.SUCCESS}
-            />
-          </ButtonGroup>
-        </div>
-      </ActionsWrapper>
       {addDialog.isOpen && (
         <MapperFieldModal t={t} onClose={() => setAddDialog({})} {...addDialog} />
       )}
-    </>
+    </Content>
   );
 };
 

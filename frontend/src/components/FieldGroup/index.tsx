@@ -3,9 +3,9 @@ import { IReqorePanelProps, ReqorePanel } from '@qoretechnologies/reqore/dist/co
 
 const FieldGroup = ({ children, isValid, ...rest }: IReqorePanelProps & { isValid?: boolean }) => (
   <ReqorePanel
-    collapsible
+    collapsible={!!rest.label}
     minimal
-    icon="Group2Line"
+    icon={!!rest.label ? 'Group2Line' : undefined}
     size="small"
     {...rest}
     intent={isValid ? rest.intent : 'danger'}
