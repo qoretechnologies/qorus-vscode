@@ -5,7 +5,7 @@ import {
   ReqoreControlGroup,
   ReqoreInput,
   ReqoreMessage,
-  ReqoreSpacer
+  ReqoreSpacer,
 } from '@qoretechnologies/reqore';
 import { IReqoreCollectionProps } from '@qoretechnologies/reqore/dist/components/Collection';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
@@ -22,7 +22,7 @@ import { Messages } from '../constants/messages';
 import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
 import withMessageHandler, {
   TMessageListener,
-  TPostMessage
+  TPostMessage,
 } from '../hocomponents/withMessageHandler';
 import withTextContext from '../hocomponents/withTextContext';
 import Add from './add';
@@ -61,7 +61,6 @@ export interface IProjectData {
 
 const StyledWrapper = styled.div`
   flex: 1 1 auto;
-  padding: 10px;
   overflow: auto;
 `;
 

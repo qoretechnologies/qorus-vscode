@@ -9,7 +9,7 @@ import { t } from 'ttag';
 import * as vscode from 'vscode';
 import * as zlib from 'zlib';
 import { deployer } from './QorusDeploy';
-import { QorusProject, projects } from './QorusProject';
+import { projects, QorusProject } from './QorusProject';
 import { QorusRepository } from './QorusRepository';
 import { QorusRepositoryGit } from './QorusRepositoryGit';
 import { qorus_webview } from './QorusWebview';

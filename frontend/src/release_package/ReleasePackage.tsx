@@ -1,7 +1,6 @@
 import {
   ReqoreButton,
   ReqoreControlGroup,
-  ReqoreH1,
   ReqoreH3,
   ReqoreMessage,
   ReqorePanel,
@@ -337,19 +336,28 @@ class ReleasePackage extends Component<
     );
 
     return (
-      <ReqorePanel flat contentStyle={{ display: 'flex', overflow: 'hidden', flexFlow: 'column' }}>
-        <ReqoreH1>Release Management</ReqoreH1>
-        <ReqoreSpacer height={15} />
+      <ReqorePanel
+        label="Release Management"
+        headerSize={1}
+        transparent
+        minimal
+        flat
+        fluid
+        contentStyle={{ display: 'flex', overflow: 'hidden', flexFlow: 'column' }}
+      >
         {notUpToDateMsg()}
         {!this.state.hasRepository && (
-          <ReqoreMessage intent="danger" inverted>
-            {t('ReleaseNoRepository')}
-          </ReqoreMessage>
+          <>
+            <ReqoreMessage intent="danger" minimal>
+              {t('ReleaseNoRepository')}
+            </ReqoreMessage>
+            <ReqoreSpacer height={10} />
+          </>
         )}
-        <ReqoreSpacer height={10} />
         {this.props.step == Step.Type && (
           <ReqoreTabs
             fillParent
+            padded={false}
             activeTabIntent="info"
             activeTab={this.props.branch.up_to_date && this.state.hasRepository ? 'full' : 'custom'}
             tabs={[
