@@ -680,7 +680,11 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
               }}
             />
           </FieldWrapper>
-          <FieldGroup>
+          <FieldGroup
+            isValid={
+              validateField('string', metadata.name) && validateField('string', metadata.desc)
+            }
+          >
             <FieldWrapper
               name="selected-field"
               isValid={validateField('string', metadata.name)}
@@ -704,7 +708,16 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
               />
             </FieldWrapper>
           </FieldGroup>
-          <FieldGroup>
+          <FieldGroup
+            isValid={
+              (metadata.groups.length === 0
+                ? true
+                : validateField('select-array', metadata.groups)) &&
+              (metadata['input-provider']
+                ? validateField('type-selector', metadata['input-provider'])
+                : true)
+            }
+          >
             <FieldWrapper
               name="selected-field"
               isValid={
