@@ -1,4 +1,4 @@
-import { Button } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { useMount } from 'react-use';
 import compose from 'recompose/compose';
@@ -25,11 +25,6 @@ export interface IConfigItemManager {
   definitionsOnly?: boolean;
   disableAdding?: boolean;
 }
-
-const StyledConfigManagerWrapper = styled.div`
-  height: 100%;
-  padding: 20px 20px 0 20px;
-`;
 
 const StyledConfigWrapper = styled.div`
   display: flex;
@@ -169,79 +164,71 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
 
   return (
     <>
-      <StyledConfigManagerWrapper>
-        {type !== 'workflow' && !disableAdding ? (
-          <Button
-            name={'add-config-item'}
-            text={t('AddConfigItem')}
-            intent="success"
-            icon="add"
-            onClick={() => setShowConfigItemPanel(true)}
+      {type !== 'workflow' && !disableAdding ? (
+        <ReqoreButton intent="success" icon="AddLine" onClick={() => setShowConfigItemPanel(true)}>
+          {t('AddConfigItem')}
+        </ReqoreButton>
+      ) : null}
+      <ReqoreVerticalSpacer height={10} />
+      <div>
+        {configItems.global_items && (
+          <GlobalTable
+            definitionsOnly={definitionsOnly}
+            configItems={configItems.global_items}
+            initialItems={initialConfigItems.current.global_items}
+            onSubmit={handleSubmit}
+          />
+        )}
+        {(type === 'step' || type === 'workflow') && configItems.workflow_items ? (
+          <GlobalTable
+            definitionsOnly={definitionsOnly}
+            configItems={configItems.workflow_items}
+            initialItems={initialConfigItems.current.workflow_items}
+            workflow
+            onSubmit={handleSubmit}
           />
         ) : null}
-        <StyledSeparator />
-        <div>
-          {configItems.global_items && (
-            <GlobalTable
-              definitionsOnly={definitionsOnly}
-              configItems={configItems.global_items}
-              initialItems={initialConfigItems.current.global_items}
-              onSubmit={handleSubmit}
-            />
-          )}
-          {(type === 'step' || type === 'workflow') && configItems.workflow_items ? (
-            <GlobalTable
-              definitionsOnly={definitionsOnly}
-              configItems={configItems.workflow_items}
-              initialItems={initialConfigItems.current.workflow_items}
-              workflow
-              onSubmit={handleSubmit}
-            />
-          ) : null}
-          {configItems.items && type !== 'workflow' ? (
-            <ConfigItemsTable
-              configItems={{
-                data: configItems.items,
-              }}
-              initialItems={initialConfigItems.current.items}
-              definitionsOnly={definitionsOnly}
-              onEditStructureClick={handleEditStructureClick}
-              onDeleteStructureClick={handleDeleteStructureClick}
-              onSubmit={handleSubmit}
-              disableAdding={disableAdding}
-              type={type}
-            />
-          ) : null}
-        </div>
-      </StyledConfigManagerWrapper>
+        {configItems.items && type !== 'workflow' ? (
+          <ConfigItemsTable
+            configItems={{
+              data: configItems.items,
+            }}
+            initialItems={initialConfigItems.current.items}
+            definitionsOnly={definitionsOnly}
+            onEditStructureClick={handleEditStructureClick}
+            onDeleteStructureClick={handleDeleteStructureClick}
+            onSubmit={handleSubmit}
+            disableAdding={disableAdding}
+            type={type}
+          />
+        ) : null}
+      </div>
+
       {showConfigItemPanel && (
         <CustomDialog
           isOpen
-          title={t('ConfigItemEditor')}
-          style={{ width: '80vw', height: '80vh', backgroundColor: '#fff' }}
+          label={t('ConfigItemEditor')}
           onClose={() => {
             setConfigItemData(null);
             setShowConfigItemPanel(false);
             resetFields && resetFields('config-item');
           }}
         >
-          <StyledConfigWrapper>
-            <InterfaceCreatorPanel
-              fileName={configItems.file_name}
-              parent={type}
-              type={'config-item'}
-              initialInterfaceId={interfaceId}
-              data={configItemData}
-              disabledFields={configItemData && configItemData.parent && ['name']}
-              isEditing={!!configItemData}
-              onSubmitSuccess={() => {
-                setConfigItemData(null);
-                setShowConfigItemPanel(false);
-                resetFields && resetFields('config-item');
-              }}
-              forceSubmit
-            />
-          </StyledConfigWrapper>
+          <InterfaceCreatorPanel
+            fileName={configItems.file_name}
+            parent={type}
+            type={'config-item'}
+            initialInterfaceId={interfaceId}
+            data={configItemData}
+            disabledFields={configItemData && configItemData.parent && ['name']}
+            isEditing={!!configItemData}
+            onSubmitSuccess={() => {
+              setConfigItemData(null);
+              setShowConfigItemPanel(false);
+              resetFields && resetFields('config-item');
+            }}
+            forceSubmit
+          />
         </CustomDialog>
       )}
     </>

@@ -1317,7 +1317,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       {showClassConnectionsManager && hasClassConnections && initialData.qorus_instance && (
         <CustomDialog
           isOpen
-          title={t('ClassConnectionsManager')}
+          label={t('ClassConnectionsManager')}
           onClose={() => setShowClassConnectionsManager(false)}
         >
           <ClassConnectionsManager
@@ -1363,7 +1363,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       {showConfigItemsManager && hasConfigManager ? (
         <CustomDialog
           isOpen
-          title={t('ConfigItemsManager')}
+          label={t('ConfigItemsManager')}
           onClose={() => setShowConfigItemsManager(false)}
         >
           <ConfigItemManager
