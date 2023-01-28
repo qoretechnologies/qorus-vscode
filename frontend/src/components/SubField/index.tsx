@@ -56,6 +56,7 @@ const SubField: React.FC<ISubFieldProps> = ({
         flat
         transparent={subtle}
         minimal
+        size="small"
         style={{ width: '100%' }}
         contentStyle={{ display: 'flex', flexFlow: 'column' }}
         contentEffect={
