@@ -121,13 +121,17 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                   selected={method.id === activeError}
                   isValid={isSubItemValid(method.id, 'error', errorsIndex)}
                   onClick={() => setActiveError(method.id)}
-                  onRemoveClick={() => {
-                    setSubErrors((current) =>
-                      current.filter((currentMethod) => currentMethod.id !== method.id)
-                    );
-                    removeSubItemFromFields(method.id, 'error', errorsIndex);
-                    setErrorsCount((current: number) => current - 1);
-                  }}
+                  onRemoveClick={
+                    errorsCount !== 1
+                      ? () => {
+                          setSubErrors((current) =>
+                            current.filter((currentMethod) => currentMethod.id !== method.id)
+                          );
+                          removeSubItemFromFields(method.id, 'error', errorsIndex);
+                          setErrorsCount((current: number) => current - 1);
+                        }
+                      : undefined
+                  }
                 >
                   {method.name || `${t('Error')} ${method.id}`}
                 </MethodSelector>
