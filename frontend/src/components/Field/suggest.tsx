@@ -87,8 +87,6 @@ const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = (
     }
   };
 
-  console.log('value', value);
-
   return (
     <ReqoreMultiSelect
       items={[value, ...items].map((item) => ({

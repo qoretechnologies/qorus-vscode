@@ -112,12 +112,26 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
       wrap
       size="big"
       style={{ margin: 'auto' }}
+      icon={
+        nodeData.type === 'start' ? 'PlayLine' : nodeData.type === 'queue' ? 'ListCheck' : undefined
+      }
+      rightIcon={
+        nodeData.type === 'start' ? 'PlayLine' : nodeData.type === 'queue' ? 'ListCheck' : undefined
+      }
+      description={
+        nodeData.type === 'start'
+          ? 'Beginning of the pipeline'
+          : nodeData.type === 'queue'
+          ? 'Queue of elements'
+          : undefined
+      }
       labelEffect={
         nodeData.type === 'start' || nodeData.type === 'queue'
           ? {
               uppercase: true,
               spaced: 1,
               textSize: 'normal',
+              textAlign: 'center',
             }
           : undefined
       }
@@ -776,7 +790,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
               orientation="vertical"
               pathFunc="straight"
               translate={{ x: window.innerWidth / 2 - 50, y: 100 }}
-              nodeSize={{ x: 350, y: 200 }}
+              nodeSize={{ x: 350, y: 120 }}
               transitionDuration={0}
               textLayout={{
                 textAnchor: 'middle',
