@@ -1315,50 +1315,45 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         <ContentWrapper>{renderGroups(fieldsToRender)}</ContentWrapper>
       </Content>
       {showClassConnectionsManager && hasClassConnections && initialData.qorus_instance && (
-        <CustomDialog
-          isOpen
-          label={t('ClassConnectionsManager')}
+        <ClassConnectionsManager
+          ifaceType={type === 'service-methods' ? 'service' : type}
+          interfaceIndex={interfaceIndex}
+          baseClassName={requestFieldData('base-class-name', 'value')}
+          interfaceContext={getContext()}
+          initialConnections={classConnectionsData}
           onClose={() => setShowClassConnectionsManager(false)}
-        >
-          <ClassConnectionsManager
-            ifaceType={type === 'service-methods' ? 'service' : type}
-            interfaceIndex={interfaceIndex}
-            baseClassName={requestFieldData('base-class-name', 'value')}
-            interfaceContext={getContext()}
-            initialConnections={classConnectionsData}
-            onSubmit={(classConnections) => {
-              const modifiedConnections = reduce(
-                classConnections,
-                (newConnections, connection, name) => {
-                  return {
-                    ...newConnections,
-                    [name]: connection.reduce(
-                      (newConnection, item) => [
-                        ...newConnection,
-                        omit(item, [
-                          'nextItemData',
-                          'previousItemData',
-                          'isInputCompatible',
-                          'isOutputCompatible',
-                          'index',
-                          'isBetween',
-                          'isEditing',
-                          'isEvent',
-                          'isLast',
-                        ]),
-                      ],
-                      []
-                    ),
-                  };
-                },
-                {}
-              );
-              modifyMappers(modifiedConnections);
-              setClassConnectionsData(modifiedConnections);
-              setShowClassConnectionsManager(false);
-            }}
-          />
-        </CustomDialog>
+          onSubmit={(classConnections) => {
+            const modifiedConnections = reduce(
+              classConnections,
+              (newConnections, connection, name) => {
+                return {
+                  ...newConnections,
+                  [name]: connection.reduce(
+                    (newConnection, item) => [
+                      ...newConnection,
+                      omit(item, [
+                        'nextItemData',
+                        'previousItemData',
+                        'isInputCompatible',
+                        'isOutputCompatible',
+                        'index',
+                        'isBetween',
+                        'isEditing',
+                        'isEvent',
+                        'isLast',
+                      ]),
+                    ],
+                    []
+                  ),
+                };
+              },
+              {}
+            );
+            modifyMappers(modifiedConnections);
+            setClassConnectionsData(modifiedConnections);
+            setShowClassConnectionsManager(false);
+          }}
+        />
       )}
       {showConfigItemsManager && hasConfigManager ? (
         <CustomDialog

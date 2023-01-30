@@ -4,6 +4,16 @@ import {
 } from '@qoretechnologies/reqore/dist/components/Panel';
 import { PositiveColorEffect, SaveColorEffect } from '../../components/Field/multiPair';
 
+export const cancelControl = (
+  onClick: () => void,
+  otherData?: IReqorePanelAction
+): IReqorePanelBottomAction => ({
+  label: 'Cancel',
+  icon: 'CloseLine',
+  onClick,
+  ...otherData,
+});
+
 export const resetControl = (
   onClick: () => void,
   otherData?: IReqorePanelAction

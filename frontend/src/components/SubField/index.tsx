@@ -60,7 +60,7 @@ const SubField: React.FC<ISubFieldProps> = ({
         style={{ width: '100%' }}
         contentStyle={{ display: 'flex', flexFlow: 'column' }}
         contentEffect={
-          subtle ? undefined : { gradient: { colors: '#111111', direction: 'to right bottom' } }
+          subtle ? undefined : { gradient: { colors: 'main', direction: 'to right bottom' } }
         }
         intent={isValid ? undefined : 'danger'}
         label={title}

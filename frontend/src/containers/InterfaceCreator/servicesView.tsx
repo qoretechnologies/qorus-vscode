@@ -2,8 +2,9 @@ import {
   ReqoreHorizontalSpacer,
   ReqoreMenu,
   ReqoreMenuDivider,
-  ReqoreMenuItem,
+  ReqoreMenuItem
 } from '@qoretechnologies/reqore';
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { cloneDeep, omit, size } from 'lodash';
 import { FunctionComponent, useContext, useState } from 'react';
 import { useUnmount, useUpdateEffect } from 'react-use';
@@ -23,10 +24,26 @@ import InterfaceCreatorPanel from './panel';
 
 let hasAllMethodsLoaded: boolean;
 
-export const MethodSelector = ({ children, isValid, selected, onClick, onRemoveClick }) => {
+export interface IMethodSelectorProps {
+  children: string | number;
+  isValid?: boolean;
+  selected?: boolean;
+  onClick?: (itemId: string) => void;
+  onRemoveClick?: (event: any) => void;
+  rightIcon?: IReqoreIconName;
+}
+
+export const MethodSelector = ({
+  children,
+  isValid,
+  selected,
+  onClick,
+  onRemoveClick,
+  rightIcon,
+}: IMethodSelectorProps) => {
   return (
     <ReqoreMenuItem
-      rightIcon={onRemoveClick ? 'DeleteBinLine' : undefined}
+      rightIcon={rightIcon || (onRemoveClick ? 'DeleteBinLine' : undefined)}
       onRightIconClick={onRemoveClick}
       onClick={onClick}
       intent={isValid ? undefined : 'danger'}

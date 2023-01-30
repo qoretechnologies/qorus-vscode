@@ -28,6 +28,17 @@ export const PositiveColorEffect: IReqoreEffect = {
   },
 };
 
+export const WarningColorEffect: IReqoreEffect = {
+  gradient: {
+    direction: 'to right',
+    colors: {
+      0: 'warning:lighten',
+      100: 'warning',
+    },
+    animate: 'hover',
+  },
+};
+
 export const NegativeColorEffect: IReqoreEffect = {
   gradient: {
     direction: 'to right bottom',

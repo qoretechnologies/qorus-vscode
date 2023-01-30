@@ -1,4 +1,10 @@
-import { Button, ButtonGroup, Classes, ControlGroup, NonIdealState } from '@blueprintjs/core';
+import {
+  ReqoreMenu,
+  ReqoreMenuDivider,
+  ReqoreMenuItem,
+  ReqoreMessage,
+  useReqoreTheme,
+} from '@qoretechnologies/reqore';
 import { cloneDeep } from 'lodash';
 import every from 'lodash/every';
 import forEach from 'lodash/forEach';
@@ -13,8 +19,9 @@ import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
+import { NegativeColorEffect, SaveColorEffect } from '../../components/Field/multiPair';
 import String from '../../components/Field/string';
-import { ActionsWrapper, ContentWrapper, IField } from '../../components/FieldWrapper';
+import { ContentWrapper, FieldWrapper, IField } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
 import { Messages } from '../../constants/messages';
@@ -26,8 +33,10 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMessageHandler, { TMessageListener } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
+import TinyGrid from '../../images/graphy-dark.png';
+import { resetControl, submitControl } from '../InterfaceCreator/controls';
 import { StyledCompatibilityLoader } from '../InterfaceCreator/fsm';
-import { MethodSelector, PanelWrapper } from '../InterfaceCreator/servicesView';
+import { MethodSelector } from '../InterfaceCreator/servicesView';
 import ClassConnectionsDiagram from './diagram';
 
 export const StyledDialogBody = styled.div`
@@ -52,6 +61,7 @@ export interface IClassConnection {
   index?: number;
   isEditing?: boolean;
   id: number;
+  [key: string]: any;
 }
 
 export interface IClassConnectionsManageDialog {
@@ -104,6 +114,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
   selectedFields,
   interfaceContext,
   interfaceIndex,
+  onClose,
 }) => {
   const [connections, setConnections] = useState<IClassConnections>(
     cloneDeep(initialConnections || {})
@@ -122,6 +133,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     (field: IField) => field.name === 'classes'
   ).value;
   const initContext = useContext(InitialContext);
+  const theme = useReqoreTheme();
 
   // Get the classes data
   useMount(() => {
@@ -313,127 +325,126 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     return size(uniqClasses);
   };
 
-  // Check if all classes are loaded
-  if (size(classesData) !== getUniqueClasses()) {
-    return <Loader text="Loading..." />;
-  }
-
   return (
-    <>
-      {manageDialog.isOpen && (
-        <CustomDialog title={t('AddConnection')} isOpen onClose={() => setManageDialog({})}>
-          <StyledDialogBody style={{ flexFlow: 'column' }}>
-            <String
-              name="connection"
-              placeholder={t('Name')}
-              value={manageDialog.newName}
-              onChange={(_fieldName, value) =>
-                setManageDialog((current) => ({
-                  ...current,
-                  newName: value.replace(/ /g, ''),
-                }))
-              }
-            />
-            <br />
-            <ControlGroup fill>
-              <Button
-                intent={
-                  !validateField('string', manageDialog.newName, {
+    <CustomDialog
+      isOpen
+      label={t('ClassConnectionsManager')}
+      onClose={onClose}
+      contentStyle={{
+        display: 'flex',
+      }}
+      bottomActions={[
+        resetControl(() => {
+          setConnections(initialConnections || {});
+          setSelectedConnection(null);
+        }),
+        submitControl(() => onSubmit(connections), {
+          disabled: !areAllConnectionsValid(),
+        }),
+      ]}
+    >
+      {size(classesData) !== getUniqueClasses() ? (
+        <Loader text="Loading..." />
+      ) : (
+        <>
+          {manageDialog.isOpen && (
+            <CustomDialog
+              label={t('AddConnection')}
+              isOpen
+              onClose={() => setManageDialog({})}
+              bottomActions={[
+                {
+                  effect: NegativeColorEffect,
+                  label: t('Remove'),
+                  icon: 'DeleteBinLine',
+                  onClick: () => {
+                    initContext.confirmAction('ConfirmRemoveConnection', () => {
+                      setConnections((current) => {
+                        if (selectedConnection === manageDialog.name) {
+                          setSelectedConnection(null);
+                        }
+                        const result = { ...current };
+                        delete result[manageDialog.name];
+                        // Check if there are any connections left
+                        if (!size(result)) {
+                          // reset the ID
+                          setLastConnectionId(1);
+                        }
+                        return result;
+                      });
+                    });
+                  },
+                },
+                {
+                  effect: !validateField('string', manageDialog.newName, {
                     has_to_be_valid_identifier: true,
                   })
-                    ? 'danger'
-                    : 'success'
-                }
-                text={t('Submit')}
-                icon="small-tick"
-                disabled={
-                  !validateField('string', manageDialog.newName, {
-                    has_to_be_valid_identifier: true,
-                  }) || !!connections[manageDialog.newName]
-                }
-                onClick={() => {
-                  setConnections((current: IClassConnections): IClassConnections => {
-                    const result = reduce(
-                      current,
-                      (newConnections, connection, connName) => {
-                        // If the connection matches the old name
-                        if (connName === manageDialog.name) {
-                          // Replace the connection
+                    ? NegativeColorEffect
+                    : SaveColorEffect,
+                  position: 'right',
+                  label: t('Submit'),
+                  icon: 'CheckLine',
+                  disabled:
+                    !validateField('string', manageDialog.newName, {
+                      has_to_be_valid_identifier: true,
+                    }) || !!connections[manageDialog.newName],
+                  onClick: () => {
+                    setConnections((current: IClassConnections): IClassConnections => {
+                      const result = reduce(
+                        current,
+                        (newConnections, connection, connName) => {
+                          // If the connection matches the old name
+                          if (connName === manageDialog.name) {
+                            // Replace the connection
+                            return {
+                              ...newConnections,
+                              [manageDialog.newName]: connection,
+                            };
+                          }
+                          // Return unchanged
                           return {
                             ...newConnections,
-                            [manageDialog.newName]: connection,
+                            [connName]: connection,
                           };
-                        }
-                        // Return unchanged
-                        return {
-                          ...newConnections,
-                          [connName]: connection,
-                        };
-                      },
-                      {}
-                    );
+                        },
+                        {}
+                      );
 
-                    return result;
-                  });
+                      return result;
+                    });
 
-                  setManageDialog({});
-                  setSelectedConnection(manageDialog.newName);
-                }}
-              />
-            </ControlGroup>
-          </StyledDialogBody>
-        </CustomDialog>
-      )}
-      <PanelWrapper style={{ padding: '20px 20px 0 20px', margin: 0 }}>
-        <SidePanel title={t('AddClassConnectionsTitle')}>
-          <ContentWrapper>
-            {size(connections) === 0 && <p className={Classes.TEXT_MUTED}>No connections added</p>}
-            {map(connections, (connection, name: string) => (
-              <MethodSelector
-                key={name}
-                active={name === selectedConnection}
-                valid={isConnectionValid(name)}
-                onClick={() => setSelectedConnection(name)}
+                    setManageDialog({});
+                    setSelectedConnection(manageDialog.newName);
+                  },
+                },
+              ]}
+            >
+              <FieldWrapper
+                label="Name"
+                compact
+                isValid={validateField('string', manageDialog.newName, {
+                  has_to_be_valid_identifier: true,
+                })}
               >
-                {name}
-                <ButtonGroup>
-                  <Button
-                    icon="edit"
-                    minimal
-                    onClick={() => setManageDialog({ isOpen: true, name, newName: name })}
-                  />
-                  <Button
-                    icon="trash"
-                    intent="danger"
-                    minimal
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      initContext.confirmAction('ConfirmRemoveConnection', () => {
-                        setConnections((current) => {
-                          if (selectedConnection === name) {
-                            setSelectedConnection(null);
-                          }
-                          const result = { ...current };
-                          delete result[name];
-                          // Check if there are any connections left
-                          if (!size(result)) {
-                            // reset the ID
-                            setLastConnectionId(1);
-                          }
-                          return result;
-                        });
-                      });
-                    }}
-                  />
-                </ButtonGroup>
-              </MethodSelector>
-            ))}
-          </ContentWrapper>
-          <ActionsWrapper>
-            <ButtonGroup fill>
-              <Button
-                text={t('AddConnection')}
-                icon={'plus'}
+                <String
+                  name="connection"
+                  placeholder={t('Name')}
+                  value={manageDialog.newName}
+                  onChange={(_fieldName, value) =>
+                    setManageDialog((current) => ({
+                      ...current,
+                      newName: value.replace(/ /g, ''),
+                    }))
+                  }
+                />
+              </FieldWrapper>
+            </CustomDialog>
+          )}
+          <SidePanel>
+            <ReqoreMenu width="250px">
+              <ReqoreMenuDivider label={`${t('Connections')} (${size(connections)})`} />
+              <ReqoreMenuItem
+                icon="AddLine"
                 onClick={() => {
                   setConnections(
                     (current: IClassConnections): IClassConnections => ({
@@ -444,76 +455,71 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                   setSelectedConnection(`${t('Connection')}_${lastConnectionId + 1}`);
                   setLastConnectionId((cur) => cur + 1);
                 }}
-              />
-            </ButtonGroup>
-          </ActionsWrapper>
-        </SidePanel>
-        <Content>
-          <ContentWrapper
-            style={{
-              background: `url(${initialData.image_path}/tiny_grid.png)`,
-              padding: 10,
-              position: 'relative',
-            }}
-          >
-            {isCheckingCompatibility ? (
-              <StyledCompatibilityLoader>
-                <Loader text={t('CheckingCompatibility')} />
-              </StyledCompatibilityLoader>
-            ) : (
-              <div
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  flex: '1 1 auto',
-                  justifyContent: 'center',
-                }}
               >
-                {selectedConnection ? (
-                  <ClassConnectionsDiagram
-                    t={t}
-                    classes={classes}
-                    classesData={classesData}
-                    onAddConnector={handleAddConnector}
-                    onDeleteConnector={handleDeleteConnector}
-                    connection={connections[selectedConnection]}
-                    connectionName={selectedConnection}
-                    ifaceType={ifaceType}
-                    baseClassName={baseClassName}
-                    interfaceContext={interfaceContext}
-                  />
-                ) : (
-                  <NonIdealState
-                    title={t('NoConnectionSelected')}
-                    description={t('NoConnectionSelectedDescription')}
-                    icon="diagram-tree"
-                  />
-                )}
-              </div>
-            )}
-          </ContentWrapper>
-          <ActionsWrapper>
-            <ButtonGroup fill>
-              <Button
-                text={t('Reset')}
-                icon={'history'}
-                onClick={() => {
-                  setConnections(initialConnections || {});
-                  setSelectedConnection(null);
-                }}
-              />
-              <Button
-                text={t('Submit')}
-                icon={'small-tick'}
-                intent="success"
-                disabled={!areAllConnectionsValid()}
-                onClick={() => onSubmit(connections)}
-              />
-            </ButtonGroup>
-          </ActionsWrapper>
-        </Content>
-      </PanelWrapper>
-    </>
+                {t('AddConnection')}
+              </ReqoreMenuItem>
+              {size(connections) === 0 && (
+                <ReqoreMessage intent="muted">No connections added</ReqoreMessage>
+              )}
+              {map(connections, (connection, name: string) => (
+                <MethodSelector
+                  key={name}
+                  selected={name === selectedConnection}
+                  isValid={isConnectionValid(name)}
+                  onClick={() => setSelectedConnection(name)}
+                  onRemoveClick={() => setManageDialog({ isOpen: true, name, newName: name })}
+                  rightIcon="EditLine"
+                >
+                  {name}
+                </MethodSelector>
+              ))}
+            </ReqoreMenu>
+          </SidePanel>
+          <Content>
+            <ContentWrapper
+              style={{
+                background: `${theme.main} url(${TinyGrid})`,
+                padding: '10px',
+              }}
+            >
+              {isCheckingCompatibility ? (
+                <StyledCompatibilityLoader>
+                  <Loader text={t('CheckingCompatibility')} />
+                </StyledCompatibilityLoader>
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    flex: '1 1 auto',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {selectedConnection ? (
+                    <ClassConnectionsDiagram
+                      t={t}
+                      classes={classes}
+                      classesData={classesData}
+                      onAddConnector={handleAddConnector}
+                      onDeleteConnector={handleDeleteConnector}
+                      connection={connections[selectedConnection]}
+                      connectionName={selectedConnection}
+                      ifaceType={ifaceType}
+                      baseClassName={baseClassName}
+                      interfaceContext={interfaceContext}
+                    />
+                  ) : (
+                    <ReqoreMessage title={t('NoConnectionSelected')} icon="NodeTree">
+                      {t('NoConnectionSelectedDescription')}
+                    </ReqoreMessage>
+                  )}
+                </div>
+              )}
+            </ContentWrapper>
+          </Content>
+        </>
+      )}
+    </CustomDialog>
   );
 };
 

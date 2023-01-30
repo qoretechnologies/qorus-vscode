@@ -309,7 +309,7 @@ class QorusRelease {
   getPackage() {
     vscode.window
       .showOpenDialog({
-        filters: { [t`QorusRelaseFilePicker`]: ['tar.bz2'] },
+        filters: { [t`QorusRelaseFilePicker`]: ['tar.*'] },
       })
       .then((files) => {
         if (!files || !files.length) {
@@ -326,7 +326,7 @@ class QorusRelease {
   savePackage() {
     vscode.window
       .showSaveDialog({
-        filters: { [t`QorusRelaseFilePicker`]: ['tar.bz2'] },
+        filters: { [t`QorusRelaseFilePicker`]: ['tar.*'] },
         defaultUri: vscode.Uri.file(path.join(os.homedir(), path.basename(this.package_path))),
       })
       .then((file) => {
