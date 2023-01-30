@@ -613,9 +613,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       {showConfigItemsManager && (
         <CustomDialog
           isOpen
-          title={t('ConfigItemsManager')}
+          label={t('ConfigItemsManager')}
           onClose={() => setShowConfigItemsManager(false)}
-          style={{ width: '80vw', backgroundColor: '#fff' }}
         >
           <ConfigItemManager
             type="fsm"
