@@ -355,7 +355,11 @@ const App: FunctionComponent<IApp> = ({
                         icon="ServerLine"
                         labelKey={t('ActiveQorusInstance')}
                         label={qorus_instance ? qorus_instance.name : t('N/A')}
-                        color={qorus_instance ? '#7e2d90' : undefined}
+                        effect={
+                          qorus_instance
+                            ? { gradient: { colors: '#7e2d90' }, weight: 'bold' }
+                            : undefined
+                        }
                       />
                     </ReqoreNavbarItem>
                   </ReqoreNavbarGroup>
