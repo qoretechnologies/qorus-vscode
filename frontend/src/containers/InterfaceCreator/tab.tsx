@@ -1,4 +1,4 @@
-import { Button, Classes } from '@blueprintjs/core';
+import { Button } from '@blueprintjs/core';
 import { ReqorePanel } from '@qoretechnologies/reqore';
 import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
 import timeago from 'epoch-timeago';
@@ -462,25 +462,21 @@ const Tab: React.FC<ITabProps> = ({
         <CustomDialog
           isOpen
           onClose={() => setDraftsOpen(false)}
-          noBottomPad
-          title={`${t(capitalize(type))} ${t(`Drafts`)}`}
-          style={{ width: '80vw' }}
+          label={`${t(capitalize(type))} ${t(`Drafts`)}`}
         >
-          <div className={Classes.DIALOG_BODY}>
-            <DraftsTable
-              interfaceKind={type}
-              lastDraft={localLastDraft}
-              onClick={(interfaceId, draftData) => {
-                setLastDraft(interfaceId);
-                setDraftsOpen(false);
-                addDraft({
-                  interfaceKind: type,
-                  interfaceId,
-                  ...draftData,
-                });
-              }}
-            />
-          </div>
+          <DraftsTable
+            interfaceKind={type}
+            lastDraft={localLastDraft}
+            onClick={(interfaceId, draftData) => {
+              setLastDraft(interfaceId);
+              setDraftsOpen(false);
+              addDraft({
+                interfaceKind: type,
+                interfaceId,
+                ...draftData,
+              });
+            }}
+          />
         </CustomDialog>
       )}
       <ReqorePanel
