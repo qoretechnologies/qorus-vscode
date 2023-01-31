@@ -361,8 +361,7 @@ const App: FunctionComponent<IApp> = ({
                   </ReqoreNavbarGroup>
                   <ReqoreNavbarGroup position="right">
                     <ReqoreNavbarItem interactive onClick={() => setIsDirsDialogOpen(true)}>
-                      <ReqoreIcon icon="Folder3Line" size="20px" margin="right" /> Manage source
-                      directories
+                      <ReqoreIcon icon="Folder3Line" size="20px" margin="right" />
                     </ReqoreNavbarItem>
                     <ReqoreNavbarItem
                       interactive
