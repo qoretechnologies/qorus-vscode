@@ -98,7 +98,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
           delay: 200,
         }}
         ref={dropRef}
-        textAlign="center"
+        textAlign="left"
         icon={hasRelation ? 'ArrowLeftFill' : hasData ? 'CodeLine' : undefined}
         rightIcon="DragDropLine"
         leftIconColor={`${hasRelation ? 'success' : hasData ? 'info' : undefined}:lighten:2`}

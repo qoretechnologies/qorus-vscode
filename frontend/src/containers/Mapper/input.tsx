@@ -77,7 +77,7 @@ const MapperInput: FC<IMapperInputProps> = ({
           hasRelation ? 'ArrowRightFill' : hasAvailableOutput ? 'DragMoveLine' : 'ForbidLine'
         }
         rightIconColor={hasRelation ? 'success:lighten:2' : undefined}
-        textAlign="center"
+        textAlign="left"
         onClick={onClick}
         effect={
           !hasRelation
