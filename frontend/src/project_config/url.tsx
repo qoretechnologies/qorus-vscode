@@ -49,14 +49,13 @@ const QorusUrl: FunctionComponent<IQorusUrlProps> = ({
   const { confirmAction } = useContext(ReqoreContext);
 
   return (
-    <ReqoreControlGroup fluid stack>
+    <ReqoreControlGroup fluid stack fill>
       <ReqoreButton description={`[${safe_url}]`}>{name}</ReqoreButton>
       <ReqoreButton
         fixed
         icon="DeleteBinLine"
         intent="danger"
-        //@ts-ignore
-        name="other-url-delete"
+        tooltip="Edit instance"
         onClick={() =>
           confirmAction({
             description: t('ConfirmRemoveUrl'),

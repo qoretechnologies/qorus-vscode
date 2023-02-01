@@ -141,15 +141,18 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
             {
               icon: isActive ? 'StopCircleFill' : 'RestartFill',
               intent: isActive ? 'info' : undefined,
+              tooltip: isActive ? 'Logout' : 'Log in to this instance',
               onClick: () => onSetActive(url, !isActive),
             },
             {
               icon: 'EditLine',
+              tooltip: 'Edit instance',
               onClick: () => setIsEditing(true),
             },
             {
               icon: 'DeleteBinLine',
               effect: NegativeColorEffect,
+              tooltip: 'Delete instance',
               onClick: () =>
                 confirmAction({
                   description: t('ConfirmRemoveInstance'),

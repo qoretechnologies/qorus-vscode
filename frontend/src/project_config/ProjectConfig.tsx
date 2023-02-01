@@ -359,6 +359,7 @@ const Project: FunctionComponent<IProject> = ({
                 <ReqoreButton
                   icon="Edit2Line"
                   intent="warning"
+                  tooltip="Edit the config file manually"
                   onClick={() => {
                     updateBackendData(projectData);
                     setChangedOnDisk(false);
@@ -369,6 +370,7 @@ const Project: FunctionComponent<IProject> = ({
                 <ReqoreButton
                   icon="RefreshLine"
                   intent="warning"
+                  tooltip="Refresh the config file from disk"
                   onClick={() => {
                     postMessage(Messages.CONFIG_GET_DATA);
                     setChangedOnDisk(false);
@@ -433,6 +435,7 @@ const Project: FunctionComponent<IProject> = ({
                       />
                       <ReqoreButton
                         icon="CheckLine"
+                        tooltip="Save"
                         onClick={() => {
                           handleEnvironmentNameChange(data.id, envName);
                           selectEnvironmentForEditing(undefined);
@@ -441,6 +444,7 @@ const Project: FunctionComponent<IProject> = ({
                       />
                       <ReqoreButton
                         icon="CloseLine"
+                        tooltip="Cancel"
                         onClick={() => selectEnvironmentForEditing(undefined)}
                       />
                     </ReqoreControlGroup>
@@ -451,6 +455,7 @@ const Project: FunctionComponent<IProject> = ({
                   {
                     label: t('Edit'),
                     icon: 'Edit2Line',
+                    tooltip: 'Edit',
                     onClick: () => {
                       setEnvName(data.name);
                       selectEnvironmentForEditing(data.name);
@@ -459,6 +464,7 @@ const Project: FunctionComponent<IProject> = ({
                   {
                     label: t('Delete'),
                     icon: 'DeleteBinLine',
+                    tooltip: 'Delete',
                     effect: NegativeColorEffect,
                     onClick: () => {
                       confirmAction({
