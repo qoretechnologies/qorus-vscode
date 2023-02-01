@@ -92,8 +92,8 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
           },
         },
         {
-          name: 'Delete Interfaces',
-          icon: 'DeleteBin2Line',
+          name: 'Interface Management',
+          icon: 'FileCopyLine',
           id: 'DeleteInterfaces',
           props: {
             onClick: () => initialData?.changeTab('DeleteInterfaces'),

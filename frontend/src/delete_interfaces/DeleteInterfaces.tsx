@@ -2,16 +2,19 @@ import { Intent } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreControlGroup,
+  ReqoreMessage,
   ReqorePanel,
   ReqoreTable,
   ReqoreTabs,
   ReqoreTabsContent,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
+import { size } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 import { vscode } from '../common/vscode';
+import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
 import withTextContext from '../hocomponents/withTextContext';
 
 const columnsList = {
@@ -132,7 +135,16 @@ class DeleteInterfaces extends Component {
   };
 
   componentDidMount() {
-    if (!this.currentKindInterfaces()) {
+    if (this.props.initialData.qorus_instance) {
+      this.getInterfaces();
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (
+      nextProps.initialData.qorus_instance !== this.props.initialData.qorus_instance &&
+      nextProps.initialData.qorus_instance
+    ) {
       this.getInterfaces();
     }
   }
@@ -147,37 +159,35 @@ class DeleteInterfaces extends Component {
     });
   };
 
-  render() {
-    if (!this.currentKindInterfaces()) {
-      return null;
-    }
+  renderInterfaces = () => (
+    <>
+      <ReqoreTable
+        selectable
+        fill
+        selected={this.props.checked}
+        onSelectedChange={(selected) => {
+          this.props.setChecked(selected);
+        }}
+        sort={{
+          by: 'name',
+          direction: 'asc',
+        }}
+        columns={columns[this.props.iface_kind].map((column) => ({
+          ...column,
+          header: this.props.t('ColumnHeader-' + column.dataId),
+        }))}
+        data={this.currentKindInterfaces().map((iface) => ({
+          ...iface,
+          _selectId: iface.id,
+        }))}
+      />
+    </>
+  );
 
+  render() {
     const t = this.props.t;
 
-    const Interfaces = (
-      <>
-        <ReqoreTable
-          selectable
-          fill
-          selected={this.props.checked}
-          onSelectedChange={(selected) => {
-            this.props.setChecked(selected);
-          }}
-          sort={{
-            by: 'name',
-            direction: 'asc',
-          }}
-          columns={columns[this.props.iface_kind].map((column) => ({
-            ...column,
-            header: t('ColumnHeader-' + column.dataId),
-          }))}
-          data={this.currentKindInterfaces().map((iface) => ({
-            ...iface,
-            _selectId: iface.id,
-          }))}
-        />
-      </>
-    );
+    console.log(this.props);
 
     return (
       <ReqorePanel
@@ -193,12 +203,13 @@ class DeleteInterfaces extends Component {
             tooltip: t('Refresh'),
             label: 'Refresh',
             onClick: () => this.getInterfaces(),
+            show: this.props.initialData.qorus_instance ? true : false,
           },
           {
             label: `${t('DeleteSelected')} ${t(this.props.iface_kind)}`,
             icon: 'DeleteBinLine',
             intent: 'danger',
-            show: this.props.checked.length === 0 ? false : true,
+            show: size(this.props.checked) === 0 ? false : true,
             minimal: true,
             tooltip: {
               handler: 'click',
@@ -221,19 +232,31 @@ class DeleteInterfaces extends Component {
           },
         ]}
       >
-        <ReqoreTabs
-          onTabChange={this.onInterfaceKindChange}
-          activeTab={this.props.iface_kind}
-          activeTabIntent="info"
-          tabs={tabs}
-          fillParent
-        >
-          {tabs.map((tab, index) => (
-            <ReqoreTabsContent tabId={tab.id} key={index}>
-              {Interfaces}
-            </ReqoreTabsContent>
-          ))}
-        </ReqoreTabs>
+        {!this.props.initialData.qorus_instance ? (
+          <ReqoreMessage intent="warning">
+            No Qorus instance is connected. Please connect to a Qorus instance to use this feature.
+          </ReqoreMessage>
+        ) : !this.currentKindInterfaces() ? (
+          <ReqoreMessage intent="pending" minimal>
+            Loading interfaces
+          </ReqoreMessage>
+        ) : (
+          <ReqoreTabs
+            padded={false}
+            tabsPadding="vertical"
+            onTabChange={this.onInterfaceKindChange}
+            activeTab={this.props.iface_kind}
+            activeTabIntent="info"
+            tabs={tabs}
+            fillParent
+          >
+            {tabs.map((tab, index) => (
+              <ReqoreTabsContent tabId={tab.id} key={index}>
+                {this.renderInterfaces()}
+              </ReqoreTabsContent>
+            ))}
+          </ReqoreTabs>
+        )}
       </ReqorePanel>
     );
   }
@@ -256,5 +279,6 @@ const mapDispatchToProps = (dispatch) => ({
 
 export const DeleteInterfacesContainer = compose(
   connect(mapStateToProps, mapDispatchToProps),
-  withTextContext()
+  withTextContext(),
+  withInitialDataConsumer()
 )(DeleteInterfaces);
