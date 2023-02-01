@@ -1,4 +1,4 @@
-import { ReqoreContext } from '@qoretechnologies/reqore';
+import { ReqoreContext, useReqore } from '@qoretechnologies/reqore';
 import { TReqoreIntent } from '@qoretechnologies/reqore/dist/constants/theme';
 import set from 'lodash/set';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
@@ -7,7 +7,6 @@ import { useEffectOnce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import shortid from 'shortid';
 import Loader from '../components/Loader';
-import { AppToaster } from '../components/Toast';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
 import { InitialContext } from '../context/init';
@@ -39,6 +38,7 @@ export default () =>
       const { confirmAction: confirmActionReqore } = useContext(ReqoreContext);
       const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
       const [t, setT] = useState<(text_id) => string>(undefined);
+      const { addNotification } = useReqore();
 
       useMount(() => {
         postMessage(Messages.GET_INITIAL_DATA);
@@ -51,15 +51,13 @@ export default () =>
             tab: 'ProjectConfig',
           });
         } else {
-          AppToaster.show(
-            {
-              message: 'Successfully logged in!',
-              intent: 'success',
-              timeout: 3000,
-              icon: 'small-tick',
-            },
-            'logged-in'
-          );
+          addNotification({
+            content: 'Successfully logged in!',
+            intent: 'success',
+            duration: 3000,
+            minimal: false,
+            id: 'logged-in',
+          });
         }
       }, [initialData?.qorus_instance?.url]);
 
@@ -297,29 +295,23 @@ export default () =>
         // Create the unique ID for this request
         const uniqueId: string = shortid.generate();
         // Create new toast
-        AppToaster.show(
-          {
-            message: toastMessage || 'Request in progress',
-            intent: 'warning',
-            timeout: 30000,
-            icon: 'info-sign',
-          },
-          uniqueId
-        );
+        addNotification({
+          content: toastMessage || 'Request in progress',
+          intent: 'warning',
+          duration: 30000,
+          id: uniqueId,
+        });
 
         return new Promise((resolve, reject) => {
           // Create a timeout that will reject the request
           // after 2 minutes
           let timeout: NodeJS.Timer | null = setTimeout(() => {
-            AppToaster.show(
-              {
-                message: 'Request timed out',
-                intent: 'danger',
-                timeout: 3000,
-                icon: 'error',
-              },
-              uniqueId
-            );
+            addNotification({
+              content: 'Request timed out',
+              intent: 'danger',
+              duration: 3000,
+              id: uniqueId,
+            });
             resolve({
               ok: false,
               message: 'Request timed out',
@@ -329,15 +321,12 @@ export default () =>
           // if the ID matches then resolve
           addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
             if (data.request_id === uniqueId) {
-              AppToaster.show(
-                {
-                  message: data.message,
-                  intent: data.ok ? 'success' : 'danger',
-                  timeout: 3000,
-                  icon: data.ok ? 'small-tick' : 'error',
-                },
-                uniqueId
-              );
+              addNotification({
+                content: data.message,
+                intent: data.ok ? 'success' : 'danger',
+                duration: 3000,
+                id: uniqueId,
+              });
 
               clearTimeout(timeout);
               timeout = null;

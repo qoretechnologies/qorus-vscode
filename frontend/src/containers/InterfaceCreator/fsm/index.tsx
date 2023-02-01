@@ -4,7 +4,8 @@ import {
   ReqoreMenuDivider,
   ReqoreMessage,
   ReqoreThemeContext,
-  ReqoreVerticalSpacer
+  ReqoreVerticalSpacer,
+  useReqore,
 } from '@qoretechnologies/reqore';
 import { every, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
@@ -32,7 +33,6 @@ import String from '../../../components/Field/string';
 import FieldGroup from '../../../components/FieldGroup';
 import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import Loader from '../../../components/Loader';
-import { AppToaster } from '../../../components/Toast';
 import { Messages } from '../../../constants/messages';
 import { DraftsContext, IDraftData } from '../../../context/drafts';
 import { GlobalContext } from '../../../context/global';
@@ -50,7 +50,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -265,7 +265,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   }: any = useContext(InitialContext);
 
   const fsm = rest?.fsm || init?.fsm;
-
+  const { addNotification } = useReqore();
   const { resetAllInterfaceData } = useContext(GlobalContext);
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
   const [interfaceId, setInterfaceId] = useState(null);
@@ -1529,8 +1529,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
   }
 
   if (showTransitionsToaster.current) {
-    AppToaster.show({
-      message: `${showTransitionsToaster.current} ${t('IncompatibleTransitionsRemoved')}`,
+    addNotification({
+      content: `${showTransitionsToaster.current} ${t('IncompatibleTransitionsRemoved')}`,
       intent: 'warning',
     });
     showTransitionsToaster.current = 0;

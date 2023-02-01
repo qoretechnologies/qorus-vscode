@@ -6,6 +6,7 @@ import {
   ReqoreNavbarGroup,
   ReqoreNavbarItem,
   ReqoreTag,
+  useReqore,
 } from '@qoretechnologies/reqore';
 import last from 'lodash/last';
 import size from 'lodash/size';
@@ -17,7 +18,6 @@ import ContextMenu from './components/ContextMenu';
 import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
 import Menu from './components/Menu';
-import { AppToaster } from './components/Toast';
 import { Messages } from './constants/messages';
 import InterfaceCreator from './containers/InterfaceCreator';
 import { ContextMenuContext, IContextMenu } from './context/contextMenu';
@@ -96,6 +96,7 @@ const App: FunctionComponent<IApp> = ({
   const [draft, setDraft] = useState<IDraftData>(null);
   const { setErrorsFromDraft }: any = useContext(ErrorsContext);
   const [isDirsDialogOpen, setIsDirsDialogOpen] = useState<boolean>(false);
+  const { addNotification } = useReqore();
   const { t } = useContext(InitialContext);
 
   const addDraft = (draftData: any) => {
@@ -112,10 +113,16 @@ const App: FunctionComponent<IApp> = ({
 
     if (interfaceKind && interfaceId) {
       (async () => {
-        const fetchedDraft = await callBackendBasic(Messages.GET_DRAFT, undefined, {
-          interfaceKind,
-          draftId: interfaceId,
-        });
+        const fetchedDraft = await callBackendBasic(
+          Messages.GET_DRAFT,
+          undefined,
+          {
+            interfaceKind,
+            draftId: interfaceId,
+          },
+          null,
+          addNotification
+        );
 
         if (fetchedDraft.ok) {
           addDraft({ ...fetchedDraft.data });
@@ -127,11 +134,17 @@ const App: FunctionComponent<IApp> = ({
   }, [draftData]);
 
   const maybeDeleteDraft = (interfaceKind: string, interfaceId: string) => {
-    callBackendBasic(Messages.DELETE_DRAFT, undefined, {
-      no_notify: true,
-      interfaceKind,
-      interfaceId,
-    });
+    callBackendBasic(
+      Messages.DELETE_DRAFT,
+      undefined,
+      {
+        no_notify: true,
+        interfaceKind,
+        interfaceId,
+      },
+      null,
+      addNotification
+    );
   };
 
   const maybeApplyDraft = async (
@@ -148,10 +161,16 @@ const App: FunctionComponent<IApp> = ({
       let draftToApply = draftData || draft;
       // Fetch the draft if the draft id is provided
       if (existingInterface) {
-        const fetchedDraft = await callBackendBasic(Messages.GET_DRAFT, undefined, {
-          interfaceKind: ifaceKind,
-          draftId: md5(getTargetFile(existingInterface)),
-        });
+        const fetchedDraft = await callBackendBasic(
+          Messages.GET_DRAFT,
+          undefined,
+          {
+            interfaceKind: ifaceKind,
+            draftId: md5(getTargetFile(existingInterface)),
+          },
+          null,
+          addNotification
+        );
 
         if (fetchedDraft.ok) {
           draftToApply = fetchedDraft.data;
@@ -292,10 +311,10 @@ const App: FunctionComponent<IApp> = ({
       addMessageListener('display-notifications', ({ data }) => {
         if (data.length) {
           data.forEach(({ message, intent, timeout }) => {
-            AppToaster.show({
-              message,
+            addNotification({
+              content: message,
               intent,
-              timeout,
+              duration: timeout,
             });
           });
         }
@@ -372,10 +391,10 @@ const App: FunctionComponent<IApp> = ({
                       as="a"
                       href="command:workbench.action.webview.reloadWebviewAction"
                       onClick={() =>
-                        AppToaster.show({
-                          message: t('ReloadingWebview'),
+                        addNotification({
+                          content: t('ReloadingWebview'),
                           intent: 'warning',
-                          icon: 'refresh',
+                          icon: 'RefreshLine',
                         })
                       }
                     >

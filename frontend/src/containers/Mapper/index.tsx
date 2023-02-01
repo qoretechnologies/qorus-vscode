@@ -3,6 +3,7 @@ import {
   ReqoreControlGroup,
   ReqoreModal,
   ReqorePanel,
+  useReqore,
   useReqoreTheme,
 } from '@qoretechnologies/reqore';
 import { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
@@ -29,7 +30,6 @@ import {
 import Options from '../../components/Field/systemOptions';
 import { IField } from '../../components/FieldWrapper';
 import SubField from '../../components/SubField';
-import { AppToaster } from '../../components/Toast';
 import { Messages } from '../../constants/messages';
 import { deleteDraft, getDraftId } from '../../helpers/functions';
 import {
@@ -305,6 +305,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
   const [mappingDialog, setMappingDialog] = useState({});
   const theme = useReqoreTheme();
   const [selectedField, setSelectedField] = useState(undefined);
+  const { addNotification } = useReqore();
 
   useEffect(() => {
     const mapper = selectedFields.mapper[interfaceIndex];
@@ -350,11 +351,10 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         );
 
         if (hasFixedContext) {
-          AppToaster.show({
-            message: t('RemovedIncompatibleContext'),
+          addNotification({
+            content: t('RemovedIncompatibleContext'),
             intent: 'warning',
-            timeout: 3000,
-            icon: 'warning-sign',
+            duration: 3000,
           });
         }
 

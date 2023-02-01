@@ -1,3 +1,4 @@
+import { IReqoreNotificationData } from '@qoretechnologies/reqore/dist/containers/ReqoreProvider';
 import { cloneDeep } from 'lodash';
 import forEach from 'lodash/forEach';
 import isArray from 'lodash/isArray';
@@ -15,7 +16,6 @@ import set from 'lodash/set';
 import size from 'lodash/size';
 import shortid from 'shortid';
 import { IOptions } from '../components/Field/systemOptions';
-import { AppToaster } from '../components/Toast';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
 import { IFSMState, IFSMStates, IFSMTransition } from '../containers/InterfaceCreator/fsm';
@@ -310,21 +310,19 @@ export const callBackendBasic: (
   getMessage: string,
   returnMessage?: string,
   data?: any,
-  toastMessage?: string
-) => Promise<any> = async (getMessage, returnMessage, data, toastMessage) => {
+  toastMessage?: string,
+  addNotificationCall?: any
+) => Promise<any> = async (getMessage, returnMessage, data, toastMessage, addNotificationCall) => {
   // Create the unique ID for this request
   const uniqueId: string = shortid.generate();
   // Create new toast
   if (toastMessage) {
-    AppToaster.show(
-      {
-        message: toastMessage || 'Request in progress',
-        intent: 'warning',
-        timeout: 30000,
-        icon: 'info-sign',
-      },
-      uniqueId
-    );
+    addNotificationCall?.({
+      content: toastMessage || 'Request in progress',
+      intent: 'warning',
+      duration: 30000,
+      id: uniqueId,
+    } as IReqoreNotificationData);
   }
 
   return new Promise((resolve, reject) => {
@@ -341,15 +339,12 @@ export const callBackendBasic: (
     addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
       if (data.request_id === uniqueId) {
         if (toastMessage) {
-          AppToaster.show(
-            {
-              message: data.message || `Request ${getMessage} failed!`,
-              intent: data.ok ? 'success' : 'danger',
-              timeout: 3000,
-              icon: data.ok ? 'small-tick' : 'error',
-            },
-            uniqueId
-          );
+          addNotificationCall?.({
+            content: data.message || `Request ${getMessage} failed!`,
+            intent: data.ok ? 'success' : 'danger',
+            duration: 3000,
+            id: uniqueId,
+          });
         }
 
         clearTimeout(timeout);
@@ -470,7 +465,12 @@ export const fetchData: (
 
 export { functionOrStringExp, getType };
 
-export const deleteDraft = async (interfaceKind, fileName, notify?: boolean) => {
+export const deleteDraft = async (
+  interfaceKind,
+  fileName,
+  notify: boolean = false,
+  addNotification?: any
+) => {
   await callBackendBasic(
     Messages.DELETE_DRAFT,
     undefined,
@@ -478,7 +478,8 @@ export const deleteDraft = async (interfaceKind, fileName, notify?: boolean) => 
       iface_id: fileName,
       iface_kind: interfaceKindTransform[interfaceKind],
     },
-    notify ? 'DeletingDraft' : undefined
+    notify ? 'DeletingDraft' : undefined,
+    addNotification
   );
 };
 

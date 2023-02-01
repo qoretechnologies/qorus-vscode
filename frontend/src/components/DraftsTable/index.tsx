@@ -4,6 +4,7 @@ import {
   ReqoreInput,
   ReqoreMessage,
   ReqoreVerticalSpacer,
+  useReqore,
 } from '@qoretechnologies/reqore';
 import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
 import timeago from 'epoch-timeago';
@@ -23,6 +24,7 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
   // Get the last draft from the initial data context
   const [drafts, setDrafts] = useState<any[]>([]);
   const [query, setQuery] = useState('');
+  const { addNotification } = useReqore();
 
   useMount(() => {
     (async () => {
@@ -37,7 +39,7 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
   });
 
   const onDeleteClick = async (interfaceId) => {
-    await deleteDraft(interfaceKindTransform[interfaceKind], interfaceId);
+    await deleteDraft(interfaceKindTransform[interfaceKind], interfaceId, false, addNotification);
 
     const fetchedDrafts = await callBackendBasic(Messages.GET_DRAFTS, undefined, {
       iface_kind: interfaceKindTransform[interfaceKind],
