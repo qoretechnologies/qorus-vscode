@@ -2,8 +2,7 @@ import { Intent } from '@blueprintjs/core';
 import { map } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
-import React, { useContext, useState } from 'react';
-import { useUpdateEffect } from 'react-use';
+import React, { useContext, useEffect, useState } from 'react';
 import shortid from 'shortid';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
@@ -78,7 +77,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   const t = useContext(TextContext);
   const { confirmAction, qorus_instance } = useContext(InitialContext);
 
-  useUpdateEffect(() => {
+  useEffect(() => {
     if (newData.action?.value?.['class']) {
       postMessage(Messages.GET_CONFIG_ITEMS, {
         iface_kind: 'fsm',
@@ -518,7 +517,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               </FieldWrapper>
             ) : null}
             {newData.type === 'state' && (
-              <FieldGroup label="Action configuration" isValid={isActionValid()}>
+              <>
                 <FieldWrapper
                   label={t('Action')}
                   isValid={isActionValid()}
@@ -554,7 +553,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     {renderActionField()}
                   </FieldWrapper>
                 ) : null}
-              </FieldGroup>
+              </>
             )}
             {newData.type === 'block' ? (
               <FieldGroup label="Types">
