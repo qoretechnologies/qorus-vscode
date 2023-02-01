@@ -3,7 +3,7 @@ import { size } from 'lodash';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { IFSMState, IFSMTransition } from '.';
-import CustomDialog from '../../../components/CustomDialog';
+import Content from '../../../components/Content';
 import { SaveColorEffect } from '../../../components/Field/multiPair';
 import { TextContext } from '../../../context/text';
 
@@ -57,10 +57,10 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
   const t = useContext(TextContext);
 
   return (
-    <CustomDialog
-      onClose={onClose}
-      isOpen
-      label={t(dialogTitle)}
+    <Content
+      padded={false}
+      minimal
+      transparent
       bottomActions={[
         {
           label: t('Reset'),
@@ -118,7 +118,7 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
           </ReqoreControlGroup>
         ))}
       </ReqoreControlGroup>
-    </CustomDialog>
+    </Content>
   );
 };
 

@@ -146,6 +146,10 @@ export const getStateProvider = async (
   data: ITypeComparatorData,
   providerType: 'input' | 'output'
 ) => {
+  if (!data) {
+    return Promise.resolve(null);
+  }
+
   if (
     data.interfaceKind === 'apicall' ||
     data.interfaceKind === 'search-single' ||

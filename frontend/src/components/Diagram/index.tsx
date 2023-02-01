@@ -1125,39 +1125,41 @@ const StepBox = ({
         onMouseLeave={onMouseLeave}
         onContextMenu={(event) => {
           event.persist();
+          event.preventDefault();
+
           addMenu({
             event,
             data: [
               {
                 item: t('AddSequentialStepBefore'),
                 onClick: () => handleAddStep(event, true, false, t('AddSequentialStepBefore')),
-                icon: 'chevron-up',
+                icon: 'ArrowUpLine',
               },
               {
                 item: t('AddSequentialStepAfter'),
                 onClick: () => handleAddStep(event, false, false, t('AddSequentialStepAfter')),
-                icon: 'chevron-down',
+                icon: 'ArrowDownLine',
               },
               {
                 item: t('AddParallelStepBefore'),
                 onClick: () => handleAddStep(event, true, true, t('AddParallelStepBefore')),
-                icon: 'chevron-left',
+                icon: 'ArrowLeftLine',
               },
               {
                 item: t('AddParallelStepAfter'),
                 onClick: () => handleAddStep(event, false, true, t('AddParallelStepAfter')),
-                icon: 'chevron-right',
+                icon: 'ArrowRightLine',
               },
               {
                 item: t('Edit'),
                 onClick: () => handleClick(),
-                icon: 'edit',
+                icon: 'EditLine',
                 intent: 'warning',
               },
               {
                 item: t('Remove'),
                 onClick: () => onStepRemove(stepId),
-                icon: 'trash',
+                icon: 'DeleteBinLine',
                 intent: 'danger',
               },
             ],

@@ -140,7 +140,7 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({
         items={data.map(
           (datum, index): IReqoreCollectionItemProps => ({
             label: `Item ${index + 1}`,
-            customTheme: { main: '#181818' },
+            customTheme: { main: 'main:darken:1' },
             actions: [
               {
                 icon: 'DeleteBin4Line',

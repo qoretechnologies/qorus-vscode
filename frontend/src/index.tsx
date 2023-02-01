@@ -106,7 +106,11 @@ root.render(
     <Provider store={store}>
       <ReqoreUIProvider
         theme={{ main: editorBackground, intents: { success: '#4a7110' } }}
-        options={{ animations: { buttons: false }, withSidebar: true }}
+        options={{
+          animations: { buttons: false },
+          withSidebar: true,
+          closePopoversOnEscPress: true,
+        }}
       >
         <AppContainer />
       </ReqoreUIProvider>

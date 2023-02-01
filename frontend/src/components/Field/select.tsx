@@ -388,6 +388,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
             {hasItemsWithDesc(items) && !forceDropdown ? (
               <ReqoreButton
                 fluid
+                wrap
                 rightIcon="ListUnordered"
                 onClick={() => setSelectDialogOpen(true)}
                 description={
@@ -401,7 +402,6 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                         delay: 300,
                         content: getItemDescription(value),
                         maxWidth: '50vh',
-                        blur: 2,
                       }
                     : undefined
                 }
@@ -434,6 +434,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                 items={query === '' ? reqoreItems : filterItems(reqoreItems)}
                 filterable
                 disabled={disabled}
+                wrap
                 description={getItemDescription(value) || description}
                 effect={{
                   gradient: {

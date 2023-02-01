@@ -187,8 +187,6 @@ class DeleteInterfaces extends Component {
   render() {
     const t = this.props.t;
 
-    console.log(this.props);
-
     return (
       <ReqorePanel
         label="Interface management"
@@ -241,21 +239,27 @@ class DeleteInterfaces extends Component {
             Loading interfaces
           </ReqoreMessage>
         ) : (
-          <ReqoreTabs
-            padded={false}
-            tabsPadding="vertical"
-            onTabChange={this.onInterfaceKindChange}
-            activeTab={this.props.iface_kind}
-            activeTabIntent="info"
-            tabs={tabs}
-            fillParent
-          >
-            {tabs.map((tab, index) => (
-              <ReqoreTabsContent tabId={tab.id} key={index}>
-                {this.renderInterfaces()}
-              </ReqoreTabsContent>
-            ))}
-          </ReqoreTabs>
+          <>
+            <ReqoreMessage intent="info">
+              No Qorus instance is connected. Please connect to a Qorus instance to use this
+              feature.
+            </ReqoreMessage>
+            <ReqoreTabs
+              padded={false}
+              tabsPadding="vertical"
+              onTabChange={this.onInterfaceKindChange}
+              activeTab={this.props.iface_kind}
+              activeTabIntent="info"
+              tabs={tabs}
+              fillParent
+            >
+              {tabs.map((tab, index) => (
+                <ReqoreTabsContent tabId={tab.id} key={index}>
+                  {this.renderInterfaces()}
+                </ReqoreTabsContent>
+              ))}
+            </ReqoreTabs>
+          </>
         )}
       </ReqorePanel>
     );

@@ -112,10 +112,7 @@ const PipelineElementDialog = ({
 
   return (
     <>
-      <CustomDialog
-        onClose={onClose}
-        isOpen
-        label={t('ManagePipeElement')}
+      <Content
         bottomActions={[
           resetControl(() => {
             if (newData.type === 'processor' && newData.name) {
@@ -145,7 +142,6 @@ const PipelineElementDialog = ({
                 });
               }
               onSubmit(newData);
-              onClose();
             },
             {
               disabled: !isDataValid(),
@@ -153,57 +149,53 @@ const PipelineElementDialog = ({
           ),
         ]}
       >
-        <Content>
-          <ContentWrapper>
-            <FieldWrapper label={t('Type')} isValid={validateField('string', newData.type)} compact>
+        <ContentWrapper>
+          <FieldWrapper label={t('Type')} isValid={validateField('string', newData.type)} compact>
+            <SelectField
+              defaultItems={
+                onlyQueue
+                  ? [{ name: 'queue' }]
+                  : [{ name: 'queue' }, { name: 'mapper' }, { name: 'processor' }]
+              }
+              onChange={handleDataUpdate}
+              value={newData.type}
+              name="type"
+            />
+          </FieldWrapper>
+          {newData?.type && newData.type !== 'queue' ? (
+            <FieldWrapper
+              label={t('Name')}
+              isValid={validateField('string', newData.name) && isCompatible}
+              compact
+            >
+              {newData.name || isCheckingCompatibility ? (
+                <CompatibilityCheckIndicator
+                  isCompatible={isCompatible}
+                  isCheckingCompatibility={isCheckingCompatibility}
+                />
+              ) : null}
               <SelectField
-                defaultItems={
-                  onlyQueue
-                    ? [{ name: 'queue' }]
-                    : [{ name: 'queue' }, { name: 'mapper' }, { name: 'processor' }]
-                }
-                onChange={handleDataUpdate}
-                value={newData.type}
-                name="type"
+                reference={{
+                  iface_kind: newData.type === 'processor' ? 'class' : newData.type,
+                }}
+                key={newData.type}
+                onChange={(_n, value) => handleDataUpdate('name', value)}
+                value={newData.name}
+                name="interface-name"
+                get_message={{
+                  action: 'creator-get-objects',
+                  object_type: newData.type === 'processor' ? 'class-with-processor' : newData.type,
+                }}
+                return_message={{
+                  action: 'creator-return-objects',
+                  object_type: newData.type === 'processor' ? 'class-with-processor' : newData.type,
+                  return_value: 'objects',
+                }}
               />
             </FieldWrapper>
-            {newData?.type && newData.type !== 'queue' ? (
-              <FieldWrapper
-                label={t('Name')}
-                isValid={validateField('string', newData.name) && isCompatible}
-                compact
-              >
-                {newData.name || isCheckingCompatibility ? (
-                  <CompatibilityCheckIndicator
-                    isCompatible={isCompatible}
-                    isCheckingCompatibility={isCheckingCompatibility}
-                  />
-                ) : null}
-                <SelectField
-                  reference={{
-                    iface_kind: newData.type === 'processor' ? 'class' : newData.type,
-                  }}
-                  key={newData.type}
-                  onChange={(_n, value) => handleDataUpdate('name', value)}
-                  value={newData.name}
-                  name="interface-name"
-                  get_message={{
-                    action: 'creator-get-objects',
-                    object_type:
-                      newData.type === 'processor' ? 'class-with-processor' : newData.type,
-                  }}
-                  return_message={{
-                    action: 'creator-return-objects',
-                    object_type:
-                      newData.type === 'processor' ? 'class-with-processor' : newData.type,
-                    return_value: 'objects',
-                  }}
-                />
-              </FieldWrapper>
-            ) : null}
-          </ContentWrapper>
-        </Content>
-      </CustomDialog>
+          ) : null}
+        </ContentWrapper>
+      </Content>
       {showConfigItemsManager && (
         <CustomDialog
           isOpen

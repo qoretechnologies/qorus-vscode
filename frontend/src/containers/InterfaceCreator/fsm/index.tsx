@@ -1,8 +1,11 @@
 import {
+  ReqoreDrawer,
   ReqoreHorizontalSpacer,
   ReqoreMenu,
   ReqoreMenuDivider,
   ReqoreMessage,
+  ReqoreTabs,
+  ReqoreTabsContent,
   ReqoreThemeContext,
   ReqoreVerticalSpacer,
   useReqore,
@@ -17,7 +20,7 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useDrop, XYCoord } from 'react-dnd';
+import { XYCoord, useDrop } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -27,11 +30,16 @@ import Content from '../../../components/Content';
 import Field from '../../../components/Field';
 import Connectors, { IProviderType } from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
-import { PositiveColorEffect, SaveColorEffect } from '../../../components/Field/multiPair';
+import {
+  NegativeColorEffect,
+  PositiveColorEffect,
+  SaveColorEffect,
+} from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import FieldGroup from '../../../components/FieldGroup';
 import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
+import { InputOutputType } from '../../../components/InputOutputType';
 import Loader from '../../../components/Loader';
 import { Messages } from '../../../constants/messages';
 import { DraftsContext, IDraftData } from '../../../context/drafts';
@@ -40,6 +48,7 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
+  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -50,7 +59,6 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -294,6 +302,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     'output-type': fsm?.['output-type'] || null,
   });
   const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [activeState, setActiveState] = useState<string | number>(undefined);
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [showStateIds, setShowStateIds] = useState<boolean>(false);
 
@@ -361,6 +370,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
             x,
             y,
           },
+          isNew: true,
           initial: false,
           name: getStateName(item, id),
           desc: '',
@@ -991,6 +1001,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     fixedStates[id] = {
       ...fixedStates[id],
       ...data,
+      isNew: false,
     };
 
     if (data.type !== states[id].type || !isEqual(data.action, states[id].action)) {
@@ -1566,6 +1577,127 @@ const FSMView: React.FC<IFSMViewProps> = ({
     }
   }
 
+  const renderStateDetail = () => {
+    const state = activeState || editingState || editingTransitionOrder;
+
+    if (!state || !states[state]) {
+      return null;
+    }
+
+    const stateData = states[state];
+
+    return (
+      <ReqoreDrawer
+        position="right"
+        isOpen
+        label={stateData.name}
+        hidable
+        flat={false}
+        floating
+        hasBackdrop={false}
+        onClose={() => {
+          setActiveState(undefined);
+          setEditingState(undefined);
+          setEditingTransitionOrder(undefined);
+        }}
+        contentStyle={{
+          display: 'flex',
+          flexFlow: 'column',
+          overflow: 'hidden',
+        }}
+        size="40vw"
+        actions={[
+          {
+            label: t('Delete state'),
+            effect: NegativeColorEffect,
+            icon: 'DeleteBinLine',
+            onClick: () => {
+              handleStateDeleteClick(state);
+            },
+          },
+        ]}
+      >
+        <FSMState
+          {...states[state]}
+          isStatic
+          id={state}
+          onUpdate={updateStateData}
+          onMouseEnter={() => setHoveredState(state)}
+          onMouseLeave={() => setHoveredState(null)}
+          hasTransitionToItself={hasTransitionToItself(state)}
+          isAvailableForTransition={isAvailableForTransition}
+          onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
+          onExecutionOrderClick={() => setEditingInitialOrder(true)}
+          isIsolated={isStateIsolated(state, states)}
+        />
+        <ReqoreVerticalSpacer height={10} />
+        <ReqoreTabs
+          fill
+          fillParent
+          tabs={[
+            { label: 'Info', id: 'info', icon: 'InformationLine', disabled: stateData.isNew },
+            {
+              label: 'Transitions',
+              id: 'transitions',
+              icon: 'LinksLine',
+              badge: size(stateData.transitions),
+            },
+            { label: 'Configuration', id: 'configuration', icon: 'SettingsLine' },
+          ]}
+          activeTab={
+            editingTransitionOrder ? 'transitions' : editingState ? 'configuration' : 'info'
+          }
+          tabsPadding="vertical"
+          padded={false}
+          activeTabIntent="info"
+          style={{ overflow: 'hidden' }}
+        >
+          <ReqoreTabsContent tabId="info">
+            <InputOutputType
+              inputProvider={getStateDataForComparison(states[state], 'input')}
+              outputProvider={getStateDataForComparison(states[state], 'output')}
+            />
+          </ReqoreTabsContent>
+
+          <ReqoreTabsContent tabId="configuration">
+            <FSMStateDialog
+              fsmName={metadata.name}
+              target_dir={metadata.target_dir}
+              onSubmit={(id, data) => {
+                updateStateData(id, data);
+
+                if (stateData.isNew) {
+                  setEditingState(undefined);
+                }
+              }}
+              onClose={() => setEditingState(null)}
+              data={states[state]}
+              id={state}
+              deleteState={handleStateDeleteClick}
+              interfaceId={interfaceId}
+              otherStates={reduce(
+                states,
+                (newStates, localState, id) =>
+                  id === state ? { ...newStates } : { ...newStates, [id]: localState },
+                {}
+              )}
+            />
+          </ReqoreTabsContent>
+          <ReqoreTabsContent tabId="transitions">
+            <FSMTransitionOrderDialog
+              transitions={states[state].transitions}
+              id={state}
+              onClose={() => setEditingTransitionOrder(null)}
+              getStateData={(id) => states[id]}
+              onSubmit={updateStateData}
+              states={states}
+            />
+          </ReqoreTabsContent>
+        </ReqoreTabs>
+      </ReqoreDrawer>
+    );
+  };
+
   return (
     <>
       {!compatibilityChecked && (
@@ -1573,6 +1705,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
           <Loader text={t('CheckingCompatibility')} />
         </StyledCompatibilityLoader>
       )}
+
+      {renderStateDetail()}
 
       <Content
         title={
@@ -1788,34 +1922,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
             </>
           ) : null}
         </ContentWrapper>
-        {editingState && (
-          <FSMStateDialog
-            fsmName={metadata.name}
-            target_dir={metadata.target_dir}
-            onSubmit={updateStateData}
-            onClose={() => setEditingState(null)}
-            data={states[editingState]}
-            id={editingState}
-            deleteState={handleStateDeleteClick}
-            interfaceId={interfaceId}
-            otherStates={reduce(
-              states,
-              (newStates, state, id) =>
-                id === editingState ? { ...newStates } : { ...newStates, [id]: state },
-              {}
-            )}
-          />
-        )}
-        {editingTransitionOrder && (
-          <FSMTransitionOrderDialog
-            transitions={states[editingTransitionOrder].transitions}
-            id={editingTransitionOrder}
-            onClose={() => setEditingTransitionOrder(null)}
-            getStateData={(id) => states[id]}
-            onSubmit={updateStateData}
-            states={states}
-          />
-        )}
         {editingInitialOrder && (
           <FSMInitialOrderDialog
             onClose={() => setEditingInitialOrder(null)}
@@ -2033,6 +2139,9 @@ const FSMView: React.FC<IFSMViewProps> = ({
                           onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
                           onExecutionOrderClick={() => setEditingInitialOrder(true)}
                           isIsolated={isStateIsolated(id, states)}
+                          stateInputProvider={getStateDataForComparison(states[id], 'input')}
+                          stateOutputProvider={getStateDataForComparison(states[id], 'output')}
+                          activateState={(id, data) => setActiveState(id)}
                         />
                       ))}
                       <svg

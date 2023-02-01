@@ -1,5 +1,6 @@
 import {
   ReqoreControlGroup,
+  ReqoreMessage,
   ReqorePanel,
   ReqoreTag,
   ReqoreThemeContext,
@@ -15,12 +16,13 @@ import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { insertAtIndex } from '../../../helpers/functions';
+import { useGetInputOutputType } from '../../../hooks/useGetInputOutputType';
 import { IFSMState, STATE_ITEM_TYPE } from './';
 import { FSMItemIconByType } from './toolbarItem';
 
@@ -116,13 +118,20 @@ export const StyledStateTextWrapper = styled.div`
 // IS INCOMPATIBLE
 // ERROR
 const StyledFSMState: React.FC<IReqorePanelProps> = styled(ReqorePanel)`
-  left: ${({ x }) => `${x}px`};
-  top: ${({ y }) => `${y}px`};
-  min-width: 250px;
-  max-width: 350px !important;
+  ${({ isStatic }) =>
+    !isStatic
+      ? css`
+          left: ${({ x }) => `${x}px`};
+          top: ${({ y }) => `${y}px`};
+          min-width: 250px;
+          max-width: 350px !important;
 
-  position: absolute !important;
-  z-index: 20;
+          position: absolute !important;
+          z-index: 20;
+        `
+      : css`
+          min-width: 250px;
+        `}
 `;
 
 export const calculateFontSize = (name, isAction?: boolean) => {
@@ -226,7 +235,11 @@ const FSMState: React.FC<IFSMStateProps> = ({
   onMouseLeave,
   showStateIds,
   hasTransitionToItself,
+  stateInputProvider,
+  stateOutputProvider,
+  activateState,
   error,
+  isStatic,
   ...rest
 }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -248,6 +261,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const t = useContext(TextContext);
   const { qorus_instance } = useContext(InitialContext);
   const theme = useContext(ReqoreThemeContext);
+  const { inputType, outputType } = useGetInputOutputType(stateInputProvider, stateOutputProvider);
 
   useEffect(() => {
     (async () => {
@@ -273,14 +287,14 @@ const FSMState: React.FC<IFSMStateProps> = ({
   }, [selectedState]);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: string) => any) => {
-    func(id);
+    func?.(id);
   };
 
   return (
     <StyledFSMState
-      key={id}
       id={`state-${id}`}
       ref={drag}
+      isStatic={isStatic}
       intent={selectedState === id ? 'info' : undefined}
       //customTheme={{ main: getStateColor(getStateCategory(type)) }}
       contentEffect={
@@ -305,13 +319,66 @@ const FSMState: React.FC<IFSMStateProps> = ({
       x={position?.x}
       y={position?.y}
       onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}
-      onClick={!selectedState || !shouldWiggle ? undefined : (e) => handleClick(e, onClick)}
+      onClick={
+        !selectedState || !shouldWiggle
+          ? () => activateState?.(id, { inputType, outputType })
+          : (e) => handleClick(e, onClick)
+      }
       selected={selected}
       size="small"
-      tooltip={{
-        title: name,
-        content: desc || '-',
-      }}
+      tooltip={
+        inputType && outputType
+          ? {
+              title: name,
+              delay: 200,
+              icon: 'InformationFill',
+              content: (
+                <React.Fragment key={Date.now()}>
+                  {desc || 'This state has no description'}
+                  {size(inputType) ? (
+                    <>
+                      <ReqoreVerticalSpacer height={10} />
+                      <ReqorePanel
+                        label="Input type"
+                        badge={[
+                          inputType.name,
+                          { labelKey: 'Fields', label: size(inputType.fields) },
+                        ]}
+                        size="small"
+                      >
+                        {inputType.desc}
+                      </ReqorePanel>
+                    </>
+                  ) : null}
+
+                  {size(outputType) ? (
+                    <>
+                      <ReqoreVerticalSpacer height={5} />
+                      <ReqorePanel
+                        label="Output type"
+                        badge={[
+                          outputType.name,
+                          { labelKey: 'Fields', label: size(outputType.fields) },
+                        ]}
+                        size="small"
+                      >
+                        {outputType.desc}
+                      </ReqorePanel>
+                    </>
+                  ) : null}
+                  {size(outputType) || size(inputType) ? (
+                    <>
+                      <ReqoreVerticalSpacer height={5} />
+                      <ReqoreMessage minimal flat intent="info" size="small">
+                        Click the state for even more information
+                      </ReqoreMessage>
+                    </>
+                  ) : null}
+                </React.Fragment>
+              ),
+            }
+          : 'Loading type information...'
+      }
       headerSize={2}
       onMouseDown={(e) => e.stopPropagation()}
       onMouseEnter={onMouseEnter}
@@ -319,6 +386,23 @@ const FSMState: React.FC<IFSMStateProps> = ({
       minimal
       label={showStateIds ? `[${id}] ${name}` : name}
       actions={[
+        {
+          as: ReqoreTag,
+          props: {
+            effect: initial ? PositiveColorEffect : isIsolated ? NegativeColorEffect : undefined,
+            icon: initial ? 'PlayLine' : isIsolated ? 'AlarmWarningLine' : undefined,
+            tooltip: initial ? 'Initial state' : isIsolated ? 'This state is isolated' : undefined,
+          },
+          show: !!(initial || isIsolated || final),
+        },
+        {
+          as: ReqoreTag,
+          props: {
+            icon: 'HistoryLine',
+            tooltip: 'This state has a transition to itself',
+          },
+          show: !!hasTransitionToItself,
+        },
         {
           group: [
             {
@@ -328,6 +412,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
               minimal: true,
               flat: true,
               size: 'small',
+              show: !!onEditClick,
             },
             {
               icon: 'DeleteBin4Fill' as IReqoreIconName,
@@ -336,6 +421,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
               minimal: true,
               flat: true,
               size: 'small',
+              show: !!onDeleteClick,
             },
           ],
         },
@@ -353,7 +439,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             onClick: () => {
               onUpdate(id, { initial: !initial });
             },
-            icon: 'flow-linear',
+            icon: 'PlayLine',
             rightIcon: initial ? 'small-tick' : undefined,
           },
           {
@@ -364,26 +450,26 @@ const FSMState: React.FC<IFSMStateProps> = ({
             onClick: () => {
               onTransitionOrderClick(id);
             },
-            icon: 'property',
+            icon: 'LinksLine',
           },
           {
             item: t('RemoveAllTransitions'),
             onClick: () => {
               onUpdate(id, { transitions: null });
             },
-            icon: 'trash',
+            icon: 'CloseLine',
           },
           {
             item: t('Edit'),
             onClick: () => onEditClick(id),
-            icon: 'edit',
+            icon: 'EditLine',
             disabled: type === 'block' && !qorus_instance,
             intent: 'warning',
           },
           {
             item: t('Delete'),
             onClick: () => onDeleteClick(id),
-            icon: 'trash',
+            icon: 'DeleteBinLine',
             intent: 'danger',
           },
         ];
@@ -411,19 +497,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
         </>
       ) : null}
       <ReqoreControlGroup size="small" wrap fluid fill>
-        {isIsolated && (
-          <ReqoreTag
-            effect={NegativeColorEffect}
-            label={t('Isolated')}
-            icon="AlarmWarningLine"
-            fixed
-          />
-        )}
-        {hasTransitionToItself && (
-          <ReqoreTag color="#1f91d3" fixed label={t('Connected To Itself')} />
-        )}
-        {final && <ReqoreTag color="#6e1977" fixed label={t('Final')} />}
-        {initial && <ReqoreTag effect={PositiveColorEffect} fixed label={t('Initial')} />}
         <ReqoreControlGroup stack fill fluid>
           <ReqoreTag
             wrap

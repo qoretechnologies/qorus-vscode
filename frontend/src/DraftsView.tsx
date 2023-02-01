@@ -40,8 +40,6 @@ export const DraftsView = () => {
     return <Loader text={t('Loading')} />;
   }
 
-  console.log(categories);
-
   return (
     <ReqorePanel
       minimal

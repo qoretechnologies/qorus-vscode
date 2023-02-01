@@ -14,11 +14,11 @@ const StyledLoader = styled.div`
   }
 `;
 
-const Loader = ({ text }) => (
+const Loader = ({ text }: any) => (
   <StyledLoader>
     <div>
-      <Spinner size={60} />
-      <p>{text}</p>
+      <Spinner size={30} />
+      {text ? <p>{text}</p> : null}
     </div>
   </StyledLoader>
 );

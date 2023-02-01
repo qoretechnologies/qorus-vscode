@@ -1,11 +1,17 @@
 import { Callout, Colors } from '@blueprintjs/core';
-import { ReqoreButton, useReqoreTheme } from '@qoretechnologies/reqore';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreDrawer,
+  ReqoreTabs,
+  ReqoreTabsContent,
+  useReqoreTheme,
+} from '@qoretechnologies/reqore';
 import { cloneDeep, isEqual, some } from 'lodash';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
 import size from 'lodash/size';
-import { invert, rgba } from 'polished';
 import React, { useContext, useRef, useState } from 'react';
 import Tree from 'react-d3-tree';
 import { useDebounce, useUpdateEffect } from 'react-use';
@@ -17,11 +23,13 @@ import Content from '../../../components/Content';
 import Field from '../../../components/Field';
 import ConnectorField from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
+import { NegativeColorEffect } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
 import FieldGroup from '../../../components/FieldGroup';
 import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
+import { InputOutputType } from '../../../components/InputOutputType';
 import Loader from '../../../components/Loader';
 import { Messages } from '../../../constants/messages';
 import { ContextMenuContext } from '../../../context/contextMenu';
@@ -107,100 +115,99 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
   const { addMenu } = useContext(ContextMenuContext);
   const t = useContext(TextContext);
 
+  const hasOnlyQueues = nodeData.children?.every((child) => child.type === 'queue');
+
   return (
-    <ReqoreButton
-      wrap
-      size="big"
-      style={{ margin: 'auto' }}
-      icon={
-        nodeData.type === 'start' ? 'PlayLine' : nodeData.type === 'queue' ? 'ListCheck' : undefined
-      }
-      rightIcon={
-        nodeData.type === 'start' ? 'PlayLine' : nodeData.type === 'queue' ? 'ListCheck' : undefined
-      }
-      description={
-        nodeData.type === 'start'
-          ? 'Beginning of the pipeline'
-          : nodeData.type === 'queue'
-          ? 'Queue of elements'
-          : undefined
-      }
-      labelEffect={
-        nodeData.type === 'start' || nodeData.type === 'queue'
-          ? {
-              uppercase: true,
-              spaced: 1,
-              textSize: 'normal',
-              textAlign: 'center',
-            }
-          : undefined
-      }
-      intent={
-        nodeData.type === 'start' ? 'success' : nodeData.type === 'queue' ? 'info' : undefined
-      }
-      onClick={nodeData.type === 'start' ? undefined : () => onEditClick({ nodeData })}
-      badge={nodeData.type !== 'start' && nodeData.type !== 'queue' ? nodeData.type : undefined}
-      textAlign="center"
-      onContextMenu={(event) => {
-        event.persist();
-        event.preventDefault();
-
-        let menu = { event, data: [] };
-
-        if (nodeData.type !== 'start') {
-          menu.data.unshift({
-            item: t('Delete'),
-            onClick: () => onDeleteClick({ nodeData }),
-            icon: 'trash',
-            intent: 'danger',
-          });
-          menu.data.unshift({
-            item: t('Edit'),
-            onClick: () => onEditClick({ nodeData }),
-            icon: 'edit',
-            intent: 'warning',
-          });
+    <ReqoreControlGroup vertical stack style={{ margin: 'auto', width: '300px' }} fluid>
+      <ReqoreButton
+        wrap
+        intent={
+          nodeData.type === 'start' ? 'success' : nodeData.type === 'queue' ? 'info' : undefined
         }
-
-        const hasOnlyQueues = nodeData.children?.every((child) => child.type === 'queue');
-
-        if (hasOnlyQueues) {
-          menu.data.unshift({
-            item: t('AddQueue'),
-            onClick: () =>
+        icon={
+          nodeData.type === 'start'
+            ? 'PlayLine'
+            : nodeData.type === 'queue'
+            ? 'ListCheck'
+            : undefined
+        }
+        rightIcon={
+          nodeData.type === 'start'
+            ? 'PlayLine'
+            : nodeData.type === 'queue'
+            ? 'ListCheck'
+            : undefined
+        }
+        description={
+          nodeData.type === 'start'
+            ? 'Beginning of the pipeline'
+            : nodeData.type === 'queue'
+            ? 'Queue of elements'
+            : undefined
+        }
+        labelEffect={
+          nodeData.type === 'start' || nodeData.type === 'queue'
+            ? {
+                uppercase: true,
+                spaced: 1,
+                textSize: 'normal',
+                textAlign: 'center',
+              }
+            : undefined
+        }
+        // tooltip={
+        //   nodeData.type !== 'start' && nodeData.type !== 'queue'
+        //     ? {
+        //         useTargetWidth: true,
+        //         content: (
+        //           <InputOutputType
+        //             inputProvider={{ interfaceName: nodeData.name, interfaceKind: nodeData.type }}
+        //             outputProvider={{ interfaceName: nodeData.name, interfaceKind: nodeData.type }}
+        //             compact
+        //           />
+        //         ),
+        //       }
+        //     : undefined
+        // }
+        maxWidth="350px"
+        onClick={nodeData.type === 'start' ? undefined : () => onEditClick({ nodeData })}
+        badge={nodeData.type !== 'start' && nodeData.type !== 'queue' ? nodeData.type : undefined}
+        textAlign="center"
+      >
+        {nodeData.name || nodeData.type}
+      </ReqoreButton>
+      {hasOnlyQueues || !size(nodeData.children) ? (
+        <ReqoreButton
+          icon="AddLine"
+          textAlign="center"
+          rightIcon="AddLine"
+          onClick={() => {
+            if (hasOnlyQueues) {
               onAddQueueClick({
                 parentPath: nodeData.path,
                 name: null,
                 children: [],
                 _children: [],
                 type: 'queue',
-              }),
-            icon: 'add',
-            intent: 'none',
-          });
-        } else if (!size(nodeData.children)) {
-          menu.data.unshift({
-            item: t('AddElement'),
-            onClick: () =>
+              });
+            } else if (!size(nodeData.children)) {
               onAddClick({
                 nodeData: { parentPath: nodeData.path },
                 parentData: nodeData,
                 onlyQueue: hasOnlyQueues,
-              }),
-            icon: 'add',
-            intent: 'none',
-          });
-        }
-
-        menu.data.unshift({
-          title: nodeData.name || t('Start'),
-        });
-
-        addMenu(menu);
-      }}
-    >
-      {nodeData.name || nodeData.type}
-    </ReqoreButton>
+              });
+            }
+          }}
+          customTheme={{
+            main: `${
+              nodeData.type === 'start' ? 'success' : nodeData.type === 'queue' ? 'info' : 'main'
+            }:lighten`,
+          }}
+        >
+          {hasOnlyQueues ? t('AddQueue') : t('AddElement')}
+        </ReqoreButton>
+      ) : null}
+    </ReqoreControlGroup>
   );
 };
 
@@ -573,6 +580,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
 
       return result;
     });
+    setSelectedElement(null);
   };
 
   const filterRemovedElements = (data) =>
@@ -622,15 +630,76 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
         </StyledCompatibilityLoader>
       )}
       {selectedElement && (
-        <PipelineElementDialog
-          data={selectedElement.nodeData}
-          parentData={selectedElement.parentData}
-          onlyQueue={selectedElement.onlyQueue}
+        <ReqoreDrawer
+          isOpen
+          label={t('ManagePipeElement')}
+          position="right"
+          hidable
+          flat={false}
+          floating
+          hasBackdrop={false}
           onClose={() => setSelectedElement(null)}
-          onSubmit={handleDataSubmit}
-          inputProvider={metadata['input-provider']}
-          interfaceId={interfaceId}
-        />
+          contentStyle={{
+            display: 'flex',
+            flexFlow: 'column',
+            overflow: 'hidden',
+          }}
+          size="40vw"
+          actions={[
+            {
+              label: t('Delete element'),
+              effect: NegativeColorEffect,
+              icon: 'DeleteBinLine',
+              onClick: () => {
+                removeElement(selectedElement);
+                setSelectedElement(null);
+              },
+            },
+          ]}
+        >
+          <ReqoreTabs
+            fill
+            fillParent
+            tabs={[
+              {
+                label: 'Info',
+                id: 'info',
+                icon: 'InformationLine',
+                disabled: !selectedElement.nodeData.name,
+              },
+              { label: 'Configuration', id: 'configuration', icon: 'SettingsLine' },
+            ]}
+            activeTab={selectedElement.nodeData.name ? 'info' : 'configuration'}
+            tabsPadding="vertical"
+            padded={false}
+            activeTabIntent="info"
+            style={{ overflow: 'hidden' }}
+          >
+            <ReqoreTabsContent tabId="info">
+              <InputOutputType
+                inputProvider={{
+                  interfaceName: selectedElement.nodeData.name,
+                  interfaceKind: selectedElement.nodeData.type,
+                }}
+                outputProvider={{
+                  interfaceName: selectedElement.nodeData.name,
+                  interfaceKind: selectedElement.nodeData.type,
+                }}
+              />
+            </ReqoreTabsContent>
+            <ReqoreTabsContent tabId="configuration">
+              <PipelineElementDialog
+                key={selectedElement.nodeData.name}
+                data={selectedElement.nodeData}
+                parentData={selectedElement.parentData}
+                onlyQueue={selectedElement.onlyQueue}
+                onSubmit={handleDataSubmit}
+                inputProvider={metadata['input-provider']}
+                interfaceId={interfaceId}
+              />
+            </ReqoreTabsContent>
+          </ReqoreTabs>
+        </ReqoreDrawer>
       )}
       <Content
         bottomActions={[
@@ -801,7 +870,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             <Tree
               data={cloneDeep(elements)}
               orientation="vertical"
-              pathFunc="straight"
+              pathFunc="step"
               translate={{ x: window.innerWidth / 2 - 50, y: 100 }}
               nodeSize={{ x: 350, y: 120 }}
               transitionDuration={0}
@@ -830,7 +899,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
               collapsible={false}
               styles={{
                 links: {
-                  stroke: rgba(invert(theme.main), 0.2),
+                  stroke: theme.intents.info,
                   strokeWidth: 2,
                 },
                 nodes: {
