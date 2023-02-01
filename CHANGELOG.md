@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 4.0.0
+
+#### Features
+
+- The WebView has been redesigned to use the new in-house UI library and to be more responsive, faster and overall more pleasant to use
+- The WebView now supports dark mode, light mode or your current theme mode
+
+- !IMPORTANT - the extension now requires Qorus 6.0.0 or newer
+
 ## Version 3.9.7
 
 #### Bug fixes
