@@ -440,7 +440,6 @@ const Options = ({
           fixedValue,
           ({ type, ...other }, optionName): IReqoreCollectionItemProps => ({
             label: optionName,
-            expandable: true,
             size: 'small',
             customTheme: {
               main: 'main:lighten',

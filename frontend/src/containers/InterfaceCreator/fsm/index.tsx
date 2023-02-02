@@ -20,7 +20,7 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useDrop, XYCoord } from 'react-dnd';
+import { XYCoord, useDrop } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -48,6 +48,7 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
+  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -58,7 +59,6 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -1008,8 +1008,10 @@ const FSMView: React.FC<IFSMViewProps> = ({
     fixedStates[id] = {
       ...fixedStates[id],
       ...data,
-      isNew: false,
     };
+
+    // Delete `isNew` from the fixed state
+    delete fixedStates[id].isNew;
 
     if (data.type !== states[id].type || !isEqual(data.action, states[id].action)) {
       if (size(fixedStates[id].transitions)) {

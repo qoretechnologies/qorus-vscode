@@ -13,6 +13,7 @@ import {
 } from '@qoretechnologies/reqore/dist/components/Table';
 import size from 'lodash/size';
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
@@ -72,7 +73,7 @@ const WorkflowConfigItemsTable: Function = ({
           return (
             <>
               <ReqoreMessage intent="info" size="small">
-                {data.description}
+                <ReactMarkdown>{data.description}</ReactMarkdown>
               </ReqoreMessage>
               <ReqoreVerticalSpacer height={10} />
               <Value item={data} />

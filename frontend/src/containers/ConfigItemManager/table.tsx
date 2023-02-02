@@ -25,6 +25,7 @@ import {
   IReqoreTableColumn,
   IReqoreTableProps,
 } from '@qoretechnologies/reqore/dist/components/Table';
+import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
 import { InitialContext } from '../../context/init';
 import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
@@ -238,7 +239,7 @@ let ItemsTable: Function = ({
           return (
             <>
               <ReqoreMessage intent="info" size="small">
-                {data.description}
+                <ReactMarkdown>{data.description}</ReactMarkdown>
               </ReqoreMessage>
               <ReqoreVerticalSpacer height={10} />
               <Value item={data} />
