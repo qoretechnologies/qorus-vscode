@@ -1,8 +1,8 @@
-import { Callout, Colors } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreControlGroup,
   ReqoreDrawer,
+  ReqoreMessage,
   ReqoreTabs,
   ReqoreTabsContent,
   useReqoreTheme,
@@ -616,9 +616,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
 
   if (!qorus_instance) {
     return (
-      <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
+      <ReqoreMessage title={t('NoInstanceTitle')} intent="warning">
         {t('NoInstance')}
-      </Callout>
+      </ReqoreMessage>
     );
   }
 
@@ -661,15 +661,15 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             fill
             fillParent
             tabs={[
+              { label: 'Configuration', id: 'configuration', icon: 'SettingsLine' },
               {
                 label: 'Info',
                 id: 'info',
                 icon: 'InformationLine',
                 disabled: !selectedElement.nodeData.name,
               },
-              { label: 'Configuration', id: 'configuration', icon: 'SettingsLine' },
             ]}
-            activeTab={selectedElement.nodeData.name ? 'info' : 'configuration'}
+            activeTab={'configuration'}
             tabsPadding="vertical"
             padded={false}
             activeTabIntent="info"
@@ -864,7 +864,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
           <StyledDiagramWrapper
             id="pipeline-diagram"
             theme={theme}
-            style={{ border: !isDiagramValid(elements) ? `1px solid ${Colors.RED2}` : undefined }}
+            style={{
+              border: !isDiagramValid(elements) ? `1px solid ${theme.intents.danger}` : undefined,
+            }}
             onContextMenu={(e) => void e.preventDefault()}
           >
             <Tree

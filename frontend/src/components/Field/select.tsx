@@ -1,4 +1,3 @@
-import { IconName } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreCollection,
@@ -11,6 +10,7 @@ import {
 } from '@qoretechnologies/reqore';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import { IReqoreMenuItemProps } from '@qoretechnologies/reqore/dist/components/Menu/item';
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { capitalize, get, size } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -42,7 +42,7 @@ export interface ISelectField {
   warningMessageOnEmpty?: string;
   autoSelect?: boolean;
   asMenu?: boolean;
-  icon?: IconName;
+  icon?: IReqoreIconName;
   filters?: string[];
 }
 
@@ -400,7 +400,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                   !!getItemDescription(value)
                     ? {
                         delay: 300,
-                        content: getItemDescription(value),
+                        content: <ReactMarkdown>{getItemDescription(value)}</ReactMarkdown>,
                         maxWidth: '50vh',
                       }
                     : undefined

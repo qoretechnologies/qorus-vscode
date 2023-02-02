@@ -1,4 +1,4 @@
-import { ReqoreMessage } from '@qoretechnologies/reqore';
+import { ReqoreColumn, ReqoreColumns, ReqoreMessage } from '@qoretechnologies/reqore';
 import isArray from 'lodash/isArray';
 import { useContext } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -57,13 +57,29 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
     }
   });
 
+  if (type === 'long-string' && rest.markdown) {
+    return (
+      <ReqoreColumns columnsGap="10px">
+        <ReqoreColumn flexFlow="column">
+          {type === 'long-string' && <LongStringField fill {...rest} type={type} />}
+        </ReqoreColumn>
+        {rest.markdown && (
+          <ReqoreColumn>
+            <MarkdownPreview value={rest.value} />
+          </ReqoreColumn>
+        )}
+      </ReqoreColumns>
+    );
+  }
+
   return (
     <>
       {rest.has_to_be_valid_identifier && rest.value && !rest.isValid ? (
         <ReqoreMessage intent="danger">{t('AllowedCharsOnly')}</ReqoreMessage>
       ) : null}
+
       {(!type || type === 'string') && <StringField {...rest} type={type} />}
-      {type === 'long-string' && <LongStringField {...rest} type={type} />}
+      {type === 'long-string' && <LongStringField fill {...rest} type={type} />}
       {type === 'method-name' && <MethodNameField {...rest} type={type} />}
       {type === 'boolean' && <BooleanField {...rest} type={type} />}
       {type === 'array-of-pairs' && <MultiPairField {...rest} type={type} />}

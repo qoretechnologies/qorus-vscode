@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Callout } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreControlGroup, ReqoreMessage } from '@qoretechnologies/reqore';
 import { reduce, size } from 'lodash';
 import React, { useContext, useEffect } from 'react';
 import { TRecordType } from '.';
@@ -8,6 +8,7 @@ import { TextContext } from '../../../context/text';
 import { insertUrlPartBeforeQuery } from '../../../helpers/functions';
 import Spacer from '../../Spacer';
 import SubField from '../../SubField';
+import { PositiveColorEffect } from '../multiPair';
 import Options, { IOptions, IOptionsSchema } from '../systemOptions';
 
 export interface ISearchArgsProps {
@@ -54,11 +55,11 @@ export const RecordQueryArgs = ({
   }, [url, qorus_instance]);
 
   if (!hasLoaded) {
-    return <Callout>{t(`LoadingArgs`)}</Callout>;
+    return <ReqoreMessage intent="pending">{t(`LoadingArgs`)}</ReqoreMessage>;
   }
 
   if (!size(options)) {
-    return <Callout intent="warning">{t(`NoArgs`)}</Callout>;
+    return <ReqoreMessage intent="warning">{t(`NoArgs`)}</ReqoreMessage>;
   }
 
   const transformedOptions: IOptionsSchema =
@@ -78,7 +79,11 @@ export const RecordQueryArgs = ({
   if (asList) {
     return (
       <>
-        {error && <Callout title={error.title}>{error.desc}</Callout>}
+        {error && (
+          <ReqoreMessage intent="danger" title={error.title}>
+            {error.desc}
+          </ReqoreMessage>
+        )}
         {value &&
           (value as IOptions[]).map((options: IOptions, index: number) => (
             <SubField
@@ -117,13 +122,17 @@ export const RecordQueryArgs = ({
             </SubField>
           ))}
         <Spacer size={15} />
-        <ButtonGroup fill style={{ marginBottom: '10px' }}>
-          <Button
-            text={t('AddAnotherRecord')}
-            icon={'add'}
+        <ReqoreControlGroup fluid>
+          <ReqoreButton
+            icon={'AddLine'}
+            rightIcon={'AddLine'}
+            effect={PositiveColorEffect}
+            textAlign="center"
             onClick={() => onChange(`${type}_args`, [...((value || []) as IOptions[]), {}])}
-          />
-        </ButtonGroup>
+          >
+            {t('AddAnotherRecord')}
+          </ReqoreButton>
+        </ReqoreControlGroup>
       </>
     );
   }

@@ -1,4 +1,3 @@
-import { Intent } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreControlGroup,
@@ -218,7 +217,7 @@ class DeleteInterfaces extends Component {
                   <ReqoreControlGroup fluid>
                     <ReqoreButton
                       icon="DeleteBinLine"
-                      intent={Intent.DANGER}
+                      intent={'danger'}
                       onClick={this.deleteSelected}
                     >
                       {t('ButtonDelete')}

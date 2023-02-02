@@ -1,4 +1,4 @@
-import { ButtonGroup } from '@blueprintjs/core';
+import { ReqoreControlGroup } from '@qoretechnologies/reqore';
 import size from 'lodash/size';
 import { FunctionComponent, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -59,7 +59,7 @@ const MapperCodeField: FunctionComponent<IMapperCodeFieldProps> = ({
   };
 
   return (
-    <ButtonGroup>
+    <ReqoreControlGroup>
       <SelectField
         name="code"
         value={defaultCode}
@@ -77,7 +77,7 @@ const MapperCodeField: FunctionComponent<IMapperCodeFieldProps> = ({
           defaultItems={methods}
         />
       )}
-    </ButtonGroup>
+    </ReqoreControlGroup>
   );
 };
 

@@ -14,6 +14,7 @@ export interface IFSMToolbarItemProps {
   type: string;
   disabled?: boolean;
   onDoubleClick: (name: string, type: string, stateType: string) => any;
+  onDragStart: () => void;
   category: TStateTypes;
 }
 
@@ -154,13 +155,18 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   type,
   disabled,
   onDoubleClick,
+  onDragStart,
   category,
 }) => {
   const t = useContext(TextContext);
   const theme = useContext(ReqoreThemeContext);
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
-    item: { name, type: TOOLBAR_ITEM_TYPE, stateType: type },
+    item: () => {
+      onDragStart?.();
+
+      return { name, type: TOOLBAR_ITEM_TYPE, stateType: type };
+    },
     previewOptions: {
       anchorX: 0,
       anchorY: 0,

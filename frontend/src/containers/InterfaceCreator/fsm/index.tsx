@@ -20,7 +20,7 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { XYCoord, useDrop } from 'react-dnd';
+import { useDrop, XYCoord } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -48,7 +48,6 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
-  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -59,6 +58,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -392,6 +392,9 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
     onSuccess?.(id);
 
+    setActiveState(undefined);
+    setEditingState(undefined);
+    setEditingTransitionOrder(undefined);
     setEditingState(id);
   };
 
@@ -661,6 +664,10 @@ const FSMView: React.FC<IFSMViewProps> = ({
     providerType: 'input' | 'output'
   ): ITypeComparatorData | null => {
     if (state.action) {
+      // if (!state.action.value) {
+      //   return null;
+      // }
+
       const { type, value } = state.action;
 
       const obj = {
@@ -1577,6 +1584,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
     }
   }
 
+  const handleDragStart = () => {
+    setActiveState(undefined);
+    setEditingState(undefined);
+    setEditingTransitionOrder(undefined);
+  };
+
   const renderStateDetail = () => {
     const state = activeState || editingState || editingTransitionOrder;
 
@@ -1635,18 +1648,17 @@ const FSMView: React.FC<IFSMViewProps> = ({
           fill
           fillParent
           tabs={[
-            { label: 'Info', id: 'info', icon: 'InformationLine', disabled: stateData.isNew },
+            { label: 'Configuration', id: 'configuration', icon: 'SettingsLine' },
+            { label: 'Types', id: 'info', icon: 'InformationLine', disabled: stateData.isNew },
             {
               label: 'Transitions',
               id: 'transitions',
               icon: 'LinksLine',
               badge: size(stateData.transitions),
+              disabled: stateData.isNew,
             },
-            { label: 'Configuration', id: 'configuration', icon: 'SettingsLine' },
           ]}
-          activeTab={
-            editingTransitionOrder ? 'transitions' : editingState ? 'configuration' : 'info'
-          }
+          activeTab={editingTransitionOrder ? 'transitions' : 'configuration'}
           tabsPadding="vertical"
           padded={false}
           activeTabIntent="info"
@@ -1661,14 +1673,14 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
           <ReqoreTabsContent tabId="configuration">
             <FSMStateDialog
+              key={state}
               fsmName={metadata.name}
               target_dir={metadata.target_dir}
               onSubmit={(id, data) => {
                 updateStateData(id, data);
-
-                if (stateData.isNew) {
-                  setEditingState(undefined);
-                }
+                setActiveState(undefined);
+                setEditingState(undefined);
+                setEditingTransitionOrder(undefined);
               }}
               onClose={() => setEditingState(null)}
               data={states[state]}
@@ -1975,6 +1987,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   type="mapper"
                   count={size(filter(states, ({ action }: IFSMState) => action?.type === 'mapper'))}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('Mapper')}
                 </FSMToolbarItem>
@@ -1986,6 +1999,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     filter(states, ({ action }: IFSMState) => action?.type === 'pipeline')
                   )}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('Pipeline')}
                 </FSMToolbarItem>
@@ -1997,6 +2011,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     filter(states, ({ action }: IFSMState) => action?.type === 'connector')
                   )}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('Connector')}
                 </FSMToolbarItem>
@@ -2007,6 +2022,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   type="fsm"
                   count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('FSM')}
                 </FSMToolbarItem>
@@ -2017,6 +2033,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   disabled={!qorus_instance}
                   count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('Block')}
                 </FSMToolbarItem>
@@ -2026,6 +2043,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   type="if"
                   count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('If')}
                 </FSMToolbarItem>
@@ -2038,6 +2056,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     filter(states, ({ action }: IFSMState) => action?.type === 'apicall')
                   )}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('field-label-apicall')}
                 </FSMToolbarItem>
@@ -2050,6 +2069,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     filter(states, ({ action }: IFSMState) => action?.type === 'search-single')
                   )}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('field-label-search-single')}
                 </FSMToolbarItem>
@@ -2059,6 +2079,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   type="search"
                   count={size(filter(states, ({ action }: IFSMState) => action?.type === 'search'))}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('field-label-search')}
                 </FSMToolbarItem>
@@ -2068,6 +2089,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   type="update"
                   count={size(filter(states, ({ action }: IFSMState) => action?.type === 'update'))}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('field-label-update')}
                 </FSMToolbarItem>
@@ -2077,6 +2099,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   type="create"
                   count={size(filter(states, ({ action }: IFSMState) => action?.type === 'create'))}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('field-label-create')}
                 </FSMToolbarItem>
@@ -2086,6 +2109,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   type="delete"
                   count={size(filter(states, ({ action }: IFSMState) => action?.type === 'delete'))}
                   onDoubleClick={handleToolbarItemDblClick}
+                  onDragStart={handleDragStart}
                 >
                   {t('field-label-delete')}
                 </FSMToolbarItem>

@@ -1,5 +1,4 @@
-import { Callout } from '@blueprintjs/core';
-import { ReqoreButton } from '@qoretechnologies/reqore';
+import { ReqoreButton, ReqoreMessage } from '@qoretechnologies/reqore';
 import { get, map, set } from 'lodash';
 import { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -378,9 +377,9 @@ const AutoField: FunctionComponent<
       case 'any':
         return null;
       case 'auto':
-        return <Callout>Please select data type</Callout>;
+        return <ReqoreMessage intent="info">Please select data type</ReqoreMessage>;
       default:
-        return <Callout intent="danger">{t('UnknownType')}</Callout>;
+        return <ReqoreMessage intent="danger">{t('UnknownType')}</ReqoreMessage>;
     }
   };
 
@@ -425,8 +424,7 @@ const AutoField: FunctionComponent<
         flexFlow: column || arg_schema ? 'column' : 'row',
         marginLeft: arg_schema ? 10 * level : 0,
         overflow: 'hidden',
-        flexShrink: 0,
-        width: `calc(100% - ${11 * level}px)`,
+        flex: '1 0 auto',
         maxHeight: arg_schema && level === 0 ? '500px' : undefined,
         overflowY: arg_schema && level === 0 ? 'auto' : undefined,
       }}

@@ -1,5 +1,5 @@
-import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 import jsyaml from 'js-yaml';
+import { isDate } from 'lodash';
 import every from 'lodash/every';
 import isArray from 'lodash/isArray';
 import isNaN from 'lodash/isNaN';
@@ -468,7 +468,7 @@ export const maybeParseYaml: (yaml: any) => any = (yaml) => {
   }
 
   // Leave dates
-  if (isDateValid(yaml)) {
+  if (isDate(yaml)) {
     return yaml;
   }
   // Check if the value isn't empty

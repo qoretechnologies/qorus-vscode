@@ -1,9 +1,9 @@
-import { Button, Callout, Classes, Spinner } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreControlGroup,
   ReqoreMessage,
   ReqorePanel,
+  ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import { cloneDeep, omit } from 'lodash';
 import map from 'lodash/map';
@@ -16,10 +16,12 @@ import CustomDialog from '../../components/CustomDialog';
 import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
+import Loader from '../../components/Loader';
 import SubField from '../../components/SubField';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import { submitControl } from '../InterfaceCreator/controls';
 
 export interface IProviderProps {
   type: 'inputs' | 'outputs';
@@ -611,34 +613,33 @@ const MapperProvider: FC<IProviderProps> = ({
   return (
     <>
       {wildcardDiagram?.isOpen && (
-        <CustomDialog title={t('Wildcard')} isOpen isCloseButtonShown={false}>
-          <div className={Classes.DIALOG_BODY}>
-            <Callout intent="primary">{t('WildcardReplace')}</Callout>
-            <br />
-            <String
-              name="wildcard"
-              onChange={(_name, value) => setWildcardDiagram((cur) => ({ ...cur, value }))}
-              value={wildcardDiagram.value}
-            />
-          </div>
-          <div className={Classes.DIALOG_FOOTER}>
-            <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-              <Button
-                intent="success"
-                disabled={!validateField('string', wildcardDiagram.value)}
-                onClick={() => {
-                  handleChildFieldChange(
-                    wildcardDiagram.value,
-                    wildcardDiagram.url,
-                    wildcardDiagram.index,
-                    wildcardDiagram.suffix
-                  );
-                  setWildcardDiagram(null);
-                }}
-                text={t('Submit')}
-              />
-            </div>
-          </div>
+        <CustomDialog
+          label={t('Wildcard')}
+          isOpen
+          bottomActions={[
+            submitControl(
+              () => {
+                handleChildFieldChange(
+                  wildcardDiagram.value,
+                  wildcardDiagram.url,
+                  wildcardDiagram.index,
+                  wildcardDiagram.suffix
+                );
+                setWildcardDiagram(null);
+              },
+              {
+                disabled: !validateField('string', wildcardDiagram.value),
+              }
+            ),
+          ]}
+        >
+          <ReqoreMessage intent="info">{t('WildcardReplace')}</ReqoreMessage>
+          <ReqoreVerticalSpacer height={10} />
+          <String
+            name="wildcard"
+            onChange={(_name, value) => setWildcardDiagram((cur) => ({ ...cur, value }))}
+            value={wildcardDiagram.value}
+          />
         </CustomDialog>
       )}
       <ReqorePanel minimal={compact} style={style} flat transparent padded={!!title}>
@@ -707,7 +708,7 @@ const MapperProvider: FC<IProviderProps> = ({
               ) : null}
             </ReqoreControlGroup>
           ))}
-          {isLoading && <Spinner size={15} />}
+          {isLoading && <Loader />}
           {nodes.length > 0 && (
             <ReqoreControlGroup fluid={false}>
               <ReqoreButton

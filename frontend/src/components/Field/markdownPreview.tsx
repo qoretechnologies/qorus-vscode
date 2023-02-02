@@ -13,7 +13,13 @@ const MarkdownPreview: FunctionComponent<IMarkdownPreviewProps> = ({ value, t })
   }
 
   return (
-    <ReqoreMessage title={t('MarkdownPreview')} icon="MarkdownLine" size="small" flat>
+    <ReqoreMessage
+      title={t('MarkdownPreview')}
+      icon="MarkdownLine"
+      size="small"
+      flat
+      style={{ flex: '0 1 auto' }}
+    >
       <ReactMarkdown>{value}</ReactMarkdown>
     </ReqoreMessage>
   );

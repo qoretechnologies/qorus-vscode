@@ -1,6 +1,13 @@
-import { Button, ButtonGroup, Callout, Classes, ControlGroup, Tag } from '@blueprintjs/core';
 import { setupPreviews } from '@previewjs/plugin-react/setup';
-import { ReqoreCollection, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import {
+  ReqoreButton,
+  ReqoreCollection,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqoreTag,
+  ReqoreTagGroup,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import { cloneDeep, findKey, forEach, last } from 'lodash';
 import isArray from 'lodash/isArray';
@@ -10,42 +17,16 @@ import size from 'lodash/size';
 import React, { useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import useUpdateEffect from 'react-use/lib/useUpdateEffect';
-import styled from 'styled-components';
 import { isObject } from 'util';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { insertAtIndex } from '../../helpers/functions';
 import { validateField } from '../../helpers/validations';
 import { getGlobalDescriptionTooltip } from '../FieldWrapper';
-import Spacer from '../Spacer';
 import AutoField from './auto';
+import { NegativeColorEffect, PositiveColorEffect } from './multiPair';
 import SelectField from './select';
 import { TemplateField } from './template';
-
-export const StyledOptionField = styled.div`
-  /* border-bottom: 1px solid #e6e6e6;
-  border-right: 1px solid #e6e6e6;
-  border-left: 1px solid #e6e6e6;
-
-  &:nth-child(even) {
-    background-color: #ffffff;
-  }
-
-  &:nth-child(odd) {
-    background-color: #f7f7f7;
-  }
-
-  &:first-child {
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-    border-top: 1px solid #e6e6e6;
-  }
-
-  &:last-child {
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
-  } */
-`;
 
 const getType = (
   type: IQorusType | IQorusType[],
@@ -378,15 +359,14 @@ const Options = ({
   };
 
   if (!qorus_instance) {
-    return <Callout intent="warning">{t('OptionsQorusInstanceRequired')}</Callout>;
+    return <ReqoreMessage intent="warning">{t('OptionsQorusInstanceRequired')}</ReqoreMessage>;
   }
 
   if (error) {
     return (
-      <Callout intent="danger">
-        <p style={{ fontWeight: 500 }}>{t('ErrorLoadingOptions')}</p>
+      <ReqoreMessage intent="danger" title={t('ErrorLoadingOptions')}>
         {t(error)}
-      </Callout>
+      </ReqoreMessage>
     );
   }
 
@@ -395,7 +375,7 @@ const Options = ({
   }
 
   if (!options || !size(options)) {
-    return <Callout intent="warning">{t('NoOptionsAvailable')}</Callout>;
+    return <ReqoreMessage intent="warning">{t('NoOptionsAvailable')}</ReqoreMessage>;
   }
 
   const addSelectedOption = (optionName: string) => {
@@ -460,8 +440,10 @@ const Options = ({
           fixedValue,
           ({ type, ...other }, optionName): IReqoreCollectionItemProps => ({
             label: optionName,
+            expandable: true,
+            size: 'small',
             customTheme: {
-              main: '#181818',
+              main: 'main:lighten',
             },
             intent:
               validateField(getType(type), other.value, {
@@ -489,57 +471,49 @@ const Options = ({
               <>
                 {operators && size(operators) ? (
                   <>
-                    <ControlGroup fill>
+                    <ReqoreControlGroup fill wrap>
                       {fixOperatorValue(other.op).map((operator, index) => (
                         <React.Fragment key={index}>
-                          <ButtonGroup style={{ flex: '0 auto', flexFlow: 'column' }}>
-                            <SelectField
-                              fill
-                              defaultItems={map(operators, (operator) => ({
-                                name: operator.name,
-                                desc: operator.desc,
-                              }))}
-                              value={operator && `${operators?.[operator].name}`}
-                              onChange={(_n, val) => {
-                                if (val !== undefined) {
-                                  handleOperatorChange(
-                                    optionName,
-                                    fixedValue,
-                                    findKey(
-                                      operators,
-                                      (operator) => operator.name === val
-                                    ) as string,
-                                    index
-                                  );
-                                }
-                              }}
-                            />
-                          </ButtonGroup>
-                          {size(fixOperatorValue(other.op)) > 1 ? (
-                            <div>
-                              <Button
-                                icon="trash"
-                                intent="danger"
-                                className={Classes.FIXED}
-                                onClick={() => handleRemoveOperator(optionName, fixedValue, index)}
-                              />
-                            </div>
-                          ) : null}
+                          <SelectField
+                            fixed
+                            defaultItems={map(operators, (operator) => ({
+                              name: operator.name,
+                              desc: operator.desc,
+                            }))}
+                            value={operator && `${operators?.[operator].name}`}
+                            onChange={(_n, val) => {
+                              if (val !== undefined) {
+                                handleOperatorChange(
+                                  optionName,
+                                  fixedValue,
+                                  findKey(operators, (operator) => operator.name === val) as string,
+                                  index
+                                );
+                              }
+                            }}
+                          />
                           {index === fixOperatorValue(other.op).length - 1 &&
                           operator &&
                           operators[operator].supports_nesting ? (
-                            <div>
-                              <Button
-                                icon="add"
-                                className={Classes.FIXED}
-                                onClick={() => handleAddOperator(optionName, fixedValue, index + 1)}
-                              />
-                            </div>
+                            <ReqoreButton
+                              icon="AddLine"
+                              fixed
+                              effect={PositiveColorEffect}
+                              onClick={() => handleAddOperator(optionName, fixedValue, index + 1)}
+                            />
+                          ) : null}
+                          {size(fixOperatorValue(other.op)) > 1 ? (
+                            <ReqoreButton
+                              icon="DeleteBinLine"
+                              effect={NegativeColorEffect}
+                              fixed
+                              onClick={() => handleRemoveOperator(optionName, fixedValue, index)}
+                            />
                           ) : null}
                         </React.Fragment>
                       ))}
-                    </ControlGroup>
-                    <Spacer size={5} />
+                    </ReqoreControlGroup>
+                    <ReqoreVerticalSpacer height={5} />
                   </>
                 ) : null}
                 <TemplateField
@@ -565,11 +539,22 @@ const Options = ({
                 />
                 {operators && size(operators) && size(other.op) ? (
                   <>
-                    <Spacer size={5} />
-                    <span className={Classes.TEXT_MUTED}>
-                      WHERE <Tag>{optionName}</Tag> IS {fixOperatorValue(other.op).join(' ')}{' '}
-                      {other.value?.toString() || ''}
-                    </span>
+                    <ReqoreVerticalSpacer height={5} />
+                    <ReqoreMessage size="small">
+                      <ReqoreTagGroup>
+                        <ReqoreTag size="small" labelKey="WHERE" label={optionName} />
+                        <ReqoreTag
+                          size="small"
+                          labelKey="IS"
+                          label={fixOperatorValue(other.op).join(' ')}
+                        />
+                        <ReqoreTag
+                          size="small"
+                          intent="info"
+                          label={other.value?.toString() || ''}
+                        />
+                      </ReqoreTagGroup>
+                    </ReqoreMessage>
                   </>
                 ) : null}
               </>

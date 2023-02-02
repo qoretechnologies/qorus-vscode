@@ -1,4 +1,3 @@
-import { Intent } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreControlGroup,
@@ -123,10 +122,10 @@ class Login extends Component {
                 />
                 <ReqoreVerticalSpacer height={20} />
                 <ReqoreControlGroup vertical={false}>
-                  <ReqoreButton icon="CloseLine" intent={Intent.DANGER} onClick={this.onCancel}>
+                  <ReqoreButton icon="CloseLine" intent={'danger'} onClick={this.onCancel}>
                     {t('ButtonCancel')}
                   </ReqoreButton>
-                  <ReqoreButton icon="LoginBoxLine" intent={Intent.SUCCESS} onClick={this.onSubmit}>
+                  <ReqoreButton icon="LoginBoxLine" intent={'success'} onClick={this.onSubmit}>
                     {t('ButtonLogin')}
                   </ReqoreButton>
                 </ReqoreControlGroup>

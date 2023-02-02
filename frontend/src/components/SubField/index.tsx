@@ -71,8 +71,9 @@ const SubField: React.FC<ISubFieldProps> = ({
         actions={[
           getFieldDescriptionAction(desc),
           {
-            icon: 'DeleteBackLine',
+            icon: 'DeleteBinLine',
             intent: 'danger',
+            minimal: true,
             onClick: onRemove,
             size: 'small',
             show: !!onRemove,

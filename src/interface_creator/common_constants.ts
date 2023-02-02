@@ -191,8 +191,6 @@ export const field = {
     name: 'desc',
     type: 'long-string',
     markdown: true,
-    compact: true,
-    group: 'info',
   },
   author: {
     name: 'author',

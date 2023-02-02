@@ -1,4 +1,4 @@
-import { Icon } from '@blueprintjs/core';
+import { ReqoreIcon } from '@qoretechnologies/reqore';
 import capitalize from 'lodash/capitalize';
 import cloneDeep from 'lodash/cloneDeep';
 import React, { useContext, useState } from 'react';
@@ -113,7 +113,7 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
   const renderMetadata = (item: IFSMTransition) => (
     <>
       {renderStateInfo(item.state)}{' '}
-      {!isTransitionValid(item) && <Icon icon="cross" intent="danger" />}
+      {!isTransitionValid(item) && <ReqoreIcon icon="CloseLine" intent="danger" />}
       {renderTransitionInfo(item)}
     </>
   );

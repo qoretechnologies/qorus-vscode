@@ -1,7 +1,7 @@
-import { Spinner } from '@blueprintjs/core';
 import { ReqoreControlGroup } from '@qoretechnologies/reqore';
 import { useEffect, useState } from 'react';
 import SelectField from '../../../components/Field/select';
+import Loader from '../../../components/Loader';
 import withMessageHandler, {
   TMessageListener,
   TPostMessage,
@@ -87,7 +87,7 @@ const ConnectorSelector = ({
   };
 
   if (!classes) {
-    return <Spinner size={16} />;
+    return <Loader />;
   }
 
   return (

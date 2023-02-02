@@ -268,6 +268,21 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
       >
         <ContentWrapper>
           {renderGroups(mapFieldsToGroups(fields))}
+          <FieldWrapper
+            name="selected-field"
+            desc={t(`field-desc-url`)}
+            label={t('field-label-url')}
+            isValid={validateField('url', data.url)}
+            collapsible={false}
+          >
+            <Field
+              type="url"
+              value={data.url}
+              url="options/remote?list"
+              onChange={handleDataChange}
+              name="url"
+            />
+          </FieldWrapper>
           <FieldGroup
             label="Connection options"
             isValid={
@@ -277,21 +292,6 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
                 : true)
             }
           >
-            <FieldWrapper
-              name="selected-field"
-              desc={t(`field-desc-url`)}
-              label={t('field-label-url')}
-              isValid={validateField('url', data.url)}
-              collapsible={false}
-            >
-              <Field
-                type="url"
-                value={data.url}
-                url="options/remote?list"
-                onChange={handleDataChange}
-                name="url"
-              />
-            </FieldWrapper>
             {getProtocol(data.url) && (
               <FieldWrapper
                 name="selected-field"

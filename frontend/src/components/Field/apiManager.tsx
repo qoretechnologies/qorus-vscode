@@ -8,7 +8,6 @@ import {
 import { reduce, size } from 'lodash';
 import { useContext } from 'react';
 import { useAsyncRetry } from 'react-use';
-import styled from 'styled-components';
 import { Messages } from '../../constants/messages';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
@@ -18,7 +17,7 @@ import SubField from '../SubField';
 import { IProviderType } from './connectors';
 import MethodSelector from './methodSelector';
 import Select from './select';
-import Options, { IOptions, StyledOptionField } from './systemOptions';
+import Options, { IOptions } from './systemOptions';
 
 export type TApiManagerFactory = 'swagger' | 'soap';
 export type TApiManagerEndpointType = 'fsm' | 'method';
@@ -40,8 +39,6 @@ export interface IApiManagerProps {
   name: string;
   onChange: (name: string, value: IApiManager) => void;
 }
-
-export const StyledEndpointWrapper = styled(StyledOptionField)``;
 
 export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
   const t: any = useContext(TextContext);
@@ -240,76 +237,74 @@ export const ApiManager = ({ onChange, name, value }: IApiManagerProps) => {
                   <div style={{ flex: 1 }}>
                     {value?.endpoints &&
                       value.endpoints.map((endpoint, index) => (
-                        <StyledEndpointWrapper key={index}>
-                          <SubField
-                            title={`${index + 1}. ${endpoint.endpoint}`}
-                            key={endpoint.endpoint}
-                            subtle
-                            onRemove={() => {
-                              confirmAction('RemoveEndpoint', () => {
-                                handleDeleteEndpoint(endpoint.endpoint);
-                              });
-                            }}
-                            isValid={!!endpoint.value}
-                          >
-                            <ReqoreControlGroup fluid>
+                        <SubField
+                          title={`${index + 1}. ${endpoint.endpoint}`}
+                          key={endpoint.endpoint}
+                          subtle
+                          onRemove={() => {
+                            confirmAction('RemoveEndpoint', () => {
+                              handleDeleteEndpoint(endpoint.endpoint);
+                            });
+                          }}
+                          isValid={!!endpoint.value}
+                        >
+                          <ReqoreControlGroup fluid stack fill>
+                            <Select
+                              defaultItems={[
+                                {
+                                  name: 'fsm',
+                                },
+                                {
+                                  name: 'method',
+                                },
+                              ]}
+                              value={endpoint.type || t('Type')}
+                              onChange={(_n, v) => {
+                                handleUpdateEndpoint(endpoint.endpoint, v, endpoint.value);
+                              }}
+                            />
+                            {endpoint.type === 'fsm' && (
                               <Select
-                                defaultItems={[
-                                  {
-                                    name: 'fsm',
+                                fill
+                                onChange={(_name, value) =>
+                                  handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
+                                }
+                                name="fsm"
+                                value={endpoint.value}
+                                get_message={{
+                                  action: 'creator-get-objects',
+                                  object_type: 'fsm',
+                                }}
+                                return_message={{
+                                  action: 'creator-return-objects',
+                                  object_type: 'fsm',
+                                  return_value: 'objects',
+                                }}
+                                reference={{
+                                  iface_kind: 'fsm',
+                                  context: {
+                                    inputType: {
+                                      type: 'factory',
+                                      name: value?.factory,
+                                      path: endpoint.endpoint,
+                                      options: value?.['provider-options'],
+                                      hasApiContext: true,
+                                    } as IProviderType,
                                   },
-                                  {
-                                    name: 'method',
-                                  },
-                                ]}
-                                value={endpoint.type || t('Type')}
-                                onChange={(_n, v) => {
-                                  handleUpdateEndpoint(endpoint.endpoint, v, endpoint.value);
                                 }}
                               />
-                              {endpoint.type === 'fsm' && (
-                                <Select
-                                  fill
-                                  onChange={(_name, value) =>
-                                    handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
-                                  }
-                                  name="fsm"
-                                  value={endpoint.value}
-                                  get_message={{
-                                    action: 'creator-get-objects',
-                                    object_type: 'fsm',
-                                  }}
-                                  return_message={{
-                                    action: 'creator-return-objects',
-                                    object_type: 'fsm',
-                                    return_value: 'objects',
-                                  }}
-                                  reference={{
-                                    iface_kind: 'fsm',
-                                    context: {
-                                      inputType: {
-                                        type: 'factory',
-                                        name: value?.factory,
-                                        path: endpoint.endpoint,
-                                        options: value?.['provider-options'],
-                                        hasApiContext: true,
-                                      } as IProviderType,
-                                    },
-                                  }}
-                                />
-                              )}
-                              {endpoint.type === 'method' && (
-                                <MethodSelector
-                                  name="method-selector"
-                                  value={endpoint.value}
-                                  onChange={(_name, value) =>
-                                    handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
-                                  }
-                                />
-                              )}
-                            </ReqoreControlGroup>
-                          </SubField>
-                        </StyledEndpointWrapper>
+                            )}
+                            {endpoint.type === 'method' && (
+                              <MethodSelector
+                                name="method-selector"
+                                value={endpoint.value}
+                                onChange={(_name, value) =>
+                                  handleUpdateEndpoint(endpoint.endpoint, endpoint.type, value)
+                                }
+                              />
+                            )}
+                          </ReqoreControlGroup>
+                        </SubField>
                       ))}
                   </div>
                   <ReqoreVerticalSpacer height={10} />

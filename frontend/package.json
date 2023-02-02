@@ -6,10 +6,6 @@
     "@andrewhead/python-program-analysis": "^0.4.8",
     "@babel/core": "^7.16.0",
     "@babel/polyfill": "^7.7.0",
-    "@blueprintjs/core": "3.36",
-    "@blueprintjs/datetime": "^3.9.2",
-    "@blueprintjs/select": "^3.8.0",
-    "@blueprintjs/table": "^3.7.1",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@previewjs/plugin-react": "^3.1.2",
     "@qoretechnologies/python-parser": "^0.4.10",
@@ -119,7 +115,7 @@
     "yamljs": "^0.3.0"
   },
   "scripts": {
-    "start": "BROWSER=none node scripts/start.js",
+    "start": "NODE_ENV=development BROWSER=none node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
     "update-reqore": "yarn add @qoretechnologies/reqore@beta"

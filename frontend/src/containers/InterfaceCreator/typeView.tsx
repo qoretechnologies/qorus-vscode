@@ -1,5 +1,4 @@
-import { Callout } from '@blueprintjs/core';
-import { ReqoreButton, ReqoreModal, useReqoreTheme } from '@qoretechnologies/reqore';
+import { ReqoreButton, ReqoreMessage, ReqoreModal, useReqoreTheme } from '@qoretechnologies/reqore';
 import { cloneDeep, get, isEqual, map, reduce, set, size, unset } from 'lodash';
 import { useContext, useState } from 'react';
 import { useDebounce, useUpdateEffect } from 'react-use';
@@ -172,9 +171,9 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
 
   if (!initialData.qorus_instance) {
     return (
-      <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
+      <ReqoreMessage title={t('NoInstanceTitle')} intent="warning">
         {t('NoInstance')}
-      </Callout>
+      </ReqoreMessage>
     );
   }
 

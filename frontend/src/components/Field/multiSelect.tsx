@@ -1,14 +1,12 @@
-import { Button, ControlGroup } from '@blueprintjs/core';
 import { ReqoreButton, ReqoreControlGroup, ReqoreMultiSelect } from '@qoretechnologies/reqore';
 import { TReqoreMultiSelectItem } from '@qoretechnologies/reqore/dist/components/MultiSelect';
-import { size } from 'lodash';
 import { FunctionComponent, useMemo, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
-import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
+import { submitControl } from '../../containers/InterfaceCreator/controls';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, {
   TMessageListener,
@@ -71,32 +69,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     onChange(name, newValue);
   };
 
-  const handleSelectClick: (item: any) => void = (item) => {
-    // Check if this item is selected
-    const isSelected: boolean = !!value.find(
-      (selectedItem: any) => selectedItem.name === item.name
-    );
-    // Remove the item if it's selected
-    if (isSelected) {
-      deselectItem(item.name);
-    } else {
-      // Check if this item was created by the user
-      const existsInItems: boolean = !!items.find(
-        (selectedItem: any) => selectedItem.name === item.name
-      );
-      // Add the item if it does not exist
-      if (!existsInItems) {
-        setItems((currentItems) => [...currentItems, item]);
-      }
-      // Set the selected item
-      setSelectedItems([...value, item]);
-    }
-  };
-
-  const handleTagRemoveClick: (tag: string) => void = (tag) => {
-    deselectItem(tag);
-  };
-
   const handleTagClick: (tag: string) => void = (tag) => {
     setEditorManager({
       isOpen: true,
@@ -156,11 +128,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     setSelectedItems(value.filter((item: any) => item.name !== tagName));
   };
 
-  // Clear button
-  const ClearButton = size(value) ? (
-    <Button icon={'cross'} minimal onClick={handleClearClick} />
-  ) : undefined;
-
   canEdit = !!reference || canEdit;
 
   const val = useMemo(
@@ -173,24 +140,20 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
       {(onEditClick, onCreateClick) => (
         <>
           {editorManager.isOpen && (
-            <CustomDialog title={t('EditItem')} onClose={() => setEditorManager({})} isOpen>
-              <StyledDialogBody style={{ flexFlow: 'column' }}>
-                <String
-                  fill
-                  name="edit"
-                  value={editorManager.value}
-                  onChange={(_name, v) => setEditorManager({ ...editorManager, value: v })}
-                />
-                <br />
-                <ControlGroup fill>
-                  <Button
-                    text={t('Save')}
-                    onClick={() => handleSaveTagEdit()}
-                    disabled={editorManager.value === ''}
-                    intent="success"
-                  />
-                </ControlGroup>
-              </StyledDialogBody>
+            <CustomDialog
+              title={t('EditItem')}
+              onClose={() => setEditorManager({})}
+              isOpen
+              bottomActions={[
+                submitControl(() => handleSaveTagEdit(), { disabled: editorManager.value === '' }),
+              ]}
+            >
+              <String
+                fill
+                name="edit"
+                value={editorManager.value}
+                onChange={(_name, v) => setEditorManager({ ...editorManager, value: v })}
+              />
             </CustomDialog>
           )}
           <ReqoreControlGroup fluid fill>
@@ -198,7 +161,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
               items={items.map(
                 (item): TReqoreMultiSelectItem => ({
                   value: item.name,
-                  icon: canEdit && onEditClick ? 'EditLine' : undefined,
                 })
               )}
               enterKeySelects

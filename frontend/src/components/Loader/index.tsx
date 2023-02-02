@@ -1,4 +1,3 @@
-import { Spinner } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 const StyledLoader = styled.div`
@@ -14,12 +13,9 @@ const StyledLoader = styled.div`
   }
 `;
 
-const Loader = ({ text }: any) => (
+const Loader = ({ text = 'Loading...' }: any) => (
   <StyledLoader>
-    <div>
-      <Spinner size={30} />
-      {text ? <p>{text}</p> : null}
-    </div>
+    <div>{text ? <p>{text}</p> : null}</div>
   </StyledLoader>
 );
 

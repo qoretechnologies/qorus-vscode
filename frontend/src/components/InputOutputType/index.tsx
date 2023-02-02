@@ -67,7 +67,7 @@ export const InputOutputType = ({
             : undefined
         }
       >
-        {inputType ? <ReqoreTree data={inputType} size="small" /> : <Loader />}
+        {inputType && outputType ? <ReqoreTree data={inputType} size="small" /> : <Loader />}
       </ReqorePanel>
       <ReqoreVerticalSpacer height={10} />
       <ReqorePanel
@@ -79,7 +79,7 @@ export const InputOutputType = ({
             : undefined
         }
       >
-        {outputType ? <ReqoreTree data={outputType} size="small" /> : <Loader />}
+        {outputType && inputType ? <ReqoreTree data={outputType} size="small" /> : <Loader />}
       </ReqorePanel>
     </>
   );

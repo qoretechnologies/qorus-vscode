@@ -1,4 +1,3 @@
-import { Intent } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreControlGroup,
@@ -125,7 +124,7 @@ const WorkflowConfigItemsTable: Function = ({
             />
             <ReqoreButton
               icon="CloseLine"
-              intent={Intent.WARNING}
+              intent={'warning'}
               tooltip={t('button.remove-this-value')}
               disabled={definitionsOnly}
               onClick={() => {

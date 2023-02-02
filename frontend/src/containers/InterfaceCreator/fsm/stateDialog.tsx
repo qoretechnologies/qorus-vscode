@@ -1,4 +1,3 @@
-import { Intent } from '@blueprintjs/core';
 import { map } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
@@ -100,18 +99,16 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   }, [newData.action?.value?.['class']]);
 
   useUnmount(() => {
-    if (isDataValid()) {
-      () => {
-        // If the name is empty and the original name was empty
-        // delete this state
-        if (
-          (data.type === 'fsm' && !data.name) ||
-          (data.type === 'state' && !data.action?.value) ||
-          (data.type === 'block' && size(data.states) === 0)
-        ) {
-          deleteState(id, true);
-        }
-      };
+    if (data.isNew) {
+      // If the name is empty and the original name was empty
+      // delete this state
+      if (!isDataValid()) {
+        deleteState(id, true);
+      }
+      // If the user closed an existing state with invalid data
+      // set the data to original data
+    } else if (!isDataValid) {
+      onSubmit(id, data);
     }
   });
 
@@ -371,7 +368,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             label: isCustomBlockFirstPage() ? t('Next') : t('Submit'),
             disabled: isCustomBlockFirstPage() ? false : !isDataValid() || isLoading,
             icon: 'CheckLine',
-            intent: isLoading ? Intent.WARNING : isCustomBlockFirstPage() ? 'info' : 'success',
+            intent: isLoading ? 'warning' : isCustomBlockFirstPage() ? 'info' : 'success',
             position: 'right',
             responsive: false,
             onClick: () => {
@@ -524,10 +521,14 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 collapsible={false}
               >
                 <SelectField
-                  defaultItems={map(StateTypes, (stateType) => ({
-                    name: stateType,
-                    desc: t(`field-desc-state-${stateType}`),
-                  }))}
+                  defaultItems={map(StateTypes, (stateType) =>
+                    stateType !== 'none'
+                      ? {
+                          name: stateType,
+                          desc: t(`field-desc-state-${stateType}`),
+                        }
+                      : null
+                  ).filter((stateType) => stateType)}
                   fluid
                   onChange={(_name, value) => {
                     handleDataUpdate('action', value === data?.action?.type ? data?.action : null);

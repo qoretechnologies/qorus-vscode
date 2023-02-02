@@ -1,5 +1,4 @@
-import { Button } from '@blueprintjs/core';
-import { ReqorePanel } from '@qoretechnologies/reqore';
+import { ReqoreButton, ReqorePanel } from '@qoretechnologies/reqore';
 import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
 import timeago from 'epoch-timeago';
 import { capitalize, forEach, size } from 'lodash';
@@ -191,9 +190,8 @@ const TutorialButton = ({ type, onClick }) => {
   return isReady ? (
     <>
       {isSuccessful && (
-        <Button
-          icon="help"
-          text="Tutorial"
+        <ReqoreButton
+          icon="QuestionMark"
           onClick={() => {
             tutorials[type].elements = tutorials[type].elements.map((element) => {
               const el = document.querySelector(`#${element.id}`);
@@ -210,11 +208,15 @@ const TutorialButton = ({ type, onClick }) => {
 
             onClick([...tutorials.default.elements, ...tutorials[type].elements]);
           }}
-        />
+        >
+          Tutorial
+        </ReqoreButton>
       )}
     </>
   ) : (
-    <Button loading text={t('WaitingForElements')} />
+    <ReqoreButton intent="pending" minimal>
+      {t('WaitingForElements')}
+    </ReqoreButton>
   );
 };
 

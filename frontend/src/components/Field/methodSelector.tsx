@@ -1,6 +1,6 @@
-import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
 import { ReqoreButton, ReqoreControlGroup } from '@qoretechnologies/reqore';
 import React, { useContext } from 'react';
+import { cancelControl, submitControl } from '../../containers/InterfaceCreator/controls';
 import { FieldContext } from '../../context/fields';
 import { MethodsContext } from '../../context/methods';
 import { TextContext } from '../../context/text';
@@ -8,6 +8,7 @@ import { validateField } from '../../helpers/validations';
 import CustomDialog from '../CustomDialog';
 import SubField from '../SubField';
 import LongStringField from './longString';
+import { PositiveColorEffect } from './multiPair';
 import Select from './select';
 import String from './string';
 
@@ -41,42 +42,31 @@ const NewMethodDialog = ({ onSubmit, onClose }) => {
       title={t('AddMethodTooltip')}
       isOpen
       onClose={onClose}
-      style={{ backgroundColor: '#fff' }}
+      bottomActions={[
+        cancelControl(() => {
+          onClose();
+        }),
+        submitControl(
+          () => {
+            onClose();
+            onSubmit(name, description);
+          },
+          {
+            disabled: !isMethodValid(),
+          }
+        ),
+      ]}
     >
-      <div className={Classes.DIALOG_BODY}>
-        <SubField title={t('field-label-name')} isValid={isNameValid()}>
-          <String value={name} name="methodName" onChange={(_n, v) => setName(v)} />
-        </SubField>
-        <SubField title={t('field-label-desc')} isValid={isDescValid()}>
-          <LongStringField
-            value={description}
-            name="methodDesc"
-            onChange={(_n, v) => setDescription(v)}
-          />
-        </SubField>
-      </div>
-      <div className={Classes.DIALOG_FOOTER}>
-        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <ButtonGroup>
-            <Button
-              text={t('Cancel')}
-              onClick={() => {
-                onClose();
-              }}
-            />
-            <Button
-              id="global-dialog-confirm"
-              text={t('Submit')}
-              intent={'success'}
-              disabled={!isMethodValid()}
-              onClick={() => {
-                onClose();
-                onSubmit(name, description);
-              }}
-            />
-          </ButtonGroup>
-        </div>
-      </div>
+      <SubField title={t('field-label-name')} isValid={isNameValid()}>
+        <String value={name} name="methodName" onChange={(_n, v) => setName(v)} />
+      </SubField>
+      <SubField title={t('field-label-desc')} isValid={isDescValid()}>
+        <LongStringField
+          value={description}
+          name="methodDesc"
+          onChange={(_n, v) => setDescription(v)}
+        />
+      </SubField>
     </CustomDialog>
   );
 };
@@ -99,7 +89,7 @@ const MethodSelector = ({ onChange, name, value }) => {
           }}
         />
       )}
-      <ReqoreControlGroup fluid>
+      <ReqoreControlGroup fluid stack fill>
         <Select
           fill
           forceDropdown
@@ -108,7 +98,12 @@ const MethodSelector = ({ onChange, name, value }) => {
           onChange={onChange}
           name={name}
         />
-        <ReqoreButton intent="success" icon="AddLine" onClick={() => setAddingMethod(true)} fixed />
+        <ReqoreButton
+          effect={PositiveColorEffect}
+          icon="AddLine"
+          onClick={() => setAddingMethod(true)}
+          fixed
+        />
       </ReqoreControlGroup>
     </>
   );

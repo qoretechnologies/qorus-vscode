@@ -1,4 +1,3 @@
-import { Button, ButtonGroup, Callout, Classes } from '@blueprintjs/core';
 import {
   ReqoreContent,
   ReqoreHeader,
@@ -14,8 +13,8 @@ import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
+import { createGlobalStyle } from 'styled-components';
 import ContextMenu from './components/ContextMenu';
-import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
 import Menu from './components/Menu';
 import { Messages } from './constants/messages';
@@ -48,6 +47,12 @@ import ProjectConfig from './project_config/ProjectConfig';
 import SourceDirectories from './project_config/sourceDirs';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
 const md5 = require('md5');
+
+const GlobalStyle = createGlobalStyle`
+  .reqore-tree, .reqore-tree-textarea {
+    height: 100%;
+  }
+`;
 
 export interface IApp {
   addMessageListener: TMessageListener;
@@ -335,6 +340,7 @@ const App: FunctionComponent<IApp> = ({
 
   return (
     <>
+      <GlobalStyle />
       <DraftsContext.Provider
         value={{
           addDraft,
@@ -419,47 +425,6 @@ const App: FunctionComponent<IApp> = ({
                 </div>
               </ReqoreContent>
             </TextContext.Provider>
-            {confirmDialog.isOpen && (
-              <CustomDialog
-                isOpen
-                icon="warning-sign"
-                title={t('ConfirmDialogTitle')}
-                onClose={() => {
-                  confirmDialog.onCancel && confirmDialog.onCancel();
-                  setConfirmDialog({});
-                }}
-                style={{ backgroundColor: '#fff' }}
-              >
-                <div className={Classes.DIALOG_BODY}>
-                  <Callout intent={confirmDialog.btnStyle || 'danger'}>
-                    {t(confirmDialog.text)}
-                  </Callout>
-                </div>
-                <div className={Classes.DIALOG_FOOTER}>
-                  <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                    <ButtonGroup>
-                      <Button
-                        text={t('Cancel')}
-                        onClick={() => {
-                          confirmDialog.onCancel && confirmDialog.onCancel();
-                          setConfirmDialog({});
-                        }}
-                        id="global-dialog-cancel"
-                      />
-                      <Button
-                        id="global-dialog-confirm"
-                        text={t(confirmDialog.btnText || 'Remove')}
-                        intent={confirmDialog.btnStyle || 'danger'}
-                        onClick={() => {
-                          confirmDialog.onSubmit();
-                          setConfirmDialog({});
-                        }}
-                      />
-                    </ButtonGroup>
-                  </div>
-                </div>
-              </CustomDialog>
-            )}
           </DialogsContext.Provider>
         </ContextMenuContext.Provider>
       </DraftsContext.Provider>

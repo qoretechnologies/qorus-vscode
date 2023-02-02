@@ -1,5 +1,4 @@
 // @flow
-import { Intent } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreControlGroup,
@@ -299,7 +298,7 @@ let ItemsTable: Function = ({
             />
             <ReqoreButton
               icon="CloseLine"
-              intent={Intent.WARNING}
+              intent={'warning'}
               tooltip={t('button.remove-this-value')}
               disabled={
                 definitionsOnly || (item.level ? !item.level.startsWith(levelType || '') : true)
