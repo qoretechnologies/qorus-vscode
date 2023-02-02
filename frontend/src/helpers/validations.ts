@@ -261,11 +261,19 @@ export const validateField: (
         return false;
       }
 
-      if (
-        (type === 'update' || type === 'create') &&
+      const isUpdateOrCreate = type === 'update' || type === 'create';
+
+      const hasNormalValidArgs =
+        `${type}_args` in value &&
         (size(value[`${type}_args`]) === 0 ||
-          !validateField('system-options', value[`${type}_args`]))
-      ) {
+          !validateField('system-options', value[`${type}_args`]));
+
+      const hasFreeformValidArgs =
+        `${type}_args_freeform` in value &&
+        (validateField('hash', value[`${type}_args_freeform`]) ||
+          validateField('list', value[`${type}_args_freeform`]));
+
+      if (isUpdateOrCreate && (hasNormalValidArgs || !hasFreeformValidArgs)) {
         return false;
       }
 

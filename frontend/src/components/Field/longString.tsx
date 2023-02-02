@@ -29,6 +29,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
   get_message,
   return_message,
   placeholder,
+  intent,
   noWrap,
 }) => {
   // Fetch data on mount
@@ -61,6 +62,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
       value={!value ? default_value || '' : value}
       onChange={handleInputChange}
       onClearClick={() => onChange(name, '')}
+      intent={intent}
     />
   );
 };

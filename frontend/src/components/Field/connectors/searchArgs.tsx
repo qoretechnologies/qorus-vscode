@@ -1,4 +1,10 @@
-import { ReqoreButton, ReqoreControlGroup, ReqoreMessage } from '@qoretechnologies/reqore';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqoreTabs,
+  ReqoreTabsContent,
+} from '@qoretechnologies/reqore';
 import { reduce, size } from 'lodash';
 import React, { useContext, useEffect } from 'react';
 import { TRecordType } from '.';
@@ -6,8 +12,10 @@ import { TTranslator } from '../../../App';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { insertUrlPartBeforeQuery } from '../../../helpers/functions';
+import { validateField } from '../../../helpers/validations';
 import Spacer from '../../Spacer';
 import SubField from '../../SubField';
+import LongStringField from '../longString';
 import { PositiveColorEffect } from '../multiPair';
 import Options, { IOptions, IOptionsSchema } from '../systemOptions';
 
@@ -76,64 +84,92 @@ export const RecordQueryArgs = ({
       {}
     );
 
+  const textValue = value && typeof value === 'object' ? JSON.stringify(value) : value;
+
   if (asList) {
     return (
-      <>
-        {error && (
-          <ReqoreMessage intent="danger" title={error.title}>
-            {error.desc}
-          </ReqoreMessage>
-        )}
-        {value &&
-          (value as IOptions[]).map((options: IOptions, index: number) => (
-            <SubField
-              title={`${t('Record')} ${index + 1}`}
-              key={index}
-              subtle
-              onRemove={() => {
-                // Filter out the items from value with this index
-                onChange(
-                  `${type}_args`,
-                  ((value || []) as IOptions[]).filter(
-                    (_options: IOptions, idx: number) => idx !== index
-                  )
-                );
-              }}
+      <ReqoreTabs
+        activeTab={!value || typeof value === 'string' ? 'text' : 'form'}
+        tabsPadding="vertical"
+        padded={false}
+        tabs={[
+          { label: 'Text', icon: 'Text', id: 'text' },
+          { label: 'Form', icon: 'AlignCenter', id: 'form' },
+        ]}
+        onTabChange={(tabId) => {
+          onChange(`${type}_args_freeform`, tabId === 'text' ? '' : [{}]);
+        }}
+      >
+        <ReqoreTabsContent tabId="text">
+          <LongStringField
+            value={textValue}
+            onChange={onChange}
+            name={`${type}_args_freeform`}
+            intent={
+              validateField('hash', textValue) || validateField('list', textValue)
+                ? undefined
+                : 'danger'
+            }
+          />
+        </ReqoreTabsContent>
+        <ReqoreTabsContent tabId="form">
+          {error && (
+            <ReqoreMessage intent="danger" title={error.title}>
+              {error.desc}
+            </ReqoreMessage>
+          )}
+          {value && typeof value !== 'string'
+            ? (value as IOptions[]).map((options: IOptions, index: number) => (
+                <SubField
+                  title={`${t('Record')} ${index + 1}`}
+                  key={index}
+                  subtle
+                  onRemove={() => {
+                    // Filter out the items from value with this index
+                    onChange(
+                      `${type}_args`,
+                      ((value || []) as IOptions[]).filter(
+                        (_options: IOptions, idx: number) => idx !== index
+                      )
+                    );
+                  }}
+                >
+                  <Options
+                    onChange={(name, newOptions?: IOptions) => {
+                      const newValue = [...(value as IOptions[])];
+                      // Update the field
+                      newValue[index] = newOptions;
+                      // Update the pairs
+                      onChange(name, newValue);
+                    }}
+                    name={`${type}_args`}
+                    value={options}
+                    operatorsUrl={
+                      hasOperators
+                        ? insertUrlPartBeforeQuery(url, `/search_operators`, 'context=ui')
+                        : undefined
+                    }
+                    options={transformedOptions}
+                    placeholder={t('AddArgument')}
+                    noValueString={t('NoArgument')}
+                  />
+                </SubField>
+              ))
+            : null}
+          <Spacer size={15} />
+          <ReqoreControlGroup fluid>
+            <ReqoreButton
+              icon={'AddLine'}
+              rightIcon={'AddLine'}
+              effect={PositiveColorEffect}
+              textAlign="center"
+              onClick={() => onChange(`${type}_args`, [...((value || []) as IOptions[]), {}])}
             >
-              <Options
-                onChange={(name, newOptions?: IOptions) => {
-                  const newValue = [...(value as IOptions[])];
-                  // Update the field
-                  newValue[index] = newOptions;
-                  // Update the pairs
-                  onChange(name, newValue);
-                }}
-                name={`${type}_args`}
-                value={options}
-                operatorsUrl={
-                  hasOperators
-                    ? insertUrlPartBeforeQuery(url, `/search_operators`, 'context=ui')
-                    : undefined
-                }
-                options={transformedOptions}
-                placeholder={t('AddArgument')}
-                noValueString={t('NoArgument')}
-              />
-            </SubField>
-          ))}
-        <Spacer size={15} />
-        <ReqoreControlGroup fluid>
-          <ReqoreButton
-            icon={'AddLine'}
-            rightIcon={'AddLine'}
-            effect={PositiveColorEffect}
-            textAlign="center"
-            onClick={() => onChange(`${type}_args`, [...((value || []) as IOptions[]), {}])}
-          >
-            {t('AddAnotherRecord')}
-          </ReqoreButton>
-        </ReqoreControlGroup>
-      </>
+              {t('AddAnotherRecord')}
+            </ReqoreButton>
+          </ReqoreControlGroup>
+        </ReqoreTabsContent>
+      </ReqoreTabs>
     );
   }
 

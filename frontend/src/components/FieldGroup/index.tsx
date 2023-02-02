@@ -8,7 +8,7 @@ const FieldGroup = ({ children, isValid, ...rest }: IReqorePanelProps & { isVali
     icon={!!rest.label ? 'Group2Line' : undefined}
     size="small"
     {...rest}
-    intent={isValid ? rest.intent : 'danger'}
+    intent={isValid === false ? 'danger' : rest.intent}
   >
     <ReqoreColumns columnsGap="20px" minColumnWidth="450px">
       {children}

@@ -62,7 +62,7 @@ const SubField: React.FC<ISubFieldProps> = ({
         contentEffect={
           subtle ? undefined : { gradient: { colors: 'main', direction: 'to right bottom' } }
         }
-        intent={isValid ? undefined : 'danger'}
+        intent={isValid === false ? 'danger' : undefined}
         label={title}
         badge={detail}
         icon={subtle ? undefined : title || detail ? 'SettingsLine' : undefined}

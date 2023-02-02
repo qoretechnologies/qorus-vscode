@@ -465,13 +465,22 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             type={recordType}
             asList={supportsList[recordType]}
             url={getUrlFromProvider(optionProvider, false, true)}
-            value={optionProvider?.[`${recordType}_args`]}
-            onChange={(_nm, val) => {
+            value={
+              optionProvider?.[`${recordType}_args`] ||
+              optionProvider?.[`${recordType}_args_freeform`]
+            }
+            onChange={(argName, val) => {
               setOptionProvider((cur: IProviderType | null) => {
                 const result: IProviderType = {
                   ...cur,
-                  [`${recordType}_args`]: val,
+                  [argName]: val,
                 } as IProviderType;
+
+                if (argName.includes('freeform')) {
+                  delete result[`${recordType}_args`];
+                } else {
+                  delete result[`${recordType}_args_freeform`];
+                }
 
                 return result;
               });
