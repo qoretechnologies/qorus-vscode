@@ -209,6 +209,16 @@ export const validateField: (
       }
       return true;
     }
+    case 'list-of-hashes': {
+      // Get the parsed yaml
+      const parsedValue: any = maybeParseYaml(value);
+      // If the value is not an object or empty
+      if (!parsedValue || !isArray(parsedValue)) {
+        return false;
+      }
+      // If the value is not an object or empty
+      return parsedValue.every((item: any) => validateField('hash', item));
+    }
     case 'mapper-code':
       if (!value) {
         return false;
@@ -270,8 +280,8 @@ export const validateField: (
 
       const hasFreeformValidArgs =
         `${type}_args_freeform` in value &&
-        (validateField('hash', value[`${type}_args_freeform`]) ||
-          validateField('list', value[`${type}_args_freeform`]));
+        (size(value[`${type}_args_freeform`]) === 0 ||
+          !validateField('list-of-hashes', value[`${type}_args_freeform`]));
 
       if (isUpdateOrCreate && (hasNormalValidArgs || !hasFreeformValidArgs)) {
         return false;

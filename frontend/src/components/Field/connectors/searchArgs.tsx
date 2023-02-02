@@ -5,18 +5,20 @@ import {
   ReqoreTabs,
   ReqoreTabsContent,
 } from '@qoretechnologies/reqore';
+import jsyaml from 'js-yaml';
 import { reduce, size } from 'lodash';
 import React, { useContext, useEffect } from 'react';
+import { useUpdateEffect } from 'react-use';
 import { TRecordType } from '.';
 import { TTranslator } from '../../../App';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { insertUrlPartBeforeQuery } from '../../../helpers/functions';
-import { validateField } from '../../../helpers/validations';
+import { maybeParseYaml, validateField } from '../../../helpers/validations';
 import Spacer from '../../Spacer';
 import SubField from '../../SubField';
 import LongStringField from '../longString';
-import { PositiveColorEffect } from '../multiPair';
+import { PositiveColorEffect, SaveColorEffect } from '../multiPair';
 import Options, { IOptions, IOptionsSchema } from '../systemOptions';
 
 export interface ISearchArgsProps {
@@ -26,6 +28,7 @@ export interface ISearchArgsProps {
   url: string;
   onChange: (name: string, value?: IOptions | IOptions[]) => void;
   hasOperators?: boolean;
+  isFreeform?: boolean;
 }
 
 export const RecordQueryArgs = ({
@@ -35,12 +38,19 @@ export const RecordQueryArgs = ({
   type,
   hasOperators = true,
   asList,
+  isFreeform,
 }: ISearchArgsProps) => {
   const [options, setOptions] = React.useState<any>(undefined);
   const [hasLoaded, setHasLoaded] = React.useState<boolean>(false);
   const [error, setError] = React.useState<any | undefined>(undefined);
   const t: TTranslator = useContext<TTranslator>(TextContext);
   const { fetchData, qorus_instance }: any = useContext(InitialContext);
+  const [localValue, setLocalValue] = React.useState<any>(jsyaml.safeDump(value));
+  const [isValueSubmitted, setIsValueSubmitted] = React.useState<boolean>(true);
+
+  useUpdateEffect(() => {
+    setIsValueSubmitted(false);
+  }, [localValue]);
 
   useEffect(() => {
     if (qorus_instance) {
@@ -84,12 +94,10 @@ export const RecordQueryArgs = ({
       {}
     );
 
-  const textValue = value && typeof value === 'object' ? JSON.stringify(value) : value;
-
   if (asList) {
     return (
       <ReqoreTabs
-        activeTab={!value || typeof value === 'string' ? 'text' : 'form'}
+        activeTab={isFreeform ? 'text' : 'form'}
         tabsPadding="vertical"
         padded={false}
         tabs={[
@@ -97,20 +105,31 @@ export const RecordQueryArgs = ({
           { label: 'Form', icon: 'AlignCenter', id: 'form' },
         ]}
         onTabChange={(tabId) => {
-          onChange(`${type}_args_freeform`, tabId === 'text' ? '' : [{}]);
+          onChange(tabId === 'text' ? `${type}_args_freeform` : `${type}_args`, [{}]);
+          setLocalValue(undefined);
         }}
       >
         <ReqoreTabsContent tabId="text">
-          <LongStringField
-            value={textValue}
-            onChange={onChange}
-            name={`${type}_args_freeform`}
-            intent={
-              validateField('hash', textValue) || validateField('list', textValue)
-                ? undefined
-                : 'danger'
-            }
-          />
+          <ReqoreControlGroup fluid fill>
+            <LongStringField
+              value={localValue}
+              onChange={(_name, value) => setLocalValue(value)}
+              name={`${type}_args_freeform`}
+              intent={validateField('list-of-hashes', localValue) ? undefined : 'danger'}
+            />
+            {!isValueSubmitted && (
+              <ReqoreButton
+                icon="CheckLine"
+                fixed
+                effect={SaveColorEffect}
+                onClick={() => {
+                  onChange(`${type}_args_freeform`, maybeParseYaml(localValue));
+                  setIsValueSubmitted(true);
+                }}
+                disabled={!validateField('list-of-hashes', localValue)}
+              />
+            )}
+          </ReqoreControlGroup>
         </ReqoreTabsContent>
         <ReqoreTabsContent tabId="form">
           {error && (
@@ -118,7 +137,7 @@ export const RecordQueryArgs = ({
               {error.desc}
             </ReqoreMessage>
           )}
-          {value && typeof value !== 'string'
+          {value
             ? (value as IOptions[]).map((options: IOptions, index: number) => (
                 <SubField
                   title={`${t('Record')} ${index + 1}`}

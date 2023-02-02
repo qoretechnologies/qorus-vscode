@@ -469,6 +469,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
               optionProvider?.[`${recordType}_args`] ||
               optionProvider?.[`${recordType}_args_freeform`]
             }
+            isFreeform={`${recordType}_args_freeform` in optionProvider}
             onChange={(argName, val) => {
               setOptionProvider((cur: IProviderType | null) => {
                 const result: IProviderType = {
