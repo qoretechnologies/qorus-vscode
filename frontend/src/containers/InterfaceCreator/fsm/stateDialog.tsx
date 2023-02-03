@@ -2,7 +2,7 @@ import { map } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
-import { useUnmount } from 'react-use';
+import { useUnmount, useUpdateEffect } from 'react-use';
 import shortid from 'shortid';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
@@ -20,7 +20,9 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getMaxExecutionOrderFromStates } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
-import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
+import withMessageHandler, {
+  TPostMessage,
+} from '../../../hocomponents/withMessageHandler';
 import ConfigItemManager from '../../ConfigItemManager';
 import ManageConfigItemsButton from '../../ConfigItemManager/manageButton';
 import FSMView, { IFSMState, IFSMStates } from './';
@@ -69,15 +71,20 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   disableInitial,
 }) => {
   const [newData, setNewData] = useState<IFSMState>(data);
-  const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
-  const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>('custom');
-  const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
+  const [actionType, setActionType] = useState<TAction>(
+    data?.action?.type || 'none'
+  );
+  const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>(
+    'custom'
+  );
+  const [showConfigItemsManager, setShowConfigItemsManager] =
+    useState<boolean>(false);
   const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const t = useContext(TextContext);
   const { confirmAction, qorus_instance } = useContext(InitialContext);
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (newData.action?.value?.['class']) {
       postMessage(Messages.GET_CONFIG_ITEMS, {
         iface_kind: 'fsm',
@@ -122,7 +129,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       if (value) {
         handleDataUpdate(
           'execution_order',
-          data?.execution_order || getMaxExecutionOrderFromStates(otherStates) + 1
+          data?.execution_order ||
+            getMaxExecutionOrderFromStates(otherStates) + 1
         );
       } else {
         handleDataUpdate('execution_order', null);
@@ -148,7 +156,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     if (newData.type === 'block') {
       return (
         isNameValid(newData.name) &&
-        (blockLogicType === 'custom' ? size(newData.states) : validateField('string', newData.fsm))
+        (blockLogicType === 'custom'
+          ? size(newData.states)
+          : validateField('string', newData.fsm))
       );
     }
 
@@ -164,8 +174,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     return (
       isNameValid(newData.name) &&
       isActionValid() &&
-      (!newData['input-type'] || validateField('type-selector', newData['input-type'])) &&
-      (!newData['output-type'] || validateField('type-selector', newData['output-type']))
+      (!newData['input-type'] ||
+        validateField('type-selector', newData['input-type'])) &&
+      (!newData['output-type'] ||
+        validateField('type-selector', newData['output-type']))
     );
   };
 
@@ -178,7 +190,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
         return !!newData?.action?.value;
       }
       case 'connector': {
-        return !!newData?.action?.value?.['class'] && !!newData?.action?.value?.connector;
+        return (
+          !!newData?.action?.value?.['class'] &&
+          !!newData?.action?.value?.connector
+        );
       }
       case 'apicall': {
         return validateField('api-call', newData?.action?.value);
@@ -210,19 +225,27 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               object_type: 'mapper',
               return_value: 'objects',
             }}
-            onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
+            onChange={(_name, value) =>
+              handleDataUpdate('action', { type: 'mapper', value })
+            }
             value={newData?.action?.value}
             target_dir={target_dir}
-            name="action"
+            name='action'
             context={{
               default_values: newData?.injectedData
                 ? {
-                    name: `${newData.injectedData?.name ? `${newData.injectedData?.name}-` : ''}${
-                      newData.injectedData?.from
-                    }-${newData.injectedData?.to}`,
+                    name: `${
+                      newData.injectedData?.name
+                        ? `${newData.injectedData?.name}-`
+                        : ''
+                    }${newData.injectedData?.from}-${newData.injectedData?.to}`,
                     desc: `mapper to bridge ${newData.injectedData?.from} to ${
                       newData.injectedData?.to
-                    }${newData.injectedData?.name ? ` in flow ${newData.injectedData?.name}` : ''}`,
+                    }${
+                      newData.injectedData?.name
+                        ? ` in flow ${newData.injectedData?.name}`
+                        : ''
+                    }`,
                     version: '1.0',
                   }
                 : {
@@ -248,9 +271,11 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               return_value: 'objects',
             }}
             target_dir={target_dir}
-            onChange={(_name, value) => handleDataUpdate('action', { type: 'pipeline', value })}
+            onChange={(_name, value) =>
+              handleDataUpdate('action', { type: 'pipeline', value })
+            }
             value={newData?.action?.value}
-            name="action"
+            name='action'
             reference={{
               iface_kind: 'pipeline',
             }}
@@ -262,7 +287,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           <ConnectorSelector
             value={newData?.action?.value}
             target_dir={target_dir}
-            onChange={(value) => handleDataUpdate('action', { type: 'connector', value })}
+            onChange={(value) =>
+              handleDataUpdate('action', { type: 'connector', value })
+            }
             types={['input', 'input-output', 'output']}
           />
         );
@@ -270,12 +297,14 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'apicall': {
         return (
           <Connectors
-            name="apicall"
+            name='apicall'
             inline
             minimal
             requiresRequest
             isInitialEditing={!!data?.action?.value}
-            onChange={(_name, value) => handleDataUpdate('action', { type: 'apicall', value })}
+            onChange={(_name, value) =>
+              handleDataUpdate('action', { type: 'apicall', value })
+            }
             value={newData?.action?.value}
           />
         );
@@ -293,7 +322,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             key={actionType}
             recordType={actionType}
             isInitialEditing={!!data?.action?.value}
-            onChange={(_name, value) => handleDataUpdate('action', { type: actionType, value })}
+            onChange={(_name, value) =>
+              handleDataUpdate('action', { type: actionType, value })
+            }
             value={newData?.action?.value}
           />
         );
@@ -612,8 +643,11 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           onClose={() => setShowConfigItemsManager(false)}
         >
           <ConfigItemManager
-            type="fsm"
-            stateData={{ id: newData.id, class_name: newData.action?.value?.['class'] }}
+            type='fsm'
+            stateData={{
+              id: newData.id,
+              class_name: newData.action?.value?.['class'],
+            }}
             interfaceId={interfaceId}
             disableAdding
           />
