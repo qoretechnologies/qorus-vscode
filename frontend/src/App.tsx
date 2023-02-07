@@ -390,7 +390,7 @@ const App: FunctionComponent<IApp> = ({
                   </ReqoreNavbarGroup>
                   <ReqoreNavbarGroup position="right">
                     <ReqoreNavbarItem interactive onClick={() => setIsDirsDialogOpen(true)}>
-                      <ReqoreIcon icon="Folder3Line" size="20px" margin="right" />
+                      <ReqoreIcon icon="FolderAddLine" size="20px" margin="right" />
                     </ReqoreNavbarItem>
                     <ReqoreNavbarItem
                       interactive
@@ -417,6 +417,7 @@ const App: FunctionComponent<IApp> = ({
                     {tab == 'Login' && <LoginContainer />}
                     {tab == 'Loading' && <Loader text={t('Loading')} />}
                     {tab == 'ProjectConfig' && <ProjectConfig />}
+                    {tab == 'SourceDirs' && <SourceDirectories flat />}
                     {tab == 'ReleasePackage' && <ReleasePackage />}
                     {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
                     {tab === 'Drafts' && <DraftsView />}

@@ -84,6 +84,14 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
           },
         },
         {
+          name: 'Source Directories',
+          icon: 'FolderAddLine',
+          id: 'SourceDirs',
+          props: {
+            onClick: () => initialData?.changeTab('SourceDirs'),
+          },
+        },
+        {
           name: 'Release Management',
           icon: 'CodeBoxLine',
           id: 'ReleasePackage',

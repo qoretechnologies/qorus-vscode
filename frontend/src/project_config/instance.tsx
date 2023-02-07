@@ -131,6 +131,7 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
         <ReqorePanel
           collapsible
           isCollapsed
+          headerSize={4}
           // @ts-expect-error
           name="instance-item"
           label={name}

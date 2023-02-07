@@ -74,10 +74,6 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
 
   return (
     <>
-      {rest.has_to_be_valid_identifier && rest.value && !rest.isValid ? (
-        <ReqoreMessage intent="danger">{t('AllowedCharsOnly')}</ReqoreMessage>
-      ) : null}
-
       {(!type || type === 'string') && <StringField {...rest} type={type} />}
       {type === 'long-string' && <LongStringField fill {...rest} type={type} />}
       {type === 'method-name' && <MethodNameField {...rest} type={type} />}
@@ -104,6 +100,9 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
       {type === 'url' && <URLField {...rest} type={type} />}
       {type === 'api-manager' && <ApiManager {...rest} />}
       {rest.markdown && <MarkdownPreview value={rest.value} />}
+      {rest.has_to_be_valid_identifier && rest.value && !rest.isValid ? (
+        <ReqoreMessage intent="danger">{t('AllowedCharsOnly')}</ReqoreMessage>
+      ) : null}
     </>
   );
 };

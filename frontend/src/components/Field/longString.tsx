@@ -58,7 +58,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
     <ReqoreTextarea
       placeholder={placeholder}
       scaleWithContent
-      fluid={fill}
+      fluid
       value={!value ? default_value || '' : value}
       onChange={handleInputChange}
       onClearClick={() => onChange(name, '')}

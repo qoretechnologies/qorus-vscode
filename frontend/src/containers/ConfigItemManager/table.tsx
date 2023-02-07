@@ -210,8 +210,10 @@ let ItemsTable: Function = ({
       {
         dataId: 'name',
         header: t('Name'),
-        content: 'title',
         sortable: true,
+        cellTooltip: (data) => {
+          return data.name;
+        },
       },
     ];
 

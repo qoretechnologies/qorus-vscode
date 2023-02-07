@@ -2085,6 +2085,12 @@ msgstr "finished"
 msgid "updateStatus"
 msgstr "update status:"
 
+msgid "AddSteps"
+msgstr "Add Workflow Steps"
+
+msgstr "DescribeYourFsm"
+msgstr "Fill in the details"
+
 msgid "AddStepsTitle"
 msgstr "1. Add Workflow Steps"
 
@@ -2328,10 +2334,10 @@ msgid "NoInstance"
 msgstr "This item can only be created with an active Qorus instance selected"
 
 msgid "AddFunctionsTitle"
-msgstr "1. Add new functions"
+msgstr "1. Add New Methods"
 
 msgid "AddFunction"
-msgstr "Add function"
+msgstr "Add Method"
 
 msgid "MapperCodeNotFound ${ name }"
 msgstr "Mapper code '${ name }' not found"

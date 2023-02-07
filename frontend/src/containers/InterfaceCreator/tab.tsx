@@ -14,6 +14,7 @@ import Tutorial from '../../components/Tutorial';
 import { interfaceKindTransform } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftsContext } from '../../context/drafts';
+import { GlobalContext } from '../../context/global';
 import { InitialContext } from '../../context/init';
 import { MethodsContext } from '../../context/methods';
 import { TextContext } from '../../context/text';
@@ -229,6 +230,7 @@ const Tab: React.FC<ITabProps> = ({
   updateField,
   removeSubItemFromFields,
   name,
+  ...rest
 }) => {
   const isEditing: () => boolean = () => !!name;
   const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
@@ -253,12 +255,17 @@ const Tab: React.FC<ITabProps> = ({
   const [draftsCount, setDraftsCount] = useState<number>(0);
   const [isDraftSaved, setIsDraftSaved] = useState<boolean>(false);
   const [localLastDraft, setLastDraft] = useState<string>(null);
+  const context = useContext(GlobalContext);
+
+  console.log({ context });
 
   useEffect(() => {
     if (lastDraft && lastDraft.interfaceKind === type) {
       setLastDraft(lastDraft.interfaceId);
     }
   }, [lastDraft]);
+
+  console.log(rest);
 
   useMount(() => {
     const recreateListener = addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (data) => {

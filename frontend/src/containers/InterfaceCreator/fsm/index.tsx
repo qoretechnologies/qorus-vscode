@@ -20,7 +20,7 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { XYCoord, useDrop } from 'react-dnd';
+import { useDrop, XYCoord } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -48,7 +48,6 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
-  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -59,6 +58,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -515,6 +515,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
   useMount(() => {
     if (!embedded) {
+      console.log('SETTING FSM RESET');
       setFsmReset(() => reset);
       // Set interface id
       setInterfaceId(fsm?.iface_id || defaultInterfaceId || shortid.generate());
@@ -594,12 +595,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
       setWrapperDimensions({ width, height });
     }
-
-    return () => {
-      if (!embedded) {
-        setFsmReset(null);
-      }
-    };
   }, [qorus_instance, isReady, isMetadataHidden]);
 
   useEffect(() => {
@@ -664,9 +659,9 @@ const FSMView: React.FC<IFSMViewProps> = ({
     providerType: 'input' | 'output'
   ): ITypeComparatorData | null => {
     if (state.action) {
-      // if (!state.action.value) {
-      //   return null;
-      // }
+      if (!state.action.value) {
+        return null;
+      }
 
       const { type, value } = state.action;
 

@@ -10,7 +10,6 @@ import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
 import { useMount } from 'react-use';
 import compose from 'recompose/compose';
-import styled, { css } from 'styled-components';
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
@@ -407,66 +406,6 @@ const Connector: React.FC<IConnectorProps> = ({
   );
 };
 
-const StyledMapperWrapper = styled.div<{ isCompatible?: boolean }>`
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  border: 1px solid #d7d7d7;
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
-  border-radius: 3px;
-  background-color: #fff;
-  color: #333;
-  padding: 4px;
-  white-space: nowrap;
-  z-index: 500;
-
-  > span {
-    margin-right: 5px;
-  }
-
-  ${({ isCompatible }) =>
-    isCompatible === false &&
-    css`
-      border-color: #d13913;
-    `}
-`;
-
-const StyledMapperConnection = styled.div<{ side: 'bottom' | 'top'; isCompatible?: boolean }>`
-  background-color: #d7d7d7;
-  position: absolute;
-  height: 33px;
-  width: 2px;
-  left: 50%;
-
-  ${({ side }) => css`
-    ${side}: -100%;
-  `}
-
-  ${({ isCompatible }) =>
-    isCompatible === false &&
-    css`
-      background-color: #d13913;
-    `}
-`;
-
-const StyledTrigger = styled.div`
-  margin: 20px auto;
-  margin-top: 0;
-  width: 50%;
-  border-radius: 3px;
-  padding: 5px;
-  text-align: center;
-  background: white;
-  border: 1px solid green;
-  position: relative;
-`;
-
-const StyledConnector = styled.h4``;
-
 let mapperListener;
 
 const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
@@ -733,9 +672,15 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
       <ReqoreControlGroup vertical gapSize="big" horizontalAlign="center">
         {connection &&
           connection.map((conn, index) => (
-            <ReqoreControlGroup vertical key={conn.id} horizontalAlign="center" gapSize="big">
+            <ReqoreControlGroup
+              vertical
+              key={conn.id}
+              horizontalAlign="center"
+              gapSize="big"
+              intent="info"
+            >
               {conn.trigger && <ReqoreTag icon="PlayLine" label={conn.trigger} />}
-              {conn.trigger && <ReqoreIcon icon="ArrowDownLine" />}
+              {conn.trigger && <ReqoreIcon icon="ArrowDownLine" intent="success" />}
               {/* MAPPER BETWEEN CONNECTIONS FIELDS */}
               {index !== 0 || conn.trigger ? (
                 <>
@@ -783,7 +728,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                   />
                   <ReqoreIcon
                     icon="ArrowDownLine"
-                    intent={conn.isInputCompatible !== false ? undefined : 'danger'}
+                    intent={conn.isInputCompatible !== false ? 'success' : 'danger'}
                   />
                 </>
               ) : null}
@@ -857,7 +802,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
               </ReqoreControlGroup>
               {index !== connection.length - 1 && (
                 <ReqoreIcon
-                  intent={conn.isOutputCompatible === false ? 'danger' : undefined}
+                  intent={conn.isOutputCompatible === false ? 'danger' : 'success'}
                   icon="ArrowDownLine"
                 />
               )}
