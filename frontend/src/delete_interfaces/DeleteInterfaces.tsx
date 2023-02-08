@@ -8,11 +8,12 @@ import {
   ReqoreTabsContent,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
-import { size } from 'lodash';
+import { isArray, size } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 import { vscode } from '../common/vscode';
+import { NegativeColorEffect } from '../components/Field/multiPair';
 import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
 import withTextContext from '../hocomponents/withTextContext';
 
@@ -163,7 +164,7 @@ class DeleteInterfaces extends Component {
       <ReqoreTable
         selectable
         fill
-        selected={this.props.checked}
+        selected={!isArray(this.props.checked) ? [] : this.props.checked}
         onSelectedChange={(selected) => {
           this.props.setChecked(selected);
         }}
@@ -193,7 +194,7 @@ class DeleteInterfaces extends Component {
         transparent
         flat
         fill
-        contentStyle={{ overflow: 'hidden' }}
+        contentStyle={{ overflow: 'hidden', display: 'flex', flexFlow: 'column' }}
         actions={[
           {
             icon: 'RefreshLine',
@@ -205,9 +206,8 @@ class DeleteInterfaces extends Component {
           {
             label: `${t('DeleteSelected')} ${t(this.props.iface_kind)}`,
             icon: 'DeleteBinLine',
-            intent: 'danger',
-            show: size(this.props.checked) === 0 ? false : true,
-            minimal: true,
+            effect: NegativeColorEffect,
+            show: !isArray(this.props.checked) || size(this.props.checked) === 0 ? false : true,
             tooltip: {
               handler: 'click',
               content: (
@@ -239,9 +239,12 @@ class DeleteInterfaces extends Component {
           </ReqoreMessage>
         ) : (
           <>
-            <ReqoreMessage intent="info">
-              No Qorus instance is connected. Please connect to a Qorus instance to use this
-              feature.
+            <ReqoreMessage
+              effect={{ gradient: { colors: { 0: 'warning', 100: 'danger' } } }}
+              icon="AlarmWarningFill"
+            >
+              Please be aware: You are about to delete interfaces from your remote active instance,
+              not your file system!
             </ReqoreMessage>
             <ReqoreTabs
               padded={false}
@@ -251,6 +254,7 @@ class DeleteInterfaces extends Component {
               activeTabIntent="info"
               tabs={tabs}
               fillParent
+              style={{ overflow: 'hidden' }}
             >
               {tabs.map((tab, index) => (
                 <ReqoreTabsContent tabId={tab.id} key={index}>
