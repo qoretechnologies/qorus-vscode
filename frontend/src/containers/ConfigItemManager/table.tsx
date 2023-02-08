@@ -8,6 +8,7 @@ import {
   ReqoreTag,
   ReqoreTree,
   ReqoreVerticalSpacer,
+  useReqore,
 } from '@qoretechnologies/reqore';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
@@ -192,6 +193,7 @@ let ItemsTable: Function = ({
   initialItems,
 }: ConfigItemsTableProps) => {
   const initContext = useContext(InitialContext);
+  const { isMobileOrTablet } = useReqore();
 
   const isInitialItemValueSame = (item) => {
     const initialItem = initialItems.find(
@@ -210,6 +212,7 @@ let ItemsTable: Function = ({
       {
         dataId: 'name',
         header: t('Name'),
+        grow: 2,
         sortable: true,
         cellTooltip: (data) => {
           return data.name;
@@ -249,33 +252,6 @@ let ItemsTable: Function = ({
           );
         },
       },
-      {
-        dataId: 'stricly_local',
-        header: t('Strictly local'),
-        sortable: true,
-        content: (item) => <>{item.stricly_local ? 'Yes' : 'No'}</>,
-        align: 'center',
-        width: 100,
-      },
-      {
-        dataId: 'level',
-        header: t('Level'),
-        sortable: true,
-        content: ({ level }) => <ReqoreTag size="small" icon="NodeTree" label={level} />,
-        align: 'center',
-        width: 100,
-      },
-      {
-        dataId: 'type',
-        header: t('Type'),
-        sortable: true,
-        width: 200,
-        align: 'center',
-        content: ({ type, can_be_undefined }) => (
-          <ReqoreTag size="small" icon="CodeLine" label={`${can_be_undefined ? '*' : ''}${type}`} />
-        ),
-      },
-
       {
         dataId: '_actions',
         header: t('Actions'),
@@ -335,6 +311,42 @@ let ItemsTable: Function = ({
         ),
       },
     ];
+
+    if (!isMobileOrTablet) {
+      cols = [
+        ...cols,
+        {
+          dataId: 'stricly_local',
+          header: t('Strictly local'),
+          sortable: true,
+          content: (item) => <>{item.stricly_local ? 'Yes' : 'No'}</>,
+          align: 'center',
+          width: 100,
+        },
+        {
+          dataId: 'level',
+          header: t('Level'),
+          sortable: true,
+          content: ({ level }) => <ReqoreTag size="small" icon="NodeTree" label={level} />,
+          align: 'center',
+          width: 100,
+        },
+        {
+          dataId: 'type',
+          header: t('Type'),
+          sortable: true,
+          width: 100,
+          align: 'center',
+          content: ({ type, can_be_undefined }) => (
+            <ReqoreTag
+              size="small"
+              icon="CodeLine"
+              label={`${can_be_undefined ? '*' : ''}${type}`}
+            />
+          ),
+        },
+      ];
+    }
 
     return cols;
   };

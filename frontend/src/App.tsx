@@ -14,6 +14,7 @@ import { connect } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
 import { createGlobalStyle } from 'styled-components';
+import { DraftsView } from './DraftsView';
 import ContextMenu from './components/ContextMenu';
 import Loader from './components/Loader';
 import Menu from './components/Menu';
@@ -26,7 +27,6 @@ import { ErrorsContext } from './context/errors';
 import { InitialContext } from './context/init';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
-import { DraftsView } from './DraftsView';
 import { callBackendBasic, getTargetFile } from './helpers/functions';
 import withErrors from './hocomponents/withErrors';
 import withFields from './hocomponents/withFields';
@@ -35,10 +35,10 @@ import withGlobalOptions from './hocomponents/withGlobalOptions';
 import withInitialData from './hocomponents/withInitialData';
 import withMapper from './hocomponents/withMapper';
 import {
-  addMessageListener,
-  postMessage,
   TMessageListener,
   TPostMessage,
+  addMessageListener,
+  postMessage,
 } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
@@ -390,7 +390,11 @@ const App: FunctionComponent<IApp> = ({
                   </ReqoreNavbarGroup>
                   <ReqoreNavbarGroup position="right">
                     <ReqoreNavbarItem interactive onClick={() => setIsDirsDialogOpen(true)}>
-                      <ReqoreIcon icon="FolderAddLine" size="20px" margin="right" />
+                      <ReqoreIcon
+                        icon="FolderAddLine"
+                        size="20px"
+                        tooltip="Manage source directories"
+                      />
                     </ReqoreNavbarItem>
                     <ReqoreNavbarItem
                       interactive
@@ -404,7 +408,7 @@ const App: FunctionComponent<IApp> = ({
                         })
                       }
                     >
-                      <ReqoreIcon icon="RefreshLine" size="20px" />
+                      <ReqoreIcon icon="RefreshLine" size="20px" tooltip="Reload webview" />
                     </ReqoreNavbarItem>
                   </ReqoreNavbarGroup>
                 </ReqoreHeader>

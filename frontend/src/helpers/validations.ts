@@ -11,11 +11,11 @@ import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
 import {
-  fixOperatorValue,
   IOptions,
   IOptionsSchemaArg,
   IQorusType,
   TOption,
+  fixOperatorValue,
 } from '../components/Field/systemOptions';
 import { getTemplateKey, getTemplateValue, isValueTemplate } from '../components/Field/template';
 import { getAddress, getProtocol } from '../components/Field/urlField';

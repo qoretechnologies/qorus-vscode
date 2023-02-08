@@ -4,7 +4,7 @@ import {
   ReqoreHorizontalSpacer,
   ReqoreMessage,
   ReqorePanel,
-  ReqoreVerticalSpacer
+  ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import { size } from 'lodash';
 import { FunctionComponent, useContext, useState } from 'react';
@@ -17,10 +17,10 @@ import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
 import withMessageHandler, {
+  TMessageListener,
+  TPostMessage,
   addMessageListener,
   postMessage,
-  TMessageListener,
-  TPostMessage
 } from '../../hocomponents/withMessageHandler';
 import SourceDirs from '../../project_config/sourceDirs';
 import CustomDialog from '../CustomDialog';
@@ -229,7 +229,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange & any> = (
                 minimal
                 flat
                 iconColor={item.isExpanded ? 'info:lighten:2' : undefined}
-                icon={item.isExpanded ? 'FolderOpenLine' : 'FolderLine'}
+                icon={item.isExpanded ? 'ArrowDownSLine' : 'ArrowRightSLine'}
               />
             ) : (
               <ReqoreButton readOnly fixed minimal flat icon="ForbidLine" />
@@ -238,6 +238,8 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange & any> = (
               onClick={() => handleNodeClick(item)}
               active={item.isSelected}
               flat={!item.isSelected}
+              iconColor={item.isExpanded ? 'info:lighten:2' : undefined}
+              icon={item.isExpanded ? 'FolderOpenLine' : 'FolderLine'}
               rightIcon={item.isSelected ? 'CheckLine' : undefined}
               effect={
                 item.isSelected

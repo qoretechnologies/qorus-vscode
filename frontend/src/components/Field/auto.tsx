@@ -81,6 +81,8 @@ const AutoField: FunctionComponent<
     if (rest['type-depends-on']) {
       // Get the requested type
       const typeValue: string = requestFieldData(rest['type-depends-on'], 'value');
+
+      console.log({ typeValue });
       // Check if the field has the value set yet
       if (typeValue && typeValue !== currentType) {
         // If this is auto / any field
@@ -93,14 +95,15 @@ const AutoField: FunctionComponent<
         // Set the new type
         setType(typeValue);
         if (!currentType) {
-          handleChange(name, value === undefined ? undefined : value);
+          handleChange(name, value === undefined ? undefined : value, typeValue);
         } else if (typeValue !== 'any') {
           const typeFromValue =
             value || value === null ? getTypeFromValue(maybeParseYaml(value)) : 'any';
 
           handleChange(
             name,
-            value === null ? null : typeValue === typeFromValue ? value : undefined
+            value === null ? null : typeValue === typeFromValue ? value : undefined,
+            typeValue
           );
         }
       }
@@ -125,7 +128,7 @@ const AutoField: FunctionComponent<
     return false;
   };
 
-  const handleChange: (name: string, value: any) => void = (name, value) => {
+  const handleChange: (name: string, value: any, type?: string) => void = (name, value) => {
     // Run the onchange
     if (onChange && currentInternalType) {
       onChange(name, value, currentInternalType, canBeNull());

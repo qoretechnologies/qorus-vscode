@@ -20,7 +20,7 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useDrop, XYCoord } from 'react-dnd';
+import { XYCoord, useDrop } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -48,6 +48,7 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
+  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -58,7 +59,6 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -1883,7 +1883,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                       : validateField('type-selector', metadata['input-type']) &&
                         isTypeCompatible('input')
                   }
-                  detail={t('Optional')}
+                  type={t('Optional')}
                   label={t('InputType')}
                 >
                   {!isTypeCompatible('input') && (
@@ -1909,7 +1909,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                       : validateField('type-selector', metadata['output-type']) &&
                         isTypeCompatible('output')
                   }
-                  detail={t('Optional')}
+                  type={t('Optional')}
                   label={t('OutputType')}
                 >
                   {!isTypeCompatible('output') && (

@@ -18,6 +18,8 @@ export const configItemFields = (params) => {
   return [
     {
       name: 'name',
+      compact: true,
+      group: 'info',
     },
     {
       name: 'description',
@@ -41,6 +43,8 @@ export const configItemFields = (params) => {
       mandatory: iface_info?.isConfigItemFieldSetByParent(params, 'can_be_undefined'),
       type: 'boolean',
       default_value: false,
+      compact: true,
+      group: 'info',
     },
     {
       name: 'default_value',
@@ -54,10 +58,14 @@ export const configItemFields = (params) => {
       mandatory: iface_info?.isConfigItemFieldSetByParent(params, 'strictly_local'),
       type: 'boolean',
       default_value: false,
+      compact: true,
+      group: 'info',
     },
     {
       name: 'config_group',
       default_value: iface_info?.last_config_group,
+      compact: true,
+      group: 'info',
     },
     {
       name: 'allowed_values',
@@ -71,6 +79,8 @@ export const configItemFields = (params) => {
       mandatory: iface_info?.isConfigItemFieldSetByParent(params, 'sensitive'),
       type: 'boolean',
       default_value: false,
+      compact: true,
+      group: 'info',
     },
   ].map((field) => ({
     ...field,
