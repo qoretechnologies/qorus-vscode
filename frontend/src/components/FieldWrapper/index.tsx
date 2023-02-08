@@ -270,6 +270,7 @@ export interface IField {
   reference?: {
     iface_kind: string;
     type?: string;
+    onDelete?: () => any;
   };
   iface_kind?: string;
 }

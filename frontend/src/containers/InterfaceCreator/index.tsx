@@ -18,6 +18,7 @@ import WorkflowsView, { CreatorWrapper } from './workflowsView';
 export interface ICreateInterface {
   initialData: any;
   onSubmit: any;
+  onDelete?: () => any;
   context: any;
   data: any;
 }
@@ -25,6 +26,7 @@ export interface ICreateInterface {
 export const CreateInterface: FunctionComponent<ICreateInterface> = ({
   initialData,
   onSubmit,
+  onDelete,
   data,
   context,
 }) => {
@@ -33,8 +35,16 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({
   const getName: () => string = () =>
     initialData?.[initialData.subtab]?.name || initialData?.[initialData.subtab]?.path;
 
+  const getVersion: () => string = () => initialData?.[initialData.subtab]?.version;
+
   return (
-    <Tab name={getName()} type={initialData.subtab} data={initialData}>
+    <Tab
+      name={getName()}
+      type={initialData.subtab}
+      version={getVersion()}
+      data={initialData}
+      onDelete={onDelete}
+    >
       {initialData.subtab === 'fsm' && (
         <FSMView fsm={initialData.fsm} onSubmitSuccess={onSubmit} interfaceContext={context} />
       )}

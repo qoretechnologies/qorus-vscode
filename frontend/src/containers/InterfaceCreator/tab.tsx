@@ -32,7 +32,9 @@ export interface ITabProps {
   type: string;
   isEditing: boolean;
   name: string;
+  version?: string;
   resetAllInterfaceData: (type: string) => any;
+  onDelete?: () => any;
 }
 
 const StyledTab = styled.div`
@@ -225,11 +227,13 @@ const Tab: React.FC<ITabProps> = ({
   t,
   data,
   type,
+  version,
   children,
   resetAllInterfaceData,
   updateField,
   removeSubItemFromFields,
   name,
+  onDelete,
   ...rest
 }) => {
   const isEditing: () => boolean = () => !!name;
@@ -257,15 +261,11 @@ const Tab: React.FC<ITabProps> = ({
   const [localLastDraft, setLastDraft] = useState<string>(null);
   const context = useContext(GlobalContext);
 
-  console.log({ context });
-
   useEffect(() => {
     if (lastDraft && lastDraft.interfaceKind === type) {
       setLastDraft(lastDraft.interfaceId);
     }
   }, [lastDraft]);
-
-  console.log(rest);
 
   useMount(() => {
     const recreateListener = addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (data) => {
@@ -437,11 +437,14 @@ const Tab: React.FC<ITabProps> = ({
         label: 'Delete',
         intent: 'danger',
         onClick: () => {
-          data.confirmAction('ConfirmDeleteInterface', () => {
+          data.confirmAction(t('ConfirmDeleteInterface'), () => {
             postMessage('delete-interface', {
               iface_kind: type,
-              name: name,
+              name,
+              version,
             });
+
+            onDelete?.();
             setIsDraftSaved(false);
             resetAllInterfaceData(type);
           });

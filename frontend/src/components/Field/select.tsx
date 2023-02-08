@@ -377,6 +377,9 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
         <ReqoreTag color="transparent" icon="ForbidLine" label={t('NothingToSelect')} />
       ) : null}
       <FieldEnhancer
+        // What should happen when the user deletes an interface
+        // from the Interface dialog?
+        onDelete={reference?.onDelete}
         context={{
           iface_kind,
           target_dir: (requestFieldData && requestFieldData('target_dir', 'value')) || target_dir,

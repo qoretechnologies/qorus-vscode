@@ -515,7 +515,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
   useMount(() => {
     if (!embedded) {
-      console.log('SETTING FSM RESET');
       setFsmReset(() => reset);
       // Set interface id
       setInterfaceId(fsm?.iface_id || defaultInterfaceId || shortid.generate());
@@ -2120,6 +2119,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     setShowStateIds={setShowStateIds}
                     showStateIds={showStateIds}
                     zoom={zoom}
+                    setZoom={setZoom}
                     items={map(states, (state, id) => ({
                       x: state.position.x,
                       y: state.position.y,
@@ -2136,8 +2136,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                       bgColor={theme.main}
                       style={{
                         transform: `scale(${zoom})`,
-                        marginLeft: `${calculateMargin()}px`,
-                        marginTop: `${calculateMargin()}px`,
+                        transformOrigin: 'left top',
                       }}
                     >
                       {map(states, (state, id) => (

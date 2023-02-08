@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import compose from 'recompose/compose';
 import { GlobalContext } from '../context/global';
 import { InitialContext } from '../context/init';
@@ -18,12 +18,6 @@ export default () =>
       const [pipelineReset, setPipelineReset] = useState(null);
       const [connectionReset, setConnectionReset] = useState(null);
       const initialData = useContext(InitialContext);
-
-      useEffect(() => {
-        if (fsmReset) {
-          console.log('FSM RESET HAS BEEN SET', fsmReset);
-        }
-      }, [fsmReset]);
 
       const handleInterfaceReset: (type: string, soft?: boolean) => void = (type, soft) => {
         // Reset the initial data
@@ -75,7 +69,6 @@ export default () =>
             props.resetInterfaceData('type');
             break;
           case 'fsm':
-            console.log(fsmReset);
             props.resetInterfaceData('fsm');
             fsmReset && fsmReset();
           case 'pipeline':

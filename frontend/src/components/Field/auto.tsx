@@ -81,8 +81,6 @@ const AutoField: FunctionComponent<
     if (rest['type-depends-on']) {
       // Get the requested type
       const typeValue: string = requestFieldData(rest['type-depends-on'], 'value');
-
-      console.log({ typeValue });
       // Check if the field has the value set yet
       if (typeValue && typeValue !== currentType) {
         // If this is auto / any field

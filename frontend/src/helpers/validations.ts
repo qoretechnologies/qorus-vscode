@@ -273,18 +273,24 @@ export const validateField: (
 
       const isUpdateOrCreate = type === 'update' || type === 'create';
 
-      const hasNormalValidArgs =
-        `${type}_args` in value &&
-        (size(value[`${type}_args`]) === 0 ||
-          !validateField('system-options', value[`${type}_args`]));
+      if (isUpdateOrCreate) {
+        const areNormalArgsInvalid =
+          `${type}_args` in value &&
+          (size(value[`${type}_args`]) === 0 ||
+            !validateField('system-options', value[`${type}_args`]));
 
-      const hasFreeformValidArgs =
-        `${type}_args_freeform` in value &&
-        (size(value[`${type}_args_freeform`]) === 0 ||
-          !validateField('list-of-hashes', value[`${type}_args_freeform`]));
+        const areFreeFormArgsInvalid =
+          `${type}_args_freeform` in value &&
+          (size(value[`${type}_args_freeform`]) === 0 ||
+            !validateField('list-of-hashes', value[`${type}_args_freeform`]));
 
-      if (isUpdateOrCreate && (hasNormalValidArgs || !hasFreeformValidArgs)) {
-        return false;
+        if (`${type}_args` in value && areNormalArgsInvalid) {
+          return false;
+        }
+
+        if (`${type}_args_freeform` in value && areFreeFormArgsInvalid) {
+          return false;
+        }
       }
 
       if (newValue?.type === 'factory') {

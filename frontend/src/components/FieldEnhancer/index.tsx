@@ -1,3 +1,4 @@
+import { omit } from 'lodash';
 import capitalize from 'lodash/capitalize';
 import React, { useContext, useState } from 'react';
 import { Messages } from '../../constants/messages';
@@ -8,7 +9,7 @@ import { MapperContext } from '../../context/mapper';
 import { TextContext } from '../../context/text';
 import withMessageHandler, {
   TMessageListener,
-  TPostMessage
+  TPostMessage,
 } from '../../hocomponents/withMessageHandler';
 import CustomDialog from '../CustomDialog';
 
@@ -17,6 +18,7 @@ export interface IFieldEnhancerProps {
   addMessageListener: TMessageListener;
   postMessage: TPostMessage;
   context?: any;
+  onDelete?: () => any;
 }
 
 const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
@@ -24,6 +26,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
   addMessageListener,
   postMessage,
   context,
+  onDelete,
   ...rest
 }) => {
   const [editManager, setEditManager] = useState<{
@@ -92,7 +95,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
     });
     // Get the interface data
     postMessage(Messages.GET_INTERFACE_DATA, {
-      ...reference,
+      ...omit(reference, ['onDelete']),
       iface_kind,
       custom_data: reference.type ? { type: reference.type } : null,
       name: iface_name,
@@ -106,7 +109,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
           onClose={() => {
             setEditManager({});
           }}
-          title={t(editManager.changeType)}
+          label={t(editManager.changeType)}
           isOpen
         >
           <CreateInterface
@@ -121,6 +124,10 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
                   : '';
 
               editManager.onSubmit(editManager.originalName, `${name}${version}`);
+              setEditManager({});
+            }}
+            onDelete={() => {
+              onDelete?.();
               setEditManager({});
             }}
           />

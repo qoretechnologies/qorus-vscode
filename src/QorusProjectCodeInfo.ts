@@ -13,16 +13,16 @@ import {
 import * as path from 'path';
 import { gettext, t } from 'ttag';
 import * as vscode from 'vscode';
-import * as globals from './global_config_item_values';
-import { field } from './interface_creator/common_constants';
 import { drafts_tree, otherFilesNames } from './QorusDraftsTree';
 import { interface_tree } from './QorusInterfaceTree';
-import { config_filename, projects, QorusProject } from './QorusProject';
+import { QorusProject, config_filename, projects } from './QorusProject';
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import { QorusProjectYamlInfo } from './QorusProjectYamlInfo';
 import { qorus_request } from './QorusRequest';
 import { qorus_webview } from './QorusWebview';
+import * as globals from './global_config_item_values';
+import { field } from './interface_creator/common_constants';
 import {
   all_root_classes,
   default_lang,
@@ -1595,8 +1595,15 @@ export class QorusProjectCodeInfo {
     });
   };
 
-  deleteInterfaceFromWebview = ({ iface_kind, name }) => {
-    const iface_data = this.yaml_info.yamlDataByName(iface_kind, name);
+  deleteInterfaceFromWebview = ({ iface_kind, name, version }) => {
+    const fullName = version ? `${name}:${version}` : name;
+    const iface_data = this.yaml_info.yamlDataByName(iface_kind, fullName);
+
+    if (!iface_data) {
+      msg.error(t`Unable to delete ${iface_kind} ${fullName} because it seems it does not exist`);
+      return;
+    }
+
     QorusProjectCodeInfo.deleteInterface({ iface_kind, iface_data });
   };
 

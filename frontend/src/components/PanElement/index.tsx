@@ -2,7 +2,7 @@ import { ReqorePanel } from '@qoretechnologies/reqore';
 import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
 import React from 'react';
 import shortid from 'shortid';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import Minimap from './minimap';
 
@@ -39,29 +39,6 @@ const StyledToolbar = styled(ReqorePanel)`
   transition: opacity 0.2s ease-in-out;
 `;
 
-const StyledToolbarActions = styled.div<{ show: boolean }>`
-  width: 200px;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  background-color: #f2f2f2;
-
-  ${({ show }) =>
-    show &&
-    css`
-      border-bottom: 1px solid #c3c3c3;
-    `}
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  p {
-    font-weight: 500;
-    margin: 0;
-    padding: 0 10px;
-  }
-`;
-
 let timeout;
 
 export class ElementPan extends React.Component<
@@ -80,6 +57,7 @@ export class ElementPan extends React.Component<
       [key: string]: any;
     };
     zoom: number;
+    setZoom: (number: number) => void;
     items?: { y: number; x: number }[];
     t: TTranslator;
     panElementId?: string;
@@ -109,6 +87,7 @@ export class ElementPan extends React.Component<
     this.onDragMove = this.onDragMove.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onDragStop = this.onDragStop.bind(this);
+    this.onWheel = this.onWheel.bind(this);
     this.ref = this.ref.bind(this);
   }
 
@@ -223,8 +202,21 @@ export class ElementPan extends React.Component<
     }
   }
 
+  public onWheel(e) {
+    // Less then 0 means scrolling up / zoom in
+    if (e.deltaY < 0) {
+      this.props.setZoom(this.props.zoom + 0.1);
+    } else {
+      this.props.setZoom(this.props.zoom - 0.1 < 0.1 ? 0.1 : this.props.zoom - 0.1);
+    }
+  }
+
   public componentDidMount() {
     this.init();
+  }
+
+  public componentWillUnmount() {
+    window.removeEventListener('wheel', this.onWheel);
   }
 
   init = () => {
@@ -239,6 +231,8 @@ export class ElementPan extends React.Component<
       this.el.scrollTop = this.props.startY;
       state.scrollY = this.el.scrollTop;
     }
+
+    //window.addEventListener('wheel', this.onWheel);
 
     this.setState(state);
   };
