@@ -152,6 +152,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange & any> = (
   };
 
   const handleCreateDirSubmit = async (addSource?: boolean) => {
+    console.log(folderDialog);
     setFolderDialog({ ...folderDialog, loading: true });
 
     const data = await callBackend('create-directory', undefined, {
@@ -196,6 +197,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange & any> = (
       return [
         ...newData,
         {
+          ...item,
           id: index,
           depth: index,
           hasCaret: !isFile && size(item.dirs) + size(item.files) !== 0,

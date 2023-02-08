@@ -66,7 +66,10 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
   const setSelectedItems = (newValue: string[]) => {
     // Send the selected items whenever they change
-    onChange(name, newValue);
+    onChange(
+      name,
+      newValue.map((val) => ({ name: val }))
+    );
   };
 
   const handleTagClick: (tag: string) => void = (tag) => {
@@ -135,6 +138,25 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     [value]
   );
 
+  const _items = useMemo(
+    () => [
+      ...items,
+      ...val
+        .map((item: string) => {
+          // Check if this item is in items already
+          const itemExists = items.find((i) => i.name === item);
+          // If it doesn't exist, add it to the items
+          if (!itemExists) {
+            return { name: item };
+          }
+
+          return null;
+        })
+        .filter((item) => item),
+    ],
+    [items, value]
+  );
+
   return (
     <FieldEnhancer context={context}>
       {(onEditClick, onCreateClick) => (
@@ -158,7 +180,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
           )}
           <ReqoreControlGroup fluid fill>
             <ReqoreMultiSelect
-              items={items.map(
+              items={_items.map(
                 (item): TReqoreMultiSelectItem => ({
                   value: item.name,
                 })
