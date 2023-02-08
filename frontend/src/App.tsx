@@ -2,8 +2,11 @@ import {
   ReqoreContent,
   ReqoreHeader,
   ReqoreIcon,
+  ReqoreMenu,
+  ReqoreMenuItem,
   ReqoreNavbarGroup,
   ReqoreNavbarItem,
+  ReqorePopover,
   ReqoreTag,
   useReqore,
 } from '@qoretechnologies/reqore';
@@ -82,6 +85,8 @@ const App: FunctionComponent<IApp> = ({
   changeTab,
   main_color,
   path,
+  theme,
+  setTheme,
   image_path,
   confirmDialog,
   setConfirmDialog,
@@ -334,6 +339,15 @@ const App: FunctionComponent<IApp> = ({
     };
   });
 
+  const changeTheme = (theme: string) => {
+    setTheme(theme);
+    postMessage(Messages.CONFIG_UPDATE_CUSTOM_DATA, {
+      data: {
+        theme,
+      },
+    });
+  };
+
   if (!t) {
     return <Loader text="Loading app..." />;
   }
@@ -389,6 +403,28 @@ const App: FunctionComponent<IApp> = ({
                     </ReqoreNavbarItem>
                   </ReqoreNavbarGroup>
                   <ReqoreNavbarGroup position="right">
+                    <ReqorePopover
+                      component={ReqoreNavbarItem}
+                      componentProps={{ interactive: true }}
+                      handler="click"
+                      isReqoreComponent
+                      noWrapper
+                      content={
+                        <ReqoreMenu>
+                          <ReqoreMenuItem icon="SunFill" onClick={() => changeTheme('light')}>
+                            Light theme
+                          </ReqoreMenuItem>
+                          <ReqoreMenuItem icon="MoonFill" onClick={() => changeTheme('dark')}>
+                            Dark theme
+                          </ReqoreMenuItem>
+                          <ReqoreMenuItem icon="CodeBoxLine" onClick={() => changeTheme('vscode')}>
+                            Follow VSCode theme
+                          </ReqoreMenuItem>
+                        </ReqoreMenu>
+                      }
+                    >
+                      <ReqoreIcon icon="PaletteLine" size="20px" tooltip="Change theme" />
+                    </ReqorePopover>
                     <ReqoreNavbarItem interactive onClick={() => setIsDirsDialogOpen(true)}>
                       <ReqoreIcon
                         icon="FolderAddLine"

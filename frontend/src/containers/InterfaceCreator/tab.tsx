@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { DraftsTable } from '../../components/DraftsTable';
+import { NegativeColorEffect, PositiveColorEffect } from '../../components/Field/multiPair';
 import Tutorial from '../../components/Tutorial';
 import { interfaceKindTransform } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
@@ -403,16 +404,7 @@ const Tab: React.FC<ITabProps> = ({
     actions.push({
       label: 'Create new',
       icon: 'AddLine',
-      flat: false,
-      effect: {
-        gradient: {
-          colors: {
-            0: 'info',
-            100: 'info:darken',
-          },
-          animate: 'hover',
-        },
-      },
+      effect: PositiveColorEffect,
       onClick: () => {
         setIsDraftSaved(false);
         resetAllInterfaceData(type);
@@ -435,7 +427,7 @@ const Tab: React.FC<ITabProps> = ({
       actions.push({
         icon: 'DeleteBinLine',
         label: 'Delete',
-        intent: 'danger',
+        effect: NegativeColorEffect,
         onClick: () => {
           data.confirmAction(t('ConfirmDeleteInterface'), () => {
             postMessage('delete-interface', {
@@ -497,6 +489,7 @@ const Tab: React.FC<ITabProps> = ({
         }
         fill
         flat
+        responsiveActions={false}
         opacity={0}
         headerSize={2}
         badge={

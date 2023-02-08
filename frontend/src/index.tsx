@@ -9,6 +9,7 @@ import {
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import { TReqoreHexColor } from '@qoretechnologies/reqore/dist/components/Effect';
+import { useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { createRoot } from 'react-dom/client';
@@ -103,19 +104,32 @@ window.onerror = (msg, url, line, col) => {
   );
 };
 
+const ReqoreWrapper = () => {
+  const [theme, setTheme] = useState<'light' | 'dark' | 'vscode'>('vscode');
+
+  return (
+    <ReqoreUIProvider
+      theme={{
+        main: theme === 'light' ? '#ffffff' : theme === 'dark' ? '#222222' : editorBackground,
+        intents: { success: '#4a7110' },
+        sidebar: theme === 'light' ? { main: '#333333' } : undefined,
+        header: theme === 'light' ? { main: '#333333' } : undefined,
+      }}
+      options={{
+        animations: { buttons: false },
+        withSidebar: true,
+        closePopoversOnEscPress: true,
+      }}
+    >
+      <AppContainer theme={theme} setTheme={setTheme} />
+    </ReqoreUIProvider>
+  );
+};
+
 root.render(
   <DndProvider backend={HTML5Backend}>
     <Provider store={store}>
-      <ReqoreUIProvider
-        theme={{ main: editorBackground, intents: { success: '#4a7110' } }}
-        options={{
-          animations: { buttons: false },
-          withSidebar: true,
-          closePopoversOnEscPress: true,
-        }}
-      >
-        <AppContainer />
-      </ReqoreUIProvider>
+      <ReqoreWrapper />
     </Provider>
   </DndProvider>
 );

@@ -319,7 +319,7 @@ export const field = {
       iface_kind: 'group',
     },
     compact: true,
-    group: 'resources',
+    group: 'other',
   },
   tags: {
     name: 'tags',

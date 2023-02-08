@@ -106,6 +106,8 @@ export default () =>
 
       useEffect(() => {
         const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
+          props.setTheme(data.theme);
+
           flushSync(() => setInitialData({}));
 
           let currentInitialData;

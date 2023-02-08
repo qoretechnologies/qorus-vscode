@@ -36,7 +36,11 @@ import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
 import Field from '../../components/Field';
 import { allowedTypes } from '../../components/Field/arrayAuto';
-import { PositiveColorEffect, SelectorColorEffect } from '../../components/Field/multiPair';
+import {
+  PositiveColorEffect,
+  SaveColorEffect,
+  SelectorColorEffect,
+} from '../../components/Field/multiPair';
 import FieldGroup from '../../components/FieldGroup';
 import {
   ContentWrapper,
@@ -1285,16 +1289,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             disabled: !canSubmit(),
             icon: 'CheckLine',
             responsive: false,
-            flat: false,
-            effect: {
-              gradient: {
-                colors: {
-                  0: 'success',
-                  100: 'success:darken',
-                },
-                animate: canSubmit() ? 'always' : 'never',
-              },
-            },
+            effect: SaveColorEffect,
             onClick: handleSubmitClick,
             position: 'right',
           },
