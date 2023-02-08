@@ -10,6 +10,7 @@ import {
 } from '@qoretechnologies/reqore';
 import { isArray, size } from 'lodash';
 import { Component } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 import { vscode } from '../common/vscode';
@@ -31,38 +32,56 @@ const columns = {
     { dataId: 'name', grow: 2 },
     { dataId: 'version', width: 80, content: 'tag', align: 'center' },
     { dataId: 'workflowid', width: 80, content: 'tag', align: 'center' },
-    { dataId: 'description', cellTooltip: ({ description }) => description },
+    {
+      dataId: 'description',
+      cellTooltip: ({ description }) => <ReactMarkdown>{description}</ReactMarkdown>,
+    },
   ],
   services: [
     { dataId: 'name', grow: 2 },
     { dataId: 'version', width: 80, content: 'tag', align: 'center' },
     { dataId: 'serviceid', width: 80, content: 'tag', align: 'center' },
-    { dataId: 'description', cellTooltip: ({ description }) => description },
+    {
+      dataId: 'description',
+      cellTooltip: ({ description }) => <ReactMarkdown>{description}</ReactMarkdown>,
+    },
   ],
   jobs: [
     { dataId: 'name', grow: 2 },
     { dataId: 'version', width: 80, content: 'tag', align: 'center' },
     { dataId: 'jobid', width: 80, content: 'tag', align: 'center' },
-    { dataId: 'description', cellTooltip: ({ description }) => description },
+    {
+      dataId: 'description',
+      cellTooltip: ({ description }) => <ReactMarkdown>{description}</ReactMarkdown>,
+    },
   ],
   steps: [
     { dataId: 'name', grow: 2 },
     { dataId: 'version', width: 80, content: 'tag', align: 'center' },
     { dataId: 'stepid', width: 80, content: 'tag', align: 'center' },
-    { dataId: 'description', cellTooltip: ({ description }) => description },
+    {
+      dataId: 'description',
+      cellTooltip: ({ description }) => <ReactMarkdown>{description}</ReactMarkdown>,
+    },
   ],
   classes: [
     { dataId: 'name', grow: 2 },
     { dataId: 'version', width: 80, content: 'tag', align: 'center' },
     { dataId: 'classid', width: 80, content: 'tag', align: 'center' },
-    { dataId: 'description', cellTooltip: ({ description }) => description },
+    {
+      dataId: 'description',
+      cellTooltip: ({ description }) => <ReactMarkdown>{description}</ReactMarkdown>,
+    },
     { dataId: 'language', content: 'tag', align: 'center' },
   ],
   mappers: [
     { dataId: 'name', grow: 2 },
     { dataId: 'version', width: 80, content: 'tag', align: 'center' },
     { dataId: 'mapperid', width: 80, content: 'tag', align: 'center' },
-    { dataId: 'description', cellTooltip: ({ description }) => description },
+    {
+      dataId: 'description',
+      cellTooltip: ({ description }) => <ReactMarkdown>{description}</ReactMarkdown>,
+    },
     { dataId: 'type ', content: 'tag', align: 'center' },
   ],
 };
