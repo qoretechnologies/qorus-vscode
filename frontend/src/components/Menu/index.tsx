@@ -2,12 +2,13 @@
 import { useContext } from 'react';
 import compose from 'recompose/compose';
 
-import { ReqoreH3, ReqoreSidebar, ReqoreSpacer } from '@qoretechnologies/reqore';
+import { ReqoreH3, ReqoreSidebar, ReqoreSpacer, ReqoreTextEffect } from '@qoretechnologies/reqore';
 import mapProps from 'recompose/mapProps';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import withHandlers from 'recompose/withHandlers';
 import withState from 'recompose/withState';
 import styled from 'styled-components';
+import packageJson from '../../../package.json';
 import { buildMenu } from '../../constants/menu';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
@@ -52,12 +53,20 @@ const Sidebar: Function = ({ projectFolder, qorusInstance }: SidebarProps) => {
                       textAlign: 'center',
                       glow: {
                         color: '#7e2d90',
-                        blur: 0.1,
+                        blur: 0.5,
+                        size: 0.5,
                       },
                     }}
                   >
                     Qorus Developer Tools
                   </ReqoreH3>
+                  <ReqoreSpacer height={5} />
+                  <ReqoreTextEffect
+                    effect={{ textAlign: 'center', opacity: 0.5, textSize: 'small' }}
+                  >
+                    v{packageJson.version}
+                    {process.env.NODE_ENV === 'development' ? '_dev' : ''}
+                  </ReqoreTextEffect>
                 </>
               )}
             </StyledSidebarHeader>

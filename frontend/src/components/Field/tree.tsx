@@ -9,7 +9,7 @@ import {
 import { size } from 'lodash';
 import { FunctionComponent, useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import Field from '.';
 import { TTranslator } from '../../App';
 import { ContentWrapper, IField, IFieldChange } from '../../components/FieldWrapper';
@@ -37,46 +37,12 @@ export interface ITreeField {
   single?: boolean;
   useRelativePath?: boolean;
   notFixed?: boolean;
+  expanded?: boolean;
 }
-
-const StyledTreeWrapper = styled.div`
-  min-height: 30px;
-  line-height: 30px;
-  padding: 7px;
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: 3px;
-  border: 1px solid #bac4d3;
-
-  transition: all 0.2s;
-  .bp3-icon {
-    color: #5c7080;
-    margin-right: 5px;
-  }
-  &:hover {
-    background-color: #dfe7f3;
-  }
-`;
 
 const StyledTreeScroller = styled.div`
   max-height: 400px;
   overflow: auto;
-`;
-
-const StyledTreeValue = styled.p`
-  color: #efefef;
-  border-radius: 3px;
-  padding: 5px;
-  line-height: 20px;
-  background-color: #5c7080;
-
-  ${({ empty }) =>
-    empty &&
-    css`
-      background-color: #ffcaca;
-      border: 1px solid #ff8282;
-      color: #222;
-    `}
 `;
 
 const TreeField: FunctionComponent<ITreeField & IField & IFieldChange & any> = ({
@@ -90,12 +56,13 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange & any> = (
   useRelativePath,
   notFixed,
   onFolderCreated,
+  expanded,
   canManageSourceDirs,
 }) => {
   const t = useContext(TextContext);
   const { callBackend } = useContext(InitialContext);
   const [isRootExpanded, setRootExpanded] = useState<boolean>(false);
-  const [expanded, setExpanded] = useState<string[]>([]);
+  const [_expanded, setExpanded] = useState<string[]>([]);
   const [items, setItems] = useState<any>([]);
   const [folderDialog, setFolderDialog] = useState<any>(undefined);
   const [manageSourceDirs, setManageSourceDirs] = useState<any>(false);
@@ -191,7 +158,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange & any> = (
         : useRelativePath
         ? item.rel_path
         : item.abs_path;
-      const isExpanded = expanded.includes(useRelativePath ? item.rel_path : item.abs_path);
+      const isExpanded = _expanded.includes(useRelativePath ? item.rel_path : item.abs_path);
       // Return the transformed data
       return [
         ...newData,
@@ -239,7 +206,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange & any> = (
               onClick={() => handleNodeClick(item)}
               active={item.isSelected}
               flat={!item.isSelected}
-              iconColor={item.isExpanded ? 'info:lighten:2' : undefined}
+              leftIconColor={item.isExpanded ? 'info:lighten:2' : undefined}
               icon={item.isExpanded ? 'FolderOpenLine' : 'FolderLine'}
               rightIcon={item.isSelected ? 'CheckLine' : undefined}
               effect={
@@ -346,9 +313,9 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange & any> = (
         </>
       ) : null}
       <ReqorePanel
-        label="Source Directories"
+        label="Add / Remove Source Directories"
         collapsible
-        isCollapsed={true}
+        isCollapsed={!expanded}
         icon="FolderAddLine"
         fluid
         size="small"

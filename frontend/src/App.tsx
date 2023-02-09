@@ -3,6 +3,7 @@ import {
   ReqoreHeader,
   ReqoreIcon,
   ReqoreMenu,
+  ReqoreMenuDivider,
   ReqoreMenuItem,
   ReqoreNavbarGroup,
   ReqoreNavbarItem,
@@ -384,6 +385,7 @@ const App: FunctionComponent<IApp> = ({
                   <ReqoreNavbarGroup position="left">
                     <ReqoreNavbarItem>
                       <ReqoreTag
+                        size="small"
                         icon="Folder3Line"
                         labelKey={t('Project')}
                         label={project_folder}
@@ -391,6 +393,7 @@ const App: FunctionComponent<IApp> = ({
                     </ReqoreNavbarItem>
                     <ReqoreNavbarItem>
                       <ReqoreTag
+                        size="small"
                         icon="ServerLine"
                         labelKey={t('ActiveQorusInstance')}
                         label={qorus_instance ? qorus_instance.name : t('N/A')}
@@ -410,14 +413,30 @@ const App: FunctionComponent<IApp> = ({
                       isReqoreComponent
                       noWrapper
                       content={
-                        <ReqoreMenu>
-                          <ReqoreMenuItem icon="SunFill" onClick={() => changeTheme('light')}>
+                        <ReqoreMenu rounded>
+                          <ReqoreMenuDivider label={'Change theme'} />
+                          <ReqoreMenuItem
+                            icon="SunFill"
+                            onClick={() => changeTheme('light')}
+                            selected={theme === 'light'}
+                            rightIcon={theme === 'light' ? 'CheckLine' : undefined}
+                          >
                             Light theme
                           </ReqoreMenuItem>
-                          <ReqoreMenuItem icon="MoonFill" onClick={() => changeTheme('dark')}>
+                          <ReqoreMenuItem
+                            icon="MoonFill"
+                            onClick={() => changeTheme('dark')}
+                            selected={theme === 'dark'}
+                            rightIcon={theme === 'dark' ? 'CheckLine' : undefined}
+                          >
                             Dark theme
                           </ReqoreMenuItem>
-                          <ReqoreMenuItem icon="CodeBoxLine" onClick={() => changeTheme('vscode')}>
+                          <ReqoreMenuItem
+                            icon="CodeBoxLine"
+                            onClick={() => changeTheme('vscode')}
+                            selected={theme === 'vscode'}
+                            rightIcon={theme === 'vscode' ? 'CheckLine' : undefined}
+                          >
                             Follow VSCode theme
                           </ReqoreMenuItem>
                         </ReqoreMenu>
@@ -425,27 +444,34 @@ const App: FunctionComponent<IApp> = ({
                     >
                       <ReqoreIcon icon="PaletteLine" size="20px" tooltip="Change theme" />
                     </ReqorePopover>
-                    <ReqoreNavbarItem interactive onClick={() => setIsDirsDialogOpen(true)}>
-                      <ReqoreIcon
-                        icon="FolderAddLine"
-                        size="20px"
-                        tooltip="Manage source directories"
-                      />
-                    </ReqoreNavbarItem>
-                    <ReqoreNavbarItem
-                      interactive
-                      as="a"
-                      href="command:workbench.action.webview.reloadWebviewAction"
-                      onClick={() =>
-                        addNotification({
-                          content: t('ReloadingWebview'),
-                          intent: 'warning',
-                          icon: 'RefreshLine',
-                        })
-                      }
+                    <ReqorePopover
+                      isReqoreComponent
+                      component={ReqoreNavbarItem}
+                      componentProps={{
+                        interactive: true,
+                        onClick: () => setIsDirsDialogOpen(true),
+                      }}
+                      content={'Manage source directories'}
                     >
-                      <ReqoreIcon icon="RefreshLine" size="20px" tooltip="Reload webview" />
-                    </ReqoreNavbarItem>
+                      <ReqoreIcon icon="FolderAddLine" size="20px" />
+                    </ReqorePopover>
+                    <ReqorePopover
+                      component={ReqoreNavbarItem}
+                      componentProps={{
+                        interactive: true,
+                        as: 'a',
+                        href: 'command:workbench.action.webview.reloadWebviewAction',
+                        onClick: () =>
+                          addNotification({
+                            content: t('ReloadingWebview'),
+                            intent: 'warning',
+                            icon: 'RefreshLine',
+                          }),
+                      }}
+                      content={'Reload webview'}
+                    >
+                      <ReqoreIcon icon="RefreshLine" size="20px" />
+                    </ReqorePopover>
                   </ReqoreNavbarGroup>
                 </ReqoreHeader>
                 <div style={{ margin: '0 10px', overflow: 'auto', display: 'flex', flex: 1 }}>

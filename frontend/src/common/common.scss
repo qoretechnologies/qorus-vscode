@@ -8,6 +8,14 @@ body,
   height: 100%;
 }
 
+a:hover,
+a:focus,
+a:visited,
+a:active {
+  text-decoration: none;
+  color: inherit;
+}
+
 body {
   padding: 0;
 }
