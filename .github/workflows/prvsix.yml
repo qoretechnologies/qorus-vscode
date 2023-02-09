@@ -17,6 +17,13 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # Get current time for the commit
+      - name: Get current time
+        uses: josStorer/get-current-time@v2.0.2
+        id: current_time
+        with:
+          format: YYYYMMDD-HH
+          utcOffset: '+01:00'
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Get repo
         uses: actions/checkout@v3
