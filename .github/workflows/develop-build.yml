@@ -60,7 +60,7 @@ jobs:
           DISCORD_AVATAR: 'https://github.com/qoretechnologies/qorus-vscode/blob/95ad81fa8654fe83bb41f68f4de42ae088298e59/public/q-symbol-small.png?raw=true'
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: ':white_check_mark: Release *v${{ steps.save_release_version.outputs.version }}* successfully created & published!'
+          args: ':white_check_mark: *Development* version of Qorus Developer Tools *v${{ steps.save_release_version.outputs.version }}* successfully created, click the `GitHub Action` link below to download!'
         if: success()
       # Notify discord if failure
       - name: Discord notification
@@ -70,5 +70,5 @@ jobs:
           DISCORD_AVATAR: 'https://github.com/qoretechnologies/qorus-vscode/blob/95ad81fa8654fe83bb41f68f4de42ae088298e59/public/q-symbol-small.png?raw=true'
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: ':exclamation: Release *v${{ steps.save_release_version.outputs.version }}* failed!'
+          args: ':exclamation: Creation of VSIX for development version *v${{ steps.save_release_version.outputs.version }}* of Qorus Developer Tools failed! Click the GitHub action below to find out why.'
         if: failure()
