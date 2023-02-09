@@ -1,3 +1,9 @@
+<div align="center">
+  <br><br><br>
+  <img src="./public/logo.png" alt="Unstated Logo" width="350">
+  <br><br><br>
+</div>
+
 # Qorus Developer Tools
 
 Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologies.com/qorus_integration_engine/).
@@ -112,3 +118,17 @@ Context menus of instances in the _Qorus Instances_ tree view contain also the f
   - add a pattern there
 
 - If you are not using the Qore programming language and would not like to see messages relating to missing Qore infrastructure for the Qore Language Server, unset the `Qore: Use QLS` setting in Settings (or add `"qore.useQLS": false` in `settings.json`)
+
+## Contributing
+
+The Qorus Developer Tools project welcomes all constructive contributions. Contributions can be of many forms including bug fixes, enhancements, fixes to documentation, additional tests and more!
+
+See the [Contributing Guide](CONTRIBUTING.md) for more technical details on contributing.
+
+### Security Issues
+
+If you discover a security vulnerability in this repository, please see [Security Policies and Procedures](SECURITY.md)
+
+## License
+
+[MIT](LICENSE.txt)
