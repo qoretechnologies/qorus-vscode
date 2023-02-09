@@ -25,6 +25,6 @@ describe('@ Setup tests', function () {
     });
 
     it('Adds a folder to workspace', () => {
-        expect(true).to.be.true;
+        expect(true).to.be.false;
     });
 });
