@@ -1,4 +1,4 @@
-import { Classes, TextArea } from '@blueprintjs/core';
+import { ReqoreTextarea } from '@qoretechnologies/reqore';
 import { ChangeEvent, FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import { TTranslator } from '../../App';
@@ -9,7 +9,6 @@ import {
   TMessageListener,
   TPostMessage,
 } from '../../hocomponents/withMessageHandler';
-import { getLineCount } from '../Tree';
 
 export interface ILongStringField {
   t?: TTranslator;
@@ -30,6 +29,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
   get_message,
   return_message,
   placeholder,
+  intent,
   noWrap,
 }) => {
   // Fetch data on mount
@@ -55,18 +55,14 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
   };
 
   return (
-    <TextArea
-      name={`field-${name}`}
-      style={{
-        width: '100%',
-        resize: 'none',
-        whiteSpace: noWrap ? 'nowrap' : undefined,
-      }}
+    <ReqoreTextarea
       placeholder={placeholder}
-      rows={getLineCount(value || default_value || '') + 1}
-      className={fill && Classes.FILL}
+      scaleWithContent
+      fluid
       value={!value ? default_value || '' : value}
       onChange={handleInputChange}
+      onClearClick={() => onChange(name, '')}
+      intent={intent}
     />
   );
 };

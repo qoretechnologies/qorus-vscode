@@ -1,16 +1,30 @@
-import { Button, ButtonGroup, ProgressBar, Tooltip } from '@blueprintjs/core';
+import {
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqorePanel,
+  ReqoreTag,
+  ReqoreThemeContext,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
+import {
+  IReqoreEffect,
+  ReqoreTextEffect,
+  TReqoreHexColor,
+} from '@qoretechnologies/reqore/dist/components/Effect';
+import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
-import { lighten } from 'polished';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
-import styled, { css, keyframes } from 'styled-components';
-import Spacer from '../../../components/Spacer';
+import styled, { css } from 'styled-components';
+import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { insertAtIndex } from '../../../helpers/functions';
-import { IFSMState, IF_STATE_SIZE, STATE_HEIGHT, STATE_ITEM_TYPE, STATE_WIDTH } from './';
-import { getStateStyle } from './toolbarItem';
+import { useGetInputOutputType } from '../../../hooks/useGetInputOutputType';
+import { IFSMState, STATE_ITEM_TYPE } from './';
+import { FSMItemIconByType } from './toolbarItem';
 
 export interface IFSMStateProps extends IFSMState {
   selected?: boolean;
@@ -22,11 +36,13 @@ export interface IFSMStateProps extends IFSMState {
   onTransitionOrderClick: (id: string) => any;
   startTransitionDrag: (id: string) => any;
   stopTransitionDrag: (id: string) => any;
-  selectedState?: number;
+  selectedState?: number | string;
   isAvailableForTransition: (stateId: string, id: string) => boolean;
   onExecutionOrderClick: () => void;
   id: string;
   isIsolated: boolean;
+  category: TStateTypes;
+  hasTransitionToItself?: boolean;
 }
 
 export interface IFSMStateStyleProps {
@@ -42,40 +58,49 @@ export interface IFSMStateStyleProps {
   error?: boolean;
 }
 
-const wiggleAnimation = (type) => keyframes`
-    0% {
-        transform: ${type === 'if' ? 'rotate(43deg)' : 'rotate(-2deg)'} ${
-  type === 'connector' ? 'skew(15deg)' : ''
+export type TStateTypes = 'interfaces' | 'logic' | 'api' | 'other';
+
+export const getCategoryColor = (category: TStateTypes): TReqoreHexColor => {
+  switch (category) {
+    case 'interfaces':
+      return '#e8970b';
+
+    case 'logic':
+      return '#3b3b3b';
+
+    case 'api':
+      return '#1914b0';
+    default:
+      return '#950ea1';
+  }
 };
-    }
 
-    50% {
-        transform: ${type === 'if' ? 'rotate(47deg)' : 'rotate(2deg)'} ${
-  type === 'connector' ? 'skew(15deg)' : ''
+export const getStateColor = (stateType: TStateTypes): IReqoreEffect['gradient'] => {
+  let color;
+  switch (stateType) {
+    case 'interfaces':
+      color = '#e8970b';
+      break;
+    case 'logic':
+      color = '#3b3b3b';
+      break;
+    case 'api':
+      color = '#1914b0';
+      break;
+    default:
+      color = '#950ea1';
+      break;
+  }
+
+  return {
+    colors: {
+      0: 'main',
+      100: color,
+    },
+    animate: 'hover',
+    direction: 'to right bottom',
+  };
 };
-    }
-
-    100% {
-        transform: ${type === 'if' ? 'rotate(43deg)' : 'rotate(-2deg)'} ${
-  type === 'connector' ? 'skew(15deg)' : ''
-};
-    }
-`;
-
-const StyledStateName = styled.p`
-  padding: 0;
-  margin: 0;
-  font-weight: 500;
-  text-align: center;
-`;
-
-const StyledStateAction = styled.p`
-  padding: 0;
-  margin: 0;
-  color: #a9a9a9;
-  font-size: 11px;
-  text-align: center;
-`;
 
 export const StyledStateTextWrapper = styled.div`
   display: flex;
@@ -84,63 +109,29 @@ export const StyledStateTextWrapper = styled.div`
   flex-flow: column;
 `;
 
-const StyledFSMState = styled.div<IFSMStateStyleProps>`
-  left: ${({ x }) => `${x}px`};
-  top: ${({ y }) => `${y}px`};
-  position: absolute;
-  width: ${({ type }) => (type === 'if' ? IF_STATE_SIZE : STATE_WIDTH)}px;
-  height: ${({ type }) => (type === 'if' ? IF_STATE_SIZE : STATE_HEIGHT)}px;
+// IS ISOLATED
+// SELECTED
+// INITIAL
+// FINAL
+// TYPE
+// IS AVAILABLE FOR TRANSITION
+// IS INCOMPATIBLE
+// ERROR
+const StyledFSMState: React.FC<IReqorePanelProps> = styled(ReqorePanel)`
+  ${({ isStatic }) =>
+    !isStatic
+      ? css`
+          left: ${({ x }) => `${x}px`};
+          top: ${({ y }) => `${y}px`};
+          min-width: 250px;
+          max-width: 350px !important;
 
-  z-index: 20;
-  border: 1px solid;
-  transition: all 0.2s linear;
-  border-radius: 3px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-flow: column;
-
-  ${StyledStateName}, ${StyledStateAction} {
-    opacity: ${({ isIsolated }) => (isIsolated ? 0.4 : 1)};
-  }
-
-  ${({ selected, initial, final, isIncompatible, error }) => {
-    let color: string = '#a9a9a9';
-
-    if (error) {
-      color = '#d13913';
-    } else if (isIncompatible) {
-      color = '#ce7909';
-    } else if (selected) {
-      color = '#277fba';
-    } else if (final) {
-      color = '#81358a';
-    } else if (initial) {
-      color = '#7fba27';
-    }
-
-    return css`
-      border-color: ${color};
-      border-style: solid;
-
-      &:hover {
-        box-shadow: 0 0 5px 0px ${color};
-      }
-    `;
-  }};
-
-  ${({ error }) => css`
-    background-color: ${error ? lighten(0.3, '#d13913') : '#fff'};
-  `}
-
-  ${({ isAvailableForTransition, type }) =>
-    isAvailableForTransition &&
-    css`
-      animation: ${wiggleAnimation(type)} 0.3s linear infinite;
-    `}
-
-    ${({ type }) => getStateStyle(type)}
+          position: absolute !important;
+          z-index: 20;
+        `
+      : css`
+          min-width: 250px;
+        `}
 `;
 
 export const calculateFontSize = (name, isAction?: boolean) => {
@@ -157,6 +148,38 @@ export const calculateFontSize = (name, isAction?: boolean) => {
   return undefined;
 };
 
+export const getStateCategory = (type: string): TStateTypes => {
+  if (type === 'mapper') {
+    return 'interfaces';
+  }
+
+  if (type === 'connector') {
+    return 'interfaces';
+  }
+
+  if (type === 'pipeline') {
+    return 'interfaces';
+  }
+
+  if (type === 'fsm') {
+    return 'logic';
+  }
+
+  if (type === 'block') {
+    return 'logic';
+  }
+
+  if (type === 'if') {
+    return 'logic';
+  }
+
+  if (type === 'apicall') {
+    return 'api';
+  }
+
+  return 'other';
+};
+
 export const getStateType = ({ type, action, ...rest }: IFSMState) => {
   if (type === 'block') {
     return `${rest['block-type'] || 'for'} block (${size(rest.states)})`;
@@ -167,7 +190,9 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
   }
 
   if (type === 'if') {
-    return `if statement`;
+    return typeof rest.condition === 'string'
+      ? rest.condition
+      : `${rest.condition?.class}:${rest.condition?.connector}`;
   }
 
   if (!action || !action.type || !action.value) {
@@ -179,7 +204,7 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
   }
 
   if (action.value?.path || action.value?.path === '') {
-    return `${action.value.type}/${action.value.name}/${action.value.path}`;
+    return `${action.value.type}/${action.value.name}${action.value.path}`;
   }
 
   return action.value;
@@ -195,6 +220,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   onDeleteClick,
   onTransitionOrderClick,
   name,
+  desc,
   action,
   initial,
   final,
@@ -205,7 +231,15 @@ const FSMState: React.FC<IFSMStateProps> = ({
   toggleDragging,
   onExecutionOrderClick,
   isIsolated,
+  onMouseEnter,
+  onMouseLeave,
+  showStateIds,
+  hasTransitionToItself,
+  stateInputProvider,
+  stateOutputProvider,
+  activateState,
   error,
+  isStatic,
   ...rest
 }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -220,22 +254,30 @@ const FSMState: React.FC<IFSMStateProps> = ({
     },
   });
 
-  const [isHovered, setIsHovered] = useState<boolean>(false);
   const [shouldWiggle, setShouldWiggle] = useState<boolean>(false);
   const [isCompatible, setIsCompatible] = useState<boolean>(null);
   const [isLoadingCheck, setIsLoadingCheck] = useState<boolean>(false);
   const { addMenu } = useContext(ContextMenuContext);
   const t = useContext(TextContext);
   const { qorus_instance } = useContext(InitialContext);
+  const theme = useContext(ReqoreThemeContext);
+  const { inputType, outputType } = useGetInputOutputType(stateInputProvider, stateOutputProvider);
 
   useEffect(() => {
     (async () => {
       if (selectedState) {
         setIsLoadingCheck(true);
         const isAvailable = await isAvailableForTransition(selectedState, id);
-        setIsCompatible(isAvailable);
-        setIsLoadingCheck(false);
-        setShouldWiggle(true);
+
+        if (selectedState) {
+          setIsCompatible(isAvailable);
+          setIsLoadingCheck(false);
+          setShouldWiggle(true);
+        } else {
+          setShouldWiggle(false);
+          setIsLoadingCheck(false);
+          setIsCompatible(null);
+        }
       } else {
         setShouldWiggle(false);
         setIsLoadingCheck(false);
@@ -245,42 +287,145 @@ const FSMState: React.FC<IFSMStateProps> = ({
   }, [selectedState]);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: string) => any) => {
-    event.stopPropagation();
-
-    func(id);
-  };
-
-  const handleMouseEnter = (event) => {
-    event.stopPropagation();
-    setIsHovered(true);
-    toggleDragging(false);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    toggleDragging(true);
+    func?.(id);
   };
 
   return (
     <StyledFSMState
-      key={id}
+      id={`state-${id}`}
       ref={drag}
+      isStatic={isStatic}
+      intent={selectedState === id ? 'info' : undefined}
+      //customTheme={{ main: getStateColor(getStateCategory(type)) }}
+      contentEffect={
+        {
+          gradient: {
+            ...getStateColor(getStateCategory(action?.type || type)),
+            animate: shouldWiggle ? 'always' : 'hover',
+          },
+          glow: shouldWiggle
+            ? {
+                color: selectedState === id ? 'info' : 'success',
+                size: 2,
+                blur: 40,
+              }
+            : undefined,
+          opacity: isIsolated ? 0.7 : 1,
+        } as IReqoreEffect
+      }
+      icon={FSMItemIconByType[action?.type || type]}
       name={`fsm-state-${name}`}
-      x={position.x}
-      y={position.y}
+      responsiveActions={false}
+      x={position?.x}
+      y={position?.y}
       onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}
-      onClick={!selectedState || !shouldWiggle ? undefined : (e) => handleClick(e, onClick)}
+      onClick={
+        !selectedState || !shouldWiggle
+          ? () => activateState?.(id, { inputType, outputType })
+          : (e) => handleClick(e, onClick)
+      }
       selected={selected}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      initial={initial}
-      final={final}
-      isIsolated={isIsolated}
-      className={isIsolated ? 'isolated-state' : ''}
-      isAvailableForTransition={shouldWiggle}
-      isIncompatible={selectedState && !isCompatible}
-      error={error}
-      type={action?.type || type}
+      size="small"
+      tooltip={
+        inputType && outputType
+          ? {
+              title: name,
+              delay: 200,
+              icon: 'InformationFill',
+              content: (
+                <React.Fragment key={Date.now()}>
+                  {desc || 'This state has no description'}
+                  {size(inputType) ? (
+                    <>
+                      <ReqoreVerticalSpacer height={10} />
+                      <ReqorePanel
+                        label="Input type"
+                        badge={[
+                          inputType.name,
+                          { labelKey: 'Fields', label: size(inputType.fields) },
+                        ]}
+                        size="small"
+                      >
+                        {inputType.desc}
+                      </ReqorePanel>
+                    </>
+                  ) : null}
+
+                  {size(outputType) ? (
+                    <>
+                      <ReqoreVerticalSpacer height={5} />
+                      <ReqorePanel
+                        label="Output type"
+                        badge={[
+                          outputType.name,
+                          { labelKey: 'Fields', label: size(outputType.fields) },
+                        ]}
+                        size="small"
+                      >
+                        {outputType.desc}
+                      </ReqorePanel>
+                    </>
+                  ) : null}
+                  {size(outputType) || size(inputType) ? (
+                    <>
+                      <ReqoreVerticalSpacer height={5} />
+                      <ReqoreMessage minimal flat intent="info" size="small">
+                        Click the state for even more information
+                      </ReqoreMessage>
+                    </>
+                  ) : null}
+                </React.Fragment>
+              ),
+            }
+          : 'Loading type information...'
+      }
+      headerSize={2}
+      onMouseDown={(e) => e.stopPropagation()}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      minimal
+      label={showStateIds ? `[${id}] ${name}` : name}
+      actions={[
+        {
+          as: ReqoreTag,
+          props: {
+            effect: initial ? PositiveColorEffect : isIsolated ? NegativeColorEffect : undefined,
+            icon: initial ? 'PlayLine' : isIsolated ? 'AlarmWarningLine' : undefined,
+            tooltip: initial ? 'Initial state' : isIsolated ? 'This state is isolated' : undefined,
+          },
+          show: !!(initial || isIsolated || final),
+        },
+        {
+          as: ReqoreTag,
+          props: {
+            icon: 'HistoryLine',
+            tooltip: 'This state has a transition to itself',
+          },
+          show: !!hasTransitionToItself,
+        },
+        {
+          group: [
+            {
+              icon: 'Edit2Line' as IReqoreIconName,
+              disabled: type === 'block' && !qorus_instance,
+              onClick: (e) => handleClick(e, onEditClick),
+              minimal: true,
+              flat: true,
+              size: 'small',
+              show: !!onEditClick,
+            },
+            {
+              icon: 'DeleteBin4Fill' as IReqoreIconName,
+              onClick: (e) => handleClick(e, onDeleteClick),
+              intent: 'danger',
+              minimal: true,
+              flat: true,
+              size: 'small',
+              show: !!onDeleteClick,
+            },
+          ],
+        },
+      ]}
       onContextMenu={(event) => {
         event.persist();
         event.preventDefault();
@@ -294,7 +439,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             onClick: () => {
               onUpdate(id, { initial: !initial });
             },
-            icon: 'flow-linear',
+            icon: 'PlayLine',
             rightIcon: initial ? 'small-tick' : undefined,
           },
           {
@@ -305,26 +450,26 @@ const FSMState: React.FC<IFSMStateProps> = ({
             onClick: () => {
               onTransitionOrderClick(id);
             },
-            icon: 'property',
+            icon: 'LinksLine',
           },
           {
             item: t('RemoveAllTransitions'),
             onClick: () => {
               onUpdate(id, { transitions: null });
             },
-            icon: 'trash',
+            icon: 'CloseLine',
           },
           {
             item: t('Edit'),
             onClick: () => onEditClick(id),
-            icon: 'edit',
+            icon: 'EditLine',
             disabled: type === 'block' && !qorus_instance,
             intent: 'warning',
           },
           {
             item: t('Delete'),
             onClick: () => onDeleteClick(id),
-            icon: 'trash',
+            icon: 'DeleteBinLine',
             intent: 'danger',
           },
         ];
@@ -345,43 +490,24 @@ const FSMState: React.FC<IFSMStateProps> = ({
         });
       }}
     >
-      <Tooltip
-        intent="warning"
-        content={type === 'block' && !qorus_instance ? t('CannotManageBlock') : undefined}
-      >
-        <StyledStateTextWrapper>
-          {isLoadingCheck ? (
-            <>
-              <StyledStateName style={{ fontSize: '12px' }}>
-                {t('LoadingCompatibilityCheck')}
-              </StyledStateName>
-              <Spacer size={6} />
-              <ProgressBar intent="primary" />
-            </>
-          ) : (
-            <>
-              <StyledStateName style={{ fontSize: calculateFontSize(name) }}>
-                {name}
-              </StyledStateName>
-              <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
-                {getStateType({ type, action, ...rest })}
-              </StyledStateAction>
-            </>
-          )}
-        </StyledStateTextWrapper>
-      </Tooltip>
-      {isHovered && !isDragging ? (
-        <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
-          <Button
-            icon="edit"
-            disabled={type === 'block' && !qorus_instance}
-            title={type === 'block' && !qorus_instance ? t('CannotManageBlock') : t('Edit')}
-            intent="warning"
-            onClick={(e) => handleClick(e, onEditClick)}
-          />
-          <Button icon="trash" intent="danger" onClick={(e) => handleClick(e, onDeleteClick)} />
-        </ButtonGroup>
+      {desc ? (
+        <>
+          <ReqoreTextEffect effect={{ textSize: 'small', opacity: 0.8 }}>{desc}</ReqoreTextEffect>
+          <ReqoreVerticalSpacer height={10} />
+        </>
       ) : null}
+      <ReqoreControlGroup size="small" wrap fluid fill>
+        <ReqoreControlGroup stack fill fluid>
+          <ReqoreTag
+            wrap
+            fixed
+            color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
+            effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
+            label={action?.type || type}
+          />
+          <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
+        </ReqoreControlGroup>
+      </ReqoreControlGroup>
     </StyledFSMState>
   );
 };

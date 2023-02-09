@@ -1,5 +1,5 @@
-import { Switch } from '@blueprintjs/core';
-import { FormEvent, FunctionComponent } from 'react';
+import { ReqoreCheckbox } from '@qoretechnologies/reqore';
+import { FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import { isUndefined } from 'util';
 import { IField } from '.';
@@ -18,7 +18,7 @@ const BooleanField: FunctionComponent<IField & IFieldChange> = ({
     onChange(name, getValueOrDefaultValue(value, default_value || false, false));
   });
 
-  const handleEnabledChange: (event: FormEvent<HTMLInputElement>) => void = () => {
+  const handleEnabledChange: (event: any) => void = () => {
     // Run the onchange
     if (onChange) {
       onChange(name, !value);
@@ -30,13 +30,16 @@ const BooleanField: FunctionComponent<IField & IFieldChange> = ({
   }
 
   return (
-    <Switch
+    <ReqoreCheckbox
       disabled={disabled}
       checked={value || false}
-      large
-      onChange={handleEnabledChange}
-      name={`field-${name}`}
-      className={`field-switch-${name}`}
+      onClick={handleEnabledChange}
+      asSwitch
+      onText="Yes"
+      offText="No"
+      checkedIcon="CheckLine"
+      uncheckedIcon="CloseLine"
+      margin="none"
     />
   );
 };

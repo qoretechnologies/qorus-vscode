@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Classes, InputGroup } from '@blueprintjs/core';
+import { ReqoreInput } from '@qoretechnologies/reqore';
 import { ChangeEvent, FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -28,6 +28,7 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
   addMessageListener,
   get_message,
   return_message,
+  ...rest
 }) => {
   // Fetch data on mount
   useMount(() => {
@@ -62,20 +63,15 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
   };
 
   return (
-    <InputGroup
-      name={`field-${name}`}
-      className={fill && Classes.FILL}
+    <ReqoreInput
+      {...rest}
+      fluid={fill}
       value={value ?? default_value ?? ''}
       onChange={handleInputChange}
       type="number"
+      // @ts-ignore
       step={type === 'int' || type === 'number' ? 1 : 0.1}
-      rightElement={
-        (value && value !== '') || value === 0 ? (
-          <ButtonGroup minimal>
-            <Button onClick={handleResetClick} icon={'cross'} />
-          </ButtonGroup>
-        ) : null
-      }
+      onClearClick={handleResetClick}
     />
   );
 };

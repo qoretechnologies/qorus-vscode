@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Callout, Intent, Spinner, Tooltip } from '@blueprintjs/core';
+import { ReqoreMessage, ReqorePanel, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import cloneDeep from 'lodash/cloneDeep';
 import every from 'lodash/every';
 import forEach from 'lodash/forEach';
@@ -8,19 +8,14 @@ import React, { useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import styled from 'styled-components';
 import { IFSMStates, IFSMTransition } from '.';
-import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
+import { SaveColorEffect } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import RadioField from '../../../components/Field/radioField';
 import String from '../../../components/Field/string';
-import FieldLabel from '../../../components/FieldLabel';
-import {
-  ActionsWrapper,
-  ContentWrapper,
-  FieldInputWrapper,
-  FieldWrapper,
-} from '../../../components/FieldWrapper';
-import Spacer from '../../../components/Spacer';
+import FieldGroup from '../../../components/FieldGroup';
+import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
+import Loader from '../../../components/Loader';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { validateField } from '../../../helpers/validations';
@@ -114,57 +109,52 @@ export const ConditionField = ({ data, onChange, required }) => {
 
   return (
     <>
-      <FieldWrapper padded>
-        <FieldLabel label={t('Condition')} isValid={isConditionValid(data)} info={t('Optional')} />
-        <FieldInputWrapper>
-          <RadioField
-            name="conditionType"
-            onChange={(_name, value) => {
-              onChange(
-                'condition',
-                value === 'none' ? null : value === 'custom' ? '' : { class: null }
-              );
-            }}
-            value={conditionType || 'none'}
-            items={
-              required
-                ? [{ value: 'custom' }, { value: 'connector' }]
-                : [{ value: 'custom' }, { value: 'connector' }, { value: 'none' }]
-            }
-          />
-          {conditionType && conditionType !== 'none' ? (
-            <>
-              <Spacer size={20} />
-              {renderConditionField(conditionType, data, onChange)}
-            </>
-          ) : null}
-        </FieldInputWrapper>
+      <FieldWrapper label={t('Condition')} isValid={isConditionValid(data)} type={t('Optional')} compact>
+        <RadioField
+          name="conditionType"
+          onChange={(_name, value) => {
+            onChange(
+              'condition',
+              value === 'none' ? null : value === 'custom' ? '' : { class: null }
+            );
+          }}
+          value={conditionType || 'none'}
+          items={
+            required
+              ? [{ value: 'custom' }, { value: 'connector' }]
+              : [{ value: 'custom' }, { value: 'connector' }, { value: 'none' }]
+          }
+        />
+        {conditionType && conditionType !== 'none' ? (
+          <>
+            <ReqoreVerticalSpacer height={10} />
+            {renderConditionField(conditionType, data, onChange)}
+          </>
+        ) : null}
       </FieldWrapper>
       {conditionType === 'custom' && (
-        <FieldWrapper padded>
-          <FieldLabel
-            label={t('field-label-lang')}
-            isValid={validateField('string', data?.language || 'qore')}
+        <FieldWrapper
+          label={t('field-label-lang')}
+          isValid={validateField('string', data?.language || 'qore')}
+          compact
+        >
+          <RadioField
+            name="language"
+            onChange={(name, value) => {
+              onChange(name, value);
+            }}
+            value={data?.language || 'qore'}
+            items={[
+              {
+                value: 'qore',
+                icon_filename: 'qore-106x128.png',
+              },
+              {
+                value: 'python',
+                icon_filename: 'python-129x128.png',
+              },
+            ]}
           />
-          <FieldInputWrapper>
-            <RadioField
-              name="language"
-              onChange={(name, value) => {
-                onChange(name, value);
-              }}
-              value={data?.language || 'qore'}
-              items={[
-                {
-                  value: 'qore',
-                  icon_filename: 'qore-106x128.png',
-                },
-                {
-                  value: 'python',
-                  icon_filename: 'python-129x128.png',
-                },
-              ]}
-            />
-          </FieldInputWrapper>
         </FieldWrapper>
       )}
     </>
@@ -176,7 +166,7 @@ export const TransitionEditor = ({ onChange, transitionData, errors, qorus_insta
 
   const renderErrorsField: (transitionData: IFSMTransition) => any = (transitionData) => {
     if (qorus_instance && !errors) {
-      return <Spinner size={14} />;
+      return <Loader text="Loading..." />;
     }
 
     return (
@@ -191,40 +181,34 @@ export const TransitionEditor = ({ onChange, transitionData, errors, qorus_insta
   };
 
   return (
-    <>
+    <FieldGroup label={t('Info')} isValid>
       {transitionData.branch && (
-        <FieldWrapper padded>
-          <FieldLabel label={t('Branch')} isValid />
-          <FieldInputWrapper>
-            <RadioField
-              name="branch"
-              onChange={(_name, value) => {
-                onChange('branch', value);
-              }}
-              value={transitionData.branch}
-              items={[{ value: 'true' }, { value: 'false' }]}
-            />
-          </FieldInputWrapper>
+        <FieldWrapper label={t('Branch')} isValid compact>
+          <RadioField
+            name="branch"
+            onChange={(_name, value) => {
+              onChange('branch', value);
+            }}
+            value={transitionData.branch}
+            items={[{ value: 'true' }, { value: 'false' }]}
+          />
         </FieldWrapper>
       )}
       {!transitionData.branch && (
         <>
           <ConditionField onChange={onChange} data={transitionData} />
-          <FieldWrapper padded>
-            <FieldLabel label={t('Errors')} isValid info={t('Optional')} />
-            <FieldInputWrapper>
-              {!qorus_instance && (
-                <>
-                  <Callout intent={Intent.WARNING}>{t('TransitionErrorsNoInstance')}</Callout>
-                  <Spacer size={10} />
-                </>
-              )}
-              {renderErrorsField(transitionData)}
-            </FieldInputWrapper>
+          <FieldWrapper label={t('Errors')} isValid type={t('Optional')} compact>
+            {!qorus_instance && (
+              <>
+                <ReqoreMessage intent="warning">{t('TransitionErrorsNoInstance')}</ReqoreMessage>
+                <ReqoreVerticalSpacer height={10} />
+              </>
+            )}
+            {renderErrorsField(transitionData)}
           </FieldWrapper>
         </>
       )}
-    </>
+    </FieldGroup>
   );
 };
 
@@ -310,69 +294,51 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({
     <CustomDialog
       onClose={onClose}
       isOpen
-      title={t('EditingTransition')}
-      style={{ width: '80vw', paddingBottom: 0 }}
+      label={t('EditingTransition')}
+      bottomActions={[{
+        label: t('Reset'),
+                icon: 'HistoryLine',
+                tooltip: t('ResetTooltip'),
+                onClick: () => setNewData(getTransitionFromStates()),
+      }, {
+        label: t('Submit'),
+        disabled: !isDataValid(),
+        icon: 'CheckLine',
+        effect: SaveColorEffect,
+        onClick: handleSubmitClick,
+        position: 'right'
+      }]}
     >
-      <Content style={{ paddingLeft: 0, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
-        <ContentWrapper>
+
           {areAllTransitionsDeleted() ? (
-            <Callout
-              style={{ marginLeft: '10px', marginTop: '10px', width: '99%' }}
+            <ReqoreMessage
               intent="warning"
             >
               {t('AllTransitionsRemoved')}
-            </Callout>
+            </ReqoreMessage>
           ) : (
             <>
               {map(
                 newData,
                 (transitionData: IModifiedTransition, id: string) =>
                   transitionData && (
-                    <StyledTransitionWrapper>
-                      <h3>
-                        {transitionData.name}
-                        <Button
-                          style={{ float: 'right' }}
-                          intent="danger"
-                          icon="trash"
-                          onClick={() => {
-                            removeTransition(id);
-                          }}
-                        />
-                      </h3>
+                    <ReqorePanel minimal transparent flat label={transitionData.name} actions={[{ intent: 'danger', icon: 'DeleteBinLine', onClick: () => {
+                      removeTransition(id);
+                    }}]}>
+                      <ContentWrapper>
                       <TransitionEditor
                         onChange={(name, value) => handleDataUpdate(id, name, value)}
                         transitionData={transitionData.data}
                         errors={errors}
                         qorus_instance={qorus_instance}
                       />
-                    </StyledTransitionWrapper>
+                      </ContentWrapper>
+                    </ReqorePanel>
                   )
               )}
             </>
           )}
-        </ContentWrapper>
-        <ActionsWrapper style={{ padding: '10px' }}>
-          <ButtonGroup fill>
-            <Tooltip content={t('ResetTooltip')}>
-              <Button
-                text={t('Reset')}
-                icon={'history'}
-                onClick={() => setNewData(getTransitionFromStates())}
-                name="fsm-reset-transition"
-              />
-            </Tooltip>
-            <Button
-              text={t('Submit')}
-              disabled={!isDataValid()}
-              icon={'tick'}
-              name="fsm-submit-transition"
-              intent={Intent.SUCCESS}
-              onClick={handleSubmitClick}
-            />
-          </ButtonGroup>
-        </ActionsWrapper>
-      </Content>
+
     </CustomDialog>
   );
 };

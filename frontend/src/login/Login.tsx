@@ -1,9 +1,16 @@
-import { Button, ButtonGroup, Classes, Colors, H4, InputGroup, Intent } from '@blueprintjs/core';
-import React, { Component } from 'react';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqorePanel,
+  ReqoreTag,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 import { vscode } from '../common/vscode';
-import Box from '../components/Box';
+import String from '../components/Field/string';
 import { TextContext } from '../context/text';
 import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
 import withTextContext from '../hocomponents/withTextContext';
@@ -81,68 +88,49 @@ class Login extends Component {
       <TextContext.Consumer>
         {(t) => (
           <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Box
-              style={{
-                flex: '0 auto',
-              }}
-            >
-              <form>
-                <div style={{ gridRow: 1, gridColumnStart: 2, gridColumnEnd: 6 }}>
-                  <H4 style={{ textAlign: 'center' }}>
-                    {t('LoginHeader')} &nbsp;
-                    <span className="login-highlighted">{name}</span> &nbsp;
-                    {t('at')}
-                  </H4>
-                  <H4 className="login-highlighted text-center">{safe_url}</H4>
-                </div>
-
-                <div className="login-label">{t('LabelUsername')}</div>
-                <div className="login-input">
-                  <InputGroup
-                    id="username"
-                    type="text"
-                    value={this.props.username}
-                    onChange={(ev) => this.props.setUsername(ev.target.value.trim())}
-                    inputRef={(input) => {
-                      this.username_input = input;
-                    }}
-                  />
-                </div>
-                <div className="login-label">{t('LabelPassword')}</div>
-                <div className="login-input">
-                  <InputGroup
-                    id="password"
-                    type="password"
-                    value={this.props.password}
-                    onChange={(ev) => this.props.setPassword(ev.target.value.trim())}
-                  />
-                </div>
-                <ButtonGroup style={{ gridColumn: '3/5', marginTop: 12 }} fill={true}>
-                  <Button
-                    icon="cross"
-                    className={Classes.POPOVER_DISMISS}
-                    intent={Intent.DANGER}
-                    style={{ width: '50%' }}
-                    onClick={this.onCancel}
-                  >
-                    &nbsp; {t('ButtonCancel')} &nbsp;
-                  </Button>
-                  <Button
-                    icon="log-in"
-                    intent={Intent.SUCCESS}
-                    style={{ width: '50%' }}
-                    onClick={this.onSubmit}
-                  >
-                    &nbsp; {t('ButtonLogin')} &nbsp;
-                  </Button>
-                </ButtonGroup>
-              </form>
+            <ReqorePanel label={t('LoginHeader')}>
+              <ReqoreTag
+                labelKey={name}
+                effect={{ gradient: { colors: '#7e2d90' }, weight: 'bold' }}
+                label={safe_url}
+              />
               {this.props.error && (
-                <H4 style={{ textAlign: 'center', color: Colors.RED3, marginTop: 24 }}>
-                  {this.props.error}
-                </H4>
+                <>
+                  <ReqoreVerticalSpacer height={20} />
+                  <ReqoreMessage intent="danger" size="small">
+                    {this.props.error}
+                  </ReqoreMessage>
+                </>
               )}
-            </Box>
+              <ReqoreVerticalSpacer height={20} />
+              <ReqoreControlGroup vertical fluid>
+                <String
+                  stack
+                  id="username"
+                  label={t('LabelUsername')}
+                  type="text"
+                  value={this.props.username}
+                  onChange={(_name, v) => this.props.setUsername(v.trim())}
+                />
+                <String
+                  stack
+                  id="password"
+                  sensitive
+                  label={t('LabelPassword')}
+                  value={this.props.password}
+                  onChange={(_name, v) => this.props.setPassword(v.trim())}
+                />
+                <ReqoreVerticalSpacer height={20} />
+                <ReqoreControlGroup vertical={false}>
+                  <ReqoreButton icon="CloseLine" intent={'danger'} onClick={this.onCancel}>
+                    {t('ButtonCancel')}
+                  </ReqoreButton>
+                  <ReqoreButton icon="LoginBoxLine" intent={'success'} onClick={this.onSubmit}>
+                    {t('ButtonLogin')}
+                  </ReqoreButton>
+                </ReqoreControlGroup>
+              </ReqoreControlGroup>
+            </ReqorePanel>
           </div>
         )}
       </TextContext.Consumer>

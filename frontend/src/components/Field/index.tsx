@@ -1,4 +1,4 @@
-import { Callout } from '@blueprintjs/core';
+import { ReqoreColumn, ReqoreColumns, ReqoreMessage } from '@qoretechnologies/reqore';
 import isArray from 'lodash/isArray';
 import { useContext } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -57,17 +57,29 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
     }
   });
 
+  if (type === 'long-string' && rest.markdown) {
+    return (
+      <ReqoreColumns columnsGap="10px">
+        <ReqoreColumn flexFlow="column">
+          {type === 'long-string' && <LongStringField fill {...rest} type={type} />}
+        </ReqoreColumn>
+        {rest.markdown && (
+          <ReqoreColumn>
+            <MarkdownPreview value={rest.value} />
+          </ReqoreColumn>
+        )}
+      </ReqoreColumns>
+    );
+  }
+
   return (
     <>
-      {rest.has_to_be_valid_identifier && rest.value && !rest.isValid ? (
-        <Callout intent="danger">{t('AllowedCharsOnly')}</Callout>
-      ) : null}
       {(!type || type === 'string') && <StringField {...rest} type={type} />}
-      {type === 'long-string' && <LongStringField {...rest} type={type} />}
+      {type === 'long-string' && <LongStringField fill {...rest} type={type} />}
       {type === 'method-name' && <MethodNameField {...rest} type={type} />}
       {type === 'boolean' && <BooleanField {...rest} type={type} />}
       {type === 'array-of-pairs' && <MultiPairField {...rest} type={type} />}
-      {type === 'select-string' && <SelectField {...rest} type={type} />}
+      {type === 'select-string' && <SelectField {...rest} type={type} fill />}
       {type === 'select-array' && <MultiSelect {...rest} type={type} />}
       {type === 'array' && <MultiSelect simple {...rest} type={type} />}
       {type === 'enum' && <RadioField {...rest} type={type} />}
@@ -88,6 +100,9 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
       {type === 'url' && <URLField {...rest} type={type} />}
       {type === 'api-manager' && <ApiManager {...rest} />}
       {rest.markdown && <MarkdownPreview value={rest.value} />}
+      {rest.has_to_be_valid_identifier && rest.value && !rest.isValid ? (
+        <ReqoreMessage intent="danger">{t('AllowedCharsOnly')}</ReqoreMessage>
+      ) : null}
     </>
   );
 };

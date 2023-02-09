@@ -3,21 +3,13 @@ import React, { useContext, useState } from 'react';
 import map from 'lodash/map';
 import size from 'lodash/size';
 
-import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
-
-import Content from '../../../components/Content';
+import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import CustomDialog from '../../../components/CustomDialog';
+import { SaveColorEffect } from '../../../components/Field/multiPair';
 import RadioField from '../../../components/Field/radioField';
 import SelectField from '../../../components/Field/select';
 import StringField from '../../../components/Field/string';
-import FieldLabel from '../../../components/FieldLabel';
-import {
-  ActionsWrapper,
-  ContentWrapper,
-  FieldInputWrapper,
-  FieldWrapper,
-} from '../../../components/FieldWrapper';
-import Spacer from '../../../components/Spacer';
+import { FieldWrapper } from '../../../components/FieldWrapper';
 import { FieldContext } from '../../../context/fields';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
@@ -111,13 +103,13 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
       const baseClassName: string = getBaseClassName();
 
       if (ifaceType === 'step' && !baseClassName) {
-        return <Callout intent="warning">{t('StepBaseClassMissing')}</Callout>;
+        return <ReqoreMessage intent="warning">{t('StepBaseClassMissing')}</ReqoreMessage>;
       }
 
       return (
         <>
           {ifaceType === 'service' && size(methods) === 0 && (
-            <Callout intent="warning">{t('TriggerNoMethodsAvailable')}</Callout>
+            <ReqoreMessage intent="warning">{t('TriggerNoMethodsAvailable')}</ReqoreMessage>
           )}
           {(ifaceType !== 'service' || size(methods) !== 0) && (
             <SelectField
@@ -140,6 +132,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
               value={newData.method}
               onChange={handleDataUpdate}
               name="method"
+              description={t('Trigger')}
               fill
             />
           )}
@@ -161,50 +154,46 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
       onClose={onClose}
       isOpen
       title={t('TriggerManager')}
-      style={{ width: '80vw', paddingBottom: 0 }}
+      bottomActions={[
+        {
+          label: t('Reset'),
+          onClick: () => {
+            setNewData(data || {});
+          },
+          tooltip: t('ResetTooltip'),
+          icon: 'HistoryLine',
+        },
+        {
+          label: t('Submit'),
+          onClick: () => {
+            onSubmit(newData, index, fsmIndex);
+            onClose();
+          },
+          icon: 'CheckLine',
+          flat: false,
+          effect: SaveColorEffect,
+          disabled: !isTriggerValid(),
+          position: 'right',
+        },
+      ]}
     >
-      <Content style={{ paddingLeft: 0, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
-        <ContentWrapper>
-          <FieldWrapper padded>
-            <FieldLabel label={t('Trigger')} isValid={isTriggerValid()} />
-            <FieldInputWrapper>
-              <RadioField
-                name="conditionType"
-                onChange={(_name, value) => {
-                  setNewData({});
-                  setTriggerType(value);
-                }}
-                value={triggerType}
-                items={
-                  !ifaceType && !newData.method
-                    ? [{ value: 'event-connector' }]
-                    : [{ value: 'event-connector' }, { value: 'trigger' }]
-                }
-              />
-              <Spacer size={20} />
-              {renderTriggerField()}
-            </FieldInputWrapper>
-          </FieldWrapper>
-        </ContentWrapper>
-        <ActionsWrapper style={{ padding: '10px' }}>
-          <ButtonGroup fill>
-            <Tooltip content={t('ResetTooltip')}>
-              <Button text={t('Reset')} icon={'history'} onClick={() => setNewData(data || {})} />
-            </Tooltip>
-            <Button
-              text={t('Submit')}
-              disabled={!isTriggerValid()}
-              icon={'tick'}
-              name={`fsm-submit-trigger`}
-              intent={Intent.SUCCESS}
-              onClick={() => {
-                onSubmit(newData, index, fsmIndex);
-                onClose();
-              }}
-            />
-          </ButtonGroup>
-        </ActionsWrapper>
-      </Content>
+      <FieldWrapper isValid={isTriggerValid()} collapsible={false}>
+        <RadioField
+          name="conditionType"
+          onChange={(_name, value) => {
+            setNewData({});
+            setTriggerType(value);
+          }}
+          value={triggerType}
+          items={
+            !ifaceType && !newData.method
+              ? [{ value: 'event-connector' }]
+              : [{ value: 'event-connector' }, { value: 'trigger' }]
+          }
+        />
+        <ReqoreVerticalSpacer height={10} />
+        {renderTriggerField()}
+      </FieldWrapper>
     </CustomDialog>
   );
 };

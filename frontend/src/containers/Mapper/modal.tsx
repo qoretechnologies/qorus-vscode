@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Callout } from '@blueprintjs/core';
+import { ReqoreMessage } from '@qoretechnologies/reqore';
 import set from 'lodash/set';
 import { FC, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -7,16 +7,11 @@ import CustomDialog from '../../components/CustomDialog';
 import BooleanField from '../../components/Field/boolean';
 import LongStringField from '../../components/Field/longString';
 import MarkdownPreview from '../../components/Field/markdownPreview';
+import { SaveColorEffect } from '../../components/Field/multiPair';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
-import FieldLabel from '../../components/FieldLabel';
-import {
-  ActionsWrapper,
-  ContentWrapper,
-  FieldInputWrapper,
-  FieldWrapper,
-} from '../../components/FieldWrapper';
-import Box from '../../components/ResponsiveBox';
+import FieldGroup from '../../components/FieldGroup';
+import { ContentWrapper, FieldWrapper } from '../../components/FieldWrapper';
 import { validateField } from '../../helpers/validations';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 
@@ -153,85 +148,75 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
   };
 
   return (
-    <CustomDialog isOpen title={t('AddNewField')} onClose={onClose} style={{ paddingBottom: 0 }}>
-      <Box top fill scrollY>
-        <ContentWrapper>
-          {error && <Callout intent="danger">{error}</Callout>}
-          {!types && !error && <p>Loading...</p>}
-          {types && (
-            <>
-              <FieldWrapper>
-                <FieldLabel
-                  label={t(`field-label-name`)}
-                  isValid={validateField('string', field.name) && isUnique(field.name)}
-                />
-                <FieldInputWrapper>
-                  <String
-                    onChange={(path, value) => onChange(path, value)}
-                    name="name"
-                    value={field.name}
-                  />
-                </FieldInputWrapper>
+    <CustomDialog
+      isOpen
+      label={t('AddNewField')}
+      onClose={onClose}
+      bottomActions={[
+        {
+          label: 'Reset',
+          icon: 'HistoryLine',
+          onClick: () => {
+            setField(fieldData ? transformFieldData(fieldData) : defaultData);
+          },
+        },
+        {
+          effect: SaveColorEffect,
+          label: 'Submit',
+          icon: 'CheckLine',
+          disabled: !isFieldValid(),
+          onClick: handleSubmit,
+          position: 'right',
+        },
+      ]}
+    >
+      <ContentWrapper>
+        {error && <ReqoreMessage intent="danger">{error}</ReqoreMessage>}
+        {!types && !error && <p>Loading...</p>}
+        {types && (
+          <FieldGroup label="Info" isValid={isFieldValid()} collapsible={false}>
+            <FieldWrapper
+              label={t(`field-label-name`)}
+              isValid={validateField('string', field.name) && isUnique(field.name)}
+              compact
+            >
+              <String
+                onChange={(path, value) => onChange(path, value)}
+                name="name"
+                value={field.name}
+              />
+            </FieldWrapper>
+            <FieldWrapper
+              info={t('MarkdownSupported')}
+              label={t(`field-label-desc`)}
+              isValid={validateField('string', field.desc)}
+              compact
+            >
+              <LongStringField fill onChange={onChange} name="desc" value={field.desc} />
+              <MarkdownPreview value={field.desc} />
+            </FieldWrapper>
+            <FieldWrapper label={t(`field-label-type`)} isValid={!!field.type} compact>
+              <SelectField
+                simple
+                defaultItems={types
+                  .filter((type) => !type.name.startsWith('*'))
+                  .map((type) => ({
+                    name: type.name,
+                    desc: '',
+                  }))}
+                onChange={onTypeChange}
+                name="type.name"
+                value={field.type?.name}
+              />
+            </FieldWrapper>
+            {field.type?.name !== 'auto' && (
+              <FieldWrapper label={t(`field-label-can_be_undefined`)} isValid compact>
+                <BooleanField onChange={onChange} name="canBeNull" value={field.canBeNull} />
               </FieldWrapper>
-              <FieldWrapper>
-                <FieldLabel
-                  info={t('MarkdownSupported')}
-                  label={t(`field-label-desc`)}
-                  isValid={validateField('string', field.desc)}
-                />
-                <FieldInputWrapper>
-                  <LongStringField fill onChange={onChange} name="desc" value={field.desc} />
-                  <MarkdownPreview value={field.desc} />
-                </FieldInputWrapper>
-              </FieldWrapper>
-              <FieldWrapper>
-                <FieldLabel label={t(`field-label-type`)} isValid={!!field.type} />
-                <FieldInputWrapper>
-                  <SelectField
-                    simple
-                    defaultItems={types
-                      .filter((type) => !type.name.startsWith('*'))
-                      .map((type) => ({
-                        name: type.name,
-                        desc: '',
-                      }))}
-                    onChange={onTypeChange}
-                    name="type.name"
-                    value={field.type?.name}
-                  />
-                </FieldInputWrapper>
-              </FieldWrapper>
-              {field.type?.name !== 'auto' && (
-                <FieldWrapper>
-                  <FieldLabel label={t(`field-label-can_be_undefined`)} isValid />
-                  <FieldInputWrapper>
-                    <BooleanField onChange={onChange} name="canBeNull" value={field.canBeNull} />
-                  </FieldInputWrapper>
-                </FieldWrapper>
-              )}
-            </>
-          )}
-        </ContentWrapper>
-        <ActionsWrapper style={{ marginTop: 20 }}>
-          <ButtonGroup fill>
-            <Button
-              text="Reset"
-              icon="history"
-              onClick={() => {
-                setField(fieldData ? transformFieldData(fieldData) : defaultData);
-              }}
-            />
-            <Button
-              intent="success"
-              text="Submit"
-              name="type-custom-field-submit"
-              icon="small-tick"
-              disabled={!isFieldValid()}
-              onClick={handleSubmit}
-            />
-          </ButtonGroup>
-        </ActionsWrapper>
-      </Box>
+            )}
+          </FieldGroup>
+        )}
+      </ContentWrapper>
     </CustomDialog>
   );
 };

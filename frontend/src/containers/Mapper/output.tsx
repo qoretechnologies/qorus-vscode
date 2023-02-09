@@ -1,10 +1,10 @@
-import { Button, Tooltip } from '@blueprintjs/core';
+import { useReqoreTheme } from '@qoretechnologies/reqore';
+import { IReqoreEffect } from '@qoretechnologies/reqore/dist/components/Effect';
 import size from 'lodash/size';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useDrop } from 'react-dnd';
-import { StyledMapperField } from '.';
+import { StyledMapperField, StyledMapperFieldWrapper, TYPE_COLORS } from '.';
 import { TTranslator } from '../../App';
-import AddFieldButton from './add';
 
 export interface IMapperOutputProps {
   onDrop: (
@@ -36,7 +36,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
   id,
   accepts,
   name,
-  isChild,
+  isMapperChild,
   level,
   onClick,
   onManageClick,
@@ -46,6 +46,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
   isCustom,
   path,
   hasRelation,
+  hasData,
   hasError,
   highlight,
   t,
@@ -72,52 +73,66 @@ const MapperOutput: FC<IMapperOutputProps> = ({
       canDrop: monitor.canDrop(),
     }),
   });
+  const theme = useReqoreTheme();
 
   return (
-    <StyledMapperField
-      title={field.desc}
-      ref={dropRef}
+    <StyledMapperFieldWrapper
       style={{
-        transform: `translateX(${isDragging ? (canDrop ? '-50px' : '0') : '0'})`,
         opacity: isDragging ? (canDrop ? 1 : 0.3) : 1,
-        borderColor: canDrop ? '#137cbd' : '#d7d7d7',
-        backgroundColor: hasRelation || highlight ? '#7fba2785' : '#fff',
+        transform: `translateX(${isDragging ? (canDrop ? '-50px' : '0') : '0'})`,
       }}
-      isChild={isChild}
+      flat={false}
+      stack
+      fill
+      isMapperChild={isMapperChild}
       level={level}
-      isDragging={isDragging && canDrop}
       childrenCount={lastChildIndex}
+      fluid
+      input
+      theme={theme}
     >
-      <h4>{typeof name === 'string' ? name.replace(/\\./g, '.') : name}</h4>
-      <p className={`${type.types_returned.join(' ').replace(/</g, '').replace(/>/g, '')} type`}>
-        {`${type.types_returned.includes('nothing') ? '*' : ''}${type.base_type}`}
-      </p>
-      <Tooltip content={t('ManageMapperFieldOptions')} position="right">
-        <Button
-          name={`mapper-output-code-button-${name}`}
-          style={{
-            position: 'absolute',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            left: '8px',
-            minWidth: '18px',
-            minHeight: '18px',
-          }}
-          disabled={hasError}
-          icon="code"
-          minimal
-          small
-          intent={hasRelation ? 'success' : 'none'}
-          onClick={onManageClick}
-        />
-      </Tooltip>
-      <AddFieldButton
-        field={field}
-        isCustom={isCustom}
-        canManageFields={type.can_manage_fields}
+      <StyledMapperField
         onClick={onClick}
-      />
-    </StyledMapperField>
+        tooltip={{
+          content: field?.desc,
+          delay: 200,
+        }}
+        ref={dropRef}
+        textAlign="left"
+        icon={hasRelation ? 'ArrowLeftFill' : hasData ? 'CodeLine' : undefined}
+        rightIcon="DragDropLine"
+        leftIconColor={`${hasRelation ? 'success' : hasData ? 'info' : undefined}:lighten:2`}
+        effect={
+          !hasRelation
+            ? hasData
+              ? ({
+                  gradient: {
+                    colors: {
+                      130: 'main:lighten',
+                      50: 'main',
+                      0: 'info:darken',
+                    },
+                  },
+                } as IReqoreEffect)
+              : undefined
+            : ({
+                gradient: {
+                  colors: {
+                    130: 'main:lighten',
+                    50: 'main',
+                    0: 'success:darken',
+                  },
+                },
+              } as IReqoreEffect)
+        }
+        badge={{
+          label: `${type.types_returned.includes('nothing') ? '*' : ''}${type.base_type}`,
+          color: TYPE_COLORS[`${type.types_returned[0].replace(/</g, '').replace(/>/g, '')}`],
+        }}
+      >
+        {typeof name === 'string' ? name.replace(/\\./g, '.') : name}
+      </StyledMapperField>
+    </StyledMapperFieldWrapper>
   );
 };
 

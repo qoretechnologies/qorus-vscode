@@ -1,9 +1,11 @@
-import { Tooltip } from '@blueprintjs/core';
-import React, { useContext } from 'react';
+import { ReqoreMenuItem, ReqoreThemeContext } from '@qoretechnologies/reqore';
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
+import { useContext } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { css } from 'styled-components';
 import { TOOLBAR_ITEM_TYPE } from '.';
 import { TextContext } from '../../../context/text';
+import { getStateColor, TStateTypes } from './state';
 
 export interface IFSMToolbarItemProps {
   children: any;
@@ -12,6 +14,8 @@ export interface IFSMToolbarItemProps {
   type: string;
   disabled?: boolean;
   onDoubleClick: (name: string, type: string, stateType: string) => any;
+  onDragStart: () => void;
+  category: TStateTypes;
 }
 
 export const getStateStyle = (type, toolbar?: boolean) => {
@@ -114,6 +118,36 @@ const StyledToolbarItem = styled.div<{ type: string; disabled?: boolean }>`
   }
 `;
 
+const typeToColor = {
+  mapper: '#f1ca00',
+  pipeline: '#6e1977',
+  fsm: '#0d5ba5',
+  block: '#ff5dfd',
+  connector: '#eb0e8c',
+  if: '#38fdb2',
+  apicall: '#ff47a3',
+  'search-single': '#658b30',
+  search: '#0d0113',
+  create: '#ec522c',
+  update: '#d0b7ff',
+  delete: '#160437',
+};
+
+export const FSMItemIconByType: Record<string, IReqoreIconName> = {
+  mapper: 'FileTransferLine',
+  pipeline: 'Database2Line',
+  fsm: 'ShareLine',
+  block: 'NodeTree',
+  connector: 'ExchangeLine',
+  if: 'QuestionMark',
+  apicall: 'ArrowLeftRightLine',
+  'search-single': 'SearchLine',
+  search: 'FileSearchLine',
+  create: 'FolderAddLine',
+  update: 'Edit2Line',
+  delete: 'DeleteBin2Line',
+};
+
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   children,
   count,
@@ -121,30 +155,40 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   type,
   disabled,
   onDoubleClick,
+  onDragStart,
+  category,
 }) => {
   const t = useContext(TextContext);
+  const theme = useContext(ReqoreThemeContext);
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
-    item: { name, type: TOOLBAR_ITEM_TYPE, stateType: type },
+    item: () => {
+      onDragStart?.();
+
+      return { name, type: TOOLBAR_ITEM_TYPE, stateType: type };
+    },
+    previewOptions: {
+      anchorX: 0,
+      anchorY: 0,
+    },
   });
 
   return (
-    <Tooltip intent="warning" content={disabled ? t('CannotManageBlock') : undefined}>
-      <StyledToolbarItem
-        ref={!disabled ? drag : undefined}
-        type={type}
-        name={`fsm-toolbar-${type}`}
-        toolbar
-        onDoubleClick={() => {
-          onDoubleClick(name, TOOLBAR_ITEM_TYPE, type);
-        }}
-        className={disabled ? 'disabled' : undefined}
-      >
-        <span>
-          {children} {count ? `(${count}) ` : ''}
-        </span>
-      </StyledToolbarItem>
-    </Tooltip>
+    <ReqoreMenuItem
+      ref={!disabled ? drag : undefined}
+      flat={false}
+      description="This is a test description kek"
+      badge={count}
+      icon={FSMItemIconByType[type]}
+      effect={{
+        gradient: getStateColor(category),
+      }}
+      onDoubleClick={() => {
+        onDoubleClick(name, TOOLBAR_ITEM_TYPE, type);
+      }}
+    >
+      {children}
+    </ReqoreMenuItem>
   );
 };
 

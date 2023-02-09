@@ -1,0 +1,84 @@
+# This is a generated file, don't edit!
+type: mapper
+name: test
+desc: test
+mappertype: Mapper
+version: '1.0'
+fields:
+    test2:
+        name: test
+options:
+    mapper-input:
+        type: type
+        name: qore
+        can_manage_fields: true
+        descriptions:
+            - type entry group
+            - Qore data type "hash<auto>"
+        path: /hash
+        custom-fields:
+            test:
+                name: test
+                desc: test
+                type:
+                    typename: any
+                    name: auto
+                    desc: Qore data type "auto"
+                    supported_options: null
+                    options: null
+                    base_type: auto
+                    mandatory: false
+                    types_accepted:
+                        - any
+                    types_returned:
+                        - any
+                    fields: {}
+                    can_manage_fields: true
+                    tags: null
+                isCustom: true
+                canBeNull: false
+                firstCustomInHierarchy: true
+                isChild: false
+                level: 0
+                path: test
+                parentPath: false
+    mapper-output:
+        type: type
+        name: qore
+        can_manage_fields: true
+        descriptions:
+            - type entry group
+            - Qore data type "hash<auto>"
+        path: /hash
+        custom-fields:
+            test2:
+                name: test2
+                desc: test2
+                type:
+                    typename: binary
+                    name: binary
+                    desc: Qore data type "binary"
+                    supported_options:
+                        qore.no_null:
+                            type: bool
+                            desc: >-
+                                if True then NULL is not supported on input if
+                                NOTHING is also not accepted
+                    options:
+                        qore.no_null: true
+                    base_type: binary
+                    mandatory: true
+                    types_accepted:
+                        - binary
+                    types_returned:
+                        - binary
+                    fields: {}
+                    can_manage_fields: false
+                    tags: null
+                isCustom: true
+                canBeNull: false
+                firstCustomInHierarchy: true
+                isChild: false
+                level: 0
+                path: test2
+                parentPath: false

@@ -1,4 +1,9 @@
-import { Button, ButtonGroup, Callout, Classes, ControlGroup } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqoreTag,
+} from '@qoretechnologies/reqore';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
@@ -9,7 +14,7 @@ import { IFieldChange } from '../../components/FieldWrapper';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import AutoField from './auto';
-import { StyledPairField } from './multiPair';
+import { PositiveColorEffect, StyledPairField } from './multiPair';
 
 export const allowedTypes: string[] = ['string', 'int', 'float', 'date'];
 
@@ -116,7 +121,7 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
   // allowed values
   if (!allowedTypes.includes(type)) {
     // Show the error message
-    return <Callout intent="danger">{t('AllowedValuesWarningType')}</Callout>;
+    return <ReqoreMessage intent="danger">{t('AllowedValuesWarningType')}</ReqoreMessage>;
   }
 
   // Render list of auto fields
@@ -124,8 +129,8 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
     <>
       {map(values, (val: string | number, idx: string): typeof StyledPairField => (
         <StyledPairField key={idx}>
-          <ControlGroup fill>
-            <Button text={`${idx}.`} className={Classes.FIXED} />
+          <ReqoreControlGroup fluid>
+            <ReqoreTag label={`${idx}.`} fixed />
             <AutoField
               {...rest}
               name={`${name}-${idx}`}
@@ -133,21 +138,29 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
               onChange={(_name, value) => handleChange(idx, value)}
             />
             {size(values) !== 1 && (
-              <Button
-                className={Classes.FIXED}
-                icon={'trash'}
+              <ReqoreButton
+                fixed
+                icon={'DeleteBinLine'}
                 intent="danger"
                 onClick={() =>
                   initContext.confirmAction('ConfirmRemoveItem', () => handleRemoveClick(idx))
                 }
               />
             )}
-          </ControlGroup>
+          </ReqoreControlGroup>
         </StyledPairField>
       ))}
-      <ButtonGroup fill>
-        <Button onClick={addValue} icon="add" />
-      </ButtonGroup>
+      <ReqoreControlGroup fluid>
+        <ReqoreButton
+          onClick={addValue}
+          icon="AddLine"
+          rightIcon="AddLine"
+          textAlign="center"
+          effect={PositiveColorEffect}
+        >
+          Add new value
+        </ReqoreButton>
+      </ReqoreControlGroup>
     </>
   );
 };

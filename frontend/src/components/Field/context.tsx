@@ -1,4 +1,4 @@
-import { ControlGroup } from '@blueprintjs/core';
+import { ReqoreControlGroup } from '@qoretechnologies/reqore';
 import size from 'lodash/size';
 import { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -72,7 +72,7 @@ const ContextField: FunctionComponent<IContextField & IFieldChange & IField> = (
 
   return (
     <div>
-      <ControlGroup fill>
+      <ReqoreControlGroup fluid>
         <SelectField
           name="iface_kind"
           value={value.iface_kind}
@@ -107,7 +107,7 @@ const ContextField: FunctionComponent<IContextField & IFieldChange & IField> = (
             fill
           />
         )}
-      </ControlGroup>
+      </ReqoreControlGroup>
     </div>
   );
 };

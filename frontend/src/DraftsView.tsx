@@ -1,13 +1,17 @@
-import { Callout, Tab, Tabs } from '@blueprintjs/core';
+import {
+  ReqoreH3,
+  ReqoreMessage,
+  ReqorePanel,
+  ReqoreTabs,
+  ReqoreTabsContent,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import { capitalize, map, reduce } from 'lodash';
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useMount } from 'react-use';
-import Box from './components/Box';
 import { DraftsTable } from './components/DraftsTable';
 import Loader from './components/Loader';
-import Spacer from './components/Spacer';
 import { Messages } from './constants/messages';
-import { StyledHeader } from './containers/InterfaceCreator/tab';
 import { DraftsContext } from './context/drafts';
 import { InitialContext } from './context/init';
 import { TextContext } from './context/text';
@@ -37,36 +41,52 @@ export const DraftsView = () => {
   }
 
   return (
-    <Box fill style={{ flexFlow: 'column', overflowY: 'auto' }}>
-      <StyledHeader>
-        <h2>
-          {t('Drafts')} ({reduce(categories, (totalCount, count) => totalCount + count, 0)})
-        </h2>
-      </StyledHeader>
-      <Callout intent="primary">{t('DraftsDescription')}</Callout>
-      <Spacer size={20} />
-      <Tabs id="draftTabs" selectedTabId={tab} onChange={(newTabId) => setTab(newTabId)} vertical>
-        {map(categories, (count, iface) => (
-          <Tab
-            id={iface}
-            title={`${capitalize(iface).replace(/-/g, ' ')} (${count})`}
-            panel={
-              <DraftsTable
-                interfaceKind={iface}
-                refreshCategories={fetchCategories}
-                onClick={(interfaceId, draftData) => {
-                  addDraft({
-                    interfaceKind: iface,
-                    interfaceId,
-                    ...draftData,
-                  });
-                  changeTab('CreateInterface', iface);
-                }}
-              />
-            }
-          />
+    <ReqorePanel
+      minimal
+      flat
+      transparent
+      fill
+      label={t('Drafts')}
+      badge={reduce(categories, (totalCount, count) => totalCount + count, 0)}
+      contentStyle={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <ReqoreMessage intent="info">{t('DraftsDescription')}</ReqoreMessage>
+      <ReqoreVerticalSpacer height={10} />
+      <ReqoreTabs
+        id="draftTabs"
+        activeTab={tab}
+        activeTabIntent="info"
+        onTabChange={(newTabId) => setTab(newTabId)}
+        vertical
+        fillParent
+        tabs={map(categories, (count, iface) => ({
+          id: iface,
+          badge: count,
+          label: `${capitalize(iface).replace(/-/g, ' ')}`,
+        }))}
+      >
+        {map(categories, (_count, iface) => (
+          <ReqoreTabsContent tabId={iface}>
+            <ReqoreH3>{`${capitalize(iface).replace(/-/g, ' ')}`} drafts</ReqoreH3>
+            <ReqoreVerticalSpacer height={10} />
+            <DraftsTable
+              interfaceKind={iface}
+              refreshCategories={fetchCategories}
+              onClick={(interfaceId, draftData) => {
+                addDraft({
+                  interfaceKind: iface,
+                  interfaceId,
+                  ...draftData,
+                });
+                changeTab('CreateInterface', iface);
+              }}
+            />
+          </ReqoreTabsContent>
         ))}
-      </Tabs>
-    </Box>
+      </ReqoreTabs>
+    </ReqorePanel>
   );
 };

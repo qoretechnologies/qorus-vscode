@@ -1,16 +1,20 @@
+import { ReqoreContext, useReqore } from '@qoretechnologies/reqore';
+import { TReqoreIntent } from '@qoretechnologies/reqore/dist/constants/theme';
 import set from 'lodash/set';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { useUpdateEffect } from 'react-use';
+import { useEffectOnce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import shortid from 'shortid';
-import { AppToaster } from '../components/Toast';
+import Loader from '../components/Loader';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
 import { InitialContext } from '../context/init';
 import { callBackendBasic } from '../helpers/functions';
 import withFieldsConsumer from './withFieldsConsumer';
 import { addMessageListener, postMessage } from './withMessageHandler';
+
+const pastTexts: { [id: string]: { isTranslated: boolean; text: string } } = {};
 
 // A HoC helper that holds all the initial data
 export default () =>
@@ -31,6 +35,10 @@ export default () =>
       const [draftData, setDraftData] = useState(null);
       const [isSavingDraft, setIsSavingDraft] = useState(false);
       const [lastDraft, setLastDraft] = useState(null);
+      const { confirmAction: confirmActionReqore } = useContext(ReqoreContext);
+      const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
+      const [t, setT] = useState<(text_id) => string>(undefined);
+      const { addNotification } = useReqore();
 
       useMount(() => {
         postMessage(Messages.GET_INITIAL_DATA);
@@ -43,20 +51,63 @@ export default () =>
             tab: 'ProjectConfig',
           });
         } else {
-          AppToaster.show(
-            {
-              message: 'Successfully logged in!',
-              intent: 'success',
-              timeout: 3000,
-              icon: 'small-tick',
-            },
-            'logged-in'
-          );
+          addNotification({
+            content: 'Successfully logged in!',
+            intent: 'success',
+            duration: 3000,
+            minimal: false,
+            id: 'logged-in',
+          });
         }
       }, [initialData?.qorus_instance?.url]);
 
       useEffect(() => {
+        if (texts) {
+          setT(() => {
+            return (text_id) => {
+              return texts.find((textItem) => textItem.id === text_id)?.text || text_id;
+            };
+          });
+        }
+      }, [texts]);
+
+      useEffectOnce(() => {
+        const listeners: any = [];
+        // New text was received
+        listeners.push(
+          addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
+            setTexts((currentTexts) => {
+              // Do not modify state if the text already
+              // exists
+              if (!currentTexts[data.text_id]) {
+                pastTexts[data.text_id] = { isTranslated: true, text: data.text };
+                return {
+                  ...currentTexts,
+                  [data.text_id]: data.text,
+                };
+              }
+              // Return current state
+              return currentTexts;
+            });
+          })
+        );
+        listeners.push(
+          addMessageListener('return-all-text', ({ data }): void => {
+            setTexts(data);
+          })
+        );
+        postMessage('get-all-text');
+
+        return () => {
+          // remove all listeners
+          listeners.forEach((l) => l());
+        };
+      });
+
+      useEffect(() => {
         const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
+          props.setTheme(data.theme);
+
           flushSync(() => setInitialData({}));
 
           let currentInitialData;
@@ -72,7 +123,7 @@ export default () =>
             data.tab = 'ProjectConfig';
           }
 
-          if (data.draftData) {
+          if (data?.draftData) {
             setDraftData(data.draftData);
           }
 
@@ -104,6 +155,10 @@ export default () =>
         };
       });
 
+      if (!texts || !t) {
+        return <Loader text="Loading translations..." />;
+      }
+
       // this action is called when the user clicks the confirm button
       /*
       This is a function that takes a string, a function, and two optional parameters and returns a function.
@@ -112,15 +167,26 @@ export default () =>
         text: string,
         action: () => any,
         btnText?: string,
-        btnIntent?: string
-      ) => void = (text, action, btnText, btnIntent, onCancel) => {
-        setConfirmDialog({
-          isOpen: true,
-          text,
+        btnIntent?: string,
+        onCancel?: () => any,
+        intent?: TReqoreIntent
+      ) => void = (text, action, btnText, btnIntent, onCancel, intent) => {
+        const blueprintIntentToReqoreMapper = {
+          primary: 'info',
+          danger: 'danger',
+          success: 'success',
+          warning: 'warning',
+          default: undefined,
+          muted: 'muted',
+        };
+
+        confirmActionReqore({
+          onConfirm: action,
           onCancel,
-          onSubmit: action,
-          btnStyle: btnIntent,
-          btnText,
+          confirmLabel: btnText,
+          description: t(text),
+          intent,
+          confirmButtonIntent: btnIntent ? blueprintIntentToReqoreMapper[btnIntent] : 'success',
         });
       };
 
@@ -169,10 +235,10 @@ export default () =>
         });
       };
 
-      const toggleSidebar: () => void = () => {
+      const toggleSidebar: (isCollapsed: boolean) => void = (isCollapsed) => {
         setInitialData((current) => {
           const result = { ...current };
-          result.sidebarOpen = !result.sidebarOpen;
+          result.sidebarOpen = !isCollapsed;
           return result;
         });
       };
@@ -231,29 +297,23 @@ export default () =>
         // Create the unique ID for this request
         const uniqueId: string = shortid.generate();
         // Create new toast
-        AppToaster.show(
-          {
-            message: toastMessage || 'Request in progress',
-            intent: 'warning',
-            timeout: 30000,
-            icon: 'info-sign',
-          },
-          uniqueId
-        );
+        addNotification({
+          content: toastMessage || 'Request in progress',
+          intent: 'warning',
+          duration: 30000,
+          id: uniqueId,
+        });
 
         return new Promise((resolve, reject) => {
           // Create a timeout that will reject the request
           // after 2 minutes
           let timeout: NodeJS.Timer | null = setTimeout(() => {
-            AppToaster.show(
-              {
-                message: 'Request timed out',
-                intent: 'danger',
-                timeout: 3000,
-                icon: 'error',
-              },
-              uniqueId
-            );
+            addNotification({
+              content: 'Request timed out',
+              intent: 'danger',
+              duration: 3000,
+              id: uniqueId,
+            });
             resolve({
               ok: false,
               message: 'Request timed out',
@@ -263,15 +323,12 @@ export default () =>
           // if the ID matches then resolve
           addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
             if (data.request_id === uniqueId) {
-              AppToaster.show(
-                {
-                  message: data.message,
-                  intent: data.ok ? 'success' : 'danger',
-                  timeout: 3000,
-                  icon: data.ok ? 'small-tick' : 'error',
-                },
-                uniqueId
-              );
+              addNotification({
+                content: data.message,
+                intent: data.ok ? 'success' : 'danger',
+                duration: 3000,
+                id: uniqueId,
+              });
 
               clearTimeout(timeout);
               timeout = null;
@@ -290,8 +347,6 @@ export default () =>
 
       const saveDraft = async (interfaceKind, interfaceId, fileData, name?: string) => {
         setIsSavingDraft(true);
-
-        console.log('saving draft', interfaceKind, interfaceId, fileData, name);
 
         await callBackendBasic(Messages.SAVE_DRAFT, undefined, {
           iface_id: interfaceId,
@@ -335,6 +390,9 @@ export default () =>
             lastDraft,
             setLastDraft,
             changeDraft,
+            t,
+            texts,
+            setTexts,
           }}
         >
           <InitialContext.Consumer>

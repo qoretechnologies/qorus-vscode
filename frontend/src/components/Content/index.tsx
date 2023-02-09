@@ -1,30 +1,25 @@
-import React, { FunctionComponent, ReactNode } from 'react';
-import styled from 'styled-components';
+import { ReqorePanel } from '@qoretechnologies/reqore';
+import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
+import { ReactNode } from 'react';
 
-const StyledContent = styled.div`
-    display: flex;
-    flex-flow: column;
-    overflow-y: auto;
-    flex: 1;
-
-    h3 {
-        margin: 0;
-        margin-bottom: 15px;
-        margin-left: 15px;
-    }
-`;
-
-export interface IContent {
-    children: ReactNode;
-    title?: string;
-    style?: any;
+export interface IContent extends IReqorePanelProps {
+  children: ReactNode;
+  title?: string;
+  style?: any;
 }
 
-const Content: FunctionComponent<IContent> = ({ children, title, style }) => (
-    <StyledContent style={style}>
-        {title && <h3>{title}</h3>}
-        {children}
-    </StyledContent>
+const Content = ({ children, title, style, ...rest }: IContent) => (
+  <ReqorePanel
+    style={style}
+    flat
+    fluid
+    minimal
+    label={title}
+    contentStyle={{ display: 'flex', flexFlow: 'column', overflowY: 'auto' }}
+    {...rest}
+  >
+    {children}
+  </ReqorePanel>
 );
 
 export default Content;

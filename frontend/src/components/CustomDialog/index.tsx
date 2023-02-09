@@ -1,35 +1,28 @@
-import React, { useContext } from 'react';
+import { ReqoreModal } from '@qoretechnologies/reqore';
+import { IReqoreModalProps } from '@qoretechnologies/reqore/dist/components/Modal';
 
-import useEffectOnce from 'react-use/lib/useEffectOnce';
-import shortid from 'shortid';
-
-import { Dialog, IDialogProps } from '@blueprintjs/core';
-
-import { DialogsContext } from '../../context/dialogs';
-
-export interface ICustomDialogProps extends IDialogProps {
-    children: any;
-    noBottomPad?: boolean;
+export interface ICustomDialogProps extends IReqoreModalProps {
+  children: any;
 }
 
-const CustomDialog: React.FC<ICustomDialogProps> = ({ children, noBottomPad, ...rest }) => {
-    const dialogContext = useContext(DialogsContext);
+const CustomDialog = ({ children, ...rest }: ICustomDialogProps) => {
+  //const dialogContext = useContext(DialogsContext);
 
-    useEffectOnce(() => {
-        const id = shortid.generate();
+  // useEffectOnce(() => {
+  //     const id = shortid.generate();
 
-        dialogContext.addDialog(id, rest.onClose);
-        // Remove the dialog when unmounted
-        return () => {
-            dialogContext.removeDialog(id);
-        };
-    });
+  //     dialogContext.addDialog(id, rest.onClose);
+  //     // Remove the dialog when unmounted
+  //     return () => {
+  //         dialogContext.removeDialog(id);
+  //     };
+  // });
 
-    return (
-        <Dialog {...rest} canEscapeKeyClose={false}>
-            {children}
-        </Dialog>
-    );
+  return (
+    <ReqoreModal {...rest} label={rest.title || rest.label} blur={5}>
+      {children}
+    </ReqoreModal>
+  );
 };
 
 export default CustomDialog;
