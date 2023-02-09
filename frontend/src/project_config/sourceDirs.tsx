@@ -1,4 +1,10 @@
-import { ReqoreMessage, ReqorePanel, ReqoreTag, ReqoreTagGroup } from '@qoretechnologies/reqore';
+import {
+  ReqoreMessage,
+  ReqorePanel,
+  ReqoreTag,
+  ReqoreTagGroup,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import size from 'lodash/size';
 import { FunctionComponent, useContext, useState } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
@@ -75,13 +81,22 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
       <Loader text="Loading..." />
     ) : (
       <>
-        <ReqorePanel label={t('MyDirectories')} flat minimal transparent>
+        <ReqorePanel
+          label={t('MyDirectories')}
+          badge={size(projectData.source_directories)}
+          flat
+          minimal
+          transparent
+        >
+          <ReqoreMessage size="small" intent="info">
+            {t('SourceDirectoriesInfo')}
+          </ReqoreMessage>
+          <ReqoreVerticalSpacer height={10} />
           {size(projectData.source_directories) ? (
             <ReqoreTagGroup>
               {projectData.source_directories.map((dir) => (
                 <ReqoreTag
                   key={dir}
-                  fluid
                   icon="Folder2Line"
                   label={dir}
                   actions={[
@@ -107,30 +122,33 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
             <ReqoreMessage icon="ForbidLine">{t('NoDirectories')}</ReqoreMessage>
           )}
         </ReqorePanel>
-        <ReqorePanel label={t('AddSourceDirectory')} minimal transparent flat>
-          <TreeField
-            onChange={(_name, value) => handleAddDirectory(value.map((path) => path.name || path))}
-            value={projectData.source_directories.map((dir) => ({ name: dir }))}
-            useRelativePath
-            name="source-dirs"
-            get_message={{
-              action: Messages.GET_PROJECT_DIRS,
-            }}
-            return_message={{
-              action: Messages.RETURN_PROJECT_DIRS,
-              return_value: 'directories',
-            }}
-            onFolderCreated={() => {
-              postMessage(Messages.CONFIG_GET_DATA);
-            }}
-            notFixed
-          />
-        </ReqorePanel>
+        <TreeField
+          onChange={(_name, value) => handleAddDirectory(value.map((path) => path.name || path))}
+          value={projectData.source_directories.map((dir) => ({ name: dir }))}
+          useRelativePath
+          name="source-dirs"
+          expanded
+          get_message={{
+            action: Messages.GET_PROJECT_DIRS,
+          }}
+          return_message={{
+            action: Messages.RETURN_PROJECT_DIRS,
+            return_value: 'directories',
+          }}
+          onFolderCreated={() => {
+            postMessage(Messages.CONFIG_GET_DATA);
+          }}
+          notFixed
+        />
       </>
     );
 
   if (flat) {
-    return <div>{renderSourceDirs()}</div>;
+    return (
+      <ReqorePanel flat transparent fluid>
+        {renderSourceDirs()}
+      </ReqorePanel>
+    );
   }
 
   return (

@@ -2301,7 +2301,10 @@ msgid "MarkdownPreview"
 msgstr "Markdown preview"
 
 msgid "MyDirectories"
-msgstr "My Directories"
+msgstr "Source Directories Management"
+
+msgid "SourceDirectoriesInfo"
+msgstr "Source directories are used to narrow which files should the extension scan, index and also display in the hierarchy view. If have trouble working with a certain file or you do not see an interface in the hierarchy view, it is probably because it is not in a source directory. Below you can find a list of source directories and also add new ones."
 
 msgid "Type"
 msgstr "Type"
