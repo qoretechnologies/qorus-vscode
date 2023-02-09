@@ -1,4 +1,4 @@
-import { Button, ControlGroup } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreControlGroup, ReqoreTag } from '@qoretechnologies/reqore';
 import { FunctionComponent, useContext } from 'react';
 import { IFieldChange } from '../../components/FieldWrapper';
 import { InitialContext } from '../../context/init';
@@ -23,12 +23,13 @@ const PairField: FunctionComponent<IPairField & IFieldChange> = ({
   index,
   onRemoveClick,
   canBeRemoved,
+  t,
 }) => {
   const initContext = useContext(InitialContext);
   return (
     <div>
-      <ControlGroup>
-        <Button text={`${index}.`} />
+      <ReqoreControlGroup stack>
+        <ReqoreTag label={`${index}.`} />
         <StringField
           placeholder={keyName}
           name={keyName}
@@ -47,13 +48,15 @@ const PairField: FunctionComponent<IPairField & IFieldChange> = ({
           fill
         />
         {canBeRemoved && (
-          <Button
-            icon={'trash'}
+          <ReqoreButton
+            icon={'DeleteBinLine'}
             intent="danger"
+            minimal
             onClick={() => initContext.confirmAction('ConfirmRemoveItem', onRemoveClick)}
+            tooltip="Remove item"
           />
         )}
-      </ControlGroup>
+      </ReqoreControlGroup>
     </div>
   );
 };

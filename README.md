@@ -4,86 +4,12 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools extension enables creating, editing, and extending reusable IT and AI building blocks for advanced automation challenges.
 
-## Version 3.9.8 overview - What's new:
+## Version 4.0.0
 
-- Fixed regression bug caused by version 3.6.4, where config all items would always be reset when opening FSM states
+- The WebView has been redesigned to use the new in-house UI library and to be more responsive, faster and overall more pleasant to use
+- The WebView now supports dark mode, light mode or your current theme mode
 
-## Version 3.9.7 overview - What's new:
-
-- Fixed regression bug caused by version 3.9.6, where the `Deploy Interface` button disappeared from deployable interfaces
-
-## Version 3.9.6 overview - What's new:
-
-- Schema modules & Scripts & Tests can no longer be deployed and can instead be run against the active Qorus instance
-
-## Version 3.9.5 overview - What's new:
-
-- Releases view was rewritten to use the new in-house UI library
-
-## Version 3.9.4 overview - What's new:
-
-- Recognize `*test.py` and `*Test.java` as tests
-- Allow the extension to create custom releases without requiring an initialized git repository in the project directory
-
-## Version 3.9.3 overview - What's new:
-
-- Fixed a bug where the provider URLs for Pipeline input provider were built incorrectly
-- The maximum height of the input & output providers on the mapper diagram page have been adjusted
-- The `Set as null` button's width has been adjusted to fit the text
-- Fixed a bug where deleting any interface from the Hierarchy view would result in the name of the interface to be shown as `undefined`
-
-## Version 3.9.2 overview - What's new:
-
-- Fixed a bug where the webview would crash when selecting certain data types when browsing data providers
-- Fixed a bug that prevented search providers with empty search arguments to be saved
-- Fixed a bug where the WebView would crash when trying to add a `Context` field to existing mappers
-- Fixed a bug where the WebView would crash when trying to edit a saved state which contained an action that included options with `/` in the value
-- Fixed enlarged + buttons in the Api Manager field in Services
-- Config items default value is now properly checked when `Can be undefined` is set, and the form can be submitted
-
-## Version 3.9.1 overview - What's new:
-
-- Fixed a bug where the data provider URL would not be built correctly when using the search states in FSM
-
-## Version 3.9.0 overview - What's new:
-
-- Complex hash/object-editing is now supported throughout the application
-- Fixed a bug where a response/request type was not working properly in mappers
-
-## Version 3.8.4 overview - What's new:
-
-- It is no longer possible to select a non-record-based provider in Pipeline input provider
-
-## Version 3.8.3 overview - What's new:
-
-- Whenever an error occurs when traversing the data provider, the error will now be displayed.
-- Fixed an issue where a Windows build would not work properly because of an internal path issue
-- Fixed a bug where it was not possible to select `request` `response` data providers in Mappers
-- Fixed a bug that caused the webview to crash when selecting a certain data provider factory in Mappers (csvread and csvwrite were affected)
-- Fixed a bug where it was possible to select non record-based data provider in the pipeline input provider
-
-## Version 3.8.2 overview - What's new:
-
-- Fixed an issue in Mappers that caused infinite draft saving loop which prevented options being added and eventually crashed the active Qorus connection
-
-## Version 3.8.1 overview - What's new:
-
-- Fixed a bug that prevented new Mappers from being created
-
-## Version 3.8.0 overview - What's new:
-
-- Mappers can now be opened and managed even if the input or output connection is down / broken
-- Opening a Class with connectors will no longer create a draft if nothing has changed
-
-## Version 3.7.0 overview - What's new:
-
-- Implemented new FSM states - create, single record search, multiple record search, update, and delete
-- Fixed a bug that prevented creation of FSM Block states
-- Requires Qorus 5.1.35+ to support new FSM functionality
-
-![update_state](https://github.com/qoretechnologies/qorus-vscode/blob/master/images/gif/update-state.gif?raw=true)
-
----
+- !IMPORTANT - the extension now requires Qorus 6.0.0 or newer
 
 ## Main Features
 

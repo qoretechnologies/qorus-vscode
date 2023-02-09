@@ -1,4 +1,3 @@
-import { Button } from '@blueprintjs/core';
 import {
   ReqoreButton,
   ReqoreControlGroup,
@@ -61,8 +60,6 @@ class SelectCommit extends Component {
     if (!this.props || !this.props.commits) {
       return null;
     }
-
-    const ClearButton = (props) => <Button icon="cross" minimal={true} {...props} />;
 
     const options = this.props.commits.map((commit) => {
       const hash = commit.hash;

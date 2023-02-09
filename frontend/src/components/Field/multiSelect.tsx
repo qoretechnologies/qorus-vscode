@@ -1,13 +1,12 @@
-import { Button, Classes, ControlGroup, Icon, MenuItem, Tag, Tooltip } from '@blueprintjs/core';
-import { MultiSelect } from '@blueprintjs/select';
-import { includes, size } from 'lodash';
-import { FunctionComponent, useState } from 'react';
+import { ReqoreButton, ReqoreControlGroup, ReqoreMultiSelect } from '@qoretechnologies/reqore';
+import { TReqoreMultiSelectItem } from '@qoretechnologies/reqore/dist/components/MultiSelect';
+import { FunctionComponent, useMemo, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
-import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
+import { submitControl } from '../../containers/InterfaceCreator/controls';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, {
   TMessageListener,
@@ -16,6 +15,7 @@ import withMessageHandler, {
 import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
+import { PositiveColorEffect } from './multiPair';
 import String from './string';
 
 export interface IMultiSelectField {
@@ -66,33 +66,10 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
   const setSelectedItems = (newValue: string[]) => {
     // Send the selected items whenever they change
-    onChange(name, newValue);
-  };
-
-  const handleSelectClick: (item: any) => void = (item) => {
-    // Check if this item is selected
-    const isSelected: boolean = !!value.find(
-      (selectedItem: any) => selectedItem.name === item.name
+    onChange(
+      name,
+      newValue.map((val) => ({ name: val }))
     );
-    // Remove the item if it's selected
-    if (isSelected) {
-      deselectItem(item.name);
-    } else {
-      // Check if this item was created by the user
-      const existsInItems: boolean = !!items.find(
-        (selectedItem: any) => selectedItem.name === item.name
-      );
-      // Add the item if it does not exist
-      if (!existsInItems) {
-        setItems((currentItems) => [...currentItems, item]);
-      }
-      // Set the selected item
-      setSelectedItems([...value, item]);
-    }
-  };
-
-  const handleTagRemoveClick: (tag: string) => void = (tag) => {
-    deselectItem(tag);
   };
 
   const handleTagClick: (tag: string) => void = (tag) => {
@@ -154,118 +131,90 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     setSelectedItems(value.filter((item: any) => item.name !== tagName));
   };
 
-  // Clear button
-  const ClearButton = size(value) ? (
-    <Button icon={'cross'} minimal onClick={handleClearClick} />
-  ) : undefined;
-
   canEdit = !!reference || canEdit;
+
+  const val = useMemo(
+    () => value.map((item: any) => (typeof item === 'object' ? item.name : item)),
+    [value]
+  );
+
+  const _items = useMemo(
+    () => [
+      ...items,
+      ...val
+        .map((item: string) => {
+          // Check if this item is in items already
+          const itemExists = items.find((i) => i.name === item);
+          // If it doesn't exist, add it to the items
+          if (!itemExists) {
+            return { name: item };
+          }
+
+          return null;
+        })
+        .filter((item) => item),
+    ],
+    [items, value]
+  );
 
   return (
     <FieldEnhancer context={context}>
       {(onEditClick, onCreateClick) => (
         <>
           {editorManager.isOpen && (
-            <CustomDialog title={t('EditItem')} onClose={() => setEditorManager({})} isOpen>
-              <StyledDialogBody style={{ flexFlow: 'column' }}>
-                <String
-                  fill
-                  name="edit"
-                  value={editorManager.value}
-                  onChange={(_name, v) => setEditorManager({ ...editorManager, value: v })}
-                />
-                <br />
-                <ControlGroup fill>
-                  <Button
-                    text={t('Save')}
-                    onClick={() => handleSaveTagEdit()}
-                    disabled={editorManager.value === ''}
-                    intent="success"
-                  />
-                </ControlGroup>
-              </StyledDialogBody>
+            <CustomDialog
+              title={t('EditItem')}
+              onClose={() => setEditorManager({})}
+              isOpen
+              bottomActions={[
+                submitControl(() => handleSaveTagEdit(), { disabled: editorManager.value === '' }),
+              ]}
+            >
+              <String
+                fill
+                name="edit"
+                value={editorManager.value}
+                onChange={(_name, v) => setEditorManager({ ...editorManager, value: v })}
+              />
             </CustomDialog>
           )}
-          <ControlGroup fill>
-            <MultiSelect
-              key={activeId}
-              items={items}
-              name={`field-${name}`}
-              createNewItemFromQuery={(query: string) =>
-                query
-                  ? {
-                      name: query,
+          <ReqoreControlGroup fluid fill>
+            <ReqoreMultiSelect
+              items={_items.map(
+                (item): TReqoreMultiSelectItem => ({
+                  value: item.name,
+                })
+              )}
+              enterKeySelects
+              canCreateItems={!reference}
+              canRemoveItems
+              onItemClickIcon="EditLine"
+              onValueChange={(newValue) => {
+                setSelectedItems(newValue);
+              }}
+              value={val}
+              onItemClick={
+                canEdit
+                  ? (item) => {
+                      if (onEditClick && reference) {
+                        onEditClick(item.value, reference, handleSaveTagEdit);
+                      } else {
+                        handleTagClick(item.value);
+                      }
                     }
                   : undefined
               }
-              createNewItemRenderer={(query, _active, handleClick) => (
-                <MenuItem
-                  icon={'add'}
-                  name={'multiselect-menu-item'}
-                  text={`${t('AddNew')} ${query}`}
-                  onClick={handleClick}
-                />
-              )}
-              itemRenderer={(item, { handleClick }) => (
-                <MenuItem
-                  name={'multiselect-menu-item'}
-                  icon={includes(value, item) ? 'tick' : 'blank'}
-                  text={item.name}
-                  onClick={handleClick}
-                  title={item.desc}
-                />
-              )}
-              popoverProps={{
-                targetClassName: 'select-popover',
-                popoverClassName: 'custom-popover',
-              }}
-              tagRenderer={(item) => (
-                <Tag
-                  minimal
-                  style={{ cursor: 'pointer', backgroundColor: 'transparent' }}
-                  onClick={(event) => {
-                    if (canEdit) {
-                      event.stopPropagation();
-                      if (onEditClick && reference) {
-                        onEditClick(item.name, reference, handleSaveTagEdit);
-                      } else {
-                        handleTagClick(item.name);
-                      }
-                    }
-                  }}
-                  rightIcon={
-                    canEdit && <Icon iconSize={12} icon="edit" style={{ opacity: '0.6' }} />
-                  }
-                >
-                  {item.name}
-                </Tag>
-              )}
-              tagInputProps={{
-                onRemove: handleTagRemoveClick,
-                fill: true,
-                rightElement: ClearButton,
-                leftIcon: 'list',
-                tagProps: {
-                  minimal: true,
-                },
-              }}
-              selectedItems={value || []}
-              onItemSelect={(item: any) => handleSelectClick(item)}
-              resetOnQuery
-              resetOnSelect
-              activeItem={null}
             />
             {reference && (
-              <Tooltip content={t('CreateAndAddNewItem')} className={Classes.FIXED}>
-                <Button
-                  className={Classes.FIXED}
-                  icon="add"
-                  intent="success"
-                  onClick={() => onCreateClick(reference, handleSaveTagCreate)}
-                />
-              </Tooltip>
+              <ReqoreButton
+                fixed
+                tooltip={t('CreateAndAddNewItem')}
+                icon="AddLine"
+                effect={PositiveColorEffect}
+                onClick={() => onCreateClick(reference, handleSaveTagCreate)}
+              />
             )}
-          </ControlGroup>
+          </ReqoreControlGroup>
         </>
       )}
     </FieldEnhancer>

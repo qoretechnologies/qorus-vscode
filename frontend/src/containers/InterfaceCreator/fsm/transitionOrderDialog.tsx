@@ -1,4 +1,4 @@
-import { Classes, Icon } from '@blueprintjs/core';
+import { ReqoreIcon } from '@qoretechnologies/reqore';
 import capitalize from 'lodash/capitalize';
 import cloneDeep from 'lodash/cloneDeep';
 import React, { useContext, useState } from 'react';
@@ -47,11 +47,7 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
     const { name }: IFSMState = getStateData(id);
     const realType: string = getStateType(getStateData(id));
 
-    return (
-      <>
-        <strong>{name}</strong> <span className={Classes.TEXT_MUTED}>[{realType}]</span>
-      </>
-    );
+    return `${name}: ${realType}`;
   };
 
   const renderTransitionInfo = (data: IFSMTransition) => {
@@ -77,16 +73,7 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
         .join(', ')}]`;
     }
 
-    return (
-      <>
-        <p
-          style={{ margin: '3px 0 0 0', padding: 0, marginLeft: '15.5px', fontSize: '13px' }}
-          className={Classes.TEXT_MUTED}
-        >
-          {conditionText}
-        </p>
-      </>
-    );
+    return <>{conditionText}</>;
   };
 
   const updateTransitionData = (_stateId, index, data, remove?: boolean) => {
@@ -126,7 +113,7 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
   const renderMetadata = (item: IFSMTransition) => (
     <>
       {renderStateInfo(item.state)}{' '}
-      {!isTransitionValid(item) && <Icon icon="cross" intent="danger" />}
+      {!isTransitionValid(item) && <ReqoreIcon icon="CloseLine" intent="danger" />}
       {renderTransitionInfo(item)}
     </>
   );
@@ -136,7 +123,7 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
       <OrderDialog
         onClose={onClose}
         data={newTransitions}
-        title="TransitionToState"
+        title={t('TransitionToState')}
         metadata={renderMetadata}
         dialogTitle="EditTransitionsOrder"
         changeOrder={changeOrder}

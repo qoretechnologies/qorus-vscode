@@ -4,18 +4,18 @@ import * as os from 'os';
 import * as path from 'path';
 import { gettext, t } from 'ttag';
 import * as vscode from 'vscode';
-import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
-import { FormChangesResponder } from './interface_creator/FormChangesResponder';
-import { triggers } from './interface_creator/standard_methods';
 import { deleter } from './QorusDelete';
 import { QorusDraftsInstance } from './QorusDrafts';
 import { drafts_tree } from './QorusDraftsTree';
 import { instance_tree } from './QorusInstanceTree';
 import { qorus_locale } from './QorusLocale';
-import { config_filename, projects, QorusProject } from './QorusProject';
+import { QorusProject, config_filename, projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { releaser } from './QorusRelease';
 import { qorus_request } from './QorusRequest';
+import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
+import { FormChangesResponder } from './interface_creator/FormChangesResponder';
+import { triggers } from './interface_creator/standard_methods';
 import * as msg from './qorus_message';
 import { deepCopy } from './qorus_utils';
 
@@ -64,22 +64,28 @@ class QorusWebview {
 
   private postInitialData = () => {
     const { authority, path, scheme } = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path));
+    const project: QorusProject = projects.getProject();
 
-    this.postMessage({
-      action: 'return-initial-data',
-      data: {
-        path: web_path,
-        image_path: `${scheme}://${authority}${path}`,
-        qorus_instance: qorus_request.activeQorusInstance(),
-        ...this.initial_data,
-      },
+    project.validateConfigFileAndDo((file_data) => {
+      const data = QorusProject.file2data(file_data);
+
+      this.postMessage({
+        action: 'return-initial-data',
+        data: {
+          path: web_path,
+          theme: data.theme,
+          image_path: `${scheme}://${authority}${path}`,
+          qorus_instance: qorus_request.activeQorusInstance(),
+          ...this.initial_data,
+        },
+      });
+
+      // clear initial data except uri
+      if (Object.keys(this.initial_data).length && this.initial_data.tab !== 'Login') {
+        this.previous_initial_data = deepCopy(this.initial_data);
+      }
+      this.initial_data = {};
     });
-
-    // clear initial data except uri
-    if (Object.keys(this.initial_data).length && this.initial_data.tab !== 'Login') {
-      this.previous_initial_data = deepCopy(this.initial_data);
-    }
-    this.initial_data = {};
   };
 
   private checkError = (code_info: QorusProjectCodeInfo) => {
@@ -156,8 +162,8 @@ class QorusWebview {
         );
 
         this.panel.iconPath = {
-          light: vscode.Uri.file(path.join(images_path, 'qorus_logo_28.png')),
-          dark: vscode.Uri.file(path.join(images_path, 'qorus_logo_28.png')),
+          light: vscode.Uri.file(path.join(images_path, 'QorusDeveloperTools_Small.png')),
+          dark: vscode.Uri.file(path.join(images_path, 'QorusDeveloperTools_Small.png')),
         };
 
         const uri = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path));
@@ -255,6 +261,10 @@ class QorusWebview {
             case 'config-update-data':
               this.message_on_config_file_change = false;
               project.updateConfigFromWebview(message.data);
+              break;
+            case 'config-update-custom-data':
+              this.message_on_config_file_change = false;
+              project.updateIncrementalConfigFromWebview(message.data);
               break;
             case 'config-add-dir':
               this.message_on_config_file_change = false;

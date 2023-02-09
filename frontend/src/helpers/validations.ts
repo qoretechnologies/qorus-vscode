@@ -1,5 +1,5 @@
-import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 import jsyaml from 'js-yaml';
+import { isDate } from 'lodash';
 import every from 'lodash/every';
 import isArray from 'lodash/isArray';
 import isNaN from 'lodash/isNaN';
@@ -11,11 +11,11 @@ import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
 import {
-  fixOperatorValue,
   IOptions,
   IOptionsSchemaArg,
   IQorusType,
   TOption,
+  fixOperatorValue,
 } from '../components/Field/systemOptions';
 import { getTemplateKey, getTemplateValue, isValueTemplate } from '../components/Field/template';
 import { getAddress, getProtocol } from '../components/Field/urlField';
@@ -209,6 +209,16 @@ export const validateField: (
       }
       return true;
     }
+    case 'list-of-hashes': {
+      // Get the parsed yaml
+      const parsedValue: any = maybeParseYaml(value);
+      // If the value is not an object or empty
+      if (!parsedValue || !isArray(parsedValue)) {
+        return false;
+      }
+      // If the value is not an object or empty
+      return parsedValue.every((item: any) => validateField('hash', item));
+    }
     case 'mapper-code':
       if (!value) {
         return false;
@@ -261,12 +271,26 @@ export const validateField: (
         return false;
       }
 
-      if (
-        (type === 'update' || type === 'create') &&
-        (size(value[`${type}_args`]) === 0 ||
-          !validateField('system-options', value[`${type}_args`]))
-      ) {
-        return false;
+      const isUpdateOrCreate = type === 'update' || type === 'create';
+
+      if (isUpdateOrCreate) {
+        const areNormalArgsInvalid =
+          `${type}_args` in value &&
+          (size(value[`${type}_args`]) === 0 ||
+            !validateField('system-options', value[`${type}_args`]));
+
+        const areFreeFormArgsInvalid =
+          `${type}_args_freeform` in value &&
+          (size(value[`${type}_args_freeform`]) === 0 ||
+            !validateField('list-of-hashes', value[`${type}_args_freeform`]));
+
+        if (`${type}_args` in value && areNormalArgsInvalid) {
+          return false;
+        }
+
+        if (`${type}_args_freeform` in value && areFreeFormArgsInvalid) {
+          return false;
+        }
       }
 
       if (newValue?.type === 'factory') {
@@ -468,7 +492,7 @@ export const maybeParseYaml: (yaml: any) => any = (yaml) => {
   }
 
   // Leave dates
-  if (isDateValid(yaml)) {
+  if (isDate(yaml)) {
     return yaml;
   }
   // Check if the value isn't empty

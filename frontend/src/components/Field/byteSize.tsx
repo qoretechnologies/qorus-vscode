@@ -1,34 +1,44 @@
-import React, { useState, useContext } from 'react';
+import { ReqoreControlGroup } from '@qoretechnologies/reqore';
 import useMount from 'react-use/lib/useMount';
-import { TextContext } from '../../context/text';
-import map from 'lodash/map';
-import AutoField from './auto';
+import { splitByteSize } from '../../helpers/functions';
 import { getValueOrDefaultValue } from '../../helpers/validations';
-import { ControlGroup } from '@blueprintjs/core';
 import Number from './number';
 import SelectField from './select';
-import { splitByteSize } from '../../helpers/functions';
+//import String from './string';
 
-const ByteSizeField = ({ value, default_value, onChange, name, canBeNull, disabled, read_only }) => {
-    // Fetch data on mount
-    useMount(() => {
-        // Populate default value
-        onChange && onChange(name, getValueOrDefaultValue(value, default_value, canBeNull));
-    });
+const ByteSizeField = ({
+  value,
+  default_value,
+  onChange,
+  name,
+  canBeNull,
+  disabled,
+  read_only,
+}) => {
+  // Fetch data on mount
+  useMount(() => {
+    // Populate default value
+    onChange && onChange(name, getValueOrDefaultValue(value, default_value, canBeNull));
+  });
 
-    const [bytes, size] = splitByteSize(value);
+  const [bytes, size] = splitByteSize(value);
 
-    return (
-        <ControlGroup>
-            <Number name="bytes" value={bytes} onChange={(_name, val) => onChange(name, `${val || ''}${size || ''}`)} />
-            <SelectField
-                name="size"
-                value={size}
-                defaultItems={[{ name: 'KB' }, { name: 'MB' }]}
-                onChange={(_name, val) => onChange(name, `${bytes || ''}${val}`)}
-            />
-        </ControlGroup>
-    );
+  return (
+    <ReqoreControlGroup stack fluid>
+      <Number
+        name="bytes"
+        fill
+        value={bytes}
+        onChange={(_name, val) => onChange(name, `${val || ''}${size || ''}`)}
+      />
+      <SelectField
+        name="size"
+        value={size}
+        defaultItems={[{ name: 'KB' }, { name: 'MB' }]}
+        onChange={(_name, val) => onChange(name, `${bytes || ''}${val}`)}
+      />
+    </ReqoreControlGroup>
+  );
 };
 
 export default ByteSizeField;

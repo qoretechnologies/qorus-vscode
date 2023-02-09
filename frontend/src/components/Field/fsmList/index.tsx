@@ -1,13 +1,20 @@
-import { Button, Classes } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreCollection,
+  ReqoreControlGroup,
+  ReqoreP,
+  ReqoreSpacer,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
+import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
-import React, { ReactNode, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { IField } from '../../../components/FieldWrapper';
 import { TTrigger } from '../../../containers/InterfaceCreator/fsm';
 import FSMTriggerDialog from '../../../containers/InterfaceCreator/fsm/triggerDialog';
 import { TextContext } from '../../../context/text';
-import Spacer from '../../Spacer';
 import Select from '../select';
 import IFSMListTriggers from './triggers';
 
@@ -112,7 +119,7 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({
     });
   };
 
-  const handleTriggerRemove = (trigger: ReactNode, index: number): void => {
+  const handleTriggerRemove = (trigger: TTrigger, index: number): void => {
     setData((cur) => {
       const result = [...cur];
 
@@ -126,60 +133,66 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({
 
   return (
     <>
-      {data.map((datum, index) => (
-        <StyledFSMWrapper>
-          <StyledIndex>{index + 1}.</StyledIndex>
-          <StyledWrapper>
-            <p>{t('field-label-fsm')}</p>
-            <Select
-              onChange={(_name, value) => updateFSMData(index, 'name', value)}
-              name={`fsm-${index}`}
-              value={datum.name}
-              requestFieldData={requestFieldData}
-              get_message={{
-                action: 'creator-get-objects',
-                object_type: 'fsm',
-              }}
-              return_message={{
-                action: 'creator-return-objects',
-                object_type: 'fsm',
-                return_value: 'objects',
-              }}
-              reference={reference}
-            />
-            <Spacer size={10} />
-            <p>
-              {t('Triggers')}
-              <span className={Classes.TEXT_MUTED}>{!datum.name ? t('PleaseSelectFSM') : ''}</span>
-            </p>
-            <IFSMListTriggers
-              disabled={!datum.name}
-              setTriggerManager={setTriggerManager}
-              handleTriggerRemove={handleTriggerRemove}
-              fsmIndex={index}
-              triggers={datum.triggers}
-            />
-          </StyledWrapper>
-          {size(data) > 1 && (
-            <StyledDeleteButton>
-              <Button
-                icon="cross"
-                intent="danger"
-                onClick={() => handleFSMRemove(index)}
-                name={`field-fsm-${index}-remove`}
-              />
-            </StyledDeleteButton>
-          )}
-        </StyledFSMWrapper>
-      ))}
-      <Button
-        fill
-        icon="add"
-        onClick={() => setData([...data, { name: null, triggers: [] }])}
-        name="field-fsm-add-another"
+      <ReqoreCollection
+        sortable
+        filterable
+        flat={false}
+        items={data.map(
+          (datum, index): IReqoreCollectionItemProps => ({
+            label: `Item ${index + 1}`,
+            customTheme: { main: 'main:darken:1' },
+            actions: [
+              {
+                icon: 'DeleteBin4Line',
+                show: size(data) > 1,
+                onClick: () => handleFSMRemove(index),
+                intent: 'danger',
+              },
+            ],
+            content: (
+              <ReqoreControlGroup vertical wrap>
+                <Select
+                  onChange={(_name, value) => updateFSMData(index, 'name', value)}
+                  name={`fsm-${index}`}
+                  description={t('FiniteStateMachine')}
+                  value={datum.name}
+                  requestFieldData={requestFieldData}
+                  get_message={{
+                    action: 'creator-get-objects',
+                    object_type: 'fsm',
+                  }}
+                  return_message={{
+                    action: 'creator-return-objects',
+                    object_type: 'fsm',
+                    return_value: 'objects',
+                  }}
+                  reference={reference}
+                />
+                <ReqoreSpacer height={10} />
+                <ReqoreP>{t('Triggers')}</ReqoreP>
+                <ReqoreSpacer height={10} />
+                <IFSMListTriggers
+                  disabled={!datum.name}
+                  setTriggerManager={setTriggerManager}
+                  handleTriggerRemove={handleTriggerRemove}
+                  fsmIndex={index}
+                  triggers={datum.triggers}
+                />
+              </ReqoreControlGroup>
+            ),
+          })
+        )}
+      />
+      <ReqoreVerticalSpacer height={10} />
+      <ReqoreButton
+        onClick={() => setData((cur) => [...cur, { name: null, triggers: [] }])}
+        fluid
+        rightIcon="AddLine"
+        intent="info"
+        icon="AddLine"
       >
-        {t('AddAnother')}
-      </Button>
+        {t('AddNew')}
+      </ReqoreButton>
       {triggerManager.isOpen && (
         <FSMTriggerDialog
           {...triggerManager}

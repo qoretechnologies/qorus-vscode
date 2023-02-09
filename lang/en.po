@@ -483,6 +483,9 @@ msgstr "Edit environment"
 msgid "AddQorus"
 msgstr "Add Qorus instance"
 
+msgid "ConfirmDeleteInterface"
+msgstr "Do you really want to delete this interface?"
+
 msgid "ConfirmDeleteInterface ${ iface_kind } ${ name }"
 msgstr "Do you really want to delete ${ iface_kind } ${ name }?"
 
@@ -2085,6 +2088,15 @@ msgstr "finished"
 msgid "updateStatus"
 msgstr "update status:"
 
+msgid "AddSteps"
+msgstr "Add Workflow Steps"
+
+msgstr "DescribeYourFSM"
+msgstr "Fill in the details"
+
+msgstr "CreateFlowDiagram"
+msgstr "Create Flow Diagram"
+
 msgid "AddStepsTitle"
 msgstr "1. Add Workflow Steps"
 
@@ -2328,10 +2340,10 @@ msgid "NoInstance"
 msgstr "This item can only be created with an active Qorus instance selected"
 
 msgid "AddFunctionsTitle"
-msgstr "1. Add new functions"
+msgstr "1. Add New Methods"
 
 msgid "AddFunction"
-msgstr "Add function"
+msgstr "Add Method"
 
 msgid "MapperCodeNotFound ${ name }"
 msgstr "Mapper code '${ name }' not found"

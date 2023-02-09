@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "3.9.8",
+  "version": "4.0.0",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
@@ -21,8 +21,11 @@
   "bugs": {
     "url": "https://github.com/qoretechnologies/qorus-vscode/issues"
   },
-  "categories": ["Other", "Snippets"],
-  "icon": "images/qorus_logo_256.png",
+  "categories": [
+    "Other",
+    "Snippets"
+  ],
+  "icon": "images/QorusDeveloperTools_Medium.png",
   "galleryBanner": {
     "color": "#333333",
     "theme": "dark"
@@ -56,7 +59,7 @@
         {
           "id": "qorusViews",
           "title": "Qorus Development",
-          "icon": "images/qorus_logo_28.png"
+          "icon": "images/QorusDeveloperTools_Small.png"
         }
       ]
     },
@@ -146,7 +149,7 @@
         "command": "qorus.openWebview",
         "title": "1. Open Webview",
         "category": "Qorus",
-        "icon": "images/qorus_logo_28.png"
+        "icon": "images/QorusDeveloperTools_Small.png"
       },
       {
         "command": "qorus.openDrafts",
@@ -170,7 +173,7 @@
         "command": "qorus.openDraft",
         "title": "Open Draft",
         "category": "Qorus",
-        "icon": "images/qorus_logo_28.png"
+        "icon": "images/QorusDeveloperTools_Small.png"
       },
       {
         "command": "qorus.closeWebview",

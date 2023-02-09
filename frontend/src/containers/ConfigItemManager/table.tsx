@@ -1,24 +1,33 @@
 // @flow
-import { Button, ButtonGroup, Icon, Intent } from '@blueprintjs/core';
-import classnames from 'classnames';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqorePanel,
+  ReqoreTable,
+  ReqoreTag,
+  ReqoreTree,
+  ReqoreVerticalSpacer,
+  useReqore,
+} from '@qoretechnologies/reqore';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import withHandlers from 'recompose/withHandlers';
 import withState from 'recompose/withState';
 import { isNull, isUndefined } from 'util';
-import { ActionColumn, ActionColumnHeader } from '../../components/ActionColumn';
 import ContentByType from '../../components/ContentByType';
-import DataOrEmptyTable from '../../components/DataOrEmptyTable';
-import Pull from '../../components/Pull';
-import { FixedRow, Table, Tbody, Td, Th, Thead, Tr } from '../../components/Table';
 //import ConfigItemsModal from './modal';
-import Tree from '../../components/Tree';
+import {
+  IReqoreTableColumn,
+  IReqoreTableProps,
+} from '@qoretechnologies/reqore/dist/components/Table';
+import ReactMarkdown from 'react-markdown';
+import styled from 'styled-components';
 import { InitialContext } from '../../context/init';
 import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
@@ -40,8 +49,24 @@ type ConfigItemsTableProps = {
   disableAdding?: boolean;
 };
 
+const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
+  .reqore-table-body {
+    height: unset !important;
+  }
+`;
+
 const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
   <React.Fragment>
+    <ReqoreControlGroup fluid>
+      <ReqoreButton
+        onClick={props.handleGroupedToggle}
+        icon={props.isGrouped ? 'ListUnordered' : 'Group2Line'}
+        rightIcon={props.isGrouped ? 'ListUnordered' : 'Group2Line'}
+      >
+        {props.isGrouped ? 'Show all config items' : 'Show config items by group'}
+      </ReqoreButton>
+    </ReqoreControlGroup>
+    <ReqoreVerticalSpacer height={10} />
     {props.isGrouped && size(props.data) ? (
       map(props.data, (configItemsData, groupName) => (
         <>
@@ -51,7 +76,7 @@ const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
             configItemsData={configItemsData}
             title={groupName}
           />
-          <br />
+          <ReqoreVerticalSpacer height={10} />
         </>
       ))
     ) : (
@@ -142,7 +167,7 @@ export const Value = ({ item, useDefault }) => {
       : item.type;
 
   if (type === 'hash' || type === 'list') {
-    return <Tree compact data={maybeParseYaml(yamlValue)} />;
+    return <ReqoreTree showControls={false} data={maybeParseYaml(yamlValue)} />;
   }
 
   return <ContentByType inTable content={value} baseType={type} />;
@@ -168,6 +193,7 @@ let ItemsTable: Function = ({
   initialItems,
 }: ConfigItemsTableProps) => {
   const initContext = useContext(InitialContext);
+  const { isMobileOrTablet } = useReqore();
 
   const isInitialItemValueSame = (item) => {
     const initialItem = initialItems.find(
@@ -181,176 +207,179 @@ let ItemsTable: Function = ({
     return initialItem.value === item.value;
   };
 
+  const columns = () => {
+    let cols: IReqoreTableColumn[] = [
+      {
+        dataId: 'name',
+        header: t('Name'),
+        grow: 2,
+        sortable: true,
+        cellTooltip: (data) => {
+          return data.name;
+        },
+      },
+    ];
+
+    if (!groupName) {
+      cols = [
+        ...cols,
+        {
+          dataId: 'config_group',
+          header: t('Group'),
+          sortable: true,
+          cellTooltip(data) {
+            return data.config_group;
+          },
+        },
+      ];
+    }
+
+    cols = [
+      ...cols,
+      {
+        dataId: 'value',
+        header: t('Value'),
+        sortable: true,
+        cellTooltip(data) {
+          return (
+            <>
+              <ReqoreMessage intent="info" size="small">
+                <ReactMarkdown>{data.description}</ReactMarkdown>
+              </ReqoreMessage>
+              <ReqoreVerticalSpacer height={10} />
+              <Value item={data} />
+            </>
+          );
+        },
+      },
+      {
+        dataId: '_actions',
+        header: t('Actions'),
+        width: 150,
+        align: 'center',
+        content: (item) => (
+          <ReqoreControlGroup stack size="small">
+            <ReqoreButton
+              icon="EditLine"
+              tooltip={t('button.edit-this-value')}
+              disabled={definitionsOnly}
+              onClick={() => {
+                handleModalToggle(
+                  { ...item },
+                  (name, value, parent, isTemplatedString, remove, currentType) => {
+                    onSubmit(name, value, parent, type, isTemplatedString, remove, currentType);
+                    handleModalToggle(null);
+                  },
+                  intrf,
+                  levelType
+                );
+              }}
+            />
+            <ReqoreButton
+              icon="CloseLine"
+              intent={'warning'}
+              tooltip={t('button.remove-this-value')}
+              disabled={
+                definitionsOnly || (item.level ? !item.level.startsWith(levelType || '') : true)
+              }
+              onClick={() => {
+                onSubmit(item.name, null, item.parent_class, type, item.is_templated_string, true);
+              }}
+            />
+            <ReqoreButton
+              icon="SettingsLine"
+              title={t('button.edit-this-config-item')}
+              disabled={disableAdding}
+              onClick={() => {
+                onEditStructureClick(item.name);
+              }}
+            />
+
+            {!item.parent && (
+              <ReqoreButton
+                intent="danger"
+                icon="DeleteBinLine"
+                disabled={disableAdding}
+                onClick={() => {
+                  initContext.confirmAction('ConfirmRemoveConfigItem', () => {
+                    onDeleteStructureClick(item.name);
+                  });
+                }}
+              />
+            )}
+          </ReqoreControlGroup>
+        ),
+      },
+    ];
+
+    if (!isMobileOrTablet) {
+      cols = [
+        ...cols,
+        {
+          dataId: 'stricly_local',
+          header: t('Strictly local'),
+          sortable: true,
+          content: (item) => <>{item.stricly_local ? 'Yes' : 'No'}</>,
+          align: 'center',
+          width: 100,
+        },
+        {
+          dataId: 'level',
+          header: t('Level'),
+          sortable: true,
+          content: ({ level }) => <ReqoreTag size="small" icon="NodeTree" label={level} />,
+          align: 'center',
+          width: 100,
+        },
+        {
+          dataId: 'type',
+          header: t('Type'),
+          sortable: true,
+          width: 100,
+          align: 'center',
+          content: ({ type, can_be_undefined }) => (
+            <ReqoreTag
+              size="small"
+              icon="CodeLine"
+              label={`${can_be_undefined ? '*' : ''}${type}`}
+            />
+          ),
+        },
+      ];
+    }
+
+    return cols;
+  };
+
   return (
     <React.Fragment>
-      <Table striped condensed fixed hover>
-        <Thead>
-          <FixedRow className="toolbar-row">
-            <Th>
-              {groupName && (
-                <Pull>
-                  <h3 style={{ margin: 0, padding: 0, lineHeight: '30px' }}>
-                    <Icon icon="group-objects" /> {t('Group')}: {groupName}
-                  </h3>
-                </Pull>
-              )}
-              <Pull right>
-                <ButtonGroup>
-                  <Button
-                    text={t(groupName ? 'button.ungroup' : 'button.group-up')}
-                    icon={groupName ? 'ungroup-objects' : 'group-objects'}
-                    onClick={handleGroupedToggle}
-                  />
-                  <Button
-                    text={t('button.show-descriptions')}
-                    icon="align-left"
-                    onClick={handleToggleDescription}
-                  />
-                </ButtonGroup>
-              </Pull>
-            </Th>
-          </FixedRow>
-          <FixedRow>
-            <Th className="name text" iconName="application">
-              {t('Name')}
-            </Th>
-            {!definitionsOnly && <ActionColumnHeader icon="edit" />}
-            <Th className="text" iconName="info-sign">
-              {t('Value')}
-            </Th>
-            <Th>{t('Local')}</Th>
-            <Th>{t('Level')}</Th>
-            {!title && <Th name="config_group">{t('Group')}</Th>}
-            <Th iconName="code" />
-            {!disableAdding && <Th iconName="edit">{t('Structure')}</Th>}
-          </FixedRow>
-        </Thead>
-        <DataOrEmptyTable
-          condition={!configItemsData || configItemsData.length === 0}
-          cols={definitionsOnly || disableAdding ? (groupName ? 6 : 7) : groupName ? 7 : 8}
-          small
-        >
-          {(props) => (
-            <Tbody {...props}>
-              {configItemsData.map((item: any, index: number) => (
-                <React.Fragment>
-                  <Tr
-                    key={item.name}
-                    first={index === 0}
-                    className={classnames({
-                      'row-alert': !item.value && !item.is_set,
-                    })}
-                    highlight={!isInitialItemValueSame(item)}
-                  >
-                    <Td className="name">{item.name}</Td>
-                    {!definitionsOnly && (
-                      <ActionColumn>
-                        <ButtonGroup>
-                          <Button
-                            small
-                            icon="edit"
-                            title={t('button.edit-this-value')}
-                            onClick={() => {
-                              handleModalToggle(
-                                { ...item },
-                                (name, value, parent, isTemplatedString, remove, currentType) => {
-                                  onSubmit(
-                                    name,
-                                    value,
-                                    parent,
-                                    type,
-                                    isTemplatedString,
-                                    remove,
-                                    currentType
-                                  );
-                                  handleModalToggle(null);
-                                },
-                                intrf,
-                                levelType
-                              );
-                            }}
-                          />
-                          <Button
-                            small
-                            icon="trash"
-                            intent={Intent.DANGER}
-                            title={t('button.remove-this-value')}
-                            disabled={item.level ? !item.level.startsWith(levelType || '') : true}
-                            onClick={() => {
-                              onSubmit(
-                                item.name,
-                                null,
-                                item.parent_class,
-                                type,
-                                item.is_templated_string,
-                                true
-                              );
-                            }}
-                          />
-                        </ButtonGroup>
-                      </ActionColumn>
-                    )}
-                    <Td
-                      className={`text ${item.level === 'workflow' || item.level === 'global'}`}
-                      style={{ position: 'relative' }}
-                    >
-                      <Value item={item} />
-                    </Td>
-                    <Td className="narrow">
-                      <ContentByType content={item.strictly_local} baseType="boolean" />
-                    </Td>
-                    <Td className="medium">{item.level}</Td>
-                    {!title && <Td className="medium">{item.config_group}</Td>}
-                    <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${
-                      item.type
-                    }/>`}</Td>
-                    {!disableAdding && (
-                      <ActionColumn>
-                        <ButtonGroup>
-                          <Button
-                            small
-                            intent="warning"
-                            icon="cog"
-                            title={t('button.edit-this-config-item')}
-                            onClick={() => {
-                              onEditStructureClick(item.name);
-                            }}
-                          />
-
-                          {!item.parent && (
-                            <Button
-                              small
-                              intent="danger"
-                              icon="trash"
-                              onClick={() => {
-                                initContext.confirmAction('ConfirmRemoveConfigItem', () => {
-                                  onDeleteStructureClick(item.name);
-                                });
-                              }}
-                            />
-                          )}
-                        </ButtonGroup>
-                      </ActionColumn>
-                    )}
-                  </Tr>
-                  {showDescription && (
-                    <Tr>
-                      <Td
-                        className="text"
-                        colspan={
-                          definitionsOnly || disableAdding ? (groupName ? 6 : 7) : groupName ? 7 : 8
-                        }
-                      >
-                        <ReactMarkdown>{item.description}</ReactMarkdown>
-                      </Td>
-                    </Tr>
-                  )}
-                </React.Fragment>
-              ))}
-            </Tbody>
-          )}
-        </DataOrEmptyTable>
-      </Table>
+      <ReqorePanel
+        label={groupName}
+        minimal
+        transparent
+        flat
+        collapsible={groupName}
+        icon={groupName ? 'Settings5Fill' : undefined}
+      >
+        <StyledTable
+          rounded
+          striped
+          sort={{
+            by: 'name',
+            direction: 'asc',
+          }}
+          columns={columns()}
+          data={configItemsData.map((item) => ({
+            ...item,
+            _intent:
+              !item.value && !item.is_set
+                ? 'danger'
+                : !isInitialItemValueSame(item)
+                ? 'success'
+                : undefined,
+          }))}
+        />
+      </ReqorePanel>
     </React.Fragment>
   );
 };

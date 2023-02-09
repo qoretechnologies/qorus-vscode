@@ -1,4 +1,10 @@
-import { Button, ButtonGroup } from '@blueprintjs/core';
+import {
+  ReqoreHorizontalSpacer,
+  ReqoreMenu,
+  ReqoreMenuDivider,
+  ReqoreMenuItem
+} from '@qoretechnologies/reqore';
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { cloneDeep, omit, size } from 'lodash';
 import { FunctionComponent, useContext, useState } from 'react';
 import { useUnmount, useUpdateEffect } from 'react-use';
@@ -7,7 +13,7 @@ import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { TApiManagerEndpoint } from '../../components/Field/apiManager';
-import { ActionsWrapper, ContentWrapper } from '../../components/FieldWrapper';
+import { PositiveColorEffect, SelectorColorEffect } from '../../components/Field/multiPair';
 import SidePanel from '../../components/SidePanel';
 import { DraftsContext } from '../../context/drafts';
 import { MethodsContext } from '../../context/methods';
@@ -18,43 +24,43 @@ import InterfaceCreatorPanel from './panel';
 
 let hasAllMethodsLoaded: boolean;
 
-export const MethodSelector = styled.div`
-  width: 100%;
-  height: 30px;
-  line-height: 30px;
-  padding: 0px 10px;
-  margin-bottom: 5px;
-  border: 1px solid #eee;
-  border-color: ${(props) => (props.active ? '#137cbd' : '#eee')};
-  border-left-color: ${(props) => (props.valid ? '#0F9960' : '#DB3737')};
-  border-left-width: 3px;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.1s ease-in;
-  position: relative;
+export interface IMethodSelectorProps {
+  children: string | number;
+  isValid?: boolean;
+  selected?: boolean;
+  onClick?: (itemId: string) => void;
+  onRemoveClick?: (event: any) => void;
+  rightIcon?: IReqoreIconName;
+}
 
-  div.bp3-button-group {
-    float: right;
-  }
-
-  &:hover {
-    border-color: #137cbd;
-
-    div:not(.bp3-button-group):first-child:not(:last-child) {
-      right: 35px;
-    }
-
-    div:not(.bp3-button-group):last-child {
-      opacity: 0.7;
-      transform: translateY(-50%) rotateZ(45deg);
-
-      &:after,
-      &:before {
-        background-color: #db3737;
-      }
-    }
-  }
-`;
+export const MethodSelector = ({
+  children,
+  isValid,
+  selected,
+  onClick,
+  onRemoveClick,
+  rightIcon,
+}: IMethodSelectorProps) => {
+  return (
+    <ReqoreMenuItem
+      rightIcon={rightIcon || (onRemoveClick ? 'DeleteBinLine' : undefined)}
+      onRightIconClick={onRemoveClick}
+      onClick={onClick}
+      intent={isValid ? undefined : 'danger'}
+      flat={isValid}
+      effect={{
+        ...SelectorColorEffect,
+        glow: selected
+          ? {
+              color: 'info',
+            }
+          : undefined,
+      }}
+    >
+      {children}
+    </ReqoreMenuItem>
+  );
+};
 
 export const Selected = styled.div`
   position: absolute;
@@ -190,7 +196,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
 
   const handleDataFinishLoadingRecur = (id) => {
     if (!hasAllMethodsLoaded) {
-      if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
+      if ((id || 1) + 1 <= lastMethodId) {
         setActiveMethod(id + 1);
       } else {
         hasAllMethodsLoaded = true;
@@ -230,8 +236,17 @@ const ServicesView: FunctionComponent<IServicesView> = ({
             />
           </div>
           <div style={{ display: showMethods ? 'flex' : 'none', width: '100%' }}>
-            <SidePanel title={t('AddMethodsTitle')}>
-              <ContentWrapper>
+            <SidePanel>
+              <ReqoreMenu style={{ flex: 1 }} width="250px" rounded>
+                <ReqoreMenuDivider label={t('AddMethodsTitle')} />
+                <ReqoreMenuItem
+                  icon={'MenuAddLine'}
+                  onClick={handleAddMethodClick}
+                  tooltip={t('AddMethod')}
+                  effect={PositiveColorEffect}
+                >
+                  {t('AddMethod')}
+                </ReqoreMenuItem>
                 {methods.map(
                   (
                     method: {
@@ -241,79 +256,61 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                     index: number
                   ) => (
                     <MethodSelector
-                      name={`select-method-${method.name}`}
                       key={index}
-                      active={method.id === activeMethod}
-                      valid={isSubItemValid(method.id, 'service-methods', methodsIndex)}
+                      selected={method.id === activeMethod}
+                      isValid={isSubItemValid(method.id, 'service-methods', methodsIndex)}
                       onClick={() => setActiveMethod(method.id)}
+                      onRemoveClick={
+                        methodsCount !== 1
+                          ? () => {
+                              setMethods((current) =>
+                                current.filter((currentMethod) => currentMethod.id !== method.id)
+                              );
+                              removeSubItemFromFields(method.id, 'service-methods', methodsIndex);
+                              setMethodsCount((current: number) => current - 1);
+                              // Check if there is an endpoint that uses this method
+                              // Rename methods in api manager
+                              const apiManager = cloneDeep(
+                                getFieldData('service', serviceIndex, 'api-manager')?.value || {}
+                              );
+                              /* Updating the endpoint name in the api-manager. */
+                              /* Checking if the apiManager exists and if it has an endpoint with the name of the
+                        original name. */
+                              if (
+                                apiManager &&
+                                apiManager?.endpoints?.find(
+                                  (endpoint: TApiManagerEndpoint) => endpoint.value === method.name
+                                )
+                              ) {
+                                // Rename the endpoint
+                                apiManager.endpoints = apiManager.endpoints.filter(
+                                  (endpoint: TApiManagerEndpoint) => {
+                                    if (endpoint.value === method.name) {
+                                      return false;
+                                    }
+                                    return true;
+                                  }
+                                );
+                                // Update the field
+                                updateField(
+                                  'service',
+                                  'api-manager',
+                                  apiManager,
+                                  service ? service.iface_id : interfaceId.service[serviceIndex],
+                                  serviceIndex
+                                );
+                              }
+                            }
+                          : undefined
+                      }
                     >
                       {method.name || `${t('Method')} ${method.id}`}
-                      {method.id === activeMethod && (
-                        <>
-                          <Selected />
-                        </>
-                      )}
-                      {methodsCount !== 1 && !initialData.lang_client_unavailable ? (
-                        <RemoveButton
-                          name={`remove-method-${method.name}`}
-                          onClick={() => {
-                            setMethods((current) =>
-                              current.filter((currentMethod) => currentMethod.id !== method.id)
-                            );
-                            removeSubItemFromFields(method.id, 'service-methods', methodsIndex);
-                            setMethodsCount((current: number) => current - 1);
-                            // Check if there is an endpoint that uses this method
-                            // Rename methods in api manager
-                            const apiManager = cloneDeep(
-                              getFieldData('service', serviceIndex, 'api-manager')?.value || {}
-                            );
-                            /* Updating the endpoint name in the api-manager. */
-                            /* Checking if the apiManager exists and if it has an endpoint with the name of the
-                            original name. */
-                            if (
-                              apiManager &&
-                              apiManager?.endpoints?.find(
-                                (endpoint: TApiManagerEndpoint) => endpoint.value === method.name
-                              )
-                            ) {
-                              // Rename the endpoint
-                              apiManager.endpoints = apiManager.endpoints.filter(
-                                (endpoint: TApiManagerEndpoint) => {
-                                  if (endpoint.value === method.name) {
-                                    return false;
-                                  }
-                                  return true;
-                                }
-                              );
-                              // Update the field
-                              updateField(
-                                'service',
-                                'api-manager',
-                                apiManager,
-                                service ? service.iface_id : interfaceId.service[serviceIndex],
-                                serviceIndex
-                              );
-                            }
-                          }}
-                        />
-                      ) : null}
                     </MethodSelector>
                   )
                 )}
-              </ContentWrapper>
-              <ActionsWrapper>
-                <ButtonGroup fill>
-                  <Button
-                    name={'add-method-button'}
-                    text={t('AddMethod')}
-                    icon={'plus'}
-                    onClick={handleAddMethodClick}
-                    // Figure out why is this here
-                    //disabled={initialData.lang_client_unavailable}
-                  />
-                </ButtonGroup>
-              </ActionsWrapper>
+              </ReqoreMenu>
             </SidePanel>
+            <ReqoreHorizontalSpacer width={10} />
             <InterfaceCreatorPanel
               key={`method-${activeMethod}`}
               stepOneTitle={t('SelectFieldsSecondStep')}

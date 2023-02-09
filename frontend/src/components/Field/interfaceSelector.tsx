@@ -1,4 +1,4 @@
-import { Callout } from '@blueprintjs/core';
+import { ReqoreMessage, ReqoreP, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { FunctionComponent, useContext } from 'react';
 import { useAsyncRetry } from 'react-use';
 import { TTranslator } from '../../App';
@@ -6,7 +6,6 @@ import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { interfaceToPlural } from '../../constants/interfaces';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
-import Spacer from '../Spacer';
 import { ILongStringField } from './longString';
 import SelectField from './select';
 
@@ -43,25 +42,24 @@ export const InterfaceSelector: FunctionComponent<ILongStringField & IField & IF
   if (!qorus_instance) {
     return (
       <div>
-        <Callout intent="warning">{t('InterfacesQorusInstanceRequired')}</Callout>
-        <Spacer size={10} />
-        <p>{value || default_value}</p>
+        <ReqoreMessage intent="warning">{t('InterfacesQorusInstanceRequired')}</ReqoreMessage>
+        <ReqoreVerticalSpacer height={10} />
+        <ReqoreP>{value || default_value}</ReqoreP>
       </div>
     );
   }
 
   if (error) {
     return (
-      <Callout intent="danger">
-        <p style={{ fontWeight: 500 }}>{t('ErrorLoadingInterfaces')}</p>
+      <ReqoreMessage intent="danger" title={t('ErrorLoadingInterfaces')}>
         {t(error)}
-      </Callout>
+      </ReqoreMessage>
     );
   }
 
   // If interfaces are not loaded yet, return a loading indicator
   if (loading) {
-    return <div>Loading...</div>;
+    return <ReqoreP>Loading...</ReqoreP>;
   }
 
   return (

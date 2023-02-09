@@ -1,26 +1,22 @@
-import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
-import { isEqual, some } from 'lodash';
+import { capitalize, isEqual, some } from 'lodash';
 import map from 'lodash/map';
 import size from 'lodash/size';
-import { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useDebounce, useMount, useUpdateEffect } from 'react-use';
 import shortid from 'shortid';
+import Content from '../../../components/Content';
 import Field from '../../../components/Field';
+import { SaveColorEffect } from '../../../components/Field/multiPair';
 import { getProtocol } from '../../../components/Field/urlField';
-import FieldActions from '../../../components/FieldActions';
-import FieldLabel from '../../../components/FieldLabel';
-import {
-  ActionsWrapper,
-  FieldInputWrapper,
-  FieldWrapper,
-  IField,
-} from '../../../components/FieldWrapper';
+import FieldGroup from '../../../components/FieldGroup';
+import { ContentWrapper, FieldWrapper, IField } from '../../../components/FieldWrapper';
 import Loader from '../../../components/Loader';
 import { Messages } from '../../../constants/messages';
 import { DraftsContext, IDraftData } from '../../../context/drafts';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { mapFieldsToGroups } from '../../../helpers/common';
 import { deleteDraft, getDraftId, getTargetFile, hasValue } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import { addMessageListener, postMessage } from '../../../hocomponents/withMessageHandler';
@@ -185,44 +181,100 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
     return <Loader text={t('LoadingFields')} />;
   }
 
+  const renderFields = (fields: IField[]) => {
+    return map(fields, (field: IField) => (
+      <FieldWrapper
+        name="selected-field"
+        label={t(`field-label-${field.name}`)}
+        desc={t(`field-desc-${field.name}`)}
+        info={
+          field.markdown
+            ? t('MarkdownSupported')
+            : field.mandatory === false
+            ? t('Optional')
+            : undefined
+        }
+        isValid={
+          field.mandatory !== false || data[field.name]
+            ? validateField(field.type || 'string', data[field.name], field)
+            : true
+        }
+        compact={field.compact}
+      >
+        <Field
+          {...field}
+          isValid={
+            field.mandatory !== false || data[field.name]
+              ? validateField(field.type || 'string', data[field.name], field)
+              : true
+          }
+          value={data[field.name]}
+          onChange={handleDataChange}
+        />
+      </FieldWrapper>
+    ));
+  };
+
+  const renderGroups = (groups: Record<string, IField[]>) => {
+    return map(groups, (fields, groupName) => {
+      if (size(fields) > 1) {
+        return (
+          <FieldGroup
+            key={groupName}
+            label={capitalize(groupName)}
+            isValid={!fields.some((field) => field.isValid === false)}
+          >
+            {renderFields(fields)}
+          </FieldGroup>
+        );
+      }
+
+      return <React.Fragment key={groupName}>{renderFields(fields)}</React.Fragment>;
+    });
+  };
+
   return (
     <>
-      <div style={{ flex: 1, overflow: 'auto' }}>
-        {map(fields, (field: IField) => (
-          <FieldWrapper name="selected-field">
-            <FieldLabel
-              label={t(`field-label-${field.name}`)}
-              info={
-                field.markdown
-                  ? t('MarkdownSupported')
-                  : field.mandatory === false
-                  ? t('Optional')
-                  : undefined
-              }
-              isValid={
-                field.mandatory !== false || data[field.name]
-                  ? validateField(field.type || 'string', data[field.name], field)
-                  : true
-              }
-            />
-            <FieldInputWrapper>
-              <Field
-                {...field}
-                isValid={
-                  field.mandatory !== false || data[field.name]
-                    ? validateField(field.type || 'string', data[field.name], field)
-                    : true
-                }
-                value={data[field.name]}
-                onChange={handleDataChange}
-              />
-            </FieldInputWrapper>
-            <FieldActions desc={t(`field-desc-${field.name}`)} />
-          </FieldWrapper>
-        ))}
-        <FieldWrapper name="selected-field">
-          <FieldLabel label={t('field-label-url')} isValid={validateField('url', data.url)} />
-          <FieldInputWrapper>
+      <Content
+        title={'Fill in the details'}
+        bottomActions={[
+          {
+            label: t('DiscardChangesButton'),
+            icon: 'HistoryLine',
+            tooltip: t('ResetTooltip'),
+            onClick: () => {
+              confirmAction(
+                'ResetFieldsConfirm',
+                () => {
+                  reset();
+                },
+                'Reset',
+                'warning'
+              );
+            },
+            position: 'left',
+          },
+          {
+            label: t('Submit'),
+            disabled: !isDataValid(),
+            icon: 'CheckLine',
+            responsive: false,
+            flat: false,
+            effect: SaveColorEffect,
+            onClick: handleSubmitClick,
+            position: 'right',
+          },
+        ]}
+      >
+        <ContentWrapper>
+          {renderGroups(mapFieldsToGroups(fields))}
+          <FieldWrapper
+            name="selected-field"
+            desc={t(`field-desc-url`)}
+            label={t('field-label-url')}
+            isValid={validateField('url', data.url)}
+            collapsible={false}
+          >
             <Field
               type="url"
               value={data.url}
@@ -230,61 +282,41 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
               onChange={handleDataChange}
               name="url"
             />
-          </FieldInputWrapper>
-          <FieldActions desc={t(`field-desc-url`)} />
-        </FieldWrapper>
-        {getProtocol(data.url) && (
-          <FieldWrapper name="selected-field">
-            <FieldLabel
-              label={t('field-label-options')}
-              info={t('Optional')}
-              isValid={
-                data.connection_options && size(data.connection_options)
-                  ? validateField('options', data.connection_options)
-                  : true
-              }
-            />
-            <FieldInputWrapper>
-              <Field
-                type="options"
-                value={data.connection_options}
-                url={`remote/${getProtocol(data.url)}`}
-                onChange={handleDataChange}
-                name="connection_options"
-              />
-            </FieldInputWrapper>
-            <FieldActions desc={t(`field-desc-connection_options`)} />
           </FieldWrapper>
-        )}
-      </div>
-      <ActionsWrapper>
-        <ButtonGroup fill>
-          <Tooltip content={t('ResetTooltip')}>
-            <Button
-              text={t('Reset')}
-              icon={'history'}
-              onClick={() => {
-                confirmAction(
-                  'ResetFieldsConfirm',
-                  () => {
-                    reset();
-                  },
-                  'Reset',
-                  'warning'
-                );
-              }}
-            />
-          </Tooltip>
-          <Button
-            text={t('Submit')}
-            onClick={handleSubmitClick}
-            disabled={!isDataValid()}
-            icon={'tick'}
-            name="connection-submit"
-            intent={Intent.SUCCESS}
-          />
-        </ButtonGroup>
-      </ActionsWrapper>
+          <FieldGroup
+            label="Connection options"
+            isValid={
+              validateField('url', data.url) &&
+              (data.connection_options && size(data.connection_options)
+                ? validateField('options', data.connection_options)
+                : true)
+            }
+          >
+            {getProtocol(data.url) && (
+              <FieldWrapper
+                name="selected-field"
+                desc={t(`field-desc-connection_options`)}
+                label={t('field-label-options')}
+                info={t('Optional')}
+                isValid={
+                  data.connection_options && size(data.connection_options)
+                    ? validateField('options', data.connection_options)
+                    : true
+                }
+                collapsible={false}
+              >
+                <Field
+                  type="options"
+                  value={data.connection_options}
+                  url={`remote/${getProtocol(data.url)}`}
+                  onChange={handleDataChange}
+                  name="connection_options"
+                />
+              </FieldWrapper>
+            )}
+          </FieldGroup>
+        </ContentWrapper>
+      </Content>
     </>
   );
 };

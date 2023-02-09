@@ -352,7 +352,7 @@ export class QorusProjectCodeInfo {
     };
 
     const onSuccess = (response) => {
-      const data = JSON.parse(response);
+      const data = typeof response === 'string' ? JSON.parse(response) : response;
       postMessage(data);
     };
 
@@ -1595,8 +1595,15 @@ export class QorusProjectCodeInfo {
     });
   };
 
-  deleteInterfaceFromWebview = ({ iface_kind, name }) => {
-    const iface_data = this.yaml_info.yamlDataByName(iface_kind, name);
+  deleteInterfaceFromWebview = ({ iface_kind, name, version }) => {
+    const fullName = version ? `${name}:${version}` : name;
+    const iface_data = this.yaml_info.yamlDataByName(iface_kind, fullName);
+
+    if (!iface_data) {
+      msg.error(t`Unable to delete ${iface_kind} ${fullName} because it seems it does not exist`);
+      return;
+    }
+
     QorusProjectCodeInfo.deleteInterface({ iface_kind, iface_data });
   };
 

@@ -1,4 +1,4 @@
-import { Button, Callout, Classes, ControlGroup } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreMessage } from '@qoretechnologies/reqore';
 import { get, map, set } from 'lodash';
 import { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -93,14 +93,15 @@ const AutoField: FunctionComponent<
         // Set the new type
         setType(typeValue);
         if (!currentType) {
-          handleChange(name, value === undefined ? undefined : value);
+          handleChange(name, value === undefined ? undefined : value, typeValue);
         } else if (typeValue !== 'any') {
           const typeFromValue =
             value || value === null ? getTypeFromValue(maybeParseYaml(value)) : 'any';
 
           handleChange(
             name,
-            value === null ? null : typeValue === typeFromValue ? value : undefined
+            value === null ? null : typeValue === typeFromValue ? value : undefined,
+            typeValue
           );
         }
       }
@@ -125,7 +126,7 @@ const AutoField: FunctionComponent<
     return false;
   };
 
-  const handleChange: (name: string, value: any) => void = (name, value) => {
+  const handleChange: (name: string, value: any, type?: string) => void = (name, value) => {
     // Run the onchange
     if (onChange && currentInternalType) {
       onChange(name, value, currentInternalType, canBeNull());
@@ -357,31 +358,29 @@ const AutoField: FunctionComponent<
       }
       case 'file-as-string': {
         return (
-          <div>
-            <FileField
-              name={name}
-              value={value}
-              onChange={handleChange}
-              type={currentType}
-              get_message={{
-                action: 'creator-get-resources',
-                object_type: 'files',
-              }}
-              return_message={{
-                action: 'creator-return-resources',
-                object_type: 'files',
-                return_value: 'resources',
-              }}
-            />
-          </div>
+          <FileField
+            name={name}
+            value={value}
+            onChange={handleChange}
+            type={currentType}
+            get_message={{
+              action: 'creator-get-resources',
+              object_type: 'files',
+            }}
+            return_message={{
+              action: 'creator-return-resources',
+              object_type: 'files',
+              return_value: 'resources',
+            }}
+          />
         );
       }
       case 'any':
         return null;
       case 'auto':
-        return <Callout>Please select data type</Callout>;
+        return <ReqoreMessage intent="info">Please select data type</ReqoreMessage>;
       default:
-        return <Callout intent="danger">{t('UnknownType')}</Callout>;
+        return <ReqoreMessage intent="danger">{t('UnknownType')}</ReqoreMessage>;
     }
   };
 
@@ -421,44 +420,40 @@ const AutoField: FunctionComponent<
 
   // Render type picker if the type is auto or any
   return (
-    <>
-      <ControlGroup
-        fill
-        style={{
-          flexFlow: column || arg_schema ? 'column' : 'row',
-          marginLeft: arg_schema ? 10 * level : 0,
-          overflow: 'hidden',
-          flexShrink: 0,
-          width: `calc(100% - ${11 * level}px)`,
-          maxHeight: arg_schema && level === 0 ? '500px' : undefined,
-          overflowY: arg_schema && level === 0 ? 'auto' : undefined,
-        }}
-      >
-        {showPicker && (
-          <SelectField
-            name="type"
-            defaultItems={types}
-            value={currentInternalType}
-            onChange={(_name, value) => {
-              handleChange(name, null);
-              setInternalType(value);
-            }}
-          />
-        )}
+    <div
+      style={{
+        flexFlow: column || arg_schema ? 'column' : 'row',
+        marginLeft: arg_schema ? 10 * level : 0,
+        overflow: 'hidden',
+        flex: '1 0 auto',
+        maxHeight: arg_schema && level === 0 ? '500px' : undefined,
+        overflowY: arg_schema && level === 0 ? 'auto' : undefined,
+      }}
+    >
+      {showPicker && (
+        <SelectField
+          name="type"
+          defaultItems={types}
+          value={currentInternalType}
+          onChange={(_name, value) => {
+            handleChange(name, null);
+            setInternalType(value);
+          }}
+        />
+      )}
 
-        {renderField(currentInternalType)}
-        {canBeNull() && (
-          <Button
-            intent={isSetToNull ? 'warning' : 'none'}
-            icon={isSetToNull && 'cross'}
-            onClick={handleNullToggle}
-            className={Classes.FIXED}
-          >
-            {isSetToNull ? 'Unset null' : 'Set as null'}
-          </Button>
-        )}
-      </ControlGroup>
-    </>
+      {renderField(currentInternalType)}
+      {canBeNull() && (
+        <ReqoreButton
+          intent={isSetToNull ? 'warning' : undefined}
+          icon={isSetToNull ? 'CloseLine' : undefined}
+          onClick={handleNullToggle}
+          fixed
+        >
+          {isSetToNull ? 'Unset null' : 'Set as null'}
+        </ReqoreButton>
+      )}
+    </div>
   );
 };
 

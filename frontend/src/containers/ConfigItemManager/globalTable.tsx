@@ -1,27 +1,33 @@
-// @flowa
-import { Button, ButtonGroup, Intent } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqorePanel,
+  ReqoreTable,
+  ReqoreTag,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
+import {
+  IReqoreTableColumn,
+  IReqoreTableProps,
+} from '@qoretechnologies/reqore/dist/components/Table';
 import size from 'lodash/size';
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import withHandlers from 'recompose/withHandlers';
 import withState from 'recompose/withState';
 import styled from 'styled-components';
-import { StyledSeparator } from '.';
-import { ActionColumn, ActionColumnHeader } from '../../components/ActionColumn';
-import DataOrEmptyTable from '../../components/DataOrEmptyTable';
-import Pull from '../../components/Pull';
-import { FixedRow, Table, Tbody, Td, Th, Thead, Tr } from '../../components/Table';
 import withTextContext from '../../hocomponents/withTextContext';
 import AddConfigItemModal from './modal';
 import { Value } from './table';
 
-const StyledToolbarRow = styled.div`
-  clear: both;
-  margin-bottom: 5px;
-  margin-top: 5px;
-  overflow: hidden;
+const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
+  .reqore-table-body {
+    height: unset !important;
+  }
 `;
 
 const WorkflowConfigItemsTable: Function = ({
@@ -47,6 +53,102 @@ const WorkflowConfigItemsTable: Function = ({
     return initialItem.value === item.value;
   };
 
+  const columns = () => {
+    let cols: IReqoreTableColumn[] = [
+      {
+        dataId: 'name',
+        header: t('Name'),
+        sortable: true,
+        cellTooltip: (data) => {
+          return data.name;
+        },
+      },
+    ];
+
+    cols = [
+      ...cols,
+      {
+        dataId: 'value',
+        header: t('Value'),
+        sortable: true,
+        cellTooltip(data) {
+          return (
+            <>
+              <ReqoreMessage intent="info" size="small">
+                <ReactMarkdown>{data.description}</ReactMarkdown>
+              </ReqoreMessage>
+              <ReqoreVerticalSpacer height={10} />
+              <Value item={data} />
+            </>
+          );
+        },
+      },
+      {
+        dataId: 'type',
+        header: t('Type'),
+        sortable: true,
+        width: 200,
+        align: 'center',
+        content: ({ type, can_be_undefined }) => (
+          <ReqoreTag size="small" icon="CodeLine" label={`${can_be_undefined ? '*' : ''}${type}`} />
+        ),
+      },
+
+      {
+        dataId: '_actions',
+        header: t('Actions'),
+        width: 150,
+        align: 'center',
+        content: (item) => (
+          <ReqoreControlGroup stack size="small">
+            <ReqoreButton
+              icon="EditLine"
+              tooltip={t('button.edit-this-value')}
+              disabled={definitionsOnly}
+              onClick={() => {
+                handleModalToggle({
+                  onSubmit: (name, value, parent, isTemplatedString, remove, currentType) => {
+                    onSubmit(
+                      name,
+                      value,
+                      parent,
+                      workflow ? 'workflow' : 'global',
+                      isTemplatedString,
+                      remove,
+                      currentType
+                    );
+                    handleModalToggle(null);
+                  },
+                  globalConfig: globalItems,
+                  item,
+                  isGlobal: true,
+                });
+              }}
+            />
+            <ReqoreButton
+              icon="CloseLine"
+              intent={'warning'}
+              tooltip={t('button.remove-this-value')}
+              disabled={definitionsOnly}
+              onClick={() => {
+                onSubmit(
+                  item.name,
+                  null,
+                  item.parent_class,
+                  workflow ? 'workflow' : 'global',
+                  item.is_templated_string,
+                  true
+                );
+              }}
+            />
+          </ReqoreControlGroup>
+        ),
+      },
+    ];
+
+    return cols;
+  };
+
   return (
     <>
       {modalData && (
@@ -58,20 +160,21 @@ const WorkflowConfigItemsTable: Function = ({
           isGlobal={modalData.isGlobal}
         />
       )}
-      <StyledToolbarRow>
-        <Pull>
-          <h3 style={{ margin: 0, padding: 0 }}>
-            {t(workflow ? 'Workflow' : 'Global')} {t('ConfigItemValues')}
-          </h3>
-        </Pull>
-        <Pull right>
-          <ButtonGroup>
-            <Button
-              disabled={!size(globalItems)}
-              icon="add"
-              text={t('button.add-new-value')}
-              title={t('button.add-new-value')}
-              onClick={() => {
+      {globalConfig && globalConfig.length !== 0 ? (
+        <ReqorePanel
+          label={`${t(workflow ? 'Workflow' : 'Global')} ${t('ConfigItemValues')}`}
+          minimal
+          transparent
+          flat
+          collapsible
+          icon={'Settings3Fill'}
+          actions={[
+            {
+              disabled: !size(globalItems),
+              icon: 'AddLine',
+              label: t('button.add-new-value'),
+              tooltip: t('button.add-new-value'),
+              onClick: () => {
                 handleModalToggle({
                   onSubmit: (name, value, parent, isTemplatedString) => {
                     onSubmit(
@@ -86,112 +189,27 @@ const WorkflowConfigItemsTable: Function = ({
                   globalConfig: globalItems,
                   isGlobal: true,
                 });
-              }}
-            />
-          </ButtonGroup>
-        </Pull>
-      </StyledToolbarRow>
-      {globalConfig && globalConfig.length !== 0 ? (
-        <Table striped condensed fixed hover>
-          <Thead>
-            <FixedRow>
-              <Th className="name" icon="application">
-                {t('Name')}
-              </Th>
-              {!definitionsOnly && <ActionColumnHeader />}
-              <Th className="text" iconName="info-sign">
-                {t('Name')}
-              </Th>
-              <Th iconName="code" />
-            </FixedRow>
-          </Thead>
-
-          <DataOrEmptyTable
-            condition={!globalConfig || globalConfig.length === 0}
-            cols={definitionsOnly ? 3 : 4}
-            small
-          >
-            {(props) => (
-              <Tbody {...props}>
-                {globalConfig.map((item: any, index: number) => (
-                  <React.Fragment>
-                    <Tr
-                      key={item.name}
-                      first={index === 0}
-                      highlight={!isInitialItemValueSame(item)}
-                    >
-                      <Td className="name">{item.name}</Td>
-                      {!definitionsOnly && (
-                        <ActionColumn>
-                          <ButtonGroup>
-                            <Button
-                              icon="edit"
-                              small
-                              title={t('button.edit-this-value')}
-                              onClick={() => {
-                                handleModalToggle({
-                                  onSubmit: (
-                                    name,
-                                    value,
-                                    parent,
-                                    isTemplatedString,
-                                    remove,
-                                    currentType
-                                  ) => {
-                                    onSubmit(
-                                      name,
-                                      value,
-                                      parent,
-                                      workflow ? 'workflow' : 'global',
-                                      isTemplatedString,
-                                      remove,
-                                      currentType
-                                    );
-                                    handleModalToggle(null);
-                                  },
-                                  globalConfig: globalItems,
-                                  item,
-                                  isGlobal: true,
-                                });
-                              }}
-                            />
-                            <Button
-                              small
-                              icon="trash"
-                              title={t('button.remove-this-value')}
-                              intent={Intent.DANGER}
-                              onClick={() => {
-                                onSubmit(
-                                  item.name,
-                                  null,
-                                  item.parent_class,
-                                  workflow ? 'workflow' : 'global',
-                                  item.is_templated_string,
-                                  true
-                                );
-                              }}
-                            />
-                          </ButtonGroup>
-                        </ActionColumn>
-                      )}
-                      <Td
-                        className={`text ${item.level === 'workflow' || item.level === 'global'}`}
-                        style={{ position: 'relative' }}
-                      >
-                        <Value item={item} />
-                      </Td>
-                      <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${
-                        item.type
-                      }/>`}</Td>
-                    </Tr>
-                  </React.Fragment>
-                ))}
-              </Tbody>
-            )}
-          </DataOrEmptyTable>
-        </Table>
+              },
+            },
+          ]}
+        >
+          <StyledTable
+            rounded
+            striped
+            sort={{
+              by: 'name',
+              direction: 'asc',
+            }}
+            columns={columns()}
+            data={globalConfig.map((item) => ({
+              ...item,
+              _intent: !isInitialItemValueSame(item) ? 'success' : undefined,
+            }))}
+          />
+        </ReqorePanel>
       ) : null}
-      <StyledSeparator />
+
+      <ReqoreVerticalSpacer height={10} />
     </>
   );
 };

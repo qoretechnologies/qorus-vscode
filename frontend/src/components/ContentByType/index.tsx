@@ -1,6 +1,5 @@
 // @flow
-import { Icon } from '@blueprintjs/core';
-import React from 'react';
+import { ReqoreIcon } from '@qoretechnologies/reqore';
 import compose from 'recompose/compose';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import { isDate } from '../../helpers/date';
@@ -29,7 +28,7 @@ const ContentByType: Function = ({ content, inTable, noControls, baseType }) => 
   if (type === 'boolean') {
     return (
       <div className={className}>
-        <Icon icon={content ? 'small-tick' : 'cross'} />
+        <ReqoreIcon icon={content ? 'CheckLine' : 'CloseLine'} />
       </div>
     );
   }

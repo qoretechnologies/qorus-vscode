@@ -1,8 +1,8 @@
-import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
-import { DateInput } from '@blueprintjs/datetime';
+import { ReqoreInput, useReqoreTheme } from '@qoretechnologies/reqore';
 import { FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
+import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { getValueOrDefaultValue } from '../../helpers/validations';
@@ -19,6 +19,13 @@ export interface IDateField {
   addMessageListener?: TMessageListener;
 }
 
+const StyledDateField = styled(ReqoreInput)`
+  cursor: pointer;
+  &::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+`;
+
 const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
   name,
   onChange,
@@ -31,6 +38,7 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
   t,
   disabled,
 }) => {
+  const theme = useReqoreTheme();
   // Fetch data on mount
   useMount(() => {
     // Populate default value
@@ -49,8 +57,8 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
   });
 
   // When input value changes
-  const handleInputChange = (selectedDate: Date): void => {
-    onChange(name, selectedDate);
+  const handleInputChange = (event: any): void => {
+    onChange(name, event.target.value);
   };
 
   // Clear the input on reset click
@@ -59,32 +67,46 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
   };
 
   return (
-    <DateInput
-      timePickerProps={{}}
-      closeOnSelection={false}
+    <StyledDateField
+      theme={theme}
+      // @ts-ignore
+      type="datetime-local"
       disabled={disabled}
-      formatDate={(date) => date.toLocaleString()}
-      parseDate={(str) => new Date(str)}
       placeholder={'YYYY-MM-DDT00:00:00Z'}
-      invalidDateMessage={t('InvalidDate')}
-      inputProps={{ className: Classes.FILL }}
-      //defaultValue={new Date()}
-      popoverProps={{
-        targetTagName: 'div',
-        wrapperTagName: 'div',
-      }}
-      value={!value && !default_value ? null : new Date(value || default_value)}
+      fluid
+      value={!value && !default_value ? undefined : value || default_value}
       onChange={handleInputChange}
-      rightElement={
-        value &&
-        value !== '' && (
-          <ButtonGroup minimal>
-            <Button onClick={handleResetClick} icon={'cross'} />
-          </ButtonGroup>
-        )
-      }
+      onClearClick={handleResetClick}
     />
   );
+
+  // return (
+  //   <ReqoreInput
+  //     timePickerProps={{}}
+  //     closeOnSelection={false}
+  //     disabled={disabled}
+  //     formatDate={(date) => date.toLocaleString()}
+  //     parseDate={(str) => new Date(str)}
+  //     placeholder={'YYYY-MM-DDT00:00:00Z'}
+  //     invalidDateMessage={t('InvalidDate')}
+  //     inputProps={{ className: Classes.FILL }}
+  //     //defaultValue={new Date()}
+  //     popoverProps={{
+  //       targetTagName: 'div',
+  //       wrapperTagName: 'div',
+  //     }}
+  //     value={!value && !default_value ? null : new Date(value || default_value)}
+  //     onChange={handleInputChange}
+  //     rightElement={
+  //       value &&
+  //       value !== '' && (
+  //         <ButtonGroup minimal>
+  //           <Button onClick={handleResetClick} icon={'cross'} />
+  //         </ButtonGroup>
+  //       )
+  //     }
+  //   />
+  // );
 };
 
 export default compose(withMessageHandler(), withTextContext())(DateField) as FunctionComponent<

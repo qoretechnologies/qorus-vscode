@@ -1,6 +1,8 @@
-import { Button, ButtonGroup, Classes, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
+import { ReqoreDropdown, ReqoreInput, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import { IReqoreDropdownItemProps } from '@qoretechnologies/reqore/dist/components/Dropdown/item';
 import {
   camelCase,
+  capitalize,
   cloneDeep,
   filter,
   find,
@@ -16,7 +18,15 @@ import {
   upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
-import { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  FormEvent,
+  FunctionComponent,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import { useDebounce, useMount, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
@@ -26,24 +36,23 @@ import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
 import Field from '../../components/Field';
 import { allowedTypes } from '../../components/Field/arrayAuto';
-import FieldActions from '../../components/FieldActions';
-import FieldLabel from '../../components/FieldLabel';
-import FieldSelector from '../../components/FieldSelector';
 import {
-  ActionsWrapper,
+  PositiveColorEffect,
+  SaveColorEffect,
+  SelectorColorEffect,
+} from '../../components/Field/multiPair';
+import FieldGroup from '../../components/FieldGroup';
+import {
   ContentWrapper,
-  FieldInputWrapper,
   FieldWrapper,
   IField,
   IInterfaceCreatorPanel,
-  SearchWrapper,
 } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
-import SidePanel from '../../components/SidePanel';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData, IDraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
-import { maybeSendOnChangeEvent } from '../../helpers/common';
+import { mapFieldsToGroups, maybeSendOnChangeEvent } from '../../helpers/common';
 import { deleteDraft, getDraftId, getTargetFile } from '../../helpers/functions';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
@@ -152,7 +161,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     return undefined;
   };
 
-  const fetchConfigItems: (currentIfaceId: string) => void = (currentIfaceId) => {
+  const fetchConfigItems: (currentIfaceId?: string) => void = (currentIfaceId) => {
     postMessage(Messages.GET_CONFIG_ITEMS, {
       iface_id: currentIfaceId || interfaceId,
       iface_kind: type,
@@ -913,6 +922,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     }
   });
 
+  const unselectedFieldCount = size(filter(fields, (field) => !field.selected));
+
   // Filter out the selected fields
   const selectedFieldList: IField[] = filter(selectedFields, (field: IField) => {
     // Only included unselected fields
@@ -973,7 +984,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       return !!size(steps);
     }
     // Find the base class name field
-    const baseClassName: IField = [...fieldList, ...selectedFields].find(
+    const baseClassName: IField = [...fieldList, ...(selectedFields || [])].find(
       (field: IField) => field.name === 'base-class-name'
     );
     // Check if the field exists
@@ -1123,237 +1134,227 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     return isValid;
   };
 
+  const fieldsToRender = mapFieldsToGroups(selectedFieldList);
+
+  const renderFields = (fields: IField[]) => {
+    return map(
+      fields,
+      (field: IField) =>
+        !field.internal && (
+          <FieldWrapper
+            key={field.name}
+            info={field.markdown && t('MarkdownSupported')}
+            type={field.type}
+            label={t(`field-label-${field.name}`)}
+            isValid={field.isValid}
+            value={field.value}
+            parentValue={field['parent-value']}
+            desc={t(`field-desc-${field.name}`)}
+            name={field.name}
+            onResetClick={() => {
+              handleFieldChange(field.name, field['parent-value']);
+            }}
+            isSet={field['is-set']}
+            disabled={isFieldDisabled(field)}
+            onClick={removeField}
+            removable={field.mandatory === false}
+            compact={field.compact}
+          >
+            <Field
+              {...omit(field, ['style'])}
+              onChange={handleFieldChange}
+              requestFieldData={requestFieldData}
+              resetClassConnections={resetClassConnections}
+              showClassesWarning={hasClassConnections}
+              interfaceKind={type}
+              iface_kind={type}
+              activeId={activeId}
+              interfaceId={interfaceId}
+              prefill={
+                field.prefill &&
+                selectedFieldList.find((preField: IField) => preField.name === field.prefill)
+              }
+              disabled={isFieldDisabled(field)}
+              context={getContext()}
+            />
+          </FieldWrapper>
+        )
+    );
+  };
+
+  const renderGroups = (groups: Record<string, IField[]>) => {
+    return map(groups, (fields, groupName) => {
+      if (size(fields) > 1) {
+        return (
+          <FieldGroup
+            key={groupName}
+            label={capitalize(groupName)}
+            isValid={!fields.some((field) => field.isValid === false)}
+          >
+            {renderFields(fields)}
+          </FieldGroup>
+        );
+      }
+
+      return <React.Fragment key={groupName}>{renderFields(fields)}</React.Fragment>;
+    });
+  };
+
   return (
     <>
-      <SidePanel title={t(stepOneTitle)}>
-        <SearchWrapper>
-          <InputGroup
-            placeholder={t('FilterAvailableFields')}
-            value={query}
-            onChange={(event: FormEvent<HTMLInputElement>) =>
-              setQuery(type, event.currentTarget.value)
-            }
-            leftIcon={'search'}
-            intent={query !== '' ? Intent.PRIMARY : Intent.NONE}
-          />
-        </SearchWrapper>
-        <ContentWrapper>
-          {fieldList.length ? (
-            map(fieldList, (field: any) => (
-              <FieldSelector
-                name={field.name}
-                type={field.type}
-                disabled={isFieldDisabled(field)}
-                onClick={handleAddClick}
-              />
-            ))
-          ) : (
-            <p className={Classes.TEXT_MUTED}>No fields available</p>
-          )}
-        </ContentWrapper>
-        {fieldList.length ? (
-          <ActionsWrapper>
-            <ButtonGroup fill>
-              <Tooltip content={t('SelectAllTooltip')}>
-                <Button
-                  text={t('SelectAll')}
-                  icon={'plus'}
-                  onClick={handleAddAll}
-                  name="add-all-fields"
-                />
-              </Tooltip>
-            </ButtonGroup>
-          </ActionsWrapper>
-        ) : null}
-      </SidePanel>
-      <Content title={t(stepTwoTitle)} style={{ paddingLeft: 0 }}>
-        <SearchWrapper style={{ marginLeft: '15px' }}>
-          <InputGroup
-            placeholder={t('FilterSelectedFields')}
-            value={selectedQuery}
-            onChange={(event: FormEvent<HTMLInputElement>) =>
-              setSelectedQuery(type, event.currentTarget.value)
-            }
-            leftIcon={'search'}
-            intent={selectedQuery !== '' ? Intent.PRIMARY : Intent.NONE}
-          />
-        </SearchWrapper>
-        <ContentWrapper>
-          {map(
-            selectedFieldList,
-            (field: IField) =>
-              !field.internal && (
-                <FieldWrapper
-                  key={field.name}
-                  name="selected-field"
-                  style={{ paddingLeft: '15px' }}
-                >
-                  <FieldLabel
-                    info={field.markdown && t('MarkdownSupported')}
-                    label={t(`field-label-${field.name}`)}
-                    isValid={field.isValid}
-                  />
-                  <FieldInputWrapper>
-                    <Field
-                      {...field}
-                      onChange={handleFieldChange}
-                      requestFieldData={requestFieldData}
-                      resetClassConnections={resetClassConnections}
-                      showClassesWarning={hasClassConnections}
-                      interfaceKind={type}
-                      iface_kind={type}
-                      activeId={activeId}
-                      interfaceId={interfaceId}
-                      prefill={
-                        field.prefill &&
-                        selectedFieldList.find(
-                          (preField: IField) => preField.name === field.prefill
-                        )
-                      }
-                      disabled={isFieldDisabled(field)}
-                      context={getContext()}
-                    />
-                  </FieldInputWrapper>
-                  <FieldActions
-                    value={field.value}
-                    parentValue={field['parent-value']}
-                    desc={t(`field-desc-${field.name}`)}
-                    name={field.name}
-                    onResetClick={() => {
-                      handleFieldChange(field.name, field['parent-value']);
-                    }}
-                    isSet={field['is-set']}
-                    disabled={isFieldDisabled(field)}
-                    onClick={removeField}
-                    removable={field.mandatory === false}
-                  />
-                </FieldWrapper>
-              )
-          )}
-        </ContentWrapper>
-        <ActionsWrapper>
-          {(hasConfigManager || hasClassConnections) && (
-            <div style={{ float: 'left', width: '48%' }}>
-              <ButtonGroup fill>
-                {hasClassConnections && (
-                  <Button
-                    icon={areClassConnectionsValid() ? 'code-block' : 'warning-sign'}
-                    intent={areClassConnectionsValid() ? 'none' : 'warning'}
-                    disabled={!isClassConnectionsManagerEnabled(interfaceIndex)}
-                    onClick={() => setShowClassConnectionsManager(true)}
-                    name={`${type}-class-connections-button`}
-                  >
-                    {t('ManageClassConnections')} ({size(classConnectionsData)})
-                  </Button>
-                )}
-                {hasConfigManager && (
-                  <ManageConfigButton
-                    type={type}
-                    disabled={!isConfigManagerEnabled()}
-                    onClick={() => setShowConfigItemsManager(true)}
-                  />
-                )}
-              </ButtonGroup>
-            </div>
-          )}
-          <div
-            style={{
-              float: 'right',
-              width: hasConfigManager || hasClassConnections ? '48%' : '100%',
-            }}
-          >
-            <ButtonGroup fill>
-              {onBackClick && (
-                <Tooltip content={t('BackTooltip')}>
-                  <Button text={t('Back')} icon={'undo'} onClick={() => onBackClick()} />
-                </Tooltip>
-              )}
-              <Tooltip content={t('ResetTooltip')}>
-                <Button
-                  text={t('DiscardChangesButton')}
-                  icon={'history'}
-                  onClick={() => {
-                    initialData.confirmAction(
-                      'ResetFieldsConfirm',
-                      () => {
-                        resetLocalFields(activeId);
-                      },
-                      'Discard changes',
-                      'warning'
-                    );
-                  }}
-                />
-              </Tooltip>
-              <Button
-                text={t(submitLabel)}
-                disabled={!canSubmit()}
-                icon={'tick'}
-                name={`interface-creator-submit-${type}`}
-                intent={Intent.SUCCESS}
-                onClick={handleSubmitClick}
-              />
-            </ButtonGroup>
-          </div>
-        </ActionsWrapper>
+      <Content
+        title={'Fill in the details'}
+        actions={[
+          {
+            as: ReqoreDropdown,
+            props: {
+              onItemSelect: ({ label }) => handleAddClick(label as string),
+              effect: PositiveColorEffect,
+              filterable: true,
+              label: `Optional fields available (${size(fieldList)})`,
+              disabled: size(fieldList) === 0,
+              items: [
+                {
+                  label: t('SelectAll'),
+                  onClick: handleAddAll,
+                  icon: 'MenuAddLine',
+                  tooltip: t('SelectAllTooltip'),
+                },
+                ...map(
+                  fieldList,
+                  (field: any): IReqoreDropdownItemProps => ({
+                    label: field.name,
+                    badge: {
+                      label: field.type,
+                      icon: 'CodeLine',
+                    },
+                    disabled: isFieldDisabled(field),
+                    tooltip: {
+                      content: <ReactMarkdown>{t(`field-desc-${field.name}`)}</ReactMarkdown>,
+                      maxWidth: '300px',
+                      delay: 200,
+                    },
+                    effect: SelectorColorEffect,
+                  })
+                ),
+              ],
+            },
+          },
+        ]}
+        bottomActions={[
+          {
+            label: t('Back'),
+            icon: 'ArrowGoBackLine',
+            onClick: () => onBackClick?.(),
+            show: !!onBackClick,
+            responsive: false,
+          },
+          {
+            icon: areClassConnectionsValid?.() ? 'CodeBoxLine' : 'AlarmWarningLine',
+            intent: areClassConnectionsValid?.() ? undefined : 'warning',
+            disabled: !isClassConnectionsManagerEnabled?.(interfaceIndex),
+            onClick: () => setShowClassConnectionsManager?.(true),
+            show: hasClassConnections === true,
+            label: t('ManageClassConnections'),
+            badge: size(classConnectionsData),
+          },
+          {
+            as: ManageConfigButton,
+            props: {
+              type,
+              disabled: !isConfigManagerEnabled(),
+              onClick: () => setShowConfigItemsManager(true),
+              fetchCall: fetchConfigItems,
+            },
+            show: !!hasConfigManager,
+          },
+          {
+            label: t('DiscardChangesButton'),
+            icon: 'HistoryLine',
+            tooltip: t('ResetTooltip'),
+            onClick: () => {
+              initialData.confirmAction(
+                'ResetFieldsConfirm',
+                () => {
+                  resetLocalFields(activeId);
+                },
+                'Discard changes',
+                'warning'
+              );
+            },
+            position: 'right',
+          },
+          {
+            label: t(submitLabel),
+            disabled: !canSubmit(),
+            icon: 'CheckLine',
+            responsive: false,
+            effect: SaveColorEffect,
+            onClick: handleSubmitClick,
+            position: 'right',
+          },
+        ]}
+      >
+        <ReqoreInput
+          placeholder={t('FilterSelectedFields')}
+          value={selectedQuery}
+          onChange={(event: FormEvent<HTMLInputElement>) =>
+            setSelectedQuery(type, event.currentTarget.value)
+          }
+          icon={'Search2Line'}
+          intent={selectedQuery !== '' ? 'info' : undefined}
+          onClearClick={() => setSelectedQuery(type, '')}
+        />
+
+        <ReqoreVerticalSpacer height={10} />
+        <ContentWrapper>{renderGroups(fieldsToRender)}</ContentWrapper>
       </Content>
       {showClassConnectionsManager && hasClassConnections && initialData.qorus_instance && (
-        <CustomDialog
-          isOpen
-          title={t('ClassConnectionsManager')}
+        <ClassConnectionsManager
+          ifaceType={type === 'service-methods' ? 'service' : type}
+          interfaceIndex={interfaceIndex}
+          baseClassName={requestFieldData('base-class-name', 'value')}
+          interfaceContext={getContext()}
+          initialConnections={classConnectionsData}
           onClose={() => setShowClassConnectionsManager(false)}
-          style={{
-            width: '80vw',
-            minHeight: '40vh',
-            maxHeight: '90vh',
-            backgroundColor: '#fff',
+          onSubmit={(classConnections) => {
+            const modifiedConnections = reduce(
+              classConnections,
+              (newConnections, connection, name) => {
+                return {
+                  ...newConnections,
+                  [name]: connection.reduce(
+                    (newConnection, item) => [
+                      ...newConnection,
+                      omit(item, [
+                        'nextItemData',
+                        'previousItemData',
+                        'isInputCompatible',
+                        'isOutputCompatible',
+                        'index',
+                        'isBetween',
+                        'isEditing',
+                        'isEvent',
+                        'isLast',
+                      ]),
+                    ],
+                    []
+                  ),
+                };
+              },
+              {}
+            );
+            modifyMappers(modifiedConnections);
+            setClassConnectionsData(modifiedConnections);
+            setShowClassConnectionsManager(false);
           }}
-        >
-          <ClassConnectionsManager
-            ifaceType={type === 'service-methods' ? 'service' : type}
-            interfaceIndex={interfaceIndex}
-            baseClassName={requestFieldData('base-class-name', 'value')}
-            interfaceContext={getContext()}
-            initialConnections={classConnectionsData}
-            onSubmit={(classConnections) => {
-              const modifiedConnections = reduce(
-                classConnections,
-                (newConnections, connection, name) => {
-                  return {
-                    ...newConnections,
-                    [name]: connection.reduce(
-                      (newConnection, item) => [
-                        ...newConnection,
-                        omit(item, [
-                          'nextItemData',
-                          'previousItemData',
-                          'isInputCompatible',
-                          'isOutputCompatible',
-                          'index',
-                          'isBetween',
-                          'isEditing',
-                          'isEvent',
-                          'isLast',
-                        ]),
-                      ],
-                      []
-                    ),
-                  };
-                },
-                {}
-              );
-              modifyMappers(modifiedConnections);
-              setClassConnectionsData(modifiedConnections);
-              setShowClassConnectionsManager(false);
-            }}
-          />
-        </CustomDialog>
+        />
       )}
       {showConfigItemsManager && hasConfigManager ? (
         <CustomDialog
           isOpen
-          title={t('ConfigItemsManager')}
+          label={t('ConfigItemsManager')}
           onClose={() => setShowConfigItemsManager(false)}
-          style={{ width: '80vw', backgroundColor: '#fff' }}
         >
           <ConfigItemManager
             type={type}

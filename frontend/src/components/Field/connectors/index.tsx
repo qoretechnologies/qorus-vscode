@@ -1,4 +1,4 @@
-import { Callout } from '@blueprintjs/core';
+import { ReqoreMessage } from '@qoretechnologies/reqore';
 import { cloneDeep, isEqual, map, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useState } from 'react';
@@ -324,12 +324,12 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   );
 
   if (!initialData.qorus_instance) {
-    return <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>;
+    return <ReqoreMessage intent="warning">{t('ActiveInstanceProvidersConnectors')}</ReqoreMessage>;
   }
 
   return (
-    <div style={{ flex: 1 }}>
-      <SubField title={!minimal ? t('SelectDataProvider') : undefined}>
+    <div style={{ flex: 1, width: inline ? undefined : '100%' }}>
+      <SubField title={!minimal ? title || t('SelectDataProvider') : undefined} isValid>
         <Provider
           isConfigItem={isConfigItem}
           nodes={nodes}
@@ -465,13 +465,23 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             type={recordType}
             asList={supportsList[recordType]}
             url={getUrlFromProvider(optionProvider, false, true)}
-            value={optionProvider?.[`${recordType}_args`]}
-            onChange={(_nm, val) => {
+            value={
+              optionProvider?.[`${recordType}_args`] ||
+              optionProvider?.[`${recordType}_args_freeform`]
+            }
+            isFreeform={`${recordType}_args_freeform` in optionProvider}
+            onChange={(argName, val) => {
               setOptionProvider((cur: IProviderType | null) => {
                 const result: IProviderType = {
                   ...cur,
-                  [`${recordType}_args`]: val,
+                  [argName]: val,
                 } as IProviderType;
+
+                if (argName.includes('freeform')) {
+                  delete result[`${recordType}_args`];
+                } else {
+                  delete result[`${recordType}_args_freeform`];
+                }
 
                 return result;
               });

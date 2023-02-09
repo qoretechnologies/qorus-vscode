@@ -1,4 +1,4 @@
-import { Callout } from '@blueprintjs/core';
+import { ReqoreMessage, ReqoreVerticalSpacer, useReqore } from '@qoretechnologies/reqore';
 import { cloneDeep, omit, size } from 'lodash';
 import { FunctionComponent, useContext, useState } from 'react';
 import { useLifecycles, useUpdateEffect } from 'react-use';
@@ -7,8 +7,6 @@ import mapProps from 'recompose/mapProps';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { IField } from '../../components/FieldWrapper';
-import Spacer from '../../components/Spacer';
-import { AppToaster } from '../../components/Toast';
 import { DraftsContext } from '../../context/drafts';
 import { getDraftId, getTargetFile } from '../../helpers/functions';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
@@ -59,12 +57,13 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
   initialMapperDraftData,
 }) => {
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
+  const { addNotification } = useReqore();
 
   if (!qorus_instance) {
     return (
-      <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
+      <ReqoreMessage title={t('NoInstanceTitle')} intent="warning">
         {t('NoInstance')}
-      </Callout>
+      </ReqoreMessage>
     );
   }
 
@@ -73,8 +72,8 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
   useLifecycles(
     () => {
       if (wrongKeysCount) {
-        AppToaster.show({
-          message: `${wrongKeysCount} ${t('IncorrectKeysRemoved')}`,
+        addNotification({
+          content: `${wrongKeysCount} ${t('IncorrectKeysRemoved')}`,
           intent: 'danger',
         });
       }
@@ -118,9 +117,9 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
 
   return (
     <>
-      {inputsError && <Callout intent="warning">{t(inputsError)}</Callout>}
-      {outputsError && <Callout intent="warning">{t(outputsError)}</Callout>}
-      {inputsError || outputsError ? <Spacer size={10} /> : null}
+      {inputsError && <ReqoreMessage intent="warning">{t(inputsError)}</ReqoreMessage>}
+      {outputsError && <ReqoreMessage intent="warning">{t(outputsError)}</ReqoreMessage>}
+      {inputsError || outputsError ? <ReqoreVerticalSpacer height={10} /> : null}
       {!showMapperConnections && (
         <CreatorWrapper>
           <InterfaceCreatorPanel

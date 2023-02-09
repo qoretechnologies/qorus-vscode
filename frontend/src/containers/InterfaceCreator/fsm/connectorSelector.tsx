@@ -1,13 +1,14 @@
-import { ButtonGroup, Spinner } from '@blueprintjs/core';
-import React, { useEffect, useState } from 'react';
+import { ReqoreControlGroup } from '@qoretechnologies/reqore';
+import { useEffect, useState } from 'react';
 import SelectField from '../../../components/Field/select';
+import Loader from '../../../components/Loader';
 import withMessageHandler, {
   TMessageListener,
   TPostMessage,
 } from '../../../hocomponents/withMessageHandler';
 
 export interface IConnectorSelectorProps {
-  value: {
+  value?: {
     class: string;
     connector: string;
   };
@@ -56,10 +57,10 @@ const ConnectorSelector = ({
     return () => {
       listener();
     };
-  });
+  }, []);
 
   const getConnectors = (): IConnector[] => {
-    const selectedClass: IClass = classes.find((clss) => clss.name === value['class']);
+    const selectedClass: IClass = classes.find((clss) => clss.name === value?.['class']);
 
     return selectedClass?.['class-connectors'].filter((connector) =>
       types.includes(connector.type)
@@ -86,13 +87,12 @@ const ConnectorSelector = ({
   };
 
   if (!classes) {
-    return <Spinner size={16} />;
+    return <Loader />;
   }
 
   return (
-    <ButtonGroup>
+    <ReqoreControlGroup stack fluid vertical>
       <SelectField
-        fill
         onChange={handleChange}
         value={value?.['class']}
         name="class"
@@ -104,14 +104,14 @@ const ConnectorSelector = ({
       />
       {value?.['class'] && (
         <SelectField
-          fill
           defaultItems={getConnectors()}
           onChange={handleChange}
           value={value?.connector}
           name="connector"
+          description={'Class connector'}
         />
       )}
-    </ButtonGroup>
+    </ReqoreControlGroup>
   );
 };
 

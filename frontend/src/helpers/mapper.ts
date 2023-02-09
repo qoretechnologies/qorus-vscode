@@ -5,11 +5,11 @@ import { findIndex, omit, reduce, size } from 'lodash';
 // respective parent field
 export const flattenFields: (
   fields: any,
-  isChild?: boolean,
+  isMapperChild?: boolean,
   parent?: string,
   level?: number,
   path?: string
-) => any[] = (fields, isChild = false, parent, level = 0, path = '') =>
+) => any[] = (fields, isMapperChild = false, parent, level = 0, path = '') =>
   reduce(
     fields,
     (newFields, field, name) => {
@@ -18,7 +18,10 @@ export const flattenFields: (
       const newPath = level === 0 ? name : `${path}.${name}`;
       const parentPath = level !== 0 && `${path}`;
       // Add the current field
-      res = [...res, { name, ...{ ...field, isChild, level, parent, path: newPath, parentPath } }];
+      res = [
+        ...res,
+        { name, ...{ ...field, isMapperChild, level, parent, path: newPath, parentPath } },
+      ];
       // Check if this field has hierarchy
       if (size(field.type?.fields)) {
         // Recursively add deep fields
@@ -57,7 +60,7 @@ export const filterInternalData = (fields) => {
             'canBeNull',
             'firstCustomInHierarchy',
             'parent',
-            'isChild',
+            'isMapperChild',
             'isCustom',
             'level',
           ]),

@@ -1,4 +1,3 @@
-import { Classes } from '@blueprintjs/core';
 import cloneDeep from 'lodash/cloneDeep';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
@@ -46,10 +45,7 @@ const FSMInitialOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
   const removeState = () => true;
 
   const renderMetadata = (item: IFSMState) => (
-    <p
-      style={{ margin: '3px 0 0 0', padding: 0, marginLeft: '15.5px', fontSize: '13px' }}
-      className={Classes.TEXT_MUTED}
-    >
+    <p style={{ margin: '3px 0 0 0', padding: 0, marginLeft: '15.5px', fontSize: '13px' }}>
       {getStateType(item)}
     </p>
   );

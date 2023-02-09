@@ -33,7 +33,14 @@ const MultiFileField: FunctionComponent<IMultiFileField & IField & IFieldChange>
 }) => {
   return (
     <>
-      <MultiSelect simple name={name} onChange={onChange} value={value} canEdit />
+      <MultiSelect
+        simple
+        name={name}
+        onChange={onChange}
+        value={value}
+        canEdit
+        default_items={(value || []).map((val) => ({ name: val.name || val }))}
+      />
       <Spacer />
       <TreeField onChange={onChange} name={name} value={value} {...rest} />
     </>

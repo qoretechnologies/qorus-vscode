@@ -1,4 +1,10 @@
-import { Button, Callout, ControlGroup, InputGroup } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreInput,
+  ReqoreMessage,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import cronstrue from 'cronstrue';
 import { ChangeEvent, FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -87,50 +93,46 @@ const CronField: FunctionComponent<ICronField & IField & IFieldChange> = ({
 
   return (
     <>
-      <ControlGroup fill>
-        <InputGroup
-          name={'field-cron-minute'}
+      <ReqoreControlGroup fluid stack>
+        <ReqoreInput
           value={minute}
           placeholder={'Minute'}
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
             handleInputChange('minute', event.target.value.trim());
           }}
         />
-        <InputGroup
-          name={'field-cron-hour'}
+        <ReqoreInput
           value={hour}
           placeholder={'Hour'}
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
             handleInputChange('hour', event.target.value.trim());
           }}
         />
-        <InputGroup
-          name={'field-cron-day'}
+        <ReqoreInput
           value={day}
           placeholder={'Day'}
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
             handleInputChange('day', event.target.value.trim());
           }}
         />
-        <InputGroup
-          name={'field-cron-month'}
+        <ReqoreInput
           value={month}
           placeholder={'Month'}
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
             handleInputChange('month', event.target.value.trim());
           }}
         />
-        <InputGroup
-          name={'field-cron-weekday'}
+        <ReqoreInput
           value={weekday}
           placeholder={'Weekday'}
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
             handleInputChange('weekday', event.target.value.trim());
           }}
         />
-        <Button onClick={handleResetClick} icon={'cross'} />
-      </ControlGroup>
-      <Callout intent={isError ? 'danger' : 'primary'}>{message}</Callout>
+        <ReqoreButton fixed onClick={handleResetClick} icon={'CloseLine'} />
+      </ReqoreControlGroup>
+      <ReqoreVerticalSpacer height={10} />
+      <ReqoreMessage intent={isError ? 'danger' : 'info'}>{message}</ReqoreMessage>
     </>
   );
 };

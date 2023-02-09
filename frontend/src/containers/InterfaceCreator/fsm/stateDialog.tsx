@@ -1,34 +1,31 @@
-import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 import { map } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
-import React, { useContext, useEffect, useState } from 'react';
-import { useUpdateEffect } from 'react-use';
+import React, { useContext, useState } from 'react';
+import { useUnmount, useUpdateEffect } from 'react-use';
 import shortid from 'shortid';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
 import BooleanField from '../../../components/Field/boolean';
 import Connectors from '../../../components/Field/connectors';
+import LongStringField from '../../../components/Field/longString';
+import {
+  PositiveColorEffect,
+  SaveColorEffect,
+  WarningColorEffect,
+} from '../../../components/Field/multiPair';
 import RadioField from '../../../components/Field/radioField';
 import SelectField from '../../../components/Field/select';
 import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
 import FieldGroup from '../../../components/FieldGroup';
-import FieldLabel from '../../../components/FieldLabel';
-import {
-  ActionsWrapper,
-  ContentWrapper,
-  FieldInputWrapper,
-  FieldWrapper,
-} from '../../../components/FieldWrapper';
+import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import { Messages } from '../../../constants/messages';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getMaxExecutionOrderFromStates } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
-import withMessageHandler, {
-  TPostMessage,
-} from '../../../hocomponents/withMessageHandler';
+import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
 import ConfigItemManager from '../../ConfigItemManager';
 import ManageConfigItemsButton from '../../ConfigItemManager/manageButton';
 import FSMView, { IFSMState, IFSMStates } from './';
@@ -77,14 +74,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   disableInitial,
 }) => {
   const [newData, setNewData] = useState<IFSMState>(data);
-  const [actionType, setActionType] = useState<TAction>(
-    data?.action?.type || 'none'
-  );
-  const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>(
-    'custom'
-  );
-  const [showConfigItemsManager, setShowConfigItemsManager] =
-    useState<boolean>(false);
+  const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
+  const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>('custom');
+  const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
   const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const t = useContext(TextContext);
@@ -111,6 +103,20 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     }
   }, [newData.action?.value?.['class']]);
 
+  useUnmount(() => {
+    if (data.isNew) {
+      // If the name is empty and the original name was empty
+      // delete this state
+      if (!isDataValid()) {
+        deleteState(id, true);
+      }
+      // If the user closed an existing state with invalid data
+      // set the data to original data
+    } else if (!isDataValid) {
+      onSubmit(id, data);
+    }
+  });
+
   const handleDataUpdate = (name: string, value: any) => {
     setNewData((cur) => ({
       ...cur,
@@ -121,8 +127,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       if (value) {
         handleDataUpdate(
           'execution_order',
-          data?.execution_order ||
-            getMaxExecutionOrderFromStates(otherStates) + 1
+          data?.execution_order || getMaxExecutionOrderFromStates(otherStates) + 1
         );
       } else {
         handleDataUpdate('execution_order', null);
@@ -148,9 +153,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     if (newData.type === 'block') {
       return (
         isNameValid(newData.name) &&
-        (blockLogicType === 'custom'
-          ? size(newData.states)
-          : validateField('string', newData.fsm))
+        (blockLogicType === 'custom' ? size(newData.states) : validateField('string', newData.fsm))
       );
     }
 
@@ -166,10 +169,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     return (
       isNameValid(newData.name) &&
       isActionValid() &&
-      (!newData['input-type'] ||
-        validateField('type-selector', newData['input-type'])) &&
-      (!newData['output-type'] ||
-        validateField('type-selector', newData['output-type']))
+      (!newData['input-type'] || validateField('type-selector', newData['input-type'])) &&
+      (!newData['output-type'] || validateField('type-selector', newData['output-type']))
     );
   };
 
@@ -182,10 +183,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
         return !!newData?.action?.value;
       }
       case 'connector': {
-        return (
-          !!newData?.action?.value?.['class'] &&
-          !!newData?.action?.value?.connector
-        );
+        return !!newData?.action?.value?.['class'] && !!newData?.action?.value?.connector;
       }
       case 'apicall': {
         return validateField('api-call', newData?.action?.value);
@@ -217,27 +215,19 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               object_type: 'mapper',
               return_value: 'objects',
             }}
-            onChange={(_name, value) =>
-              handleDataUpdate('action', { type: 'mapper', value })
-            }
+            onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
             value={newData?.action?.value}
             target_dir={target_dir}
-            name='action'
+            name="action"
             context={{
               default_values: newData?.injectedData
                 ? {
-                    name: `${
-                      newData.injectedData?.name
-                        ? `${newData.injectedData?.name}-`
-                        : ''
-                    }${newData.injectedData?.from}-${newData.injectedData?.to}`,
+                    name: `${newData.injectedData?.name ? `${newData.injectedData?.name}-` : ''}${
+                      newData.injectedData?.from
+                    }-${newData.injectedData?.to}`,
                     desc: `mapper to bridge ${newData.injectedData?.from} to ${
                       newData.injectedData?.to
-                    }${
-                      newData.injectedData?.name
-                        ? ` in flow ${newData.injectedData?.name}`
-                        : ''
-                    }`,
+                    }${newData.injectedData?.name ? ` in flow ${newData.injectedData?.name}` : ''}`,
                     version: '1.0',
                   }
                 : {
@@ -263,11 +253,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               return_value: 'objects',
             }}
             target_dir={target_dir}
-            onChange={(_name, value) =>
-              handleDataUpdate('action', { type: 'pipeline', value })
-            }
+            onChange={(_name, value) => handleDataUpdate('action', { type: 'pipeline', value })}
             value={newData?.action?.value}
-            name='action'
+            name="action"
             reference={{
               iface_kind: 'pipeline',
             }}
@@ -279,9 +267,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           <ConnectorSelector
             value={newData?.action?.value}
             target_dir={target_dir}
-            onChange={(value) =>
-              handleDataUpdate('action', { type: 'connector', value })
-            }
+            onChange={(value) => handleDataUpdate('action', { type: 'connector', value })}
             types={['input', 'input-output', 'output']}
           />
         );
@@ -289,14 +275,12 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'apicall': {
         return (
           <Connectors
-            name='apicall'
+            name="apicall"
             inline
             minimal
             requiresRequest
             isInitialEditing={!!data?.action?.value}
-            onChange={(_name, value) =>
-              handleDataUpdate('action', { type: 'apicall', value })
-            }
+            onChange={(_name, value) => handleDataUpdate('action', { type: 'apicall', value })}
             value={newData?.action?.value}
           />
         );
@@ -314,9 +298,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             key={actionType}
             recordType={actionType}
             isInitialEditing={!!data?.action?.value}
-            onChange={(_name, value) =>
-              handleDataUpdate('action', { type: actionType, value })
-            }
+            onChange={(_name, value) => handleDataUpdate('action', { type: actionType, value })}
             value={newData?.action?.value}
           />
         );
@@ -326,400 +308,320 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     }
   };
 
+  const isCustomBlockFirstPage = () => {
+    return !isMetadataHidden && newData.type === 'block' && blockLogicType === 'custom';
+  };
+
+  const isCustomBlockSecondPage = () => {
+    return isMetadataHidden && newData.type === 'block' && blockLogicType === 'custom';
+  };
+
   return (
     <>
-      <CustomDialog
-        onClose={() => {
-          // If the name is empty and the original name was empty
-          // delete this state
-          if (
-            (data.type === 'fsm' && !data.name) ||
-            (data.type === 'state' && !data.action?.value) ||
-            (data.type === 'block' && size(data.states) === 0)
-          ) {
-            deleteState(id, true);
-          }
-          onClose();
-        }}
-        transitionName={newData.type === 'block' ? 'noop' : undefined}
-        transitionDuration={newData.type === 'block' ? 0 : undefined}
-        isOpen
-        title={`${t('Editing')} ${newData.type} "${newData.name}"`}
-        style={{
-          width: newData.type === 'block' ? '80vw' : '80vw',
-          paddingBottom: 0,
-          height: newData.type === 'block' ? '95vh' : undefined,
-        }}
+      <Content
+        fill
+        padded={false}
+        minimal
+        transparent
+        bottomActions={[
+          {
+            label: t('Cancel'),
+            icon: 'CloseLine',
+            onClick: () => {
+              onClose();
+              deleteState(id, true);
+            },
+            show: !isMetadataHidden,
+            responsive: false,
+          },
+          {
+            label: t('Back'),
+            onClick: () => {
+              setIsMetadataHidden(false);
+            },
+            icon: 'ArrowLeftLine',
+            show: isMetadataHidden,
+          },
+          {
+            label: t('Reset'),
+            icon: 'HistoryLine',
+            onClick: () => {
+              confirmAction(
+                'ResetFieldsConfirm',
+                () => {
+                  postMessage(Messages.RESET_CONFIG_ITEMS, {
+                    iface_id: interfaceId,
+                    state_id: newData.id,
+                  });
+                  setActionType(data?.action?.type);
+                  setNewData(data);
+                },
+                'Reset',
+                'warning'
+              );
+            },
+          },
+          {
+            as: ManageConfigItemsButton,
+            props: {
+              type: 'fsm',
+              onClick: () => setShowConfigItemsManager(true),
+            },
+            show: !!newData.action?.value?.['class'],
+          },
+          {
+            label: isCustomBlockFirstPage() ? t('Next') : t('Submit'),
+            disabled: isCustomBlockFirstPage() ? false : !isDataValid() || isLoading,
+            icon: 'CheckLine',
+            effect: isLoading
+              ? WarningColorEffect
+              : isCustomBlockFirstPage()
+              ? PositiveColorEffect
+              : SaveColorEffect,
+            position: 'right',
+            responsive: false,
+            onClick: () => {
+              if (!isCustomBlockFirstPage()) {
+                setIsLoading(true);
+
+                postMessage('submit-fsm-state', {
+                  iface_id: interfaceId,
+                  state_id: newData.id,
+                });
+
+                const modifiedData = { ...newData };
+
+                if (blockLogicType === 'custom') {
+                  modifiedData.fsm = undefined;
+                } else {
+                  modifiedData.states = undefined;
+                }
+
+                if (modifiedData.execution_order === null) {
+                  delete modifiedData.execution_order;
+                }
+
+                if (modifiedData.type === 'block' && !modifiedData['block-type']) {
+                  modifiedData['block-type'] = 'for';
+                }
+
+                if (modifiedData.type === 'if' && !modifiedData['input-output-type']) {
+                  delete modifiedData['input-output-type'];
+                }
+
+                onSubmit(id, modifiedData);
+              } else {
+                setIsMetadataHidden(true);
+              }
+            },
+          },
+        ]}
       >
-        <Content
+        <ContentWrapper
           style={{
-            padding: 10,
-            backgroundColor: '#fff',
-            borderTop: '1px solid #d7d7d7',
+            display: isCustomBlockSecondPage() ? 'none' : undefined,
           }}
         >
-          <ContentWrapper
-            style={{
-              display: 'flex',
-              flexFlow: 'column',
-              paddingRight: 0,
-              position: 'relative',
-            }}
-          >
-            <div
-              style={{
-                display: isMetadataHidden ? 'none' : 'block',
-                height:
-                  newData.type === 'block' && blockLogicType === 'custom'
-                    ? 300
-                    : 'auto',
-                overflow: 'auto',
-              }}
-            >
-              <FieldWrapper padded>
-                <FieldLabel
-                  label={t('Name')}
-                  isValid={isNameValid(newData.name)}
+          <FieldGroup label={t('Info')} isValid={isNameValid(newData.name)}>
+            <FieldWrapper label={t('Name')} isValid={isNameValid(newData.name)} compact>
+              {newData.type === 'fsm' ? (
+                <SelectField
+                  get_message={{
+                    action: 'creator-get-objects',
+                    object_type: 'fsm',
+                  }}
+                  return_message={{
+                    action: 'creator-return-objects',
+                    object_type: 'fsm',
+                    return_value: 'objects',
+                  }}
+                  reference={{ iface_kind: 'fsm' }}
+                  predicate={(name) => fsmName !== name}
+                  onChange={handleDataUpdate}
+                  value={newData?.name}
+                  name="name"
                 />
-                <FieldInputWrapper>
-                  {newData.type === 'fsm' ? (
-                    <SelectField
-                      get_message={{
-                        action: 'creator-get-objects',
-                        object_type: 'fsm',
-                      }}
-                      return_message={{
-                        action: 'creator-return-objects',
-                        object_type: 'fsm',
-                        return_value: 'objects',
-                      }}
-                      reference={{ iface_kind: 'fsm' }}
-                      predicate={(name) => fsmName !== name}
-                      onChange={handleDataUpdate}
-                      value={newData?.name}
-                      name='name'
-                    />
-                  ) : (
-                    <String
-                      name='name'
-                      onChange={handleDataUpdate}
-                      value={newData.name}
-                    />
-                  )}
-                </FieldInputWrapper>
-              </FieldWrapper>
-              <FieldGroup>
-                <FieldWrapper padded>
-                  <FieldLabel label={t('Type')} isValid />
-                  <FieldInputWrapper>
-                    <SelectField
-                      defaultItems={
-                        qorus_instance
-                          ? [
-                              { name: 'state' },
-                              { name: 'fsm' },
-                              { name: 'block' },
-                            ]
-                          : [{ name: 'state' }, { name: 'fsm' }]
-                      }
-                      disabled={newData.injected}
-                      onChange={handleDataUpdate}
-                      value={newData.type}
-                      name='type'
-                    />
-                  </FieldInputWrapper>
-                </FieldWrapper>
-                <FieldWrapper padded>
-                  <FieldLabel label={t('Initial')} isValid />
-                  <FieldInputWrapper>
-                    <BooleanField
-                      disabled={disableInitial}
-                      name='initial'
-                      onChange={handleDataUpdate}
-                      value={newData.initial}
-                    />
-                  </FieldInputWrapper>
-                </FieldWrapper>
-              </FieldGroup>
-              {newData.type === 'block' && (
-                <>
-                  <FieldGroup>
-                    <FieldWrapper padded>
-                      <FieldLabel
-                        label={t('field-label-block-logic')}
-                        isValid
-                      />
-                      <FieldInputWrapper>
-                        <RadioField
-                          name='block-logic'
-                          onChange={(_name, value) => {
-                            setBlockLogicType(value);
-                          }}
-                          value={blockLogicType}
-                          items={[{ value: 'custom' }, { value: 'fsm' }]}
-                        />
-                      </FieldInputWrapper>
-                    </FieldWrapper>
-                    <FieldWrapper padded>
-                      <FieldLabel label={t('field-label-block-type')} isValid />
-                      <FieldInputWrapper>
-                        <RadioField
-                          name='block-type'
-                          onChange={handleDataUpdate}
-                          value={newData?.['block-type'] || 'for'}
-                          items={[
-                            { value: 'for' },
-                            { value: 'foreach' },
-                            { value: 'while' },
-                          ]}
-                        />
-                      </FieldInputWrapper>
-                    </FieldWrapper>
-                  </FieldGroup>
-                  <FieldWrapper padded>
-                    <FieldLabel label={t('field-label-block-config')} isValid />
-                    <FieldInputWrapper>
-                      <Options
-                        name='block-config'
-                        onChange={handleDataUpdate}
-                        value={newData?.['block-config'] || {}}
-                        url={`/block/${newData?.['block-type'] || 'for'}`}
-                      />
-                    </FieldInputWrapper>
-                  </FieldWrapper>
-                </>
+              ) : (
+                <String name="name" onChange={handleDataUpdate} value={newData.name} />
               )}
-              {newData.type === 'block' && blockLogicType === 'fsm' ? (
-                <FieldWrapper padded>
-                  <FieldLabel
-                    label={t('FSM')}
-                    isValid={validateField('string', newData?.fsm)}
-                  />
-                  <FieldInputWrapper>
-                    <SelectField
-                      get_message={{
-                        action: 'creator-get-objects',
-                        object_type: 'fsm',
-                      }}
-                      return_message={{
-                        action: 'creator-return-objects',
-                        object_type: 'fsm',
-                        return_value: 'objects',
-                      }}
-                      reference={{
-                        iface_kind: 'fsm',
-                      }}
-                      onChange={handleDataUpdate}
-                      value={newData?.fsm}
-                      name='fsm'
-                    />
-                  </FieldInputWrapper>
-                </FieldWrapper>
-              ) : null}
-              {newData.type === 'state' && (
-                <>
-                  <FieldWrapper padded>
-                    <FieldLabel
-                      label={t('Action')}
-                      isValid={isActionValid()}
-                      info={t('Optional')}
-                    />
-                    <FieldInputWrapper>
-                      <SelectField
-                        defaultItems={map(StateTypes, (stateType) => ({
+            </FieldWrapper>
+            <FieldWrapper label={t('Description')} isValid compact>
+              <LongStringField name="desc" onChange={handleDataUpdate} value={newData.desc} />
+            </FieldWrapper>
+            <FieldWrapper label={t('Type')} isValid compact>
+              <SelectField
+                defaultItems={
+                  qorus_instance
+                    ? [{ name: 'state' }, { name: 'fsm' }, { name: 'block' }]
+                    : [{ name: 'state' }, { name: 'fsm' }]
+                }
+                disabled={newData.injected}
+                onChange={handleDataUpdate}
+                value={newData.type}
+                name="type"
+              />
+            </FieldWrapper>
+            <FieldWrapper label={t('Initial')} isValid compact>
+              <BooleanField
+                disabled={disableInitial}
+                name="initial"
+                onChange={handleDataUpdate}
+                value={newData.initial}
+              />
+            </FieldWrapper>
+          </FieldGroup>
+          {newData.type === 'block' && (
+            <FieldGroup label="Block configuration">
+              <FieldWrapper label={t('field-label-block-logic')} isValid compact>
+                <RadioField
+                  name="block-logic"
+                  onChange={(_name, value) => {
+                    setBlockLogicType(value);
+                  }}
+                  value={blockLogicType}
+                  items={[{ value: 'custom' }, { value: 'fsm' }]}
+                />
+              </FieldWrapper>
+              <FieldWrapper label={t('field-label-block-type')} isValid compact>
+                <RadioField
+                  name="block-type"
+                  onChange={handleDataUpdate}
+                  value={newData?.['block-type'] || 'for'}
+                  items={[{ value: 'for' }, { value: 'foreach' }, { value: 'while' }]}
+                />
+              </FieldWrapper>
+              <FieldWrapper label={t('field-label-block-config')} isValid compact>
+                <Options
+                  name="block-config"
+                  onChange={handleDataUpdate}
+                  value={newData?.['block-config'] || {}}
+                  url={`/block/${newData?.['block-type'] || 'for'}`}
+                />
+              </FieldWrapper>
+            </FieldGroup>
+          )}
+          {newData.type === 'block' && blockLogicType === 'fsm' ? (
+            <FieldWrapper label={t('FSM')} isValid={validateField('string', newData?.fsm)}>
+              <SelectField
+                get_message={{
+                  action: 'creator-get-objects',
+                  object_type: 'fsm',
+                }}
+                return_message={{
+                  action: 'creator-return-objects',
+                  object_type: 'fsm',
+                  return_value: 'objects',
+                }}
+                reference={{
+                  iface_kind: 'fsm',
+                }}
+                onChange={handleDataUpdate}
+                value={newData?.fsm}
+                name="fsm"
+              />
+            </FieldWrapper>
+          ) : null}
+          {newData.type === 'state' && (
+            <>
+              <FieldWrapper
+                label={t('Action')}
+                isValid={isActionValid()}
+                type={t('Optional')}
+                collapsible={false}
+              >
+                <SelectField
+                  defaultItems={map(StateTypes, (stateType) =>
+                    stateType !== 'none'
+                      ? {
                           name: stateType,
                           desc: t(`field-desc-state-${stateType}`),
-                        }))}
-                        onChange={(_name, value) => {
-                          handleDataUpdate(
-                            'action',
-                            value === data?.action?.type ? data?.action : null
-                          );
-                          handleDataUpdate('id', data.id || shortid.generate());
-                          setActionType(value);
-                        }}
-                        value={actionType}
-                        placeholder={t('field-placeholder-action')}
-                        disabled={newData.injected}
-                        name='action'
-                      />
-                    </FieldInputWrapper>
-                  </FieldWrapper>
-                  {actionType && actionType !== 'none' ? (
-                    <FieldWrapper padded>
-                      <FieldLabel isValid info={t('ActionValue')} />
-                      {renderActionField()}
-                    </FieldWrapper>
-                  ) : null}
-                </>
-              )}
-              {newData.type === 'block' ? (
-                <>
-                  <FieldWrapper padded>
-                    <FieldLabel
-                      label={t('InputType')}
-                      isValid
-                      info={t('Optional')}
-                    />
-                    <FieldInputWrapper>
-                      <Connectors
-                        name='input-type'
-                        isInitialEditing={data?.['input-type']}
-                        onChange={handleDataUpdate}
-                        value={newData?.['input-type']}
-                      />
-                    </FieldInputWrapper>
-                  </FieldWrapper>
-                  <FieldWrapper padded>
-                    <FieldLabel
-                      label={t('OutputType')}
-                      isValid
-                      info={t('Optional')}
-                    />
-                    <FieldInputWrapper>
-                      <Connectors
-                        name='output-type'
-                        isInitialEditing={data?.['output-type']}
-                        onChange={handleDataUpdate}
-                        value={newData?.['output-type']}
-                      />
-                    </FieldInputWrapper>
-                  </FieldWrapper>
-                </>
-              ) : null}
-              {newData.type === 'if' && (
-                <>
-                  <ConditionField
-                    onChange={handleDataUpdate}
-                    data={newData}
-                    required
-                  />
-                  <FieldWrapper padded>
-                    <FieldLabel
-                      label={t('InputOutputType')}
-                      isValid
-                      info={t('Optional')}
-                    />
-                    <FieldInputWrapper>
-                      <Connectors
-                        name='input-output-type'
-                        isInitialEditing={data['input-output-type']}
-                        onChange={handleDataUpdate}
-                        value={newData['input-output-type']}
-                      />
-                    </FieldInputWrapper>
-                  </FieldWrapper>
-                </>
-              )}
-            </div>
-            {newData.type === 'block' && blockLogicType === 'custom' ? (
-              <FSMView
-                embedded
-                isExternalMetadataHidden={isMetadataHidden}
-                onHideMetadataClick={setIsMetadataHidden}
-                states={newData.states}
-                setStates={(func) => {
-                  if (typeof func === 'function') {
-                    handleDataUpdate('states', func(newData.states));
-                  } else {
-                    handleDataUpdate('states', func);
-                  }
-                }}
-                parentStateName={newData.name}
-                defaultInterfaceId={interfaceId}
-                onStatesChange={(states) => {
-                  handleDataUpdate('states', states);
-                }}
-              />
-            ) : null}
-          </ContentWrapper>
-          <ActionsWrapper style={{ padding: '10px' }}>
-            <ButtonGroup fill>
-              <Tooltip content={t('ResetTooltip')}>
-                <Button
-                  text={t('Reset')}
-                  icon={'history'}
-                  onClick={() => {
-                    confirmAction(
-                      'ResetFieldsConfirm',
-                      () => {
-                        postMessage(Messages.RESET_CONFIG_ITEMS, {
-                          iface_id: interfaceId,
-                          state_id: newData.id,
-                        });
-                        setActionType(data?.action?.type);
-                        setNewData(data);
-                      },
-                      'Reset',
-                      'warning'
-                    );
+                        }
+                      : null
+                  ).filter((stateType) => stateType)}
+                  fluid
+                  onChange={(_name, value) => {
+                    handleDataUpdate('action', value === data?.action?.type ? data?.action : null);
+                    handleDataUpdate('id', data.id || shortid.generate());
+                    setActionType(value);
                   }}
+                  value={actionType}
+                  placeholder={t('field-placeholder-action')}
+                  disabled={newData.injected}
+                  name="action"
                 />
-              </Tooltip>
-              {newData.action?.value?.['class'] && (
-                <ManageConfigItemsButton
-                  type='fsm'
-                  key={newData.action.value['class']}
-                  onClick={() => setShowConfigItemsManager(true)}
+              </FieldWrapper>
+              {actionType && actionType !== 'none' ? (
+                <FieldWrapper
+                  isValid={isActionValid()}
+                  label={t('ActionValue')}
+                  collapsible={false}
+                >
+                  {renderActionField()}
+                </FieldWrapper>
+              ) : null}
+            </>
+          )}
+          {newData.type === 'block' ? (
+            <FieldGroup label="Types">
+              <FieldWrapper label={t('InputType')} isValid type={t('Optional')}>
+                <Connectors
+                  name="input-type"
+                  isInitialEditing={data?.['input-type']}
+                  onChange={handleDataUpdate}
+                  value={newData?.['input-type']}
                 />
-              )}
-              <Button
-                text={t('Submit')}
-                disabled={!isDataValid()}
-                icon='tick'
-                loading={isLoading}
-                name='fsm-submit-state'
-                intent={isLoading ? Intent.WARNING : Intent.SUCCESS}
-                onClick={() => {
-                  setIsLoading(true);
-
-                  postMessage('submit-fsm-state', {
-                    iface_id: interfaceId,
-                    state_id: id,
-                  });
-
-                  const modifiedData = { ...newData };
-
-                  if (blockLogicType === 'custom') {
-                    modifiedData.fsm = undefined;
-                  } else {
-                    modifiedData.states = undefined;
-                  }
-
-                  if (modifiedData.execution_order === null) {
-                    delete modifiedData.execution_order;
-                  }
-
-                  if (
-                    modifiedData.type === 'block' &&
-                    !modifiedData['block-type']
-                  ) {
-                    modifiedData['block-type'] = 'for';
-                  }
-
-                  if (
-                    modifiedData.type === 'if' &&
-                    !modifiedData['input-output-type']
-                  ) {
-                    delete modifiedData['input-output-type'];
-                  }
-
-                  onSubmit(id, modifiedData);
-                }}
-              />
-            </ButtonGroup>
-          </ActionsWrapper>
-        </Content>
-      </CustomDialog>
+              </FieldWrapper>
+              <FieldWrapper label={t('OutputType')} isValid type={t('Optional')}>
+                <Connectors
+                  name="output-type"
+                  isInitialEditing={data?.['output-type']}
+                  onChange={handleDataUpdate}
+                  value={newData?.['output-type']}
+                />
+              </FieldWrapper>
+            </FieldGroup>
+          ) : null}
+          {newData.type === 'if' && (
+            <FieldGroup label="Condition configuration">
+              <ConditionField onChange={handleDataUpdate} data={newData} required />
+              <FieldWrapper label={t('InputOutputType')} isValid type={t('Optional')}>
+                <Connectors
+                  name="input-output-type"
+                  isInitialEditing={data['input-output-type']}
+                  onChange={handleDataUpdate}
+                  value={newData['input-output-type']}
+                />
+              </FieldWrapper>
+            </FieldGroup>
+          )}
+        </ContentWrapper>
+        {isCustomBlockSecondPage() ? (
+          <FSMView
+            embedded
+            states={newData.states}
+            setStates={(func) => {
+              if (typeof func === 'function') {
+                handleDataUpdate('states', func(newData.states));
+              } else {
+                handleDataUpdate('states', func);
+              }
+            }}
+            parentStateName={newData.name}
+            defaultInterfaceId={interfaceId}
+            onStatesChange={(states) => {
+              handleDataUpdate('states', states);
+            }}
+          />
+        ) : null}
+      </Content>
       {showConfigItemsManager && (
         <CustomDialog
           isOpen
-          title={t('ConfigItemsManager')}
+          label={t('ConfigItemsManager')}
           onClose={() => setShowConfigItemsManager(false)}
-          style={{ width: '80vw', backgroundColor: '#fff' }}
         >
           <ConfigItemManager
-            type='fsm'
+            type="fsm"
             stateData={{
               id: newData.id,
               class_name: newData.action?.value?.['class'],
