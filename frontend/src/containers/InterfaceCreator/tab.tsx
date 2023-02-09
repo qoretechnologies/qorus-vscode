@@ -1,4 +1,6 @@
-import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
+import { ReqoreButton, ReqorePanel } from '@qoretechnologies/reqore';
+import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
+import timeago from 'epoch-timeago';
 import { capitalize, forEach, size } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import { useUnmount } from 'react-use';
@@ -8,12 +10,12 @@ import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { DraftsTable } from '../../components/DraftsTable';
-import HorizontalSpacer from '../../components/HorizontalSpacer';
-import { TimeAgo } from '../../components/TimeAgo';
+import { NegativeColorEffect, PositiveColorEffect } from '../../components/Field/multiPair';
 import Tutorial from '../../components/Tutorial';
 import { interfaceKindTransform } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftsContext } from '../../context/drafts';
+import { GlobalContext } from '../../context/global';
 import { InitialContext } from '../../context/init';
 import { MethodsContext } from '../../context/methods';
 import { TextContext } from '../../context/text';
@@ -31,7 +33,9 @@ export interface ITabProps {
   type: string;
   isEditing: boolean;
   name: string;
+  version?: string;
   resetAllInterfaceData: (type: string) => any;
+  onDelete?: () => any;
 }
 
 const StyledTab = styled.div`
@@ -190,9 +194,8 @@ const TutorialButton = ({ type, onClick }) => {
   return isReady ? (
     <>
       {isSuccessful && (
-        <Button
-          icon="help"
-          text="Tutorial"
+        <ReqoreButton
+          icon="QuestionMark"
           onClick={() => {
             tutorials[type].elements = tutorials[type].elements.map((element) => {
               const el = document.querySelector(`#${element.id}`);
@@ -209,11 +212,15 @@ const TutorialButton = ({ type, onClick }) => {
 
             onClick([...tutorials.default.elements, ...tutorials[type].elements]);
           }}
-        />
+        >
+          Tutorial
+        </ReqoreButton>
       )}
     </>
   ) : (
-    <Button loading text={t('WaitingForElements')} />
+    <ReqoreButton intent="pending" minimal>
+      {t('WaitingForElements')}
+    </ReqoreButton>
   );
 };
 
@@ -221,11 +228,14 @@ const Tab: React.FC<ITabProps> = ({
   t,
   data,
   type,
+  version,
   children,
   resetAllInterfaceData,
   updateField,
   removeSubItemFromFields,
   name,
+  onDelete,
+  ...rest
 }) => {
   const isEditing: () => boolean = () => !!name;
   const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
@@ -250,6 +260,7 @@ const Tab: React.FC<ITabProps> = ({
   const [draftsCount, setDraftsCount] = useState<number>(0);
   const [isDraftSaved, setIsDraftSaved] = useState<boolean>(false);
   const [localLastDraft, setLastDraft] = useState<string>(null);
+  const context = useContext(GlobalContext);
 
   useEffect(() => {
     if (lastDraft && lastDraft.interfaceKind === type) {
@@ -358,7 +369,7 @@ const Tab: React.FC<ITabProps> = ({
           setRecreateDialog(null);
         },
         'Recreate',
-        undefined,
+        'warning',
         () => {
           if (orig_lang) {
             updateField(iface_kind, 'lang', orig_lang, iface_id);
@@ -366,135 +377,144 @@ const Tab: React.FC<ITabProps> = ({
             resetAllInterfaceData(iface_kind);
           }
           setRecreateDialog(null);
-        }
+        },
+        'warning'
       );
     }
   }, [recreateDialog]);
 
+  const getActions = () => {
+    const actions: IReqorePanelAction[] = [];
+
+    if (tutorials[type]) {
+      // Add tutorial button
+      actions.push({
+        as: TutorialButton,
+        props: {
+          type,
+          onClick: (elements) =>
+            setTutorialData({
+              isOpen: true,
+              elements,
+            }),
+        },
+      });
+    }
+
+    actions.push({
+      label: 'Create new',
+      icon: 'AddLine',
+      effect: PositiveColorEffect,
+      onClick: () => {
+        setIsDraftSaved(false);
+        resetAllInterfaceData(type);
+      },
+    });
+
+    if (isEditing()) {
+      if (getFilePath()) {
+        actions.push({
+          icon: 'File2Line',
+          label: 'View File',
+          onClick: () => {
+            postMessage('open-file', {
+              file_path: getFilePath(),
+            });
+          },
+        });
+      }
+
+      actions.push({
+        icon: 'DeleteBinLine',
+        label: 'Delete',
+        effect: NegativeColorEffect,
+        onClick: () => {
+          data.confirmAction(t('ConfirmDeleteInterface'), () => {
+            postMessage('delete-interface', {
+              iface_kind: type,
+              name,
+              version,
+            });
+
+            onDelete?.();
+            setIsDraftSaved(false);
+            resetAllInterfaceData(type);
+          });
+        },
+      });
+    }
+
+    if (!isEditing()) {
+      actions.push({
+        id: 'button-show-drafts',
+        icon: 'ListUnordered',
+        label: 'Drafts',
+        badge: draftsCount,
+        disabled: !draftsCount,
+        onClick: () => {
+          setDraftsOpen(true);
+        },
+      });
+    }
+
+    return actions;
+  };
+
   return (
-    <StyledTab>
-      {tutorialData.isOpen && (
-        <Tutorial data={tutorialData.elements} onClose={() => setTutorialData({ isOpen: false })} />
-      )}
-      <StyledHeader>
-        <div>
-          <h2 id={`${type}-interface-title`}>
-            {isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`}
-          </h2>
-        </div>
-        {isDraftSaved ? (
-          <Button
-            minimal
-            loading={isSavingDraft}
-            intent={isSavingDraft ? 'warning' : 'success'}
-            icon="small-tick"
-          >
-            {isSavingDraft ? (
-              t('SavingDraft')
-            ) : (
-              <>
-                {t('DraftSaved')} <TimeAgo time={Date.now()} />
-              </>
-            )}
-          </Button>
-        ) : null}
-        <div>
-          <ButtonGroup>
-            {tutorials[type] && (
-              <TutorialButton
-                type={type}
-                onClick={(elements) =>
-                  setTutorialData({
-                    isOpen: true,
-                    elements,
-                  })
-                }
-              />
-            )}
-            <Button
-              id="button-create-new"
-              icon="add"
-              text="Create new"
-              intent="success"
-              onClick={() => {
-                setIsDraftSaved(false);
-                resetAllInterfaceData(type);
-              }}
-            />
-            {isEditing() && (
-              <>
-                {getFilePath() && (
-                  <Button
-                    icon="document-share"
-                    text="View File"
-                    onClick={() => {
-                      postMessage('open-file', {
-                        file_path: getFilePath(),
-                      });
-                    }}
-                  />
-                )}
-                <Button
-                  icon="trash"
-                  text="Delete"
-                  intent="danger"
-                  onClick={() => {
-                    data.confirmAction('ConfirmDeleteInterface', () => {
-                      postMessage('delete-interface', {
-                        iface_kind: type,
-                        name: name,
-                      });
-                      setIsDraftSaved(false);
-                      resetAllInterfaceData(type);
-                    });
-                  }}
-                />
-              </>
-            )}
-          </ButtonGroup>
-          <HorizontalSpacer size={10} />
-          <ButtonGroup>
-            {!isEditing() && (
-              <Button
-                id="button-show-drafts"
-                icon="list"
-                text={`Drafts (${draftsCount})`}
-                disabled={!draftsCount}
-                onClick={() => {
-                  setDraftsOpen(true);
-                }}
-              />
-            )}
-          </ButtonGroup>
-        </div>
-      </StyledHeader>
-      <StyledContent>{children}</StyledContent>
+    <>
       {draftsOpen && (
         <CustomDialog
           isOpen
           onClose={() => setDraftsOpen(false)}
-          noBottomPad
-          title={`${t(capitalize(type))} ${t(`Drafts`)}`}
-          style={{ width: '80vw' }}
+          label={`${t(capitalize(type))} ${t(`Drafts`)}`}
         >
-          <div className={Classes.DIALOG_BODY}>
-            <DraftsTable
-              interfaceKind={type}
-              lastDraft={localLastDraft}
-              onClick={(interfaceId, draftData) => {
-                setLastDraft(interfaceId);
-                setDraftsOpen(false);
-                addDraft({
-                  interfaceKind: type,
-                  interfaceId,
-                  ...draftData,
-                });
-              }}
-            />
-          </div>
+          <DraftsTable
+            interfaceKind={type}
+            lastDraft={localLastDraft}
+            onClick={(interfaceId, draftData) => {
+              setLastDraft(interfaceId);
+              setDraftsOpen(false);
+              addDraft({
+                interfaceKind: type,
+                interfaceId,
+                ...draftData,
+              });
+            }}
+          />
         </CustomDialog>
       )}
-    </StyledTab>
+      <ReqorePanel
+        label={
+          isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`
+        }
+        fill
+        flat
+        responsiveActions={false}
+        opacity={0}
+        headerSize={2}
+        badge={
+          isSavingDraft
+            ? t('SavingDraft')
+            : isDraftSaved
+            ? `${t('DraftSaved')} ${timeago(Date.now())}`
+            : undefined
+        }
+        actions={getActions()}
+        contentStyle={{
+          overflow: 'hidden',
+          display: 'flex',
+          flexFlow: 'column',
+        }}
+      >
+        {tutorialData.isOpen && (
+          <Tutorial
+            data={tutorialData.elements}
+            onClose={() => setTutorialData({ isOpen: false })}
+          />
+        )}
+        {children}
+      </ReqorePanel>
+    </>
   );
 };
 

@@ -1,21 +1,26 @@
-import { Button, ButtonGroup, Callout, ControlGroup, Icon, Tooltip } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreIcon,
+  ReqoreMessage,
+  ReqoreTag,
+} from '@qoretechnologies/reqore';
 import omit from 'lodash/omit';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
 import { useMount } from 'react-use';
 import compose from 'recompose/compose';
-import styled, { css } from 'styled-components';
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
-import SelectField from '../../components/Field/select';
-import FieldLabel from '../../components/FieldLabel';
 import {
-  ActionsWrapper,
-  ContentWrapper,
-  FieldInputWrapper,
-  FieldWrapper,
-} from '../../components/FieldWrapper';
+  NegativeColorEffect,
+  PositiveColorEffect,
+  SaveColorEffect,
+  WarningColorEffect,
+} from '../../components/Field/multiPair';
+import SelectField from '../../components/Field/select';
+import { ContentWrapper, FieldWrapper } from '../../components/FieldWrapper';
 import { Messages } from '../../constants/messages';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
@@ -29,10 +34,10 @@ import withMessageHandler, {
   TPostMessage,
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import { cancelControl, submitControl } from '../InterfaceCreator/controls';
 import MapperView from '../InterfaceCreator/mapperView';
 import { CompatibilityCheckIndicator } from '../InterfaceCreator/pipeline/elementDialog';
-import { StyledMapperField } from '../Mapper';
-import { IClassConnection, StyledDialogBody } from './index';
+import { IClassConnection } from './index';
 
 export interface IClassConnectionsDiagramProps {
   connection: IClassConnection[];
@@ -134,117 +139,113 @@ const Mapper = ({
   };
 
   return (
-    <FieldWrapper>
-      <FieldLabel label={t('Mapper')} isValid />
-      <FieldInputWrapper>
-        {isCheckingCompatibility.input || manageDialog.mapper ? (
-          <CompatibilityCheckIndicator
-            isCompatible={isCompatible.input}
-            isCheckingCompatibility={isCheckingCompatibility.input}
-            title="PreviousOutputElement"
-          />
-        ) : null}
-        {isCheckingCompatibility.output || manageDialog.mapper ? (
-          <CompatibilityCheckIndicator
-            isCompatible={isCompatible.output}
-            isCheckingCompatibility={isCheckingCompatibility.output}
-            title="NextInputElement"
-          />
-        ) : null}
-        <ControlGroup fill>
-          <SelectField
-            get_message={{
-              action: 'get-mappers',
-            }}
-            return_message={{
-              action: 'return-mappers',
-              return_value: 'mappers',
-            }}
-            warningMessageOnEmpty={t('NoMappersMatchConnectors')}
-            value={manageDialog.mapper}
-            onChange={async (_name, value) => {
-              const { isInputCompatible, isOutputCompatible } = await checkTypes(value);
+    <FieldWrapper label={t('Mapper')} isValid compact>
+      {isCheckingCompatibility.input || manageDialog.mapper ? (
+        <CompatibilityCheckIndicator
+          isCompatible={isCompatible.input}
+          isCheckingCompatibility={isCheckingCompatibility.input}
+          title="PreviousOutputElement"
+        />
+      ) : null}
+      {isCheckingCompatibility.output || manageDialog.mapper ? (
+        <CompatibilityCheckIndicator
+          isCompatible={isCompatible.output}
+          isCheckingCompatibility={isCheckingCompatibility.output}
+          title="NextInputElement"
+        />
+      ) : null}
+      <ReqoreControlGroup fluid stack fill>
+        <SelectField
+          get_message={{
+            action: 'get-mappers',
+          }}
+          return_message={{
+            action: 'return-mappers',
+            return_value: 'mappers',
+          }}
+          warningMessageOnEmpty={t('NoMappersMatchConnectors')}
+          value={manageDialog.mapper}
+          onChange={async (_name, value) => {
+            const { isInputCompatible, isOutputCompatible } = await checkTypes(value);
 
-              setManageDialog(
-                (current: IManageDialog): IManageDialog => ({
-                  ...current,
-                  mapper: value,
-                  isInputCompatible,
-                  isOutputCompatible,
-                })
-              );
-            }}
-            name="class"
-            fill
-          />
-          {manageDialog.mapper && (
-            <>
-              <Button
-                icon="edit"
-                intent="none"
-                onClick={() => {
-                  postMessage(Messages.GET_INTERFACE_DATA, {
-                    iface_kind: 'mapper',
-                    name: manageDialog.mapper,
-                  });
-                }}
-              />
-              <Button
-                icon="trash"
-                intent="danger"
-                onClick={() => {
-                  initialData.confirmAction('ConfirmRemoveMapper', () =>
-                    setManageDialog((current) => ({
-                      ...current,
-                      mapper: null,
-                    }))
-                  );
-                }}
-              />
-            </>
-          )}
-          {!manageDialog.mapper && (
-            <Button
-              icon="add"
-              intent="success"
+            setManageDialog(
+              (current: IManageDialog): IManageDialog => ({
+                ...current,
+                mapper: value,
+                isInputCompatible,
+                isOutputCompatible,
+              })
+            );
+          }}
+          name="class"
+          fluid
+        />
+        {manageDialog.mapper && (
+          <>
+            <ReqoreButton
+              icon="EditLine"
               onClick={() => {
-                resetAllInterfaceData('mapper');
-                setMapper({
-                  isFromConnectors: true,
-                  hasInitialInput: !!manageDialog.outputProvider,
-                  hasInitialOutput: !!manageDialog.inputProvider,
-                  context: interfaceContext,
-                  mapper_options: {
-                    'mapper-input': manageDialog.outputProvider,
-                    'mapper-output': manageDialog.inputProvider,
-                  },
+                postMessage(Messages.GET_INTERFACE_DATA, {
+                  iface_kind: 'mapper',
+                  name: manageDialog.mapper,
                 });
-                handleMapperSubmitSet((mapperName, mapperVersion) => {
-                  resetAllInterfaceData('mapper');
-                  setIsCheckingCompatibility(() => ({
-                    input: false,
-                    output: false,
-                  }));
-                  setIsCompatible(() => ({
-                    input: true,
-                    output: true,
-                  }));
-                  setManageDialog(
-                    (current: IManageDialog): IManageDialog => ({
-                      ...current,
-                      mapper: `${mapperName}:${mapperVersion}`,
-                      isInputCompatible: true,
-                      isOutputCompatible: true,
-                    })
-                  );
-                  setMapperDialog({});
-                });
-                setMapperDialog({ isOpen: true });
               }}
             />
-          )}
-        </ControlGroup>
-      </FieldInputWrapper>
+            <ReqoreButton
+              icon="DeleteBinLine"
+              effect={NegativeColorEffect}
+              onClick={() => {
+                initialData.confirmAction('ConfirmRemoveMapper', () =>
+                  setManageDialog((current) => ({
+                    ...current,
+                    mapper: null,
+                  }))
+                );
+              }}
+            />
+          </>
+        )}
+        {!manageDialog.mapper && (
+          <ReqoreButton
+            icon="AddLine"
+            effect={PositiveColorEffect}
+            onClick={() => {
+              resetAllInterfaceData('mapper');
+              setMapper({
+                isFromConnectors: true,
+                hasInitialInput: !!manageDialog.outputProvider,
+                hasInitialOutput: !!manageDialog.inputProvider,
+                context: interfaceContext,
+                mapper_options: {
+                  'mapper-input': manageDialog.outputProvider,
+                  'mapper-output': manageDialog.inputProvider,
+                },
+              });
+              handleMapperSubmitSet((mapperName, mapperVersion) => {
+                resetAllInterfaceData('mapper');
+                setIsCheckingCompatibility(() => ({
+                  input: false,
+                  output: false,
+                }));
+                setIsCompatible(() => ({
+                  input: true,
+                  output: true,
+                }));
+                setManageDialog(
+                  (current: IManageDialog): IManageDialog => ({
+                    ...current,
+                    mapper: `${mapperName}:${mapperVersion}`,
+                    isInputCompatible: true,
+                    isOutputCompatible: true,
+                  })
+                );
+                setMapperDialog({});
+              });
+              setMapperDialog({ isOpen: true });
+            }}
+          />
+        )}
+      </ReqoreControlGroup>
     </FieldWrapper>
   );
 };
@@ -327,152 +328,83 @@ const Connector: React.FC<IConnectorProps> = ({
   }, [manageDialog.class]);
 
   return (
-    <FieldWrapper>
-      <FieldLabel
-        label={t('Connector')}
-        isValid={validateField('string', manageDialog.connector)}
-      />
-      <FieldInputWrapper>
-        {!manageDialog.class && <Callout intent="primary">{t('PleaseSelectClass')}</Callout>}
-        {manageDialog.class && (
-          <>
-            {isCheckingCompatibility.input || manageDialog.connector ? (
-              <CompatibilityCheckIndicator
-                isCompatible={isCompatible.input}
-                isCheckingCompatibility={isCheckingCompatibility.input}
-                title="PreviousOutputElement"
-              />
-            ) : null}
-            {isCheckingCompatibility.output || manageDialog.connector ? (
-              <CompatibilityCheckIndicator
-                isCompatible={isCompatible.output}
-                isCheckingCompatibility={isCheckingCompatibility.output}
-                title="NextInputElement"
-              />
-            ) : null}
-            {connectors.length > 0 ? (
-              <SelectField
-                defaultItems={connectors}
-                predicate={(name: string) => {
-                  // Get the connector
-                  const conn = connectors.find((c) => c.name === name);
-                  // Check if we should include this method
-                  if (manageDialog.isFirst) {
-                    // Filter out input only methods
-                    return (
-                      conn.type === 'output' ||
-                      conn.type === 'event' ||
-                      conn.type === 'input-output'
-                    );
-                  } else if (manageDialog.isBetween) {
-                    return conn.type === 'input-output';
-                  } else {
-                    return conn.type === 'input' || conn.type === 'input-output';
-                  }
-                }}
-                value={manageDialog.connector}
-                onChange={async (_name, value) => {
-                  const { isInputCompatible, isOutputCompatible } = await checkTypes(value);
+    <FieldWrapper
+      label={t('Connector')}
+      isValid={validateField('string', manageDialog.connector)}
+      compact
+    >
+      {!manageDialog.class && (
+        <ReqoreMessage intent="warning" size="small">
+          {t('PleaseSelectClass')}
+        </ReqoreMessage>
+      )}
+      {manageDialog.class && (
+        <>
+          {isCheckingCompatibility.input || manageDialog.connector ? (
+            <CompatibilityCheckIndicator
+              isCompatible={isCompatible.input}
+              isCheckingCompatibility={isCheckingCompatibility.input}
+              title="PreviousOutputElement"
+            />
+          ) : null}
+          {isCheckingCompatibility.output || manageDialog.connector ? (
+            <CompatibilityCheckIndicator
+              isCompatible={isCompatible.output}
+              isCheckingCompatibility={isCheckingCompatibility.output}
+              title="NextInputElement"
+            />
+          ) : null}
+          {connectors.length > 0 ? (
+            <SelectField
+              defaultItems={connectors}
+              predicate={(name: string) => {
+                // Get the connector
+                const conn = connectors.find((c) => c.name === name);
+                // Check if we should include this method
+                if (manageDialog.isFirst) {
+                  // Filter out input only methods
+                  return (
+                    conn.type === 'output' || conn.type === 'event' || conn.type === 'input-output'
+                  );
+                } else if (manageDialog.isBetween) {
+                  return conn.type === 'input-output';
+                } else {
+                  return conn.type === 'input' || conn.type === 'input-output';
+                }
+              }}
+              value={manageDialog.connector}
+              onChange={async (_name, value) => {
+                const { isInputCompatible, isOutputCompatible } = await checkTypes(value);
 
-                  setManageDialog((current: IManageDialog): IManageDialog => {
-                    const isEvent = connectors.find((c) => c.name === value).type === 'event';
+                setManageDialog((current: IManageDialog): IManageDialog => {
+                  const isEvent = connectors.find((c) => c.name === value).type === 'event';
 
-                    const result = {
-                      ...current,
-                      connector: value,
-                      isLast: connectors.find((c) => c.name === value).type === 'input',
-                      isEvent,
-                      trigger: isEvent ? null : current.trigger,
-                      isInputCompatible,
-                      isOutputCompatible,
-                    };
+                  const result = {
+                    ...current,
+                    connector: value,
+                    isLast: connectors.find((c) => c.name === value).type === 'input',
+                    isEvent,
+                    trigger: isEvent ? null : current.trigger,
+                    isInputCompatible,
+                    isOutputCompatible,
+                  };
 
-                    return result;
-                  });
-                }}
-                name="connector"
-                fill
-              />
-            ) : (
-              <Callout intent="danger">{t('ClassWithoutConnectorsWarning')}</Callout>
-            )}
-          </>
-        )}
-      </FieldInputWrapper>
+                  return result;
+                });
+              }}
+              name="connector"
+              fill
+            />
+          ) : (
+            <ReqoreMessage intent="danger" size="small">
+              {t('ClassWithoutConnectorsWarning')}
+            </ReqoreMessage>
+          )}
+        </>
+      )}
     </FieldWrapper>
   );
 };
-
-const StyledMapperWrapper = styled.div<{ isCompatible?: boolean }>`
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  border: 1px solid #d7d7d7;
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
-  border-radius: 3px;
-  background-color: #fff;
-  color: #333;
-  padding: 4px;
-  white-space: nowrap;
-  z-index: 500;
-
-  > span {
-    margin-right: 5px;
-  }
-
-  ${({ isCompatible }) =>
-    isCompatible === false &&
-    css`
-      border-color: #d13913;
-    `}
-`;
-
-const StyledMapperConnection = styled.div<{ side: 'bottom' | 'top'; isCompatible?: boolean }>`
-  background-color: #d7d7d7;
-  position: absolute;
-  height: 33px;
-  width: 2px;
-  left: 50%;
-
-  ${({ side }) => css`
-    ${side}: -100%;
-  `}
-
-  ${({ isCompatible }) =>
-    isCompatible === false &&
-    css`
-      background-color: #d13913;
-    `}
-`;
-
-const StyledTrigger = styled.div`
-  margin: 20px auto;
-  margin-top: 0;
-  width: 50%;
-  border-radius: 3px;
-  padding: 5px;
-  text-align: center;
-  background: white;
-  border: 1px solid green;
-  position: relative;
-
-  &:after {
-    content: '';
-    display: block;
-    height: 33px;
-    width: 2px;
-    position: absolute;
-    left: 50%;
-    top: 105%;
-    background-color: #d7d7d7;
-  }
-`;
-
-const StyledConnector = styled.h4``;
 
 let mapperListener;
 
@@ -568,230 +500,199 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
       {mapperDialog.isOpen && (
         <CustomDialog
           isOpen
-          title={t('AddNewMapper')}
+          label={t('AddNewMapper')}
           onClose={() => {
             resetAllInterfaceData('mapper');
             setMapperDialog({});
           }}
-          style={{ height: '95vh', width: '95vw', backgroundColor: '#fff' }}
         >
-          <StyledDialogBody style={{ flexFlow: 'column' }}>
-            <MapperView
-              inConnections
-              interfaceContext={interfaceContext}
-              isEditing={mapperDialog.isEditing}
-              defaultMapper={mapperDialog.isEditing && mapperDialog.mapper}
-            />
-          </StyledDialogBody>
+          <MapperView
+            inConnections
+            interfaceContext={interfaceContext}
+            isEditing={mapperDialog.isEditing}
+            defaultMapper={mapperDialog.isEditing && mapperDialog.mapper}
+          />
         </CustomDialog>
       )}
       {manageDialog.isOpen && (
         <CustomDialog
           isOpen
-          title={t('AddNewConnector')}
+          label={manageDialog.isMapper ? t('AddNewMapper') : t('AddNewConnector')}
           onClose={() => {
             setManageDialog({});
           }}
-          style={{ height: '50vh', width: '60vw', backgroundColor: '#fff' }}
+          bottomActions={[
+            cancelControl(() => {
+              setManageDialog({});
+            }),
+            submitControl(
+              () => {
+                onAddConnector(
+                  connectionName,
+                  omit(manageDialog, ['isFirst', 'isOpen', 'isMapper', 'connectorData']),
+                  manageDialog.isEditing && !manageDialog.isMapper
+                );
+                setManageDialog({});
+                // Check if user added last connector (has no output method)
+                if (manageDialog.isLast) {
+                  setHasLast(true);
+                }
+              },
+              {
+                disabled: !isConnectorValid(),
+                effect:
+                  manageDialog.isInputCompatible === false ||
+                  manageDialog.isOutputCompatible === false
+                    ? WarningColorEffect
+                    : SaveColorEffect,
+              }
+            ),
+          ]}
         >
-          <StyledDialogBody>
-            <Content style={{ padding: 0 }}>
-              <ContentWrapper>
-                {manageDialog.isMapper ? (
-                  <Mapper
-                    interfaceContext={interfaceContext}
-                    handleMapperSubmitSet={handleMapperSubmitSet}
-                    manageDialog={manageDialog}
-                    setManageDialog={setManageDialog}
-                    setMapper={setMapper}
-                    setMapperDialog={setMapperDialog}
-                    resetAllInterfaceData={resetAllInterfaceData}
-                  />
-                ) : (
-                  <>
-                    <FieldWrapper>
-                      <FieldLabel
-                        label={t('Class')}
-                        isValid={validateField('string', manageDialog.class)}
-                      />
-                      <FieldInputWrapper>
-                        <SelectField
-                          autoSelect
-                          defaultItems={classes.map((clss) => ({
-                            name: clss.prefix ? `${clss.prefix}:${clss.name}` : clss.name,
-                          }))}
-                          value={manageDialog.class}
-                          onChange={(_name, value) => {
-                            setManageDialog(
-                              (current: IManageDialog): IManageDialog => ({
-                                ...current,
-                                class: value,
-                                connector: null,
-                              })
-                            );
-                          }}
-                          name="class"
-                          fill
-                        />
-                      </FieldInputWrapper>
-                    </FieldWrapper>
-                    <Connector
-                      manageDialog={manageDialog}
-                      t={t}
-                      addMessageListener={addMessageListener}
-                      postMessage={postMessage}
-                      setManageDialog={setManageDialog}
-                    />
-                    {canHaveTrigger && (
-                      <FieldWrapper>
-                        <FieldLabel label={t('Trigger')} isValid={true} info={t('Optional')} />
-                        <FieldInputWrapper>
-                          <ControlGroup fill>
-                            {ifaceType === 'service' && methodsCount === 0 && (
-                              <Callout intent="warning">{t('TriggerNoMethodsAvailable')}</Callout>
-                            )}
-                            {(ifaceType !== 'service' || methodsCount !== 0) && (
-                              <SelectField
-                                get_message={
-                                  ifaceType !== 'service' && {
-                                    action: 'get-triggers',
-                                    message_data: {
-                                      iface_kind: ifaceType,
-                                      'base-class-name': baseClassName,
-                                    },
-                                  }
-                                }
-                                return_message={
-                                  ifaceType !== 'service' && {
-                                    action: 'return-triggers',
-                                    return_value: 'data.triggers',
-                                  }
-                                }
-                                defaultItems={ifaceType === 'service' && methods}
-                                value={manageDialog.trigger}
-                                onChange={(_name, value) => {
-                                  setManageDialog(
-                                    (current: IManageDialog): IManageDialog => ({
-                                      ...current,
-                                      trigger: value,
-                                    })
-                                  );
-                                }}
-                                name="trigger"
-                                fill
-                              />
-                            )}
-                            {manageDialog.trigger && (
-                              <Button
-                                icon="trash"
-                                intent="danger"
-                                onClick={() => {
-                                  initContext.confirmAction('ConfirmRemoveTrigger', () =>
-                                    setManageDialog((current) => ({
-                                      ...current,
-                                      trigger: null,
-                                    }))
-                                  );
-                                }}
-                              />
-                            )}
-                          </ControlGroup>
-                        </FieldInputWrapper>
-                      </FieldWrapper>
-                    )}
-                  </>
-                )}
-              </ContentWrapper>
-              <ActionsWrapper>
-                <ButtonGroup fill>
-                  <Tooltip content={t('CancelTooltip')}>
-                    <Button
-                      text={t('Cancel')}
-                      icon={'cross'}
-                      onClick={() => {
-                        setManageDialog({});
+          <Content style={{ padding: 0 }}>
+            <ContentWrapper>
+              {manageDialog.isMapper ? (
+                <Mapper
+                  interfaceContext={interfaceContext}
+                  handleMapperSubmitSet={handleMapperSubmitSet}
+                  manageDialog={manageDialog}
+                  setManageDialog={setManageDialog}
+                  setMapper={setMapper}
+                  setMapperDialog={setMapperDialog}
+                  resetAllInterfaceData={resetAllInterfaceData}
+                />
+              ) : (
+                <>
+                  <FieldWrapper
+                    label={t('Class')}
+                    isValid={validateField('string', manageDialog.class)}
+                    compact
+                  >
+                    <SelectField
+                      autoSelect
+                      defaultItems={classes.map((clss) => ({
+                        name: clss.prefix ? `${clss.prefix}:${clss.name}` : clss.name,
+                      }))}
+                      value={manageDialog.class}
+                      onChange={(_name, value) => {
+                        setManageDialog(
+                          (current: IManageDialog): IManageDialog => ({
+                            ...current,
+                            class: value,
+                            connector: null,
+                          })
+                        );
                       }}
+                      name="class"
+                      fill
                     />
-                  </Tooltip>
-                  <Button
-                    text={t('Submit')}
-                    disabled={!isConnectorValid()}
-                    icon={'tick'}
-                    intent={
-                      manageDialog.isInputCompatible === false ||
-                      manageDialog.isOutputCompatible === false
-                        ? 'warning'
-                        : 'success'
-                    }
-                    onClick={() => {
-                      onAddConnector(
-                        connectionName,
-                        omit(manageDialog, ['isFirst', 'isOpen', 'isMapper', 'connectorData']),
-                        manageDialog.isEditing && !manageDialog.isMapper
-                      );
-                      setManageDialog({});
-                      // Check if user added last connector (has no output method)
-                      if (manageDialog.isLast) {
-                        setHasLast(true);
-                      }
-                    }}
+                  </FieldWrapper>
+                  <Connector
+                    manageDialog={manageDialog}
+                    t={t}
+                    addMessageListener={addMessageListener}
+                    postMessage={postMessage}
+                    setManageDialog={setManageDialog}
                   />
-                </ButtonGroup>
-              </ActionsWrapper>
-            </Content>
-          </StyledDialogBody>
+                  {canHaveTrigger && (
+                    <FieldWrapper label={t('Trigger')} isValid={true} type={t('Optional')} compact>
+                      {ifaceType === 'service' && methodsCount === 0 && (
+                        <ReqoreMessage intent="warning" size="small">
+                          {t('TriggerNoMethodsAvailable')}
+                        </ReqoreMessage>
+                      )}
+                      <ReqoreControlGroup fluid fill stack>
+                        {(ifaceType !== 'service' || methodsCount !== 0) && (
+                          <SelectField
+                            get_message={
+                              ifaceType !== 'service' && {
+                                action: 'get-triggers',
+                                message_data: {
+                                  iface_kind: ifaceType,
+                                  'base-class-name': baseClassName,
+                                },
+                              }
+                            }
+                            return_message={
+                              ifaceType !== 'service' && {
+                                action: 'return-triggers',
+                                return_value: 'data.triggers',
+                              }
+                            }
+                            defaultItems={ifaceType === 'service' && methods}
+                            value={manageDialog.trigger}
+                            onChange={(_name, value) => {
+                              setManageDialog(
+                                (current: IManageDialog): IManageDialog => ({
+                                  ...current,
+                                  trigger: value,
+                                })
+                              );
+                            }}
+                            name="trigger"
+                          />
+                        )}
+                        {manageDialog.trigger && (
+                          <ReqoreButton
+                            icon="DeleteBinLine"
+                            effect={NegativeColorEffect}
+                            onClick={() => {
+                              initContext.confirmAction('ConfirmRemoveTrigger', () =>
+                                setManageDialog((current) => ({
+                                  ...current,
+                                  trigger: null,
+                                }))
+                              );
+                            }}
+                          />
+                        )}
+                      </ReqoreControlGroup>
+                    </FieldWrapper>
+                  )}
+                </>
+              )}
+            </ContentWrapper>
+          </Content>
         </CustomDialog>
       )}
       {size(connection) === 0 && (
-        <ButtonGroup>
-          <Button
-            intent="success"
-            icon="add"
+        <ReqoreControlGroup>
+          <ReqoreButton
+            effect={SaveColorEffect}
+            icon="AddLine"
+            rightIcon="AddLine"
             minimal
-            text={t('AddInitialConnector')}
             onClick={() => setManageDialog({ isOpen: true, isFirst: true })}
-          />
-        </ButtonGroup>
+          >
+            {t('AddInitialConnector')}
+          </ReqoreButton>
+        </ReqoreControlGroup>
       )}
-      {connection &&
-        connection.map((conn, index) => (
-          <>
-            {conn.trigger && (
-              <StyledTrigger>
-                <Icon icon="play" /> {conn.trigger}
-              </StyledTrigger>
-            )}
-            <StyledMapperField
+
+      <ReqoreControlGroup vertical gapSize="big" horizontalAlign="center">
+        {connection &&
+          connection.map((conn, index) => (
+            <ReqoreControlGroup
+              vertical
               key={conn.id}
-              style={{
-                width: 'auto',
-                minWidth: '300px',
-                marginTop: index !== 0 || conn.trigger ? '80px' : '10px',
-                borderColor:
-                  conn.isInputCompatible === false || conn.isOutputCompatible === false
-                    ? '#d13913'
-                    : undefined,
-              }}
+              horizontalAlign="center"
+              gapSize="big"
+              intent="info"
             >
+              {conn.trigger && <ReqoreTag icon="PlayLine" label={conn.trigger} />}
+              {conn.trigger && <ReqoreIcon icon="ArrowDownLine" intent="success" />}
+              {/* MAPPER BETWEEN CONNECTIONS FIELDS */}
               {index !== 0 || conn.trigger ? (
                 <>
-                  <StyledMapperConnection
-                    side="top"
-                    isCompatible={conn.isInputCompatible !== false}
-                  />
-                  <StyledMapperWrapper isCompatible={conn.isInputCompatible !== false}>
-                    <Icon
-                      icon="diagram-tree"
-                      iconSize={12}
-                      intent={conn.mapper ? 'success' : 'none'}
-                    />{' '}
-                    {conn.mapper || t('NoMapper')}
-                    <ButtonGroup>
-                      <Button
-                        small
-                        minimal
-                        icon={<Icon icon={conn.mapper ? 'edit' : 'plus'} iconSize={12} />}
-                        onClick={() =>
+                  <ReqoreTag
+                    intent={conn.isInputCompatible === false ? 'danger' : undefined}
+                    icon="NodeTree"
+                    labelKey="Mapper"
+                    label={conn.mapper || t('NoMapper')}
+                    actions={[
+                      {
+                        icon: conn.mapper ? 'EditLine' : 'AddLine',
+                        onClick: () =>
                           setManageDialog({
                             isOpen: true,
                             isEditing: true,
@@ -804,115 +705,110 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                             outputProvider:
                               index === 0 ? null : connection[index - 1]['output-provider'],
                             inputProvider: conn['input-provider'],
-                          })
-                        }
-                      />
-                      {conn.mapper && (
-                        <Button
-                          small
-                          minimal
-                          icon={<Icon icon={'trash'} intent="danger" iconSize={12} />}
-                          onClick={() => {
-                            initContext.confirmAction('ConfirmRemoveMapper', () =>
-                              onAddConnector(
-                                connectionName,
-                                {
-                                  index,
-                                  isEditing: true,
-                                },
-                                true
-                              )
-                            );
-                          }}
-                        />
-                      )}
-                    </ButtonGroup>
-                  </StyledMapperWrapper>
+                          }),
+                      },
+                      {
+                        icon: 'DeleteBinLine',
+                        intent: 'danger',
+                        disabled: !conn.mapper,
+                        onClick: () => {
+                          initContext.confirmAction('ConfirmRemoveMapper', () =>
+                            onAddConnector(
+                              connectionName,
+                              {
+                                index,
+                                isEditing: true,
+                              },
+                              true
+                            )
+                          );
+                        },
+                      },
+                    ]}
+                  />
+                  <ReqoreIcon
+                    icon="ArrowDownLine"
+                    intent={conn.isInputCompatible !== false ? 'success' : 'danger'}
+                  />
                 </>
               ) : null}
-              {index !== connection.length - 1 && (
-                <StyledMapperConnection
-                  isCompatible={conn.isOutputCompatible !== false}
-                  side="bottom"
-                />
-              )}
-              <StyledConnector>{conn.connector}</StyledConnector>
-              <p className="type string">{conn.class}</p>
 
-              <ButtonGroup
-                style={{
-                  position: 'absolute',
-                  top: '30px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                }}
-              >
+              <ReqoreControlGroup vertical={false} stack fill>
+                <ReqoreButton
+                  intent={
+                    conn.isInputCompatible === false || conn.isOutputCompatible === false
+                      ? 'danger'
+                      : undefined
+                  }
+                  wrap
+                  badge={conn.class}
+                >
+                  {conn.connector}
+                </ReqoreButton>
                 {!conn.isLast && (
-                  <Tooltip content={t('AddNewConnector')}>
-                    <Button
-                      onClick={() =>
-                        setManageDialog({
-                          isOpen: true,
-                          index,
-                          isBetween: index + 1 > 0 && index + 1 <= connection.length - 1,
-                          isLast: index === connection.length - 1,
-                          previousItemData: connection[index],
-                          nextItemData: connection[index + 1],
-                        })
-                      }
-                      icon="small-plus"
-                      small
-                      style={{ minWidth: '18px', minHeight: '18px' }}
-                    />
-                  </Tooltip>
-                )}
-                <Tooltip content={t('EditConnector')}>
-                  <Button
+                  <ReqoreButton
+                    tooltip={t('AddNewConnector')}
                     onClick={() =>
                       setManageDialog({
                         isOpen: true,
-                        class: conn.class,
-                        trigger: conn.trigger,
-                        mapper: conn.mapper,
-                        connector: conn.connector,
-                        isFirst: index === 0,
-                        isBetween: index > 0 && index < connection.length - 1,
-                        isLast: index === connection.length - 1,
-                        isEditing: true,
-                        previousItemData: index === 0 ? null : connection[index - 1],
-                        nextItemData: connection[index + 1],
                         index,
+                        isBetween: index + 1 > 0 && index + 1 <= connection.length - 1,
+                        isLast: index === connection.length - 1,
+                        previousItemData: connection[index],
+                        nextItemData: connection[index + 1],
                       })
                     }
-                    icon="edit"
-                    small
-                    style={{ minWidth: '18px', minHeight: '18px' }}
+                    icon="AddLine"
+                    effect={PositiveColorEffect}
                   />
-                </Tooltip>
-                {index !== 0 && (
-                  <Tooltip content={t('RemoveConnector')}>
-                    <Button
-                      onClick={() => {
-                        initContext.confirmAction('ConfirmRemoveConnector', () => {
-                          onDeleteConnector(connectionName, index);
-                          // If this was the last connector
-                          if (conn.isLast) {
-                            // Remove the last flag
-                            setHasLast(false);
-                          }
-                        });
-                      }}
-                      icon="trash"
-                      intent="danger"
-                      small
-                      style={{ minWidth: '18px', minHeight: '18px' }}
-                    />
-                  </Tooltip>
                 )}
-              </ButtonGroup>
-            </StyledMapperField>
-          </>
-        ))}
+                <ReqoreButton
+                  tooltip={t('EditConnector')}
+                  onClick={() =>
+                    setManageDialog({
+                      isOpen: true,
+                      class: conn.class,
+                      trigger: conn.trigger,
+                      mapper: conn.mapper,
+                      connector: conn.connector,
+                      isFirst: index === 0,
+                      isBetween: index > 0 && index < connection.length - 1,
+                      isLast: index === connection.length - 1,
+                      isEditing: true,
+                      previousItemData: index === 0 ? null : connection[index - 1],
+                      nextItemData: connection[index + 1],
+                      index,
+                    })
+                  }
+                  icon="EditLine"
+                />
+                {index !== 0 && (
+                  <ReqoreButton
+                    tooltip={t('RemoveConnector')}
+                    onClick={() => {
+                      initContext.confirmAction('ConfirmRemoveConnector', () => {
+                        onDeleteConnector(connectionName, index);
+                        // If this was the last connector
+                        if (conn.isLast) {
+                          // Remove the last flag
+                          setHasLast(false);
+                        }
+                      });
+                    }}
+                    icon="DeleteBinLine"
+                    effect={NegativeColorEffect}
+                  />
+                )}
+              </ReqoreControlGroup>
+              {index !== connection.length - 1 && (
+                <ReqoreIcon
+                  intent={conn.isOutputCompatible === false ? 'danger' : 'success'}
+                  icon="ArrowDownLine"
+                />
+              )}
+            </ReqoreControlGroup>
+          ))}
+      </ReqoreControlGroup>
     </div>
   );
 };

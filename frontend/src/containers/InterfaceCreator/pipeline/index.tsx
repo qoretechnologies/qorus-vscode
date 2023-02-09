@@ -1,4 +1,12 @@
-import { Button, ButtonGroup, Callout, Classes, Colors, Intent, Tooltip } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreDrawer,
+  ReqoreMessage,
+  ReqoreTabs,
+  ReqoreTabsContent,
+  useReqoreTheme,
+} from '@qoretechnologies/reqore';
 import { cloneDeep, isEqual, some } from 'lodash';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
@@ -11,13 +19,17 @@ import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled from 'styled-components';
+import Content from '../../../components/Content';
+import Field from '../../../components/Field';
 import ConnectorField from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
+import { NegativeColorEffect } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
-import FieldLabel from '../../../components/FieldLabel';
-import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../../../components/FieldWrapper';
+import FieldGroup from '../../../components/FieldGroup';
+import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
+import { InputOutputType } from '../../../components/InputOutputType';
 import Loader from '../../../components/Loader';
 import { Messages } from '../../../constants/messages';
 import { ContextMenuContext } from '../../../context/contextMenu';
@@ -35,8 +47,9 @@ import {
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
-import { StyledCompatibilityLoader, StyledToolbarWrapper } from '../fsm';
-import { calculateFontSize } from '../fsm/state';
+import TinyGrid from '../../../images/graphy-dark.png';
+import { backControl, nextControl, resetControl, submitControl } from '../controls';
+import { StyledCompatibilityLoader } from '../fsm';
 import PipelineElementDialog from './elementDialog';
 
 export interface IPipelineViewProps {
@@ -78,7 +91,9 @@ const StyledDiagramWrapper = styled.div<{ path: string }>`
   width: 100%;
   flex: 1;
   position: relative;
-  background: ${({ path }) => `url(${path}/tiny_grid.png)`};
+  background: ${({ theme }) => `${theme.main} url(${TinyGrid})`};
+  overflow: hidden;
+  border-radius: 7px;
 `;
 
 const StyledNodeLabel = styled.div<{ isValid?: boolean }>`
@@ -100,78 +115,99 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
   const { addMenu } = useContext(ContextMenuContext);
   const t = useContext(TextContext);
 
+  const hasOnlyQueues = nodeData.children?.every((child) => child.type === 'queue');
+
   return (
-    <StyledNodeLabel
-      name="pipeline-element"
-      onClick={nodeData.type === 'start' ? undefined : () => onEditClick({ nodeData })}
-      onContextMenu={(event) => {
-        event.persist();
-        event.preventDefault();
-
-        let menu = { event, data: [] };
-
-        if (nodeData.type !== 'start') {
-          menu.data.unshift({
-            item: t('Delete'),
-            onClick: () => onDeleteClick({ nodeData }),
-            icon: 'trash',
-            intent: 'danger',
-          });
-          menu.data.unshift({
-            item: t('Edit'),
-            onClick: () => onEditClick({ nodeData }),
-            icon: 'edit',
-            intent: 'warning',
-          });
+    <ReqoreControlGroup vertical stack style={{ margin: 'auto', width: '300px' }} fluid>
+      <ReqoreButton
+        wrap
+        intent={
+          nodeData.type === 'start' ? 'success' : nodeData.type === 'queue' ? 'info' : undefined
         }
-
-        const hasOnlyQueues = nodeData.children?.every((child) => child.type === 'queue');
-
-        if (hasOnlyQueues) {
-          menu.data.unshift({
-            item: t('AddQueue'),
-            onClick: () =>
+        icon={
+          nodeData.type === 'start'
+            ? 'PlayLine'
+            : nodeData.type === 'queue'
+            ? 'ListCheck'
+            : undefined
+        }
+        rightIcon={
+          nodeData.type === 'start'
+            ? 'PlayLine'
+            : nodeData.type === 'queue'
+            ? 'ListCheck'
+            : undefined
+        }
+        description={
+          nodeData.type === 'start'
+            ? 'Beginning of the pipeline'
+            : nodeData.type === 'queue'
+            ? 'Queue of elements'
+            : undefined
+        }
+        labelEffect={
+          nodeData.type === 'start' || nodeData.type === 'queue'
+            ? {
+                uppercase: true,
+                spaced: 1,
+                textSize: 'normal',
+                textAlign: 'center',
+              }
+            : undefined
+        }
+        // tooltip={
+        //   nodeData.type !== 'start' && nodeData.type !== 'queue'
+        //     ? {
+        //         useTargetWidth: true,
+        //         content: (
+        //           <InputOutputType
+        //             inputProvider={{ interfaceName: nodeData.name, interfaceKind: nodeData.type }}
+        //             outputProvider={{ interfaceName: nodeData.name, interfaceKind: nodeData.type }}
+        //             compact
+        //           />
+        //         ),
+        //       }
+        //     : undefined
+        // }
+        maxWidth="350px"
+        onClick={nodeData.type === 'start' ? undefined : () => onEditClick({ nodeData })}
+        badge={nodeData.type !== 'start' && nodeData.type !== 'queue' ? nodeData.type : undefined}
+        textAlign="center"
+      >
+        {nodeData.name || nodeData.type}
+      </ReqoreButton>
+      {hasOnlyQueues || !size(nodeData.children) ? (
+        <ReqoreButton
+          icon="AddLine"
+          textAlign="center"
+          rightIcon="AddLine"
+          onClick={() => {
+            if (hasOnlyQueues) {
               onAddQueueClick({
                 parentPath: nodeData.path,
                 name: null,
                 children: [],
                 _children: [],
                 type: 'queue',
-              }),
-            icon: 'add',
-            intent: 'none',
-          });
-        } else if (!size(nodeData.children)) {
-          menu.data.unshift({
-            item: t('AddElement'),
-            onClick: () =>
+              });
+            } else if (!size(nodeData.children)) {
               onAddClick({
                 nodeData: { parentPath: nodeData.path },
                 parentData: nodeData,
                 onlyQueue: hasOnlyQueues,
-              }),
-            icon: 'add',
-            intent: 'none',
-          });
-        }
-
-        menu.data.unshift({
-          title: nodeData.name || t('Start'),
-        });
-
-        addMenu(menu);
-      }}
-    >
-      <span style={{ fontSize: calculateFontSize(nodeData.name) }}>{nodeData.name}</span>
-      {nodeData.type !== 'start' && (
-        <span
-          style={{ fontSize: calculateFontSize(nodeData.name, true) }}
-          className={Classes.TEXT_MUTED}
+              });
+            }
+          }}
+          customTheme={{
+            main: `${
+              nodeData.type === 'start' ? 'success' : nodeData.type === 'queue' ? 'info' : 'main'
+            }:lighten`,
+          }}
         >
-          {nodeData.type}
-        </span>
-      )}
-    </StyledNodeLabel>
+          {hasOnlyQueues ? t('AddQueue') : t('AddElement')}
+        </ReqoreButton>
+      ) : null}
+    </ReqoreControlGroup>
   );
 };
 
@@ -188,32 +224,15 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
       case 'processor':
         return {
           shape: 'rect',
-          shapeProps: {
-            width: '200px',
-            height: '60px',
-            x: -100,
-            y: -30,
-            fill: isCompatible === false ? '#fddcd4' : '#fff',
-            stroke: isCompatible === false ? '#d13913' : '#a9a9a9',
-          },
         };
       case 'queue':
         return {
-          shape: 'ellipse',
-          shapeProps: {
-            rx: 100,
-            ry: 30,
-            fill: children?.length === 0 || isCompatible === false ? '#fddcd4' : '#fff',
-            stroke: children?.length === 0 || isCompatible === false ? '#d13913' : '#a9a9a9',
-          },
+          shape: 'rect',
         };
       default:
         return {
-          shape: 'circle',
+          shape: 'rect',
           shapeProps: {
-            r: 25,
-            fill: '#d7d7d7',
-            stroke: '#a9a9a9',
             id: 'pipeline-start',
           },
         };
@@ -237,6 +256,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
 
   const wrapperRef = useRef(null);
   const t = useContext(TextContext);
+  const theme = useReqoreTheme();
   const { image_path, confirmAction, callBackend, qorus_instance, saveDraft, ...init } =
     useContext(InitialContext);
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
@@ -560,6 +580,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
 
       return result;
     });
+    setSelectedElement(null);
   };
 
   const filterRemovedElements = (data) =>
@@ -595,9 +616,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
 
   if (!qorus_instance) {
     return (
-      <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
+      <ReqoreMessage title={t('NoInstanceTitle')} intent="warning">
         {t('NoInstance')}
-      </Callout>
+      </ReqoreMessage>
     );
   }
 
@@ -609,74 +630,172 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
         </StyledCompatibilityLoader>
       )}
       {selectedElement && (
-        <PipelineElementDialog
-          data={selectedElement.nodeData}
-          parentData={selectedElement.parentData}
-          onlyQueue={selectedElement.onlyQueue}
+        <ReqoreDrawer
+          isOpen
+          label={t('ManagePipeElement')}
+          position="right"
+          hidable
+          flat={false}
+          floating
+          hasBackdrop={false}
           onClose={() => setSelectedElement(null)}
-          onSubmit={handleDataSubmit}
-          inputProvider={metadata['input-provider']}
-          interfaceId={interfaceId}
-        />
-      )}
-      <div
-        id="pipeline-fields-wrapper"
-        style={{
-          display: isDiagramShown ? 'none' : 'initial',
-          flex: 1,
-          overflow: 'auto',
-        }}
-      >
-        <>
-          <FieldWrapper name="selected-field">
-            <FieldLabel
-              label={t('field-label-target_dir')}
-              isValid={validateField('file-string', metadata.target_dir)}
-            />
-            <FieldInputWrapper>
-              <FileString
-                onChange={handleMetadataChange}
-                name="target_dir"
-                value={metadata.target_dir}
-                get_message={{
-                  action: 'creator-get-directories',
-                  object_type: 'target_dir',
+          contentStyle={{
+            display: 'flex',
+            flexFlow: 'column',
+            overflow: 'hidden',
+          }}
+          size="40vw"
+          actions={[
+            {
+              label: t('Delete element'),
+              effect: NegativeColorEffect,
+              icon: 'DeleteBinLine',
+              onClick: () => {
+                removeElement(selectedElement);
+                setSelectedElement(null);
+              },
+            },
+          ]}
+        >
+          <ReqoreTabs
+            fill
+            fillParent
+            tabs={[
+              { label: 'Configuration', id: 'configuration', icon: 'SettingsLine' },
+              {
+                label: 'Info',
+                id: 'info',
+                icon: 'InformationLine',
+                disabled: !selectedElement.nodeData.name,
+              },
+            ]}
+            activeTab={'configuration'}
+            tabsPadding="vertical"
+            padded={false}
+            activeTabIntent="info"
+            style={{ overflow: 'hidden' }}
+          >
+            <ReqoreTabsContent tabId="info">
+              <InputOutputType
+                inputProvider={{
+                  interfaceName: selectedElement.nodeData.name,
+                  interfaceKind: selectedElement.nodeData.type,
                 }}
-                return_message={{
-                  action: 'creator-return-directories',
-                  object_type: 'target_dir',
-                  return_value: 'directories',
+                outputProvider={{
+                  interfaceName: selectedElement.nodeData.name,
+                  interfaceKind: selectedElement.nodeData.type,
                 }}
               />
-            </FieldInputWrapper>
+            </ReqoreTabsContent>
+            <ReqoreTabsContent tabId="configuration">
+              <PipelineElementDialog
+                key={selectedElement.nodeData.name}
+                data={selectedElement.nodeData}
+                parentData={selectedElement.parentData}
+                onlyQueue={selectedElement.onlyQueue}
+                onSubmit={handleDataSubmit}
+                inputProvider={metadata['input-provider']}
+                interfaceId={interfaceId}
+              />
+            </ReqoreTabsContent>
+          </ReqoreTabs>
+        </ReqoreDrawer>
+      )}
+      <Content
+        bottomActions={[
+          resetControl(() => {
+            confirmAction(
+              'ResetFieldsConfirm',
+              () => {
+                reset();
+              },
+              'Reset',
+              'warning'
+            );
+          }),
+          backControl(handleBackClick, { show: !!isDiagramShown }),
+          nextControl(handleSubmitClick, {
+            show: !isDiagramShown,
+            disabled: !isDataValid(elements, !isDiagramShown),
+          }),
+          submitControl(handleSubmitClick, {
+            show: isDiagramShown,
+            disabled: !isDataValid(elements, !isDiagramShown),
+          }),
+        ]}
+      >
+        <ContentWrapper
+          style={{
+            display: isDiagramShown ? 'none' : 'flex',
+          }}
+        >
+          <FieldWrapper
+            name="selected-field"
+            label={t('field-label-target_dir')}
+            isValid={validateField('file-string', metadata.target_dir)}
+          >
+            <FileString
+              onChange={handleMetadataChange}
+              name="target_dir"
+              value={metadata.target_dir}
+              get_message={{
+                action: 'creator-get-directories',
+                object_type: 'target_dir',
+              }}
+              return_message={{
+                action: 'creator-return-directories',
+                object_type: 'target_dir',
+                return_value: 'directories',
+              }}
+            />
           </FieldWrapper>
-          <FieldWrapper name="selected-field">
-            <FieldLabel
+          <FieldGroup
+            isValid={
+              validateField('string', metadata.name) && validateField('string', metadata.desc)
+            }
+          >
+            <FieldWrapper
+              name="selected-field"
               isValid={validateField('string', metadata.name)}
               label={t('field-label-name')}
-            />
-            <FieldInputWrapper>
+              compact
+            >
               <String onChange={handleMetadataChange} value={metadata.name} name="name" />
-            </FieldInputWrapper>
-          </FieldWrapper>
-          <FieldWrapper name="selected-field">
-            <FieldLabel
+            </FieldWrapper>
+            <FieldWrapper
+              name="selected-field"
               isValid={validateField('string', metadata.desc)}
               label={t('field-label-desc')}
-            />
-            <FieldInputWrapper>
-              <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
-            </FieldInputWrapper>
-          </FieldWrapper>
-          <FieldWrapper name="selected-field">
-            <FieldLabel
+              compact
+            >
+              <Field
+                type="long-string"
+                markdown
+                onChange={handleMetadataChange}
+                value={metadata.desc}
+                name="desc"
+              />
+            </FieldWrapper>
+          </FieldGroup>
+          <FieldGroup
+            isValid={
+              (metadata.groups.length === 0
+                ? true
+                : validateField('select-array', metadata.groups)) &&
+              (metadata['input-provider']
+                ? validateField('type-selector', metadata['input-provider'])
+                : true)
+            }
+          >
+            <FieldWrapper
+              name="selected-field"
               isValid={
                 metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
               }
               info={t('Optional')}
               label={t('field-label-groups')}
-            />
-            <FieldInputWrapper>
+              compact
+            >
               <MultiSelect
                 onChange={handleMetadataChange}
                 get_message={{
@@ -695,19 +814,17 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
                 value={metadata.groups}
                 name="groups"
               />
-            </FieldInputWrapper>
-          </FieldWrapper>
-          <FieldWrapper name="selected-field">
-            <FieldLabel
-              info={t('Optional')}
+            </FieldWrapper>
+            <FieldWrapper
+              name="selected-field"
+              type={t('Optional')}
               label={t('field-label-input-provider')}
               isValid={
                 metadata['input-provider']
                   ? validateField('type-selector', metadata['input-provider'])
                   : true
               }
-            />
-            <FieldInputWrapper>
+            >
               <ConnectorField
                 value={metadata['input-provider']}
                 isInitialEditing={!!pipeline || isFromDraft}
@@ -716,11 +833,10 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
                 providerType="inputs"
                 isPipeline
               />
-            </FieldInputWrapper>
-          </FieldWrapper>
-          {metadata['input-provider'] && (
-            <FieldWrapper name="selected-field">
-              <FieldLabel
+            </FieldWrapper>
+            {metadata['input-provider'] && (
+              <FieldWrapper
+                name="selected-field"
                 info={t('Optional')}
                 label={t('field-label-input-provider-options')}
                 isValid={validateField(
@@ -729,65 +845,36 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
                   null,
                   true
                 )}
-              />
-              <FieldInputWrapper>
+              >
                 <Options
                   value={metadata?.['input-provider-options']}
                   onChange={handleMetadataChange}
                   name="input-provider-options"
                   url="/pipeline"
                 />
-              </FieldInputWrapper>
-            </FieldWrapper>
-          )}
-        </>
-      </div>
-      <div
-        style={{
-          display: isDiagramShown ? 'flex' : 'none',
-          flex: 1,
-          overflow: 'hidden',
-          flexFlow: 'column',
-        }}
-        ref={wrapperRef}
-      >
-        <StyledToolbarWrapper id="pipeline-toolbar">
-          <ButtonGroup style={{ float: 'right' }}>
-            <Button
-              onClick={() => {
-                currentHistoryPosition.current -= 1;
-                setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
-              }}
-              disabled={currentHistoryPosition.current <= 0}
-              text={`(${currentHistoryPosition.current})`}
-              icon="undo"
-              name="pipeline-undo"
-            />
-            <Button
-              onClick={() => {
-                currentHistoryPosition.current += 1;
-                setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
-              }}
-              disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
-              text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
-              icon="redo"
-              name="pipeline-redo"
-            />
-          </ButtonGroup>
-        </StyledToolbarWrapper>
-        <StyledDiagramWrapper
-          id="pipeline-diagram"
-          path={image_path}
-          style={{ border: !isDiagramValid(elements) ? `1px solid ${Colors.RED2}` : undefined }}
-          onContextMenu={(e) => void e.preventDefault()}
+              </FieldWrapper>
+            )}
+          </FieldGroup>
+        </ContentWrapper>
+        <ContentWrapper
+          style={{
+            display: !isDiagramShown ? 'none' : 'flex',
+          }}
         >
-          {wrapperRef.current && (
+          <StyledDiagramWrapper
+            id="pipeline-diagram"
+            theme={theme}
+            style={{
+              border: !isDiagramValid(elements) ? `1px solid ${theme.intents.danger}` : undefined,
+            }}
+            onContextMenu={(e) => void e.preventDefault()}
+          >
             <Tree
               data={cloneDeep(elements)}
               orientation="vertical"
-              pathFunc="straight"
+              pathFunc="step"
               translate={{ x: window.innerWidth / 2 - 50, y: 100 }}
-              nodeSize={{ x: 220, y: 110 }}
+              nodeSize={{ x: 350, y: 120 }}
               transitionDuration={0}
               textLayout={{
                 textAnchor: 'middle',
@@ -807,16 +894,14 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
                   />
                 ),
                 foreignObjectWrapper: {
-                  width: '200px',
-                  height: '60px',
-                  y: -30,
-                  x: -100,
+                  width: '350px',
+                  x: -(350 / 2),
                 },
               }}
               collapsible={false}
               styles={{
                 links: {
-                  stroke: '#a9a9a9',
+                  stroke: theme.intents.info,
                   strokeWidth: 2,
                 },
                 nodes: {
@@ -849,47 +934,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
                 },
               }}
             />
-          )}
-        </StyledDiagramWrapper>
-      </div>
-      <ActionsWrapper>
-        <div style={{ float: 'right', width: '100%' }}>
-          <ButtonGroup fill>
-            <Tooltip content={t('ResetTooltip')}>
-              <Button
-                text={t('Reset')}
-                icon={'history'}
-                onClick={() => {
-                  confirmAction(
-                    'ResetFieldsConfirm',
-                    () => {
-                      reset();
-                    },
-                    'Reset',
-                    'warning'
-                  );
-                }}
-              />
-            </Tooltip>
-            {isDiagramShown && (
-              <Button
-                text={t('Back')}
-                onClick={handleBackClick}
-                icon="chevron-left"
-                name="pipeline-back"
-              />
-            )}
-            <Button
-              text={isDiagramShown ? t('Submit') : t('NextStep')}
-              onClick={handleSubmitClick}
-              disabled={!isDataValid(elements, !isDiagramShown)}
-              icon={'tick'}
-              name="interface-creator-submit-pipeline"
-              intent={Intent.SUCCESS}
-            />
-          </ButtonGroup>
-        </div>
-      </ActionsWrapper>
+          </StyledDiagramWrapper>
+        </ContentWrapper>
+      </Content>
     </>
   );
 };

@@ -1,9 +1,14 @@
-import { Button, Callout, Classes, ControlGroup, InputGroup } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreInput,
+  ReqoreMessage,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import { FunctionComponent, useContext, useState } from 'react';
 import compose from 'recompose/compose';
 import { TTranslator } from '../../App';
-import { FieldInputWrapper, IField, IFieldChange } from '../../components/FieldWrapper';
-import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
+import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { MethodsContext } from '../../context/methods';
 import { validateField } from '../../helpers/validations';
 import withMessageHandler, {
@@ -12,8 +17,8 @@ import withMessageHandler, {
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
-import FieldLabel from '../FieldLabel';
 import { FieldWrapper } from '../FieldWrapper';
+import { SaveColorEffect } from './multiPair';
 import String from './string';
 
 export interface IStringField {
@@ -47,64 +52,70 @@ const MethodNameField: FunctionComponent<IStringField & IField & IFieldChange> =
   };
 
   const val = value || default_value;
+  const handleClose = () => setEditManager({});
 
   return (
-    <ControlGroup fill>
-      <InputGroup
-        placeholder={placeholder}
-        disabled={disabled}
-        readOnly
-        className={fill ? Classes.FILL : ''}
-        value={val}
-      />
-      <Button
-        name={'edit-method-name-button'}
-        onClick={() => {
-          setEditManager({
-            isOpen: true,
-            startValue: val,
-            value: val,
-          });
-        }}
-        disabled={disabled}
-        className={Classes.FIXED}
-        icon={'edit'}
-      />
+    <>
+      <ReqoreControlGroup fluid stack>
+        <ReqoreInput
+          placeholder={placeholder}
+          disabled={disabled}
+          readOnly
+          fluid={fill}
+          value={val}
+        />
+        <ReqoreButton
+          onClick={() => {
+            setEditManager({
+              isOpen: true,
+              startValue: val,
+              value: val,
+            });
+          }}
+          disabled={disabled}
+          fixed
+          icon="EditLine"
+        />
+      </ReqoreControlGroup>
       {editManager.isOpen && (
-        <CustomDialog title={t('EditMethodName')} onClose={() => setEditManager({})} isOpen>
-          <StyledDialogBody style={{ flexFlow: 'column' }}>
-            <Callout intent="warning">{t('EditMethodNameTriggerWarning')}</Callout>
-            <FieldWrapper>
-              <FieldLabel isValid={isNameValid(editManager.value)} />
-              <FieldInputWrapper>
-                <String
-                  onChange={(_name, v) => setEditManager({ ...editManager, value: v })}
-                  value={editManager.value}
-                  name="methodName"
-                  fill
-                />
-              </FieldInputWrapper>
-            </FieldWrapper>
-            <br />
-            <ControlGroup fill>
-              <Button
-                name={'save-method-name-button'}
-                text={t('Save')}
-                disabled={!isNameValid(editManager.value)}
-                onClick={() => {
-                  onChange(name, editManager.value, undefined, undefined, undefined, {
-                    originalName: editManager.startValue,
-                  });
-                  setEditManager({});
-                }}
-                icon={'small-tick'}
-                intent="success"
-              />
-            </ControlGroup>
-          </StyledDialogBody>
+        <CustomDialog
+          title={t('EditMethodName')}
+          onClose={handleClose}
+          isOpen
+          bottomActions={[
+            {
+              label: t('Cancel'),
+              icon: 'CloseLine',
+              onClick: handleClose,
+            },
+            {
+              label: t('Save'),
+              effect: SaveColorEffect,
+              position: 'right',
+              disabled: !isNameValid(editManager.value),
+              onClick: () => {
+                onChange(name, editManager.value, undefined, undefined, undefined, {
+                  originalName: editManager.startValue,
+                });
+                setEditManager({});
+              },
+              icon: 'CheckLine',
+            },
+          ]}
+        >
+          <ReqoreMessage intent="warning">{t('EditMethodNameTriggerWarning')}</ReqoreMessage>
+          <ReqoreVerticalSpacer height={10} />
+          <FieldWrapper isValid={isNameValid(editManager.value)} collapsible={false}>
+            <String
+              onChange={(_name, v) => setEditManager({ ...editManager, value: v })}
+              value={editManager.value}
+              name="methodName"
+              fill
+            />
+          </FieldWrapper>
         </CustomDialog>
       )}
-    </ControlGroup>
+    </>
   );
 };
 

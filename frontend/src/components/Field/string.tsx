@@ -1,5 +1,5 @@
-import { Button, ButtonGroup, Classes, InputGroup } from '@blueprintjs/core';
-import { ChangeEvent, FunctionComponent } from 'react';
+import { ReqoreControlGroup, ReqoreInput, ReqoreTag } from '@qoretechnologies/reqore';
+import { ChangeEvent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import { isNull } from 'util';
@@ -23,6 +23,7 @@ export interface IStringField extends IField {
   sensitive?: boolean;
   autoFocus?: boolean;
   onChange?: IFieldChange;
+  label?: string | number;
 }
 
 const StringField = ({
@@ -30,7 +31,7 @@ const StringField = ({
   onChange,
   value,
   default_value,
-  fill,
+  fill = true,
   postMessage,
   addMessageListener,
   get_message,
@@ -41,6 +42,8 @@ const StringField = ({
   canBeNull,
   sensitive,
   autoFocus,
+  label,
+  ...rest
 }: IStringField) => {
   // Fetch data on mount
   useMount(() => {
@@ -68,34 +71,28 @@ const StringField = ({
   };
 
   return (
-    <InputGroup
-      name={`field-${name}`}
-      placeholder={placeholder}
-      disabled={disabled}
-      readOnly={read_only}
-      className={fill && Classes.FILL}
-      value={
-        canBeNull && isNull(value) ? 'Value set to [null]' : !value ? default_value || '' : value
-      }
-      onFocus={(event) => event.stopPropagation()}
-      onClick={(event) => event.stopPropagation()}
-      onChange={handleInputChange}
-      type={sensitive ? 'password' : 'text'}
-      autoFocus={autoFocus}
-      rightElement={
-        value &&
-        value !== '' &&
-        !read_only &&
-        !disabled && (
-          <ButtonGroup minimal>
-            <Button name={`reset-field-${name}`} onClick={handleResetClick} icon={'cross'} />
-          </ButtonGroup>
-        )
-      }
-    />
+    <ReqoreControlGroup {...rest} fluid={!!fill}>
+      {label || label === 0 ? <ReqoreTag label={label} fixed /> : null}
+      <ReqoreInput
+        placeholder={placeholder}
+        disabled={disabled}
+        readOnly={read_only}
+        fluid={!!fill}
+        value={
+          canBeNull && isNull(value) ? 'Value set to [null]' : !value ? default_value || '' : value
+        }
+        onFocus={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+        onChange={handleInputChange}
+        type={sensitive ? 'password' : 'text'}
+        autoFocus={autoFocus}
+        onClearClick={value && value !== '' && !read_only && !disabled && handleResetClick}
+      />
+    </ReqoreControlGroup>
   );
 };
 
-export default compose(withMessageHandler(), withTextContext())(StringField) as FunctionComponent<
-  IStringField & IField & IFieldChange
->;
+export default compose<IStringField & IField & IFieldChange>(
+  withMessageHandler(),
+  withTextContext()
+)(StringField);

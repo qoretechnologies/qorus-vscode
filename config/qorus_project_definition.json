@@ -1,55 +1,58 @@
 {
-    "definitions": {
-        "qorus_config": {
-            "properties": {
-                "source_directories": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "qorus_instances": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/definitions/qorus_instance"
-                        }
-                    }
-                }
-            },
-            "required": ["source_directories", "qorus_instances"]
+  "definitions": {
+    "qorus_config": {
+      "properties": {
+        "source_directories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
-        "qorus_instance": {
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                },
-                "custom_urls": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/custom_url"
-                    }
-                }
-            },
-            "required": ["name", "url"]
+        "qorus_instances": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/qorus_instance"
+            }
+          }
         },
-        "custom_url": {
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                }
-            },
-            "required": ["name", "url"]
+        "theme": {
+          "type": "string"
         }
+      },
+      "required": ["source_directories", "qorus_instances"]
+    },
+    "qorus_instance": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "custom_urls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/custom_url"
+          }
+        }
+      },
+      "required": ["name", "url"]
+    },
+    "custom_url": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "url"]
     }
+  }
 }

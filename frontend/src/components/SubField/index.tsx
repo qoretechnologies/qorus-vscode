@@ -1,10 +1,17 @@
-import { Button, Classes, Colors, ControlGroup, Icon } from '@blueprintjs/core';
 import { setupPreviews } from '@previewjs/plugin-react/setup';
+import { ReqoreMessage, ReqorePanel, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { noop } from 'lodash';
-import React, { useState } from 'react';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
-import HorizontalSpacer from '../HorizontalSpacer';
+import { getFieldDescriptionAction } from '../FieldWrapper';
+
+const StyledDescriptionField = styled(ReqoreMessage)`
+  p:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+`;
 
 export interface ISubFieldProps {
   title?: string;
@@ -17,44 +24,19 @@ export interface ISubFieldProps {
   collapsible?: boolean;
   nested?: boolean;
 }
-
-const StyledSubFieldTitle = styled.h4`
-  display: flex;
-  justify-content: space-between;
-  margin: 0 0 0 0;
-  font-weight: ${({ subtle }) => (subtle ? 450 : 'bold')};
-  background-color: ${({ isValid }) => (isValid === false ? '#ffe7e7' : 'transparent')};
-  border-radius: 3px;
-  padding: 5px 0;
-  align-items: center;
-
-  .subfield-title {
-    color: ${({ isValid }) => (isValid === false ? Colors.RED2 : undefined)};
-  }
-
-  &:not(:first-child) {
-    margin-top: 20px;
-  }
-`;
-
-const StyledSubFieldMarkdown = styled.div`
-  display: 'inline-block';
-
-  p:last-child {
-    margin-bottom: 0;
-  }
-`;
-
 export const DescriptionField = ({ desc }: { desc?: string }) =>
   desc ? (
-    <blockquote
-      className={`bp3-blockquote ${Classes.TEXT_MUTED}`}
-      style={{ display: 'block', marginTop: '10px' }}
+    <StyledDescriptionField
+      size="small"
+      minimal
+      icon="InformationLine"
+      customTheme={{ main: '#000000' }}
+      effect={{
+        color: '#aeaeae',
+      }}
     >
-      <StyledSubFieldMarkdown>
-        <ReactMarkdown>{desc}</ReactMarkdown>
-      </StyledSubFieldMarkdown>
-    </blockquote>
+      <ReactMarkdown>{desc}</ReactMarkdown>
+    </StyledDescriptionField>
   ) : null;
 
 const SubField: React.FC<ISubFieldProps> = ({
@@ -68,55 +50,40 @@ const SubField: React.FC<ISubFieldProps> = ({
   collapsible,
   nested,
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
   return (
     <>
-      {title && (
-        <StyledSubFieldTitle subtle={subtle} isValid={isValid}>
-          <div>
-            {!subtle && (
-              <>
-                <Icon
-                  icon={nested ? 'nest' : 'dot'}
-                  iconSize={16}
-                  color={isValid === false ? '#bd0000' : undefined}
-                />
-                <HorizontalSpacer size={5} />
-              </>
-            )}
-            <span className="subfield-title">{title}</span>{' '}
-            {detail && (
-              <span className={Classes.TEXT_MUTED}>
-                {'<'}
-                {detail}
-                {'>'}
-              </span>
-            )}
-          </div>
-          <ControlGroup>
-            {collapsible && (
-              <Button
-                icon={isCollapsed ? 'chevron-down' : 'chevron-up'}
-                minimal
-                onClick={() => setIsCollapsed(!isCollapsed)}
-              />
-            )}
-            {onRemove ? (
-              <Button
-                style={{ verticalAlign: 'sub' }}
-                minimal
-                icon="trash"
-                onClick={onRemove}
-                intent="danger"
-                small
-              />
-            ) : null}
-          </ControlGroup>
-        </StyledSubFieldTitle>
-      )}
-      <DescriptionField desc={desc} />
-      {!isCollapsed && children}
+      <ReqorePanel
+        flat
+        transparent={subtle}
+        minimal
+        size="small"
+        style={{ width: '100%' }}
+        contentStyle={{ display: 'flex', flexFlow: 'column' }}
+        contentEffect={
+          subtle ? undefined : { gradient: { colors: 'main', direction: 'to right bottom' } }
+        }
+        intent={isValid === false ? 'danger' : undefined}
+        label={title}
+        badge={detail}
+        icon={subtle ? undefined : title || detail ? 'SettingsLine' : undefined}
+        collapsible={collapsible}
+        unMountContentOnCollapse={false}
+        actions={[
+          getFieldDescriptionAction(desc),
+          {
+            icon: 'DeleteBinLine',
+            intent: 'danger',
+            minimal: true,
+            onClick: onRemove,
+            size: 'small',
+            show: !!onRemove,
+          },
+        ]}
+      >
+        {desc ? <ReqoreVerticalSpacer height={10} /> : null}
+        {children}
+      </ReqorePanel>
+      <ReqoreVerticalSpacer height={10} />
     </>
   );
 };

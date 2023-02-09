@@ -265,6 +265,18 @@ export class QorusProject {
     instance_tree.reset(file_data.qorus_instances);
   }
 
+  updateIncrementalConfigFromWebview(data) {
+    this.validateConfigFileAndDo((configFile) => {
+      const config = QorusProject.file2data(configFile);
+      console.log(config);
+      const newConfig = { ...config, ...data };
+      console.log(config);
+      const newConfigFile = this.data2file(newConfig);
+      console.log(config);
+      this.writeConfig(newConfigFile);
+    });
+  }
+
   dirForTypePath = (target_dir, type_path) => {
     if (['/', '\\'].includes(type_path[0])) {
       type_path = type_path.substr(1);
@@ -314,11 +326,12 @@ export class QorusProject {
     });
   }
 
-  private static file2data(file_data?: any): any {
+  public static file2data(file_data?: any): any {
     if (!file_data) {
       return {
         qorus_instances: [],
         source_directories: [],
+        theme: 'vscode',
       };
     }
 
@@ -358,6 +371,7 @@ export class QorusProject {
     }
 
     return {
+      ...file_data,
       qorus_instances,
       source_directories: file_data.source_directories,
     };
@@ -373,6 +387,7 @@ export class QorusProject {
     });
 
     let file_data: any = {
+      ...data,
       qorus_instances: {},
       source_directories: Object.keys(fixed_source_dirs),
     };

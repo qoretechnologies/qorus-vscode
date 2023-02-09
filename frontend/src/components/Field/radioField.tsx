@@ -1,4 +1,4 @@
-import { Icon, Intent } from '@blueprintjs/core';
+import { ReqoreRadioGroup } from '@qoretechnologies/reqore';
 import { FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -10,7 +10,6 @@ import withTextContext from '../../hocomponents/withTextContext';
 import Java from '../../images/java-96x128.png';
 import Python from '../../images/python-129x128.png';
 import Qore from '../../images/qore-106x128.png';
-import HorizontalSpacer from '../HorizontalSpacer';
 
 const LangToIcon = {
   'java-96x128.png': Java,
@@ -72,40 +71,28 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
   };
 
   return (
-    <div>
-      {items.map(
-        (v: {
-          value: string;
-          icon_filename: string;
-          icon?: string;
-          isDivider?: boolean;
-          title?: string;
-        }) =>
-          v.isDivider ? (
-            <div key={v.value} style={{ marginTop: '10px', marginBottom: '10px' }}>
-              <Icon icon="dot" iconSize={15} />
-              <HorizontalSpacer size={10} />
-              <strong>{v.title}</strong>
-            </div>
-          ) : (
-            <StyledRadio
-              key={v.value}
-              name={`field-${name}-radio-${v.value}`}
-              onClick={() => !disabled && handleValueChange(v.value)}
-            >
-              <Icon
-                icon={value === v.value ? 'selection' : 'circle'}
-                intent={value === v.value ? Intent.PRIMARY : Intent.NONE}
-                color={disabled ? '#d7d7d7' : '#333'}
-              />
-              <p>{t(`field-label-${v.value}`)}</p>
-              {v.icon_filename || v.icon ? (
-                <LangIcon src={LangToIcon[v.icon_filename || icons[v.icon]]} />
-              ) : null}
-            </StyledRadio>
-          )
-      )}
-    </div>
+    <ReqoreRadioGroup
+      items={(items || []).map((item) => ({
+        label: item.title || t(`field-label-${item.value}`),
+        disabled,
+        value: item.value,
+        margin: 'right',
+        labelEffect: {
+          spaced: 1,
+          weight: 'bold',
+          uppercase: true,
+          textSize: 'small',
+        },
+        image:
+          item.icon_filename || item.icon
+            ? LangToIcon[item.icon_filename || icons[item.icon!]]
+            : undefined,
+        divider: item.isDivider,
+      }))}
+      disabled={disabled}
+      onSelectClick={(value) => handleValueChange(value)}
+      selected={value}
+    />
   );
 };
 

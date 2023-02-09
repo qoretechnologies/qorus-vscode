@@ -1,10 +1,16 @@
-import { Button, ButtonGroup, Callout } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import { size } from 'lodash';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
 import withTextContext from '../../hocomponents/withTextContext';
+import { PositiveColorEffect } from './multiPair';
 import SelectPairField from './selectPair';
 
 type IPair = {
@@ -77,34 +83,50 @@ const ClassArrayField: FunctionComponent<
 
   return (
     <>
-      {showClassesWarning && <Callout intent="warning">{t('ClassChangesWarning')}</Callout>}
-      {value.map((pair: IPair, index: number) => (
-        <StyledPairField key={index + 1}>
-          <SelectPairField
-            index={index + 1}
-            canBeRemoved={canRemoveLast || size(value) !== 1}
-            onRemoveClick={() => handleRemoveClick(index)}
-            key={index + 1}
-            keyName="prefix"
-            valueName="name"
-            keyValue={pair.prefix}
-            valueValue={pair.name}
-            get_message={get_message}
-            defaultSelectItems={defaultSelectItems}
-            reference={reference}
-            iface_kind={iface_kind}
-            return_message={return_message}
-            requestFieldData={requestFieldData}
-            onChange={(fieldName: string, value: any) => {
-              changePairData(index, fieldName, value);
-            }}
-            hideTextField={!withTextField}
-          />
-        </StyledPairField>
-      ))}
-      <ButtonGroup fill style={{ marginBottom: '10px' }}>
-        <Button text={t('AddAnother')} icon={'add'} onClick={handleAddClick} />
-      </ButtonGroup>
+      {showClassesWarning && (
+        <>
+          <ReqoreMessage intent="warning">{t('ClassChangesWarning')}</ReqoreMessage>
+          <ReqoreVerticalSpacer height={10} />
+        </>
+      )}
+      <ReqoreControlGroup fluid wrap>
+        {value.map((pair: IPair, index: number) => (
+          <StyledPairField key={index + 1}>
+            <SelectPairField
+              index={index + 1}
+              canBeRemoved={canRemoveLast || size(value) !== 1}
+              onRemoveClick={() => handleRemoveClick(index)}
+              key={index + 1}
+              keyName="prefix"
+              valueName="name"
+              keyValue={pair.prefix}
+              valueValue={pair.name}
+              get_message={get_message}
+              defaultSelectItems={defaultSelectItems}
+              reference={reference}
+              iface_kind={iface_kind}
+              return_message={return_message}
+              requestFieldData={requestFieldData}
+              onChange={(fieldName: string, value: any) => {
+                changePairData(index, fieldName, value);
+              }}
+              hideTextField={!withTextField}
+            />
+          </StyledPairField>
+        ))}
+      </ReqoreControlGroup>
+      <ReqoreVerticalSpacer height={10} />
+      <ReqoreControlGroup fluid>
+        <ReqoreButton
+          icon={'AddLine'}
+          rightIcon={'AddLine'}
+          textAlign="center"
+          onClick={handleAddClick}
+          effect={PositiveColorEffect}
+        >
+          {t('AddAnother')}
+        </ReqoreButton>
+      </ReqoreControlGroup>
     </>
   );
 };

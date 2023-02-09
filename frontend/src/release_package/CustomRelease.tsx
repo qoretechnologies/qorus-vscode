@@ -1,11 +1,17 @@
-import { Classes, Colors, Icon } from '@blueprintjs/core';
-import { ReqoreInput, ReqorePanel } from '@qoretechnologies/reqore';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreInput,
+  ReqorePanel,
+} from '@qoretechnologies/reqore';
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { map, size } from 'lodash';
 import { useContext, useState } from 'react';
 import { useAsyncRetry, useBoolean } from 'react-use';
 import styled, { css } from 'styled-components';
 import Loader from '../components/Loader';
-import { MENU } from '../constants/menu';
+import { interfaceNameToKind } from '../constants/interfaces';
+import { MenuSubItems } from '../constants/menu';
 import { TextContext } from '../context/text';
 import { callBackendBasic } from '../helpers/functions';
 
@@ -16,66 +22,14 @@ const StyledCustomReleaseWrapper = styled.div`
   flex-flow: column;
 `;
 
-const StyledInterfaceListTitle = styled.div`
-  padding: 10px 10px;
-  font-size: 16px;
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  transition: all 0.2s linear;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #e5f0fe !important;
-  }
+const StyledInterfaceItem = styled.div`
+  margin-bottom: 20px;
 
   ${({ disabled }) =>
     disabled &&
     css`
       opacity: 0.5;
       pointer-events: none;
-    `}
-
-  > div:first-child {
-    svg {
-      margin-right: 10px;
-    }
-
-    span {
-      margin-left: 10px;
-    }
-  }
-`;
-
-const StyledInterfaceItem = styled.div`
-  margin-bottom: 20px;
-`;
-
-const StyledInterfaceListItem = styled.div`
-  padding: 6px 10px;
-  transition: all 0.2s linear;
-  cursor: pointer;
-
-  &:nth-child(even) {
-    background-color: rgba(0, 0, 0, 0.03);
-  }
-
-  &:hover {
-    background-color: #c5daf6 !important;
-  }
-
-  ${({ selected }) =>
-    selected &&
-    css`
-      background-color: #d4e6fe;
-      svg {
-        fill: ${Colors.BLUE3} !important;
-      }
-      &:nth-child(even) {
-        background-color: #e1eeff;
-      }
     `}
 `;
 
@@ -84,10 +38,10 @@ export interface ICustomReleaseProps {
   onItemClick: (item: string[], isDeselect?: boolean) => void;
 }
 
-export const otherInterfaceIcons = {
-  'schema-modules': 'database',
-  scripts: 'shapes',
-  tests: 'lab-test',
+export const otherInterfaceIcons: Record<string, IReqoreIconName> = {
+  'schema-modules': 'Database2Line',
+  scripts: 'Shape2Line',
+  tests: 'TestTubeLine',
 };
 
 export const otherInterfaceNames = {
@@ -131,18 +85,21 @@ export const CustomReleaseGroup = ({
   };
 
   return (
-    <StyledInterfaceItem key={interfaceKind}>
+    <StyledInterfaceItem key={interfaceKind} disabled={!size(interfaces)}>
       <ReqorePanel
         collapsible={size(interfaces) > 0}
-        padded={false}
         minimal
-        intent={size(interfaces) ? 'muted' : undefined}
         isCollapsed
         label={`${
-          MENU.CreateInterface[0].submenu.find(
-            (interfaceMenuData) => interfaceMenuData.subtab === interfaceKind
-          )?.name || otherInterfaceNames[interfaceKind]
+          MenuSubItems.find((interfaceMenuData) => {
+            return interfaceNameToKind[interfaceMenuData.name] === interfaceKind;
+          })?.name || otherInterfaceNames[interfaceKind]
         } (${filteredInterfaces.length})`}
+        icon={
+          MenuSubItems.find(
+            (interfaceMenuData) => interfaceNameToKind[interfaceMenuData.name] === interfaceKind
+          )?.icon || otherInterfaceIcons[interfaceKind]
+        }
         actions={
           size(interfaces)
             ? [
@@ -170,25 +127,37 @@ export const CustomReleaseGroup = ({
             : undefined
         }
       >
-        {map(filteredInterfaces, (interfaceData, index) => (
-          <StyledInterfaceListItem
-            key={index}
-            selected={isSelected(getItemFile(interfaceData))}
-            onClick={() => {
-              onItemClick([getItemFile(interfaceData)], isSelected(getItemFile(interfaceData)));
-            }}
-          >
-            <Icon
-              iconSize={15}
-              style={{ marginRight: 10 }}
-              icon={isSelected(getItemFile(interfaceData)) ? 'tick-circle' : 'circle'}
-            />
-            <span className={Classes.TEXT_MUTED}>
-              {interfaceData.data?.version && `[v${interfaceData.data.version}] `}
-            </span>
-            {interfaceData.data?.name || interfaceData.name}
-          </StyledInterfaceListItem>
-        ))}
+        <ReqoreControlGroup vertical fluid>
+          {map(filteredInterfaces, (interfaceData, index) => (
+            <ReqoreButton
+              key={index}
+              icon={
+                isSelected(getItemFile(interfaceData))
+                  ? 'CheckboxCircleLine'
+                  : 'CheckboxBlankCircleLine'
+              }
+              active={isSelected(getItemFile(interfaceData))}
+              onClick={() => {
+                onItemClick([getItemFile(interfaceData)], isSelected(getItemFile(interfaceData)));
+              }}
+              badge={interfaceData.data?.version ? `[v${interfaceData.data.version}] ` : undefined}
+              effect={
+                isSelected(getItemFile(interfaceData))
+                  ? {
+                      gradient: {
+                        colors: {
+                          0: 'main',
+                          160: 'info:lighten',
+                        },
+                      },
+                    }
+                  : undefined
+              }
+            >
+              {interfaceData.data?.name || interfaceData.name}
+            </ReqoreButton>
+          ))}
+        </ReqoreControlGroup>
       </ReqorePanel>
     </StyledInterfaceItem>
   );

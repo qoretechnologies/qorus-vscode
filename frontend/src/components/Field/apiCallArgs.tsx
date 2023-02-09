@@ -1,4 +1,4 @@
-import { Callout } from '@blueprintjs/core';
+import { ReqoreMessage } from '@qoretechnologies/reqore';
 import { useContext, useEffect } from 'react';
 import { useAsyncRetry } from 'react-use';
 import styled from 'styled-components';
@@ -45,15 +45,15 @@ export const ApiCallArgs = ({ url, onChange, value }: IApiCallArgsField) => {
   }, [schema]);
 
   if (loading) {
-    return <Callout>Loading...</Callout>;
+    return <ReqoreMessage intent="pending">Loading...</ReqoreMessage>;
   }
 
   if (error) {
-    return <Callout intent="danger">Error: {error.message}</Callout>;
+    return <ReqoreMessage intent="danger">Error: {error.message}</ReqoreMessage>;
   }
 
   if (schema?.type === 'nothing') {
-    return <Callout intent="warning">{t('APICallTakesNoArgs')}</Callout>;
+    return <ReqoreMessage intent="warning">{t('APICallTakesNoArgs')}</ReqoreMessage>;
   }
 
   if (schema.type === 'hash') {

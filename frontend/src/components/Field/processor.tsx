@@ -1,4 +1,4 @@
-import { Callout } from '@blueprintjs/core';
+import { ReqoreColumn, ReqoreColumns, ReqoreMessage } from '@qoretechnologies/reqore';
 import React, { useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import useUpdateEffect from 'react-use/lib/useUpdateEffect';
@@ -40,34 +40,36 @@ const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value,
   }, [inputType, outputType]);
 
   return (
-    <div>
-      <p>{t('InputType')}</p>
+    <>
       {!initialData?.qorus_instance ? (
-        <Callout intent="warning">{t('ActiveInstanceRequired')}</Callout>
+        <ReqoreMessage intent="warning">{t('ActiveInstanceRequired')}</ReqoreMessage>
       ) : (
-        <ConnectorField
-          inline
-          value={inputType}
-          isInitialEditing={!!initialData.class}
-          name={name}
-          providerType="inputs"
-          onChange={(_name, value) => setInputType(value)}
-        />
+        <ReqoreColumns columnsGap="10px">
+          <ReqoreColumn>
+            <ConnectorField
+              title={t('InputType')}
+              inline
+              value={inputType}
+              isInitialEditing={!!initialData.class}
+              name={name}
+              providerType="inputs"
+              onChange={(_name, value) => setInputType(value)}
+            />
+          </ReqoreColumn>
+          <ReqoreColumn>
+            <ConnectorField
+              title={t('OutputType')}
+              inline
+              value={outputType}
+              isInitialEditing={!!initialData.class}
+              name={name}
+              providerType="outputs"
+              onChange={(_name, value) => setOutputType(value)}
+            />
+          </ReqoreColumn>
+        </ReqoreColumns>
       )}
-      <p>{t('OutputType')}</p>
-      {!initialData?.qorus_instance ? (
-        <Callout intent="warning">{t('ActiveInstanceRequired')}</Callout>
-      ) : (
-        <ConnectorField
-          inline
-          value={outputType}
-          isInitialEditing={!!initialData.class}
-          name={name}
-          providerType="outputs"
-          onChange={(_name, value) => setOutputType(value)}
-        />
-      )}
-    </div>
+    </>
   );
 };
 

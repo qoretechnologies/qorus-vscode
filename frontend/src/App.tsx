@@ -1,34 +1,33 @@
 import {
-  AnchorButton,
-  Button,
-  ButtonGroup,
-  Callout,
-  Classes,
-  Navbar,
-  NavbarGroup,
-} from '@blueprintjs/core';
-import { ReqoreUIProvider } from '@qoretechnologies/reqore';
+  ReqoreContent,
+  ReqoreHeader,
+  ReqoreIcon,
+  ReqoreMenu,
+  ReqoreMenuItem,
+  ReqoreNavbarGroup,
+  ReqoreNavbarItem,
+  ReqorePopover,
+  ReqoreTag,
+  useReqore,
+} from '@qoretechnologies/reqore';
 import last from 'lodash/last';
 import size from 'lodash/size';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
-import styled from 'styled-components';
+import { createGlobalStyle } from 'styled-components';
 import { DraftsView } from './DraftsView';
 import ContextMenu from './components/ContextMenu';
-import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
 import Menu from './components/Menu';
-import Pull from './components/Pull';
-import { AppToaster } from './components/Toast';
-import { MENU } from './constants/menu';
 import { Messages } from './constants/messages';
 import InterfaceCreator from './containers/InterfaceCreator';
 import { ContextMenuContext, IContextMenu } from './context/contextMenu';
 import { DialogsContext } from './context/dialogs';
 import { DraftsContext, IDraftData } from './context/drafts';
 import { ErrorsContext } from './context/errors';
+import { InitialContext } from './context/init';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import { callBackendBasic, getTargetFile } from './helpers/functions';
@@ -46,39 +45,15 @@ import {
 } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
-import QorusLogo from './images/qorus_logo_256.png';
 import { LoginContainer } from './login/Login';
 import ProjectConfig from './project_config/ProjectConfig';
+import SourceDirectories from './project_config/sourceDirs';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
 const md5 = require('md5');
 
-const StyledApp = styled.div`
-  display: flex;
-  flex-flow: row;
-  margin-top: 50px;
-  flex: 1 1 auto;
-  overflow: hidden;
-`;
-
-const StyledInfo = styled.p`
-  display: inline-block;
-  line-height: 20px;
-  margin: 0;
-  font-family: 'Arial';
-  font-size: 18px;
-  padding: 0 10px;
-  font-weight: bold;
-  color: #fff;
-
-  span {
-    display: inline-block;
-    padding: 0 0 0 5px;
-    font-weight: normal;
-    color: unset;
-  }
-
-  &:first-of-type {
-    border-right: 1px solid #474c57;
+const GlobalStyle = createGlobalStyle`
+  .reqore-tree, .reqore-tree-textarea {
+    height: 100%;
   }
 `;
 
@@ -95,11 +70,10 @@ export interface IApp {
   setActiveInstance: (inst: string) => void;
   setCurrentProjectFolder: (folder: string) => void;
   path: string;
+  main_color: string;
 }
 
 export type TTranslator = (id: string) => string;
-
-const pastTexts: { [id: string]: { isTranslated: boolean; text: string } } = {};
 
 const App: FunctionComponent<IApp> = ({
   closeLogin,
@@ -109,7 +83,10 @@ const App: FunctionComponent<IApp> = ({
   project_folder,
   qorus_instance,
   changeTab,
+  main_color,
   path,
+  theme,
+  setTheme,
   image_path,
   confirmDialog,
   setConfirmDialog,
@@ -124,11 +101,13 @@ const App: FunctionComponent<IApp> = ({
   setFieldsFromDraft,
   ...rest
 }) => {
-  const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
   const [openedDialogs, setOpenedDialogs] = useState<{ id: string; onClose: () => void }[]>([]);
   const [contextMenu, setContextMenu] = useState<IContextMenu>(null);
   const [draft, setDraft] = useState<IDraftData>(null);
   const { setErrorsFromDraft }: any = useContext(ErrorsContext);
+  const [isDirsDialogOpen, setIsDirsDialogOpen] = useState<boolean>(false);
+  const { addNotification } = useReqore();
+  const { t } = useContext(InitialContext);
 
   const addDraft = (draftData: any) => {
     setDraft(draftData);
@@ -144,10 +123,16 @@ const App: FunctionComponent<IApp> = ({
 
     if (interfaceKind && interfaceId) {
       (async () => {
-        const fetchedDraft = await callBackendBasic(Messages.GET_DRAFT, undefined, {
-          interfaceKind,
-          draftId: interfaceId,
-        });
+        const fetchedDraft = await callBackendBasic(
+          Messages.GET_DRAFT,
+          undefined,
+          {
+            interfaceKind,
+            draftId: interfaceId,
+          },
+          null,
+          addNotification
+        );
 
         if (fetchedDraft.ok) {
           addDraft({ ...fetchedDraft.data });
@@ -159,11 +144,17 @@ const App: FunctionComponent<IApp> = ({
   }, [draftData]);
 
   const maybeDeleteDraft = (interfaceKind: string, interfaceId: string) => {
-    callBackendBasic(Messages.DELETE_DRAFT, undefined, {
-      no_notify: true,
-      interfaceKind,
-      interfaceId,
-    });
+    callBackendBasic(
+      Messages.DELETE_DRAFT,
+      undefined,
+      {
+        no_notify: true,
+        interfaceKind,
+        interfaceId,
+      },
+      null,
+      addNotification
+    );
   };
 
   const maybeApplyDraft = async (
@@ -180,10 +171,16 @@ const App: FunctionComponent<IApp> = ({
       let draftToApply = draftData || draft;
       // Fetch the draft if the draft id is provided
       if (existingInterface) {
-        const fetchedDraft = await callBackendBasic(Messages.GET_DRAFT, undefined, {
-          interfaceKind: ifaceKind,
-          draftId: md5(getTargetFile(existingInterface)),
-        });
+        const fetchedDraft = await callBackendBasic(
+          Messages.GET_DRAFT,
+          undefined,
+          {
+            interfaceKind: ifaceKind,
+            draftId: md5(getTargetFile(existingInterface)),
+          },
+          null,
+          addNotification
+        );
 
         if (fetchedDraft.ok) {
           draftToApply = fetchedDraft.data;
@@ -243,7 +240,7 @@ const App: FunctionComponent<IApp> = ({
       }
 
       if (classConnections) {
-        applyClassConnectionsFunc(classConnections);
+        applyClassConnectionsFunc?.(classConnections);
       }
 
       // Remove the draft
@@ -294,30 +291,12 @@ const App: FunctionComponent<IApp> = ({
       // Get the last opened dialog
       const dialogData = last(openedDialogs);
       // Run the close function
-      dialogData.onClose();
+      dialogData?.onClose();
     }
   };
 
   useEffectOnce(() => {
-    const listeners = [];
-    // New text was received
-    listeners.push(
-      addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
-        setTexts((currentTexts) => {
-          // Do not modify state if the text already
-          // exists
-          if (!currentTexts[data.text_id]) {
-            pastTexts[data.text_id] = { isTranslated: true, text: data.text };
-            return {
-              ...currentTexts,
-              [data.text_id]: data.text,
-            };
-          }
-          // Return current state
-          return currentTexts;
-        });
-      })
-    );
+    const listeners: any = [];
     // Close login
     listeners.push(
       addMessageListener(Messages.CLOSE_LOGIN, (data: any): void => {
@@ -339,18 +318,13 @@ const App: FunctionComponent<IApp> = ({
       })
     );
     listeners.push(
-      addMessageListener('return-all-text', ({ data }): void => {
-        setTexts(data);
-      })
-    );
-    listeners.push(
       addMessageListener('display-notifications', ({ data }) => {
         if (data.length) {
           data.forEach(({ message, intent, timeout }) => {
-            AppToaster.show({
-              message,
+            addNotification({
+              content: message,
               intent,
-              timeout,
+              duration: timeout,
             });
           });
         }
@@ -358,7 +332,6 @@ const App: FunctionComponent<IApp> = ({
     );
     // Get the current project folder
     postMessage(Messages.GET_PROJECT_FOLDER);
-    postMessage('get-all-text');
 
     return () => {
       // remove all listeners
@@ -366,127 +339,136 @@ const App: FunctionComponent<IApp> = ({
     };
   });
 
-  if (!texts) {
-    return <Loader text="Loading translations..." />;
-  }
-
-  const t: TTranslator = (text_id) => {
-    return texts.find((textItem) => textItem.id === text_id)?.text || text_id;
+  const changeTheme = (theme: string) => {
+    setTheme(theme);
+    postMessage(Messages.CONFIG_UPDATE_CUSTOM_DATA, {
+      data: {
+        theme,
+      },
+    });
   };
+
+  if (!t) {
+    return <Loader text="Loading app..." />;
+  }
 
   return (
     <>
-      <ReqoreUIProvider theme={{ main: '#ffffff' }} options={{ animations: { buttons: false } }}>
-        <DraftsContext.Provider
+      <GlobalStyle />
+      <DraftsContext.Provider
+        value={{
+          addDraft,
+          removeDraft,
+          maybeApplyDraft,
+          maybeDeleteDraft,
+          draft,
+        }}
+      >
+        <ContextMenuContext.Provider
           value={{
-            addDraft,
-            removeDraft,
-            maybeApplyDraft,
-            maybeDeleteDraft,
-            draft,
+            addMenu: setContextMenu,
+            removeMenu: (onClose?: () => any) => {
+              setContextMenu(null);
+              if (onClose) {
+                onClose();
+              }
+            },
           }}
         >
-          <ContextMenuContext.Provider
-            value={{
-              addMenu: setContextMenu,
-              removeMenu: (onClose?: () => any) => {
-                setContextMenu(null);
-                if (onClose) {
-                  onClose();
-                }
-              },
-            }}
-          >
-            <DialogsContext.Provider value={{ addDialog, removeDialog }}>
-              {contextMenu && <ContextMenu {...contextMenu} onClick={() => setContextMenu(null)} />}
-              <Navbar fixedToTop={true} className="dark">
-                <NavbarGroup>
-                  <img style={{ maxWidth: 30, maxHeight: 30, marginRight: 10 }} src={QorusLogo} />
-                  <StyledInfo>
-                    {t('Project')}: <span>{project_folder}</span>
-                  </StyledInfo>
-                  <StyledInfo>
-                    {t('ActiveQorusInstance')}:{' '}
-                    <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
-                  </StyledInfo>
-                </NavbarGroup>
-                <Pull right>
-                  <NavbarGroup>
-                    <ButtonGroup minimal>
-                      <AnchorButton
-                        icon="refresh"
-                        href="command:workbench.action.webview.reloadWebviewAction"
-                        onClick={() =>
-                          AppToaster.show({
-                            message: t('ReloadingWebview'),
-                            intent: 'warning',
-                            icon: 'refresh',
-                          })
+          <DialogsContext.Provider value={{ addDialog, removeDialog }}>
+            {contextMenu && <ContextMenu {...contextMenu} onClick={() => setContextMenu(null)} />}
+            <TextContext.Provider value={t}>
+              {tab !== 'Login' && <Menu />}
+              <ReqoreContent style={{ overflow: 'hidden', display: 'flex', flexFlow: 'column' }}>
+                <ReqoreHeader>
+                  <ReqoreNavbarGroup position="left">
+                    <ReqoreNavbarItem>
+                      <ReqoreTag
+                        icon="Folder3Line"
+                        labelKey={t('Project')}
+                        label={project_folder}
+                      />
+                    </ReqoreNavbarItem>
+                    <ReqoreNavbarItem>
+                      <ReqoreTag
+                        icon="ServerLine"
+                        labelKey={t('ActiveQorusInstance')}
+                        label={qorus_instance ? qorus_instance.name : t('N/A')}
+                        effect={
+                          qorus_instance
+                            ? { gradient: { colors: '#7e2d90' }, weight: 'bold' }
+                            : undefined
                         }
                       />
-                    </ButtonGroup>
-                  </NavbarGroup>
-                </Pull>
-              </Navbar>
-              <TextContext.Provider value={t}>
-                <StyledApp>
-                  {tab !== 'Login' && <Menu isCollapsed menu={MENU} />}
+                    </ReqoreNavbarItem>
+                  </ReqoreNavbarGroup>
+                  <ReqoreNavbarGroup position="right">
+                    <ReqorePopover
+                      component={ReqoreNavbarItem}
+                      componentProps={{ interactive: true }}
+                      handler="click"
+                      isReqoreComponent
+                      noWrapper
+                      content={
+                        <ReqoreMenu>
+                          <ReqoreMenuItem icon="SunFill" onClick={() => changeTheme('light')}>
+                            Light theme
+                          </ReqoreMenuItem>
+                          <ReqoreMenuItem icon="MoonFill" onClick={() => changeTheme('dark')}>
+                            Dark theme
+                          </ReqoreMenuItem>
+                          <ReqoreMenuItem icon="CodeBoxLine" onClick={() => changeTheme('vscode')}>
+                            Follow VSCode theme
+                          </ReqoreMenuItem>
+                        </ReqoreMenu>
+                      }
+                    >
+                      <ReqoreIcon icon="PaletteLine" size="20px" tooltip="Change theme" />
+                    </ReqorePopover>
+                    <ReqoreNavbarItem interactive onClick={() => setIsDirsDialogOpen(true)}>
+                      <ReqoreIcon
+                        icon="FolderAddLine"
+                        size="20px"
+                        tooltip="Manage source directories"
+                      />
+                    </ReqoreNavbarItem>
+                    <ReqoreNavbarItem
+                      interactive
+                      as="a"
+                      href="command:workbench.action.webview.reloadWebviewAction"
+                      onClick={() =>
+                        addNotification({
+                          content: t('ReloadingWebview'),
+                          intent: 'warning',
+                          icon: 'RefreshLine',
+                        })
+                      }
+                    >
+                      <ReqoreIcon icon="RefreshLine" size="20px" tooltip="Reload webview" />
+                    </ReqoreNavbarItem>
+                  </ReqoreNavbarGroup>
+                </ReqoreHeader>
+                <div style={{ margin: '0 10px', overflow: 'auto', display: 'flex', flex: 1 }}>
+                  <SourceDirectories
+                    isOpen={isDirsDialogOpen}
+                    onClose={() => setIsDirsDialogOpen(false)}
+                  />
                   <>
                     {tab == 'Login' && <LoginContainer />}
                     {tab == 'Loading' && <Loader text={t('Loading')} />}
                     {tab == 'ProjectConfig' && <ProjectConfig />}
+                    {tab == 'SourceDirs' && <SourceDirectories flat />}
                     {tab == 'ReleasePackage' && <ReleasePackage />}
                     {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
                     {tab === 'Drafts' && <DraftsView />}
                     {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
                   </>
-                </StyledApp>
-              </TextContext.Provider>
-              {confirmDialog.isOpen && (
-                <CustomDialog
-                  isOpen
-                  icon="warning-sign"
-                  title={t('ConfirmDialogTitle')}
-                  onClose={() => {
-                    confirmDialog.onCancel && confirmDialog.onCancel();
-                    setConfirmDialog({});
-                  }}
-                  style={{ backgroundColor: '#fff' }}
-                >
-                  <div className={Classes.DIALOG_BODY}>
-                    <Callout intent={confirmDialog.btnStyle || 'danger'}>
-                      {t(confirmDialog.text)}
-                    </Callout>
-                  </div>
-                  <div className={Classes.DIALOG_FOOTER}>
-                    <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                      <ButtonGroup>
-                        <Button
-                          text={t('Cancel')}
-                          onClick={() => {
-                            confirmDialog.onCancel && confirmDialog.onCancel();
-                            setConfirmDialog({});
-                          }}
-                          id="global-dialog-cancel"
-                        />
-                        <Button
-                          id="global-dialog-confirm"
-                          text={t(confirmDialog.btnText || 'Remove')}
-                          intent={confirmDialog.btnStyle || 'danger'}
-                          onClick={() => {
-                            confirmDialog.onSubmit();
-                            setConfirmDialog({});
-                          }}
-                        />
-                      </ButtonGroup>
-                    </div>
-                  </div>
-                </CustomDialog>
-              )}
-            </DialogsContext.Provider>
-          </ContextMenuContext.Provider>
-        </DraftsContext.Provider>
-      </ReqoreUIProvider>
+                </div>
+              </ReqoreContent>
+            </TextContext.Provider>
+          </DialogsContext.Provider>
+        </ContextMenuContext.Provider>
+      </DraftsContext.Provider>
     </>
   );
 };

@@ -1,13 +1,24 @@
-import { Button, ButtonGroup, Callout } from '@blueprintjs/core';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreMessage,
+  ReqoreTabs,
+  ReqoreTabsContent,
+} from '@qoretechnologies/reqore';
+import jsyaml from 'js-yaml';
 import { reduce, size } from 'lodash';
 import React, { useContext, useEffect } from 'react';
+import { useUpdateEffect } from 'react-use';
 import { TRecordType } from '.';
 import { TTranslator } from '../../../App';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { insertUrlPartBeforeQuery } from '../../../helpers/functions';
+import { maybeParseYaml, validateField } from '../../../helpers/validations';
 import Spacer from '../../Spacer';
 import SubField from '../../SubField';
+import LongStringField from '../longString';
+import { PositiveColorEffect, SaveColorEffect } from '../multiPair';
 import Options, { IOptions, IOptionsSchema } from '../systemOptions';
 
 export interface ISearchArgsProps {
@@ -17,6 +28,7 @@ export interface ISearchArgsProps {
   url: string;
   onChange: (name: string, value?: IOptions | IOptions[]) => void;
   hasOperators?: boolean;
+  isFreeform?: boolean;
 }
 
 export const RecordQueryArgs = ({
@@ -26,12 +38,19 @@ export const RecordQueryArgs = ({
   type,
   hasOperators = true,
   asList,
+  isFreeform,
 }: ISearchArgsProps) => {
   const [options, setOptions] = React.useState<any>(undefined);
   const [hasLoaded, setHasLoaded] = React.useState<boolean>(false);
   const [error, setError] = React.useState<any | undefined>(undefined);
   const t: TTranslator = useContext<TTranslator>(TextContext);
   const { fetchData, qorus_instance }: any = useContext(InitialContext);
+  const [localValue, setLocalValue] = React.useState<any>(jsyaml.safeDump(value));
+  const [isValueSubmitted, setIsValueSubmitted] = React.useState<boolean>(true);
+
+  useUpdateEffect(() => {
+    setIsValueSubmitted(false);
+  }, [localValue]);
 
   useEffect(() => {
     if (qorus_instance) {
@@ -54,11 +73,11 @@ export const RecordQueryArgs = ({
   }, [url, qorus_instance]);
 
   if (!hasLoaded) {
-    return <Callout>{t(`LoadingArgs`)}</Callout>;
+    return <ReqoreMessage intent="pending">{t(`LoadingArgs`)}</ReqoreMessage>;
   }
 
   if (!size(options)) {
-    return <Callout intent="warning">{t(`NoArgs`)}</Callout>;
+    return <ReqoreMessage intent="warning">{t(`NoArgs`)}</ReqoreMessage>;
   }
 
   const transformedOptions: IOptionsSchema =
@@ -77,54 +96,99 @@ export const RecordQueryArgs = ({
 
   if (asList) {
     return (
-      <>
-        {error && <Callout title={error.title}>{error.desc}</Callout>}
-        {value &&
-          (value as IOptions[]).map((options: IOptions, index: number) => (
-            <SubField
-              title={`${t('Record')} ${index + 1}`}
-              key={index}
-              subtle
-              onRemove={() => {
-                // Filter out the items from value with this index
-                onChange(
-                  `${type}_args`,
-                  ((value || []) as IOptions[]).filter(
-                    (_options: IOptions, idx: number) => idx !== index
-                  )
-                );
-              }}
-            >
-              <Options
-                onChange={(name, newOptions?: IOptions) => {
-                  const newValue = [...(value as IOptions[])];
-                  // Update the field
-                  newValue[index] = newOptions;
-                  // Update the pairs
-                  onChange(name, newValue);
+      <ReqoreTabs
+        activeTab={isFreeform ? 'text' : 'form'}
+        tabsPadding="vertical"
+        padded={false}
+        tabs={[
+          { label: 'Text', icon: 'Text', id: 'text' },
+          { label: 'Form', icon: 'AlignCenter', id: 'form' },
+        ]}
+        onTabChange={(tabId) => {
+          onChange(tabId === 'text' ? `${type}_args_freeform` : `${type}_args`, [{}]);
+          setLocalValue(undefined);
+        }}
+      >
+        <ReqoreTabsContent tabId="text">
+          <ReqoreControlGroup fluid fill>
+            <LongStringField
+              value={localValue}
+              onChange={(_name, value) => setLocalValue(value)}
+              name={`${type}_args_freeform`}
+              intent={validateField('list-of-hashes', localValue) ? undefined : 'danger'}
+            />
+            {!isValueSubmitted && (
+              <ReqoreButton
+                icon="CheckLine"
+                fixed
+                effect={SaveColorEffect}
+                onClick={() => {
+                  onChange(`${type}_args_freeform`, maybeParseYaml(localValue));
+                  setIsValueSubmitted(true);
                 }}
-                name={`${type}_args`}
-                value={options}
-                operatorsUrl={
-                  hasOperators
-                    ? insertUrlPartBeforeQuery(url, `/search_operators`, 'context=ui')
-                    : undefined
-                }
-                options={transformedOptions}
-                placeholder={t('AddArgument')}
-                noValueString={t('NoArgument')}
+                disabled={!validateField('list-of-hashes', localValue)}
               />
-            </SubField>
-          ))}
-        <Spacer size={15} />
-        <ButtonGroup fill style={{ marginBottom: '10px' }}>
-          <Button
-            text={t('AddAnotherRecord')}
-            icon={'add'}
-            onClick={() => onChange(`${type}_args`, [...((value || []) as IOptions[]), {}])}
-          />
-        </ButtonGroup>
-      </>
+            )}
+          </ReqoreControlGroup>
+        </ReqoreTabsContent>
+        <ReqoreTabsContent tabId="form">
+          {error && (
+            <ReqoreMessage intent="danger" title={error.title}>
+              {error.desc}
+            </ReqoreMessage>
+          )}
+          {value
+            ? (value as IOptions[]).map((options: IOptions, index: number) => (
+                <SubField
+                  title={`${t('Record')} ${index + 1}`}
+                  key={index}
+                  subtle
+                  onRemove={() => {
+                    // Filter out the items from value with this index
+                    onChange(
+                      `${type}_args`,
+                      ((value || []) as IOptions[]).filter(
+                        (_options: IOptions, idx: number) => idx !== index
+                      )
+                    );
+                  }}
+                >
+                  <Options
+                    onChange={(name, newOptions?: IOptions) => {
+                      const newValue = [...(value as IOptions[])];
+                      // Update the field
+                      newValue[index] = newOptions;
+                      // Update the pairs
+                      onChange(name, newValue);
+                    }}
+                    name={`${type}_args`}
+                    value={options}
+                    operatorsUrl={
+                      hasOperators
+                        ? insertUrlPartBeforeQuery(url, `/search_operators`, 'context=ui')
+                        : undefined
+                    }
+                    options={transformedOptions}
+                    placeholder={t('AddArgument')}
+                    noValueString={t('NoArgument')}
+                  />
+                </SubField>
+              ))
+            : null}
+          <Spacer size={15} />
+          <ReqoreControlGroup fluid>
+            <ReqoreButton
+              icon={'AddLine'}
+              rightIcon={'AddLine'}
+              effect={PositiveColorEffect}
+              textAlign="center"
+              onClick={() => onChange(`${type}_args`, [...((value || []) as IOptions[]), {}])}
+            >
+              {t('AddAnotherRecord')}
+            </ReqoreButton>
+          </ReqoreControlGroup>
+        </ReqoreTabsContent>
+      </ReqoreTabs>
     );
   }
 

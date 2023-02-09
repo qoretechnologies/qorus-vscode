@@ -1,62 +1,117 @@
-import { Colors } from '@blueprintjs/core';
-import React, { FunctionComponent } from 'react';
-import styled, { css } from 'styled-components';
+import {
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqoreSpacer,
+  ReqoreTag,
+} from '@qoretechnologies/reqore';
+import { size } from 'lodash';
+import { FunctionComponent, useContext } from 'react';
+import { InitialContext } from '../../context/init';
+import { TextContext } from '../../context/text';
 
-const StyledFieldLabel = styled.div<{ fluid?: boolean }>`
-  padding: 0px 10px 0 0;
-  flex: 0 1 auto;
-  ${({ fluid }) =>
-    !fluid &&
-    css`
-      min-width: 150px;
-    `}
-  max-width: 150px;
-  display: flex;
-  flex-flow: row;
-  position: relative;
-  align-items: center;
-`;
+export interface IFieldActions {
+  desc?: string;
+  name?: string;
+  onClick: (name: string) => any;
+  removable: boolean;
+  value: any;
+  parentValue?: any;
+  onResetClick: () => any;
+  isSet: boolean;
+  disabled: boolean;
+}
 
-const FieldLabelName = styled.h4<{ isValid?: boolean }>`
-  margin: 0;
-  padding: 0;
-  flex: 1;
-  font-size: 16px;
-
-  padding: 5px;
-  border-radius: 3px;
-  background-color: ${({ isValid }) => (!isValid ? '#ffe7e7' : undefined)};
-  color: ${({ isValid }) => (isValid ? 'initial' : Colors.RED2)};
-`;
-
-const FieldLabelValid = styled.div`
-  flex: 0;
-  line-height: 30px;
-`;
-
-const FieldLabelInfo = styled.p`
-  margin: 0;
-  padding: 0;
-  font-size: 12px;
-  color: #a9a9a9;
-  font-weight: normal;
-`;
-
-export interface IFieldLabel {
+export interface IFieldLabel extends IFieldActions {
   label?: string;
   isValid: boolean;
   info?: string;
+  type?: string;
 }
 
-const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info }) => (
-  <StyledFieldLabel fluid={!label && !info}>
-    {label || info ? (
-      <FieldLabelName isValid={isValid}>
-        {label}
-        {info && <FieldLabelInfo>{info}</FieldLabelInfo>}
-      </FieldLabelName>
-    ) : null}
-  </StyledFieldLabel>
-);
+const FieldLabel: FunctionComponent<IFieldLabel> = ({
+  label,
+  isValid,
+  info,
+  type,
+  desc,
+  name,
+  onClick,
+  removable,
+  value,
+  parentValue,
+  onResetClick,
+  isSet,
+  disabled,
+}) => {
+  const initContext = useContext(InitialContext);
+  const t = useContext(TextContext);
+  return (
+    <>
+      <ReqoreControlGroup vertical>
+        <ReqoreTag
+          width="200px"
+          color={isValid ? 'success' : 'danger'}
+          label={label}
+          icon={isValid ? 'CheckLine' : 'ErrorWarningLine'}
+          actions={[
+            {
+              icon: 'QuestionMark',
+              tooltip: {
+                content: desc,
+                intent: 'info',
+                placement: 'right',
+                maxWidth: '600px',
+              },
+            },
+            {
+              icon: 'DeleteBinLine',
+              intent: 'danger',
+              tooltip: t('RemoveField'),
+              onClick: () => {
+                if (onClick) {
+                  if (size(value)) {
+                    initContext.confirmAction('ConfirmRemoveField', () => onClick(name));
+                  } else {
+                    onClick(name);
+                  }
+                }
+              },
+            },
+          ]}
+          minimal
+        />
+        {type && <ReqoreTag label={type} asBadge minimal icon="CodeLine" />}
+        {info && (
+          <ReqoreTag
+            label={info}
+            minimal
+            width="200px"
+            size="small"
+            icon="InformationLine"
+            intent="muted"
+          />
+        )}
+      </ReqoreControlGroup>
+      <ReqoreSpacer width={10} />
+      <ReqoreControlGroup>
+        {isSet && parentValue !== undefined && !disabled ? (
+          <ReqoreButton
+            icon={'HistoryLine'}
+            tooltip={t('ResetFieldToOriginal')}
+            intent="warning"
+            onClick={() => {
+              initContext.confirmAction(
+                'ConfirmResetField',
+                () => onResetClick(),
+                'Reset',
+                'warning'
+              );
+            }}
+          />
+        ) : null}
+      </ReqoreControlGroup>
+    </>
+  );
+};
 
 export default FieldLabel;

@@ -1,10 +1,10 @@
-import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreControlGroup, ReqoreMessage } from '@qoretechnologies/reqore';
+import { size } from 'lodash';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { IFSMState, IFSMTransition } from '.';
 import Content from '../../../components/Content';
-import CustomDialog from '../../../components/CustomDialog';
-import { ActionsWrapper, ContentWrapper } from '../../../components/FieldWrapper';
+import { SaveColorEffect } from '../../../components/Field/multiPair';
 import { TextContext } from '../../../context/text';
 
 const StyledOrderWrapper = styled.div`
@@ -57,76 +57,68 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
   const t = useContext(TextContext);
 
   return (
-    <CustomDialog
-      onClose={onClose}
-      isOpen
-      title={t(dialogTitle)}
-      style={{ width: '80vw', paddingBottom: 0 }}
+    <Content
+      padded={false}
+      minimal
+      transparent
+      bottomActions={[
+        {
+          label: t('Reset'),
+          onClick: onResetClick,
+          icon: 'HistoryLine',
+          tooltip: t('ResetTooltip'),
+        },
+        {
+          label: t('Submit'),
+          onClick: onSubmitClick,
+          icon: 'CheckLine',
+          effect: SaveColorEffect,
+          tooltip: t('SubmitTooltip'),
+          disabled: isDisabled,
+          position: 'right',
+        },
+      ]}
     >
-      <Content style={{ backgroundColor: '#fff', borderTop: '1px solid #d7d7d7', padding: '10px' }}>
-        <ContentWrapper style={{ padding: 0 }}>
-          {data.map((datum, index) => (
-            <>
-              <StyledOrderWrapper key={index}>
-                <span name="fsm-transition-order-name">
-                  <strong>{index + 1}.</strong> {title || datum.name || ''}{' '}
-                  {metadata ? metadata(datum) : ''}
-                </span>
-                <ButtonGroup>
-                  <Tooltip content={t('MoveItemUp')}>
-                    <Button
-                      icon="arrow-up"
-                      disabled={index === 0}
-                      onClick={() => changeOrder(index, index - 1)}
-                      name="fsm-move-transition-up"
-                    />
-                  </Tooltip>
-                  <Tooltip content={t('MoveItemDown')}>
-                    <Button
-                      icon="arrow-down"
-                      disabled={index === data.length - 1}
-                      onClick={() => changeOrder(index, index + 1)}
-                      name="fsm-move-transition-down"
-                    />
-                  </Tooltip>
-                  <Tooltip content={t('Edit')}>
-                    <Button
-                      icon="edit"
-                      intent="warning"
-                      onClick={() => onEditClick(datum.keyId || index)}
-                      name="fsm-edit-transition"
-                    />
-                  </Tooltip>
-                  <Tooltip content={t('Delete')}>
-                    <Button
-                      icon="trash"
-                      intent="danger"
-                      onClick={() => onDeleteClick(datum.keyId || index)}
-                      name="fsm-delete-transition"
-                    />
-                  </Tooltip>
-                </ButtonGroup>
-              </StyledOrderWrapper>
-            </>
-          ))}
-        </ContentWrapper>
-        <ActionsWrapper>
-          <ButtonGroup fill>
-            <Tooltip content={t('ResetTooltip')}>
-              <Button text={t('Reset')} icon={'history'} onClick={onResetClick} />
-            </Tooltip>
-            <Button
-              text={t('Submit')}
-              icon={'tick'}
-              name="fsm-submit-transitions"
-              intent={Intent.SUCCESS}
-              disabled={isDisabled}
-              onClick={onSubmitClick}
+      <ReqoreControlGroup vertical fill>
+        {size(data) === 0 ? (
+          <ReqoreMessage intent="muted">No transitions exist for this state</ReqoreMessage>
+        ) : null}
+        {data.map((datum, index) => (
+          <ReqoreControlGroup key={index} stack fill fluid>
+            <ReqoreButton description={metadata ? metadata(datum) : ''}>
+              {index + 1}. {title || datum.name || ''}
+            </ReqoreButton>
+            <ReqoreButton
+              fixed
+              tooltip={t('MoveItemUp')}
+              icon="ArrowUpLine"
+              disabled={index === 0}
+              onClick={() => changeOrder(index, index - 1)}
             />
-          </ButtonGroup>
-        </ActionsWrapper>
-      </Content>
-    </CustomDialog>
+            <ReqoreButton
+              fixed
+              tooltip={t('MoveItemDown')}
+              icon="ArrowDownLine"
+              disabled={index === data.length - 1}
+              onClick={() => changeOrder(index, index + 1)}
+            />
+            <ReqoreButton
+              fixed
+              tooltip={t('Edit')}
+              icon="EditLine"
+              onClick={() => onEditClick(datum.keyId || index)}
+            />
+            <ReqoreButton
+              fixed
+              tooltip={t('Delete')}
+              icon="DeleteBinLine"
+              intent="danger"
+              onClick={() => onDeleteClick(datum.keyId || index)}
+            />
+          </ReqoreControlGroup>
+        ))}
+      </ReqoreControlGroup>
+    </Content>
   );
 };
 

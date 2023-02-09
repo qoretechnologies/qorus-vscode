@@ -1,7 +1,8 @@
-import { Button, ButtonGroup, Tooltip } from '@blueprintjs/core';
+import { ReqorePanel } from '@qoretechnologies/reqore';
+import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
 import React from 'react';
 import shortid from 'shortid';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import Minimap from './minimap';
 
@@ -23,40 +24,19 @@ export interface ElementPanState {
   showToolbar: boolean;
 }
 
-const StyledToolbar = styled.div`
-  position: absolute;
+const StyledToolbar = styled(ReqorePanel)`
+  position: absolute !important;
   width: 202px;
-  display: flex;
-  flex-flow: column;
   right: 15px;
   top: 15px;
   z-index: 10;
-  border: 1px solid #c3c3c3;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-`;
+  opacity: 0.3;
 
-const StyledToolbarActions = styled.div<{ show: boolean }>`
-  width: 200px;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  background-color: #f2f2f2;
-
-  ${({ show }) =>
-    show &&
-    css`
-      border-bottom: 1px solid #c3c3c3;
-    `}
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  p {
-    font-weight: 500;
-    margin: 0;
-    padding: 0 10px;
+  &:hover {
+    opacity: 1;
   }
+
+  transition: opacity 0.2s ease-in-out;
 `;
 
 let timeout;
@@ -77,6 +57,7 @@ export class ElementPan extends React.Component<
       [key: string]: any;
     };
     zoom: number;
+    setZoom: (number: number) => void;
     items?: { y: number; x: number }[];
     t: TTranslator;
     panElementId?: string;
@@ -106,6 +87,7 @@ export class ElementPan extends React.Component<
     this.onDragMove = this.onDragMove.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onDragStop = this.onDragStop.bind(this);
+    this.onWheel = this.onWheel.bind(this);
     this.ref = this.ref.bind(this);
   }
 
@@ -220,8 +202,21 @@ export class ElementPan extends React.Component<
     }
   }
 
+  public onWheel(e) {
+    // Less then 0 means scrolling up / zoom in
+    if (e.deltaY < 0) {
+      this.props.setZoom(this.props.zoom + 0.1);
+    } else {
+      this.props.setZoom(this.props.zoom - 0.1 < 0.1 ? 0.1 : this.props.zoom - 0.1);
+    }
+  }
+
   public componentDidMount() {
     this.init();
+  }
+
+  public componentWillUnmount() {
+    window.removeEventListener('wheel', this.onWheel);
   }
 
   init = () => {
@@ -236,6 +231,8 @@ export class ElementPan extends React.Component<
       this.el.scrollTop = this.props.startY;
       state.scrollY = this.el.scrollTop;
     }
+
+    //window.addEventListener('wheel', this.onWheel);
 
     this.setState(state);
   };
@@ -283,55 +280,32 @@ export class ElementPan extends React.Component<
         id={`panElement${panElementId}`}
       >
         {this.props.children}
-        {this.state.showToolbar ? (
-          <StyledToolbar draggable id="pan-element-toolbar">
-            <StyledToolbarActions show={this.state.showMinimap}>
-              <p>{t('Toolbar')}</p>
-              <ButtonGroup minimal>
-                <Tooltip content={t('Recenter')}>
-                  <Button icon="zoom-to-fit" onClick={this.init} />
-                </Tooltip>
-                <Tooltip content={t('ToggleMinimap')}>
-                  <Button
-                    icon="map"
-                    onClick={() => this.setState({ showMinimap: !this.state.showMinimap })}
-                    intent={this.state.showMinimap ? 'primary' : 'none'}
-                  />
-                </Tooltip>
-                <Tooltip content={t('ToggleToolbar')}>
-                  <Button
-                    icon="eye-off"
-                    onClick={() => this.setState({ showToolbar: false })}
-                    intent="primary"
-                  />
-                </Tooltip>
-              </ButtonGroup>
-            </StyledToolbarActions>
-            <Minimap
-              show={this.state.showMinimap}
-              items={this.props.items}
-              x={this.state.scrollX}
-              y={this.state.scrollY}
-              width={this.el?.getBoundingClientRect().width}
-              height={this.el?.getBoundingClientRect().height}
-              onDrag={this.handleMinimapMove}
-              panElementId={panElementId}
-            />
-          </StyledToolbar>
-        ) : (
-          <ButtonGroup
-            style={{ position: 'absolute', top: '15px', right: '15px', zIndex: 500 }}
-            id="pan-element-toolbar"
-          >
-            <Tooltip content={t('ToggleToolbar')}>
-              <Button
-                icon="eye-open"
-                onClick={() => this.setState({ showToolbar: true })}
-                intent="none"
-              />
-            </Tooltip>
-          </ButtonGroup>
-        )}
+        <StyledToolbar
+          draggable
+          id="pan-element-toolbar"
+          size="small"
+          padded={false}
+          actions={[
+            {
+              icon: 'PriceTag2Line',
+              tooltip: 'Show state & path IDs',
+              active: this.props.showStateIds,
+              onClick: () => this.props.setShowStateIds(!this.props.showStateIds),
+            } as IReqorePanelAction,
+          ]}
+          collapsible
+        >
+          <Minimap
+            show={this.state.showMinimap}
+            items={this.props.items}
+            x={this.state.scrollX}
+            y={this.state.scrollY}
+            width={this.el?.getBoundingClientRect().width}
+            height={this.el?.getBoundingClientRect().height}
+            onDrag={this.handleMinimapMove}
+            panElementId={panElementId}
+          />
+        </StyledToolbar>
       </div>
     );
   }

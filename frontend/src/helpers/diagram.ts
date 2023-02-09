@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { noop } from 'lodash';
 
 /**
  * Graph node with all its attributes and nodes above and below.
@@ -54,8 +54,8 @@ import _ from 'lodash';
  * @enum {number}
  */
 const Dir = {
-    ASC: +1,
-    DESC: -1,
+  ASC: +1,
+  DESC: -1,
 };
 
 /**
@@ -67,9 +67,9 @@ const Dir = {
  * @return {function(!GraphNode, !GraphNode): number}
  */
 function createComparator(dir) {
-    return function compare(a, b) {
-        return dir * (a.depth * a.weight - b.depth * b.weight);
-    };
+  return function compare(a, b) {
+    return dir * (a.depth * a.weight - b.depth * b.weight);
+  };
 }
 
 /**
@@ -79,20 +79,20 @@ function createComparator(dir) {
  * @return {!Map<number, !Array<number>>}
  */
 function normalize(deps) {
-    function ensureSafeSet(map, id) {
-        if (map.has(id)) {
-            return;
-        }
-
-        deps[id].forEach(dId => ensureSafeSet(map, dId));
-        map.set(id, deps[id].slice());
+  function ensureSafeSet(map, id) {
+    if (map.has(id)) {
+      return;
     }
 
-    return Object.keys(deps).reduce((map, id) => {
-        ensureSafeSet(map, parseInt(id, 10));
+    deps[id].forEach((dId) => ensureSafeSet(map, dId));
+    map.set(id, deps[id].slice());
+  }
 
-        return map;
-    }, new Map());
+  return Object.keys(deps).reduce((map, id) => {
+    ensureSafeSet(map, parseInt(id, 10));
+
+    return map;
+  }, new Map());
 }
 
 /**
@@ -102,13 +102,13 @@ function normalize(deps) {
  * @return {!TempGraphNode}
  */
 function create(id) {
-    return {
-        id,
-        above: [],
-        below: [],
-        depth: 0,
-        weight: 1,
-    };
+  return {
+    id,
+    above: [],
+    below: [],
+    depth: 0,
+    weight: 1,
+  };
 }
 
 /**
@@ -119,14 +119,14 @@ function create(id) {
  * @return {!Array<!TempGraphNode>} 0: above, 1: below
  */
 function add(above, below) {
-    const na = Object.assign({}, above, {
-        below: above.below.concat(below.id),
-    });
-    const nb = Object.assign({}, below, {
-        above: below.above.concat(above.id),
-    });
+  const na = Object.assign({}, above, {
+    below: above.below.concat(below.id),
+  });
+  const nb = Object.assign({}, below, {
+    above: below.above.concat(above.id),
+  });
 
-    return [na, nb];
+  return [na, nb];
 }
 
 /**
@@ -141,31 +141,32 @@ function add(above, below) {
  * @return {!Map<number, !TempGraphNode>}
  */
 function setBalancedDepth(nodes) {
-    const balanced = new Map();
+  const balanced = new Map();
 
-    const nodesAboveEql = (n, tmp, bId) =>
-        n.above.length === tmp.get(bId).above.length && n.above.every((na, i) => na === tmp.get(bId).above[i]);
-    const isKnown = (tmp, aId) => tmp.get(aId).below.some(bId => tmp.has(bId));
-    const nextDepth = (tmp, d, bId) => Math.max(d, tmp.get(bId).depth + 1);
+  const nodesAboveEql = (n, tmp, bId) =>
+    n.above.length === tmp.get(bId).above.length &&
+    n.above.every((na, i) => na === tmp.get(bId).above[i]);
+  const isKnown = (tmp, aId) => tmp.get(aId).below.some((bId) => tmp.has(bId));
+  const nextDepth = (tmp, d, bId) => Math.max(d, tmp.get(bId).depth + 1);
 
-    for (const [id, n] of nodes) {
-        let depth;
+  for (const [id, n] of nodes) {
+    let depth;
 
-        const commonId = [...balanced.keys()].reverse().find(nodesAboveEql.bind(null, n, balanced));
-        depth = balanced.has(commonId) && balanced.get(commonId).depth;
+    const commonId = [...balanced.keys()].reverse().find(nodesAboveEql.bind(null, n, balanced));
+    depth = balanced.has(commonId) && balanced.get(commonId).depth;
 
-        if (!depth && !n.above.some(isKnown.bind(null, balanced))) {
-            depth = n.above.reduce(nextDepth.bind(null, balanced), 0);
-        }
-
-        if (!depth) {
-            depth = [...balanced.keys()].reduce(nextDepth.bind(null, balanced), 0);
-        }
-
-        balanced.set(id, Object.assign({}, n, { depth }));
+    if (!depth && !n.above.some(isKnown.bind(null, balanced))) {
+      depth = n.above.reduce(nextDepth.bind(null, balanced), 0);
     }
 
-    return balanced;
+    if (!depth) {
+      depth = [...balanced.keys()].reduce(nextDepth.bind(null, balanced), 0);
+    }
+
+    balanced.set(id, Object.assign({}, n, { depth }));
+  }
+
+  return balanced;
 }
 
 /**
@@ -178,9 +179,9 @@ function setBalancedDepth(nodes) {
  * @return {GraphNode}
  */
 function findRef(node) {
-    const centerIdx = Math.floor(node.above.length / 2);
+  const centerIdx = Math.floor(node.above.length / 2);
 
-    return node.above[centerIdx] || null;
+  return node.above[centerIdx] || null;
 }
 
 /**
@@ -202,7 +203,7 @@ function findRef(node) {
  * @see setBalancedDepth
  */
 function isRef(node, nodesBelow) {
-    return nodesBelow.length > 0 && findRef(nodesBelow[0]) === node;
+  return nodesBelow.length > 0 && findRef(nodesBelow[0]) === node;
 }
 
 /**
@@ -217,12 +218,14 @@ function isRef(node, nodesBelow) {
  * @return {number}
  */
 function getWidth(node) {
-    const width = Math.max(
-        node.width,
-        node.below.filter(isRef.bind(null, node)).reduce((ws, nbs) => ws + nbs.reduce((w, nb) => w + nb.width, 0), 0)
-    );
+  const width = Math.max(
+    node.width,
+    node.below
+      .filter(isRef.bind(null, node))
+      .reduce((ws, nbs) => ws + nbs.reduce((w, nb) => w + nb.width, 0), 0)
+  );
 
-    return width;
+  return width;
 }
 
 /**
@@ -235,11 +238,11 @@ function getWidth(node) {
  * @return {number}
  */
 function getPosition(node) {
-    const ref = findRef(node);
-    const lvl = ref && ref.below.find(isRef.bind(null, ref));
-    const pos = lvl && lvl.findIndex(nb => nb === node);
+  const ref = findRef(node);
+  const lvl = ref && ref.below.find(isRef.bind(null, ref));
+  const pos = lvl && lvl.findIndex((nb) => nb === node);
 
-    return ref ? pos - (lvl.length - 1) / 2 : 0;
+  return ref ? pos - (lvl.length - 1) / 2 : 0;
 }
 
 /**
@@ -253,16 +256,16 @@ function getPosition(node) {
  * @return {!Map<number, !TempGraphNode>}
  */
 function setBalancedWeight(nodes) {
-    const balanced = new Map();
+  const balanced = new Map();
 
-    for (const [id, n] of [...nodes.entries()].reverse()) {
-        balanced.set(id, Object.assign({}, n));
-        for (const bId of balanced.get(id).below) {
-            balanced.get(id).weight += balanced.get(bId).weight / balanced.get(bId).above.length;
-        }
+  for (const [id, n] of [...nodes.entries()].reverse()) {
+    balanced.set(id, Object.assign({}, n));
+    for (const bId of balanced.get(id).below) {
+      balanced.get(id).weight += balanced.get(bId).weight / balanced.get(bId).above.length;
     }
+  }
 
-    return new Map([...balanced.entries()].reverse());
+  return new Map([...balanced.entries()].reverse());
 }
 
 /**
@@ -272,12 +275,12 @@ function setBalancedWeight(nodes) {
  * @return {!Array<!GraphNode>}
  */
 function centerNodes(nodes) {
-    const sorted = nodes.slice().sort(createComparator(Dir.ASC));
+  const sorted = nodes.slice().sort(createComparator(Dir.ASC));
 
-    const even = sorted.filter((n, i) => i % 2 === 0);
-    const odd = sorted.filter((n, i) => i % 2 === 1);
+  const even = sorted.filter((n, i) => i % 2 === 0);
+  const odd = sorted.filter((n, i) => i % 2 === 1);
 
-    return even.concat(odd.reverse());
+  return even.concat(odd.reverse());
 }
 
 /**
@@ -293,51 +296,51 @@ function centerNodes(nodes) {
  * @see getPosition
  */
 function setBalancedWidthAndPosition(nodes) {
-    const balanced = new Map();
+  const balanced = new Map();
 
-    const toExport = (exported, id) => exported.get(id);
+  const toExport = (exported, id) => exported.get(id);
 
-    const divideByDepth = (n, tmp, b, bId) => {
-        const below = b.slice();
+  const divideByDepth = (n, tmp, b, bId) => {
+    const below = b.slice();
 
-        const relDepth = tmp.get(bId).depth - n.depth - 1;
+    const relDepth = tmp.get(bId).depth - n.depth - 1;
 
-        for (let i = relDepth; i >= 0; i -= 1) {
-            if (below[i]) break;
+    for (let i = relDepth; i >= 0; i -= 1) {
+      if (below[i]) break;
 
-            below[i] = [];
-        }
-
-        below[relDepth].push(bId);
-
-        return below;
-    };
-
-    for (const [id, n] of nodes) {
-        balanced.set(id, Object.assign({}, n));
-
-        balanced.get(id).above = centerNodes(balanced.get(id).above.map(toExport.bind(null, balanced)));
-
-        balanced.get(id).below = n.below.reduce(divideByDepth.bind(null, n, nodes), []);
-
-        balanced.get(id).width = 1;
+      below[i] = [];
     }
 
-    const belowToExport = (tmp, bIds) => centerNodes(bIds.map(toExport.bind(null, tmp)));
+    below[relDepth].push(bId);
 
-    for (const n of balanced.values()) {
-        n.below = n.below.map(belowToExport.bind(null, balanced));
-    }
+    return below;
+  };
 
-    for (const n of [...balanced.values()].reverse()) {
-        n.width = getWidth(n);
-    }
+  for (const [id, n] of nodes) {
+    balanced.set(id, Object.assign({}, n));
 
-    for (const n of balanced.values()) {
-        n.position = getPosition(n);
-    }
+    balanced.get(id).above = centerNodes(balanced.get(id).above.map(toExport.bind(null, balanced)));
 
-    return balanced;
+    balanced.get(id).below = n.below.reduce(divideByDepth.bind(null, n, nodes), []);
+
+    balanced.get(id).width = 1;
+  }
+
+  const belowToExport = (tmp, bIds) => centerNodes(bIds.map(toExport.bind(null, tmp)));
+
+  for (const n of balanced.values()) {
+    n.below = n.below.map(belowToExport.bind(null, balanced));
+  }
+
+  for (const n of [...balanced.values()].reverse()) {
+    n.width = getWidth(n);
+  }
+
+  for (const n of balanced.values()) {
+    n.position = getPosition(n);
+  }
+
+  return balanced;
 }
 
 /**
@@ -353,7 +356,7 @@ function setBalancedWidthAndPosition(nodes) {
  * @see setBalancedWidthAndPosition
  */
 function balance(nodes) {
-    return _.flow([setBalancedDepth, setBalancedWeight, setBalancedWidthAndPosition])(nodes);
+  return _.flow([setBalancedDepth, setBalancedWeight, setBalancedWidthAndPosition])(nodes);
 }
 
 /**
@@ -374,20 +377,40 @@ function balance(nodes) {
  * @see balance
  */
 export function graph(deps) {
-    const normalized = normalize(deps);
-    const nodes = new Map();
+  const normalized = normalize(deps);
+  const nodes = new Map();
 
-    for (const id of normalized.keys()) {
-        nodes.set(id, create(id));
+  for (const id of normalized.keys()) {
+    nodes.set(id, create(id));
+  }
+
+  for (const [id, ds] of normalized) {
+    for (const depId of ds) {
+      const [above, below] = add(nodes.get(depId), nodes.get(id));
+      nodes.set(above.id, above);
+      nodes.set(below.id, below);
     }
+  }
 
-    for (const [id, ds] of normalized) {
-        for (const depId of ds) {
-            const [above, below] = add(nodes.get(depId), nodes.get(id));
-            nodes.set(above.id, above);
-            nodes.set(below.id, below);
-        }
-    }
-
-    return balance(nodes);
+  return balance(nodes);
 }
+
+export const getStateBoundingRect = (stateId: string): DOMRect => {
+  const state = document.getElementById(`state-${stateId}`);
+
+  if (!state) {
+    return {
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+      left: 0,
+      top: 0,
+      right: 0,
+      bottom: 0,
+      toJSON: noop,
+    };
+  }
+
+  return state.getBoundingClientRect();
+};

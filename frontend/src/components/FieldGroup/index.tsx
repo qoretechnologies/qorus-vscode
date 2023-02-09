@@ -1,42 +1,19 @@
-import React from 'react';
-import styled, { css } from 'styled-components';
-import { FieldInputWrapper } from '../../components/FieldWrapper';
-import { FieldWrapper } from '../FieldWrapper';
+import { ReqoreColumns } from '@qoretechnologies/reqore';
+import { IReqorePanelProps, ReqorePanel } from '@qoretechnologies/reqore/dist/components/Panel';
 
-export interface IFieldGroupProps {
-  children: any;
-  transparent?: boolean;
-}
-
-const StyledFieldGroup = styled.div<{ transparent: boolean }>`
-  display: flex;
-  justify-content: space-between;
-
-  // If transparent is not set
-  ${({ transparent }) =>
-    !transparent &&
-    css`
-      &:nth-child(even) {
-        background-color: #fafafa;
-      }
-    `}
-
-  ${FieldWrapper} {
-    flex: 1;
-    background-color: transparent;
-    &:not(:last-child) {
-      border-right: 1px solid #eaeaea;
-    }
-  }
-
-  ${FieldInputWrapper} {
-    display: flex;
-    align-items: center;
-  }
-`;
-
-const FieldGroup: React.FC<IFieldGroupProps> = ({ children, transparent }) => (
-  <StyledFieldGroup transparent={transparent}>{children}</StyledFieldGroup>
+const FieldGroup = ({ children, isValid, ...rest }: IReqorePanelProps & { isValid?: boolean }) => (
+  <ReqorePanel
+    collapsible={!!rest.label}
+    minimal
+    icon={!!rest.label ? 'Group2Line' : undefined}
+    size="small"
+    {...rest}
+    intent={isValid === false ? 'danger' : rest.intent}
+  >
+    <ReqoreColumns columnsGap="20px" minColumnWidth="450px">
+      {children}
+    </ReqoreColumns>
+  </ReqorePanel>
 );
 
 export default FieldGroup;

@@ -1,32 +1,25 @@
 // @flow
 import {
-  Button,
-  ButtonGroup,
-  Callout,
-  Classes,
-  ControlGroup,
-  InputGroup,
-  Intent,
-  Popover,
-  Position,
-  Tab,
-  Tabs,
-  Tooltip,
-} from '@blueprintjs/core';
+  ReqoreControlGroup,
+  ReqoreDropdown,
+  ReqoreInput,
+  ReqoreMessage,
+  ReqorePanel,
+  ReqoreTabs,
+  ReqoreTabsContent,
+  ReqoreTag,
+  ReqoreTree,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import jsyaml from 'js-yaml';
 import map from 'lodash/map';
 import React, { Component } from 'react';
 import ReactMarkdown from 'react-markdown';
 import CustomDialog from '../../components/CustomDialog';
-import Dropdown, { Control as DControl, Item } from '../../components/Dropdown';
 import AutoField from '../../components/Field/auto';
-import Pull from '../../components/Pull';
-import Box from '../../components/ResponsiveBox';
-import Tree from '../../components/Tree';
+import { NegativeColorEffect, SaveColorEffect } from '../../components/Field/multiPair';
 import { validateField } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
-import { StyledDialogBody } from '../ClassConnectionsManager';
-import { Value } from './table';
 
 export const templatesList = [
   'local',
@@ -113,7 +106,7 @@ export default class ConfigItemsModal extends Component {
     });
   };
 
-  handleSaveClick: Function = (): void => {
+  handleSaveClick = (): void => {
     const value: any = this.state.value;
 
     let newValue = value;
@@ -136,7 +129,7 @@ export default class ConfigItemsModal extends Component {
     );
   };
 
-  handleRemoveClick: Function = (): void => {
+  handleRemoveClick = (): void => {
     this.props.onSubmit(this.state.item.name, null, this.state.item.parent_class, false, true);
   };
 
@@ -145,28 +138,22 @@ export default class ConfigItemsModal extends Component {
       return (
         <React.Fragment>
           {item.allowed_values.map((value) => (
-            <Tree data={value} compact noControls expanded />
+            <ReqoreTree data={value} showControls expanded />
           ))}
         </React.Fragment>
       );
     }
 
     return (
-      <Dropdown>
-        <DControl icon="list" small>
-          {this.props.t('ConfigSelectFromPredefined')}
-        </DControl>
-        {item.allowed_values
+      <ReqoreDropdown
+        label={this.props.t('ConfigSelectFromPredefined')}
+        items={item.allowed_values
           .filter((item) => item)
-          .map((value) => (
-            <Item
-              title={value}
-              onClick={() => {
-                this.handleObjectChange(value, item.type, item.can_be_undefined);
-              }}
-            />
-          ))}
-      </Dropdown>
+          .map((value) => ({
+            value,
+            onClick: () => this.handleObjectChange(value, item.type, item.can_be_undefined),
+          }))}
+      />
     );
   };
 
@@ -188,219 +175,179 @@ export default class ConfigItemsModal extends Component {
     return (
       <CustomDialog
         isOpen
-        title={!item ? t('AssignNewConfig') : `${t('Editing')} ${item.name}`}
+        label={!item ? t('AssignNewConfig') : `${t('Editing')} ${item.name}`}
         onClose={onClose}
-        style={{ backgroundColor: '#fff', width: '50vw' }}
+        bottomActions={[
+          {
+            icon: 'CloseLine',
+            label: t('Close'),
+            onClick: onClose,
+          },
+          {
+            icon: 'DeleteBinLine',
+            label: t('RemoveValue'),
+            effect: NegativeColorEffect,
+            onClick: this.handleRemoveClick,
+          },
+          {
+            label: t('Submit'),
+            onClick: this.handleSaveClick,
+            icon: 'CheckDoubleLine',
+            position: 'right',
+            effect: SaveColorEffect,
+            disabled: !this.isDisabled(),
+          },
+        ]}
       >
-        <StyledDialogBody style={{ flexFlow: 'column' }}>
-          {item && item.description && (
-            <Callout icon="info-sign" title={t('Description')}>
+        {item && item.description && (
+          <>
+            <ReqoreMessage intent="info" title={t('Description')} size="small">
               <ReactMarkdown>{item.description}</ReactMarkdown>
-              --
-              <p>
-                {' '}
-                {t('ConfigItemIsType')}{' '}
-                <strong>
-                  {'<'}
-                  {item.can_be_undefined ? '*' : ''}
-                  {item.type} {'/>'}
-                </strong>
-              </p>
-            </Callout>
-          )}
-          {isGlobal && (
-            <>
-              <Callout icon="warning-sign" intent="warning">
-                {!item ? t('CreatingNew') : t('Editing')} {t('GlobalConfigAffectsAll')}
-              </Callout>
-              {!item && (
-                <>
-                  <Dropdown>
-                    <DControl>{t('PleaseSelect')}</DControl>
-                    {map(globalConfig, (data) => (
-                      <Item
-                        title={data.name}
-                        onClick={(event, name) => {
-                          // GET THE DATA OF THE CONFIG ITEM HERE
-                          this.setState({
-                            value: null,
-                            item: { ...data, name },
-                            type: data.type === 'any' ? null : data.type,
-                            yamlData: data.yamlData,
-                          });
-                        }}
-                      />
-                    ))}
-                  </Dropdown>
-                  <br />
-                </>
-              )}
-            </>
-          )}
-
-          {!yamlData && <p>{t('PleaseSelectConfigItem')}</p>}
-          {yamlData ? (
-            <Tabs
-              defaultSelectedTabId={'custom'}
-              id={'ConfigItemsTabs'}
-              renderActiveTabPanelOnly
-              className={'fullHeightTabs'}
-              onChange={(newTabId: string): void => {
-                this.setState({
-                  value: null,
-                  tab: newTabId,
-                  isTemplatedString: newTabId === 'template',
-                });
-              }}
-              selectedTabId={this.state.tab}
-            >
-              <Tab
-                id={'custom'}
-                title={t('Custom')}
-                className={'flex-column flex-auto'}
-                panel={
-                  <React.Fragment>
-                    <div className="configItemsEditor">
-                      <div className="header">
-                        {item.allowed_values
-                          ? this.renderAllowedItems(item)
-                          : isGlobal
-                          ? t('SetItemValue')
-                          : t('SetCustomValue')}
-                        {!isGlobal && (
-                          <Pull right>
-                            <ButtonGroup>
-                              <Tooltip content={<Value item={item} useDefault />}>
-                                <Button
-                                  text={t('SetDefaultValue')}
-                                  disabled={!item.default_value}
-                                  onClick={this.handleDefaultClick}
-                                  small
-                                />
-                              </Tooltip>
-                            </ButtonGroup>
-                          </Pull>
-                        )}
-                      </div>
-                      <div className="body">
-                        {item.allowed_values && (
-                          <Callout intent="warning" icon="warning-sign">
-                            {t('ConfigPredefinedValues')}
-                          </Callout>
-                        )}
-                        {error && (
-                          <Callout icon="warning-sign" intent="danger">
-                            {t('ConfigFormatIncorrect')}
-                          </Callout>
-                        )}
-                        <AutoField
-                          name="configItem"
-                          value={this.state.value}
-                          default_value={this.state.origValue}
-                          t={t}
-                          type="auto"
-                          noSoft
-                          defaultType={item.type}
-                          defaultInternalType={item.value_true_type || item.type}
-                          disabled={!!item.allowed_values}
-                          requestFieldData={(field) =>
-                            field === 'can_be_undefined' ? item.can_be_undefined : item.type
-                          }
-                          onChange={(name, value, type, canBeNull) => {
-                            this.handleObjectChange(value, type, canBeNull);
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </React.Fragment>
-                }
+              <ReqoreTag
+                icon="CodeLine"
+                labelKey={t('ConfigItemIsType')}
+                label={`${item.can_be_undefined ? '*' : ''}${item.type}`}
               />
-              <Tab
-                id={'template'}
-                title={t('Template')}
-                className={'flex-column flex-auto'}
-                panel={
-                  <div className="configItemsEditor">
-                    <div className="header">{t('ConfigCustomTemplate')}</div>
-                    <div className="body">
-                      <Callout intent="primary" icon="info-sign">
-                        {`${t('ConfigTemplatesFormat')} $<type>:<key>`}
-                      </Callout>
-                      <div style={{ marginTop: '10px' }} />
-                      <ControlGroup className="pt-fill">
-                        <Dropdown className="pt-fixed">
-                          <DControl icon="dollar">{this.state.templateType}</DControl>
-                          {templatesList.map((template) => (
-                            <Item
-                              title={template}
-                              onClick={() => {
-                                this.setState({ templateType: template });
-                              }}
-                            />
-                          ))}
-                        </Dropdown>
-                        <Button text=":" className={Classes.FIXED} />
-                        <InputGroup
-                          fill
-                          value={this.state.templateKey}
-                          onChange={(event: any) => {
-                            this.setState({
-                              templateKey: event.target.value,
-                              value: `$${this.state.templateType}:${event.target.value}`,
-                            });
-                          }}
-                        />
-                      </ControlGroup>
-                    </div>
-                  </div>
-                }
-              />
-            </Tabs>
-          ) : null}
-          {yamlData ? (
-            <div>
-              <ButtonGroup className="pull-left">
-                <Button
-                  fill
-                  icon="trash"
-                  text={t('RemoveValue')}
-                  intent={Intent.DANGER}
-                  onClick={this.handleRemoveClick}
+            </ReqoreMessage>
+            <ReqoreVerticalSpacer height={10} />
+          </>
+        )}
+        {isGlobal && (
+          <>
+            <ReqoreMessage intent="warning">
+              {!item ? t('Creating') : t('Editing')} {t('GlobalConfigAffectsAll')}
+            </ReqoreMessage>
+            <ReqoreVerticalSpacer height={10} />
+            {!item && (
+              <>
+                <ReqoreDropdown
+                  label={t('PleaseSelect')}
+                  items={map(globalConfig, (data) => ({
+                    value: data.name,
+                    onClick: ({ value }) => {
+                      // GET THE DATA OF THE CONFIG ITEM HERE
+                      this.setState({
+                        value: null,
+                        item: { ...data, name: value },
+                        type: data.type === 'any' ? null : data.type,
+                        yamlData: data.yamlData,
+                      });
+                    },
+                  }))}
                 />
-              </ButtonGroup>
-              <ButtonGroup className="pull-right">
-                <Button text={t('Cancel')} onClick={onClose} />
-                {!isGlobal && this.state.tab !== 'template' && value === item.default_value ? (
-                  <Popover
-                    position={Position.TOP}
-                    content={
-                      <Box fill top style={{ width: '300px' }}>
-                        <p>{t('ConfigValueSameAsDefault')}</p>
-                        <ButtonGroup>
-                          <Button
-                            fill
-                            text={t('SubmitAnyway')}
-                            intent={Intent.SUCCESS}
-                            onClick={this.handleSaveClick}
-                          />
-                        </ButtonGroup>
-                      </Box>
-                    }
-                  >
-                    <Button text={t('Save')} icon="warning-sign" intent={Intent.WARNING} />
-                  </Popover>
-                ) : (
-                  <Button
-                    text={t('Save')}
-                    intent="success"
-                    disabled={!this.isDisabled()}
-                    onClick={this.handleSaveClick}
-                  />
+                <ReqoreVerticalSpacer height={10} />
+              </>
+            )}
+          </>
+        )}
+
+        {!yamlData && <ReqoreMessage>{t('PleaseSelectConfigItem')}</ReqoreMessage>}
+        <ReqoreVerticalSpacer height={10} />
+        {yamlData ? (
+          <ReqoreTabs
+            padded={false}
+            tabsPadding="vertical"
+            activeTab="custom"
+            activeTabIntent="info"
+            onTabChange={(newTabId: string): void => {
+              this.setState({
+                value: null,
+                tab: newTabId,
+                isTemplatedString: newTabId === 'template',
+              });
+            }}
+            tabs={[
+              {
+                id: 'custom',
+                label: t('Custom'),
+              },
+              {
+                id: 'template',
+                label: t('Template'),
+              },
+            ]}
+          >
+            <ReqoreTabsContent tabId={'custom'}>
+              <ReqorePanel
+                label={isGlobal ? t('SetItemValue') : t('SetCustomValue')}
+                actions={[
+                  {
+                    show: !isGlobal,
+                    label: t('SetDefaultValue'),
+                    disabled: !item.default_value,
+                    onClick: this.handleDefaultClick,
+                  },
+                ]}
+              >
+                {item.allowed_values && (
+                  <>
+                    <ReqoreMessage intent="info">
+                      {t('ConfigPredefinedValues')}
+                      <ReqoreVerticalSpacer height={10} />
+                      {this.renderAllowedItems(item)}
+                    </ReqoreMessage>
+                    <ReqoreVerticalSpacer height={10} />
+                  </>
                 )}
-              </ButtonGroup>
-            </div>
-          ) : null}
-        </StyledDialogBody>
+                {error && (
+                  <>
+                    <ReqoreMessage intent="danger">{t('ConfigFormatIncorrect')}</ReqoreMessage>
+                    <ReqoreVerticalSpacer height={10} />
+                  </>
+                )}
+                <AutoField
+                  name="configItem"
+                  value={this.state.value}
+                  default_value={this.state.origValue}
+                  t={t}
+                  type="auto"
+                  noSoft
+                  defaultType={item.type}
+                  defaultInternalType={item.value_true_type || item.type}
+                  disabled={!!item.allowed_values}
+                  requestFieldData={(field) =>
+                    field === 'can_be_undefined' ? item.can_be_undefined : item.type
+                  }
+                  onChange={(name, value, type, canBeNull) => {
+                    this.handleObjectChange(value, type, canBeNull);
+                  }}
+                />
+              </ReqorePanel>
+            </ReqoreTabsContent>
+            <ReqoreTabsContent tabId={'template'}>
+              <ReqorePanel label={t('ConfigCustomTemplate')}>
+                <ReqoreMessage intent="info" size="small">
+                  {`${t('ConfigTemplatesFormat')} $<type>:<key>`}
+                </ReqoreMessage>
+                <ReqoreVerticalSpacer height={10} />
+                <ReqoreControlGroup fluid>
+                  <ReqoreDropdown
+                    fixed
+                    filterable
+                    label={this.state.templateType}
+                    items={templatesList.map((template) => ({
+                      value: template,
+                      onClick: () => {
+                        this.setState({ templateType: template });
+                      },
+                    }))}
+                  />
+
+                  <ReqoreTag label=":" fixed />
+                  <ReqoreInput
+                    value={this.state.templateKey}
+                    onChange={(event: any) => {
+                      this.setState({
+                        templateKey: event.target.value,
+                        value: `$${this.state.templateType}:${event.target.value}`,
+                      });
+                    }}
+                  />
+                </ReqoreControlGroup>
+              </ReqorePanel>
+            </ReqoreTabsContent>
+          </ReqoreTabs>
+        ) : null}
       </CustomDialog>
     );
   }

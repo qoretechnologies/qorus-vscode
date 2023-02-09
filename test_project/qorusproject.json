@@ -1,14 +1,13 @@
 {
-    "qorus_instances": {
-        "local": [
-            {
-                "name": "Local Qorus instance",
-                "url": "https://localhost:8011/",
-                "custom_urls": []
-            }
-        ]
-    },
-    "source_directories": [
-        "."
-    ]
+  "qorus_instances": {
+    "local": [
+      {
+        "name": "Rippy2",
+        "url": "https://hq.qoretechnologies.com:8092/",
+        "custom_urls": []
+      }
+    ],
+    "test": []
+  },
+  "source_directories": ["."]
 }

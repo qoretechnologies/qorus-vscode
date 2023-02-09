@@ -1,4 +1,5 @@
-import { Button, ButtonGroup } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreControlGroup } from '@qoretechnologies/reqore';
+import { IReqoreEffect } from '@qoretechnologies/reqore/dist/components/Effect';
 import { size } from 'lodash';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
@@ -15,6 +16,59 @@ type IPair = {
 export const StyledPairField = styled.div`
   margin-bottom: 10px;
 `;
+
+export const PositiveColorEffect: IReqoreEffect = {
+  gradient: {
+    direction: 'to right',
+    colors: {
+      0: 'info:lighten',
+      100: 'info',
+    },
+    animate: 'hover',
+  },
+};
+
+export const WarningColorEffect: IReqoreEffect = {
+  gradient: {
+    direction: 'to right',
+    colors: {
+      0: 'warning:lighten',
+      100: 'warning',
+    },
+    animate: 'hover',
+  },
+};
+
+export const NegativeColorEffect: IReqoreEffect = {
+  gradient: {
+    direction: 'to right bottom',
+    colors: {
+      0: 'danger:lighten',
+      100: 'danger:darken',
+    },
+    animate: 'hover',
+  },
+};
+
+export const SaveColorEffect: IReqoreEffect = {
+  gradient: {
+    colors: {
+      0: 'success:lighten',
+      100: 'success:darken',
+    },
+    animate: 'hover',
+  },
+};
+
+export const SelectorColorEffect: IReqoreEffect = {
+  gradient: {
+    direction: 'to right bottom',
+    colors: {
+      0: 'main:lighten',
+      100: 'main',
+    },
+  },
+};
 
 const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = ({
   fields,
@@ -64,9 +118,18 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
           />
         </StyledPairField>
       ))}
-      <ButtonGroup fill>
-        <Button text={t('AddNew')} icon={'add'} onClick={handleAddClick} />
-      </ButtonGroup>
+      <ReqoreControlGroup fluid>
+        <ReqoreButton
+          icon={'AddLine'}
+          rightIcon={'AddLine'}
+          textAlign="center"
+          fluid
+          onClick={handleAddClick}
+          effect={PositiveColorEffect}
+        >
+          {t('AddNew')}
+        </ReqoreButton>
+      </ReqoreControlGroup>
     </>
   );
 };

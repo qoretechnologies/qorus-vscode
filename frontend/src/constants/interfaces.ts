@@ -41,3 +41,25 @@ export const interfaceToPlural = {
   script: 'scripts',
   test: 'tests',
 };
+
+export const interfaceNameToKind = {
+  Service: 'service',
+  Step: 'step',
+  'Mapper Code': 'mapper-code',
+  Errors: 'errors',
+  Workflow: 'workflow',
+  Job: 'job',
+  Mapper: 'mapper',
+  Group: 'group',
+  Event: 'event',
+  Queue: 'queue',
+  Connection: 'connection',
+  'Flow Builder': 'fsm',
+  Pipeline: 'pipeline',
+  'Value Map': 'value-map',
+  Type: 'type',
+  Class: 'class',
+  'Schema Module': 'schema-module',
+  Script: 'script',
+  Test: 'test',
+};

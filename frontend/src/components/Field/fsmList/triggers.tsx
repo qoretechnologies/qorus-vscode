@@ -1,57 +1,54 @@
-import { Button, Classes, Tag } from '@blueprintjs/core';
-import React, { ReactNode, useContext } from 'react';
+import { ReqoreButton, ReqoreControlGroup, ReqoreTag } from '@qoretechnologies/reqore';
+import React, { useContext } from 'react';
 import { TTrigger } from '../../../containers/InterfaceCreator/fsm';
 import { TextContext } from '../../../context/text';
 import { getTriggerName } from './';
 
 export interface IFSMListTriggersProps {
-    triggers: TTrigger[];
-    setTriggerManager: any;
-    handleTriggerRemove: (name: ReactNode, fsmIndex: number) => any;
-    fsmIndex: number;
-    disabled: boolean;
+  triggers: TTrigger[];
+  setTriggerManager: any;
+  handleTriggerRemove: (name: TTrigger, fsmIndex: number) => any;
+  fsmIndex: number;
+  disabled: boolean;
 }
 
 const IFSMListTriggers: React.FC<IFSMListTriggersProps> = ({
-    triggers = [],
-    setTriggerManager,
-    handleTriggerRemove,
-    fsmIndex,
-    disabled,
+  triggers = [],
+  setTriggerManager,
+  handleTriggerRemove,
+  fsmIndex,
+  disabled,
 }) => {
-    const t = useContext(TextContext);
+  const t = useContext(TextContext);
 
-    return (
-        <>
-            {triggers.length === 0 && <span className={Classes.TEXT_MUTED}>{t('NoTriggersYet')}</span>}{' '}
-            {triggers.map((trigger: TTrigger, index: number) => (
-                <>
-                    <Tag
-                        large
-                        interactive
-                        intent="none"
-                        minimal
-                        onClick={() => {
-                            setTriggerManager({ isOpen: true, data: trigger, fsmIndex, index });
-                        }}
-                        onRemove={(e, props) => {
-                            e.stopPropagation();
-                            handleTriggerRemove(props.children, fsmIndex);
-                        }}
-                    >
-                        {getTriggerName(trigger)}
-                    </Tag>{' '}
-                </>
-            ))}
-            <Button
-                icon="add"
-                intent="success"
-                name={`field-fsm-${fsmIndex}-add-trigger`}
-                disabled={disabled}
-                onClick={() => setTriggerManager({ isOpen: true, fsmIndex })}
-            />
-        </>
-    );
+  return (
+    <ReqoreControlGroup wrap fluid>
+      {triggers.length === 0 && (
+        <ReqoreTag icon="ForbidLine" color="transparent" label={t('NoTriggersYet')} fixed />
+      )}
+      {triggers.map((trigger: TTrigger, index: number) => (
+        <ReqoreTag
+          key={index}
+          onClick={() => {
+            setTriggerManager({ isOpen: true, data: trigger, fsmIndex, index });
+          }}
+          fixed
+          onRemoveClick={(e) => {
+            e.stopPropagation();
+            handleTriggerRemove(trigger, fsmIndex);
+          }}
+          label={getTriggerName(trigger)}
+        />
+      ))}
+      <ReqoreButton
+        icon="AddLine"
+        intent="info"
+        disabled={disabled}
+        fixed
+        onClick={() => setTriggerManager({ isOpen: true, fsmIndex })}
+      />
+    </ReqoreControlGroup>
+  );
 };
 
 export default IFSMListTriggers;

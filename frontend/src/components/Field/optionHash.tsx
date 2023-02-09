@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, ControlGroup } from '@blueprintjs/core';
+import { ReqoreButton, ReqoreControlGroup, ReqoreTag } from '@qoretechnologies/reqore';
 import size from 'lodash/size';
 import { FunctionComponent, useContext } from 'react';
 import styled from 'styled-components';
@@ -7,6 +7,7 @@ import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { InitialContext } from '../../context/init';
 import withTextContext from '../../hocomponents/withTextContext';
 import AutoField from './auto';
+import { PositiveColorEffect } from './multiPair';
 import SelectField from './select';
 
 type IPair = {
@@ -66,49 +67,55 @@ const OptionHashField: FunctionComponent<
     <>
       {value.map((pair: IPair, index: number) => (
         <StyledPairField key={pair.name}>
-          <div>
-            <ControlGroup fill>
-              <Button text={`${index + 1}.`} />
-              <SelectField
-                name="name"
-                value={pair.name}
-                get_message={get_message}
-                return_message={return_message}
-                defaultItems={filteredItems}
-                onChange={(fieldName: string, value: string) => {
+          <ReqoreControlGroup fluid fill verticalAlign="center">
+            <ReqoreTag label={`${index + 1}.`} fixed />
+            <SelectField
+              name="name"
+              value={pair.name}
+              get_message={get_message}
+              return_message={return_message}
+              defaultItems={items}
+              onChange={(fieldName: string, value: string) => {
+                changePairData(index, fieldName, value);
+              }}
+              fill
+            />
+            {pair.name ? (
+              <AutoField
+                defaultType={getNameType(pair.name)}
+                name="value"
+                value={pair.value}
+                onChange={(fieldName: string, value: string): void => {
                   changePairData(index, fieldName, value);
                 }}
                 fill
+                t={t}
               />
-              {pair.name ? (
-                <AutoField
-                  defaultType={getNameType(pair.name)}
-                  name="value"
-                  value={pair.value}
-                  onChange={(fieldName: string, value: string): void => {
-                    changePairData(index, fieldName, value);
-                  }}
-                  fill
-                  t={t}
-                />
-              ) : null}
-              {index !== 1 && (
-                <Button
-                  icon={'trash'}
-                  intent="danger"
-                  onClick={() =>
-                    initContext.confirmAction('ConfirRemoveItem', () => handleRemoveClick(index))
-                  }
-                />
-              )}
-            </ControlGroup>
-          </div>
+            ) : null}
+            {index !== 0 && (
+              <ReqoreButton
+                icon={'DeleteBinLine'}
+                intent="danger"
+                onClick={() =>
+                  initContext.confirmAction('ConfirmRemoveItem', () => handleRemoveClick(index))
+                }
+              />
+            )}
+          </ReqoreControlGroup>
         </StyledPairField>
       ))}
       {size(options) !== 0 && size(value) !== size(options) && (
-        <ButtonGroup fill>
-          <Button text={t('AddNew')} icon={'add'} onClick={handleAddClick} />
-        </ButtonGroup>
+        <ReqoreControlGroup fluid>
+          <ReqoreButton
+            textAlign="center"
+            onClick={handleAddClick}
+            icon="AddLine"
+            rightIcon="AddLine"
+            effect={PositiveColorEffect}
+          >
+            {t('AddNew')}
+          </ReqoreButton>
+        </ReqoreControlGroup>
       )}
     </>
   );

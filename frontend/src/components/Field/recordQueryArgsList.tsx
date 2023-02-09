@@ -1,9 +1,10 @@
-import { Button, ButtonGroup } from '@blueprintjs/core';
-import React, { useContext } from 'react';
+import { ReqoreButton, ReqoreControlGroup } from '@qoretechnologies/reqore';
+import { useContext } from 'react';
 import styled from 'styled-components';
 import { TextContext } from '../../context/text';
 import { TRecordType } from './connectors';
 import { RecordQueryArgs } from './connectors/searchArgs';
+import { PositiveColorEffect } from './multiPair';
 import { IOptions } from './systemOptions';
 
 export interface IRecordQueryArgsListProps {
@@ -64,9 +65,16 @@ export const RecordQueryArgsList = ({
             />
           </StyledPairField>
         ))}
-      <ButtonGroup fill style={{ marginBottom: '10px' }}>
-        <Button text={t('AddAnotherRecord')} icon={'add'} onClick={handleAddClick} />
-      </ButtonGroup>
+      <ReqoreControlGroup fluid>
+        <ReqoreButton
+          icon={'AddLine'}
+          rightIcon="AddLine"
+          effect={PositiveColorEffect}
+          onClick={handleAddClick}
+        >
+          {t('AddAnotherRecord')}
+        </ReqoreButton>
+      </ReqoreControlGroup>
     </>
   );
 };
