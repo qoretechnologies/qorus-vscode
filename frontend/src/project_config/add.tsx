@@ -190,17 +190,17 @@ export default withTextContext()(
             </ReqoreControlGroup>
           </ReqoreControlGroup>
         ) : (
-          <ReqoreControlGroup fluid>
-            <ReqoreButton
-              icon="AddLine"
-              effect={PositiveColorEffect}
-              onClick={handleAddClick}
-              // @ts-expect-error
-              name={`${id}-add`}
-            >
-              {text}
-            </ReqoreButton>
-          </ReqoreControlGroup>
+          <ReqoreButton
+            icon="AddLine"
+            effect={PositiveColorEffect}
+            onClick={handleAddClick}
+            // @ts-expect-error
+            name={`${id}-add`}
+            fixed
+            size={big ? 'big' : undefined}
+          >
+            {text}
+          </ReqoreButton>
         )}
       </>
     );

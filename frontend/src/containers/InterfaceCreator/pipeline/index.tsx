@@ -749,34 +749,28 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
               }}
             />
           </FieldWrapper>
-          <FieldGroup
-            isValid={
-              validateField('string', metadata.name) && validateField('string', metadata.desc)
-            }
+          <FieldWrapper
+            name="selected-field"
+            isValid={validateField('string', metadata.name)}
+            label={t('field-label-name')}
+            compact
           >
-            <FieldWrapper
-              name="selected-field"
-              isValid={validateField('string', metadata.name)}
-              label={t('field-label-name')}
-              compact
-            >
-              <String onChange={handleMetadataChange} value={metadata.name} name="name" />
-            </FieldWrapper>
-            <FieldWrapper
-              name="selected-field"
-              isValid={validateField('string', metadata.desc)}
-              label={t('field-label-desc')}
-              compact
-            >
-              <Field
-                type="long-string"
-                markdown
-                onChange={handleMetadataChange}
-                value={metadata.desc}
-                name="desc"
-              />
-            </FieldWrapper>
-          </FieldGroup>
+            <String onChange={handleMetadataChange} value={metadata.name} name="name" autoFocus />
+          </FieldWrapper>
+          <FieldWrapper
+            name="selected-field"
+            isValid={validateField('string', metadata.desc)}
+            label={t('field-label-desc')}
+            compact
+          >
+            <Field
+              type="long-string"
+              markdown
+              onChange={handleMetadataChange}
+              value={metadata.desc}
+              name="desc"
+            />
+          </FieldWrapper>
           <FieldGroup
             isValid={
               (metadata.groups.length === 0

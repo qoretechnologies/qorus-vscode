@@ -319,22 +319,32 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
           setSelectDialogOpen(false);
           setQuery('');
         }}
-        title={t('SelectItem')}
+        title={`Select from items`}
+        badge={size(items)}
       >
         <ReqoreCollection
           maxItemHeight={200}
-          label="Items"
-          badge={size(items)}
           filterable
+          size="big"
           sortable
+          padded={false}
           showSelectedFirst
           selectedIcon="CheckLine"
           fill
+          inputProps={{
+            rightIcon: 'KeyboardFill',
+            focusRules: {
+              type: 'keypress',
+              shortcut: 'letters',
+              clearOnFocus: true,
+            },
+          }}
           items={filterItems(filteredItems).map(
             (item): IReqoreCollectionItemProps => ({
               label: item.name,
               content: <ReactMarkdown>{item.desc}</ReactMarkdown>,
               flat: false,
+              size: 'small',
               minimal: false,
               selected: item.name === value,
               tooltip: !!item.desc

@@ -1,17 +1,17 @@
 import {
   ReqoreButton,
   ReqoreCollection,
-  ReqoreContext,
   ReqoreControlGroup,
   ReqoreInput,
   ReqoreMessage,
   ReqoreSpacer,
+  useReqoreProperty,
 } from '@qoretechnologies/reqore';
 import { IReqoreCollectionProps } from '@qoretechnologies/reqore/dist/components/Collection';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import { size } from 'lodash';
 import map from 'lodash/map';
-import { FunctionComponent, useContext, useState } from 'react';
+import { FunctionComponent, useState } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
@@ -81,7 +81,7 @@ const Project: FunctionComponent<IProject> = ({
     undefined
   );
   const [envName, setEnvName] = useState('');
-  const { confirmAction } = useContext(ReqoreContext);
+  const confirmAction = useReqoreProperty('confirmAction');
 
   useEffectOnce(() => {
     addMessageListener(Messages.CONFIG_RETURN_DATA, ({ data }) => {
@@ -392,11 +392,22 @@ const Project: FunctionComponent<IProject> = ({
             opacity={0}
             label={`Environments`}
             badge={size(projectData.qorus_instances)}
-            headerSize={1}
             minColumnWidth="500px"
             filterable
+            padded={false}
             fill
+            size="big"
             sortable
+            inputPlaceholder={(items) => `Start typing to search ${items.length} environments`}
+            inputProps={{
+              rightIcon: 'KeyboardFill',
+              focusRules: {
+                type: 'keypress',
+                shortcut: 'letters',
+                clearOnFocus: true,
+                viewportOnly: true,
+              },
+            }}
             actions={[
               {
                 as: Add,
@@ -407,6 +418,7 @@ const Project: FunctionComponent<IProject> = ({
                   big: true,
                   text: 'Add new environment',
                 },
+                fixed: true,
               },
             ]}
             items={map(
@@ -415,6 +427,7 @@ const Project: FunctionComponent<IProject> = ({
                 icon: 'ServerLine',
                 intent: isEnvironmentActive(data.qoruses) ? 'info' : undefined,
                 badge: size(data.qoruses),
+                size: 'normal',
                 label:
                   selectedEnvironmentForEditing && selectedEnvironmentForEditing === data.name ? (
                     <ReqoreControlGroup stack>

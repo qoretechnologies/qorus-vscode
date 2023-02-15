@@ -98,49 +98,59 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
   return (
     <div>
       <ReqoreInput
-        placeholder={t('Filter')}
+        placeholder={t('Start typing to filter drafts')}
         onChange={(e) => setQuery(e.target.value)}
         value={query}
+        icon="SearchLine"
+        rightIcon="KeyboardFill"
+        focusRules={{
+          type: 'keypress',
+          shortcut: 'letters',
+          clearOnFocus: true,
+        }}
       />
       <ReqoreVerticalSpacer height={10} />
-      {size(sortedDrafts) ? (
-        sortedDrafts.map(({ date, interfaceId, fileName, ...rest }) => (
-          <ReqoreControlGroup fluid fill stack key={interfaceId}>
-            <ReqoreButton
-              onClick={
-                interfaceId === lastDraft
-                  ? undefined
-                  : () => {
-                      changeDraft({
-                        interfaceId,
-                        interfaceKind,
-                      });
-                    }
-              }
-              key={interfaceId}
-              active={interfaceId === lastDraft}
-              badge={buildBadges(rest)}
-              description={`${t('Last modified')}: ${timeago(date)}`}
-            >
-              {rest.name}
-            </ReqoreButton>
+      <ReqoreControlGroup vertical fluid>
+        {size(sortedDrafts) ? (
+          sortedDrafts.map(({ date, interfaceId, fileName, ...rest }) => (
+            <ReqoreControlGroup fluid fill stack key={interfaceId}>
+              <ReqoreButton
+                onClick={
+                  interfaceId === lastDraft
+                    ? undefined
+                    : () => {
+                        changeDraft({
+                          interfaceId,
+                          interfaceKind,
+                        });
+                      }
+                }
+                key={interfaceId}
+                active={interfaceId === lastDraft}
+                badge={buildBadges(rest)}
+                description={`${t('Last modified')}: ${timeago(date)}`}
+              >
+                {rest.name}
+              </ReqoreButton>
 
-            <ReqoreButton
-              fixed
-              intent="danger"
-              icon="DeleteBinLine"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeleteClick(fileName);
-              }}
-            />
-          </ReqoreControlGroup>
-        ))
-      ) : (
-        <ReqoreMessage intent="warning">
-          No drafts found for {query && query !== '' ? 'your search query' : 'this interface type'}
-        </ReqoreMessage>
-      )}
+              <ReqoreButton
+                fixed
+                intent="danger"
+                icon="DeleteBinLine"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteClick(interfaceId);
+                }}
+              />
+            </ReqoreControlGroup>
+          ))
+        ) : (
+          <ReqoreMessage intent="warning">
+            No drafts found for{' '}
+            {query && query !== '' ? 'your search query' : 'this interface type'}
+          </ReqoreMessage>
+        )}
+      </ReqoreControlGroup>
     </div>
   );
 };

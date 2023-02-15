@@ -442,6 +442,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
               value={val}
               name="path"
               onChange={(_name, value) => setVal(value)}
+              autoFocus
             />
           </FieldWrapper>
         </FieldGroup>

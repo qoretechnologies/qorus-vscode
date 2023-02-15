@@ -1,11 +1,11 @@
-import { ReqoreMenuItem, ReqoreThemeContext } from '@qoretechnologies/reqore';
+import { ReqoreMenuItem, useReqoreTheme } from '@qoretechnologies/reqore';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { useContext } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { css } from 'styled-components';
 import { TOOLBAR_ITEM_TYPE } from '.';
 import { TextContext } from '../../../context/text';
-import { getStateColor, TStateTypes } from './state';
+import { TStateTypes, getStateColor } from './state';
 
 export interface IFSMToolbarItemProps {
   children: any;
@@ -159,7 +159,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   category,
 }) => {
   const t = useContext(TextContext);
-  const theme = useContext(ReqoreThemeContext);
+  const theme = useReqoreTheme();
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
     item: () => {

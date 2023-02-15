@@ -2,7 +2,7 @@ import { FunctionComponent, useContext } from 'react';
 
 import styled from 'styled-components';
 
-import { ReqoreButton, ReqoreContext, ReqoreControlGroup } from '@qoretechnologies/reqore';
+import { ReqoreButton, ReqoreControlGroup, useReqoreProperty } from '@qoretechnologies/reqore';
 import { InitialContext } from '../context/init';
 
 export interface IQorusUrlProps {
@@ -46,7 +46,7 @@ const QorusUrl: FunctionComponent<IQorusUrlProps> = ({
   t,
 }) => {
   const initContext = useContext(InitialContext);
-  const { confirmAction } = useContext(ReqoreContext);
+  const confirmAction = useReqoreProperty('confirmAction');
 
   return (
     <ReqoreControlGroup fluid stack fill>

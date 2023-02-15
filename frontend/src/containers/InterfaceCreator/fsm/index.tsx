@@ -6,9 +6,9 @@ import {
   ReqoreMessage,
   ReqoreTabs,
   ReqoreTabsContent,
-  ReqoreThemeContext,
   ReqoreVerticalSpacer,
   useReqore,
+  useReqoreTheme,
 } from '@qoretechnologies/reqore';
 import { every, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
@@ -326,7 +326,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   });
   const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(embedded);
   const [zoom, setZoom] = useState<number>(1);
-  const theme = useContext(ReqoreThemeContext);
+  const theme = useReqoreTheme();
 
   const targetStatesTransitionIndexes = useRef<
     Record<string | number, Record<'left' | 'right' | 'top' | 'bottom', number>>
@@ -1815,7 +1815,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   isValid={validateField('string', metadata.name)}
                   label={t('field-label-name')}
                 >
-                  <String onChange={handleMetadataChange} value={metadata.name} name="name" />
+                  <String
+                    onChange={handleMetadataChange}
+                    value={metadata.name}
+                    name="name"
+                    autoFocus
+                  />
                 </FieldWrapper>
                 <FieldWrapper
                   compact

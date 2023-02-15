@@ -25,6 +25,7 @@ export interface ISuggestField {
   messageData: any;
   warningMessageOnEmpty?: string;
   autoSelect?: boolean;
+  autoFocus?: boolean;
 }
 
 const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = ({
@@ -44,6 +45,7 @@ const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = (
   requestFieldData,
   warningMessageOnEmpty,
   autoSelect,
+  autoFocus,
 }) => {
   const [items, setItems] = useState<string[]>(defaultItems || []);
 
@@ -108,6 +110,14 @@ const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = (
       }}
       value={value ? [value] : undefined}
       canCreateItems
+      selectorProps={{
+        focusRules: autoFocus
+          ? {
+              type: 'auto',
+              viewportOnly: true,
+            }
+          : undefined,
+      }}
     />
   );
 };

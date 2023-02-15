@@ -1,0 +1,15 @@
+# This is a generated file, don't edit!
+type: job
+name: test
+desc: asg
+lang: qore
+base-class-name: QorusJob
+class-name: Test
+schedule:
+    minutes: "*"
+    hours: "*"
+    days: "*"
+    months: "*"
+    dow: "*"
+version: '1'
+code: test-1.qjob
