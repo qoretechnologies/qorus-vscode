@@ -27,7 +27,6 @@ import { NegativeColorEffect } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
-import FieldGroup from '../../../components/FieldGroup';
 import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import { InputOutputType } from '../../../components/InputOutputType';
 import Loader from '../../../components/Loader';
@@ -649,6 +648,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             {
               label: t('Delete element'),
               effect: NegativeColorEffect,
+              responsive: false,
               icon: 'DeleteBinLine',
               onClick: () => {
                 removeElement(selectedElement);
@@ -771,84 +771,73 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
               name="desc"
             />
           </FieldWrapper>
-          <FieldGroup
+          <FieldWrapper
+            name="selected-field"
             isValid={
-              (metadata.groups.length === 0
-                ? true
-                : validateField('select-array', metadata.groups)) &&
-              (metadata['input-provider']
+              metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
+            }
+            info={t('Optional')}
+            label={t('field-label-groups')}
+            compact
+          >
+            <MultiSelect
+              onChange={handleMetadataChange}
+              get_message={{
+                action: 'creator-get-objects',
+                object_type: 'group',
+              }}
+              return_message={{
+                action: 'creator-return-objects',
+                object_type: 'group',
+                return_value: 'objects',
+              }}
+              reference={{
+                iface_kind: 'other',
+                type: 'group',
+              }}
+              value={metadata.groups}
+              name="groups"
+            />
+          </FieldWrapper>
+          <FieldWrapper
+            name="selected-field"
+            type={t('Optional')}
+            label={t('field-label-input-provider')}
+            isValid={
+              metadata['input-provider']
                 ? validateField('type-selector', metadata['input-provider'])
-                : true)
+                : true
             }
           >
+            <ConnectorField
+              value={metadata['input-provider']}
+              isInitialEditing={!!pipeline || isFromDraft}
+              name="input-provider"
+              onChange={handleMetadataChange}
+              providerType="inputs"
+              isPipeline
+            />
+          </FieldWrapper>
+          {metadata['input-provider'] && (
             <FieldWrapper
               name="selected-field"
-              isValid={
-                metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
-              }
               info={t('Optional')}
-              label={t('field-label-groups')}
-              compact
+              label={t('field-label-input-provider-options')}
+              isValid={validateField(
+                'pipeline-options',
+                metadata['input-provider-options'],
+                null,
+                true
+              )}
             >
-              <MultiSelect
+              <Options
+                value={metadata?.['input-provider-options']}
                 onChange={handleMetadataChange}
-                get_message={{
-                  action: 'creator-get-objects',
-                  object_type: 'group',
-                }}
-                return_message={{
-                  action: 'creator-return-objects',
-                  object_type: 'group',
-                  return_value: 'objects',
-                }}
-                reference={{
-                  iface_kind: 'other',
-                  type: 'group',
-                }}
-                value={metadata.groups}
-                name="groups"
+                name="input-provider-options"
+                url="/pipeline"
               />
             </FieldWrapper>
-            <FieldWrapper
-              name="selected-field"
-              type={t('Optional')}
-              label={t('field-label-input-provider')}
-              isValid={
-                metadata['input-provider']
-                  ? validateField('type-selector', metadata['input-provider'])
-                  : true
-              }
-            >
-              <ConnectorField
-                value={metadata['input-provider']}
-                isInitialEditing={!!pipeline || isFromDraft}
-                name="input-provider"
-                onChange={handleMetadataChange}
-                providerType="inputs"
-                isPipeline
-              />
-            </FieldWrapper>
-            {metadata['input-provider'] && (
-              <FieldWrapper
-                name="selected-field"
-                info={t('Optional')}
-                label={t('field-label-input-provider-options')}
-                isValid={validateField(
-                  'pipeline-options',
-                  metadata['input-provider-options'],
-                  null,
-                  true
-                )}
-              >
-                <Options
-                  value={metadata?.['input-provider-options']}
-                  onChange={handleMetadataChange}
-                  name="input-provider-options"
-                  url="/pipeline"
-                />
-              </FieldWrapper>
-            )}
-          </FieldGroup>
+          )}
         </ContentWrapper>
         <ContentWrapper
           style={{

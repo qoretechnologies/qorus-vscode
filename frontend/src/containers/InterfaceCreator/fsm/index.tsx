@@ -3,6 +3,7 @@ import {
   ReqoreHorizontalSpacer,
   ReqoreMenu,
   ReqoreMenuDivider,
+  ReqoreMenuItem,
   ReqoreMessage,
   ReqoreTabs,
   ReqoreTabsContent,
@@ -20,7 +21,7 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { XYCoord, useDrop } from 'react-dnd';
+import { useDrop, XYCoord } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -48,7 +49,6 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
-  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -59,6 +59,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -305,6 +306,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   const [activeState, setActiveState] = useState<string | number>(undefined);
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [showStateIds, setShowStateIds] = useState<boolean>(false);
+  const [showStatesList, setShowStatesList] = useState<boolean>(true);
 
   const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
   const [outputCompatibility, setOutputCompatibility] = useState<
@@ -1724,6 +1726,14 @@ const FSMView: React.FC<IFSMViewProps> = ({
             ? t('CreateFlowDiagram')
             : t('DescribeYourFSM')
         }
+        actions={[
+          {
+            label: 'Show states list',
+            icon: 'EyeLine',
+            onClick: () => setShowStatesList(true),
+            show: !showStatesList,
+          },
+        ]}
         bottomActions={
           !embedded
             ? [
@@ -1803,40 +1813,33 @@ const FSMView: React.FC<IFSMViewProps> = ({
                   }}
                 />
               </FieldWrapper>
-              <FieldGroup
-                label={t('Info')}
-                isValid={
-                  validateField('string', metadata.name) && validateField('string', metadata.desc)
-                }
+              <FieldWrapper
+                compact
+                name="selected-field"
+                isValid={validateField('string', metadata.name)}
+                label={t('field-label-name')}
               >
-                <FieldWrapper
-                  compact
-                  name="selected-field"
-                  isValid={validateField('string', metadata.name)}
-                  label={t('field-label-name')}
-                >
-                  <String
-                    onChange={handleMetadataChange}
-                    value={metadata.name}
-                    name="name"
-                    autoFocus
-                  />
-                </FieldWrapper>
-                <FieldWrapper
-                  compact
-                  name="selected-field"
-                  isValid={validateField('string', metadata.desc)}
-                  label={t('field-label-desc')}
-                >
-                  <Field
-                    type="long-string"
-                    onChange={handleMetadataChange}
-                    value={metadata.desc}
-                    name="desc"
-                    markdown
-                  />
-                </FieldWrapper>
-              </FieldGroup>
+                <String
+                  onChange={handleMetadataChange}
+                  value={metadata.name}
+                  name="name"
+                  autoFocus
+                />
+              </FieldWrapper>
+              <FieldWrapper
+                compact
+                name="selected-field"
+                isValid={validateField('string', metadata.desc)}
+                label={t('field-label-desc')}
+              >
+                <Field
+                  type="long-string"
+                  onChange={handleMetadataChange}
+                  value={metadata.desc}
+                  name="desc"
+                  markdown
+                />
+              </FieldWrapper>
               <FieldWrapper
                 name="selected-field"
                 isValid={
@@ -1980,142 +1983,162 @@ const FSMView: React.FC<IFSMViewProps> = ({
         {isMetadataHidden && (
           <>
             <div style={{ display: 'flex', overflow: 'hidden' }}>
-              <ReqoreMenu>
-                <ReqoreMenuDivider label="Interfaces" effect={{ textAlign: 'left' }} />
-                <FSMToolbarItem
-                  name="state"
-                  category="interfaces"
-                  type="mapper"
-                  count={size(filter(states, ({ action }: IFSMState) => action?.type === 'mapper'))}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('Mapper')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                  name="state"
-                  category="interfaces"
-                  type="pipeline"
-                  count={size(
-                    filter(states, ({ action }: IFSMState) => action?.type === 'pipeline')
-                  )}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('Pipeline')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                  name="state"
-                  category="interfaces"
-                  type="connector"
-                  count={size(
-                    filter(states, ({ action }: IFSMState) => action?.type === 'connector')
-                  )}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('Connector')}
-                </FSMToolbarItem>
-                <ReqoreMenuDivider label="Logic" effect={{ textAlign: 'left' }} />
-                <FSMToolbarItem
-                  name="fsm"
-                  category="logic"
-                  type="fsm"
-                  count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('FSM')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                  name="block"
-                  type="block"
-                  category="logic"
-                  disabled={!qorus_instance}
-                  count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('Block')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                  name="if"
-                  category="logic"
-                  type="if"
-                  count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('If')}
-                </FSMToolbarItem>
-                <ReqoreMenuDivider label="API" effect={{ textAlign: 'left' }} />
-                <FSMToolbarItem
-                  name="state"
-                  type="apicall"
-                  category="api"
-                  count={size(
-                    filter(states, ({ action }: IFSMState) => action?.type === 'apicall')
-                  )}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('field-label-apicall')}
-                </FSMToolbarItem>
-                <ReqoreMenuDivider label="Data" effect={{ textAlign: 'left' }} />
-                <FSMToolbarItem
-                  name="state"
-                  category="other"
-                  type="search-single"
-                  count={size(
-                    filter(states, ({ action }: IFSMState) => action?.type === 'search-single')
-                  )}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('field-label-search-single')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                  name="state"
-                  category="other"
-                  type="search"
-                  count={size(filter(states, ({ action }: IFSMState) => action?.type === 'search'))}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('field-label-search')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                  name="state"
-                  category="other"
-                  type="update"
-                  count={size(filter(states, ({ action }: IFSMState) => action?.type === 'update'))}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('field-label-update')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                  name="state"
-                  category="other"
-                  type="create"
-                  count={size(filter(states, ({ action }: IFSMState) => action?.type === 'create'))}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('field-label-create')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                  name="state"
-                  category="other"
-                  type="delete"
-                  count={size(filter(states, ({ action }: IFSMState) => action?.type === 'delete'))}
-                  onDoubleClick={handleToolbarItemDblClick}
-                  onDragStart={handleDragStart}
-                >
-                  {t('field-label-delete')}
-                </FSMToolbarItem>
-              </ReqoreMenu>
-              <ReqoreHorizontalSpacer width={10} />
+              {showStatesList ? (
+                <>
+                  <ReqoreMenu width="250px">
+                    <ReqoreMenuItem
+                      icon="EyeCloseLine"
+                      label="Hide states list"
+                      onClick={() => setShowStatesList(false)}
+                    />
+                    <ReqoreMenuDivider label="Interfaces" effect={{ textAlign: 'left' }} />
+                    <FSMToolbarItem
+                      name="state"
+                      category="interfaces"
+                      type="mapper"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'mapper')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('Mapper')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="state"
+                      category="interfaces"
+                      type="pipeline"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'pipeline')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('Pipeline')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="state"
+                      category="interfaces"
+                      type="connector"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'connector')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('Connector')}
+                    </FSMToolbarItem>
+                    <ReqoreMenuDivider label="Logic" effect={{ textAlign: 'left' }} />
+                    <FSMToolbarItem
+                      name="fsm"
+                      category="logic"
+                      type="fsm"
+                      count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('FSM')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="block"
+                      type="block"
+                      category="logic"
+                      disabled={!qorus_instance}
+                      count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('Block')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="if"
+                      category="logic"
+                      type="if"
+                      count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('If')}
+                    </FSMToolbarItem>
+                    <ReqoreMenuDivider label="API" effect={{ textAlign: 'left' }} />
+                    <FSMToolbarItem
+                      name="state"
+                      type="apicall"
+                      category="api"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'apicall')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('field-label-apicall')}
+                    </FSMToolbarItem>
+                    <ReqoreMenuDivider label="Data" effect={{ textAlign: 'left' }} />
+                    <FSMToolbarItem
+                      name="state"
+                      category="other"
+                      type="search-single"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'search-single')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('field-label-search-single')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="state"
+                      category="other"
+                      type="search"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'search')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('field-label-search')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="state"
+                      category="other"
+                      type="update"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'update')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('field-label-update')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="state"
+                      category="other"
+                      type="create"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'create')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('field-label-create')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="state"
+                      category="other"
+                      type="delete"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'delete')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('field-label-delete')}
+                    </FSMToolbarItem>
+                  </ReqoreMenu>
+                  <ReqoreHorizontalSpacer width={10} />
+                </>
+              ) : null}
+
               <div style={{ flex: 1, overflow: 'hidden', minHeight: 100 }}>
                 <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
                   <FSMDiagramWrapper

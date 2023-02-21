@@ -2091,10 +2091,10 @@ msgstr "update status:"
 msgid "AddSteps"
 msgstr "Add Workflow Steps"
 
-msgstr "DescribeYourFSM"
+msgid "DescribeYourFSM"
 msgstr "Fill in the details"
 
-msgstr "CreateFlowDiagram"
+msgid "CreateFlowDiagram"
 msgstr "Create Flow Diagram"
 
 msgid "AddStepsTitle"

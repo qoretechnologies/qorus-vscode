@@ -316,6 +316,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       icon={FSMItemIconByType[action?.type || type]}
       name={`fsm-state-${name}`}
       responsiveActions={false}
+      responsiveTitle={false}
       x={position?.x}
       y={position?.y}
       onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}

@@ -1681,10 +1681,10 @@
   dependencies:
     lodash "^4.17.15"
 
-"@qoretechnologies/reqore@^0.32.3":
-  version "0.32.3"
-  resolved "https://registry.yarnpkg.com/@qoretechnologies/reqore/-/reqore-0.32.3.tgz#cdfcb3e32a56823b03485d696e46d2fd7264f83d"
-  integrity sha512-ZXOOx3VEn1VVMhPXsmTuVCzzYKuh8Q/lw0Lydykmf5kFYJcSmXcp3i8zCSD5W1BqbfVARXl6ikOAkYhRkni2ng==
+"@qoretechnologies/reqore@^0.34.4":
+  version "0.34.4"
+  resolved "https://registry.yarnpkg.com/@qoretechnologies/reqore/-/reqore-0.34.4.tgz#cd090b0a7d7f158b8def3e105b635ce5378a2516"
+  integrity sha512-Cql0jQtkB7p4n2dEBUrbrQGMhaq8Ov5Yn9/Vq4Ot9P70pzDwo8BnIDNHjbd9+TbUC1VzgZ9yRF+2XXI7pED/3A==
   dependencies:
     "@popperjs/core" "^2.11.6"
     "@react-spring/web" "^9.6.1"
@@ -1697,6 +1697,7 @@
     react-popper "^2.3.0"
     react-scrollbar "^0.5.6"
     react-use "^17.4.0"
+    react-use-pagination-hook "^1.1.2"
     react-window "^1.8.6"
     scheduler "^0.23.0"
     shortid "^2.2.16"
@@ -8957,6 +8958,15 @@ react-universal-interface@^0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/react-universal-interface/-/react-universal-interface-0.6.2.tgz#5e8d438a01729a4dbbcbeeceb0b86be146fe2b3b"
   integrity sha512-dg8yXdcQmvgR13RIlZbTRQOoUrDciFVoSBZILwjE2LFISxZZ8loVJKAkuzswl5js8BHda79bIb2b84ehU8IjXw==
+
+react-use-pagination-hook@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/react-use-pagination-hook/-/react-use-pagination-hook-1.1.2.tgz#a9ce122cea7544d9472ce66cd2eddd3492b42a6e"
+  integrity sha512-1acMTXIPH/1mut+0jkfgBJK+YkSO0EQwHdxi1Mv6jSDaK/gAKDXQHUCzeCUXBppiU5EAZ4qg5HbzAn951lZoaQ==
+  dependencies:
+    react "^18.2.0"
+    react-dom "^18.2.0"
+    web-vitals "^2.1.4"
 
 react-use@^15.3.4:
   version "15.3.8"

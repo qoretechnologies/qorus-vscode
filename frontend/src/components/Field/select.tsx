@@ -401,6 +401,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
             {hasItemsWithDesc(items) && !forceDropdown ? (
               <ReqoreButton
                 fluid
+                key="select-with-desc-button"
                 wrap
                 rightIcon="ListUnordered"
                 onClick={() => setSelectDialogOpen(true)}
@@ -448,6 +449,11 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                 filterable
                 disabled={disabled}
                 wrap
+                paging={{
+                  itemsPerPage: 20,
+                  infinite: true,
+                  includeBottomControls: false,
+                }}
                 description={getItemDescription(value) || description}
                 effect={{
                   gradient: {

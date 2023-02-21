@@ -96,22 +96,27 @@ export const FieldWrapper = ({
     return (
       <ReqorePanel size="small" flat padded={false}>
         <ReqoreControlGroup fluid verticalAlign="flex-start">
-          <ReqoreTag
-            fixed
-            width="150px"
-            wrap
-            label={label}
-            minimal
-            intent={isValid ? undefined : 'danger'}
-            icon={label ? (isValid ? 'CheckLine' : 'ErrorWarningLine') : undefined}
-            actions={[
-              {
-                show: !!removable,
-                ...(removeButtonProps as IReqoreTagAction),
-              },
-            ]}
-          />
-          <ReqoreHorizontalSpacer width={5} />
+          {label || removable ? (
+            <>
+              <ReqoreTag
+                fixed
+                width="150px"
+                wrap
+                label={label}
+                minimal
+                intent={isValid ? undefined : 'danger'}
+                icon={label ? (isValid ? 'CheckLine' : 'ErrorWarningLine') : undefined}
+                actions={[
+                  {
+                    show: !!removable,
+                    ...(removeButtonProps as IReqoreTagAction),
+                  },
+                ]}
+              />
+              <ReqoreHorizontalSpacer width={5} />
+            </>
+          ) : null}
+
           <ReqoreControlGroup vertical>{children}</ReqoreControlGroup>
         </ReqoreControlGroup>
       </ReqorePanel>

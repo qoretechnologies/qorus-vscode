@@ -1,4 +1,5 @@
 import { ReqoreDropdown, ReqoreInput, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import { IReqoreDropdownProps } from '@qoretechnologies/reqore/dist/components/Dropdown';
 import { IReqoreDropdownItemProps } from '@qoretechnologies/reqore/dist/components/Dropdown/item';
 import {
   camelCase,
@@ -1213,6 +1214,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               filterable: true,
               label: `Optional fields available (${size(fieldList)})`,
               disabled: size(fieldList) === 0,
+              inputProps: {
+                focusRules: {
+                  type: 'auto',
+                  viewportOnly: true,
+                },
+              },
               items: [
                 {
                   label: t('SelectAll'),
@@ -1238,7 +1245,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                   })
                 ),
               ],
-            },
+            } as IReqoreDropdownProps,
           },
         ]}
         bottomActions={[

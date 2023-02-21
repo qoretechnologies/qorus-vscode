@@ -111,6 +111,13 @@ const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = (
       value={value ? [value] : undefined}
       canCreateItems
       selectorProps={{
+        paging: {
+          fluid: true,
+          itemsPerPage: 20,
+          infinite: true,
+          autoLoadMore: true,
+          includeBottomControls: false,
+        },
         focusRules: autoFocus
           ? {
               type: 'auto',

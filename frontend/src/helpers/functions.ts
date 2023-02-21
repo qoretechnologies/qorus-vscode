@@ -222,6 +222,10 @@ export const areTypesCompatible = async (
     type: output,
   });
 
+  if (!comparison.ok) {
+    return true;
+  }
+
   return comparison.data;
 };
 

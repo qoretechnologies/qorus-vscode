@@ -1,7 +1,6 @@
 import {
   ReqoreButton,
   ReqoreCollection,
-  ReqoreControlGroup,
   ReqoreP,
   ReqoreSpacer,
   ReqoreVerticalSpacer,
@@ -10,7 +9,6 @@ import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/compon
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { IField } from '../../../components/FieldWrapper';
 import { TTrigger } from '../../../containers/InterfaceCreator/fsm';
 import FSMTriggerDialog from '../../../containers/InterfaceCreator/fsm/triggerDialog';
@@ -27,6 +25,7 @@ export type IFSMList = IFSM[];
 
 export interface IFSMListFieldProps extends IField {
   value: IFSMList;
+  interfaceKind: string;
 }
 
 export const getTriggerName = (trigger: TTrigger) => {
@@ -36,39 +35,6 @@ export const getTriggerName = (trigger: TTrigger) => {
 
   return `${trigger.class}:${trigger.connector}`;
 };
-
-const StyledFSMWrapper = styled.div`
-  display: flex;
-  border: 1px solid #d7d7d7;
-  border-radius: 5px;
-  margin-bottom: 10px;
-`;
-
-const StyledIndex = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  border-right: 1px solid #d7d7d7;
-  width: 40px;
-  background-color: #f1f1f1;
-  font-weight: 500;
-`;
-
-const StyledDeleteButton = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  border-left: 1px solid #d7d7d7;
-  background-color: #f1f1f1;
-`;
-
-const StyledWrapper = styled.div`
-  flex: 1;
-  padding: 15px;
-  background-color: #f1f1f1;
-`;
 
 const FSMListField: React.FC<IFSMListFieldProps> = ({
   value,
@@ -150,8 +116,9 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({
               },
             ],
             content: (
-              <ReqoreControlGroup vertical wrap>
+              <>
                 <Select
+                  key={`fsm-${index}`}
                   onChange={(_name, value) => updateFSMData(index, 'name', value)}
                   name={`fsm-${index}`}
                   description={t('FiniteStateMachine')}
@@ -177,8 +144,9 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({
                   handleTriggerRemove={handleTriggerRemove}
                   fsmIndex={index}
                   triggers={datum.triggers}
+                  key={`fsm-${index}-triggers`}
                 />
-              </ReqoreControlGroup>
+              </>
             ),
           })
         )}
