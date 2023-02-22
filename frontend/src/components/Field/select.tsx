@@ -401,7 +401,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
             {hasItemsWithDesc(items) && !forceDropdown ? (
               <ReqoreButton
                 fluid
-                key="select-with-desc-button"
+                key={value}
                 wrap
                 rightIcon="ListUnordered"
                 onClick={() => setSelectDialogOpen(true)}
@@ -447,6 +447,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
               <ReqoreDropdown
                 items={query === '' ? reqoreItems : filterItems(reqoreItems)}
                 filterable
+                key={value}
                 disabled={disabled}
                 wrap
                 paging={{

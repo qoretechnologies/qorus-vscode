@@ -636,6 +636,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
           hidable
           flat={false}
           floating
+          minSize="40vw"
           hasBackdrop={false}
           onClose={() => setSelectedElement(null)}
           contentStyle={{
@@ -643,7 +644,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             flexFlow: 'column',
             overflow: 'hidden',
           }}
-          size="40vw"
+          size="50vw"
           actions={[
             {
               label: t('Delete element'),
