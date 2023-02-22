@@ -165,6 +165,7 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({
       {triggerManager.isOpen && (
         <FSMTriggerDialog
           {...triggerManager}
+          triggers={data[triggerManager.fsmIndex].triggers}
           ifaceType={iface_kind}
           onClose={() => setTriggerManager({ isOpen: false })}
           onSubmit={(dt, index, fsmIndex) => {

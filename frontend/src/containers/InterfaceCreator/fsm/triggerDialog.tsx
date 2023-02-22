@@ -24,6 +24,7 @@ export interface IFSMTriggerDialogProps {
   onSubmit: (data: TTrigger, index?: number, fsmIndex?: number) => any;
   onClose: any;
   ifaceType?: string;
+  triggers?: { method: string }[];
 }
 
 const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
@@ -33,6 +34,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
   onClose,
   ifaceType,
   fsmIndex,
+  triggers,
 }) => {
   const t = useContext(TextContext);
   const initialData = useContext(InitialContext);
@@ -133,6 +135,11 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
               name="method"
               description={t('Trigger')}
               fill
+              predicate={(name: string) => {
+                const match = triggers?.find((trigger) => trigger.method === name);
+
+                return !match;
+              }}
             />
           )}
         </>
@@ -157,6 +164,8 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
 
     return [...result, { value: 'trigger' }];
   }, [newData, ifaceType]);
+
+  console.log(triggers);
 
   return (
     <CustomDialog
