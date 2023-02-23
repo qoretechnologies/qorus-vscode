@@ -103,14 +103,22 @@ const MethodNameField: FunctionComponent<IStringField & IField & IFieldChange> =
             },
           ]}
         >
-          <ReqoreMessage intent="warning">{t('EditMethodNameTriggerWarning')}</ReqoreMessage>
+          <ReqoreMessage intent="warning" size="small">
+            {t('EditMethodNameTriggerWarning')}
+          </ReqoreMessage>
           <ReqoreVerticalSpacer height={10} />
-          <FieldWrapper isValid={isNameValid(editManager.value)} collapsible={false}>
+          <FieldWrapper
+            isValid={isNameValid(editManager.value)}
+            collapsible={false}
+            compact
+            label="Method name"
+          >
             <String
               onChange={(_name, v) => setEditManager({ ...editManager, value: v })}
               value={editManager.value}
               name="methodName"
               fill
+              autoFocus
             />
           </FieldWrapper>
         </CustomDialog>

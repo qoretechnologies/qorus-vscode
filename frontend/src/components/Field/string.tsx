@@ -74,6 +74,7 @@ const StringField = ({
     <ReqoreControlGroup {...rest} fluid={!!fill}>
       {label || label === 0 ? <ReqoreTag label={label} fixed /> : null}
       <ReqoreInput
+        key={name}
         placeholder={placeholder}
         disabled={disabled}
         readOnly={read_only}
@@ -85,7 +86,14 @@ const StringField = ({
         onClick={(event) => event.stopPropagation()}
         onChange={handleInputChange}
         type={sensitive ? 'password' : 'text'}
-        autoFocus={autoFocus}
+        focusRules={
+          autoFocus
+            ? {
+                type: 'auto',
+                viewportOnly: true,
+              }
+            : undefined
+        }
         onClearClick={value && value !== '' && !read_only && !disabled && handleResetClick}
       />
     </ReqoreControlGroup>

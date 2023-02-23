@@ -1,5 +1,6 @@
 import { ReqoreMenuItem } from '@qoretechnologies/reqore';
 import { FunctionComponent } from 'react';
+import ReactMarkdown from 'react-markdown';
 import styled, { css } from 'styled-components';
 import { TextContext } from '../../context/text';
 import { SelectorColorEffect } from '../Field/multiPair';
@@ -96,6 +97,7 @@ export interface IFieldSelector {
   onClick: (name: string) => any;
   disabled?: boolean;
   translateName?: boolean;
+  desc?: string;
 }
 
 const FieldSelector: FunctionComponent<IFieldSelector> = ({
@@ -104,6 +106,7 @@ const FieldSelector: FunctionComponent<IFieldSelector> = ({
   onClick,
   disabled,
   translateName = true,
+  desc,
 }) => (
   <TextContext.Consumer>
     {(t) => (
@@ -115,7 +118,7 @@ const FieldSelector: FunctionComponent<IFieldSelector> = ({
           icon: 'CodeLine',
         }}
         tooltip={{
-          content: t(`field-desc-${name}`),
+          content: <ReactMarkdown>{desc || t(`field-desc-${name}`)}</ReactMarkdown>,
           maxWidth: '300px',
           delay: 200,
         }}

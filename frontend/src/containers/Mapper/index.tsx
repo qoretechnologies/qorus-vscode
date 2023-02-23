@@ -1011,6 +1011,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                   size="small"
                   id="input-provider-info"
                   responsiveActions={false}
+                  responsiveTitle={false}
                   flat
                   isCollapsed
                   contentStyle={{
@@ -1250,6 +1251,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                   size="small"
                   id="output-provider-info"
                   responsiveActions={false}
+                  responsiveTitle={false}
                   flat
                   isCollapsed
                   contentStyle={{

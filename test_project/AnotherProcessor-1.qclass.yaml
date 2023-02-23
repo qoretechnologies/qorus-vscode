@@ -1,0 +1,10 @@
+# This is a generated file, don't edit!
+type: class
+name: AnotherProcessor
+desc: '1'
+lang: qore
+version: '1'
+processor:
+    {}
+base-class-name: AbstractDataProcessor
+code: AnotherProcessor-1.qclass

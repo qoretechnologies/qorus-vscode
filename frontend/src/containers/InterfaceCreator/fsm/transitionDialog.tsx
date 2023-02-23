@@ -94,6 +94,7 @@ export const renderConditionField: (
           name="condition"
           onChange={(name, value) => onChange(name, value)}
           value={transitionData?.condition}
+          autoFocus
         />
       );
     }
@@ -109,7 +110,12 @@ export const ConditionField = ({ data, onChange, required }) => {
 
   return (
     <>
-      <FieldWrapper label={t('Condition')} isValid={isConditionValid(data)} type={t('Optional')} compact>
+      <FieldWrapper
+        label={t('Condition')}
+        isValid={isConditionValid(data)}
+        type={t('Optional')}
+        compact
+      >
         <RadioField
           name="conditionType"
           onChange={(_name, value) => {
@@ -295,50 +301,59 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({
       onClose={onClose}
       isOpen
       label={t('EditingTransition')}
-      bottomActions={[{
-        label: t('Reset'),
-                icon: 'HistoryLine',
-                tooltip: t('ResetTooltip'),
-                onClick: () => setNewData(getTransitionFromStates()),
-      }, {
-        label: t('Submit'),
-        disabled: !isDataValid(),
-        icon: 'CheckLine',
-        effect: SaveColorEffect,
-        onClick: handleSubmitClick,
-        position: 'right'
-      }]}
+      bottomActions={[
+        {
+          label: t('Reset'),
+          icon: 'HistoryLine',
+          tooltip: t('ResetTooltip'),
+          onClick: () => setNewData(getTransitionFromStates()),
+        },
+        {
+          label: t('Submit'),
+          disabled: !isDataValid(),
+          icon: 'CheckLine',
+          effect: SaveColorEffect,
+          onClick: handleSubmitClick,
+          position: 'right',
+        },
+      ]}
     >
-
-          {areAllTransitionsDeleted() ? (
-            <ReqoreMessage
-              intent="warning"
-            >
-              {t('AllTransitionsRemoved')}
-            </ReqoreMessage>
-          ) : (
-            <>
-              {map(
-                newData,
-                (transitionData: IModifiedTransition, id: string) =>
-                  transitionData && (
-                    <ReqorePanel minimal transparent flat label={transitionData.name} actions={[{ intent: 'danger', icon: 'DeleteBinLine', onClick: () => {
-                      removeTransition(id);
-                    }}]}>
-                      <ContentWrapper>
-                      <TransitionEditor
-                        onChange={(name, value) => handleDataUpdate(id, name, value)}
-                        transitionData={transitionData.data}
-                        errors={errors}
-                        qorus_instance={qorus_instance}
-                      />
-                      </ContentWrapper>
-                    </ReqorePanel>
-                  )
-              )}
-            </>
+      {areAllTransitionsDeleted() ? (
+        <ReqoreMessage intent="warning">{t('AllTransitionsRemoved')}</ReqoreMessage>
+      ) : (
+        <>
+          {map(
+            newData,
+            (transitionData: IModifiedTransition, id: string) =>
+              transitionData && (
+                <ReqorePanel
+                  minimal
+                  transparent
+                  flat
+                  label={transitionData.name}
+                  actions={[
+                    {
+                      intent: 'danger',
+                      icon: 'DeleteBinLine',
+                      onClick: () => {
+                        removeTransition(id);
+                      },
+                    },
+                  ]}
+                >
+                  <ContentWrapper>
+                    <TransitionEditor
+                      onChange={(name, value) => handleDataUpdate(id, name, value)}
+                      transitionData={transitionData.data}
+                      errors={errors}
+                      qorus_instance={qorus_instance}
+                    />
+                  </ContentWrapper>
+                </ReqorePanel>
+              )
           )}
-
+        </>
+      )}
     </CustomDialog>
   );
 };

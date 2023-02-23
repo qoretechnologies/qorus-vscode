@@ -319,22 +319,32 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
           setSelectDialogOpen(false);
           setQuery('');
         }}
-        title={t('SelectItem')}
+        title={`Select from items`}
+        badge={size(items)}
       >
         <ReqoreCollection
           maxItemHeight={200}
-          label="Items"
-          badge={size(items)}
           filterable
+          size="big"
           sortable
+          padded={false}
           showSelectedFirst
           selectedIcon="CheckLine"
           fill
+          inputProps={{
+            rightIcon: 'KeyboardFill',
+            focusRules: {
+              type: 'keypress',
+              shortcut: 'letters',
+              clearOnFocus: true,
+            },
+          }}
           items={filterItems(filteredItems).map(
             (item): IReqoreCollectionItemProps => ({
               label: item.name,
               content: <ReactMarkdown>{item.desc}</ReactMarkdown>,
               flat: false,
+              size: 'small',
               minimal: false,
               selected: item.name === value,
               tooltip: !!item.desc
@@ -391,6 +401,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
             {hasItemsWithDesc(items) && !forceDropdown ? (
               <ReqoreButton
                 fluid
+                key={value}
                 wrap
                 rightIcon="ListUnordered"
                 onClick={() => setSelectDialogOpen(true)}
@@ -436,8 +447,14 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
               <ReqoreDropdown
                 items={query === '' ? reqoreItems : filterItems(reqoreItems)}
                 filterable
+                key={value}
                 disabled={disabled}
                 wrap
+                paging={{
+                  itemsPerPage: 20,
+                  infinite: true,
+                  includeBottomControls: false,
+                }}
                 description={getItemDescription(value) || description}
                 effect={{
                   gradient: {

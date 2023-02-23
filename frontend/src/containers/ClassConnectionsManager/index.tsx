@@ -436,6 +436,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                       newName: value.replace(/ /g, ''),
                     }))
                   }
+                  autoFocus
                 />
               </FieldWrapper>
             </CustomDialog>

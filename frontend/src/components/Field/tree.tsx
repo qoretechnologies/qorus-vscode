@@ -25,6 +25,7 @@ import withMessageHandler, {
 import SourceDirs from '../../project_config/sourceDirs';
 import CustomDialog from '../CustomDialog';
 import { FieldWrapper } from '../FieldWrapper';
+import Loader from '../Loader';
 import { PositiveColorEffect } from './multiPair';
 
 export interface ITreeField {
@@ -329,7 +330,11 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange & any> = (
           },
         ]}
       >
-        <StyledTreeScroller>{renderFolders(transformItems(items))}</StyledTreeScroller>
+        {size(items) ? (
+          <StyledTreeScroller>{renderFolders(transformItems(items))}</StyledTreeScroller>
+        ) : (
+          <Loader inline />
+        )}
       </ReqorePanel>
     </>
   );

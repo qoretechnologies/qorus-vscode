@@ -1,0 +1,7 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+class ProcesorTest inherits AbstractDataProcessor {
+}

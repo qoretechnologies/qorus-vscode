@@ -106,6 +106,7 @@ export const classFields = ({ default_target_dir, limited_editing }) => [
     disabled: limited_editing,
     compact: true,
     group: 'info',
+    autoFocus: true,
   },
   field.lang,
   {
@@ -186,6 +187,7 @@ export const field = {
     name: 'name',
     compact: true,
     group: 'info',
+    autoFocus: true,
   },
   desc: {
     name: 'desc',

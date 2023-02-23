@@ -1,0 +1,11 @@
+# This is a generated file, don't edit!
+type: class
+name: EventConnector
+desc: test
+lang: qore
+version: '1'
+class-connectors:
+  - name: Connector1
+    type: event
+    method: test
+code: EventConnector-1.qclass

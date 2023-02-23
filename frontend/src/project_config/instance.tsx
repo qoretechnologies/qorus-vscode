@@ -1,20 +1,20 @@
-import { FunctionComponent, useContext, useState } from 'react';
+import { FunctionComponent, useState } from 'react';
 
 import styled from 'styled-components';
 
 import {
-  ReqoreContext,
   ReqoreH4,
   ReqoreMessage,
   ReqoreP,
   ReqorePanel,
   ReqoreSpacer,
+  useReqoreProperty,
 } from '@qoretechnologies/reqore';
 import { TTranslator } from '../App';
 import { NegativeColorEffect } from '../components/Field/multiPair';
 import withTextContext from '../hocomponents/withTextContext';
-import Add from './add';
 import { IQorusInstance } from './ProjectConfig';
+import Add from './add';
 import QorusUrl from './url';
 
 export interface IQorusInstanceProps extends IQorusInstance {
@@ -95,7 +95,7 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
   t,
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const { confirmAction } = useContext(ReqoreContext);
+  const confirmAction = useReqoreProperty('confirmAction');
 
   const handleDataChange: (newName: string, url: string) => void = (newName, url) => {
     // Change the data of this instance

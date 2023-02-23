@@ -33,6 +33,8 @@ export const mapperFields = ({ default_target_dir, context }) => {
       name: 'mappertype',
       default_value: 'Mapper',
       read_only: true,
+      compact: true,
+      group: 'info',
     },
     {
       name: 'mapper_options',
@@ -58,6 +60,7 @@ export const mapperFields = ({ default_target_dir, context }) => {
       reference: {
         iface_kind: 'mapper-code',
       },
+      group: 'code',
     },
     field.classes,
     {
@@ -66,6 +69,7 @@ export const mapperFields = ({ default_target_dir, context }) => {
       default_value: cont,
       mandatory: !!cont,
       disabled: !!cont,
+      group: 'code',
     },
   ];
 };
@@ -76,6 +80,9 @@ export const mapperCodeFields = ({ default_target_dir, limited_editing }) => [
   {
     name: 'class-class-name',
     has_to_be_valid_identifier: true,
+    autoFocus: true,
+    compact: true,
+    group: 'info',
   },
   field.version,
   {
@@ -85,6 +92,8 @@ export const mapperCodeFields = ({ default_target_dir, limited_editing }) => [
   {
     ...field.lang,
     mandatory: false,
+    compact: true,
+    group: 'info',
   },
   field.author,
 ];

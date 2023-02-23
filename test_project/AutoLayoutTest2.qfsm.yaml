@@ -1,0 +1,283 @@
+# This is a generated file, don't edit!
+type: fsm
+name: AutoLayoutTest 2
+desc: test
+states:
+  '1':
+    position:
+      x: 77.453125
+      'y': 81.5
+    initial: false
+    name: State 1
+    desc: ''
+    type: if
+    id: JLZM3DCsn
+    condition: test
+  '2':
+    position:
+      x: 148.453125
+      'y': 80.5
+    initial: false
+    name: State 2
+    desc: ''
+    type: if
+    id: OOIqL7sFv
+    condition: asgasg
+    transitions:
+      - state: '1'
+        branch: 'true'
+        language: qore
+  '3':
+    position:
+      x: 321.453125
+      'y': 79.5
+    initial: false
+    name: State 3
+    desc: ''
+    type: if
+    id: fDFCucvPw
+    condition: agasg
+  '4':
+    position:
+      x: 233.453125
+      'y': 80.5
+    initial: false
+    name: State 4
+    desc: ''
+    type: if
+    id: rCBVBvIXB
+    condition: asgasgasg
+  '5':
+    position:
+      x: 507.453125
+      'y': 79.5
+    initial: false
+    name: State 5
+    desc: ''
+    type: if
+    id: FJiup_doX
+    condition: asgasgasg
+  '6':
+    position:
+      x: 596.453125
+      'y': 79.5
+    initial: false
+    name: State 6
+    desc: ''
+    type: if
+    id: Kb6eFVj-7
+    condition: asgasgasg
+  '7':
+    position:
+      x: 688.453125
+      'y': 79.5
+    initial: false
+    name: State 7
+    desc: ''
+    type: if
+    id: HYOEIDhtR
+    condition: qweqweqwe
+  '8':
+    position:
+      x: 450.453125
+      'y': 81.5
+    initial: false
+    name: State 8
+    desc: ''
+    type: if
+    id: lDoISN0Dr
+    condition: qewqweqwe
+  '9':
+    position:
+      x: 720.453125
+      'y': 81.5
+    initial: false
+    name: State 9
+    desc: ''
+    type: if
+    id: seAqW4ZmE
+    condition: '12312312'
+  '10':
+    position:
+      x: 76.453125
+      'y': 80.5
+    initial: false
+    name: State 10
+    desc: ''
+    type: if
+    id: Jhupbb5uL
+    condition: qweqweqwe
+  '11':
+    position:
+      x: 436.453125
+      'y': 81.5
+    initial: false
+    name: State 11
+    desc: ''
+    type: if
+    id: mA5y2ncMq
+    condition: qweqweasgasg
+  '12':
+    position:
+      x: 823.453125
+      'y': 78.5
+    initial: false
+    name: State 12
+    desc: ''
+    type: if
+    id: ljFO715BD
+    condition: asgasgas
+  '13':
+    position:
+      x: 418.453125
+      'y': 82.5
+    initial: false
+    name: State 13
+    desc: ''
+    type: if
+    id: aMWhkQAf1
+    condition: xzbxzbxzbxzb
+  '14':
+    position:
+      x: 225.453125
+      'y': 81.5
+    initial: false
+    name: State 14
+    desc: ''
+    type: if
+    id: 9LzvNLJtB
+    condition: asgasgasgsag
+  '15':
+    position:
+      x: 606.453125
+      'y': 79.5
+    initial: false
+    name: State 15
+    desc: ''
+    type: if
+    id: DzTO9A8JD
+    condition: asgasgasgasg
+  '16':
+    position:
+      x: 109.453125
+      'y': 79.5
+    initial: false
+    name: State 16
+    desc: ''
+    type: if
+    id: '-5jn2bM4F'
+    condition: asgasgasgasg
+  '17':
+    position:
+      x: 638.453125
+      'y': 478.5
+    initial: false
+    name: State 17
+    desc: ''
+    type: if
+    id: R9Pvg0AQK
+    condition: asgasgasg
+  '18':
+    position:
+      x: 77.453125
+      'y': 161.5
+    initial: false
+    name: State 18
+    desc: ''
+    type: if
+    id: asd1
+    condition: test
+  '19':
+    position:
+      x: 148.453125
+      'y': 160.5
+    initial: false
+    name: State 19
+    desc: ''
+    type: if
+    id: asd2
+    condition: asgasg
+    transitions:
+      - state: '1'
+        branch: 'true'
+        language: qore
+  '20':
+    position:
+      x: 321.453125
+      'y': 159.5
+    initial: false
+    name: State 20
+    desc: ''
+    type: if
+    id: asd3
+    condition: agasg
+  '21':
+    position:
+      x: 233.453125
+      'y': 160.5
+    initial: false
+    name: State 21
+    desc: ''
+    type: if
+    id: asd4
+    condition: asgasgasg
+  '22':
+    position:
+      x: 507.453125
+      'y': 79.5
+    initial: false
+    name: State 22
+    desc: ''
+    type: if
+    id: asd5
+    condition: asgasgasg
+  '23':
+    position:
+      x: 596.453125
+      'y': 79.5
+    initial: false
+    name: State 23
+    desc: ''
+    type: if
+    id: asd6
+    condition: asgasgasg
+  '24':
+    position:
+      x: 688.453125
+      'y': 159.5
+    initial: false
+    name: State 24
+    desc: ''
+    type: if
+    id: asd7
+    condition: qweqweqwe
+  '25':
+    position:
+      x: 450.453125
+      'y': 81.5
+    initial: false
+    name: State 25
+    desc: ''
+    type: if
+    id: asd8
+    condition: qewqweqwe
+  '26':
+    position:
+      x: 720.453125
+      'y': 81.5
+    initial: false
+    name: State 26
+    desc: ''
+    type: if
+    id: asd9
+    condition: '12312312'
+  '27':
+    position:
+      x: 76.453125
+      'y': 80.5
+    initial: false
+    name: State 27
+    desc: ''
+    type: if
+    id: asd10
+    condition: qweqweqwe
