@@ -184,6 +184,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                 onChange={(path, value) => onChange(path, value)}
                 name="name"
                 value={field.name}
+                autoFocus
               />
             </FieldWrapper>
             <FieldWrapper

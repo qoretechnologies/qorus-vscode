@@ -10,7 +10,7 @@ const FieldGroup = ({ children, isValid, ...rest }: IReqorePanelProps & { isVali
     {...rest}
     intent={isValid === false ? 'danger' : rest.intent}
   >
-    <ReqoreColumns columnsGap="20px" minColumnWidth="450px">
+    <ReqoreColumns columnsGap="10px" minColumnWidth="450px">
       {children}
     </ReqoreColumns>
   </ReqorePanel>

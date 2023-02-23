@@ -10,6 +10,26 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools extension enables creating, editing, and extending reusable IT and AI building blocks for advanced automation challenges.
 
+## Version 4.0.3
+
+#### New features
+
+- Relevant inputs now have either auto-focus or are focused when the user starts typing automatically (such inputs are indicated by a keyboard icon on the right side of the input) #1157
+- Tidied up more fields and put them in their respective groups so that the interface is even more readable
+
+#### Bug fixes
+
+- Drafts can now be properly deleted inside the WebView using the delete butto n#1154
+- Fixed a layout issue with pipeline descriptions #1153
+- Only showing event triggers for FSMs in services #1013
+- Pipeline element processor tooltip shows the original description after a change #1155
+- When comparing of type call fails, the IDE now properly treats those types as compatible #1137
+- Output field dialogue now provides the key description in a tooltip #1057
+- Fixed FSM state descriptions in the state selector #1160
+- Fixed a bug that did not show the description when hovering config item name #1163
+- Fixed a bug where the `remove` control on the FSM trigger item wouldn't work. Closes #1164
+- It is no longer possible to select 2 same triggers for one FSM
+
 ## Version 4.0.0
 
 - The WebView has been redesigned to use the new in-house UI library and to be more responsive, faster and overall more pleasant to use

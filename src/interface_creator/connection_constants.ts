@@ -7,6 +7,7 @@ export const connectionFields = ({ default_target_dir }) => [
     name: 'name',
     compact: true,
     group: 'info',
+    autoFocus: true,
   },
   field.desc,
 ];

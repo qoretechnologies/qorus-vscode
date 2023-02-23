@@ -292,9 +292,10 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
       <SidePanel>
         <ReqoreMenu style={{ flex: 1 }} width="250px" rounded>
           <ReqoreMenuDivider label={'Available keys'} />
-          {map(mapperKeysList, (_field: any, fieldName: string) => (
+          {map(mapperKeysList, (field: any, fieldName: string) => (
             <FieldSelector
               name={fieldName}
+              desc={field.desc}
               translateName={false}
               type={getKeyType(fieldName, mapperKeys, output)}
               disabled={isKeyDisabled(fieldName)}

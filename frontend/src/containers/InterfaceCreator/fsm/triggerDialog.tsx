@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 
 import map from 'lodash/map';
 import size from 'lodash/size';
@@ -24,6 +24,7 @@ export interface IFSMTriggerDialogProps {
   onSubmit: (data: TTrigger, index?: number, fsmIndex?: number) => any;
   onClose: any;
   ifaceType?: string;
+  triggers?: { method: string }[];
 }
 
 const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
@@ -33,6 +34,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
   onClose,
   ifaceType,
   fsmIndex,
+  triggers,
 }) => {
   const t = useContext(TextContext);
   const initialData = useContext(InitialContext);
@@ -61,8 +63,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
     }).filter((v) => v);
   };
 
-  const getTriggerType = (data: TTrigger): 'trigger' | 'event-connector' =>
-    data.method ? 'trigger' : 'event-connector';
+  const getTriggerType = (data: TTrigger): 'trigger' | 'event-connector' => 'trigger';
 
   const [triggerType, setTriggerType] = useState<'trigger' | 'event-connector'>(
     getTriggerType(data || {})
@@ -134,6 +135,11 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
               name="method"
               description={t('Trigger')}
               fill
+              predicate={(name: string) => {
+                const match = triggers?.find((trigger) => trigger.method === name);
+
+                return !match;
+              }}
             />
           )}
         </>
@@ -148,6 +154,18 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
       />
     );
   };
+
+  const radios = useMemo(() => {
+    const result = ifaceType === 'service' ? [{ value: 'event-connector' }] : [];
+
+    if (!ifaceType && !newData.method) {
+      return result;
+    }
+
+    return [...result, { value: 'trigger' }];
+  }, [newData, ifaceType]);
+
+  console.log(triggers);
 
   return (
     <CustomDialog
@@ -177,19 +195,15 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
         },
       ]}
     >
-      <FieldWrapper isValid={isTriggerValid()} collapsible={false}>
+      <FieldWrapper isValid={isTriggerValid()} collapsible={false} compact>
         <RadioField
           name="conditionType"
           onChange={(_name, value) => {
             setNewData({});
             setTriggerType(value);
           }}
-          value={triggerType}
-          items={
-            !ifaceType && !newData.method
-              ? [{ value: 'event-connector' }]
-              : [{ value: 'event-connector' }, { value: 'trigger' }]
-          }
+          value={ifaceType !== 'service' ? 'trigger' : triggerType}
+          items={radios}
         />
         <ReqoreVerticalSpacer height={10} />
         {renderTriggerField()}

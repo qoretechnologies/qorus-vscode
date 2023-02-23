@@ -113,6 +113,7 @@ const PipelineElementDialog = ({
   return (
     <>
       <Content
+        responsiveActions={false}
         bottomActions={[
           resetControl(() => {
             if (newData.type === 'processor' && newData.name) {

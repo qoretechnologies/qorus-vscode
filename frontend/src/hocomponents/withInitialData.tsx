@@ -1,7 +1,7 @@
-import { ReqoreContext, useReqore } from '@qoretechnologies/reqore';
+import { useReqore, useReqoreProperty } from '@qoretechnologies/reqore';
 import { TReqoreIntent } from '@qoretechnologies/reqore/dist/constants/theme';
 import set from 'lodash/set';
-import { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useEffectOnce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
@@ -35,7 +35,7 @@ export default () =>
       const [draftData, setDraftData] = useState(null);
       const [isSavingDraft, setIsSavingDraft] = useState(false);
       const [lastDraft, setLastDraft] = useState(null);
-      const { confirmAction: confirmActionReqore } = useContext(ReqoreContext);
+      const confirmActionReqore = useReqoreProperty('confirmAction');
       const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
       const [t, setT] = useState<(text_id) => string>(undefined);
       const { addNotification } = useReqore();

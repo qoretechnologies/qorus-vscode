@@ -81,7 +81,9 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
     >
       <ReqoreControlGroup vertical fill>
         {size(data) === 0 ? (
-          <ReqoreMessage intent="muted">No transitions exist for this state</ReqoreMessage>
+          <ReqoreMessage intent="muted" fluid>
+            No transitions exist for this state
+          </ReqoreMessage>
         ) : null}
         {data.map((datum, index) => (
           <ReqoreControlGroup key={index} stack fill fluid>

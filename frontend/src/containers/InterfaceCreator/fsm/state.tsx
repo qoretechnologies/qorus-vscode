@@ -3,8 +3,8 @@ import {
   ReqoreMessage,
   ReqorePanel,
   ReqoreTag,
-  ReqoreThemeContext,
   ReqoreVerticalSpacer,
+  useReqoreTheme,
 } from '@qoretechnologies/reqore';
 import {
   IReqoreEffect,
@@ -260,7 +260,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const { addMenu } = useContext(ContextMenuContext);
   const t = useContext(TextContext);
   const { qorus_instance } = useContext(InitialContext);
-  const theme = useContext(ReqoreThemeContext);
+  const theme = useReqoreTheme();
   const { inputType, outputType } = useGetInputOutputType(stateInputProvider, stateOutputProvider);
 
   useEffect(() => {
@@ -316,6 +316,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       icon={FSMItemIconByType[action?.type || type]}
       name={`fsm-state-${name}`}
       responsiveActions={false}
+      responsiveTitle={false}
       x={position?.x}
       y={position?.y}
       onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}

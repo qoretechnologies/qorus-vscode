@@ -61,9 +61,9 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
     return (
       <ReqoreColumns columnsGap="10px">
         <ReqoreColumn flexFlow="column">
-          {type === 'long-string' && <LongStringField fill {...rest} type={type} />}
+          <LongStringField key="description" fill {...rest} type={type} />
         </ReqoreColumn>
-        {rest.markdown && (
+        {rest.value && (
           <ReqoreColumn>
             <MarkdownPreview value={rest.value} />
           </ReqoreColumn>
@@ -99,7 +99,7 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
       {type === 'options' && <Options {...rest} />}
       {type === 'url' && <URLField {...rest} type={type} />}
       {type === 'api-manager' && <ApiManager {...rest} />}
-      {rest.markdown && <MarkdownPreview value={rest.value} />}
+      {rest.markdown && rest.value ? <MarkdownPreview value={rest.value} /> : null}
       {rest.has_to_be_valid_identifier && rest.value && !rest.isValid ? (
         <ReqoreMessage intent="danger">{t('AllowedCharsOnly')}</ReqoreMessage>
       ) : null}

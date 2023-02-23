@@ -215,7 +215,15 @@ let ItemsTable: Function = ({
         grow: 2,
         sortable: true,
         cellTooltip: (data) => {
-          return data.name;
+          return (
+            <>
+              <ReqoreMessage intent="info" size="small" title={data.name}>
+                <ReactMarkdown>{data.description}</ReactMarkdown>
+              </ReqoreMessage>
+              <ReqoreVerticalSpacer height={10} />
+              <Value item={data} />
+            </>
+          );
         },
       },
     ];
@@ -243,7 +251,7 @@ let ItemsTable: Function = ({
         cellTooltip(data) {
           return (
             <>
-              <ReqoreMessage intent="info" size="small">
+              <ReqoreMessage intent="info" size="small" title={data.name}>
                 <ReactMarkdown>{data.description}</ReactMarkdown>
               </ReqoreMessage>
               <ReqoreVerticalSpacer height={10} />

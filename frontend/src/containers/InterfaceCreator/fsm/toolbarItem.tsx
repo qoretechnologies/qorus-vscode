@@ -1,4 +1,4 @@
-import { ReqoreMenuItem, ReqoreThemeContext } from '@qoretechnologies/reqore';
+import { ReqoreMenuItem, useReqoreTheme } from '@qoretechnologies/reqore';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { useContext } from 'react';
 import { useDrag } from 'react-dnd';
@@ -148,6 +148,22 @@ export const FSMItemIconByType: Record<string, IReqoreIconName> = {
   delete: 'DeleteBin2Line',
 };
 
+export const FSMItemDescByType: Record<string, string> = {
+  mapper: 'Execute data transformations on the input data',
+  pipeline: 'Execute a data pipeline',
+  fsm: 'Execute a subflow',
+  block:
+    'Execute a for, foreach, or while loop (NOTE: consider splitting these into 3 different states)',
+  connector: 'Use a building block connector',
+  if: 'Control the logical flow with an expression',
+  apicall: 'Execute an API call',
+  'search-single': 'Search for one matching record in a data provider',
+  search: 'Search for any matching records in a data provider',
+  create: 'Create records in a data provider',
+  update: 'Update records in a data provider',
+  delete: 'Delete records in a data provider',
+};
+
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   children,
   count,
@@ -159,7 +175,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   category,
 }) => {
   const t = useContext(TextContext);
-  const theme = useContext(ReqoreThemeContext);
+  const theme = useReqoreTheme();
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
     item: () => {
@@ -177,7 +193,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
     <ReqoreMenuItem
       ref={!disabled ? drag : undefined}
       flat={false}
-      description="This is a test description kek"
+      description={FSMItemDescByType[type]}
       badge={count}
       icon={FSMItemIconByType[type]}
       effect={{
