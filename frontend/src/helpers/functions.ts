@@ -26,7 +26,7 @@ const md5 = require('md5');
 const functionOrStringExp: Function = (item: Function | string, ...itemArguments) =>
   typeof item === 'function' ? item(...itemArguments) : item;
 
-const getType: Function = (item: any): string => {
+const getType = (item: any): string => {
   if (isBoolean(item)) {
     return 'boolean';
   }

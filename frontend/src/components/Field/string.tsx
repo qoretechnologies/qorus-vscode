@@ -9,6 +9,8 @@ import { getValueOrDefaultValue } from '../../helpers/validations';
 import withMessageHandler, {
   TMessageListener,
   TPostMessage,
+  addMessageListener,
+  postMessage,
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 
@@ -32,8 +34,6 @@ const StringField = ({
   value,
   default_value,
   fill = true,
-  postMessage,
-  addMessageListener,
   get_message,
   return_message,
   read_only,
@@ -100,7 +100,6 @@ const StringField = ({
   );
 };
 
-export default compose<IStringField & IField & IFieldChange>(
-  withMessageHandler(),
-  withTextContext()
-)(StringField);
+export default compose(withMessageHandler(), withTextContext())(StringField) as React.FC<
+  IStringField & IField
+>;

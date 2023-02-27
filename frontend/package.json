@@ -50,7 +50,7 @@
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
     "java-parser": "^0.8.0",
-    "jest": "^27.4.3",
+    "jest": "27.4.3",
     "jest-resolve": "^27.4.2",
     "jest-watch-typeahead": "^1.0.0",
     "js-yaml": "^3.13.1",
@@ -72,7 +72,9 @@
     "react-d3-tree": "^1.16.1",
     "react-dev-utils": "^12.0.1",
     "react-dnd": "^16.0.1",
+    "react-dnd-cjs": "^9.5.1",
     "react-dnd-html5-backend": "^16.0.1",
+    "react-dnd-html5-backend-cjs": "^9.5.1",
     "react-dnd-mouse-backend": "^1.0.0-rc.2",
     "react-dom": "^18.2.0",
     "react-element-pan": "^2.0.0",
@@ -118,6 +120,7 @@
     "start": "NODE_ENV=development BROWSER=none node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
+    "test:watch": "./node_modules/.bin/jest --watch",
     "update-reqore": "yarn add @qoretechnologies/reqore@beta"
   },
   "eslintConfig": {
@@ -140,7 +143,7 @@
   },
   "jest": {
     "roots": [
-      "<rootDir>/src"
+      "<rootDir>/__tests__"
     ],
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
@@ -150,13 +153,13 @@
       "react-app-polyfill/jsdom"
     ],
     "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.ts"
+      "<rootDir>/__tests__/setup.js"
     ],
     "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
+      "<rootDir>/__tests__/**/*.{spec,test}.{js,jsx,ts,tsx}",
       "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
     ],
-    "testEnvironment": "jsdom",
+    "testEnvironment": "jest-environment-jsdom",
     "transform": {
       "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/config/jest/babelTransform.js",
       "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
@@ -164,11 +167,16 @@
     },
     "transformIgnorePatterns": [
       "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$",
+      "<rootDir>/node_modules/(?!react-dnd|core-dnd|@react-dnd|dnd-core|react-dnd-html5-backend)",
       "^.+\\.module\\.(css|sass|scss)$"
     ],
     "modulePaths": [],
     "moduleNameMapper": {
       "^react-native$": "react-native-web",
+      "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js",
+      "^react-dnd$": "react-dnd-cjs",
+      "^react-dnd-html5-backend$": "react-dnd-html5-backend-cjs",
+      "^dnd-core$": "dnd-core-cjs",
       "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
     },
     "moduleFileExtensions": [
@@ -195,6 +203,9 @@
     ]
   },
   "devDependencies": {
-    "process": "^0.11.10"
+    "jest-environment-jsdom": "27.4.3",
+    "process": "^0.11.10",
+    "react-intersection-observer": "^9.4.2",
+    "ts-jest": "^29.0.5"
   }
 }

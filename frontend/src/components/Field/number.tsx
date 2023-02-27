@@ -34,7 +34,7 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
   useMount(() => {
     // Populate default value
     if (value || default_value) {
-      onChange(name, value || default_value);
+      handleChange(value || default_value);
     }
     // Get backend data
     if (get_message && return_message) {
@@ -47,14 +47,18 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
     }
   });
 
-  // When input value changes
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+  const handleChange = (value: number | string): void => {
     onChange(
       name,
       type === 'int' || type === 'number'
-        ? parseInt(event.target.value, 10)
-        : parseFloat(event.target.value)
+        ? parseInt(value as string, 10)
+        : parseFloat(value as string)
     );
+  };
+
+  // When input value changes
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    handleChange(event.target.value);
   };
 
   // Clear the input on reset click
@@ -77,5 +81,5 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
 };
 
 export default compose(withMessageHandler(), withTextContext())(NumberField) as FunctionComponent<
-  INumberField & IField & IFieldChange
+  INumberField & IField
 >;

@@ -238,15 +238,16 @@ export interface IField {
   compact?: boolean;
   get_message?: {
     action: string;
-    object_type: string;
+    object_type?: string;
     return_value?: string;
     message_data?: any;
   };
+  onChange?: IFieldChange;
   canBeNull?: boolean;
-  return_message?: { action: string; object_type: string; return_value?: string };
+  return_message?: { action: string; object_type?: string; return_value?: string };
   style?: React.CSSProperties;
   type?: string;
-  default_value?: string;
+  default_value?: string | number | any;
   items?: {
     value: string;
     icon_filename?: string;
@@ -280,4 +281,4 @@ export interface IField {
   iface_kind?: string;
 }
 
-export declare type IFieldChange = (fieldName: string, value: any) => void;
+export declare type IFieldChange = (fieldName: string, value?: any) => void;
