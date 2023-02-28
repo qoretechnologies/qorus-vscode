@@ -243,6 +243,7 @@ export interface IField {
     return_value?: string;
     message_data?: any;
   };
+  requestFieldData?: (name: string, key: string) => any;
   onChange?: IFieldChange;
   canBeNull?: boolean;
   return_message?: { action?: string; object_type?: string; return_value?: string };
@@ -282,4 +283,9 @@ export interface IField {
   iface_kind?: string;
 }
 
-export declare type IFieldChange = (fieldName: string, value?: any) => void;
+export declare type IFieldChange = (
+  fieldName: string,
+  value?: any,
+  type?: string,
+  canBeNull?: boolean
+) => void;

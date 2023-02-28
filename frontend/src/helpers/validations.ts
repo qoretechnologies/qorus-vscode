@@ -496,9 +496,14 @@ export const maybeParseYaml: (yaml: any) => any = (yaml) => {
     return yaml;
   }
   // Check if the value isn't empty
-  if (yaml === undefined || yaml === null || yaml === '' || !isString(yaml)) {
+  if (yaml === undefined || yaml === null || yaml === '') {
     return null;
   }
+
+  if (!isString(yaml)) {
+    return yaml;
+  }
+
   // Parse the string as yaml
   let yamlCorrect = true;
   let parsedData;
