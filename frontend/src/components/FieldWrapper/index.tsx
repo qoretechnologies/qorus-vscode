@@ -234,6 +234,7 @@ export interface IInterfaceCreatorPanel {
 }
 
 export interface IField {
+  t?: TTranslator;
   group?: string;
   compact?: boolean;
   get_message?: {
@@ -244,7 +245,7 @@ export interface IField {
   };
   onChange?: IFieldChange;
   canBeNull?: boolean;
-  return_message?: { action: string; object_type?: string; return_value?: string };
+  return_message?: { action?: string; object_type?: string; return_value?: string };
   style?: React.CSSProperties;
   type?: string;
   default_value?: string | number | any;

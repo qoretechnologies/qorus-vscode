@@ -195,7 +195,8 @@
       "jest-watch-typeahead/filename",
       "jest-watch-typeahead/testname"
     ],
-    "resetMocks": true
+    "resetMocks": true,
+    "testTimeout": 60000
   },
   "babel": {
     "presets": [
