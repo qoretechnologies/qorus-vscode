@@ -1,3 +1,4 @@
+import { expect } from '@storybook/jest';
 import { StoryFn } from '@storybook/react';
 import StringField from '../../components/Field/string';
 
@@ -7,17 +8,35 @@ export default {
 
 const Template: StoryFn<typeof StringField> = (args) => <StringField {...args} />;
 
-export const Empty = Template.bind({});
-export const WithLabel = Template.bind({});
+export const Empty: StoryFn<typeof StringField> = Template.bind({});
+
+export const WithLabel: StoryFn<typeof StringField> = Template.bind({});
 WithLabel.args = {
-  label: 'Test',
+  label: 'Field',
 };
-export const WithDefaultValue = Template.bind({});
+
+WithLabel.play = async () => {
+  await expect(document.querySelector('.reqore-tag')).toBeInTheDocument();
+};
+
+export const WithDefaultValue: StoryFn<typeof StringField> = Template.bind({});
 WithDefaultValue.args = {
   default_value: 'Some default value',
 };
-export const WithValue = Template.bind({});
+
+export const WithValue: StoryFn<typeof StringField> = Template.bind({});
 WithValue.args = {
   value: 'Some value',
   default_value: 'Some default value',
+};
+
+export const WithAutofocus: StoryFn<typeof StringField> = Template.bind({});
+WithAutofocus.args = {
+  autoFocus: true,
+};
+
+export const CanBeNull: StoryFn<typeof StringField> = Template.bind({});
+CanBeNull.args = {
+  canBeNull: true,
+  value: null,
 };

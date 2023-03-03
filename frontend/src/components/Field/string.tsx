@@ -7,10 +7,10 @@ import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { getValueOrDefaultValue } from '../../helpers/validations';
 import withMessageHandler, {
-  TMessageListener,
-  TPostMessage,
   addMessageListener,
   postMessage,
+  TMessageListener,
+  TPostMessage,
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 
@@ -77,7 +77,7 @@ const StringField = ({
         key={name}
         placeholder={placeholder}
         disabled={disabled}
-        readOnly={read_only}
+        readOnly={read_only || (canBeNull && isNull(value))}
         fluid={!!fill}
         value={
           canBeNull && isNull(value) ? 'Value set to [null]' : !value ? default_value || '' : value

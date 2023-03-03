@@ -2,10 +2,16 @@ import { ReqoreUIProvider } from '@qoretechnologies/reqore';
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
-import String from '../../src/components/Field/string';
-import { Empty, WithDefaultValue } from '../../src/stories/Fields/String.stories';
+import {
+  CanBeNull,
+  Empty,
+  WithAutofocus,
+  WithDefaultValue,
+  WithLabel,
+  WithValue,
+} from '../../src/stories/Fields/String.stories';
 
-test.only('<StringField> - renders empty string field', () => {
+test('<StringField> - renders empty string field', () => {
   const onChange = jest.fn();
 
   render(
@@ -20,7 +26,7 @@ test.only('<StringField> - renders empty string field', () => {
   expect(onChange).toHaveBeenCalledWith('test', undefined);
 });
 
-test.only('<StringField> - renders a string field with a defaultValue', () => {
+test('<StringField> - renders a string field with a defaultValue', () => {
   const onChange = jest.fn();
 
   render(
@@ -40,13 +46,13 @@ test('<StringField> - renders a string field with a value that overwrites defaul
 
   render(
     <ReqoreUIProvider>
-      <String default_value="Test" value="hello" onChange={onChange} name="test" />
+      <WithValue {...WithValue.args} onChange={onChange} name="test" />
     </ReqoreUIProvider>
   );
 
   expect(document.querySelector('.reqore-control-group')).toBeTruthy();
   expect(document.querySelector('.reqore-input')).toBeTruthy();
-  expect(onChange).toHaveBeenCalledWith('test', 'hello');
+  expect(onChange).toHaveBeenCalledWith('test', 'Some value');
 });
 
 test('<StringField> - renders a string field with a label', () => {
@@ -54,7 +60,7 @@ test('<StringField> - renders a string field with a label', () => {
 
   render(
     <ReqoreUIProvider>
-      <String default_value="Test" onChange={onChange} name="test" label="Field" />
+      <WithLabel {...WithLabel.args} onChange={onChange} name="test" />
     </ReqoreUIProvider>
   );
 
@@ -65,11 +71,9 @@ test('<StringField> - renders a string field with a label', () => {
 });
 
 test('<StringField> - renders a string field with autoFocus', () => {
-  const onChange = jest.fn();
-
   render(
     <ReqoreUIProvider>
-      <String default_value="Test" onChange={onChange} name="test" autoFocus />
+      <WithAutofocus {...WithAutofocus.args} />
     </ReqoreUIProvider>
   );
 
@@ -84,14 +88,13 @@ test('<StringField> - renders a correct null value if can be null is true', () =
 
   render(
     <ReqoreUIProvider>
-      <String default_value="Test" value={null} canBeNull onChange={onChange} name="test" />
+      <CanBeNull {...CanBeNull.args} onChange={onChange} name="test" />
     </ReqoreUIProvider>
   );
 
-  mockAllIsIntersecting(true);
-
   expect(document.querySelector('.reqore-control-group')).toBeTruthy();
   expect(onChange).toHaveBeenCalledWith('test', null);
+
   // Expect the input to have value of 'Value set to [null]'
   expect(document.querySelector('.reqore-input')).toHaveValue('Value set to [null]');
 });
@@ -101,16 +104,18 @@ test('<StringField> - renders a no value if can be null is false', () => {
 
   render(
     <ReqoreUIProvider>
-      <String default_value="Test" value={null} onChange={onChange} name="test" />
+      <CanBeNull
+        {...CanBeNull.args}
+        onChange={onChange}
+        name="test"
+        value={null}
+        canBeNull={false}
+      />
     </ReqoreUIProvider>
   );
 
-  mockAllIsIntersecting(true);
-
   expect(document.querySelector('.reqore-control-group')).toBeTruthy();
-  expect(onChange).toHaveBeenCalledWith('test', 'Test');
-  // Expect the input to have value of default value
-  expect(document.querySelector('.reqore-input')).toHaveValue('Test');
+  expect(onChange).toHaveBeenCalledWith('test', undefined);
 });
 
 test('<StringField> - renders a correct value with backend messages provided', async () => {
@@ -118,7 +123,7 @@ test('<StringField> - renders a correct value with backend messages provided', a
 
   render(
     <ReqoreUIProvider>
-      <String
+      <Empty
         get_message={{ action: 'string-test' }}
         return_message={{ action: 'string-test-response', return_value: 'importantValue' }}
         onChange={onChange}

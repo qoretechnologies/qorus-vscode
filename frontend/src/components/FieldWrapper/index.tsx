@@ -258,7 +258,7 @@ export interface IField {
     title?: string;
   }[];
   prefill?: any;
-  name: string;
+  name?: string;
   mandatory?: boolean;
   placeholder?: string;
   selected?: boolean;
