@@ -11,11 +11,11 @@ import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { maybeBuildOptionProvider } from '../components/Field/connectors';
 import {
+  fixOperatorValue,
   IOptions,
   IOptionsSchemaArg,
   IQorusType,
   TOption,
-  fixOperatorValue,
 } from '../components/Field/systemOptions';
 import { getTemplateKey, getTemplateValue, isValueTemplate } from '../components/Field/template';
 import { getAddress, getProtocol } from '../components/Field/urlField';
@@ -72,7 +72,7 @@ export const validateField: (
     case 'file-as-string':
     case 'long-string':
     case 'method-name': {
-      if (value === undefined || value === null || value === '') {
+      if (value === undefined || value === null || value === '' || typeof value !== 'string') {
         return false;
       }
 
@@ -94,6 +94,9 @@ export const validateField: (
       let valid = true;
       // Check if every pair has key & value
       // assigned properly
+      if (!Array.isArray(value)) {
+        return false;
+      }
       if (
         !value?.every(
           (pair: { [key: string]: string }): boolean =>
@@ -115,12 +118,16 @@ export const validateField: (
       return valid;
     }
     case 'class-connectors': {
+      if (!Array.isArray(value) || value.length === 0) {
+        return false;
+      }
       let valid = true;
       // Check if every pair has name, input method and output method
       // assigned properly
       if (
         !value?.every(
-          (pair: { [key: string]: string }): boolean => pair.name !== '' && pair.method !== ''
+          (pair: { [key: string]: string }): boolean =>
+            pair.name && pair.name !== '' && pair.method && pair.method !== ''
         )
       ) {
         valid = false;
@@ -136,6 +143,9 @@ export const validateField: (
     }
     // Classes check
     case 'class-array': {
+      if (!(Array.isArray(value) && value.length > 0)) {
+        return false;
+      }
       let valid = true;
       // Check if the fields are not empty
       if (
@@ -168,7 +178,7 @@ export const validateField: (
     case 'file-tree':
       // Check if there is atleast one value
       // selected
-      return value && value.length !== 0;
+      return value && value.length > 0;
     case 'cron':
       if (!value) {
         return false;
@@ -343,7 +353,9 @@ export const validateField: (
     }
     case 'processor': {
       let valid = true;
-
+      if (!value || !value['processor-input-type'] || !value['processor-output-type']) {
+        return false;
+      }
       // Validate the input and output types
       if (
         value?.['processor-input-type'] &&
@@ -456,6 +468,7 @@ export const validateField: (
     }
     case 'byte-size': {
       let valid = true;
+      if (typeof value !== 'string') return false;
 
       const [bytes, size] = splitByteSize(value);
 

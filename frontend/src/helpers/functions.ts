@@ -43,12 +43,12 @@ const getType = (item: any): string => {
     return 'array';
   }
 
-  if (isObject(item)) {
-    return 'object';
-  }
-
   if (isFunction(item)) {
     return 'function';
+  }
+
+  if (isObject(item)) {
+    return 'object';
   }
 
   if (isNull(item) || isUndefined(item)) {
@@ -159,8 +159,7 @@ export const getStateProvider = async (
     data.interfaceKind === 'delete'
   ) {
     return Promise.resolve({
-      // @ts-expect-error
-      ...data.interfaceName,
+      ...data,
       // @ts-expect-error
       path: `${data.interfaceName.path}`,
       typeAction: data.interfaceKind,
@@ -511,7 +510,13 @@ export const insertUrlPartBeforeQuery = (url: string, part: string, query?: stri
   return `${urlWithoutQuery}${part}${q}`;
 };
 
-export const hasValue = (value) => value && value !== '';
+export const hasValue = (value) => {
+  if (value && value !== '') {
+    return true;
+  } else {
+    return false;
+  }
+};
 export const getDraftId = (data, interfaceId) => {
   if (data && getTargetFile(data)) {
     return md5(getTargetFile(data));

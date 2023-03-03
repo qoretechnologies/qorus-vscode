@@ -66,6 +66,9 @@ export const vscode =
                 ],
               };
               break;
+            default: {
+              break;
+            }
           }
 
           window.postMessage(messageData, '*');

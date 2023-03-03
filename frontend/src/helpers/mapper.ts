@@ -66,7 +66,7 @@ export const filterInternalData = (fields) => {
           ]),
           type: {
             ...fieldData.type,
-            fields: filterInternalData(fieldData.type.fields),
+            fields: filterInternalData(fieldData.type?.fields),
           },
         },
       };
@@ -81,6 +81,7 @@ export const hasStaticDataField = (context: string) =>
 export const getStaticDataFieldname = (context: string) => {
   return context.match(/\{([^}]+)\}/)?.[1];
 };
+
 
 export const rebuildOptions = (options) => {
   return options
