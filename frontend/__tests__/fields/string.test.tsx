@@ -3,20 +3,36 @@ import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import String from '../../src/components/Field/string';
+import { Empty, WithDefaultValue } from '../../src/stories/Fields/String.stories';
 
-test('<StringField> - renders a string field with a defaultValue', () => {
+test.only('<StringField> - renders empty string field', () => {
   const onChange = jest.fn();
 
   render(
     <ReqoreUIProvider>
-      <String default_value="Test" onChange={onChange} name="test" />
+      <Empty {...Empty.args} onChange={onChange} name="test" />
     </ReqoreUIProvider>
   );
 
   expect(document.querySelector('.reqore-control-group')).toBeTruthy();
   expect(document.querySelector('.reqore-input')).toBeTruthy();
   expect(document.querySelector('.reqore-tag')).toBeFalsy();
-  expect(onChange).toHaveBeenCalledWith('test', 'Test');
+  expect(onChange).toHaveBeenCalledWith('test', undefined);
+});
+
+test.only('<StringField> - renders a string field with a defaultValue', () => {
+  const onChange = jest.fn();
+
+  render(
+    <ReqoreUIProvider>
+      <WithDefaultValue {...WithDefaultValue.args} onChange={onChange} name="test" />
+    </ReqoreUIProvider>
+  );
+
+  expect(document.querySelector('.reqore-control-group')).toBeTruthy();
+  expect(document.querySelector('.reqore-input')).toBeTruthy();
+  expect(document.querySelector('.reqore-tag')).toBeFalsy();
+  expect(onChange).toHaveBeenCalledWith('test', 'Some default value');
 });
 
 test('<StringField> - renders a string field with a value that overwrites default value', () => {

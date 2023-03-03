@@ -1696,7 +1696,7 @@
     "file-loader": "^3.0.1",
     "prettier": "^2.0.5",
     "tslint": "^5.19.0",
-    "typescript": "^4.6.3",
+    "typescript": "^4.9.5",
     "url-loader": "^1.1.2",
     "vsce": "^2.7.0",
     "webpack": "^4.39.3",
