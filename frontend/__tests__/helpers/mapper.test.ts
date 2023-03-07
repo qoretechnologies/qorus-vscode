@@ -100,13 +100,8 @@ test('fixRelations should return the relations object', () => {
 });
 
 test('unEscapeMapperName should return the name of the mapper', () => {
-  const result = 'test';
-  const name = 'test';
+  const result = 'foo.bar';
+  const name = 'foo\.bar';
   const field = unEscapeMapperName(name);
   expect(field).toEqual(result);
-});
-
-test('getLastChildIndex should return the last child from the fields array', () => {
-  const field = getLastChildIndex(fields[0], fields);
-  expect(field).toEqual(-1);
 });

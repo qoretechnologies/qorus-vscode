@@ -66,11 +66,18 @@ export const vscode =
                 ],
               };
               break;
+            case 'delete-draft': {
+              messageData = {
+                action: 'delete-draft-complete',
+                request_id: data.request_id,
+                data: data,
+              };
+              break;
+            }
             default: {
               break;
             }
           }
-
           window.postMessage(messageData, '*');
         },
         setState: () => {},
