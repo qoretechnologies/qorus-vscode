@@ -165,8 +165,6 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
     return [...result, { value: 'trigger' }];
   }, [newData, ifaceType]);
 
-  console.log(triggers);
-
   return (
     <CustomDialog
       onClose={onClose}

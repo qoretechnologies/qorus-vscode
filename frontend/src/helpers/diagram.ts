@@ -66,7 +66,7 @@ const Dir = {
  * @param {Dir} dir
  * @return {function(!GraphNode, !GraphNode): number}
  */
-function createComparator(dir) {
+export function createComparator(dir) {
   return function compare(a, b) {
     return dir * (a.depth * a.weight - b.depth * b.weight);
   };
@@ -78,7 +78,7 @@ function createComparator(dir) {
  * @param {!Object<number, !Array<number>>} deps
  * @return {!Map<number, !Array<number>>}
  */
-function normalize(deps) {
+export function normalize(deps) {
   function ensureSafeSet(map, id) {
     if (map.has(id)) {
       return;
@@ -101,7 +101,7 @@ function normalize(deps) {
  * @param {number} id
  * @return {!TempGraphNode}
  */
-function create(id) {
+export function create(id) {
   return {
     id,
     above: [],
@@ -118,7 +118,7 @@ function create(id) {
  * @param {!TempGraphNode} below
  * @return {!Array<!TempGraphNode>} 0: above, 1: below
  */
-function add(above, below) {
+export function add(above, below) {
   const na = Object.assign({}, above, {
     below: above.below.concat(below.id),
   });
@@ -140,7 +140,7 @@ function add(above, below) {
  * @param {!Map<number, !TempGraphNode>} nodes
  * @return {!Map<number, !TempGraphNode>}
  */
-function setBalancedDepth(nodes) {
+export function setBalancedDepth(nodes) {
   const balanced = new Map();
 
   const nodesAboveEql = (n, tmp, bId) =>
@@ -178,7 +178,7 @@ function setBalancedDepth(nodes) {
  * @param {!GraphNode} node
  * @return {GraphNode}
  */
-function findRef(node) {
+export function findRef(node) {
   const centerIdx = Math.floor(node.above.length / 2);
 
   return node.above[centerIdx] || null;
@@ -202,7 +202,7 @@ function findRef(node) {
  * @see findRef
  * @see setBalancedDepth
  */
-function isRef(node, nodesBelow) {
+export function isRef(node, nodesBelow) {
   return nodesBelow.length > 0 && findRef(nodesBelow[0]) === node;
 }
 
@@ -217,7 +217,7 @@ function isRef(node, nodesBelow) {
  * @param {!GraphNode} node
  * @return {number}
  */
-function getWidth(node) {
+export function getWidth(node) {
   const width = Math.max(
     node.width,
     node.below
@@ -237,7 +237,7 @@ function getWidth(node) {
  * @param {!GraphNode} node
  * @return {number}
  */
-function getPosition(node) {
+export function getPosition(node) {
   const ref = findRef(node);
   const lvl = ref && ref.below.find(isRef.bind(null, ref));
   const pos = lvl && lvl.findIndex((nb) => nb === node);
@@ -255,7 +255,7 @@ function getPosition(node) {
  * @param {!Map<number, !TempGraphNode>} node
  * @return {!Map<number, !TempGraphNode>}
  */
-function setBalancedWeight(nodes) {
+export function setBalancedWeight(nodes) {
   const balanced = new Map();
 
   for (const [id, n] of [...nodes.entries()].reverse()) {
@@ -274,7 +274,7 @@ function setBalancedWeight(nodes) {
  * @param {!Array<!GraphNode>} nodes
  * @return {!Array<!GraphNode>}
  */
-function centerNodes(nodes) {
+export function centerNodes(nodes) {
   const sorted = nodes.slice().sort(createComparator(Dir.ASC));
 
   const even = sorted.filter((n, i) => i % 2 === 0);
@@ -295,7 +295,7 @@ function centerNodes(nodes) {
  * @see getWidth
  * @see getPosition
  */
-function setBalancedWidthAndPosition(nodes) {
+export function setBalancedWidthAndPosition(nodes) {
   const balanced = new Map();
 
   const toExport = (exported, id) => exported.get(id);
@@ -355,7 +355,7 @@ function setBalancedWidthAndPosition(nodes) {
  * @see setBalancedWeight
  * @see setBalancedWidthAndPosition
  */
-function balance(nodes) {
+export function balance(nodes) {
   return _.flow([setBalancedDepth, setBalancedWeight, setBalancedWidthAndPosition])(nodes);
 }
 

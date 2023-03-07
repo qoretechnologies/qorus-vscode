@@ -15,6 +15,7 @@ export interface INumberField {
   fill?: boolean;
   postMessage?: TPostMessage;
   addMessageListener?: TMessageListener;
+  autoFocus?: boolean;
 }
 
 const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
@@ -28,33 +29,38 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
   addMessageListener,
   get_message,
   return_message,
+  autoFocus,
   ...rest
 }) => {
   // Fetch data on mount
   useMount(() => {
     // Populate default value
     if (value || default_value) {
-      onChange(name, value || default_value);
+      handleChange(value || default_value);
     }
     // Get backend data
     if (get_message && return_message) {
       postMessage(get_message.action);
       addMessageListener(return_message.action, (data: any) => {
         if (data) {
-          onChange(name, data[return_message.return_value]);
+          handleChange(data[return_message.return_value]);
         }
       });
     }
   });
 
-  // When input value changes
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    onChange(
+  const handleChange = (value: number | string): void => {
+    onChange?.(
       name,
       type === 'int' || type === 'number'
-        ? parseInt(event.target.value, 10)
-        : parseFloat(event.target.value)
+        ? parseInt(value as string, 10)
+        : parseFloat(value as string)
     );
+  };
+
+  // When input value changes
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    handleChange(event.target.value);
   };
 
   // Clear the input on reset click
@@ -72,10 +78,18 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
       // @ts-ignore
       step={type === 'int' || type === 'number' ? 1 : 0.1}
       onClearClick={handleResetClick}
+      focusRules={
+        autoFocus
+          ? {
+              type: 'auto',
+              viewportOnly: true,
+            }
+          : undefined
+      }
     />
   );
 };
 
 export default compose(withMessageHandler(), withTextContext())(NumberField) as FunctionComponent<
-  INumberField & IField & IFieldChange
+  INumberField & IField
 >;

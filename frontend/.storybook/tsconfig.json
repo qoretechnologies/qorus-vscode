@@ -1,0 +1,25 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2021",
+    "lib": ["es7", "es2017", "es2018", "es2019", "es2020", "es2021", "DOM", "dom"],
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "rootDir": "./",
+    "strict": false,
+    "noUnusedLocals": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": false,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationMap": true,
+    "resolveJsonModule": true,
+    "jsx": "react-jsx",
+    "types": ["node", "react", "react-dom", "lodash", "@qoretechnologies/reqore"]
+  },
+  "include": ["./**/*.ts", "./**/*.tsx"]
+}

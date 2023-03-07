@@ -8,39 +8,31 @@ import { InitialContext } from '../../context/init';
 import { MapperContext } from '../../context/mapper';
 import { TextContext } from '../../context/text';
 import withMessageHandler, {
-  TMessageListener,
-  TPostMessage,
+  addMessageListener,
+  postMessage,
 } from '../../hocomponents/withMessageHandler';
 import CustomDialog from '../CustomDialog';
 
 export interface IFieldEnhancerProps {
-  children: (onEditClick: any, onCreateClick: any) => any;
-  addMessageListener: TMessageListener;
-  postMessage: TPostMessage;
+  children: (onEditClick: any, onCreateClick: any, props?: any) => any;
   context?: any;
   onDelete?: () => any;
 }
 
-const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
-  children,
-  addMessageListener,
-  postMessage,
-  context,
-  onDelete,
-  ...rest
-}) => {
+const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, context, onDelete, ...rest }) => {
   const [editManager, setEditManager] = useState<{
     interfaceKind?: string;
     isOpen?: boolean;
-    onSubmit?: () => any;
-    originalName: string;
-    changeType: string;
-    initialData: any;
+    onSubmit?: (originalname?: string, name?: string) => any;
+    originalName?: string;
+    changeType?: string;
+    initialData?: any;
+    context?: any;
   }>({});
   const initialData = useContext(InitialContext);
   const fields = useContext(FieldContext);
   const t = useContext(TextContext);
-  const mapperContext = useContext(MapperContext);
+  const mapperContext: any = useContext(MapperContext);
 
   const handleCreateClick = (reference: any, onSubmit?: () => any) => {
     // Set the context for the mapper if this is
@@ -138,4 +130,4 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({
   );
 };
 
-export default withMessageHandler()(FieldEnhancer);
+export default withMessageHandler()(FieldEnhancer) as React.FC<IFieldEnhancerProps>;

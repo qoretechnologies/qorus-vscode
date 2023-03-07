@@ -116,6 +116,8 @@ export interface IFSMMetadata {
 export type TFSMStateType = 'state' | 'fsm' | 'block' | 'if';
 
 export interface IFSMState {
+  key?: string;
+  corners?: IStateConers;
   position?: {
     x?: number;
     y?: number;
