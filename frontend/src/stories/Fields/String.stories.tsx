@@ -9,7 +9,6 @@ const meta = {
 export default meta;
 
 export const Default: StoryObj<typeof StringField> = {};
-
 export const WithLabel: StoryObj<typeof StringField> = {
   args: {
     label: 'Field label',
