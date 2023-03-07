@@ -1,42 +1,46 @@
 import { expect } from '@storybook/jest';
-import { StoryFn } from '@storybook/react';
+import { StoryObj } from '@storybook/react';
 import StringField from '../../components/Field/string';
 
-export default {
+const meta = {
   component: StringField,
 };
 
-const Template: StoryFn<typeof StringField> = (args) => <StringField {...args} />;
+export default meta;
 
-export const Empty: StoryFn<typeof StringField> = Template.bind({});
+export const Default: StoryObj<typeof StringField> = {};
 
-export const WithLabel: StoryFn<typeof StringField> = Template.bind({});
-WithLabel.args = {
-  label: 'Field',
+export const WithLabel: StoryObj<typeof StringField> = {
+  args: {
+    label: 'Field label',
+  },
+  play: async () => {
+    await expect(document.querySelector('.reqore-tag')).toBeInTheDocument();
+  },
 };
 
-WithLabel.play = async () => {
-  await expect(document.querySelector('.reqore-tag')).toBeInTheDocument();
+export const WithDefaultValue: StoryObj<typeof StringField> = {
+  args: {
+    default_value: 'Some default value',
+  },
 };
 
-export const WithDefaultValue: StoryFn<typeof StringField> = Template.bind({});
-WithDefaultValue.args = {
-  default_value: 'Some default value',
+export const WithValue: StoryObj<typeof StringField> = {
+  args: {
+    ...WithDefaultValue.args,
+    value: 'Some value',
+  },
 };
 
-export const WithValue: StoryFn<typeof StringField> = Template.bind({});
-WithValue.args = {
-  value: 'Some value',
-  default_value: 'Some default value',
+export const WithAutofocus: StoryObj<typeof StringField> = {
+  args: {
+    autoFocus: true,
+  },
 };
 
-export const WithAutofocus: StoryFn<typeof StringField> = Template.bind({});
-WithAutofocus.args = {
-  autoFocus: true,
-};
-
-export const CanBeNull: StoryFn<typeof StringField> = Template.bind({});
-CanBeNull.args = {
-  canBeNull: true,
-  value: null,
+export const CanBeNull: StoryObj<typeof StringField> = {
+  args: {
+    canBeNull: true,
+    value: null,
+  },
 };
