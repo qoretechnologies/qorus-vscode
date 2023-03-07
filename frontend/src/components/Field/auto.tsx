@@ -2,7 +2,7 @@ import { ReqoreButton, ReqoreMessage } from '@qoretechnologies/reqore';
 import { get, map, set } from 'lodash';
 import { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
-import { IFieldChange } from '../../components/FieldWrapper';
+import { IField } from '../../components/FieldWrapper';
 import {
   getTypeFromValue,
   getValueOrDefaultValue,
@@ -11,7 +11,6 @@ import {
 } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
 import SubField from '../SubField';
-import { IField } from './';
 import BooleanField from './boolean';
 import ByteSizeField from './byteSize';
 import ConnectorField from './connectors';
@@ -24,12 +23,20 @@ import OptionHashField from './optionHash';
 import RadioField from './radioField';
 import SelectField from './select';
 import StringField from './string';
-import { IOptionsSchema } from './systemOptions';
+import { IOptionsSchema, IQorusType } from './systemOptions';
 
-const AutoField: FunctionComponent<
-  IField &
-    IFieldChange & { arg_schema?: IOptionsSchema; path?: string; column?: boolean; level?: number }
-> = ({
+export interface IAutoFieldProps extends IField {
+  arg_schema?: IOptionsSchema;
+  path?: string;
+  column?: boolean;
+  level?: number;
+  defaultType?: IQorusType;
+  defaultInternalType?: IQorusType;
+  noSoft?: boolean;
+  allowed_values?: { name: string; desc?: string }[];
+}
+
+const AutoField: FunctionComponent<IAutoFieldProps> = ({
   name,
   onChange,
   value,
@@ -53,14 +60,15 @@ const AutoField: FunctionComponent<
   useMount(() => {
     let defType = defaultType && defaultType.replace(/"/g, '').trim();
     defType = defType || 'any';
+    let internalType;
     // If value already exists, but the type is auto or any
     // set the type based on the value
     if (value && (defType === 'auto' || defType === 'any') && !defaultInternalType) {
-      setInternalType(getTypeFromValue(maybeParseYaml(value)));
+      internalType = getTypeFromValue(maybeParseYaml(value));
     } else {
-      setInternalType(defaultInternalType || defType);
+      internalType = defaultInternalType || defType;
     }
-
+    setInternalType(internalType);
     setType(defType);
     // If the value is null and can be null, set the null flag
     if (
@@ -72,7 +80,11 @@ const AutoField: FunctionComponent<
     }
 
     // Set the default value
-    handleChange(name, getValueOrDefaultValue(value, default_value, canBeNull(defType)));
+    handleChange(
+      name,
+      getValueOrDefaultValue(value, default_value, canBeNull(internalType)),
+      internalType
+    );
   });
 
   useEffect(() => {
@@ -126,10 +138,11 @@ const AutoField: FunctionComponent<
     return false;
   };
 
-  const handleChange: (name: string, value: any, type?: string) => void = (name, value) => {
+  const handleChange: (name: string, value: any, type?: string) => void = (name, value, type) => {
+    const returnType = currentInternalType || type;
     // Run the onchange
-    if (onChange && currentInternalType) {
-      onChange(name, value, currentInternalType, canBeNull());
+    if (onChange && returnType) {
+      onChange(name, value, returnType, canBeNull(returnType));
     }
   };
 
@@ -172,7 +185,9 @@ const AutoField: FunctionComponent<
             fill
             {...rest}
             name={name}
-            onChange={handleChange}
+            onChange={(name, value) => {
+              handleChange(name, value);
+            }}
             value={value}
             type={currentType}
           />
@@ -457,4 +472,4 @@ const AutoField: FunctionComponent<
   );
 };
 
-export default withTextContext()(AutoField);
+export default withTextContext()(AutoField) as React.FC<IAutoFieldProps>;

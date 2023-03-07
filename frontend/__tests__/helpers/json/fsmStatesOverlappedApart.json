@@ -1,0 +1,147 @@
+{
+  "1": {
+    "position": {
+      "x": 47,
+      "y": 300
+    },
+    "initial": true,
+    "name": "Save Intent Info",
+    "desc": "",
+    "type": "state",
+    "id": "djsGWd6mm",
+    "action": {
+      "type": "connector",
+      "value": {
+        "class": "BBM_OutputData",
+        "connector": "writeOutputData"
+      }
+    },
+    "execution_order": 1,
+    "transitions": [
+      {
+        "state": "2",
+        "language": "qore"
+      }
+    ],
+    "config-items": [
+      {
+        "name": "output-data-hash",
+        "value": {
+          "$local:*": "$transient:intent"
+        },
+        "parent": {
+          "interface-type": "class",
+          "interface-name": "BBM_OutputData",
+          "interface-version": "1.0"
+        },
+        "is_value_templated_string": false
+      }
+    ]
+  },
+  "2": {
+    "position": {
+      "x": 1500,
+      "y": 320
+    },
+    "initial": false,
+    "name": "Log Intent Info",
+    "desc": "",
+    "type": "state",
+    "id": "uVE6AvAs2",
+    "action": {
+      "type": "connector",
+      "value": {
+        "class": "BBM_LogMessage",
+        "connector": "logMessage"
+      }
+    },
+    "transitions": [
+      {
+        "state": "3",
+        "language": "qore"
+      }
+    ],
+    "config-items": [
+      {
+        "name": "log-message-level",
+        "parent": {
+          "interface-type": "class",
+          "interface-name": "BBM_LogMessage",
+          "interface-version": "1.0"
+        }
+      },
+      {
+        "name": "log-message-string",
+        "value": "intent: %y",
+        "parent": {
+          "interface-type": "class",
+          "interface-name": "BBM_LogMessage",
+          "interface-version": "1.0"
+        }
+      },
+      {
+        "name": "log-message-args",
+        "value": "$transient:intent",
+        "parent": {
+          "interface-type": "class",
+          "interface-name": "BBM_LogMessage",
+          "interface-version": "1.0"
+        },
+        "is_value_templated_string": true
+      }
+    ]
+  },
+  "3": {
+    "position": {
+      "x": 1550,
+      "y": 340
+    },
+    "initial": false,
+    "name": "Log Intent Info",
+    "desc": "",
+    "type": "state",
+    "id": "uVE6AvAs2",
+    "action": {
+      "type": "connector",
+      "value": {
+        "class": "BBM_LogMessage",
+        "connector": "logMessage"
+      }
+    },
+    "transitions": [
+      {
+        "state": "3",
+        "language": "qore"
+      }
+    ],
+    "config-items": [
+      {
+        "name": "log-message-level",
+        "parent": {
+          "interface-type": "class",
+          "interface-name": "BBM_LogMessage",
+          "interface-version": "1.0"
+        }
+      },
+      {
+        "name": "log-message-string",
+        "value": "intent: %y",
+        "parent": {
+          "interface-type": "class",
+          "interface-name": "BBM_LogMessage",
+          "interface-version": "1.0"
+        }
+      },
+      {
+        "name": "log-message-args",
+        "value": "$transient:intent",
+        "parent": {
+          "interface-type": "class",
+          "interface-name": "BBM_LogMessage",
+          "interface-version": "1.0"
+        },
+        "is_value_templated_string": true
+      }
+    ]
+  }
+}

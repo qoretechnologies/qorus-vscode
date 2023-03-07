@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "private": true,
   "dependencies": {
     "@andrewhead/python-program-analysis": "^0.4.8",
@@ -22,7 +22,7 @@
     "@types/react-dom": "^18.0.6",
     "@types/vscode": "^1.47.0",
     "archiver": "^3.1.1",
-    "babel-jest": "^27.4.2",
+    "babel-jest": "^29.4.3",
     "babel-loader": "^8.2.3",
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.0.1",
@@ -50,7 +50,7 @@
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
     "java-parser": "^0.8.0",
-    "jest": "^27.4.3",
+    "jest": "27.4.3",
     "jest-resolve": "^27.4.2",
     "jest-watch-typeahead": "^1.0.0",
     "js-yaml": "^3.13.1",
@@ -72,7 +72,9 @@
     "react-d3-tree": "^1.16.1",
     "react-dev-utils": "^12.0.1",
     "react-dnd": "^16.0.1",
+    "react-dnd-cjs": "^9.5.1",
     "react-dnd-html5-backend": "^16.0.1",
+    "react-dnd-html5-backend-cjs": "^9.5.1",
     "react-dnd-mouse-backend": "^1.0.0-rc.2",
     "react-dom": "^18.2.0",
     "react-element-pan": "^2.0.0",
@@ -100,7 +102,7 @@
     "tailwindcss": "^3.0.2",
     "terser-webpack-plugin": "^5.2.5",
     "ttag": "^1.7.18",
-    "typescript": "^4.7.4",
+    "typescript": "^4.9.5",
     "url-join": "^4.0.1",
     "url-parse": "^1.5.3",
     "urldecode": "^1.0.1",
@@ -118,7 +120,10 @@
     "start": "NODE_ENV=development BROWSER=none node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
-    "update-reqore": "yarn add @qoretechnologies/reqore@beta"
+    "test:watch": "./node_modules/.bin/jest --watch",
+    "update-reqore": "yarn add @qoretechnologies/reqore@beta",
+    "storybook": "BROWSER=chrome storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "eslintConfig": {
     "extends": [
@@ -140,7 +145,7 @@
   },
   "jest": {
     "roots": [
-      "<rootDir>/src"
+      "<rootDir>/__tests__"
     ],
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
@@ -150,13 +155,13 @@
       "react-app-polyfill/jsdom"
     ],
     "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.ts"
+      "<rootDir>/__tests__/setup.js"
     ],
     "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
+      "<rootDir>/__tests__/**/*.{spec,test}.{js,jsx,ts,tsx}",
       "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
     ],
-    "testEnvironment": "jsdom",
+    "testEnvironment": "jest-environment-jsdom",
     "transform": {
       "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/config/jest/babelTransform.js",
       "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
@@ -164,11 +169,16 @@
     },
     "transformIgnorePatterns": [
       "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$",
+      "<rootDir>/node_modules/(?!react-dnd|core-dnd|@react-dnd|dnd-core|react-dnd-html5-backend)",
       "^.+\\.module\\.(css|sass|scss)$"
     ],
     "modulePaths": [],
     "moduleNameMapper": {
       "^react-native$": "react-native-web",
+      "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js",
+      "^react-dnd$": "react-dnd-cjs",
+      "^react-dnd-html5-backend$": "react-dnd-html5-backend-cjs",
+      "^dnd-core$": "dnd-core-cjs",
       "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
     },
     "moduleFileExtensions": [
@@ -187,7 +197,8 @@
       "jest-watch-typeahead/filename",
       "jest-watch-typeahead/testname"
     ],
-    "resetMocks": true
+    "resetMocks": true,
+    "testTimeout": 60000
   },
   "babel": {
     "presets": [
@@ -195,6 +206,21 @@
     ]
   },
   "devDependencies": {
-    "process": "^0.11.10"
+    "@storybook/addon-actions": "^7.0.0-beta.59",
+    "@storybook/addon-essentials": "^7.0.0-beta.59",
+    "@storybook/addon-interactions": "^7.0.0-beta.59",
+    "@storybook/addon-links": "^7.0.0-beta.59",
+    "@storybook/addon-mdx-gfm": "^7.0.0-beta.59",
+    "@storybook/jest": "^0.0.11-next.0",
+    "@storybook/preset-create-react-app": "^4.1.2",
+    "@storybook/react": "^7.0.0-beta.59",
+    "@storybook/react-webpack5": "^7.0.0-beta.59",
+    "@storybook/testing-library": "^0.0.14-next.1",
+    "@storybook/testing-react": "^1.3.0",
+    "jest-environment-jsdom": "27.4.3",
+    "process": "^0.11.10",
+    "react-intersection-observer": "^9.4.2",
+    "storybook": "^7.0.0-beta.59",
+    "ts-jest": "^29.0.5"
   }
 }

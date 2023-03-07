@@ -86,7 +86,6 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({
   };
 
   const handleTriggerRemove = (trigger: TTrigger, index: number): void => {
-    console.log(trigger);
     setData((cur) => {
       const result = [...cur];
 

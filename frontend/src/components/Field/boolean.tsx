@@ -25,14 +25,16 @@ const BooleanField: FunctionComponent<IField & IFieldChange> = ({
     }
   };
 
-  if (isUndefined(value)) {
+  const val = getValueOrDefaultValue(value, default_value || false, false);
+
+  if (isUndefined(val)) {
     return null;
   }
 
   return (
     <ReqoreCheckbox
       disabled={disabled}
-      checked={value || false}
+      checked={val || false}
       onClick={handleEnabledChange}
       asSwitch
       onText="Yes"

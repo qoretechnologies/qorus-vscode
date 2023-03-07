@@ -24,7 +24,7 @@ require('./webview.scss');
 
 const store = createStore(reducer);
 store.subscribe(() => {
-  vscode.setState(store.getState());
+  vscode.setState?.(store.getState());
 });
 
 const root = createRoot(document.getElementById('root'));

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 4.0.4
+
+- General improvements and bug fixes.
+
 ## Version 4.0.3
 
 #### New features

@@ -29,6 +29,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
       - name: Print head git commit message
         id: get_head_commit_message
         run: echo "::set-output name=HEAD_COMMIT_MESSAGE::$(git show -s --format=%s)"
@@ -45,6 +46,18 @@ jobs:
           cd frontend
           yarn install
           yarn build
+      - name: Run tests
+        run: |
+          cd frontend
+          yarn test
+      - name: Publish to Chromatic
+        id: chromatic_publish
+        uses: chromaui/action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          storybookBaseDir: ./frontend
+          exitZeroOnChanges: true
       - name: Package
         id: package
         run: ./node_modules/.bin/vsce package --no-yarn
@@ -60,7 +73,7 @@ jobs:
           DISCORD_AVATAR: 'https://github.com/qoretechnologies/qorus-vscode/blob/95ad81fa8654fe83bb41f68f4de42ae088298e59/public/q-symbol-small.png?raw=true'
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: ':white_check_mark:  Run #${{ github.run_number }} for [PR](${{ github.event.pull_request.html_url }}) triggered by ${{ github.triggering_actor }} *succeeded*, click GitHub Action link below to get the VSIX artifact.'
+          args: ':white_check_mark: Tests run #${{ github.run_number }} for [PR](${{ github.event.pull_request.html_url }}) triggered by ${{ github.triggering_actor }} *succeeded*, click GitHub Action link below to get the VSIX artifact.'
         if: success()
       # Notify discord if failure
       - name: Discord notification
@@ -70,5 +83,5 @@ jobs:
           DISCORD_AVATAR: 'https://github.com/qoretechnologies/qorus-vscode/blob/95ad81fa8654fe83bb41f68f4de42ae088298e59/public/q-symbol-small.png?raw=true'
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: ':exclamation:  Run #${{ github.run_number }} for [PR](${{ github.event.pull_request.html_url }}) triggered by ${{ github.triggering_actor }} *failed*!'
+          args: ':exclamation: Tests run #${{ github.run_number }} for [PR](${{ github.event.pull_request.html_url }}) triggered by ${{ github.triggering_actor }} *failed*!'
         if: failure()

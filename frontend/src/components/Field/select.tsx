@@ -17,33 +17,33 @@ import ReactMarkdown from 'react-markdown';
 import useMount from 'react-use/lib/useMount';
 import { compose } from 'recompose';
 import styled from 'styled-components';
-import { TTranslator } from '../../App';
-import { IField, IFieldChange } from '../../components/FieldWrapper';
+import { IField } from '../../components/FieldWrapper';
 import withMessageHandler, {
-  TMessageListener,
-  TPostMessage,
+  addMessageListener,
+  postMessage,
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
 import { PositiveColorEffect } from './multiPair';
 
-export interface ISelectField {
-  addMessageListener: TMessageListener;
-  postMessage: TPostMessage;
-  t: TTranslator;
-  defaultItems?: any[];
-  predicate: (name: string) => boolean;
-  placeholder: string;
+export interface ISelectField extends IField {
+  defaultItems?: { name: string; desc?: string }[];
+  predicate?: (name: string) => boolean;
+  placeholder?: string;
   disabled?: boolean;
   position?: any;
-  requestFieldData: (name: string, key?: string) => any;
-  messageData: any;
+  requestFieldData?: (name: string, key?: string) => any;
   warningMessageOnEmpty?: string;
   autoSelect?: boolean;
   asMenu?: boolean;
   icon?: IReqoreIconName;
   filters?: string[];
+  description?: string;
+  editOnly?: boolean;
+  target_dir?: string;
+  forceDropdown?: boolean;
+  context?: any;
 }
 
 export const StyledDialogSelectItem = styled.div`
@@ -102,11 +102,9 @@ export const StyledDialogSelectItem = styled.div`
   }
 `;
 
-const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
+const SelectField: React.FC<ISelectField & IField> = ({
   get_message,
   return_message,
-  addMessageListener,
-  postMessage,
   name,
   description,
   onChange,
@@ -130,7 +128,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   filters,
   ...rest
 }) => {
-  const [items, setItems] = useState<any[]>(defaultItems || []);
+  const [items, setItems] = useState<{ name: string; desc?: string }[]>(defaultItems || []);
   const [query, setQuery] = useState<string>('');
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [isSelectDialogOpen, setSelectDialogOpen] = useState<boolean>(false);
@@ -496,4 +494,6 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
   );
 };
 
-export default compose(withTextContext(), withMessageHandler())(SelectField);
+export default compose(withTextContext(), withMessageHandler())(SelectField) as React.FC<
+  ISelectField & IField
+>;

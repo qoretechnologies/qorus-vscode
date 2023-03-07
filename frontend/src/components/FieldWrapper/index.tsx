@@ -234,19 +234,22 @@ export interface IInterfaceCreatorPanel {
 }
 
 export interface IField {
+  t?: TTranslator;
   group?: string;
   compact?: boolean;
   get_message?: {
     action: string;
-    object_type: string;
+    object_type?: string;
     return_value?: string;
     message_data?: any;
   };
+  requestFieldData?: (name: string, key: string) => any;
+  onChange?: IFieldChange;
   canBeNull?: boolean;
-  return_message?: { action: string; object_type: string; return_value?: string };
+  return_message?: { action?: string; object_type?: string; return_value?: string };
   style?: React.CSSProperties;
   type?: string;
-  default_value?: string;
+  default_value?: string | number | any;
   items?: {
     value: string;
     icon_filename?: string;
@@ -255,7 +258,7 @@ export interface IField {
     title?: string;
   }[];
   prefill?: any;
-  name: string;
+  name?: string;
   mandatory?: boolean;
   placeholder?: string;
   selected?: boolean;
@@ -280,4 +283,9 @@ export interface IField {
   iface_kind?: string;
 }
 
-export declare type IFieldChange = (fieldName: string, value: any) => void;
+export declare type IFieldChange = (
+  fieldName: string,
+  value?: any,
+  type?: string,
+  canBeNull?: boolean
+) => void;
