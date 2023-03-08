@@ -2,9 +2,28 @@ export const vscode =
   process.env.NODE_ENV === 'test'
     ? {
         postMessage: (data) => {
+          console.log(data);
           let messageData;
 
           switch (data.action) {
+            case 'get-interface-data': {
+              let action = 'return-interface-data';
+
+              if (data.request_id) {
+                action += `-complete`;
+              }
+
+              messageData = {
+                action,
+                request_id: data.request_id,
+                ok: true,
+                data: {
+                  iface_kind: data.iface_kind,
+                  [data.iface_kind]: { name: 'Test Interface' },
+                },
+              };
+              break;
+            }
             case 'string-test':
               messageData = {
                 action: 'string-test-response',
@@ -78,7 +97,10 @@ export const vscode =
               break;
             }
           }
-          window.postMessage(messageData, '*');
+
+          if (messageData) {
+            window.postMessage(messageData, '*');
+          }
         },
         setState: () => {},
         getState: () => {},

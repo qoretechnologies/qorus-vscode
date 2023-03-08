@@ -283,7 +283,7 @@ const Tab: React.FC<ITabProps> = ({
 
   useUnmount(() => {
     // Remove the associated type interface from initial data
-    resetAllInterfaceData(type);
+    resetAllInterfaceData?.(type);
   });
 
   useEffect(() => {

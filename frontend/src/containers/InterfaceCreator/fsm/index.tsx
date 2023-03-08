@@ -48,6 +48,7 @@ import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
+import { autoAlign } from '../../../helpers/fsm';
 import {
   areTypesCompatible,
   deleteDraft,
@@ -495,7 +496,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const applyDraft = () => {
-    maybeApplyDraft(
+    if (!maybeApplyDraft) {
+      setIsReady(true);
+    }
+
+    maybeApplyDraft?.(
       'fsm',
       undefined,
       fsm,
@@ -519,7 +524,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
   useMount(() => {
     if (!embedded) {
-      setFsmReset(() => reset);
+      setFsmReset?.(() => reset);
       // Set interface id
       setInterfaceId(fsm?.iface_id || defaultInterfaceId || shortid.generate());
       // Apply the draft with "type" as first parameter and a custom function
@@ -1734,6 +1739,15 @@ const FSMView: React.FC<IFSMViewProps> = ({
             icon: 'EyeLine',
             onClick: () => setShowStatesList(true),
             show: !showStatesList,
+          },
+          {
+            label: 'Auto align states',
+            icon: 'Apps2Line',
+            onClick: () => {
+              const { alignedStates } = autoAlign(states);
+
+              setStates(alignedStates);
+            },
           },
         ]}
         bottomActions={
