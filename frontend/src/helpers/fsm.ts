@@ -72,16 +72,36 @@ export const autoAlign = (states: IFSMStates, config?: IAutoAlignConfig) => {
       return 1;
     });
 
+    // Assign cells to occupied states
+    let gridOccupied: IGrid[] = _grid;
     _grid.forEach((cell) => {
       const cellPosition = cell.position;
       const alignedStateKey = Object.keys(alignedStates).find(
         (key) => alignedStates[key].position === cellPosition
       );
       if (alignedStateKey) {
-        cell.state = alignedStates[alignedStateKey];
-        cell.occupied = true;
+        if (cell.occupied) {
+          const cellId = Number(cell.id);
+          for (let i = cellId; i < _grid.length; i++) {
+            const newCell = _grid.find((cell) => cell.id === cellId.toString());
+            if (!newCell?.occupied) {
+              newCell.occupied = true;
+              newCell.state = alignedStates[alignedStateKey];
+              const newCellIndex = gridOccupied.findIndex((cell) => newCell.id === cell.id);
+              gridOccupied[newCellIndex] = newCell;
+            }
+          }
+        } else {
+          const newCell = _grid.find((_cell) => _cell.id === cell.id.toString());
+
+          newCell.occupied = true;
+          newCell.state = alignedStates[alignedStateKey];
+          const newCellIndex = gridOccupied.findIndex((cell) => newCell.id === cell.id);
+          gridOccupied[newCellIndex] = newCell;
+        }
       }
     });
+    _grid = gridOccupied;
 
     return _grid;
   };
@@ -182,7 +202,7 @@ export const autoAlign = (states: IFSMStates, config?: IAutoAlignConfig) => {
         selectedGrid = _grid[getPreviousLineIndex(_grid[i].id)] ?? _grid[i];
       }
     }
-    if (typeof selectedGrid !== 'undefined' && !isAligned(state, selectedGrid)) {
+    if (typeof selectedGrid !== 'undefined') {
       if (selectedGrid.occupied) {
         let i = _grid.findIndex((cell) => cell === selectedGrid) + 1;
         while (i < _grid.length) {
