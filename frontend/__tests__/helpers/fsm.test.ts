@@ -107,4 +107,43 @@ describe('Align states with the grid', () => {
     expect(JSON.stringify(alignedStates)).not.toEqual(JSON.stringify(statesOverlappedApart));
     expect(JSON.stringify(statesOverlappedApart)).toEqual(JSON.stringify(originalStatesObj));
   });
+
+  it('should never have two states with same position after auto align', () => {
+    const { alignedStates } = autoAlign(statesOverlappedApart as IFSMStates, {
+      rowHeight: stateMargin,
+    });
+
+    // Changing the position of a single state
+    alignedStates['2'].position.x = alignedStates['2'].position.x - 200;
+    alignedStates['2'].position.y = alignedStates['2'].position.y + 200;
+
+    // Auto aligning again
+    const autoAligned = autoAlign(alignedStates, { rowHeight: stateMargin });
+    const newAlignedStates = autoAligned.alignedStates;
+    const grid = autoAligned.grid;
+    
+    // Checking if any two states have same position
+    let isOverlapped = false;
+    Object.keys(newAlignedStates).forEach((key) => {
+      const selectedState = newAlignedStates[key];
+
+      Object.keys(newAlignedStates).forEach((newKey) => {
+        if (newAlignedStates[newKey].position === selectedState.position && !(newKey === key)) {
+          isOverlapped = true;
+        }
+      });
+    });
+
+    // Checking if all the states are aligned to a grid cell
+    let gridOverlapped = false;
+    Object.keys(newAlignedStates).forEach((key) => {
+      const state = newAlignedStates[key];
+      if (!grid.find((cell) => cell.state === state)) {
+        gridOverlapped = true;
+      }
+    });
+
+    expect(isOverlapped).toBe(false);
+    expect(gridOverlapped).toBe(false);
+  });
 });
