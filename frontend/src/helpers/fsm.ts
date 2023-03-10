@@ -237,7 +237,7 @@ export const autoAlign = (states: IFSMStates, config?: IAutoAlignConfig) => {
    * @param state state for which corners with margin are to be calculated
    * @returns corners of the state with margin
    */
-  const getStateCornersWithMargin = (state: IFSMState): IStateConers => {
+  const getStateCornersWithMargin = (state: IFSMState): IStateCorners => {
     const stateRef = getStateBoundingRect(state.key!);
 
     // Calculating all four corners of the state with margin
@@ -305,7 +305,7 @@ export const autoAlign = (states: IFSMStates, config?: IAutoAlignConfig) => {
   return { alignedStates, grid: _grid };
 };
 
-export interface IStateConers {
+export interface IStateCorners {
   topLeftCorner: IFSMState['position'];
   topRightCorner: IFSMState['position'];
   bottomRightCorner: IFSMState['position'];

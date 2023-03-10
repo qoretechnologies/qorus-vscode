@@ -9,7 +9,7 @@ import {
   ReqoreTabsContent,
   ReqoreVerticalSpacer,
   useReqore,
-  useReqoreTheme,
+  useReqoreTheme
 } from '@qoretechnologies/reqore';
 import { every, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
@@ -34,7 +34,7 @@ import FileString from '../../../components/Field/fileString';
 import {
   NegativeColorEffect,
   PositiveColorEffect,
-  SaveColorEffect,
+  SaveColorEffect
 } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
@@ -48,7 +48,7 @@ import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
-import { autoAlign } from '../../../helpers/fsm';
+import { autoAlign, IStateCorners } from '../../../helpers/fsm';
 import {
   areTypesCompatible,
   deleteDraft,
@@ -60,7 +60,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
+  ITypeComparatorData
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -118,7 +118,7 @@ export type TFSMStateType = 'state' | 'fsm' | 'block' | 'if';
 
 export interface IFSMState {
   key?: string;
-  corners?: IStateConers;
+  corners?: IStateCorners;
   position?: {
     x?: number;
     y?: number;
