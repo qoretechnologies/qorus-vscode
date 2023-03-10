@@ -45,7 +45,9 @@ export const RecordQueryArgs = ({
   const [error, setError] = React.useState<any | undefined>(undefined);
   const t: TTranslator = useContext<TTranslator>(TextContext);
   const { fetchData, qorus_instance }: any = useContext(InitialContext);
-  const [localValue, setLocalValue] = React.useState<any>(jsyaml.safeDump(value));
+  const [localValue, setLocalValue] = React.useState<any>(
+    value ? jsyaml.safeDump(value) : undefined
+  );
   const [isValueSubmitted, setIsValueSubmitted] = React.useState<boolean>(true);
 
   useUpdateEffect(() => {
