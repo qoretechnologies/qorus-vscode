@@ -1,5 +1,5 @@
 import { map, size } from 'lodash';
-import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import mapProps from 'recompose/mapProps';
 import { ErrorsContext } from '../context/errors';
 import { getNameFromFields } from './withMethods';
