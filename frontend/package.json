@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "private": true,
   "dependencies": {
     "@andrewhead/python-program-analysis": "^0.4.8",

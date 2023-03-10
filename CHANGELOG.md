@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 4.0.5
+
+- Fixed a bug where the selecting a table in a Create State action would crash the webview
+
 ## Version 4.0.4
 
 - General improvements and bug fixes.
