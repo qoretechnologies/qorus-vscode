@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "4.0.3",
+  "version": "4.0.5",
   "private": true,
   "dependencies": {
     "@andrewhead/python-program-analysis": "^0.4.8",
@@ -21,7 +21,7 @@
     "@types/vscode": "^1.47.0",
     
     "archiver": "^3.1.1",
-    "babel-jest": "^27.4.2",
+    "babel-jest": "^29.4.3",
     "babel-loader": "^8.2.3",
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.0.1",

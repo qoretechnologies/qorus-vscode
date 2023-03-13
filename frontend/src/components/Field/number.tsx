@@ -15,6 +15,7 @@ export interface INumberField {
   fill?: boolean;
   postMessage?: TPostMessage;
   addMessageListener?: TMessageListener;
+  autoFocus?: boolean;
 }
 
 const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
@@ -28,6 +29,7 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
   addMessageListener,
   get_message,
   return_message,
+  autoFocus,
   ...rest
 }) => {
   // Fetch data on mount
@@ -41,14 +43,14 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
       postMessage(get_message.action);
       addMessageListener(return_message.action, (data: any) => {
         if (data) {
-          onChange(name, data[return_message.return_value]);
+          handleChange(data[return_message.return_value]);
         }
       });
     }
   });
 
   const handleChange = (value: number | string): void => {
-    onChange(
+    onChange?.(
       name,
       type === 'int' || type === 'number'
         ? parseInt(value as string, 10)
@@ -76,6 +78,14 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
       // @ts-ignore
       step={type === 'int' || type === 'number' ? 1 : 0.1}
       onClearClick={handleResetClick}
+      focusRules={
+        autoFocus
+          ? {
+              type: 'auto',
+              viewportOnly: true,
+            }
+          : undefined
+      }
     />
   );
 };
