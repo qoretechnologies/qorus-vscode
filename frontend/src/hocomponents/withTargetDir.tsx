@@ -1,48 +1,62 @@
-import React, { FunctionComponent } from 'react';
-import { connect } from 'react-redux';
+import { FunctionComponent, useEffect } from 'react';
+import { connect, ConnectedProps } from 'react-redux';
 import compose from 'recompose/compose';
-import withMessageHandler, { TMessageListener, TPostMessage } from './withMessageHandler';
-import useEffectOnce from 'react-use/lib/useEffectOnce';
 import { Messages } from '../constants/messages';
+import withMessageHandler, { TMessageListener, TPostMessage } from './withMessageHandler';
 
-// A HoC helper that gets the current target dir
-export default () => (Component: FunctionComponent): FunctionComponent => {
-    interface IEnhancedComponent {
-        addMessageListener: TMessageListener;
-        postMessage: TPostMessage;
-        setTargetDir: (dir: string) => void;
-    }
-    const EnhancedComponent: FunctionComponent<IEnhancedComponent> = ({
-        addMessageListener,
-        postMessage,
-        setTargetDir,
-        ...rest
-    }) => {
-        useEffectOnce(() => {
-            // Request the target dir
-            postMessage(Messages.GET_OPENING_PATH);
-            // Register the listener for the target dir
-            addMessageListener(Messages.RETURN_OPENING_PATH, (data: any) => {
-                setTargetDir(data.path);
-            });
-        });
-        // Return the enhanced component
-        return <Component {...rest} />;
-    };
+export interface IEnhancedComponent {
+  addMessageListener: TMessageListener;
+  postMessage: TPostMessage;
+  setTargetDir: (dir: string) => void;
+}
 
-    return compose(
-        connect(
-            state => ({
-                targetDir: state.create_iface_target_dir,
-            }),
-            dispatch => ({
-                setTargetDir: targetDir =>
-                    dispatch({
-                        type: 'create_iface_target_dir',
-                        create_iface_target_dir: targetDir,
-                    }),
-            })
-        ),
-        withMessageHandler()
-    )(EnhancedComponent);
-};
+// define the props that will be injected by redux
+const mapStateToProps = (state: any) => ({
+  targetDir: state.create_iface_target_dir,
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+  setTargetDir: (targetDir: string) =>
+    dispatch({
+      type: 'create_iface_target_dir',
+      payload: targetDir,
+    }),
+});
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+function withTargetDir(
+  Component: FunctionComponent<IEnhancedComponent & PropsFromRedux>
+): FunctionComponent {
+  const EnhancedComponent: FunctionComponent<IEnhancedComponent & PropsFromRedux> = ({
+    addMessageListener,
+    postMessage,
+    setTargetDir,
+    ...rest
+  }) => {
+    useEffect(() => {
+      // Request the target dir
+      postMessage(Messages.GET_OPENING_PATH);
+      // Register the listener for the target dir
+      addMessageListener(Messages.RETURN_OPENING_PATH, (data: any) => {
+        setTargetDir(data.path);
+      });
+    }, [addMessageListener, postMessage, setTargetDir]);
+
+    // Return the enhanced component
+    return (
+      <Component
+        {...rest}
+        addMessageListener={addMessageListener}
+        postMessage={postMessage}
+        setTargetDir={setTargetDir}
+      />
+    );
+  };
+
+  return compose(connector, withMessageHandler())(EnhancedComponent);
+}
+
+export default withTargetDir;
