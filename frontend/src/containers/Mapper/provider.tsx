@@ -11,7 +11,6 @@ import nth from 'lodash/nth';
 import size from 'lodash/size';
 import { FC, useCallback, useContext, useState } from 'react';
 import { useDebounce } from 'react-use';
-import styled, { css } from 'styled-components';
 import CustomDialog from '../../components/CustomDialog';
 import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
@@ -46,31 +45,8 @@ export interface IProviderProps {
   options?: { [key: string]: any };
   optionsChanged?: boolean;
   onResetClick?: () => void;
+  isMessage?: boolean;
 }
-
-const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
-  margin-bottom: 10px;
-  ${({ compact, hasTitle }) =>
-    compact
-      ? css`
-          margin-top: ${hasTitle ? '10px' : 0};
-        `
-      : css`
-          margin: 0 auto;
-          text-align: center;
-        `}
-  > span {
-    vertical-align: middle;
-    font-weight: 500;
-    line-height: 20px;
-  }
-`;
-
-const StyledHeader = styled.h3`
-  margin: 0;
-  margin-bottom: 10px;
-  text-align: center;
-`;
 
 export const providers: any = {
   type: {
@@ -182,6 +158,7 @@ const MapperProvider: FC<IProviderProps> = ({
   optionProvider,
   recordType,
   isPipeline,
+  isMessage,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [optionString, setOptionString] = useState('');
@@ -233,6 +210,10 @@ const MapperProvider: FC<IProviderProps> = ({
 
       if (requiresRequest) {
         return child.up !== false && (child.supports_request || child.children_can_support_apis);
+      }
+
+      if (isMessage) {
+        return child.supports_message || child.children_can_support_messages;
       }
 
       return true;
@@ -397,9 +378,9 @@ const MapperProvider: FC<IProviderProps> = ({
 
           suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
-              ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
-                  type === 'outputs' ? '&soft=true' : ''
-                }`
+              ? `${suffix}${
+                  data.has_record ? realProviders[provider].recordSuffix : ''
+                }?${optionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
                   data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
                 }${childDetailsSuffix}`
@@ -547,9 +528,9 @@ const MapperProvider: FC<IProviderProps> = ({
           const newSuffix = suffix;
           suffixString = realProviders[provider].suffixRequiresOptions
             ? optionString && optionString !== '' && size(options)
-              ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
-                  type === 'outputs' ? '&soft=true' : ''
-                }`
+              ? `${suffix}${
+                  data.has_record ? realProviders[provider].recordSuffix : ''
+                }?${optionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
                   data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
                 }${childDetailsSuffix}`

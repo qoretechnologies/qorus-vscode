@@ -56,6 +56,7 @@ export enum StateTypes {
   create = 'create',
   update = 'update',
   delete = 'delete',
+  'send-message' = 'send-message',
 }
 
 export type TAction = keyof typeof StateTypes;
@@ -281,6 +282,19 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             requiresRequest
             isInitialEditing={!!data?.action?.value}
             onChange={(_name, value) => handleDataUpdate('action', { type: 'apicall', value })}
+            value={newData?.action?.value}
+          />
+        );
+      }
+      case 'send-message': {
+        return (
+          <Connectors
+            name="send-message"
+            inline
+            minimal
+            isMessage
+            isInitialEditing={!!data?.action?.value}
+            onChange={(_name, value) => handleDataUpdate('action', { type: 'send-message', value })}
             value={newData?.action?.value}
           />
         );

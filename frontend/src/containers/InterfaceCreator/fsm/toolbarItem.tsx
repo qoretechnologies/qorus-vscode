@@ -146,6 +146,7 @@ export const FSMItemIconByType: Record<string, IReqoreIconName> = {
   create: 'FolderAddLine',
   update: 'Edit2Line',
   delete: 'DeleteBin2Line',
+  'send-message': 'ChatUploadLine',
 };
 
 export const FSMItemDescByType: Record<string, string> = {
@@ -162,6 +163,7 @@ export const FSMItemDescByType: Record<string, string> = {
   create: 'Create records in a data provider',
   update: 'Update records in a data provider',
   delete: 'Delete records in a data provider',
+  'send-message': 'Send a message to a channel',
 };
 
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
@@ -191,6 +193,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
 
   return (
     <ReqoreMenuItem
+      id="type"
       ref={!disabled ? drag : undefined}
       flat={false}
       description={FSMItemDescByType[type]}

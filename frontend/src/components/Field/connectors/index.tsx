@@ -12,7 +12,7 @@ import withTextContext from '../../../hocomponents/withTextContext';
 import SubField from '../../SubField';
 import { ApiCallArgs } from '../apiCallArgs';
 import BooleanField from '../boolean';
-import Options, { IOptions } from '../systemOptions';
+import Options, { IOptions, IQorusType } from '../systemOptions';
 import { RecordQueryArgs } from './searchArgs';
 
 export type TRecordType = 'search' | 'search-single' | 'create' | 'update' | 'delete';
@@ -33,6 +33,7 @@ export interface IConnectorFieldProps {
   minimal?: boolean;
   isConfigItem?: boolean;
   isPipeline?: boolean;
+  isMessage?: boolean;
 }
 
 export type TProviderTypeSupports = {
@@ -58,6 +59,11 @@ export interface IProviderType extends TProviderTypeSupports, TProviderTypeArgs 
   is_api_call?: boolean;
   search_options?: IOptions;
   descriptions?: { [key: string]: string };
+  message_id?: string;
+  message?: {
+    type: IQorusType;
+    value: any;
+  };
 }
 
 const supportsList = {
@@ -223,6 +229,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   requiresRequest,
   recordType,
   isPipeline,
+  isMessage,
   t,
 }) => {
   const [optionProvider, setOptionProvider] = useState<IProviderType | null>(
@@ -355,6 +362,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           onResetClick={reset}
           recordType={recordType}
           isPipeline={isPipeline}
+          isMessage={isMessage}
         />
       </SubField>
       {provider === 'factory' && optionProvider ? (

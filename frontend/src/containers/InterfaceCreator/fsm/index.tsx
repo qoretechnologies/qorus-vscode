@@ -9,7 +9,7 @@ import {
   ReqoreTabsContent,
   ReqoreVerticalSpacer,
   useReqore,
-  useReqoreTheme
+  useReqoreTheme,
 } from '@qoretechnologies/reqore';
 import { every, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
@@ -34,7 +34,7 @@ import FileString from '../../../components/Field/fileString';
 import {
   NegativeColorEffect,
   PositiveColorEffect,
-  SaveColorEffect
+  SaveColorEffect,
 } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
@@ -60,7 +60,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData
+  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -83,6 +83,7 @@ export interface IFSMViewProps {
   parentStateName?: string;
   defaultInterfaceId?: string;
   states: IFSMStates;
+  fsm?: any;
 }
 
 export interface IDraggableItem {
@@ -248,7 +249,7 @@ const StyledFSMCircle = styled.circle`
   }
 `;
 
-const FSMView: React.FC<IFSMViewProps> = ({
+export const FSMView: React.FC<IFSMViewProps> = ({
   onSubmitSuccess,
   setFsmReset,
   interfaceContext,
@@ -2089,6 +2090,18 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     >
                       {t('field-label-apicall')}
                     </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="state"
+                      type="send-message"
+                      category="api"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'send-message')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('field-label-message')}
+                    </FSMToolbarItem>
                     <ReqoreMenuDivider label="Data" effect={{ textAlign: 'left' }} />
                     <FSMToolbarItem
                       name="state"
@@ -2374,4 +2387,4 @@ export default compose(
   withGlobalOptionsConsumer(),
   withMessageHandler(),
   withMapperConsumer()
-)(FSMView);
+)(FSMView) as React.FC<IFSMViewProps>;
