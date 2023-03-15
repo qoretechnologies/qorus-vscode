@@ -124,6 +124,7 @@ export const NewMessageState: StoryFSM = {
     // Select the message type
     await fireEvent.click(document.querySelector('.provider-message-selector'));
     await waitFor(() => canvas.findByText(/Select from items/g), { timeout: 5000 });
+    await waitFor(() => canvas.findByText(/raw/g), { timeout: 5000 });
     await fireEvent.click(canvas.findAllByText(/raw/g)[0]);
 
     // Add the message data
