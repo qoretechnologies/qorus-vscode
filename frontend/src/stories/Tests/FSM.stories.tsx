@@ -112,13 +112,16 @@ export const NewMessageState: StoryFSM = {
         value: 'wss://sandbox:sandbox@sandbox.qoretechnologies.com/apievents',
       },
     });
+    await waitFor(() => canvas.findAllByText(/Apply options/g), { timeout: 10000 });
     await new Promise((resolve) => setTimeout(resolve, 1000));
     // Click on apply options
     await fireEvent.click(canvas.getAllByText(/Apply options/g)[0]);
 
     await waitFor(() => canvas.findByText(/MessageType/g), { timeout: 10000 });
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await expect(document.querySelector('.provider-message-selector')).toBeInTheDocument();
+    await waitFor(
+      () => expect(document.querySelector('.provider-message-selector')).toBeInTheDocument(),
+      { timeout: 10000 }
+    );
 
     // Select the message type
     await fireEvent.click(document.querySelector('.provider-message-selector'));
