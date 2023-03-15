@@ -22,7 +22,7 @@ export const SwitchesToBuilder: StoryFSM = {
     await fireEvent.click(canvas.getAllByText('Go to flow builder')[0]);
 
     // Wait for some time to allow the canvas to render
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await waitFor(() => expect(document.querySelector('#fsm-diagram svg')).toBeInTheDocument());
   },
 };
 
@@ -130,11 +130,18 @@ export const NewMessageState: StoryFSM = {
 
     // Add the message data
     await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 5000 });
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await await waitFor(
+      () => expect(document.querySelector('.state-submit-button')).toBeDisabled(),
+      { timeout: 5000 }
+    );
+    await waitFor(
+      () => expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument(),
+      { timeout: 5000 }
+    );
     await userEvent.type(document.querySelector('.provider-message-data textarea'), 'Hello World');
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+    await waitFor(() => expect(document.querySelector('.state-submit-button')).toBeEnabled(), {
+      timeout: 5000,
+    });
 
     // Submit the state
     await fireEvent.click(document.querySelector('.state-submit-button'));
