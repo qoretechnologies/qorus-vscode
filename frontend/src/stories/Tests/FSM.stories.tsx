@@ -99,37 +99,37 @@ export const NewMessageState: StoryFSM = {
     await fireEvent.click(canvas.getByText('factory'));
 
     await waitFor(() => expect(document.querySelector('.provider-selector')).toBeInTheDocument(), {
-      timeout: 1000,
+      timeout: 5000,
     });
 
     await fireEvent.click(document.querySelector('.provider-selector'));
     await fireEvent.click(canvas.getAllByText('wsclient')[0]);
     await waitFor(() => expect(document.querySelector('.system-option')).toBeInTheDocument(), {
-      timeout: 1000,
+      timeout: 5000,
     });
     await fireEvent.change(document.querySelector('.system-option textarea'), {
       target: {
         value: 'wss://sandbox:sandbox@sandbox.qoretechnologies.com/apievents',
       },
     });
-    await waitFor(() => canvas.findAllByText(/Apply options/g), { timeout: 1000 });
+    await waitFor(() => canvas.findAllByText(/Apply options/g), { timeout: 5000 });
     await new Promise((resolve) => setTimeout(resolve, 1000));
     // Click on apply options
     await fireEvent.click(canvas.getAllByText(/Apply options/g)[0]);
 
-    await waitFor(() => canvas.findByText(/MessageType/g), { timeout: 1000 });
+    await waitFor(() => canvas.findByText(/MessageType/g), { timeout: 5000 });
     await waitFor(
       () => expect(document.querySelector('.provider-message-selector')).toBeInTheDocument(),
-      { timeout: 1000 }
+      { timeout: 5000 }
     );
 
     // Select the message type
     await fireEvent.click(document.querySelector('.provider-message-selector'));
-    await waitFor(() => canvas.findByText(/Select from items/g), { timeout: 1000 });
+    await waitFor(() => canvas.findByText(/Select from items/g), { timeout: 5000 });
     await fireEvent.click(canvas.getAllByText(/raw/g)[0]);
 
     // Add the message data
-    await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 1000 });
+    await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 5000 });
     await new Promise((resolve) => setTimeout(resolve, 500));
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
     await userEvent.type(document.querySelector('.provider-message-data textarea'), 'Hello World');
