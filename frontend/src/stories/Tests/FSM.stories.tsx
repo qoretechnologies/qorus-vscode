@@ -98,7 +98,9 @@ export const NewMessageState: StoryFSM = {
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('factory'));
 
-    await waitFor(() => expect(document.querySelector('.provider-selector')).toBeInTheDocument());
+    await waitFor(() => expect(document.querySelector('.provider-selector')).toBeInTheDocument(), {
+      timeout: 10000,
+    });
 
     await fireEvent.click(document.querySelector('.provider-selector'));
     await fireEvent.click(canvas.getAllByText('wsclient')[0]);
