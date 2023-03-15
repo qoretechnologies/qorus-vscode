@@ -51,6 +51,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
   arg_schema,
   column,
   level = 0,
+  canBeNull,
   ...rest
 }) => {
   const [currentType, setType] = useState<string>(defaultInternalType || null);
@@ -72,9 +73,9 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     setType(defType);
     // If the value is null and can be null, set the null flag
     if (
-      (getValueOrDefaultValue(value, default_value, canBeNull(defType)) === 'null' ||
-        getValueOrDefaultValue(value, default_value, canBeNull(defType)) === null) &&
-      canBeNull(defType)
+      (getValueOrDefaultValue(value, default_value, _canBeNull(defType)) === 'null' ||
+        getValueOrDefaultValue(value, default_value, _canBeNull(defType)) === null) &&
+      _canBeNull(defType)
     ) {
       setIsSetToNull(true);
     }
@@ -82,7 +83,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     // Set the default value
     handleChange(
       name,
-      getValueOrDefaultValue(value, default_value, canBeNull(internalType)),
+      getValueOrDefaultValue(value, default_value, _canBeNull(internalType)),
       internalType
     );
   });
@@ -120,13 +121,13 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     }
     // If can be undefined was toggled off, but the value right now is null
     // we need to set the ability to be null to false and remove
-    if (!canBeNull() && isSetToNull) {
+    if (!_canBeNull() && isSetToNull) {
       setIsSetToNull(false);
       handleChange(name, null);
     }
   });
 
-  const canBeNull = (type = currentType) => {
+  const _canBeNull = (type = currentType) => {
     if (type === 'any' || type === 'Any' || canBeNull) {
       return true;
     }
@@ -142,7 +143,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     const returnType = currentInternalType || type;
     // Run the onchange
     if (onChange && returnType) {
-      onChange(name, value, returnType, canBeNull(returnType));
+      onChange(name, value, returnType, _canBeNull(returnType));
     }
   };
 
@@ -458,7 +459,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
       )}
 
       {renderField(currentInternalType)}
-      {canBeNull() && (
+      {_canBeNull() && (
         <ReqoreButton
           intent={isSetToNull ? 'warning' : undefined}
           icon={isSetToNull ? 'CloseLine' : undefined}

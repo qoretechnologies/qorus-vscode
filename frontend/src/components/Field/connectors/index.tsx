@@ -346,8 +346,6 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     return <ReqoreMessage intent="warning">{t('ActiveInstanceProvidersConnectors')}</ReqoreMessage>;
   }
 
-  console.log(provider, optionProvider);
-
   return (
     <div style={{ flex: 1, width: inline ? undefined : '100%' }}>
       <SubField title={!minimal ? title || t('SelectDataProvider') : undefined} isValid>

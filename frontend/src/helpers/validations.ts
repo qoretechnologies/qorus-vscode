@@ -271,8 +271,6 @@ export const validateField: (
           return false;
         }
 
-        console.log(value.message_id, value.message);
-
         if (!value.message || !validateField(value.message.type, value.message.value)) {
           return false;
         }

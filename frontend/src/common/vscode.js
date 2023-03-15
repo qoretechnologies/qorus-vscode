@@ -2,7 +2,6 @@ export const vscode =
   process.env.NODE_ENV === 'test'
     ? {
         postMessage: (data) => {
-          console.log(data);
           let messageData;
 
           switch (data.action) {
