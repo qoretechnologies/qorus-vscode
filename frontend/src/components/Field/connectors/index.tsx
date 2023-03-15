@@ -69,16 +69,16 @@ const supportsOperators = {
   'search-single': true,
 };
 
-const supportsArguments = {
+export const supportsArguments = {
   create: true,
   update: true,
 };
 
-const getRealRecordType = (recordType: TRecordType): TRealRecordType => {
+export const getRealRecordType = (recordType: TRecordType): TRealRecordType => {
   return recordType.startsWith('search') ? 'read' : (recordType as TRealRecordType);
 };
 
-const shouldShowSearchArguments = (
+export const shouldShowSearchArguments = (
   recordType: TRecordType,
   optionProvider: IProviderType | null
 ): boolean => {

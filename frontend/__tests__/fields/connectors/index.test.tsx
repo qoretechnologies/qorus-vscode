@@ -1,10 +1,7 @@
-import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
-import ConnectorField, {
-  getRealRecordType,
-  shouldShowSearchArguments,
+import {
   IProviderType,
-} from '../../../src/components/Field/connectors/index';
+  shouldShowSearchArguments,
+} from '../../../src/components/Field/connectors/';
 
 describe('shouldShowSearchArguments', () => {
   test('shouldShowSearchArguments returns true when recordType is search and optionProvider supports read', () => {
