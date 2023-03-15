@@ -71,7 +71,8 @@ export const validateField: (
     case 'file-string':
     case 'file-as-string':
     case 'long-string':
-    case 'method-name': {
+    case 'method-name':
+    case 'data': {
       if (value === undefined || value === null || value === '' || typeof value !== 'string') {
         return false;
       }
@@ -241,6 +242,7 @@ export const validateField: (
     case 'data-provider':
     case 'api-call':
     case 'search-single':
+    case 'send-message':
     case 'search':
     case 'update':
     case 'delete':
@@ -254,6 +256,26 @@ export const validateField: (
       // Api call only supports  requests / response
       if (type === 'api-call' && !value.supports_request) {
         return false;
+      }
+
+      // Send message only supports messages
+      if (
+        type === 'send-message' &&
+        (!value.supports_messages || !value.message_id || !value.message)
+      ) {
+        return false;
+      }
+
+      if (value.message_id) {
+        if (!validateField('string', value.message_id)) {
+          return false;
+        }
+
+        console.log(value.message_id, value.message);
+
+        if (!value.message || !validateField(value.message.type, value.message.value)) {
+          return false;
+        }
       }
 
       if (value.use_args) {

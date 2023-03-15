@@ -193,7 +193,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
 
   return (
     <ReqoreMenuItem
-      id="type"
+      id={type}
       ref={!disabled ? drag : undefined}
       flat={false}
       description={FSMItemDescByType[type]}

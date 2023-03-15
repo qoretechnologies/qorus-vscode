@@ -213,7 +213,7 @@ const MapperProvider: FC<IProviderProps> = ({
       }
 
       if (isMessage) {
-        return child.supports_message || child.children_can_support_messages;
+        return child.supports_messages || child.children_can_support_messages;
       }
 
       return true;
@@ -412,6 +412,7 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_update: data.supports_update,
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
+            supports_messages: isMessage && data.supports_messages,
             can_manage_fields: record.data?.can_manage_fields,
             subtype: value === 'request' || value === 'response' ? value : undefined,
             descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
@@ -497,6 +498,7 @@ const MapperProvider: FC<IProviderProps> = ({
           supports_update: data.supports_update,
           supports_create: data.supports_create,
           supports_delete: data.supports_delete,
+          supports_messages: isMessage && data.supports_messages,
           subtype: value === 'request' || value === 'response' ? value : undefined,
           descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
           path: `${url}/${value}`
@@ -562,6 +564,7 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             can_manage_fields: record.data.can_manage_fields,
+            supports_messages: isMessage && data.supports_messages,
             subtype: value === 'request' || value === 'response' ? value : undefined,
             descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
@@ -629,6 +632,7 @@ const MapperProvider: FC<IProviderProps> = ({
             fixed
             name={`provider${type ? `-${type}` : ''}`}
             disabled={isLoading}
+            className="provider-type-selector"
             defaultItems={getDefaultItems()}
             onChange={(_name, value) => {
               handleProviderChange(value);
@@ -641,6 +645,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 key={`${title}-${index}`}
                 name={`provider-${type ? `${type}-` : ''}${index}`}
                 disabled={isLoading}
+                className="provider-selector"
                 filters={['supports_read', 'supports_request', 'has_record']}
                 defaultItems={child.values}
                 onChange={(_name, value) => {

@@ -13,6 +13,8 @@ import SubField from '../../SubField';
 import { ApiCallArgs } from '../apiCallArgs';
 import BooleanField from '../boolean';
 import Options, { IOptions, IQorusType } from '../systemOptions';
+import { ProviderMessageData } from './MessageData';
+import { ProviderMessageSelector } from './MessageSelector';
 import { RecordQueryArgs } from './searchArgs';
 
 export type TRecordType = 'search' | 'search-single' | 'create' | 'update' | 'delete';
@@ -56,6 +58,7 @@ export interface IProviderType extends TProviderTypeSupports, TProviderTypeArgs 
   use_args?: boolean;
   args?: any;
   supports_request?: boolean;
+  supports_messages?: 'ASYNC' | 'SYNC';
   is_api_call?: boolean;
   search_options?: IOptions;
   descriptions?: { [key: string]: string };
@@ -109,7 +112,16 @@ export const getUrlFromProvider: (
   if (typeof val === 'string') {
     return val;
   }
-  const { type, name, path = '', options, is_api_call, hasApiContext, subtype } = val;
+  const {
+    type,
+    name,
+    path = '',
+    options,
+    is_api_call,
+    hasApiContext,
+    subtype,
+    supports_messages,
+  } = val;
   let optionString;
 
   if (size(options)) {
@@ -137,7 +149,7 @@ export const getUrlFromProvider: (
 
   // Build the suffix
   const realPath = `${suffix}${finalPath}${
-    hasSubtype || is_api_call || isRecord ? '' : recordSuffix || ''
+    hasSubtype || is_api_call || supports_messages || isRecord ? '' : recordSuffix || ''
   }`;
 
   const suffixString = suffixRequiresOptions
@@ -334,6 +346,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     return <ReqoreMessage intent="warning">{t('ActiveInstanceProvidersConnectors')}</ReqoreMessage>;
   }
 
+  console.log(provider, optionProvider);
+
   return (
     <div style={{ flex: 1, width: inline ? undefined : '100%' }}>
       <SubField title={!minimal ? title || t('SelectDataProvider') : undefined} isValid>
@@ -387,6 +401,44 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             customUrl={`${getUrlFromProvider(optionProvider, true)}`}
           />
         </SubField>
+      ) : null}
+      {/* This means that we are working with a Message provider */}
+      {isMessage && optionProvider?.supports_messages ? (
+        <>
+          <SubField title={t('MessageType')} desc={t('SelectMessageType')}>
+            <ProviderMessageSelector
+              url={`${getUrlFromProvider(optionProvider)}`}
+              value={optionProvider?.message_id}
+              onChange={(val) => {
+                setOptionProvider((cur) => ({
+                  ...cur,
+                  message_id: val,
+                  message: undefined,
+                }));
+              }}
+            />
+          </SubField>
+          {optionProvider?.message_id && (
+            <SubField title={t('MessageData')} className="provider-message-data">
+              <ProviderMessageData
+                value={optionProvider?.message?.value}
+                url={`${getUrlFromProvider(optionProvider)}`}
+                messageId={optionProvider?.message_id}
+                onChange={(value, type) => {
+                  setOptionProvider(
+                    (cur: IProviderType): IProviderType => ({
+                      ...cur,
+                      message: {
+                        type,
+                        value,
+                      },
+                    })
+                  );
+                }}
+              />
+            </SubField>
+          )}
+        </>
       ) : null}
       {/* This means that we are working with an API Call provider */}
       {requiresRequest && optionProvider?.supports_request ? (

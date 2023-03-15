@@ -162,6 +162,30 @@ export interface IOptionsProps {
   isValid?: boolean;
 }
 
+export const getTypeAndCanBeNull = (
+  type: IQorusType | IQorusType[],
+  allowed_values?: any[],
+  operatorData?: TOperatorValue,
+  operators?: IOperatorsSchema
+) => {
+  let canBeNull = false;
+  let realType = getType(type, operators, operatorData);
+
+  if (realType?.startsWith('*')) {
+    realType = realType.replace('*', '') as IQorusType;
+    canBeNull = true;
+  }
+
+  realType = realType === 'string' && allowed_values ? 'select-string' : realType;
+
+  return {
+    type: realType,
+    defaultType: realType,
+    defaultInternalType: realType === 'auto' || realType === 'any' ? undefined : realType,
+    canBeNull,
+  };
+};
+
 const Options = ({
   name,
   value,
@@ -387,29 +411,6 @@ const Options = ({
     );
   };
 
-  const getTypeAndCanBeNull = (
-    type: IQorusType | IQorusType[],
-    allowed_values?: any[],
-    operatorData?: TOperatorValue
-  ) => {
-    let canBeNull = false;
-    let realType = getType(type, operators, operatorData);
-
-    if (realType?.startsWith('*')) {
-      realType = realType.replace('*', '') as IQorusType;
-      canBeNull = true;
-    }
-
-    realType = realType === 'string' && allowed_values ? 'select-string' : realType;
-
-    return {
-      type: realType,
-      defaultType: realType,
-      defaultInternalType: realType === 'auto' || realType === 'any' ? undefined : realType,
-      canBeNull,
-    };
-  };
-
   const fixedValue = fixOptions(value, options);
   const filteredOptions = reduce(
     options,
@@ -456,6 +457,7 @@ const Options = ({
               ...getGlobalDescriptionTooltip(options[optionName].desc, optionName),
               placement: 'top',
             },
+            className: 'system-option',
             actions: [
               {
                 icon: 'DeleteBinLine',
@@ -470,7 +472,7 @@ const Options = ({
               <>
                 {operators && size(operators) ? (
                   <>
-                    <ReqoreControlGroup fill wrap>
+                    <ReqoreControlGroup fill wrap className="operators">
                       {fixOperatorValue(other.op).map((operator, index) => (
                         <React.Fragment key={index}>
                           <SelectField
@@ -518,6 +520,7 @@ const Options = ({
                 <TemplateField
                   component={AutoField}
                   {...getTypeAndCanBeNull(type, options[optionName].allowed_values, other.op)}
+                  className="system-option"
                   name={optionName}
                   onChange={(optionName, val) => {
                     if (val !== undefined) {

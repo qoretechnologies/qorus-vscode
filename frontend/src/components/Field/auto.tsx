@@ -127,7 +127,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
   });
 
   const canBeNull = (type = currentType) => {
-    if (type === 'any' || type === 'Any') {
+    if (type === 'any' || type === 'Any' || canBeNull) {
       return true;
     }
 

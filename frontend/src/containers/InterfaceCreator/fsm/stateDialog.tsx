@@ -189,6 +189,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'apicall': {
         return validateField('api-call', newData?.action?.value);
       }
+      case 'send-message': {
+        return validateField('send-message', newData?.action?.value);
+      }
       case 'search':
       case 'delete':
       case 'update':
@@ -386,6 +389,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           {
             label: isCustomBlockFirstPage() ? t('Next') : t('Submit'),
             disabled: isCustomBlockFirstPage() ? false : !isDataValid() || isLoading,
+            className: 'state-submit-button',
             icon: 'CheckLine',
             effect: isLoading
               ? WarningColorEffect

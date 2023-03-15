@@ -1,5 +1,6 @@
 import { setupPreviews } from '@previewjs/plugin-react/setup';
 import { ReqoreMessage, ReqorePanel, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { noop } from 'lodash';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -13,7 +14,7 @@ const StyledDescriptionField = styled(ReqoreMessage)`
   }
 `;
 
-export interface ISubFieldProps {
+export interface ISubFieldProps extends IReqorePanelProps {
   title?: string;
   desc?: string;
   children: any;
@@ -48,7 +49,7 @@ const SubField: React.FC<ISubFieldProps> = ({
   detail,
   isValid,
   collapsible,
-  nested,
+  ...rest
 }) => {
   return (
     <>
@@ -79,6 +80,7 @@ const SubField: React.FC<ISubFieldProps> = ({
             show: !!onRemove,
           },
         ]}
+        {...rest}
       >
         {desc ? <ReqoreVerticalSpacer height={10} /> : null}
         {children}
