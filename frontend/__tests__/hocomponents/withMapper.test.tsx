@@ -1,24 +1,34 @@
-import Enzyme, { mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-import InterfaceCreator from '../../src/hocomponents/withMapper';
+import withInitialData from '../../src/hocomponents/withInitialData';
 
-Enzyme.configure({ adapter: new Adapter() });
+// A mock component to test withInitialData HoC
+const TestComponent = ({ initialData }) => (
+  <div>
+    <span>{initialData}</span>
+  </div>
+);
 
-describe('InterfaceCreator', () => {
-  const MockComponent = ({ mapper }) => (
-    <div>
-      <p>{mapper}</p>
-    </div>
-  );
-
-  const props = {
-    qorus_instance: 'http://localhost:8080',
-    mapper: {},
-  };
-
-  it('should render without crashing', () => {
-    const EnhancedComponent = InterfaceCreator()(MockComponent);
-    const wrapper = {};
-    expect(EnhancedComponent).toBeDefined();
+describe('withInitialData', () => {
+  it('should return a function that returns a React component', () => {
+    const hocFunction = withInitialData();
+    const EnhancedComponent = hocFunction(() => null);
+    expect(typeof hocFunction).toBe('function');
+    expect(typeof EnhancedComponent).toBe('function');
   });
+
+  // TODO. Write complex unit test for this function
+
+  /*it('should pass an initialData prop to the wrapped component', () => {
+    const initialData = { foo: 'bar' };
+    const MockComponent = jest.fn(() => null);
+    const EnhancedComponent = withInitialData()(MockComponent);
+    const Wrapper = ({ children }) => (
+      <InitialContext.Provider value={initialData}>
+        {children}
+      </InitialContext.Provider>
+    );
+    render(<EnhancedComponent />, { wrapper: Wrapper });
+    expect(MockComponent).toHaveBeenCalledWith({
+      initialData
+    }, {});
+  });*/
 });

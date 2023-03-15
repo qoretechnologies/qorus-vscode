@@ -1,31 +1,22 @@
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
-import Enzyme, { shallow } from 'enzyme';
 import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import withTargetDir, { IEnhancedComponent } from '../../src/hocomponents/withTargetDir';
+import { render, screen } from '@testing-library/react';
+import withTargetDir from '../../src/hocomponents/withTargetDir';
 
-Enzyme.configure({ adapter: new Adapter() });
-
-const MockComponent: React.FC<IEnhancedComponent> = () => <div />;
+// Create a mock store
+const mockStore = configureStore([]);
 
 describe('withTargetDir', () => {
-  const mockStore = configureStore([]);
-  let store: any;
-
-  beforeEach(() => {
-    store = mockStore({
-      create_iface_target_dir: '/default/path',
-    });
-  });
-
   it('should render the enhanced component', () => {
-    const EnhancedComponent = withTargetDir(MockComponent);
-    const wrapper = shallow(
+    const store = mockStore({ create_iface_target_dir: '' });
+    const EnhancedComponent = () => <div>Enhanced Component</div>;
+    const ComponentWithTargetDir = withTargetDir(EnhancedComponent);
+    const { getByText } = render(
       <Provider store={store}>
-        <EnhancedComponent />
+        <ComponentWithTargetDir />
       </Provider>
     );
-    expect(wrapper.find(MockComponent)).toBeTruthy();
+    expect(screen.getByText('Enhanced Component')).toBeDefined();
   });
 });

@@ -10,24 +10,23 @@ describe('withFieldsConsumer', () => {
     const props = { prop1: 'value3', prop2: 'value4' };
 
     const EnhancedComponent = withFieldsConsumer()(MockComponent);
-    const { container } = render(
+    render(
       <GlobalContext.Provider value={fieldsData}>
         <EnhancedComponent {...props} />
       </GlobalContext.Provider>
     );
 
-    expect(MockComponent).toBeCalled();
+    expect(MockComponent).toHaveBeenCalled();
   });
+
   it('should render the component with fieldsData props', () => {
     const fieldsData = { field1: 'value1', field2: 'value2' };
-
     const EnhancedComponent = withFieldsConsumer()(MockComponent);
-    const { container } = render(
+    render(
       <GlobalContext.Provider value={fieldsData}>
         <EnhancedComponent />
       </GlobalContext.Provider>
     );
-
-    expect(MockComponent).toBeCalled();
+    expect(MockComponent).toHaveBeenCalled();
   });
 });

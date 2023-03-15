@@ -1,40 +1,61 @@
-import { mount } from 'enzyme';
+import React from 'react';
+import { render } from '@testing-library/react';
+import withMapperConsumer from '../../src/hocomponents/withMapperConsumer';
 import { MapperContext } from '../../src/context/mapper';
-import withFieldsData from '../../src/hocomponents/withMapperConsumer';
 
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
-import { configure } from 'enzyme';
-
-configure({ adapter: new Adapter() });
-
-describe('withFieldsData', () => {
-  it('should render the component with fields data', () => {
-    const fieldsData = {
-      inputs: [{ name: 'input1', value: 'value1' }],
-      contextInputs: [],
-      outputs: [],
-      inputProvider: jest.fn(),
-      outputProvider: jest.fn(),
-      relations: [],
-      inputChildren: [],
-      outputChildren: [],
-      inputRecord: null,
-      outputRecord: null,
-      inputOptionProvider: jest.fn(),
-      outputOptionProvider: jest.fn(),
-      mapperKeys: [],
-      hideInputSelector: false,
-      hideOutputSelector: false,
-      error: '',
-      isContextLoaded: true,
+describe('withMapperConsumer', () => {
+  it('renders without crashing', () => {
+    const MockComponent = () => <div />;
+    const EnhancedComponent = withMapperConsumer()(MockComponent);
+    render(<EnhancedComponent />);
+  });
+  it('merges props and mapperData correctly', () => {
+    const MockComponent = ({ inputs, contextInputs, mapperData }) => {
+      expect(inputs).toBe('inputs');
+      expect(contextInputs).toBe('contextInputs');
+      expect(mapperData).toEqual({
+        inputs: 'inputs',
+        contextInputs: 'contextInputs',
+        outputs: 'outputs',
+        inputProvider: 'inputProvider',
+        outputProvider: 'outputProvider',
+        relations: 'relations',
+        inputChildren: 'inputChildren',
+        outputChildren: 'outputChildren',
+        inputRecord: 'inputRecord',
+        outputRecord: 'outputRecord',
+        inputOptionProvider: 'inputOptionProvider',
+        outputOptionProvider: 'outputOptionProvider',
+        mapperKeys: 'mapperKeys',
+        hideInputSelector: 'hideInputSelector',
+        hideOutputSelector: 'hideOutputSelector',
+        error: 'error',
+        isContextLoaded: 'isContextLoaded',
+      });
+      return null;
     };
-    const TestComponent = () => <div />;
-    const EnhancedComponent = withFieldsData()(TestComponent);
-    const wrapper = mount(
-      <MapperContext.Provider value={fieldsData}>
-        <EnhancedComponent />
-      </MapperContext.Provider>
-    );
-    expect(wrapper.find(TestComponent).props().mapperData).toEqual(fieldsData);
+    const fieldsData = {
+      inputs: 'inputs',
+      contextInputs: 'contextInputs',
+      outputs: 'outputs',
+      inputProvider: 'inputProvider',
+      outputProvider: 'outputProvider',
+      relations: 'relations',
+      inputChildren: 'inputChildren',
+      outputChildren: 'outputChildren',
+      inputRecord: 'inputRecord',
+      outputRecord: 'outputRecord',
+      inputOptionProvider: 'inputOptionProvider',
+      outputOptionProvider: 'outputOptionProvider',
+      mapperKeys: 'mapperKeys',
+      hideInputSelector: 'hideInputSelector',
+      hideOutputSelector: 'hideOutputSelector',
+      error: 'error',
+      isContextLoaded: 'isContextLoaded',
+    };
+    const EnhancedComponent = withMapperConsumer()(MockComponent);
+    render(<EnhancedComponent inputs="inputs" contextInputs="contextInputs" />, {
+      wrapper: ({ children }) => <MapperContext.Provider value={fieldsData}>{children}</MapperContext.Provider>,
+    });
   });
 });

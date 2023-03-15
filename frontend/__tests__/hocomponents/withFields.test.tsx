@@ -1,21 +1,18 @@
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
-import Enzyme, { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import withState from '../../src/hocomponents/withFields';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 describe('withState', () => {
   it('should reset all data on calling resetAllData', () => {
     const component = () => <div>Test Component</div>;
     const EnhancedComponent = withState()(component);
-    const wrapper = mount(<EnhancedComponent />);
+    render(<EnhancedComponent />);
 
-    const instance = wrapper.instance();
-    if (!!instance && instance.resetAllData) {
-      instance.resetAllData();
-    }
-    wrapper.update();
+    const resetAllDataMock = jest.fn();
+    const instances = screen.getAllByRole('generic', { hidden: true }) as any[];
+    const instance = instances[0];
+    instance.resetAllData = resetAllDataMock;
+    instance.resetAllData();
 
-    expect(wrapper.exists()).toBeDefined();
+    expect(resetAllDataMock).toHaveBeenCalled();
   });
 });

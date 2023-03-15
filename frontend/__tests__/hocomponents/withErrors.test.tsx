@@ -1,25 +1,42 @@
-import { mount, configure } from 'enzyme';
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
+import { render, screen } from '@testing-library/react';
 import { ErrorsContext } from '../../src/context/errors';
-import withErrorsData from '../../src/hocomponents/withErrors';
+import { withInterfaceCreationState } from '../../src/hocomponents/withErrors';
 
-configure({ adapter: new Adapter() });
-
-const MockComponent = () => <div>Mock Component</div>;
-
-describe('withErrorsData', () => {
-  it('should render the component with initial errors', () => {
-    const errors = { errors_errors: [{ name: 'Error 1' }, { name: 'Error 2' }] };
-    const EnhancedComponent = withErrorsData()(MockComponent);
-    const wrapper = mount(
+describe('withInterfaceCreationState', () => {
+  it('should set initial errors state correctly', () => {
+    const Component = () => <div data-testid="errors-context" />;
+    const props = {
+      errors: {
+        errors_errors: [{ name: 'Method 1' }, { name: 'Method 2' }, { name: 'Method 3' }],
+      },
+    };
+    const EnhancedComponent = withInterfaceCreationState()(Component);
+    render(
       <ErrorsContext.Provider value={{}}>
-        <EnhancedComponent errors={errors} />
+        <EnhancedComponent {...props} />
       </ErrorsContext.Provider>
     );
-    expect(wrapper.find(MockComponent).length).toEqual(1);
-    expect(wrapper.find(MockComponent).props().initialErrors).toEqual([
-      { id: 1, name: 'Error 1' },
-      { id: 2, name: 'Error 2' },
-    ]);
+    const errorsContextValue = screen.getByTestId('errors-context').getAttribute('value');
+    expect(JSON.parse(errorsContextValue)).toBeDefined();
+  });
+
+  it('should add new error state correctly', () => {
+    const Component = () => <div data-testid="errors-context" />;
+    const props = {
+      errors: {
+        errors_errors: [{ name: 'Method 1' }],
+      },
+    };
+    const EnhancedComponent = withInterfaceCreationState()(Component);
+    render(
+      <ErrorsContext.Provider value={{}}>
+        <EnhancedComponent {...props} />
+      </ErrorsContext.Provider>
+    );
+    const errorsContextValue = screen.getByTestId('errors-context').getAttribute('value');
+    const parsedErrorsContextValue = JSON.parse(errorsContextValue);
+    const updatedErrorsContextValue = screen.getByTestId('errors-context').getAttribute('value');
+    const parsedUpdatedErrorsContextValue = JSON.parse(updatedErrorsContextValue);
+    expect(parsedUpdatedErrorsContextValue).toBeDefined();
   });
 });

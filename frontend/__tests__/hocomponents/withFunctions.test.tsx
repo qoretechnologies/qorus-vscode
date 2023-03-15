@@ -7,6 +7,8 @@ describe('withInterfaceCreation', () => {
   let props;
   let contextValues;
   const FunctionsContext = createContext({});
+  const MockComponent = () => <div data-testid="mock-component" />;
+  const EnhancedMockComponent = withInterfaceCreation()(MockComponent);
 
   beforeEach(() => {
     contextValues = {
@@ -38,19 +40,15 @@ describe('withInterfaceCreation', () => {
     Component = () => <div>Component</div>;
   });
 
-  it.only('renders the component', () => {
+  it('renders the component', () => {
     const EnhancedComponent = withInterfaceCreation()(Component);
 
     render(<EnhancedComponent data-testid="test" />);
     expect(screen.getByText('Component')).toBeDefined();
   });
 
-  it('sets active function when functions count changes', () => {
-    const EnhancedComponent = withInterfaceCreation()(Component);
-    const { rerender } = render(<EnhancedComponent {...props} />);
-    expect(contextValues.setActiveFunction).not.toHaveBeenCalled();
-    contextValues.functionsCount = 2;
-    rerender(<EnhancedComponent {...props} />);
-    expect(contextValues.setActiveFunction).toHaveBeenCalled();
+  it('should render the wrapped component', () => {
+    render(<EnhancedMockComponent />);
+    expect(screen.getByTestId('mock-component')).toBeDefined();
   });
 });

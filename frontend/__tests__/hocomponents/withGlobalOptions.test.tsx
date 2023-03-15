@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { GlobalContext } from '../../src/context/global';
 import { InitialContext } from '../../src/context/init';
 import withInterfaceState from '../../src/hocomponents/withGlobalOptions';
@@ -41,6 +41,8 @@ describe('withInterfaceState', () => {
         </GlobalContext.Provider>
       </InitialContext.Provider>
     );
-    expect(resetFields).toBeDefined();
+
+    expect(resetFields).not.toHaveBeenCalled();
+
   });
 });

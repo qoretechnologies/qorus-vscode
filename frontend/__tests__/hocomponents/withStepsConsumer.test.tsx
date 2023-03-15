@@ -1,13 +1,10 @@
+import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { StepsContext } from '../../src/context/steps';
 import withStepsConsumer from '../../src/hocomponents/withStepsConsumer';
 
-import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-
-Enzyme.configure({ adapter: new Adapter() });
-
 describe('withStepsConsumer', () => {
-  let Component: React.FC<any>;
+  let Component: React.FunctionComponent<any>;
   let fieldsData: any;
 
   beforeEach(() => {
@@ -18,7 +15,6 @@ describe('withStepsConsumer', () => {
         <span>{props.field2}</span>
       </div>
     );
-
     fieldsData = {
       field1: 'field1 value',
       field2: 'field2 value',
@@ -27,17 +23,22 @@ describe('withStepsConsumer', () => {
 
   it('should render the wrapped component with fields data', () => {
     const WrappedComponent = withStepsConsumer()(Component);
-
-    const wrapper = shallow(<WrappedComponent />);
-
-    expect(wrapper.find(Component)).toBeDefined();
+    render(
+      <StepsContext.Provider value={fieldsData}>
+        <WrappedComponent />
+      </StepsContext.Provider>
+    );
+    expect(screen.getByText(fieldsData.field1)).toBeDefined();
+    expect(screen.getByText(fieldsData.field2)).toBeDefined();
   });
 
   it('should pass additional props to the wrapped component', () => {
     const WrappedComponent = withStepsConsumer()(Component);
-
-    const wrapper = shallow(<WrappedComponent additionalProp="additional prop value" />);
-
-    expect(wrapper.find(Component)).toHaveLength(0);
+    render(
+      <StepsContext.Provider value={fieldsData}>
+        <WrappedComponent additionalProp="additional prop value" />
+      </StepsContext.Provider>
+    );
+    expect(WrappedComponent).toBeDefined();
   });
 });

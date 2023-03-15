@@ -1,9 +1,10 @@
 import { pick } from 'lodash';
-import React, { FunctionComponent } from 'react';
+import { FunctionComponent } from 'react';
 import { MapperContext } from '../context/mapper';
 
 // A HoC helper that injects the fields data and functions
-export default () =>
+const withMapperConsumer =
+  () =>
   (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => (
       <MapperContext.Consumer>
@@ -37,3 +38,5 @@ export default () =>
 
     return EnhancedComponent;
   };
+
+export default withMapperConsumer;

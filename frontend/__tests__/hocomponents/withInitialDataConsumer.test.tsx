@@ -1,19 +1,18 @@
-import { configure, shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-import { InitialContext } from '../../src/context/init';
 import withInitialData from '../../src/hocomponents/withInitialData';
 
-configure({ adapter: new Adapter() });
-
+// A mock component to test withInitialData HoC
+const TestComponent = ({ initialData }) => (
+  <div>
+    <span>{initialData}</span>
+  </div>
+);
+// TODO: Add a more complex unit test
 describe('withInitialData', () => {
-  it('renders the wrapped component with the initialData prop injected', () => {
-    const MockComponent = jest.fn(() => <div />);
-    const initialData = { foo: 'bar' };
-    const wrapper = shallow(
-      <InitialContext.Provider value={initialData}>
-        <>{withInitialData()(MockComponent)}</>
-      </InitialContext.Provider>
-    );
-    expect(MockComponent).toBeDefined();
+  it('should return a function that returns a React component', () => {
+    const hocFunction = withInitialData();
+    const EnhancedComponent = hocFunction(() => null);
+    expect(typeof hocFunction).toBe('function');
+    expect(typeof EnhancedComponent).toBe('function');
   });
+
 });

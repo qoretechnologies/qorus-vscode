@@ -1,29 +1,27 @@
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
-import { configure, mount } from 'enzyme';
 import { FunctionsContext } from '../../src/context/functions';
 import withFunctionsConsumer from '../../src/hocomponents/withFunctionsConsumer';
-
-configure({ adapter: new Adapter() });
+import { render } from '@testing-library/react';
 
 describe('withFunctionsConsumer', () => {
   it('should render the wrapped component with functions data', () => {
-    const mockComponent = () => <div>Mock Component</div>;
+    const mockComponent = jest.fn(() => <div>Mock Component</div>);
     const mockFunctionsData = {
-      someFunction: () => {},
-      someOtherFunction: () => {},
+      someFunction: jest.fn(),
+      someOtherFunction: jest.fn(),
     };
     const WrappedComponent = withFunctionsConsumer()(mockComponent);
 
-    const wrapper = mount(
+    const { container } = render(
       <FunctionsContext.Provider value={mockFunctionsData}>
         <WrappedComponent />
       </FunctionsContext.Provider>
     );
 
-    expect(wrapper.find(mockComponent).props().someFunction).toEqual(
+    expect(mockComponent).toHaveBeenCalled();
+    expect(mockComponent.mock.calls[0][0].someFunction).toEqual(
       mockFunctionsData.someFunction
     );
-    expect(wrapper.find(mockComponent).props().someOtherFunction).toEqual(
+    expect(mockComponent.mock.calls[0][0].someOtherFunction).toEqual(
       mockFunctionsData.someOtherFunction
     );
   });

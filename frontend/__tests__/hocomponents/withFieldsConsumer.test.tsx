@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { FunctionComponent } from 'react';
-import '@testing-library/jest-dom'
-
 import withFields from '../../src/hocomponents/withFields';
+import '@testing-library/jest-dom/extend-expect';
 
 const DummyComponent: FunctionComponent<any> = ({ name, value="test", onChange }) => (
   <div>
@@ -11,12 +10,11 @@ const DummyComponent: FunctionComponent<any> = ({ name, value="test", onChange }
 );
 
 describe('withFields', () => {
-  it.only('renders the enhanced component correctly', () => {
+  it('renders the enhanced component correctly', () => {
     const EnhancedDummyComponent = withFields()(DummyComponent);
     render(<EnhancedDummyComponent />);
     const inputElement = screen.getByRole('textbox');
     expect(inputElement).toBeInTheDocument();
-    expect(inputElement).toHaveAttribute('value', "test");
+    expect(inputElement).toHaveValue("test");
   });
-
 });

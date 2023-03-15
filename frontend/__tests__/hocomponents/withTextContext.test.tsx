@@ -1,8 +1,7 @@
+import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { TextContext } from '../../src/context/text';
 import withText from '../../src/hocomponents/withTextContext';
-import '@testing-library/jest-dom'; // import jest-dom library to use toBeInTheDocument
-
 
 describe('withText', () => {
   it('should render the wrapped component with a `t` prop', () => {
