@@ -104,8 +104,9 @@ export const NewMessageState: StoryFSM = {
 
     await fireEvent.click(document.querySelector('.provider-selector'));
     await fireEvent.click(canvas.getAllByText('wsclient')[0]);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await expect(document.querySelector('.system-option')).toBeInTheDocument();
+    await waitFor(() => expect(document.querySelector('.system-option')).toBeInTheDocument(), {
+      timeout: 10000,
+    });
     await fireEvent.change(document.querySelector('.system-option textarea'), {
       target: {
         value: 'wss://sandbox:sandbox@sandbox.qoretechnologies.com/apievents',
