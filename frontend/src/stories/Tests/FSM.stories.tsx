@@ -97,8 +97,9 @@ export const NewMessageState: StoryFSM = {
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('factory'));
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await expect(document.querySelector('.provider-selector')).toBeInTheDocument();
+
+    await waitFor(() => expect(document.querySelector('.provider-selector')).toBeInTheDocument());
+
     await fireEvent.click(document.querySelector('.provider-selector'));
     await fireEvent.click(canvas.getAllByText('wsclient')[0]);
     await new Promise((resolve) => setTimeout(resolve, 500));
