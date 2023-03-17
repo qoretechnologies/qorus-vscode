@@ -51,7 +51,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
 
   // When input value changes
   const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
-    onChange(name, event.target.value);
+    onChange(name, event.target.value.toString());
   };
 
   return (

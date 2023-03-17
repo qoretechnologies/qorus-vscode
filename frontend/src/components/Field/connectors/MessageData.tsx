@@ -57,8 +57,11 @@ export const ProviderMessageData = ({
   return (
     <Auto
       {...getTypeAndCanBeNull(messageData.type)}
-      onChange={(_name, value) => onChange(value, messageData.type)}
+      onChange={(_name, value, type) => {
+        onChange(value, type);
+      }}
       value={value}
+      noSoft
     />
   );
 };

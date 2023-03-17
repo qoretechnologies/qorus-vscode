@@ -62,7 +62,7 @@ const StringField = ({
 
   // When input value changes
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    onChange(name, event.target.value);
+    onChange(name, event.target.value.toString());
   };
 
   // Clear the input on reset click

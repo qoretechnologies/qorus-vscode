@@ -54,12 +54,12 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
   canBeNull,
   ...rest
 }) => {
-  const [currentType, setType] = useState<string>(defaultInternalType || null);
-  const [currentInternalType, setInternalType] = useState<string>(defaultInternalType || 'any');
+  const [currentType, setType] = useState<IQorusType>(defaultInternalType || null);
+  const [currentInternalType, setInternalType] = useState<IQorusType>(defaultInternalType || 'any');
   const [isSetToNull, setIsSetToNull] = useState<boolean>(false);
 
   useMount(() => {
-    let defType = defaultType && defaultType.replace(/"/g, '').trim();
+    let defType: IQorusType = defaultType && (defaultType.replace(/"/g, '').trim() as any);
     defType = defType || 'any';
     let internalType;
     // If value already exists, but the type is auto or any
@@ -93,7 +93,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     // which will be used as a type
     if (rest['type-depends-on']) {
       // Get the requested type
-      const typeValue: string = requestFieldData(rest['type-depends-on'], 'value');
+      const typeValue: IQorusType = requestFieldData(rest['type-depends-on'], 'value');
       // Check if the field has the value set yet
       if (typeValue && typeValue !== currentType) {
         // If this is auto / any field
@@ -139,8 +139,12 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     return false;
   };
 
-  const handleChange: (name: string, value: any, type?: string) => void = (name, value, type) => {
-    const returnType = currentInternalType || type;
+  const handleChange: (name: string, value: any, type?: IQorusType) => void = (
+    name,
+    value,
+    type
+  ) => {
+    const returnType: IQorusType = currentInternalType || currentType || type;
     // Run the onchange
     if (onChange && returnType) {
       onChange(name, value, returnType, _canBeNull(returnType));
