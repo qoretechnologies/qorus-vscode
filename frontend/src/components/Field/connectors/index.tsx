@@ -420,6 +420,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             <SubField title={t('MessageData')} className="provider-message-data">
               <ProviderMessageData
                 value={optionProvider?.message?.value}
+                type={optionProvider?.message?.type}
                 url={`${getUrlFromProvider(optionProvider)}`}
                 messageId={optionProvider?.message_id}
                 onChange={(value, type) => {

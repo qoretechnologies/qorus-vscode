@@ -11,6 +11,7 @@ export interface IProviderMessageDataProps {
   messageId: string;
   onChange: (value: unknown, type: IQorusType) => void;
   value?: string;
+  type?: IQorusType;
 }
 
 export const ProviderMessageData = ({
@@ -18,6 +19,7 @@ export const ProviderMessageData = ({
   messageId,
   onChange,
   value,
+  type,
 }: IProviderMessageDataProps) => {
   const { fetchData, qorus_instance }: any = useContext(InitialContext);
 
@@ -54,9 +56,12 @@ export const ProviderMessageData = ({
     return <ReqoreMessage intent="danger">{error}</ReqoreMessage>;
   }
 
+  console.log(type, value);
+
   return (
     <Auto
-      {...getTypeAndCanBeNull(messageData.type)}
+      {...getTypeAndCanBeNull(type || messageData.type)}
+      defaultType={messageData.type}
       onChange={(_name, value, type) => {
         onChange(value, type);
       }}
