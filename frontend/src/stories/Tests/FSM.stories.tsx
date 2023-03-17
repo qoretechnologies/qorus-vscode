@@ -1,6 +1,6 @@
 import { expect } from '@storybook/jest';
 import { Meta, StoryObj } from '@storybook/react';
-import { fireEvent, waitFor, within } from '@storybook/testing-library';
+import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
 
@@ -111,7 +111,6 @@ export const NewMessageState: StoryFSM = {
       },
     });
     await waitFor(() => canvas.findAllByText(/Apply options/g), { timeout: 5000 });
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     // Click on apply options
     await fireEvent.click(canvas.getAllByText(/Apply options/g)[0]);
 
@@ -124,36 +123,40 @@ export const NewMessageState: StoryFSM = {
     await expect(document.querySelector('.provider-message-selector')).toBeInTheDocument();
 
     // Select the message type
-    // await fireEvent.click(document.querySelector('.provider-message-selector'));
-    // await waitFor(() => canvas.findByText(/Select from items/g), { timeout: 5000 });
-    // await waitFor(() => canvas.findByText(/raw/g), { timeout: 5000 });
-    // await fireEvent.click(canvas.findAllByText(/raw/g)[0]);
+    await fireEvent.click(document.querySelector('.provider-message-selector'));
+    await waitFor(async () => {
+      await canvas.findByText(/Select from items/g);
+      await fireEvent.click(canvas.getByText('raw'));
+    });
 
-    // // Add the message data
-    // await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 5000 });
-    // await await waitFor(
-    //   () => expect(document.querySelector('.state-submit-button')).toBeDisabled(),
-    //   { timeout: 5000 }
-    // );
-    // await waitFor(
-    //   () => expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument(),
-    //   { timeout: 5000 }
-    // );
-    // await userEvent.type(document.querySelector('.provider-message-data textarea'), 'Hello World');
-    // await waitFor(() => expect(document.querySelector('.state-submit-button')).toBeEnabled(), {
-    //   timeout: 5000,
-    // });
+    // Add the message data
+    await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 5000 });
+    await await waitFor(() =>
+      expect(document.querySelector('.state-submit-button')).toBeDisabled()
+    );
 
-    // // Submit the state
-    // await fireEvent.click(document.querySelector('.state-submit-button'));
-    // await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
-    // await waitFor(() => canvas.findByText('factory/wsclient'));
+    await waitFor(async () => {
+      await expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument();
+      await userEvent.type(
+        document.querySelector('.provider-message-data textarea'),
+        'Hello World'
+      );
+    });
 
-    // // Check that state data were saved
-    // await fireEvent.click(document.querySelector('#state-1'));
-    // await waitFor(() => canvas.findByDisplayValue('Hello World'));
-    // await expect(document.querySelector('.provider-message-data textarea')).toHaveValue(
-    //   'Hello World'
-    // );
+    // Submit the state
+    await waitFor(async () => {
+      await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+      await fireEvent.click(document.querySelector('.state-submit-button'));
+    });
+
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => canvas.findByText('factory/wsclient'));
+
+    // Check that state data were saved
+    await fireEvent.click(document.querySelector('#state-1'));
+    await waitFor(() => canvas.findByDisplayValue('Hello World'));
+    await expect(document.querySelector('.provider-message-data textarea')).toHaveValue(
+      'Hello World'
+    );
   },
 };

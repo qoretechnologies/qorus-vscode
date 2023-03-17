@@ -10,7 +10,6 @@ import map from 'lodash/map';
 import nth from 'lodash/nth';
 import size from 'lodash/size';
 import { FC, useCallback, useContext, useState } from 'react';
-import { useDebounce } from 'react-use';
 import CustomDialog from '../../components/CustomDialog';
 import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
@@ -161,26 +160,9 @@ const MapperProvider: FC<IProviderProps> = ({
   isMessage,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
-  const [optionString, setOptionString] = useState('');
   const [descriptions, setDescriptions] = useState<string[]>([]);
   const [errorMessage, onError] = useState<string | null>(null);
   const t = useContext(TextContext);
-
-  /* When the options hash changes, we want to update the query string. */
-  useDebounce(
-    () => {
-      if (size(options)) {
-        // Turn the options hash into a query string
-        const str = map(options, (value, key) => `${key}=${btoa(value.value)}`).join(',');
-        setOptionString(`provider_yaml_options={${str}}`);
-      } else {
-        setOptionString('provider_yaml_options={}');
-      }
-    },
-    500,
-    [options]
-  );
-
   let realProviders = cloneDeep(providers);
 
   // Omit type and factory from the list of realProviders if is config item
@@ -291,8 +273,9 @@ const MapperProvider: FC<IProviderProps> = ({
     value: string,
     url: string,
     itemIndex: number,
-    suffix?: string
-  ) => void = async (value, url, itemIndex, suffix) => {
+    suffix?: string,
+    customOptionString?: string
+  ) => void = async (value, url, itemIndex, suffix, customOptionString) => {
     // Clear the data
     clear && clear(true);
     // Set loading
@@ -304,8 +287,8 @@ const MapperProvider: FC<IProviderProps> = ({
       : suffix;
     // Build the suffix
     let suffixString = realProviders[provider].suffixRequiresOptions
-      ? optionString && optionString !== '' && size(options)
-        ? `${newSuffix}${realProviders[provider].withDetails ? '&' : '?'}${optionString}`
+      ? customOptionString && customOptionString !== '' && size(options)
+        ? `${newSuffix}${realProviders[provider].withDetails ? '&' : '?'}${customOptionString}`
         : itemIndex === 1
         ? value === 'request' || value === 'response'
           ? ''
@@ -377,10 +360,10 @@ const MapperProvider: FC<IProviderProps> = ({
               : '';
 
           suffixString = realProviders[provider].suffixRequiresOptions
-            ? optionString && optionString !== '' && size(options)
+            ? customOptionString && customOptionString !== '' && size(options)
               ? `${suffix}${
                   data.has_record ? realProviders[provider].recordSuffix : ''
-                }?${optionString}${type === 'outputs' ? '&soft=true' : ''}`
+                }?${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
                   data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
                 }${childDetailsSuffix}`
@@ -529,10 +512,10 @@ const MapperProvider: FC<IProviderProps> = ({
 
           const newSuffix = suffix;
           suffixString = realProviders[provider].suffixRequiresOptions
-            ? optionString && optionString !== '' && size(options)
+            ? customOptionString && customOptionString !== '' && size(options)
               ? `${suffix}${
                   data.has_record ? realProviders[provider].recordSuffix : ''
-                }?${optionString}${type === 'outputs' ? '&soft=true' : ''}`
+                }?${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
                   data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
                 }${childDetailsSuffix}`
@@ -673,6 +656,16 @@ const MapperProvider: FC<IProviderProps> = ({
                   intent="info"
                   fixed
                   onClick={() => {
+                    let customOptionString = '';
+                    if (size(options)) {
+                      // Turn the options hash into a query string
+                      const str = map(options, (value, key) => `${key}=${btoa(value.value)}`).join(
+                        ','
+                      );
+                      customOptionString = `provider_yaml_options={${str}}`;
+                    } else {
+                      customOptionString = 'provider_yaml_options={}';
+                    }
                     // Get the child data
                     const { url, suffix } = child.values.find((val) => val.name === child.value);
                     // If the value is a wildcard present a dialog that the user has to fill
@@ -685,7 +678,7 @@ const MapperProvider: FC<IProviderProps> = ({
                       });
                     } else {
                       // Change the child
-                      handleChildFieldChange(child.value, url, 0, suffix);
+                      handleChildFieldChange(child.value, url, 0, suffix, customOptionString);
                     }
                   }}
                 >
