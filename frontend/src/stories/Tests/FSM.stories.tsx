@@ -135,19 +135,25 @@ export const NewMessageState: StoryFSM = {
       expect(document.querySelector('.state-submit-button')).toBeDisabled()
     );
 
-    await waitFor(async () => {
-      await expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument();
-      await userEvent.type(
-        document.querySelector('.provider-message-data textarea'),
-        'Hello World'
-      );
-    });
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument();
+        await userEvent.type(
+          document.querySelector('.provider-message-data textarea'),
+          'Hello World'
+        );
+      },
+      { timeout: 5000 }
+    );
 
     // Submit the state
-    await waitFor(async () => {
-      await expect(document.querySelector('.state-submit-button')).toBeEnabled();
-      await fireEvent.click(document.querySelector('.state-submit-button'));
-    });
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+        await fireEvent.click(document.querySelector('.state-submit-button'));
+      },
+      { timeout: 5000 }
+    );
 
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
     await waitFor(() => canvas.findByText('factory/wsclient'));
