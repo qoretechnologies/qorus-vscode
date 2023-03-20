@@ -48,7 +48,7 @@ export interface IProviderProps {
   onResetClick?: () => void;
 }
 
-const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
+export const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
   margin-bottom: 10px;
   ${({ compact, hasTitle }) =>
     compact
@@ -66,7 +66,7 @@ const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
   }
 `;
 
-const StyledHeader = styled.h3`
+export const StyledHeader = styled.h3`
   margin: 0;
   margin-bottom: 10px;
   text-align: center;
@@ -153,8 +153,30 @@ export const configItemFactory = {
   suffixRequiresOptions: true,
   type: 'factory',
 };
+export const filterChildren = (
+  children: any[],
+  {
+    isPipeline,
+    recordType,
+    requiresRequest,
+  }: { isPipeline?: boolean; recordType?: boolean; requiresRequest?: boolean } = {}
+) => {
+  return children.filter((child) => {
+    if (isPipeline || recordType) {
+      return child.has_record || child.children_can_support_records || child.has_provider;
+    }
 
-const MapperProvider: FC<IProviderProps> = ({
+    if (requiresRequest) {
+      return child.up !== false && (child.supports_request || child.children_can_support_apis);
+    }
+
+    return true;
+  });
+};
+
+export const MapperProvider: FC<
+  IProviderProps & { handleProviderChange: (provider: string) => void }
+> = ({
   provider,
   setProvider,
   nodes,
@@ -219,25 +241,6 @@ const MapperProvider: FC<IProviderProps> = ({
   if (recordType || isPipeline) {
     realProviders = omit(realProviders, ['type']);
   }
-
-  /**
-   * It filters out children that don't have a record or request
-   * @param {any[]} children - any[] - the children of the current node
-   * @returns the children array after it has been filtered.
-   */
-  const filterChildren = (children: any[]) => {
-    return children.filter((child) => {
-      if (isPipeline || recordType) {
-        return child.has_record || child.children_can_support_records || child.has_provider;
-      }
-
-      if (requiresRequest) {
-        return child.up !== false && (child.supports_request || child.children_can_support_apis);
-      }
-
-      return true;
-    });
-  };
 
   const handleProviderChange = (provider) => {
     setProvider((current) => {
@@ -645,7 +648,6 @@ const MapperProvider: FC<IProviderProps> = ({
       <ReqorePanel minimal={compact} style={style} flat transparent padded={!!title}>
         <ReqoreControlGroup fluid wrap fill>
           <SelectField
-            fixed
             name={`provider${type ? `-${type}` : ''}`}
             disabled={isLoading}
             defaultItems={getDefaultItems()}

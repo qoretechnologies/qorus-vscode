@@ -156,7 +156,7 @@ export const maybeBuildOptionProvider = (provider) => {
   // Check if the provider is a factory
   if (provider.startsWith('factory')) {
     // Get everything between the < and >
-    //const factory = provider.substring(provider.indexOf('<') + 1, provider.indexOf('>'));
+    // const factory = provider.substring(provider.indexOf('<') + 1, provider.indexOf('>'));
     // Add / to the provider at the end if it doesn't already have it
     const fixedProvider = provider.endsWith('/') ? provider : `${provider}/`;
     // Get the factory name
@@ -228,6 +228,14 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   const [optionProvider, setOptionProvider] = useState<IProviderType | null>(
     maybeBuildOptionProvider(value)
   );
+  let url = '';
+  let suffix = '';
+  let desc = '';
+  if (!!providers[optionProvider.type] && !!providers[optionProvider.type].url) {
+    url = providers[optionProvider.type].url;
+    suffix = providers[optionProvider.type].suffix;
+    desc = optionProvider.descriptions?.[0];
+  }
   const [nodes, setChildren] = useState(
     optionProvider
       ? [
@@ -236,9 +244,9 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             values: [
               {
                 name: optionProvider.name,
-                url: providers[optionProvider.type].url,
-                suffix: providers[optionProvider.type].suffix,
-                desc: optionProvider.descriptions?.[0],
+                url: url,
+                suffix: suffix,
+                desc: desc,
               },
             ],
           },
