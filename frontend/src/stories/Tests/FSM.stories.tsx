@@ -1,16 +1,31 @@
 import { expect } from '@storybook/jest';
-import { Meta, StoryObj } from '@storybook/react';
+import { StoryObj } from '@storybook/react';
 import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
+import { StoryMeta } from '../types';
+import { NewState } from '../Views/FSM.stories';
+import {
+  _testsSelectItemFromCollection,
+  _testsSelectItemFromDropdown,
+  _testsSubmitFSMState,
+} from './utils';
 
 const meta = {
   component: FSMView,
-} as Meta<typeof FSMView>;
+  args: {
+    reqoreOptions: {
+      animations: {
+        dialogs: false,
+      },
+    },
+  },
+} as StoryMeta<typeof FSMView, { stateType?: string }>;
 
 export default meta;
 
 type StoryFSM = StoryObj<typeof meta>;
+
 export const SwitchesToBuilder: StoryFSM = {
   args: {
     fsm,
@@ -57,16 +72,6 @@ export const AutoAlign: StoryFSM = {
   },
 };
 
-export const AddsNewState: StoryFSM = {
-  play: async ({ canvasElement, ...rest }) => {
-    await SwitchesToBuilder.play({ canvasElement, ...rest });
-
-    await fireEvent.dblClick(document.querySelector('#send-message'));
-    await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());
-    expect(document.querySelector('#state-1')).toBeInTheDocument();
-  },
-};
-
 export const SelectedStateChange: StoryFSM = {
   args: {
     fsm,
@@ -85,11 +90,109 @@ export const SelectedStateChange: StoryFSM = {
   },
 };
 
+export const NewMapperState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest, stateType: 'mapper' });
+
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await waitFor(_testsSelectItemFromCollection(canvas, 'Test Mapper 1'), { timeout: 5000 });
+    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+
+    // Submit the state
+    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => expect(canvas.getByText('Test Mapper 1')).toBeInTheDocument());
+  },
+};
+
+export const NewPipelineState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest, stateType: 'pipeline' });
+
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await waitFor(_testsSelectItemFromCollection(canvas, 'Test Pipeline 1'), { timeout: 5000 });
+    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+
+    // Submit the state
+    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => expect(canvas.getByText('Test Pipeline 1')).toBeInTheDocument());
+  },
+};
+
+export const NewConnectorState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest, stateType: 'connector' });
+
+    const className = 'Test Class With Connectors 1';
+    const connectorName = 'Input Output Connector';
+
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await waitFor(_testsSelectItemFromDropdown(canvas, className), { timeout: 5000 });
+    await waitFor(_testsSelectItemFromCollection(canvas, connectorName), { timeout: 5000 });
+    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+
+    // Submit the state
+    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(canvas.getByText(`${className}:${connectorName} connector`)).toBeInTheDocument()
+    );
+  },
+};
+
+export const NewFSMState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest, stateType: 'fsm' });
+
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await waitFor(_testsSelectItemFromDropdown(canvas, 'Test FSM 1'), { timeout: 5000 });
+    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+
+    // Submit the state
+    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => expect(canvas.getByText('Test FSM 1')).toBeInTheDocument());
+  },
+};
+
+export const NewIfState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest, stateType: 'if' });
+
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await waitFor(
+      async () => await userEvent.type(document.querySelector('#condition-field'), 'asfg condition')
+    );
+    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+
+    // Submit the state
+    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => expect(canvas.getByText('asfg condition')).toBeInTheDocument());
+  },
+};
+
 export const NewMessageState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
 
-    await AddsNewState.play({ canvasElement, ...rest });
+    await NewState.play({ canvasElement, ...rest, stateType: 'send-message' });
 
     // The submit button needs to be disabled
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
@@ -147,13 +250,7 @@ export const NewMessageState: StoryFSM = {
     );
 
     // Submit the state
-    await waitFor(
-      async () => {
-        await expect(document.querySelector('.state-submit-button')).toBeEnabled();
-        await fireEvent.click(document.querySelector('.state-submit-button'));
-      },
-      { timeout: 5000 }
-    );
+    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
 
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
     await waitFor(() => canvas.findByText('factory/wsclient'));

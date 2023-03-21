@@ -1,18 +1,32 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { expect } from '@storybook/jest';
+import { StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@testing-library/react';
 import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
+import { SwitchesToBuilder } from '../Tests/FSM.stories';
+import { StoryMeta } from '../types';
 
-type StoryFSM = StoryObj<typeof FSMView>;
-
-export default {
+const meta = {
   component: FSMView,
-} as Meta<typeof FSMView>;
+} as StoryMeta<typeof FSMView>;
 
+export default meta;
+
+type StoryFSM = StoryObj<typeof meta>;
 export const New: StoryFSM = {};
 export const Existing: StoryFSM = {
   args: {
     fsm,
+  },
+};
+
+export const NewState: StoryFSM = {
+  play: async ({ canvasElement, stateType, ...rest }) => {
+    await SwitchesToBuilder.play({ canvasElement, ...rest });
+
+    await fireEvent.dblClick(document.querySelector(`#${stateType || 'mapper'}`));
+    await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());
+    expect(document.querySelector('#state-1')).toBeInTheDocument();
   },
 };
 

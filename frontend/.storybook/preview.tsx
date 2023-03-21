@@ -20,7 +20,7 @@ const preview: Preview = {
   },
   decorators: [
     (Story, context) => (
-      <ReqoreUIProvider>
+      <ReqoreUIProvider options={{ ...context.args.reqoreOptions }}>
         <ReqoreLayoutContent>
           <ReqoreContent style={{ padding: '20px', display: 'flex', flexFlow: 'column' }}>
             <DndProvider backend={HTML5Backend}>

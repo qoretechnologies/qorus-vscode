@@ -171,6 +171,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
       if (return_message) {
         setListener(() =>
           addMessageListener(return_message.action, (data: any) => {
+            console.log(data);
             // Check if this is the correct
             // object type
             if (!return_message.object_type || data.object_type === return_message.object_type) {
@@ -331,6 +332,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
           showSelectedFirst
           selectedIcon="CheckLine"
           fill
+          className="q-select-dialog"
           inputProps={{
             rightIcon: 'KeyboardFill',
             focusRules: {
