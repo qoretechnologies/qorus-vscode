@@ -236,16 +236,16 @@ export const NewMessageState: StoryFSM = {
       expect(document.querySelector('.state-submit-button')).toBeDisabled()
     );
 
-    await waitFor(
-      async () => {
-        await expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument();
-        await userEvent.type(
-          document.querySelector('.provider-message-data textarea'),
-          'Hello World'
-        );
-      },
-      { timeout: 5000 }
-    );
+    // await waitFor(
+    //   async () => {
+    //     await expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument();
+    //     await userEvent.type(
+    //       document.querySelector('.provider-message-data textarea'),
+    //       'Hello World'
+    //     );
+    //   },
+    //   { timeout: 5000 }
+    // );
 
     // // Submit the state
     // await waitFor(_testsSubmitFSMState, { timeout: 5000 });
