@@ -190,6 +190,8 @@ export const NewIfState: StoryFSM = {
 
 export const NewMessageState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
+    // Save the current time to a variable called start, in format YYYY-MM-DD HH:MM:SS
+    const start = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const canvas = within(canvasElement);
 
     await NewState.play({ canvasElement, ...rest, stateType: 'send-message' });
@@ -233,19 +235,27 @@ export const NewMessageState: StoryFSM = {
     // Add the message data
     // WORKS TILL HERE
     await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 5000 });
-    await await waitFor(() =>
-      expect(document.querySelector('.state-submit-button')).toBeDisabled()
-    );
+    await waitFor(async () => {
+      await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+      await fireEvent.change(document.querySelector('.provider-message-data textarea'), {
+        target: {
+          value: `Start: ${start}  - End: ${new Date()
+            .toISOString()
+            .slice(0, 19)
+            .replace('T', ' ')}`,
+        },
+      });
+    });
 
-    await waitFor(
-      async () => {
-        await expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument();
-        await fireEvent.change(document.querySelector('.provider-message-data textarea'), {
-          target: { value: 'Hello World' },
-        });
-      },
-      { timeout: 5000 }
-    );
+    // await waitFor(
+    //   async () => {
+    //     await expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument();
+    //     await fireEvent.change(document.querySelector('.provider-message-data textarea'), {
+    //       target: { value: 'Hello World' },
+    //     });
+    //   },
+    //   { timeout: 5000 }
+    // );
 
     // Submit the state
     // await waitFor(_testsSubmitFSMState, { timeout: 5000 });

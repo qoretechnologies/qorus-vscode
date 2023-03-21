@@ -18,6 +18,7 @@ export interface ILongStringField {
   placeholder?: string;
   noWrap?: boolean;
   onChange: IFieldChange;
+  id?: string;
 }
 
 const LongStringField: FunctionComponent<ILongStringField & IField> = ({
@@ -31,6 +32,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
   placeholder,
   intent,
   noWrap,
+  id,
 }) => {
   // Fetch data on mount
   useMount(() => {
@@ -63,6 +65,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
       onChange={handleInputChange}
       onClearClick={() => onChange(name, '')}
       intent={intent}
+      id={id}
     />
   );
 };

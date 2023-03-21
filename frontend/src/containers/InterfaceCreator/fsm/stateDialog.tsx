@@ -464,7 +464,12 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               )}
             </FieldWrapper>
             <FieldWrapper label={t('Description')} isValid compact>
-              <LongStringField name="desc" onChange={handleDataUpdate} value={newData.desc} />
+              <LongStringField
+                name="desc"
+                onChange={handleDataUpdate}
+                value={newData.desc}
+                id="state-description-field"
+              />
             </FieldWrapper>
             <FieldWrapper label={t('Type')} isValid compact>
               <SelectField
