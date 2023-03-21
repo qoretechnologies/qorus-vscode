@@ -9,7 +9,7 @@ import { NewState } from '../Views/FSM.stories';
 import {
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
-  _testsSubmitFSMState
+  _testsSubmitFSMState,
 } from './utils';
 
 const meta = {
@@ -34,11 +34,10 @@ export const SwitchesToBuilder: StoryFSM = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await waitFor(() => canvas.getAllByText('Go to flow builder')[0]);
-    await fireEvent.click(canvas.getAllByText('Go to flow builder')[0]);
-
-    // Wait for some time to allow the canvas to render
-    await waitFor(() => expect(document.querySelector('#fsm-diagram svg')).toBeInTheDocument());
+    await waitFor(async () => {
+      await fireEvent.click(canvas.getAllByText('Go to flow builder')[0]);
+      await expect(document.querySelector('#fsm-diagram svg')).toBeInTheDocument();
+    });
   },
 };
 

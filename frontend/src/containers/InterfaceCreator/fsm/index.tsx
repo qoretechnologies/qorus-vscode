@@ -9,7 +9,7 @@ import {
   ReqoreTabsContent,
   ReqoreVerticalSpacer,
   useReqore,
-  useReqoreTheme,
+  useReqoreTheme
 } from '@qoretechnologies/reqore';
 import { every, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
@@ -34,7 +34,7 @@ import FileString from '../../../components/Field/fileString';
 import {
   NegativeColorEffect,
   PositiveColorEffect,
-  SaveColorEffect,
+  SaveColorEffect
 } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
@@ -60,7 +60,7 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
+  ITypeComparatorData
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
@@ -312,7 +312,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const [showStateIds, setShowStateIds] = useState<boolean>(false);
   const [showStatesList, setShowStatesList] = useState<boolean>(true);
 
-  const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
+  const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(true);
   const [outputCompatibility, setOutputCompatibility] = useState<
     { [key: string]: boolean } | undefined
   >(undefined);
@@ -584,15 +584,19 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       if (embedded || fsm) {
         let newStates = embedded ? states : cloneDeep(fsm?.states || {});
 
-        (async () => {
-          for await (const [stateId] of Object.entries(states)) {
-            newStates = await fixIncomptibleStates(stateId, newStates);
-          }
-
-          updateHistory(newStates);
-          setStates(newStates);
+        if (size(newStates) === 0) {
           setCompatibilityChecked(true);
-        })();
+        } else {
+          (async () => {
+            for await (const [stateId] of Object.entries(states)) {
+              newStates = await fixIncomptibleStates(stateId, newStates);
+            }
+
+            updateHistory(newStates);
+            setStates(newStates);
+            setCompatibilityChecked(true);
+          })();
+        }
       } else {
         setCompatibilityChecked(true);
       }
@@ -614,10 +618,15 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   useDebounce(
     () => {
-      areFinalStatesCompatibleWithOutputType();
-      areFinalStatesCompatibleWithInputType();
+      if (metadata?.['input-type']) {
+        areFinalStatesCompatibleWithInputType();
+      }
+
+      if (metadata?.['output-type']) {
+        areFinalStatesCompatibleWithOutputType();
+      }
     },
-    1000,
+    100,
     [metadata?.['input-type'], metadata?.['output-type'], states]
   );
 
