@@ -7,6 +7,7 @@ import fsm from '../Data/fsm.json';
 import { StoryMeta } from '../types';
 import { NewState } from '../Views/FSM.stories';
 import {
+  sleep,
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
   _testsSubmitFSMState,
@@ -65,10 +66,14 @@ export const AutoAlign: StoryFSM = {
 
     const canvas = within(canvasElement);
 
-    await waitFor(() => canvas.getAllByText('Auto align states')[0]);
-    await fireEvent.click(canvas.getAllByText('Auto align states')[0]);
-
-    await expect(true).toBe(true);
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('#fsm-diagram .reqore-panel').length).toBe(9);
+        await sleep(1000);
+        await fireEvent.click(canvas.getAllByText('Auto align states')[0]);
+      },
+      { timeout: 5000 }
+    );
   },
 };
 
