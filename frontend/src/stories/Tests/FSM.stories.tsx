@@ -9,7 +9,7 @@ import { NewState } from '../Views/FSM.stories';
 import {
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
-  _testsSubmitFSMState,
+  _testsSubmitFSMState
 } from './utils';
 
 const meta = {
@@ -203,12 +203,19 @@ export const NewMessageState: StoryFSM = {
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('factory'));
 
+    times.selectedFactory = new Date().toISOString().slice(0, 23).replace('T', ' ');
+
     await waitFor(() => expect(document.querySelector('.provider-selector')).toBeInTheDocument(), {
       timeout: 5000,
     });
 
+    times.restCallDone = new Date().toISOString().slice(0, 23).replace('T', ' ');
+
     await fireEvent.click(document.querySelector('.provider-selector'));
     await fireEvent.click(canvas.getAllByText('wsclient')[0]);
+
+    times.selectedWsClient = new Date().toISOString().slice(0, 23).replace('T', ' ');
+
     await waitFor(() => expect(document.querySelector('.system-option')).toBeInTheDocument(), {
       timeout: 5000,
     });
