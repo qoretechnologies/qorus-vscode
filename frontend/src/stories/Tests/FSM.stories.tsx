@@ -193,11 +193,6 @@ export const NewIfState: StoryFSM = {
 };
 
 export const NewMessageState: StoryFSM = {
-  parameters: {
-    chromatic: {
-      disableSnapshot: true,
-    },
-  },
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
     await NewState.play({ canvasElement, ...rest, stateType: 'send-message' });
