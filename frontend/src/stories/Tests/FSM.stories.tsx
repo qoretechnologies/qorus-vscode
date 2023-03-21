@@ -223,14 +223,12 @@ export const NewMessageState: StoryFSM = {
       { timeout: 5000 }
     );
 
-    // await expect(document.querySelector('.provider-message-selector')).toBeInTheDocument();
-
     // // Select the message type
-    // await fireEvent.click(document.querySelector('.provider-message-selector'));
-    // await waitFor(async () => {
-    //   await canvas.findByText(/Select from items/g);
-    //   await fireEvent.click(canvas.getByText('raw'));
-    // });
+    await fireEvent.click(document.querySelector('.provider-message-selector'));
+    await waitFor(async () => {
+      await canvas.findByText(/Select from items/g);
+      await fireEvent.click(canvas.getByText('raw'));
+    });
 
     // // Add the message data
     // await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 5000 });

@@ -14,6 +14,10 @@ const preview: Preview = {
         date: /Date$/,
       },
     },
+    chromatic: {
+      viewports: [800, 1440],
+      pauseAnimationAtEnd: true,
+    },
   },
   args: {
     qorus_instance: true,
