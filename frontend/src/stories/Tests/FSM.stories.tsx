@@ -237,7 +237,7 @@ export const NewMessageState: StoryFSM = {
     await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 5000 });
     await waitFor(async () => {
       await expect(document.querySelector('.state-submit-button')).toBeDisabled();
-      await fireEvent.change(document.querySelector('.provider-message-data textarea'), {
+      await fireEvent.change(document.querySelector('#state-description-field'), {
         target: {
           value: `Start: ${start}  - End: ${new Date()
             .toISOString()
