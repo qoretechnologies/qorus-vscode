@@ -1,6 +1,7 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-library';
+import { reduce } from 'lodash';
 import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
 import { StoryMeta } from '../types';
@@ -190,8 +191,9 @@ export const NewIfState: StoryFSM = {
 
 export const NewMessageState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
-    // Save the current time to a variable called start, in format YYYY-MM-DD HH:MM:SS
-    const start = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    // Save the current time to a variable called start, in format YYYY-MM-DD HH:MM:SS:msmsms
+    // This is used to check if the message was sent after the state was executed
+    const times: any = { start: new Date().toISOString().slice(0, 23).replace('T', ' ') };
     const canvas = within(canvasElement);
 
     await NewState.play({ canvasElement, ...rest, stateType: 'send-message' });
@@ -215,9 +217,14 @@ export const NewMessageState: StoryFSM = {
         value: 'wss://sandbox:sandbox@sandbox.qoretechnologies.com/apievents',
       },
     });
+
+    times.optionFilled = new Date().toISOString().slice(0, 23).replace('T', ' ');
+
     await waitFor(() => canvas.findAllByText(/Apply options/g), { timeout: 5000 });
     // Click on apply options
     await fireEvent.click(canvas.getAllByText(/Apply options/g)[0]);
+
+    times.optionsApplied = new Date().toISOString().slice(0, 23).replace('T', ' ');
 
     await waitFor(() => canvas.findByText(/MessageType/g), { timeout: 5000 });
     await waitFor(
@@ -232,6 +239,8 @@ export const NewMessageState: StoryFSM = {
       await fireEvent.click(canvas.getByText('raw'));
     });
 
+    times.messageSelected = new Date().toISOString().slice(0, 23).replace('T', ' ');
+
     // Add the message data
     // WORKS TILL HERE
     await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 5000 });
@@ -239,10 +248,9 @@ export const NewMessageState: StoryFSM = {
       await expect(document.querySelector('.state-submit-button')).toBeDisabled();
       await fireEvent.change(document.querySelector('#state-description-field'), {
         target: {
-          value: `Start: ${start}  - End: ${new Date()
-            .toISOString()
-            .slice(0, 19)
-            .replace('T', ' ')}`,
+          value:
+            reduce(times, (str, time, action) => `${str}${action}: ${time}\r\n`, '') +
+            `End: ${new Date().toISOString().slice(0, 23).replace('T', ' ')}\r\n`,
         },
       });
     });
