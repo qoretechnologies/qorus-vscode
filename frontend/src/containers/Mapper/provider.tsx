@@ -14,6 +14,7 @@ import CustomDialog from '../../components/CustomDialog';
 import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
+import { IOptionsSchema } from '../../components/Field/systemOptions';
 import Loader from '../../components/Loader';
 import SubField from '../../components/SubField';
 import { TextContext } from '../../context/text';
@@ -45,6 +46,7 @@ export interface IProviderProps {
   optionsChanged?: boolean;
   onResetClick?: () => void;
   isMessage?: boolean;
+  availableOptions?: IOptionsSchema;
 }
 
 export const providers: any = {
@@ -158,6 +160,7 @@ const MapperProvider: FC<IProviderProps> = ({
   recordType,
   isPipeline,
   isMessage,
+  availableOptions,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [descriptions, setDescriptions] = useState<string[]>([]);
@@ -276,6 +279,51 @@ const MapperProvider: FC<IProviderProps> = ({
     suffix?: string,
     customOptionString?: string
   ) => void = async (value, url, itemIndex, suffix, customOptionString) => {
+    // If this is a factory and it requires options
+    // and no required options are filled, do not go further
+    // User will have to fill the required options first and
+    // click the Apply Options button
+    if (provider === 'factory' && !validateField('system-options', options)) {
+      setChildren((current) => {
+        // Update this item
+        const newItems: any[] = current
+          .map((item, index) => {
+            const newItem = { ...item };
+            // Update the value if the index matches
+            if (index === itemIndex) {
+              newItem.value = value;
+            }
+            // Also check if there are items with
+            // higher index (children) and remove them
+            if (index > itemIndex) {
+              return null;
+            }
+            // Return the item
+            return newItem;
+          })
+          .filter((item) => item);
+        // Return the new items
+        return newItems;
+      });
+      const name = `${url}/${value}`.split('/')[2];
+      // Set the provider option
+      setOptionProvider({
+        type: realProviders[provider].type,
+        name,
+        is_api_call: requiresRequest,
+        can_manage_fields: record?.data?.can_manage_fields,
+        subtype: value === 'request' || value === 'response' ? value : undefined,
+        path: `${url}/${value}`
+          .replace(`${name}`, '')
+          .replace(`${realProviders[provider].url}/`, '')
+          .replace(`provider/`, '')
+          .replace('request', '')
+          .replace('response', ''),
+        options,
+      });
+
+      return;
+    }
     // Clear the data
     clear && clear(true);
     // Set loading
@@ -654,6 +702,7 @@ const MapperProvider: FC<IProviderProps> = ({
                   tooltip="Apply the current options to move forward"
                   icon="RefreshLine"
                   intent="info"
+                  disabled={!validateField('system-options', options)}
                   fixed
                   onClick={() => {
                     let customOptionString = '';

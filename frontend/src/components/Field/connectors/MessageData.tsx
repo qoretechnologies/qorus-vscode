@@ -56,8 +56,6 @@ export const ProviderMessageData = ({
     return <ReqoreMessage intent="danger">{error}</ReqoreMessage>;
   }
 
-  console.log(type, value);
-
   return (
     <Auto
       {...getTypeAndCanBeNull(type || messageData.type)}

@@ -160,6 +160,7 @@ export interface IOptionsProps {
   operatorsUrl?: string;
   noValueString?: string;
   isValid?: boolean;
+  onOptionsLoaded?: (options: IOptionsSchema) => void;
 }
 
 export const getTypeAndCanBeNull = (
@@ -196,6 +197,7 @@ const Options = ({
   operatorsUrl,
   noValueString,
   isValid,
+  onOptionsLoaded,
   ...rest
 }: IOptionsProps) => {
   const t: any = useContext(TextContext);
@@ -224,6 +226,7 @@ const Options = ({
         // Save the new options
         setLoading(false);
         setOptions(data.data);
+        onOptionsLoaded?.(data.data);
       })();
     }
     if (qorus_instance && operatorsUrl) {
@@ -262,6 +265,7 @@ const Options = ({
         // Save the new options
         setLoading(false);
         setOptions(data.data);
+        onOptionsLoaded?.(data.data);
         onChange(name, fixOptions({}, data.data));
       })();
     }

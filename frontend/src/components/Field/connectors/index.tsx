@@ -276,6 +276,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   const [provider, setProvider] = useState<string | null | undefined>(optionProvider?.type);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [availableOptions, setAvailableOptions] = useState(undefined);
 
   const clear = () => {
     setIsEditing(false);
@@ -362,6 +363,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           setIsLoading={setIsLoading}
           optionProvider={optionProvider}
           options={optionProvider?.options}
+          availableOptions={availableOptions}
           optionsChanged={optionProvider?.optionsChanged}
           title={title}
           clear={clear}
@@ -380,6 +382,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
       {provider === 'factory' && optionProvider ? (
         <SubField title={t('FactoryOptions')}>
           <Options
+            onOptionsLoaded={(options) => setAvailableOptions(options)}
             onChange={(nm, val) => {
               setOptionProvider((cur: IProviderType | null) => {
                 const result: IProviderType = {
