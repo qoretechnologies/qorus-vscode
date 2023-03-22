@@ -46,7 +46,7 @@ const preview: Preview = {
 
                     const json = await data.json();
 
-                    return { data: json };
+                    return { data: json, ok: data.ok, error: !data.ok ? json : undefined };
                   },
                 }}
               >

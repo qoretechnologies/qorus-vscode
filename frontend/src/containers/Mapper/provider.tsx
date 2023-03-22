@@ -277,13 +277,18 @@ const MapperProvider: FC<IProviderProps> = ({
     url: string,
     itemIndex: number,
     suffix?: string,
-    customOptionString?: string
-  ) => void = async (value, url, itemIndex, suffix, customOptionString) => {
+    customOptionString?: string,
+    supportsOptions?: boolean
+  ) => void = async (value, url, itemIndex, suffix, customOptionString, supportsOptions) => {
     // If this is a factory and it requires options
     // and no required options are filled, do not go further
     // User will have to fill the required options first and
     // click the Apply Options button
-    if (provider === 'factory' && !validateField('system-options', options)) {
+    if (
+      provider === 'factory' &&
+      supportsOptions &&
+      !validateField('system-options', options, { optionsSchema: availableOptions })
+    ) {
       setChildren((current) => {
         // Update this item
         const newItems: any[] = current
@@ -681,7 +686,9 @@ const MapperProvider: FC<IProviderProps> = ({
                 defaultItems={child.values}
                 onChange={(_name, value) => {
                   // Get the child data
-                  const { url, suffix } = child.values.find((val) => val.name === value);
+                  const { url, suffix, provider_info } = child.values.find(
+                    (val) => val.name === value
+                  );
                   // If the value is a wildcard present a dialog that the user has to fill
                   if (value === '*') {
                     setWildcardDiagram({
@@ -692,7 +699,14 @@ const MapperProvider: FC<IProviderProps> = ({
                     });
                   } else {
                     // Change the child
-                    handleChildFieldChange(value, url, index, suffix);
+                    handleChildFieldChange(
+                      value,
+                      url,
+                      index,
+                      suffix,
+                      undefined,
+                      !!provider_info?.constructor_options
+                    );
                   }
                 }}
                 value={child.value}

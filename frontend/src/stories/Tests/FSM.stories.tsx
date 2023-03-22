@@ -95,18 +95,21 @@ export const SelectedStateChange: StoryFSM = {
 };
 
 export const NewMapperState: StoryFSM = {
-  play: async ({ canvasElement, ...rest }) => {
+  play: async ({ canvasElement, mapperId = 'mapper', ...rest }) => {
     const canvas = within(canvasElement);
 
-    await NewState.play({ canvasElement, ...rest, stateType: 'mapper' });
+    await NewState.play({ canvasElement, ...rest, stateType: mapperId });
 
     // The submit button needs to be disabled
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
-    await waitFor(_testsSelectItemFromCollection(canvas, 'Test Mapper 1'), { timeout: 5000 });
+    await waitFor(
+      _testsSelectItemFromCollection(canvas, 'Test Mapper 1', 'Select or create a Mapper'),
+      { timeout: 5000 }
+    );
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
-    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
     await waitFor(() => expect(canvas.getByText('Test Mapper 1')).toBeInTheDocument());
   },
@@ -124,7 +127,7 @@ export const NewPipelineState: StoryFSM = {
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
-    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
     await waitFor(() => expect(canvas.getByText('Test Pipeline 1')).toBeInTheDocument());
   },
@@ -146,7 +149,7 @@ export const NewConnectorState: StoryFSM = {
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
-    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
     await waitFor(() =>
       expect(canvas.getByText(`${className}:${connectorName} connector`)).toBeInTheDocument()
@@ -166,9 +169,64 @@ export const NewFSMState: StoryFSM = {
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
-    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
     await waitFor(() => expect(canvas.getByText('Test FSM 1')).toBeInTheDocument());
+  },
+};
+
+export const NewWhileState: StoryFSM = {
+  play: async ({ canvasElement, blockType = 'while', ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest, stateType: blockType });
+    await waitFor(async () => await fireEvent.click(document.querySelector('.state-next-button')));
+
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+
+    // Add new mapper state to the block
+    await fireEvent.dblClick(document.querySelector(`#state1mapper`));
+    await waitFor(() => expect(document.querySelectorAll('.reqore-drawer').length).toBe(2));
+    await waitFor(
+      _testsSelectItemFromCollection(canvas, 'Test Mapper 1', 'Select or create a Mapper'),
+      { timeout: 5000 }
+    );
+    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+
+    // Submit the state
+    await waitFor(_testsSubmitFSMState('state-state1State1-submit-button'), { timeout: 5000 });
+    await waitFor(async () => {
+      await expect(document.querySelectorAll('.reqore-drawer').length).toBe(1);
+      await expect(canvas.getByText('State 1.State 1')).toBeInTheDocument();
+      await expect(canvas.getByText('Test Mapper 1')).toBeInTheDocument();
+    });
+
+    // Submit the state
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => expect(canvas.getByText(`${blockType} block (1)`)).toBeInTheDocument());
+
+    // State can be opened and viewed
+    await fireEvent.click(document.querySelector(`#state-1`));
+    await waitFor(async () => await fireEvent.click(document.querySelector('.state-next-button')));
+    await waitFor(async () => {
+      await expect(document.querySelectorAll('.reqore-drawer').length).toBe(1);
+      await expect(canvas.getByText('State 1.State 1')).toBeInTheDocument();
+      await expect(canvas.getByText('Test Mapper 1')).toBeInTheDocument();
+    });
+  },
+};
+
+export const NewForState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    NewWhileState.play({ canvasElement, blockType: 'for', ...rest });
+  },
+};
+
+export const NewForEachState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    NewWhileState.play({ canvasElement, blockType: 'foreach', ...rest });
   },
 };
 
@@ -186,9 +244,78 @@ export const NewIfState: StoryFSM = {
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
-    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
     await waitFor(() => expect(canvas.getByText('asfg condition')).toBeInTheDocument());
+  },
+};
+
+export const NewApiCallState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+    await NewState.play({ canvasElement, ...rest, stateType: 'apicall' });
+
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await fireEvent.click(document.querySelector('.provider-type-selector'));
+    await fireEvent.click(canvas.getByText('factory'));
+
+    await waitFor(
+      async () => {
+        //await expect(document.querySelector('.provider-selector')).toBeInTheDocument();
+        await fireEvent.click(document.querySelector('.provider-selector'));
+        await fireEvent.click(canvas.getAllByText('qorus-api')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
+        await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await fireEvent.click(canvas.getAllByText('util')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.provider-selector').length).toBe(3);
+        await fireEvent.click(document.querySelectorAll('.provider-selector')[2]);
+        await fireEvent.click(canvas.getAllByText('log-message')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    await waitFor(() => fireEvent.click(document.querySelectorAll('.reqore-checkbox')[1]), {
+      timeout: 5000,
+    });
+    await waitFor(
+      () =>
+        fireEvent.change(document.querySelector('.system-option textarea'), {
+          target: {
+            value: 'logging some stuff',
+          },
+        }),
+      { timeout: 5000 }
+    );
+
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => canvas.findByText('factory/qorus-api/util/log-message'));
+
+    // Check that state data were saved
+    await fireEvent.click(document.querySelector('#state-1'));
+    await waitFor(() => canvas.findByDisplayValue('logging some stuff'));
+    await expect(document.querySelector('.system-option textarea')).toHaveValue(
+      'logging some stuff'
+    );
   },
 };
 
@@ -249,7 +376,7 @@ export const NewMessageState: StoryFSM = {
     );
 
     //Submit the state
-    await waitFor(_testsSubmitFSMState, { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
 
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
     await waitFor(() => canvas.findByText('factory/wsclient'));
@@ -259,6 +386,311 @@ export const NewMessageState: StoryFSM = {
     await waitFor(() => canvas.findByDisplayValue('Hello World'));
     await expect(document.querySelector('.provider-message-data textarea')).toHaveValue(
       'Hello World'
+    );
+  },
+};
+
+export const NewSingleSearchState: StoryFSM = {
+  play: async ({ canvasElement, stateType, ...rest }) => {
+    const canvas = within(canvasElement);
+    await NewState.play({ canvasElement, ...rest, stateType: stateType || 'search-single' });
+
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await fireEvent.click(document.querySelector('.provider-type-selector'));
+    await fireEvent.click(canvas.getByText('datasource'));
+
+    await waitFor(
+      async () => {
+        await fireEvent.click(document.querySelector('.provider-selector'));
+        await fireEvent.click(canvas.getAllByText('omq')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
+        await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    // Add the search criteria
+    await waitFor(_testsSelectItemFromCollection(canvas, 'audit_event_code', 'AddArgument (4)'), {
+      timeout: 5000,
+    });
+
+    // Change the operator to logical not, which allows us to add second operator
+    await waitFor(_testsSelectItemFromCollection(canvas, 'logical not (!)', 'equals (=)'), {
+      timeout: 5000,
+    });
+
+    // Add second operator like
+    await waitFor(
+      async () => await fireEvent.click(document.querySelectorAll('.operators .reqore-button')[1])
+    );
+    await waitFor(_testsSelectItemFromCollection(canvas, 'like'), {
+      timeout: 5000,
+    });
+
+    // Add the search criteria value
+    await waitFor(
+      async () => {
+        await fireEvent.change(document.querySelector('.system-option .reqore-input'), {
+          target: {
+            value: 12,
+          },
+        });
+      },
+      { timeout: 5000 }
+    );
+
+    await sleep(500);
+
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => canvas.findByText('datasource/omq/audit_event_codes'));
+
+    // Check that state data were saved
+    await fireEvent.click(document.querySelector('#state-1'));
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('.system-option .reqore-input')).toHaveValue(12);
+      },
+      { timeout: 5000 }
+    );
+  },
+};
+
+export const NewSearchState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    await NewSingleSearchState.play({ canvasElement, ...rest, stateType: 'search' });
+  },
+};
+
+export const NewDeleteState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    await NewSingleSearchState.play({ canvasElement, ...rest, stateType: 'delete' });
+  },
+};
+
+export const NewUpdateState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+    await NewState.play({ canvasElement, ...rest, stateType: 'update' });
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await fireEvent.click(document.querySelector('.provider-type-selector'));
+    await fireEvent.click(canvas.getByText('datasource'));
+
+    await waitFor(
+      async () => {
+        await fireEvent.click(document.querySelector('.provider-selector'));
+        await fireEvent.click(canvas.getAllByText('omq')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
+        await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    // Add the search criteria
+    await waitFor(_testsSelectItemFromCollection(canvas, 'description', 'AddArgument (4)'), {
+      timeout: 5000,
+    });
+
+    // Add the search criteria value
+    await waitFor(
+      async () => {
+        await fireEvent.change(document.querySelector('.system-option .reqore-textarea'), {
+          target: {
+            value: 'Some description',
+          },
+        });
+      },
+      { timeout: 5000 }
+    );
+
+    await sleep(500);
+
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => canvas.findByText('datasource/omq/audit_event_codes'));
+
+    // Check that state data were saved
+    await fireEvent.click(document.querySelector('#state-1'));
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('.system-option .reqore-textarea')).toHaveValue(
+          'Some description'
+        );
+      },
+      { timeout: 5000 }
+    );
+  },
+};
+
+export const NewCreateFromFormState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+    await NewState.play({ canvasElement, ...rest, stateType: 'create' });
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await fireEvent.click(document.querySelector('.provider-type-selector'));
+    await fireEvent.click(canvas.getByText('datasource'));
+
+    await waitFor(
+      async () => {
+        await fireEvent.click(document.querySelector('.provider-selector'));
+        await fireEvent.click(canvas.getAllByText('omq')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
+        await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    // Add the search criteria
+    await waitFor(
+      async () => {
+        await fireEvent.click(canvas.getAllByText('AddAnotherRecord')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    // Add the search criteria
+    await waitFor(_testsSelectItemFromCollection(canvas, 'description', 'AddArgument (4)'), {
+      timeout: 5000,
+    });
+
+    // Add the search criteria value
+    await waitFor(
+      async () => {
+        await fireEvent.change(document.querySelector('.system-option .reqore-textarea'), {
+          target: {
+            value: 'Some description',
+          },
+        });
+      },
+      { timeout: 5000 }
+    );
+
+    await sleep(500);
+
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => canvas.findByText('datasource/omq/audit_event_codes'));
+
+    // Check that state data were saved
+    await fireEvent.click(document.querySelector('#state-1'));
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('.system-option .reqore-textarea')).toHaveValue(
+          'Some description'
+        );
+      },
+      { timeout: 5000 }
+    );
+  },
+};
+
+export const NewCreateFromTextState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+    await NewState.play({ canvasElement, ...rest, stateType: 'create' });
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await fireEvent.click(document.querySelector('.provider-type-selector'));
+    await fireEvent.click(canvas.getByText('datasource'));
+
+    await waitFor(
+      async () => {
+        await fireEvent.click(document.querySelector('.provider-selector'));
+        await fireEvent.click(canvas.getAllByText('omq')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
+        await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    // Add the search criteria
+    await waitFor(
+      async () => {
+        await fireEvent.click(canvas.getAllByText('Text')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    // Add the search criteria value
+    await waitFor(
+      async () => {
+        await fireEvent.change(document.querySelectorAll('.reqore-textarea')[1], {
+          target: {
+            value: '- description: Some description',
+          },
+        });
+        await fireEvent.click(document.querySelectorAll('#save-create-args')[0]);
+        await expect(document.querySelectorAll('#save-create-args').length).toBe(0);
+      },
+      { timeout: 5000 }
+    );
+
+    await sleep(500);
+
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
+    await waitFor(() => canvas.findByText('datasource/omq/audit_event_codes'));
+
+    // Check that state data were saved
+    await fireEvent.click(document.querySelector('#state-1'));
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.reqore-textarea')[1]).toHaveDisplayValue(
+          /- description: Some description/
+        );
+      },
+      { timeout: 5000 }
     );
   },
 };

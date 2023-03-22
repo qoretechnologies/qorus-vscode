@@ -1,4 +1,4 @@
-import { map } from 'lodash';
+import { camelCase, map } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
 import React, { useContext, useState } from 'react';
@@ -219,6 +219,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               object_type: 'mapper',
               return_value: 'objects',
             }}
+            placeholder="Select or create a Mapper"
             onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
             value={newData?.action?.value}
             target_dir={target_dir}
@@ -389,7 +390,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           {
             label: isCustomBlockFirstPage() ? t('Next') : t('Submit'),
             disabled: isCustomBlockFirstPage() ? false : !isDataValid() || isLoading,
-            className: 'state-submit-button',
+            className: isCustomBlockFirstPage() ? 'state-next-button' : 'state-submit-button',
+            id: `state-${camelCase(newData?.name)}-submit-button`,
             icon: 'CheckLine',
             effect: isLoading
               ? WarningColorEffect

@@ -202,10 +202,10 @@ const Options = ({
 }: IOptionsProps) => {
   const t: any = useContext(TextContext);
   const [options, setOptions] = useState<IOptionsSchema | undefined>(rest?.options || undefined);
-  const [operators, setOperators] = useState<IOperatorsSchema | undefined>({});
+  const [operators, setOperators] = useState<IOperatorsSchema | undefined>(undefined);
   const { fetchData, confirmAction, qorus_instance }: any = useContext(InitialContext);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(rest.options ? false : true);
 
   const getUrl = () => customUrl || `/options/${url}`;
 
@@ -216,15 +216,16 @@ const Options = ({
         setLoading(true);
         // Fetch the options for this mapper type
         const data = await fetchData(getUrl());
-
         if (data.error) {
           setLoading(false);
-          setOptions(undefined);
+          setOptions({});
           return;
         }
         onChange(name, fixOptions(value, data.data));
         // Save the new options
-        setLoading(false);
+        if (!operatorsUrl) {
+          setLoading(false);
+        }
         setOptions(data.data);
         onOptionsLoaded?.(data.data);
       })();
@@ -241,9 +242,9 @@ const Options = ({
           setOperators({});
           return;
         }
+        setOperators(data.data);
         // Save the new options
         setLoading(false);
-        setOperators(data.data);
       })();
     }
   });
@@ -259,11 +260,13 @@ const Options = ({
         const data = await fetchData(getUrl());
         if (data.error) {
           setLoading(false);
-          setOptions(undefined);
+          setOptions({});
           return;
         }
         // Save the new options
-        setLoading(false);
+        if (!operatorsUrl) {
+          setLoading(false);
+        }
         setOptions(data.data);
         onOptionsLoaded?.(data.data);
         onChange(name, fixOptions({}, data.data));
@@ -301,7 +304,7 @@ const Options = ({
     if (!currentValue[optionName]) {
       // If it's not, add potential default operators
       const defaultOperators: TOperatorValue = reduce(
-        operators,
+        operators || {},
         (filteredOperators: TOperatorValue, operator, operatorKey) => {
           if (operator.selected) {
             return [...(filteredOperators as string[]), operatorKey];
@@ -325,6 +328,7 @@ const Options = ({
         return;
       }
     }
+
     onChange(name, {
       ...currentValue,
       [optionName]: {
@@ -398,7 +402,7 @@ const Options = ({
     );
   }
 
-  if (loading) {
+  if ((operatorsUrl && !operators) || (!rest.options && !options)) {
     return <p>{t('LoadingOptions')}</p>;
   }
 
