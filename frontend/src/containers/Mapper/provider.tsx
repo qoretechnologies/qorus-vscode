@@ -10,12 +10,11 @@ import map from 'lodash/map';
 import nth from 'lodash/nth';
 import size from 'lodash/size';
 import { FC, useCallback, useContext, useState } from 'react';
-import { useDebounce } from 'react-use';
-import styled, { css } from 'styled-components';
 import CustomDialog from '../../components/CustomDialog';
 import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
+import { IOptionsSchema } from '../../components/Field/systemOptions';
 import Loader from '../../components/Loader';
 import SubField from '../../components/SubField';
 import { TextContext } from '../../context/text';
@@ -46,31 +45,9 @@ export interface IProviderProps {
   options?: { [key: string]: any };
   optionsChanged?: boolean;
   onResetClick?: () => void;
+  isMessage?: boolean;
+  availableOptions?: IOptionsSchema;
 }
-
-const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
-  margin-bottom: 10px;
-  ${({ compact, hasTitle }) =>
-    compact
-      ? css`
-          margin-top: ${hasTitle ? '10px' : 0};
-        `
-      : css`
-          margin: 0 auto;
-          text-align: center;
-        `}
-  > span {
-    vertical-align: middle;
-    font-weight: 500;
-    line-height: 20px;
-  }
-`;
-
-const StyledHeader = styled.h3`
-  margin: 0;
-  margin-bottom: 10px;
-  text-align: center;
-`;
 
 export const providers: any = {
   type: {
@@ -182,28 +159,13 @@ const MapperProvider: FC<IProviderProps> = ({
   optionProvider,
   recordType,
   isPipeline,
+  isMessage,
+  availableOptions,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
-  const [optionString, setOptionString] = useState('');
   const [descriptions, setDescriptions] = useState<string[]>([]);
   const [errorMessage, onError] = useState<string | null>(null);
   const t = useContext(TextContext);
-
-  /* When the options hash changes, we want to update the query string. */
-  useDebounce(
-    () => {
-      if (size(options)) {
-        // Turn the options hash into a query string
-        const str = map(options, (value, key) => `${key}=${btoa(value.value)}`).join(',');
-        setOptionString(`provider_yaml_options={${str}}`);
-      } else {
-        setOptionString('provider_yaml_options={}');
-      }
-    },
-    500,
-    [options]
-  );
-
   let realProviders = cloneDeep(providers);
 
   // Omit type and factory from the list of realProviders if is config item
@@ -233,6 +195,10 @@ const MapperProvider: FC<IProviderProps> = ({
 
       if (requiresRequest) {
         return child.up !== false && (child.supports_request || child.children_can_support_apis);
+      }
+
+      if (isMessage) {
+        return child.supports_messages || child.children_can_support_messages;
       }
 
       return true;
@@ -310,8 +276,59 @@ const MapperProvider: FC<IProviderProps> = ({
     value: string,
     url: string,
     itemIndex: number,
-    suffix?: string
-  ) => void = async (value, url, itemIndex, suffix) => {
+    suffix?: string,
+    customOptionString?: string,
+    supportsOptions?: boolean
+  ) => void = async (value, url, itemIndex, suffix, customOptionString, supportsOptions) => {
+    // If this is a factory and it requires options
+    // and no required options are filled, do not go further
+    // User will have to fill the required options first and
+    // click the Apply Options button
+    if (
+      provider === 'factory' &&
+      supportsOptions &&
+      !validateField('system-options', options, { optionsSchema: availableOptions })
+    ) {
+      setChildren((current) => {
+        // Update this item
+        const newItems: any[] = current
+          .map((item, index) => {
+            const newItem = { ...item };
+            // Update the value if the index matches
+            if (index === itemIndex) {
+              newItem.value = value;
+            }
+            // Also check if there are items with
+            // higher index (children) and remove them
+            if (index > itemIndex) {
+              return null;
+            }
+            // Return the item
+            return newItem;
+          })
+          .filter((item) => item);
+        // Return the new items
+        return newItems;
+      });
+      const name = `${url}/${value}`.split('/')[2];
+      // Set the provider option
+      setOptionProvider({
+        type: realProviders[provider].type,
+        name,
+        is_api_call: requiresRequest,
+        can_manage_fields: record?.data?.can_manage_fields,
+        subtype: value === 'request' || value === 'response' ? value : undefined,
+        path: `${url}/${value}`
+          .replace(`${name}`, '')
+          .replace(`${realProviders[provider].url}/`, '')
+          .replace(`provider/`, '')
+          .replace('request', '')
+          .replace('response', ''),
+        options,
+      });
+
+      return;
+    }
     // Clear the data
     clear && clear(true);
     // Set loading
@@ -323,8 +340,8 @@ const MapperProvider: FC<IProviderProps> = ({
       : suffix;
     // Build the suffix
     let suffixString = realProviders[provider].suffixRequiresOptions
-      ? optionString && optionString !== '' && size(options)
-        ? `${newSuffix}${realProviders[provider].withDetails ? '&' : '?'}${optionString}`
+      ? customOptionString && customOptionString !== '' && size(options)
+        ? `${newSuffix}${realProviders[provider].withDetails ? '&' : '?'}${customOptionString}`
         : itemIndex === 1
         ? value === 'request' || value === 'response'
           ? ''
@@ -396,10 +413,10 @@ const MapperProvider: FC<IProviderProps> = ({
               : '';
 
           suffixString = realProviders[provider].suffixRequiresOptions
-            ? optionString && optionString !== '' && size(options)
-              ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
-                  type === 'outputs' ? '&soft=true' : ''
-                }`
+            ? customOptionString && customOptionString !== '' && size(options)
+              ? `${suffix}${
+                  data.has_record ? realProviders[provider].recordSuffix : ''
+                }?${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
                   data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
                 }${childDetailsSuffix}`
@@ -431,6 +448,7 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_update: data.supports_update,
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
+            supports_messages: isMessage && data.supports_messages,
             can_manage_fields: record.data?.can_manage_fields,
             subtype: value === 'request' || value === 'response' ? value : undefined,
             descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
@@ -516,6 +534,7 @@ const MapperProvider: FC<IProviderProps> = ({
           supports_update: data.supports_update,
           supports_create: data.supports_create,
           supports_delete: data.supports_delete,
+          supports_messages: isMessage && data.supports_messages,
           subtype: value === 'request' || value === 'response' ? value : undefined,
           descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
           path: `${url}/${value}`
@@ -546,10 +565,10 @@ const MapperProvider: FC<IProviderProps> = ({
 
           const newSuffix = suffix;
           suffixString = realProviders[provider].suffixRequiresOptions
-            ? optionString && optionString !== '' && size(options)
-              ? `${suffix}${realProviders[provider].recordSuffix}?${optionString}${
-                  type === 'outputs' ? '&soft=true' : ''
-                }`
+            ? customOptionString && customOptionString !== '' && size(options)
+              ? `${suffix}${
+                  data.has_record ? realProviders[provider].recordSuffix : ''
+                }?${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
                   data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
                 }${childDetailsSuffix}`
@@ -581,6 +600,7 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             can_manage_fields: record.data.can_manage_fields,
+            supports_messages: isMessage && data.supports_messages,
             subtype: value === 'request' || value === 'response' ? value : undefined,
             descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
@@ -648,6 +668,7 @@ const MapperProvider: FC<IProviderProps> = ({
             fixed
             name={`provider${type ? `-${type}` : ''}`}
             disabled={isLoading}
+            className="provider-type-selector"
             defaultItems={getDefaultItems()}
             onChange={(_name, value) => {
               handleProviderChange(value);
@@ -660,11 +681,14 @@ const MapperProvider: FC<IProviderProps> = ({
                 key={`${title}-${index}`}
                 name={`provider-${type ? `${type}-` : ''}${index}`}
                 disabled={isLoading}
+                className="provider-selector"
                 filters={['supports_read', 'supports_request', 'has_record']}
                 defaultItems={child.values}
                 onChange={(_name, value) => {
                   // Get the child data
-                  const { url, suffix } = child.values.find((val) => val.name === value);
+                  const { url, suffix, provider_info } = child.values.find(
+                    (val) => val.name === value
+                  );
                   // If the value is a wildcard present a dialog that the user has to fill
                   if (value === '*') {
                     setWildcardDiagram({
@@ -675,7 +699,14 @@ const MapperProvider: FC<IProviderProps> = ({
                     });
                   } else {
                     // Change the child
-                    handleChildFieldChange(value, url, index, suffix);
+                    handleChildFieldChange(
+                      value,
+                      url,
+                      index,
+                      suffix,
+                      undefined,
+                      !!provider_info?.constructor_options
+                    );
                   }
                 }}
                 value={child.value}
@@ -685,8 +716,19 @@ const MapperProvider: FC<IProviderProps> = ({
                   tooltip="Apply the current options to move forward"
                   icon="RefreshLine"
                   intent="info"
+                  disabled={!validateField('system-options', options)}
                   fixed
                   onClick={() => {
+                    let customOptionString = '';
+                    if (size(options)) {
+                      // Turn the options hash into a query string
+                      const str = map(options, (value, key) => `${key}=${btoa(value.value)}`).join(
+                        ','
+                      );
+                      customOptionString = `provider_yaml_options={${str}}`;
+                    } else {
+                      customOptionString = 'provider_yaml_options={}';
+                    }
                     // Get the child data
                     const { url, suffix } = child.values.find((val) => val.name === child.value);
                     // If the value is a wildcard present a dialog that the user has to fill
@@ -699,7 +741,7 @@ const MapperProvider: FC<IProviderProps> = ({
                       });
                     } else {
                       // Change the child
-                      handleChildFieldChange(child.value, url, 0, suffix);
+                      handleChildFieldChange(child.value, url, 0, suffix, customOptionString);
                     }
                   }}
                 >

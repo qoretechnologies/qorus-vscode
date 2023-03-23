@@ -289,6 +289,7 @@ export class ElementPan extends React.Component<
             {
               icon: 'PriceTag2Line',
               tooltip: 'Show state & path IDs',
+              id: 'show-state-ids',
               active: this.props.showStateIds,
               onClick: () => this.props.setShowStateIds(!this.props.showStateIds),
             } as IReqorePanelAction,

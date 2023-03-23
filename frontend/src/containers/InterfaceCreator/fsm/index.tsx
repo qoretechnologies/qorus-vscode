@@ -48,6 +48,7 @@ import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
+import { autoAlign, IStateCorners } from '../../../helpers/fsm';
 import {
   areTypesCompatible,
   deleteDraft,
@@ -82,6 +83,7 @@ export interface IFSMViewProps {
   parentStateName?: string;
   defaultInterfaceId?: string;
   states: IFSMStates;
+  fsm?: any;
 }
 
 export interface IDraggableItem {
@@ -117,7 +119,7 @@ export type TFSMStateType = 'state' | 'fsm' | 'block' | 'if';
 
 export interface IFSMState {
   key?: string;
-  corners?: IStateConers;
+  corners?: IStateCorners;
   position?: {
     x?: number;
     y?: number;
@@ -247,7 +249,7 @@ const StyledFSMCircle = styled.circle`
   }
 `;
 
-const FSMView: React.FC<IFSMViewProps> = ({
+export const FSMView: React.FC<IFSMViewProps> = ({
   onSubmitSuccess,
   setFsmReset,
   interfaceContext,
@@ -310,7 +312,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   const [showStateIds, setShowStateIds] = useState<boolean>(false);
   const [showStatesList, setShowStatesList] = useState<boolean>(true);
 
-  const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
+  const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(true);
   const [outputCompatibility, setOutputCompatibility] = useState<
     { [key: string]: boolean } | undefined
   >(undefined);
@@ -381,6 +383,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
           injected: item.injected,
           injectedData: item.injectedData,
           type: item.name,
+          'block-type': item.name === 'block' ? item.stateType : undefined,
           id: shortid.generate(),
           states: item.name === 'block' ? {} : undefined,
           condition: item.name === 'if' ? '' : undefined,
@@ -495,7 +498,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const applyDraft = () => {
-    maybeApplyDraft(
+    if (!maybeApplyDraft) {
+      setIsReady(true);
+    }
+
+    maybeApplyDraft?.(
       'fsm',
       undefined,
       fsm,
@@ -519,7 +526,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
   useMount(() => {
     if (!embedded) {
-      setFsmReset(() => reset);
+      setFsmReset?.(() => reset);
       // Set interface id
       setInterfaceId(fsm?.iface_id || defaultInterfaceId || shortid.generate());
       // Apply the draft with "type" as first parameter and a custom function
@@ -578,15 +585,19 @@ const FSMView: React.FC<IFSMViewProps> = ({
       if (embedded || fsm) {
         let newStates = embedded ? states : cloneDeep(fsm?.states || {});
 
-        (async () => {
-          for await (const [stateId] of Object.entries(states)) {
-            newStates = await fixIncomptibleStates(stateId, newStates);
-          }
-
-          updateHistory(newStates);
-          setStates(newStates);
+        if (size(newStates) === 0) {
           setCompatibilityChecked(true);
-        })();
+        } else {
+          (async () => {
+            for await (const [stateId] of Object.entries(states)) {
+              newStates = await fixIncomptibleStates(stateId, newStates);
+            }
+
+            updateHistory(newStates);
+            setStates(newStates);
+            setCompatibilityChecked(true);
+          })();
+        }
       } else {
         setCompatibilityChecked(true);
       }
@@ -608,10 +619,15 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
   useDebounce(
     () => {
-      areFinalStatesCompatibleWithOutputType();
-      areFinalStatesCompatibleWithInputType();
+      if (metadata?.['input-type']) {
+        areFinalStatesCompatibleWithInputType();
+      }
+
+      if (metadata?.['output-type']) {
+        areFinalStatesCompatibleWithOutputType();
+      }
     },
-    1000,
+    100,
     [metadata?.['input-type'], metadata?.['output-type'], states]
   );
 
@@ -1618,7 +1634,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
           flexFlow: 'column',
           overflow: 'hidden',
         }}
-        size="40vw"
+        size={states[state].type === 'block' ? '80vw' : '40vw'}
         actions={[
           {
             label: t('Delete state'),
@@ -1734,6 +1750,15 @@ const FSMView: React.FC<IFSMViewProps> = ({
             icon: 'EyeLine',
             onClick: () => setShowStatesList(true),
             show: !showStatesList,
+          },
+          {
+            label: 'Auto align states',
+            icon: 'Apps2Line',
+            onClick: () => {
+              const { alignedStates } = autoAlign(states);
+
+              setStates(alignedStates);
+            },
           },
         ]}
         bottomActions={
@@ -1998,6 +2023,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                       name="state"
                       category="interfaces"
                       type="mapper"
+                      parentStateName={parentStateName}
                       count={size(
                         filter(states, ({ action }: IFSMState) => action?.type === 'mapper')
                       )}
@@ -2009,6 +2035,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     <FSMToolbarItem
                       name="state"
                       category="interfaces"
+                      parentStateName={parentStateName}
                       type="pipeline"
                       count={size(
                         filter(states, ({ action }: IFSMState) => action?.type === 'pipeline')
@@ -2022,6 +2049,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                       name="state"
                       category="interfaces"
                       type="connector"
+                      parentStateName={parentStateName}
                       count={size(
                         filter(states, ({ action }: IFSMState) => action?.type === 'connector')
                       )}
@@ -2034,6 +2062,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     <FSMToolbarItem
                       name="fsm"
                       category="logic"
+                      parentStateName={parentStateName}
                       type="fsm"
                       count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
                       onDoubleClick={handleToolbarItemDblClick}
@@ -2043,18 +2072,50 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     </FSMToolbarItem>
                     <FSMToolbarItem
                       name="block"
-                      type="block"
+                      type="while"
                       category="logic"
                       disabled={!qorus_instance}
-                      count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
+                      parentStateName={parentStateName}
+                      count={size(
+                        filter(states, (state: IFSMState) => state['block-type'] === 'while')
+                      )}
                       onDoubleClick={handleToolbarItemDblClick}
                       onDragStart={handleDragStart}
                     >
-                      {t('Block')}
+                      {t('While')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="block"
+                      type="for"
+                      category="logic"
+                      disabled={!qorus_instance}
+                      parentStateName={parentStateName}
+                      count={size(
+                        filter(states, (state: IFSMState) => state['block-type'] === 'for')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('For')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="block"
+                      type="foreach"
+                      category="logic"
+                      disabled={!qorus_instance}
+                      parentStateName={parentStateName}
+                      count={size(
+                        filter(states, (state: IFSMState) => state['block-type'] === 'foreach')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('Foreach')}
                     </FSMToolbarItem>
                     <FSMToolbarItem
                       name="if"
                       category="logic"
+                      parentStateName={parentStateName}
                       type="if"
                       count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
                       onDoubleClick={handleToolbarItemDblClick}
@@ -2066,6 +2127,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     <FSMToolbarItem
                       name="state"
                       type="apicall"
+                      parentStateName={parentStateName}
                       category="api"
                       count={size(
                         filter(states, ({ action }: IFSMState) => action?.type === 'apicall')
@@ -2075,11 +2137,25 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     >
                       {t('field-label-apicall')}
                     </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="state"
+                      type="send-message"
+                      parentStateName={parentStateName}
+                      category="api"
+                      count={size(
+                        filter(states, ({ action }: IFSMState) => action?.type === 'send-message')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('field-label-message')}
+                    </FSMToolbarItem>
                     <ReqoreMenuDivider label="Data" effect={{ textAlign: 'left' }} />
                     <FSMToolbarItem
                       name="state"
                       category="other"
                       type="search-single"
+                      parentStateName={parentStateName}
                       count={size(
                         filter(states, ({ action }: IFSMState) => action?.type === 'search-single')
                       )}
@@ -2091,6 +2167,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     <FSMToolbarItem
                       name="state"
                       category="other"
+                      parentStateName={parentStateName}
                       type="search"
                       count={size(
                         filter(states, ({ action }: IFSMState) => action?.type === 'search')
@@ -2103,6 +2180,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     <FSMToolbarItem
                       name="state"
                       category="other"
+                      parentStateName={parentStateName}
                       type="update"
                       count={size(
                         filter(states, ({ action }: IFSMState) => action?.type === 'update')
@@ -2115,6 +2193,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     <FSMToolbarItem
                       name="state"
                       category="other"
+                      parentStateName={parentStateName}
                       type="create"
                       count={size(
                         filter(states, ({ action }: IFSMState) => action?.type === 'create')
@@ -2127,6 +2206,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     <FSMToolbarItem
                       name="state"
                       category="other"
+                      parentStateName={parentStateName}
                       type="delete"
                       count={size(
                         filter(states, ({ action }: IFSMState) => action?.type === 'delete')
@@ -2360,4 +2440,4 @@ export default compose(
   withGlobalOptionsConsumer(),
   withMessageHandler(),
   withMapperConsumer()
-)(FSMView);
+)(FSMView) as React.FC<IFSMViewProps>;

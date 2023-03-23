@@ -1,4 +1,4 @@
-import { map } from 'lodash';
+import { camelCase, map } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
 import React, { useContext, useState } from 'react';
@@ -56,6 +56,7 @@ export enum StateTypes {
   create = 'create',
   update = 'update',
   delete = 'delete',
+  'send-message' = 'send-message',
 }
 
 export type TAction = keyof typeof StateTypes;
@@ -188,6 +189,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'apicall': {
         return validateField('api-call', newData?.action?.value);
       }
+      case 'send-message': {
+        return validateField('send-message', newData?.action?.value);
+      }
       case 'search':
       case 'delete':
       case 'update':
@@ -215,6 +219,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               object_type: 'mapper',
               return_value: 'objects',
             }}
+            placeholder="Select or create a Mapper"
             onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
             value={newData?.action?.value}
             target_dir={target_dir}
@@ -281,6 +286,19 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             requiresRequest
             isInitialEditing={!!data?.action?.value}
             onChange={(_name, value) => handleDataUpdate('action', { type: 'apicall', value })}
+            value={newData?.action?.value}
+          />
+        );
+      }
+      case 'send-message': {
+        return (
+          <Connectors
+            name="send-message"
+            inline
+            minimal
+            isMessage
+            isInitialEditing={!!data?.action?.value}
+            onChange={(_name, value) => handleDataUpdate('action', { type: 'send-message', value })}
             value={newData?.action?.value}
           />
         );
@@ -372,6 +390,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           {
             label: isCustomBlockFirstPage() ? t('Next') : t('Submit'),
             disabled: isCustomBlockFirstPage() ? false : !isDataValid() || isLoading,
+            className: isCustomBlockFirstPage() ? 'state-next-button' : 'state-submit-button',
+            id: `state-${camelCase(newData?.name)}-submit-button`,
             icon: 'CheckLine',
             effect: isLoading
               ? WarningColorEffect
@@ -446,7 +466,12 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               )}
             </FieldWrapper>
             <FieldWrapper label={t('Description')} isValid compact>
-              <LongStringField name="desc" onChange={handleDataUpdate} value={newData.desc} />
+              <LongStringField
+                name="desc"
+                onChange={handleDataUpdate}
+                value={newData.desc}
+                id="state-description-field"
+              />
             </FieldWrapper>
             <FieldWrapper label={t('Type')} isValid compact>
               <SelectField

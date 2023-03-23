@@ -45,9 +45,7 @@ export const RecordQueryArgs = ({
   const [error, setError] = React.useState<any | undefined>(undefined);
   const t: TTranslator = useContext<TTranslator>(TextContext);
   const { fetchData, qorus_instance }: any = useContext(InitialContext);
-  const [localValue, setLocalValue] = React.useState<any>(
-    value ? jsyaml.safeDump(value) : undefined
-  );
+  const [localValue, setLocalValue] = React.useState<any>(value ? jsyaml.dump(value) : undefined);
   const [isValueSubmitted, setIsValueSubmitted] = React.useState<boolean>(true);
 
   useUpdateEffect(() => {
@@ -123,6 +121,7 @@ export const RecordQueryArgs = ({
               <ReqoreButton
                 icon="CheckLine"
                 fixed
+                id={`save-${type}-args`}
                 effect={SaveColorEffect}
                 onClick={() => {
                   onChange(`${type}_args_freeform`, maybeParseYaml(localValue));

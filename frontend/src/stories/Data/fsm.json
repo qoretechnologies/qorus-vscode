@@ -1,0 +1,357 @@
+{
+  "type": "fsm",
+  "target_dir": "ondewo",
+  "name": "OndewoIntentHandler",
+  "desc": "ONDEWO intent handler",
+  "groups": ["ondewo"],
+  "states": {
+    "1": {
+      "position": {
+        "x": 47,
+        "y": 42
+      },
+      "initial": true,
+      "name": "Save Intent Info",
+      "desc": "",
+      "type": "state",
+      "id": "djsGWd6mm",
+      "action": {
+        "type": "connector",
+        "value": {
+          "class": "BBM_OutputData",
+          "connector": "writeOutputData"
+        }
+      },
+      "execution_order": 1,
+      "transitions": [
+        {
+          "state": "2",
+          "language": "qore"
+        }
+      ],
+      "config-items": [
+        {
+          "name": "output-data-hash",
+          "value": {
+            "$local:*": "$transient:intent"
+          },
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_OutputData",
+            "interface-version": "1.0"
+          },
+          "is_value_templated_string": false
+        }
+      ]
+    },
+    "2": {
+      "position": {
+        "x": 291,
+        "y": 40
+      },
+      "initial": false,
+      "name": "Log Intent Info",
+      "desc": "",
+      "type": "state",
+      "id": "uVE6AvAs2",
+      "action": {
+        "type": "connector",
+        "value": {
+          "class": "BBM_LogMessage",
+          "connector": "logMessage"
+        }
+      },
+      "transitions": [
+        {
+          "state": "3",
+          "language": "qore"
+        }
+      ],
+      "config-items": [
+        {
+          "name": "log-message-level",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_LogMessage",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "log-message-string",
+          "value": "intent: %y",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_LogMessage",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "log-message-args",
+          "value": "$transient:intent",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_LogMessage",
+            "interface-version": "1.0"
+          },
+          "is_value_templated_string": true
+        }
+      ]
+    },
+    "3": {
+      "position": {
+        "x": 95,
+        "y": 128
+      },
+      "initial": false,
+      "name": "Intent: Close Ticket?",
+      "desc": "",
+      "type": "if",
+      "id": "9emxEKc7U",
+      "condition": "\"$transient:intent.intent\" == \"i.500.problem_solved_yes.close_ticket_yes\"",
+      "transitions": [
+        {
+          "state": "4",
+          "branch": "true",
+          "language": "qore"
+        },
+        {
+          "state": "5",
+          "branch": "false",
+          "language": "qore"
+        }
+      ]
+    },
+    "4": {
+      "position": {
+        "x": 280,
+        "y": 144
+      },
+      "initial": false,
+      "name": "Set Ticket Resolved",
+      "desc": "",
+      "type": "state",
+      "id": "s-_C4YEEY",
+      "action": {
+        "type": "connector",
+        "value": {
+          "class": "BBM_DataProviderRecordUpdate",
+          "connector": "DataProvider Record Update From Config"
+        }
+      },
+      "config-items": [
+        {
+          "name": "dataprovider-update-provider-path",
+          "value": "connection/snrests-demo/tables/incident",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_DataProviderRecordUpdate",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "dataprovider-update-set",
+          "value": {
+            "state": 6
+          },
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_DataProviderRecordUpdate",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "dataprovider-update-where",
+          "value": {
+            "number": "INC0010002"
+          },
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_DataProviderRecordUpdate",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "dataprovider-update-search-options",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_DataProviderRecordUpdate",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "dataprovider-update-mapper",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_DataProviderRecordUpdate",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "dataprovider-update-output-data",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_DataProviderRecordUpdate",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "dataprovider-update-retries",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_DataProviderRecordUpdate",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "dataprovider-update-retry-delay",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_DataProviderRecordUpdate",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "dataprovider-update-retry-errors",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_DataProviderRecordUpdate",
+            "interface-version": "1.0"
+          }
+        }
+      ]
+    },
+    "5": {
+      "position": {
+        "x": 97,
+        "y": 272
+      },
+      "initial": false,
+      "name": "Intent: Update Ticket Info",
+      "desc": "",
+      "type": "if",
+      "id": "osVQiBjQQ",
+      "condition": "False",
+      "transitions": [
+        {
+          "state": "6",
+          "branch": "true",
+          "language": "qore"
+        },
+        {
+          "state": "7",
+          "branch": "false",
+          "language": "qore"
+        }
+      ]
+    },
+    "6": {
+      "position": {
+        "x": 283,
+        "y": 287
+      },
+      "initial": false,
+      "name": "Update Ticket Info",
+      "desc": "",
+      "type": "state",
+      "id": "bTfehPXQv",
+      "action": {
+        "type": "connector",
+        "value": {
+          "class": "BBM_LogMessage",
+          "connector": "logMessage"
+        }
+      },
+      "config-items": [
+        {
+          "name": "log-message-level",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_LogMessage",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "log-message-string",
+          "value": "update ticket",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_LogMessage",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "log-message-args",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_LogMessage",
+            "interface-version": "1.0"
+          }
+        }
+      ]
+    },
+    "7": {
+      "position": {
+        "x": 99,
+        "y": 413
+      },
+      "initial": false,
+      "name": "Intent: Call Back Later?",
+      "desc": "",
+      "type": "if",
+      "id": "Azfjehe0W",
+      "condition": "False",
+      "transitions": [
+        {
+          "state": "8",
+          "branch": "true",
+          "language": "qore"
+        }
+      ]
+    },
+    "8": {
+      "position": {
+        "x": 291,
+        "y": 427
+      },
+      "initial": false,
+      "name": "Schedule Followup",
+      "desc": "",
+      "type": "state",
+      "id": "HX4xORKRh",
+      "action": {
+        "type": "connector",
+        "value": {
+          "class": "BBM_LogMessage",
+          "connector": "logMessage"
+        }
+      },
+      "config-items": [
+        {
+          "name": "log-message-level",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_LogMessage",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "log-message-string",
+          "value": "schedule followup",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_LogMessage",
+            "interface-version": "1.0"
+          }
+        },
+        {
+          "name": "log-message-args",
+          "parent": {
+            "interface-type": "class",
+            "interface-name": "BBM_LogMessage",
+            "interface-version": "1.0"
+          }
+        }
+      ]
+    }
+  }
+}

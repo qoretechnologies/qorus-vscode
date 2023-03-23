@@ -44,6 +44,7 @@ export interface ISelectField extends IField {
   target_dir?: string;
   forceDropdown?: boolean;
   context?: any;
+  className?: string;
 }
 
 export const StyledDialogSelectItem = styled.div`
@@ -126,6 +127,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
   asMenu,
   icon,
   filters,
+  className,
   ...rest
 }) => {
   const [items, setItems] = useState<{ name: string; desc?: string }[]>(defaultItems || []);
@@ -329,6 +331,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
           showSelectedFirst
           selectedIcon="CheckLine"
           fill
+          className="q-select-dialog"
           inputProps={{
             rightIcon: 'KeyboardFill',
             focusRules: {
@@ -424,6 +427,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                     colors: value ? 'info' : 'main',
                   },
                 }}
+                className={className}
               >
                 {value ? value : placeholder || t('PleaseSelect')}
               </ReqoreButton>
@@ -433,6 +437,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                   <ReqoreMenuItem
                     key={item.name}
                     label={item.name}
+                    className={className}
                     onClick={() => {
                       handleSelectClick(item);
                       setSelectDialogOpen(false);
@@ -448,6 +453,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                 key={value}
                 disabled={disabled}
                 wrap
+                className={className}
                 paging={{
                   itemsPerPage: 20,
                   infinite: true,

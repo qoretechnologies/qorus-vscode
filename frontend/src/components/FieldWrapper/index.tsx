@@ -19,6 +19,7 @@ import { TTranslator } from '../../App';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import { IQorusType } from '../Field/systemOptions';
 
 export interface IFieldWrapper {
   label?: string;
@@ -286,6 +287,6 @@ export interface IField {
 export declare type IFieldChange = (
   fieldName: string,
   value?: any,
-  type?: string,
+  type?: IQorusType,
   canBeNull?: boolean
 ) => void;

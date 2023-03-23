@@ -12,7 +12,9 @@ import withTextContext from '../../../hocomponents/withTextContext';
 import SubField from '../../SubField';
 import { ApiCallArgs } from '../apiCallArgs';
 import BooleanField from '../boolean';
-import Options, { IOptions } from '../systemOptions';
+import Options, { IOptions, IQorusType } from '../systemOptions';
+import { ProviderMessageData } from './MessageData';
+import { ProviderMessageSelector } from './MessageSelector';
 import { RecordQueryArgs } from './searchArgs';
 
 export type TRecordType = 'search' | 'search-single' | 'create' | 'update' | 'delete';
@@ -33,6 +35,7 @@ export interface IConnectorFieldProps {
   minimal?: boolean;
   isConfigItem?: boolean;
   isPipeline?: boolean;
+  isMessage?: boolean;
 }
 
 export type TProviderTypeSupports = {
@@ -55,9 +58,15 @@ export interface IProviderType extends TProviderTypeSupports, TProviderTypeArgs 
   use_args?: boolean;
   args?: any;
   supports_request?: boolean;
+  supports_messages?: 'ASYNC' | 'SYNC';
   is_api_call?: boolean;
   search_options?: IOptions;
   descriptions?: { [key: string]: string };
+  message_id?: string;
+  message?: {
+    type: IQorusType;
+    value: any;
+  };
 }
 
 const supportsList = {
@@ -103,7 +112,16 @@ export const getUrlFromProvider: (
   if (typeof val === 'string') {
     return val;
   }
-  const { type, name, path = '', options, is_api_call, hasApiContext, subtype } = val;
+  const {
+    type,
+    name,
+    path = '',
+    options,
+    is_api_call,
+    hasApiContext,
+    subtype,
+    supports_messages,
+  } = val;
   let optionString;
 
   if (size(options)) {
@@ -131,7 +149,7 @@ export const getUrlFromProvider: (
 
   // Build the suffix
   const realPath = `${suffix}${finalPath}${
-    hasSubtype || is_api_call || isRecord ? '' : recordSuffix || ''
+    hasSubtype || is_api_call || supports_messages || isRecord ? '' : recordSuffix || ''
   }`;
 
   const suffixString = suffixRequiresOptions
@@ -223,6 +241,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   requiresRequest,
   recordType,
   isPipeline,
+  isMessage,
   t,
 }) => {
   const [optionProvider, setOptionProvider] = useState<IProviderType | null>(
@@ -257,6 +276,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   const [provider, setProvider] = useState<string | null | undefined>(optionProvider?.type);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [availableOptions, setAvailableOptions] = useState(undefined);
 
   const clear = () => {
     setIsEditing(false);
@@ -343,6 +363,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           setIsLoading={setIsLoading}
           optionProvider={optionProvider}
           options={optionProvider?.options}
+          availableOptions={availableOptions}
           optionsChanged={optionProvider?.optionsChanged}
           title={title}
           clear={clear}
@@ -355,11 +376,13 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           onResetClick={reset}
           recordType={recordType}
           isPipeline={isPipeline}
+          isMessage={isMessage}
         />
       </SubField>
       {provider === 'factory' && optionProvider ? (
         <SubField title={t('FactoryOptions')}>
           <Options
+            onOptionsLoaded={(options) => setAvailableOptions(options)}
             onChange={(nm, val) => {
               setOptionProvider((cur: IProviderType | null) => {
                 const result: IProviderType = {
@@ -379,6 +402,45 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             customUrl={`${getUrlFromProvider(optionProvider, true)}`}
           />
         </SubField>
+      ) : null}
+      {/* This means that we are working with a Message provider */}
+      {isMessage && optionProvider?.supports_messages ? (
+        <>
+          <SubField title={t('MessageType')} desc={t('SelectMessageType')}>
+            <ProviderMessageSelector
+              url={`${getUrlFromProvider(optionProvider)}`}
+              value={optionProvider?.message_id}
+              onChange={(val) => {
+                setOptionProvider((cur) => ({
+                  ...cur,
+                  message_id: val,
+                  message: undefined,
+                }));
+              }}
+            />
+          </SubField>
+          {optionProvider?.message_id && (
+            <SubField title={t('MessageData')} className="provider-message-data">
+              <ProviderMessageData
+                value={optionProvider?.message?.value}
+                type={optionProvider?.message?.type}
+                url={`${getUrlFromProvider(optionProvider)}`}
+                messageId={optionProvider?.message_id}
+                onChange={(value, type) => {
+                  setOptionProvider(
+                    (cur: IProviderType): IProviderType => ({
+                      ...cur,
+                      message: {
+                        type,
+                        value,
+                      },
+                    })
+                  );
+                }}
+              />
+            </SubField>
+          )}
+        </>
       ) : null}
       {/* This means that we are working with an API Call provider */}
       {requiresRequest && optionProvider?.supports_request ? (

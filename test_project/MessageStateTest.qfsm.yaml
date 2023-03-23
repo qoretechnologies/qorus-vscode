@@ -1,0 +1,70 @@
+# This is a generated file, don't edit!
+type: fsm
+name: MessageStateTest
+desc: kek
+states:
+    '1':
+        position:
+            x: 127
+            'y': 257.5
+        initial: false
+        name: State 1
+        desc: ''
+        type: state
+        id: I2BXCOrfCiT
+        action:
+            type: send-message
+            value:
+                type: factory
+                name: wsclient
+                supports_request: false
+                supports_read: false
+                supports_update: false
+                supports_create: false
+                supports_delete: false
+                supports_messages: ASYNC
+                descriptions:
+                    - null
+                    - >-
+                        WebSocket client to URL
+                        "wss://sandbox:<masked>@sandbox.qoretechnologies.com:443/apievents"
+                path: ''
+                options:
+                    url:
+                        type: string
+                        value: 'wss://sandbox:sandbox@sandbox.qoretechnologies.com/apievents'
+                message_id: ping
+                message:
+                    type: '*data'
+                    value: test
+    '2':
+        position:
+            x: 648
+            'y': 282.5
+        initial: false
+        name: State 2
+        desc: ''
+        type: state
+        id: VWUDOhL5r80
+        action:
+            type: mapper
+            value: 'test:1.0'
+    '3':
+        position:
+            x: 271
+            'y': 506.5
+        initial: false
+        name: State 3
+        desc: ''
+        type: if
+        id: MaICIpiyO
+        condition: hjgyjg
+        transitions:
+            -
+                state: '1'
+                branch: 'true'
+                language: qore
+            -
+                state: '2'
+                branch: 'true'
+                language: qore
