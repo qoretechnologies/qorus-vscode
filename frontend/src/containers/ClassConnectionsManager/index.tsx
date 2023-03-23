@@ -89,7 +89,7 @@ export interface IClassConnectionsDraftData {
   lastConnectionId: number;
 }
 
-const getConnectorsCount = (connections) => {
+export const getConnectorsCount = (connections) => {
   if (connections) {
     let count = 0;
 
@@ -102,7 +102,7 @@ const getConnectorsCount = (connections) => {
   return 1;
 };
 
-const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
+export const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
   t,
   initialData,
   initialConnections,

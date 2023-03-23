@@ -9,7 +9,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import { IClassConnection, IClassConnections } from '../ClassConnectionsManager';
 
-const removeMethodTriggers = (methods, connectionData) =>
+export const removeMethodTriggers = (methods, connectionData) =>
   connectionData.reduce((newData, connector) => {
     const newConnector = { ...connector };
     // Check if this connector has a trigger
@@ -30,7 +30,7 @@ const removeMethodTriggers = (methods, connectionData) =>
     return [...newData, newConnector];
   }, []);
 
-const transformClassConnections = (connections: IClassConnections): IClassConnections => {
+export const transformClassConnections = (connections: IClassConnections): IClassConnections => {
   return reduce(
     connections,
     (newConnections, data, name) => ({
@@ -41,7 +41,7 @@ const transformClassConnections = (connections: IClassConnections): IClassConnec
   );
 };
 
-const ClassConnectionsStateProvider = ({
+export const ClassConnectionsStateProvider = ({
   selectedFields,
   type,
   children,

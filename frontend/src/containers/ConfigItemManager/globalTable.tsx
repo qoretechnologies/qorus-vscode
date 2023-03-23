@@ -24,13 +24,13 @@ import withTextContext from '../../hocomponents/withTextContext';
 import AddConfigItemModal from './modal';
 import { Value } from './table';
 
-const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
+export const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
   .reqore-table-body {
     height: unset !important;
   }
 `;
 
-const WorkflowConfigItemsTable: Function = ({
+export const WorkflowConfigItemsTable: Function = ({
   globalConfig,
   onSubmit,
   globalItems,

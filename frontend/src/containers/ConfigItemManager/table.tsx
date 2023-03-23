@@ -1,4 +1,3 @@
-// @flow
 import {
   ReqoreButton,
   ReqoreControlGroup,
@@ -33,7 +32,7 @@ import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
 import Modal from './modal';
 
-type ConfigItemsTableProps = {
+export type ConfigItemsTableProps = {
   items: Object;
   dispatchAction: Function;
   intrf: string;
@@ -49,13 +48,13 @@ type ConfigItemsTableProps = {
   disableAdding?: boolean;
 };
 
-const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
+export const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
   .reqore-table-body {
     height: unset !important;
   }
 `;
 
-const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
+export const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
   <React.Fragment>
     <ReqoreControlGroup fluid>
       <ReqoreButton
@@ -173,7 +172,7 @@ export const Value = ({ item, useDefault }) => {
   return <ContentByType inTable content={value} baseType={type} />;
 };
 
-let ItemsTable: Function = ({
+export let ItemsTable: Function = ({
   onSubmit,
   intrf,
   showDescription,
@@ -377,7 +376,7 @@ let ItemsTable: Function = ({
             direction: 'asc',
           }}
           columns={columns()}
-          data={configItemsData.map((item) => ({
+          data={Array.isArray(configItemsData) && configItemsData.map((item) => ({
             ...item,
             _intent:
               !item.value && !item.is_set
@@ -390,6 +389,7 @@ let ItemsTable: Function = ({
       </ReqorePanel>
     </React.Fragment>
   );
+  
 };
 
 ItemsTable = compose(
