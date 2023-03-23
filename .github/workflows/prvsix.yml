@@ -35,7 +35,7 @@ jobs:
         run: echo "::set-output name=HEAD_COMMIT_MESSAGE::$(git show -s --format=%s)"
       - uses: actions/setup-node@v1
         with:
-          node-version: 16.16.0
+          node-version: 16.19.0
       - name: Save release version to outputs
         id: save_release_version
         run: echo ::set-output name=version::$(node -pe "require('./package.json').version")
@@ -46,10 +46,17 @@ jobs:
           cd frontend
           yarn install
           yarn build
-      - name: Run tests
+          yarn install-playwright
+          yarn build-storybook --quiet
+      - name: Run unit tests
         run: |
           cd frontend
           yarn test
+      - name: Serve Storybook and run tests
+        run: |
+          npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" \
+            "npx http-server storybook-static --port 6006 --silent" \
+            "npx wait-on tcp:6006 && yarn test-storybook"
       - name: Publish to Chromatic
         id: chromatic_publish
         uses: chromaui/action@v1

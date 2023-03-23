@@ -125,7 +125,7 @@
     "storybook": "BROWSER=chrome storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook",
-    "install-playwright": "npx playwright install && npx playwright install-deps"
+    "install-playwright": "npx playwright install --with-deps"
   },
   "eslintConfig": {
     "extends": [
