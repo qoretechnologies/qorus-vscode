@@ -225,13 +225,13 @@ export const NewWhileState: StoryFSM = {
 
 export const NewForState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
-    NewWhileState.play({ canvasElement, blockType: 'for', ...rest });
+    await NewWhileState.play({ canvasElement, blockType: 'for', ...rest });
   },
 };
 
 export const NewForEachState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
-    NewWhileState.play({ canvasElement, blockType: 'foreach', ...rest });
+    await NewWhileState.play({ canvasElement, blockType: 'foreach', ...rest });
   },
 };
 
