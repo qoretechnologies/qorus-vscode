@@ -41,12 +41,12 @@ export interface IServicesView {
   targetDir: string;
   t: TTranslator;
   isSubItemValid: any;
-  removeSubItemFromFields: any;
+  ServicesView: any;
   service: any;
   interfaceId: { [key: string]: string };
 }
 
-const ServicesView: FunctionComponent<IServicesView> = ({
+export const ServicesView: FunctionComponent<IServicesView> = ({
   t,
   isSubItemValid,
   removeSubItemFromFields,
@@ -56,7 +56,14 @@ const ServicesView: FunctionComponent<IServicesView> = ({
 }) => {
   const [errorIndex, setErrorIndex] = useState(size(interfaceId.error));
   const [errorsIndex, setErrorsIndex] = useState(size(interfaceId['errors']));
-  const { maybeApplyDraft, draft } = useContext(DraftsContext);
+  const draftsContext = useContext(DraftsContext);
+  const { maybeApplyDraft = () => {}, draft } = draftsContext || {};
+
+  const errorsContext = useContext(ErrorsContext);
+  if (!errorsContext) {
+    // handle the case where the context is not defined
+    return null;
+  }
   const {
     showErrors,
     setShowErrors,
@@ -115,7 +122,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
               >
                 {t('AddError')}
               </ReqoreMenuItem>
-              {subErrors.map((method: { id: number; name?: string }, index: number) => (
+              {subErrors?.map((method: { id: number; name?: string }, index: number) => (
                 <MethodSelector
                   key={method.id}
                   selected={method.id === activeError}
@@ -158,7 +165,13 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                 }
               }
             }}
-            initialInterfaceId={errors ? errors.iface_id : interfaceId.errors[errorIndex]}
+            initialInterfaceId={
+              errors
+                ? errors.iface_id
+                : interfaceId?.errors
+                ? interfaceId.errors[errorIndex]
+                : undefined
+            }
             type={'error'}
             activeId={activeError}
             isEditing={!!errors}

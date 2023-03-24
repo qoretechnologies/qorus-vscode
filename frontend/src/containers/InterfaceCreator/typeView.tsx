@@ -54,7 +54,7 @@ export const formatFields = (fields) => {
   return newFields;
 };
 
-const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
+export const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
   const [interfaceId, setInterfaceId] = useState(null);
   const [val, setVal] = useState(initialData?.type?.path || '');
   const [types, setTypes] = useState([]);

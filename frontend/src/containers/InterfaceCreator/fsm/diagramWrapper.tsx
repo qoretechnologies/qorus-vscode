@@ -12,7 +12,7 @@ export interface IFSMDiagramWrapperProps {
   showStateIds: boolean;
 }
 
-const FSMDiagramWrapper: React.FC<IFSMDiagramWrapperProps> = ({
+export const FSMDiagramWrapper: React.FC<IFSMDiagramWrapperProps> = ({
   wrapperDimensions,
   children,
   setPan,

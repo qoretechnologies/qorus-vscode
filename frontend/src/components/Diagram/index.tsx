@@ -1014,7 +1014,9 @@ const StyledAddStepButton = styled.div<{ position: string }>`
   }}
 `;
 
-const StyledStep = styled(ReqoreButton)<{ isHighlighted?: boolean }>`
+const StyledStep = styled(ReqoreButton && typeof ReqoreButton === 'object' ? ReqoreButton : 'div')<{
+  isHighlighted?: boolean;
+}>`
   box-shadow: 0 0 ${({ isHighlighted }) => (isHighlighted ? 15 : 10)}px 0px #00000080;
   position: relative;
   width: 100%;

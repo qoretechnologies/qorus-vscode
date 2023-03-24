@@ -54,7 +54,7 @@ export function processSteps(steps, stepsData): any[] {
   return result;
 }
 
-const ServicesView: FunctionComponent<IServicesView> = ({
+export const ServicesView: FunctionComponent<IServicesView> = ({
   t,
   workflow,
   fields,
@@ -83,7 +83,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   isFormValid,
 }) => {
   const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
-  const [workflowIndex, setWorkflowIndex] = useState(size(interfaceId.workflow));
+  const [workflowIndex, setWorkflowIndex] = useState(size(interfaceId?.workflow));
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
   const theme = useReqoreTheme();
 
@@ -164,7 +164,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
 
   return (
     <CreatorWrapper>
-      {!showSteps && (
+      {!showSteps && !!t && (
         <InterfaceCreatorPanel
           hasConfigManager
           type={'workflow'}
@@ -177,7 +177,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
           isEditing={!!workflow}
         />
       )}
-      {showSteps && (
+      {showSteps && !t && (
         <>
           <Content
             title={t('AddSteps')}

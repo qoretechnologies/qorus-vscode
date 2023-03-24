@@ -127,7 +127,7 @@ export const PanelWrapper = styled.div`
   overflow: hidden;
 `;
 
-const CreatorWrapper = styled.div`
+export const CreatorWrapper = styled.div`
   display: flex;
   flex: 1;
   flex-flow: column;
@@ -143,7 +143,7 @@ export interface IServicesView {
   interfaceId: { [key: string]: string };
 }
 
-const ServicesView: FunctionComponent<IServicesView> = ({
+export const ServicesView: FunctionComponent<IServicesView> = ({
   t,
   isSubItemValid,
   removeSubItemFromFields,

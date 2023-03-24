@@ -19,12 +19,15 @@ export interface IDateField {
   addMessageListener?: TMessageListener;
 }
 
-const StyledDateField = styled(ReqoreInput)`
-  cursor: pointer;
-  &::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-  }
-`;
+let StyledDateField;
+if (!!StyledDateField) {
+  StyledDateField = styled(ReqoreInput)`
+    cursor: pointer;
+    &::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+  `;
+}
 
 const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
   name,

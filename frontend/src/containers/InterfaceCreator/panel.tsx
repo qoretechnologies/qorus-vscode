@@ -172,7 +172,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   };
 
   useMount(() => {
-    addInterface(type, interfaceIndex);
+    if (!!addInterface) {
+      addInterface(type, interfaceIndex);
+    }
   });
 
   useDebounce(
@@ -1395,7 +1397,9 @@ export default compose(
     'interfaceIndex',
     'setInterfaceIndex',
     ({ type, interfaceId, interfaceIndex, selectedFields }) => {
-      return interfaceIndex ?? size(interfaceId[type]);
+      if (!!interfaceId) {
+        return interfaceIndex ?? size(interfaceId[type]);
+      }
     }
   ),
   mapProps(
@@ -1410,22 +1414,34 @@ export default compose(
       initialInterfaceId,
       interfaceIndex,
       ...rest
-    }) => ({
-      fields: activeId ? fields[type]?.[interfaceIndex]?.[activeId] : fields[type][interfaceIndex],
-      selectedFields: activeId
-        ? selectedFields[type]?.[interfaceIndex]?.[activeId]
-        : selectedFields[type][interfaceIndex],
-      query: query[type][interfaceIndex],
-      selectedQuery: selectedQuery[type][interfaceIndex],
-      allSelectedFields: selectedFields,
-      allFields: fields,
-      interfaceId:
+    }) => {
+      const activeFields = activeId ? fields?.[type]?.[interfaceIndex]?.[activeId] : undefined;
+      const typeFields = fields?.[type]?.[interfaceIndex];
+      const selectedInterfaceFields = selectedFields?.[type]?.[interfaceIndex];
+      const selectedServiceMethodFields = selectedFields?.[type];
+      const queryForType = query?.[type]?.[interfaceIndex] ?? null;
+      const selectedQueryForType = selectedQuery?.[type]?.[interfaceIndex];
+      const serviceMethodInterfaceId = interfaceId?.service?.[interfaceIndex];
+      const typeInterfaceId = interfaceId?.[type]?.[interfaceIndex];
+      const finalInterfaceId =
         initialInterfaceId ||
-        interfaceId[type === 'service-methods' ? 'service' : type][interfaceIndex],
-      type,
-      activeId,
-      interfaceIndex,
-      ...rest,
-    })
+        (type === 'service-methods' ? serviceMethodInterfaceId : typeInterfaceId);
+
+      return {
+        fields: activeFields || typeFields,
+        selectedFields: activeFields
+          ? selectedInterfaceFields?.[activeId]
+          : selectedInterfaceFields,
+        query: queryForType,
+        selectedQuery: selectedQueryForType,
+        allSelectedFields: selectedFields,
+        allFields: fields,
+        interfaceId: finalInterfaceId,
+        type,
+        activeId,
+        interfaceIndex,
+        ...rest,
+      };
+    }
   )
 )(InterfaceCreatorPanel);

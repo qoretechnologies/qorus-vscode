@@ -26,7 +26,7 @@ export interface IConfigItemManager {
   disableAdding?: boolean;
 }
 
-const StyledConfigWrapper = styled.div`
+export const StyledConfigWrapper = styled.div`
   display: flex;
   flex-flow: row;
   flex: auto;
@@ -41,7 +41,7 @@ export const StyledSeparator = styled.hr`
   margin: 10px 0;
 `;
 
-const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
+export const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   t,
   type,
   baseClassName,
@@ -74,7 +74,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
       processor_data: processorData,
     });
   });
-
+  
   useEffect(() => {
     const itemsListener = addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
       if (!initialConfigItems.current) {
@@ -102,8 +102,10 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
 
     // Remove both listeners on unmount
     return () => {
-      itemsListener();
-      itemListener();
+      if (!!itemsListener && !!itemListener) {
+        itemsListener();
+        itemListener();
+      }
     };
   });
 

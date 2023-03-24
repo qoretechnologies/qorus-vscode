@@ -59,8 +59,9 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
   };
 
   useMount(() => {
-    setConnectionReset(() => () => setData(connection || {}));
-
+    if (!!setConnectionReset) {
+      setConnectionReset(() => () => setData(connection || {}));
+    }
     addMessageListener(Messages.FIELDS_FETCHED, ({ fields }) => {
       setFields(fields);
       setInterfaceId(connection?.iface_id || shortid.generate());

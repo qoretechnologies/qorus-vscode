@@ -45,7 +45,7 @@ export interface ILibraryView {
   interfaceId: { [key: string]: string };
 }
 
-const LibraryView: FunctionComponent<ILibraryView> = ({
+export const LibraryView: FunctionComponent<ILibraryView> = ({
   t,
   isSubItemValid,
   removeSubItemFromFields,
@@ -124,7 +124,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
               >
                 {t('AddError')}
               </ReqoreMenuItem>
-              {functions.map((fun: { id: number; name?: string }, index: number) => (
+              {functions?.map((fun: { id: number; name?: string }, index: number) => (
                 <MethodSelector
                   key={fun.id}
                   selected={fun.id === activeFunction}

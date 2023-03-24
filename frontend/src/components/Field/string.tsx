@@ -100,6 +100,15 @@ const StringField = ({
   );
 };
 
-export default compose(withMessageHandler(), withTextContext())(StringField) as React.FC<
-  IStringField & IField
->;
+const composed = (fns) => (Component) => {
+  return fns.reduceRight((composed, fn) => {
+    return fn ? fn(composed) : composed;
+  }, Component);
+};
+
+export default composed([
+  withMessageHandler,
+  withTextContext,
+])(StringField) as React.FC<IStringField & IField>;
+
+

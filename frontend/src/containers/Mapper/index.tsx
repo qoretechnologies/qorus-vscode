@@ -1,57 +1,33 @@
-import {
-  ReqoreButton,
-  ReqoreControlGroup,
-  ReqoreModal,
-  ReqorePanel,
-  useReqore,
-  useReqoreTheme,
-} from '@qoretechnologies/reqore';
+import { ReqoreButton, ReqoreControlGroup, ReqoreModal, ReqorePanel, useReqore, useReqoreTheme } from '@qoretechnologies/reqore';
 import { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreControlGroupProps } from '@qoretechnologies/reqore/dist/components/ControlGroup';
-import { find, isEqual } from 'lodash';
-import forEach from 'lodash/forEach';
-import map from 'lodash/map';
-import omit from 'lodash/omit';
-import reduce from 'lodash/reduce';
+import { reduce, omit, forEach, find, isEqual, map } from 'lodash';
 import size from 'lodash/size';
 import React, { useEffect, useState } from 'react';
-import { useDrop } from 'react-dnd';
+import { Provider } from 'react-redux';
+import { useDrop } from 'react-use';
+import { compose } from 'redux';
 import styled, { css } from 'styled-components';
+import withFieldsConsumer from '../../../src/hocomponents/withFieldsConsumer';
+import withGlobalOptionsConsumer from '../../../src/hocomponents/withGlobalOptionsConsumer';
+import withInitialData from '../../../src/hocomponents/withInitialDataConsumer';
+import withMapperConsumer from '../../../src/hocomponents/withMapperConsumer';
+import withMessageHandler, { TPostMessage } from '../../../src/hocomponents/withMessageHandler';
+import withTextContext from '../../../src/hocomponents/withTextContext';
 import { TTranslator } from '../../App';
-import {
-  getUrlFromProvider as getRealUrlFromProvider,
-  IProviderType,
-} from '../../components/Field/connectors';
-import {
-  NegativeColorEffect,
-  PositiveColorEffect,
-  SaveColorEffect,
-} from '../../components/Field/multiPair';
+import { getUrlFromProvider as getRealUrlFromProvider, IProviderType } from '../../components/Field/connectors';
+import { PositiveColorEffect, NegativeColorEffect, SaveColorEffect } from '../../components/Field/multiPair';
 import Options from '../../components/Field/systemOptions';
 import { IField } from '../../components/FieldWrapper';
 import SubField from '../../components/SubField';
 import { Messages } from '../../constants/messages';
-import { deleteDraft, getDraftId } from '../../helpers/functions';
-import {
-  flattenFields,
-  getLastChildIndex,
-  getStaticDataFieldname,
-  hasStaticDataField,
-} from '../../helpers/mapper';
+import { getDraftId, deleteDraft } from '../../helpers/functions';
+import { flattenFields, getStaticDataFieldname, hasStaticDataField, getLastChildIndex } from '../../helpers/mapper';
 import TinyGrid from '../../images/graphy-dark.png';
 import MapperInput from './input';
 import MappingModal, { getKeyType } from './mappingModal';
-import MapperFieldModal from './modal';
+import { MapperFieldModal } from './modal';
 import MapperOutput from './output';
-import Provider from './provider';
-
-import compose from 'recompose/compose';
-import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
-import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import withMapperConsumer from '../../hocomponents/withMapperConsumer';
-import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
-import withTextContext from '../../hocomponents/withTextContext';
 
 const FIELD_HEIGHT = 31;
 const FIELD_MARGIN = 5;
@@ -83,7 +59,9 @@ export const StyledMapperWrapper = styled.div`
   margin: 0 auto;
 `;
 
-export const StyledFieldsWrapper: React.FC<IReqoreControlGroupProps> = styled(ReqoreControlGroup)`
+export const StyledFieldsWrapper: React.FC<IReqoreControlGroupProps> = styled(
+  ReqoreControlGroup && typeof ReqoreControlGroup === 'object' ? ReqoreControlGroup : 'div'
+)`
   width: 300px !important;
 `;
 
@@ -93,7 +71,9 @@ const StyledConnectionsWrapper = styled.div`
   width: 300px;
 `;
 
-export const StyledMapperFieldWrapper = styled(ReqoreControlGroup)`
+export const StyledMapperFieldWrapper = styled(
+  ReqoreControlGroup && typeof ReqoreControlGroup === 'object' ? ReqoreControlGroup : 'div'
+)`
   transition: all 0.2s ease-in-out;
   width: ${({ isMapperChild, level }) =>
     isMapperChild ? `${300 - level * 15}px` : '300px'} !important;
@@ -154,7 +134,9 @@ export const StyledMapperFieldWrapper = styled(ReqoreControlGroup)`
       : null}
 `;
 
-export const StyledMapperField: React.FC<IReqoreButtonProps> = styled(ReqoreButton)``;
+export const StyledMapperField: React.FC<IReqoreButtonProps> = styled(
+  ReqoreButton && typeof ReqoreButton === 'object' ? ReqoreButton : 'div'
+);
 
 const StyledInfoMessage = styled.p`
   text-align: center;
@@ -395,32 +377,35 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     });
   };
 
-  const removeRelation: (outputPath: string, usesContext?: boolean, isInputHash?: boolean) => void =
-    (outputPath, usesContext, isInputHash) => {
-      if (inputsError || outputsError) {
-        return;
-      }
-      // Remove the selected relation
-      // @ts-ignore
-      setRelations((current: any): any =>
-        reduce(
-          current,
-          (newRelations, rel: any, relationOutput): boolean => {
-            if (relationOutput === outputPath) {
-              return {
-                ...newRelations,
-                [relationOutput]: omit(
-                  rel,
-                  usesContext ? ['context'] : isInputHash ? ['use_input_record'] : ['name']
-                ),
-              };
-            }
-            return { ...newRelations, [relationOutput]: rel };
-          },
-          {}
-        )
-      );
-    };
+  const removeRelation: (
+    outputPath: string,
+    usesContext?: boolean,
+    isInputHash?: boolean
+  ) => void = (outputPath, usesContext, isInputHash) => {
+    if (inputsError || outputsError) {
+      return;
+    }
+    // Remove the selected relation
+    // @ts-ignore
+    setRelations((current: any): any =>
+      reduce(
+        current,
+        (newRelations, rel: any, relationOutput): boolean => {
+          if (relationOutput === outputPath) {
+            return {
+              ...newRelations,
+              [relationOutput]: omit(
+                rel,
+                usesContext ? ['context'] : isInputHash ? ['use_input_record'] : ['name']
+              ),
+            };
+          }
+          return { ...newRelations, [relationOutput]: rel };
+        },
+        {}
+      )
+    );
+  };
 
   const removeFieldRelations: (path: string, type: string) => void = (path, type) => {
     // Remove the selected relation
@@ -1346,7 +1331,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
 };
 
 export default compose(
-  withInitialDataConsumer(),
+  withInitialData(),
   withTextContext(),
   withMapperConsumer(),
   withFieldsConsumer(),

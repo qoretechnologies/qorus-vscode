@@ -76,7 +76,7 @@ const StyledSeparator = styled.div`
   vertical-align: bottom;
 `;
 
-const getTypeName = (type: string, t): string => {
+export const getTypeName = (type: string, t): string => {
   switch (type) {
     case 'fsm':
       return t('FiniteStateMachine');
@@ -153,7 +153,7 @@ const tutorials = {
   },
 };
 
-const TutorialButton = ({ type, onClick }) => {
+export const TutorialButton = ({ type, onClick }) => {
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isSuccessful, setIsSuccessful] = useState<boolean>(false);
   const t = useContext(TextContext);
@@ -224,7 +224,7 @@ const TutorialButton = ({ type, onClick }) => {
   );
 };
 
-const Tab: React.FC<ITabProps> = ({
+export const Tab: React.FC<ITabProps> = ({
   t,
   data,
   type,
