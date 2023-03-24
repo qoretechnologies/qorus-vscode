@@ -1,4 +1,5 @@
 import { ReqoreControlGroup, ReqoreInput, ReqoreTag } from '@qoretechnologies/reqore';
+import { IReqoreInputProps } from '@qoretechnologies/reqore/dist/components/Input';
 import { ChangeEvent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -14,7 +15,9 @@ import withMessageHandler, {
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 
-export interface IStringField extends IField {
+export interface IStringField
+  extends IField,
+    Omit<IReqoreInputProps, 'type' | 'value' | 'onChange'> {
   t?: TTranslator;
   fill?: boolean;
   postMessage?: TPostMessage;
@@ -43,6 +46,7 @@ const StringField = ({
   sensitive,
   autoFocus,
   label,
+  id,
   ...rest
 }: IStringField) => {
   // Fetch data on mount
@@ -62,7 +66,7 @@ const StringField = ({
 
   // When input value changes
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    onChange(name, event.target.value);
+    onChange(name, event.target.value.toString());
   };
 
   // Clear the input on reset click
@@ -75,6 +79,7 @@ const StringField = ({
       {label || label === 0 ? <ReqoreTag label={label} fixed /> : null}
       <ReqoreInput
         key={name}
+        id={id}
         placeholder={placeholder}
         disabled={disabled}
         readOnly={read_only || (canBeNull && isNull(value))}

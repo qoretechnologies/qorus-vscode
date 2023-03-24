@@ -173,7 +173,7 @@ export const getStateCategory = (type: string): TStateTypes => {
     return 'logic';
   }
 
-  if (type === 'apicall') {
+  if (type === 'apicall' || type === 'send-message') {
     return 'api';
   }
 

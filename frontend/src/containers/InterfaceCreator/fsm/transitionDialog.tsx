@@ -95,6 +95,7 @@ export const renderConditionField: (
           onChange={(name, value) => onChange(name, value)}
           value={transitionData?.condition}
           autoFocus
+          id="condition-field"
         />
       );
     }

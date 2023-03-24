@@ -1,10 +1,9 @@
-import { ReqoreMenuItem, useReqoreTheme } from '@qoretechnologies/reqore';
+import { ReqoreMenuItem } from '@qoretechnologies/reqore';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
-import { useContext } from 'react';
+import { camelCase } from 'lodash';
 import { useDrag } from 'react-dnd';
 import styled, { css } from 'styled-components';
 import { TOOLBAR_ITEM_TYPE } from '.';
-import { TextContext } from '../../../context/text';
 import { getStateColor, TStateTypes } from './state';
 
 export interface IFSMToolbarItemProps {
@@ -16,6 +15,7 @@ export interface IFSMToolbarItemProps {
   onDoubleClick: (name: string, type: string, stateType: string) => any;
   onDragStart: () => void;
   category: TStateTypes;
+  parentStateName?: string;
 }
 
 export const getStateStyle = (type, toolbar?: boolean) => {
@@ -137,7 +137,9 @@ export const FSMItemIconByType: Record<string, IReqoreIconName> = {
   mapper: 'FileTransferLine',
   pipeline: 'Database2Line',
   fsm: 'ShareLine',
-  block: 'NodeTree',
+  while: 'RepeatLine',
+  for: 'Repeat2Line',
+  foreach: 'RestartLine',
   connector: 'ExchangeLine',
   if: 'QuestionMark',
   apicall: 'ArrowLeftRightLine',
@@ -146,14 +148,16 @@ export const FSMItemIconByType: Record<string, IReqoreIconName> = {
   create: 'FolderAddLine',
   update: 'Edit2Line',
   delete: 'DeleteBin2Line',
+  'send-message': 'ChatUploadLine',
 };
 
 export const FSMItemDescByType: Record<string, string> = {
   mapper: 'Execute data transformations on the input data',
   pipeline: 'Execute a data pipeline',
   fsm: 'Execute a subflow',
-  block:
-    'Execute a for, foreach, or while loop (NOTE: consider splitting these into 3 different states)',
+  for: 'Execute a for loop',
+  foreach: 'Execute a foreach loop',
+  while: 'Execute a while loop',
   connector: 'Use a building block connector',
   if: 'Control the logical flow with an expression',
   apicall: 'Execute an API call',
@@ -162,6 +166,7 @@ export const FSMItemDescByType: Record<string, string> = {
   create: 'Create records in a data provider',
   update: 'Update records in a data provider',
   delete: 'Delete records in a data provider',
+  'send-message': 'Send a message to a channel',
 };
 
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
@@ -173,9 +178,8 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   onDoubleClick,
   onDragStart,
   category,
+  parentStateName,
 }) => {
-  const t = useContext(TextContext);
-  const theme = useReqoreTheme();
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
     item: () => {
@@ -191,6 +195,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
 
   return (
     <ReqoreMenuItem
+      id={`${parentStateName ? camelCase(parentStateName) : ''}${type}`}
       ref={!disabled ? drag : undefined}
       flat={false}
       description={FSMItemDescByType[type]}

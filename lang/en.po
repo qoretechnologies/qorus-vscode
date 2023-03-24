@@ -1053,6 +1053,9 @@ msgstr "Connector"
 msgid "field-label-apicall"
 msgstr "API Call"
 
+msgid "field-label-message"
+msgstr "Send message"
+
 msgid "field-label-search-single"
 msgstr "Single search"
 
@@ -3229,3 +3232,9 @@ msgstr "Action value"
 
 msgid "AddAnotherRecord"
 msgstr "Add record"
+
+msgid "MessageType"
+msgstr "Message type"
+
+msgid "MesasgeData"
+msgstr "Message data"

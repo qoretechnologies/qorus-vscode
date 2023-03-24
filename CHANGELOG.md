@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 4.0.6
+
+- New send message state: Added the ability to use the message-based integration pattern to send messages from no-code flows / finite state machines
+
 ## Version 4.0.5
 
 - Fixed a bug where the selecting a table in a Create State action would crash the webview
