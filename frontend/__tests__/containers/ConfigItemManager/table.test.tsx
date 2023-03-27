@@ -1,7 +1,6 @@
 import { ReqoreUIProvider } from '@qoretechnologies/reqore';
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
-import ReactDOM from 'react-dom';
 import { ConfigItemsTable, getItemType } from '../../../src/containers/ConfigItemManager/table';
 
 describe('ConfigItemsTable component', () => {
