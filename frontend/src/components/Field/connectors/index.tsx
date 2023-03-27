@@ -83,11 +83,11 @@ const supportsArguments = {
   update: true,
 };
 
-const getRealRecordType = (recordType: TRecordType): TRealRecordType => {
+export const getRealRecordType = (recordType: TRecordType): TRealRecordType => {
   return recordType.startsWith('search') ? 'read' : (recordType as TRealRecordType);
 };
 
-const shouldShowSearchArguments = (
+export const shouldShowSearchArguments = (
   recordType: TRecordType,
   optionProvider: IProviderType | null
 ): boolean => {
@@ -255,8 +255,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             values: [
               {
                 name: optionProvider.name,
-                url: providers[optionProvider.type].url,
-                suffix: providers[optionProvider.type].suffix,
+                url: providers[optionProvider.type]?.url,
+                suffix: providers[optionProvider.type]?.suffix,
                 desc: optionProvider.descriptions?.[0],
               },
             ],
