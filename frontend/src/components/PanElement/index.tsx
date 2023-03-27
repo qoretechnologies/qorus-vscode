@@ -24,7 +24,7 @@ export interface ElementPanState {
   showToolbar: boolean;
 }
 
-const StyledToolbar = styled(ReqorePanel)`
+const StyledToolbar = styled(ReqorePanel && typeof ReqorePanel === 'object' ? ReqorePanel : 'div')`
   position: absolute !important;
   width: 202px;
   right: 15px;

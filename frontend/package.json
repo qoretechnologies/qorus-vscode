@@ -74,6 +74,7 @@
     "react-dom": "^18.2.0",
     "react-element-pan": "^2.0.0",
     "react-hierarchy-tree-graph": "^1.0.3",
+    "react-i18next": "^12.2.0",
     "react-markdown": "^8.0.3",
     "react-redux": "^7.1.1",
     "react-refresh": "^0.11.0",
@@ -216,7 +217,9 @@
     "@storybook/testing-library": "^0.0.14-next.1",
     "@storybook/testing-react": "^1.3.0",
     "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.3.0",
     "@testing-library/react-hooks": "^8.0.1",
+    "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^29.4.0",
     "babel-jest": "^29.5.0",
     "jest-environment-jsdom": "27.4.3",
@@ -226,8 +229,6 @@
     "react-test-renderer": "^18.2.0",
     "redux-mock-store": "^1.5.4",
     "storybook": "^7.0.0-beta.59",
-    "ts-jest": "^29.0.5",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/user-event": "^13.5.0"
+    "ts-jest": "^29.0.5"
   }
 }

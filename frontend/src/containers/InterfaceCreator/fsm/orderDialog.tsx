@@ -7,7 +7,7 @@ import Content from '../../../components/Content';
 import { SaveColorEffect } from '../../../components/Field/multiPair';
 import { TextContext } from '../../../context/text';
 
-const StyledOrderWrapper = styled.div`
+export const StyledOrderWrapper = styled.div`
   display: flex;
   width: 100%;
   height: 50px;
@@ -41,7 +41,7 @@ export interface IOrderDialogProps {
   metadata?: (data: IFSMState | IFSMTransition) => JSX.Element;
 }
 
-const OrderDialog: React.FC<IOrderDialogProps> = ({
+export const OrderDialog: React.FC<IOrderDialogProps> = ({
   onClose,
   data,
   changeOrder,

@@ -110,7 +110,7 @@ const StyledNodeLabel = styled.div<{ isValid?: boolean }>`
   }
 `;
 
-const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueueClick }) => {
+export const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueueClick }) => {
   const { addMenu } = useContext(ContextMenuContext);
   const t = useContext(TextContext);
 
@@ -210,7 +210,7 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
   );
 };
 
-const PipelineView: React.FC<IPipelineViewProps> = ({
+export const PipelineView: React.FC<IPipelineViewProps> = ({
   postMessage,
   setPipelineReset,
   onSubmitSuccess,

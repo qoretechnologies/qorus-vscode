@@ -8,7 +8,7 @@ export const addMessageListener: TMessageListener = (action, callback) => {
   // Register the listener
   const messageListener = (event: MessageEvent) => {
     // Check if the action is equal
-    if (event.data.action === action) {
+    if (!!event.data && event.data.action === action) {
       // Run the callback with the action data
       if (callback) {
         callback(event.data);

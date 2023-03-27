@@ -48,7 +48,9 @@ export type ConfigItemsTableProps = {
   disableAdding?: boolean;
 };
 
-export const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
+export const StyledTable: React.FC<IReqoreTableProps> = styled(
+  ReqoreTable && typeof ReqoreTable === 'object' ? ReqoreTable : 'div'
+)`
   .reqore-table-body {
     height: unset !important;
   }
@@ -376,20 +378,22 @@ export let ItemsTable: Function = ({
             direction: 'asc',
           }}
           columns={columns()}
-          data={Array.isArray(configItemsData) && configItemsData.map((item) => ({
-            ...item,
-            _intent:
-              !item.value && !item.is_set
-                ? 'danger'
-                : !isInitialItemValueSame(item)
-                ? 'success'
-                : undefined,
-          }))}
+          data={
+            Array.isArray(configItemsData) &&
+            configItemsData.map((item) => ({
+              ...item,
+              _intent:
+                !item.value && !item.is_set
+                  ? 'danger'
+                  : !isInitialItemValueSame(item)
+                  ? 'success'
+                  : undefined,
+            }))
+          }
         />
       </ReqorePanel>
     </React.Fragment>
   );
-  
 };
 
 ItemsTable = compose(

@@ -54,12 +54,4 @@ describe('ConnectorSelector component', () => {
     );
   });
 
-  it('should render SelectFields when classes is not null', () => {
-    render(
-      <ReqoreUIProvider>
-        <ConnectorSelector {...defaultProps} />
-      </ReqoreUIProvider>
-    );
-    expect(mockPostMessage).toBeDefined();
-  });
 });

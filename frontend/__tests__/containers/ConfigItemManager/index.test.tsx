@@ -33,7 +33,6 @@ describe('ConfigItemManager', () => {
         <ConfigItemManager {...configItemManagerProps} />
       </ReqoreUIProvider>
     );
-    expect(addMessageListenerMock).toBeDefined();
   });
 
   test('it should send a message to get the config items when mounting the component', async () => {

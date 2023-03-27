@@ -28,7 +28,6 @@ describe('FSMDiagramWrapper', () => {
         </TextContext.Provider>
       </ReqoreUIProvider>
     );
-
     expect(screen.getByText('Test')).toBeDefined();
   });
   it('should call setPan when panning', () => {
@@ -58,7 +57,6 @@ describe('FSMDiagramWrapper', () => {
       diagram.dispatchEvent(new MouseEvent('mousemove', { clientX: 10, clientY: 10 }));
       diagram.dispatchEvent(new MouseEvent('mouseup', { clientX: 10, clientY: 10 }));
     }
-
     expect(setPan).toBeDefined();
   });
 

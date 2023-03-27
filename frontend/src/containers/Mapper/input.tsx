@@ -24,12 +24,12 @@ export interface IMapperInputProps {
   hasError?: boolean;
 }
 
-const StyledDragHandle = styled.div`
+export const StyledDragHandle = styled.div`
   width: 100%;
   height: 100%;
 `;
 
-const MapperInput: FC<IMapperInputProps> = ({
+export const MapperInput: FC<IMapperInputProps> = ({
   id,
   field,
   types,
@@ -100,7 +100,7 @@ const MapperInput: FC<IMapperInputProps> = ({
         ref={hasAvailableOutput ? dragRef : undefined}
         badge={{
           label: `${types.includes('nothing') ? '*' : ''}${type.base_type}`,
-          color: TYPE_COLORS[`${types[0].replace(/</g, '').replace(/>/g, '')}`],
+          color: TYPE_COLORS[`${types[0] ? types[0].replace(/</g, '').replace(/>/g, '') : ''}`],
         }}
         description={description}
       >

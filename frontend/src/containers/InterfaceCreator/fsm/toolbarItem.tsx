@@ -1,9 +1,10 @@
-import { ReqoreMenuItem } from '@qoretechnologies/reqore';
+import { ReqoreMenuItem, useReqoreTheme } from '@qoretechnologies/reqore';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { camelCase } from 'lodash';
+import { useContext } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { css } from 'styled-components';
-import { TOOLBAR_ITEM_TYPE } from '.';
+import { TextContext } from '../../../context/text';
 import { getStateColor, TStateTypes } from './state';
 
 export interface IFSMToolbarItemProps {
@@ -87,7 +88,7 @@ export const getStateStyle = (type, toolbar?: boolean) => {
   }
 };
 
-const StyledToolbarItem = styled.div<{ type: string; disabled?: boolean }>`
+export const StyledToolbarItem = styled.div<{ type: string; disabled?: boolean }>`
   width: 150px;
   height: 30px;
   border: 1px solid #d7d7d7;
@@ -169,29 +170,38 @@ export const FSMItemDescByType: Record<string, string> = {
   'send-message': 'Send a message to a channel',
 };
 
-const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
+export const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   children,
-  count,
   name,
+  count = 0,
   type,
-  disabled,
+  disabled = false,
   onDoubleClick,
   onDragStart,
   category,
   parentStateName,
 }) => {
-  const [, drag] = useDrag({
-    type: TOOLBAR_ITEM_TYPE,
-    item: () => {
-      onDragStart?.();
+  if (!type) {
+    throw new Error('FSMToolbarItem: type prop is required');
+  }
+  const t = useContext(TextContext);
+  const theme = useReqoreTheme();
+  const TOOLBAR_ITEM_TYPE = 'toolbar-item';
+  if (!!TOOLBAR_ITEM_TYPE) {
 
-      return { name, type: TOOLBAR_ITEM_TYPE, stateType: type };
-    },
-    previewOptions: {
-      anchorX: 0,
-      anchorY: 0,
-    },
-  });
+  }
+
+    const [, drag] = useDrag({
+      type: TOOLBAR_ITEM_TYPE,
+      item: () => {
+        onDragStart?.();
+        return { name, type: TOOLBAR_ITEM_TYPE, stateType: type };
+      },
+      previewOptions: {
+        anchorX: 0,
+        anchorY: 0,
+      },
+    });
 
   return (
     <ReqoreMenuItem

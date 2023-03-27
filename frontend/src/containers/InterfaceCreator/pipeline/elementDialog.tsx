@@ -31,7 +31,7 @@ export const CompatibilityCheckIndicator = ({ isCompatible, isCheckingCompatibil
   );
 };
 
-const PipelineElementDialog = ({
+export const PipelineElementDialog = ({
   onClose,
   data,
   parentData,

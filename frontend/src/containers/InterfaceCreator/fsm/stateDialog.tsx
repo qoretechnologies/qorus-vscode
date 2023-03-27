@@ -61,7 +61,7 @@ export enum StateTypes {
 
 export type TAction = keyof typeof StateTypes;
 
-const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
+export const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   onClose,
   data,
   id,

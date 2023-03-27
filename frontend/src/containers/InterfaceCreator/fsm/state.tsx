@@ -117,7 +117,9 @@ export const StyledStateTextWrapper = styled.div`
 // IS AVAILABLE FOR TRANSITION
 // IS INCOMPATIBLE
 // ERROR
-const StyledFSMState: React.FC<IReqorePanelProps> = styled(ReqorePanel)`
+export const StyledFSMState: React.FC<IReqorePanelProps> = styled(
+  ReqorePanel && typeof ReqorePanel === 'object' ? ReqorePanel : 'div'
+)`
   ${({ isStatic }) =>
     !isStatic
       ? css`
@@ -210,7 +212,7 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
   return action.value;
 };
 
-const FSMState: React.FC<IFSMStateProps> = ({
+export const FSMState: React.FC<IFSMStateProps> = ({
   position,
   id,
   selected,

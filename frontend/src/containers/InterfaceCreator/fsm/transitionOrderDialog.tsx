@@ -18,7 +18,7 @@ export interface IFSMTransitionOrderDialogProps {
   states: IFSMStates;
 }
 
-const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
+export const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
   id,
   transitions,
   onClose,

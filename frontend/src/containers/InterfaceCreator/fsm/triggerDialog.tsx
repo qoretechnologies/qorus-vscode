@@ -1,4 +1,5 @@
 import React, { useContext, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import map from 'lodash/map';
 import size from 'lodash/size';
@@ -12,7 +13,6 @@ import StringField from '../../../components/Field/string';
 import { FieldWrapper } from '../../../components/FieldWrapper';
 import { FieldContext } from '../../../context/fields';
 import { InitialContext } from '../../../context/init';
-import { TextContext } from '../../../context/text';
 import { validateField } from '../../../helpers/validations';
 import { TTrigger } from './';
 import ConnectorSelector from './connectorSelector';
@@ -27,7 +27,7 @@ export interface IFSMTriggerDialogProps {
   triggers?: { method: string }[];
 }
 
-const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
+export const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
   index,
   data,
   onSubmit,
@@ -36,7 +36,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
   fsmIndex,
   triggers,
 }) => {
-  const t = useContext(TextContext);
+  const { t } = useTranslation();
   const initialData = useContext(InitialContext);
   const { requestInterfaceData } = useContext(FieldContext);
 
@@ -52,9 +52,11 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
     }
 
     return map(methods, (method) => {
-      const isValid = method.find((field) => field.isValid === true);
-
-      if (isValid) {
+      let isValid;
+      if (!!method.find) {
+        isValid = method.find((field) => field.isValid === true);
+      }
+      if (!!isValid) {
         const name = method.find((field) => field.name === 'name').value;
         return { name };
       }

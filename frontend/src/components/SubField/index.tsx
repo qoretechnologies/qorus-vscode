@@ -7,12 +7,16 @@ import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
 import { getFieldDescriptionAction } from '../FieldWrapper';
 
-const StyledDescriptionField = styled(ReqoreMessage)`
-  p:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-`;
+let StyledDescriptionField = undefined;
+if (!!ReqoreMessage) {
+  StyledDescriptionField = styled(ReqoreMessage)`
+    p:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+  `;
+}
+  
 
 export interface ISubFieldProps extends IReqorePanelProps {
   title?: string;

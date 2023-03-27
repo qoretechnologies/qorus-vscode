@@ -12,7 +12,7 @@ export interface IAddFieldProps {
   t: TTranslator;
 }
 
-const AddFieldButton: FC<IAddFieldProps> = ({
+export const AddFieldButton: FC<IAddFieldProps> = ({
   onClick,
   isCustom,
   canManageFields,

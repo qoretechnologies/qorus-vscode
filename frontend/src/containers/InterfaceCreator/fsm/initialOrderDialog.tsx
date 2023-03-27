@@ -16,7 +16,7 @@ export interface IFSMTransitionOrderDialogProps {
   interfaceId: string;
 }
 
-const FSMInitialOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
+export const FSMInitialOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
   onClose,
   onSubmit,
   allStates,

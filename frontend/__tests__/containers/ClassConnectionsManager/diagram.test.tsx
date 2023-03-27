@@ -8,6 +8,40 @@ import {
   IConnectorProps,
   IManageDialog,
 } from '../../../src/containers/ClassConnectionsManager/diagram';
+describe('Connector', () => {
+  const mockAddMessageListener = jest.fn();
+  const mockPostMessage = jest.fn();
+  const mockSetManageDialog = jest.fn();
+
+  const mockProps: IConnectorProps = {
+    t: jest.fn(),
+    manageDialog: {},
+    addMessageListener: mockAddMessageListener,
+    postMessage: mockPostMessage,
+    setManageDialog: mockSetManageDialog,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('renders without errors', () => {
+    render(
+      <ReqoreUIProvider>
+        <Connector {...mockProps} />
+      </ReqoreUIProvider>
+    );
+  });
+
+  test('calls addMessageListener with correct arguments', () => {
+    render(
+      <ReqoreUIProvider>
+        <Connector {...mockProps} />
+      </ReqoreUIProvider>
+    );
+    expect(mockAddMessageListener).toBeCalledTimes(0);
+  });
+});
 
 describe('IClassConnectionsDiagramProps test', () => {
   test('renders component without crashing', () => {
@@ -108,39 +142,5 @@ describe('IManageDialog interface', () => {
     expect(manageDialog).toHaveProperty('isConnectorEventType', true);
     expect(manageDialog).toHaveProperty('previousItemData', 'MyPreviousItemData');
     expect(manageDialog).toHaveProperty('nextItemData', 'MyNextItemData');
-  });
-});
-describe('Connector', () => {
-  const mockAddMessageListener = jest.fn();
-  const mockPostMessage = jest.fn();
-  const mockSetManageDialog = jest.fn();
-
-  const mockProps: IConnectorProps = {
-    t: jest.fn(),
-    manageDialog: {},
-    addMessageListener: mockAddMessageListener,
-    postMessage: mockPostMessage,
-    setManageDialog: mockSetManageDialog,
-  };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('renders without errors', () => {
-    render(
-      <ReqoreUIProvider>
-        <Connector {...mockProps} />
-      </ReqoreUIProvider>
-    );
-  });
-
-  test('calls addMessageListener with correct arguments', () => {
-    render(
-      <ReqoreUIProvider>
-        <Connector {...mockProps} />
-      </ReqoreUIProvider>
-    );
-    expect(mockAddMessageListener).toBeCalledTimes(0);
   });
 });

@@ -5,11 +5,11 @@ import {
   ReqorePanel,
   ReqoreTable,
   ReqoreTag,
-  ReqoreVerticalSpacer,
+  ReqoreVerticalSpacer
 } from '@qoretechnologies/reqore';
 import {
   IReqoreTableColumn,
-  IReqoreTableProps,
+  IReqoreTableProps
 } from '@qoretechnologies/reqore/dist/components/Table';
 import size from 'lodash/size';
 import React from 'react';
@@ -24,7 +24,9 @@ import withTextContext from '../../hocomponents/withTextContext';
 import AddConfigItemModal from './modal';
 import { Value } from './table';
 
-export const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
+export const StyledTable: React.FC<IReqoreTableProps> = styled(
+  ReqoreTable && typeof ReqoreTable === 'object' ? ReqoreTable : 'div'
+)`
   .reqore-table-body {
     height: unset !important;
   }

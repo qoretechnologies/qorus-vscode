@@ -31,7 +31,7 @@ export interface IMapperOutputProps {
   hasError?: boolean;
 }
 
-const MapperOutput: FC<IMapperOutputProps> = ({
+export const MapperOutput: FC<IMapperOutputProps> = ({
   onDrop,
   id,
   accepts,

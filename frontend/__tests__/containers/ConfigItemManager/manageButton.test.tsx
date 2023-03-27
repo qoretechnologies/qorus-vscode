@@ -8,19 +8,15 @@ import { TMessageListener } from '../../../src/hocomponents/withMessageHandler';
 
 describe('ConfigItemManager', () => {
   const myTranslator: TTranslator = (key) => {
-    // your translation function implementation
   };
 
   const myMessageListener: TMessageListener = (message, handler) => {
-    // your message listener implementation
   };
 
   const myClickHandler = () => {
-    // your click handler implementation
   };
 
   const myFetchCallFunction = () => {
-    // your fetch call function implementation
   };
   const myProps = {
     t: myTranslator,
