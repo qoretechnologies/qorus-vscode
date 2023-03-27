@@ -27,7 +27,7 @@ export interface IFSMTriggerDialogProps {
   triggers?: { method: string }[];
 }
 
-const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
+export const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
   index,
   data,
   onSubmit,

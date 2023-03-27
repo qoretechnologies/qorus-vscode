@@ -55,7 +55,7 @@ const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
   }
 `;
 
-const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
+export const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
   <React.Fragment>
     <ReqoreControlGroup fluid>
       <ReqoreButton
@@ -377,15 +377,18 @@ let ItemsTable: Function = ({
             direction: 'asc',
           }}
           columns={columns()}
-          data={configItemsData.map((item) => ({
-            ...item,
-            _intent:
-              !item.value && !item.is_set
-                ? 'danger'
-                : !isInitialItemValueSame(item)
-                ? 'success'
-                : undefined,
-          }))}
+          data={
+            Array.isArray(configItemsData) &&
+            configItemsData.map((item) => ({
+              ...item,
+              _intent:
+                !item.value && !item.is_set
+                  ? 'danger'
+                  : !isInitialItemValueSame(item)
+                  ? 'success'
+                  : undefined,
+            }))
+          }
         />
       </ReqorePanel>
     </React.Fragment>

@@ -172,7 +172,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   };
 
   useMount(() => {
-    addInterface(type, interfaceIndex);
+    if (typeof addInterface === 'function') {
+      addInterface(type, interfaceIndex);
+    }
   });
 
   useDebounce(
@@ -1395,7 +1397,10 @@ export default compose(
     'interfaceIndex',
     'setInterfaceIndex',
     ({ type, interfaceId, interfaceIndex, selectedFields }) => {
-      return interfaceIndex ?? size(interfaceId[type]);
+      if (interfaceIndex && interfaceId) {
+        return interfaceIndex ?? size(interfaceId[type]);
+      }
+      return null;
     }
   ),
   mapProps(
@@ -1411,17 +1416,19 @@ export default compose(
       interfaceIndex,
       ...rest
     }) => ({
-      fields: activeId ? fields[type]?.[interfaceIndex]?.[activeId] : fields[type][interfaceIndex],
+      fields: activeId
+        ? fields[type]?.[interfaceIndex]?.[activeId]
+        : fields?.[type][interfaceIndex],
       selectedFields: activeId
         ? selectedFields[type]?.[interfaceIndex]?.[activeId]
-        : selectedFields[type][interfaceIndex],
-      query: query[type][interfaceIndex],
-      selectedQuery: selectedQuery[type][interfaceIndex],
+        : selectedFields?.[type][interfaceIndex],
+      query: query?.[type][interfaceIndex],
+      selectedQuery: selectedQuery?.[type][interfaceIndex],
       allSelectedFields: selectedFields,
       allFields: fields,
       interfaceId:
         initialInterfaceId ||
-        interfaceId[type === 'service-methods' ? 'service' : type][interfaceIndex],
+        interfaceId?.[type === 'service-methods' ? 'service' : type][interfaceIndex],
       type,
       activeId,
       interfaceIndex,

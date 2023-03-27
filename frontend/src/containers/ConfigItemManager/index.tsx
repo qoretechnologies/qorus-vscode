@@ -41,7 +41,7 @@ export const StyledSeparator = styled.hr`
   margin: 10px 0;
 `;
 
-const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
+export const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   t,
   type,
   baseClassName,
@@ -102,8 +102,10 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
 
     // Remove both listeners on unmount
     return () => {
-      itemsListener();
-      itemListener();
+      if (!!itemsListener && !!itemListener) {
+        itemsListener();
+        itemListener();
+      }
     };
   });
 

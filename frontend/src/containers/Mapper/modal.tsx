@@ -34,7 +34,7 @@ const defaultData: any = {
   canBeNull: false,
 };
 
-const MapperFieldModal: FC<IMapperFieldModalProps> = ({
+export const MapperFieldModal: FC<IMapperFieldModalProps> = ({
   type,
   siblings,
   onClose,
@@ -69,11 +69,13 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
       const types: any = await initialData.fetchData(
         `dataprovider/basetypes${type === 'outputs' ? '?soft=1' : ''}`
       );
-      if (types.error) {
+      if (!!types && types.error) {
         setError(t('UnableToRetrieveTypes'));
       } else {
         // Save the types
-        setTypes(types.data);
+        if (!!types) {
+          setTypes(types.data);
+        }
       }
     })();
   });

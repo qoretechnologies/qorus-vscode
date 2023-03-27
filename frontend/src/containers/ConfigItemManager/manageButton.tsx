@@ -17,7 +17,7 @@ export interface IManageConfigButton {
   fetchCall?: (ifaceId?: string) => void;
 }
 
-const ManageConfigButton: FunctionComponent<IManageConfigButton> = memo(
+export const ManageConfigButton: FunctionComponent<IManageConfigButton> = memo(
   ({ t, addMessageListener, disabled, onClick, type, fetchCall }) => {
     const [configCount, setConfigCount] = useState<number>(0);
 

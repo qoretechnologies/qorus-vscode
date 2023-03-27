@@ -12,7 +12,7 @@ import LongStringField from '../../../components/Field/longString';
 import {
   PositiveColorEffect,
   SaveColorEffect,
-  WarningColorEffect,
+  WarningColorEffect
 } from '../../../components/Field/multiPair';
 import RadioField from '../../../components/Field/radioField';
 import SelectField from '../../../components/Field/select';
@@ -61,7 +61,7 @@ export enum StateTypes {
 
 export type TAction = keyof typeof StateTypes;
 
-const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
+export const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   onClose,
   data,
   id,

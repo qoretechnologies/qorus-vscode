@@ -131,6 +131,35 @@ export const configItemFactory = {
   type: 'factory',
 };
 
+/**
+ * It filters out children that don't have a record or request
+ * @param {any[]} children - any[] - the children of the current node
+ * @returns the children array after it has been filtered.
+ */
+export const filterChildren = (
+  children: any[],
+  isPipeline,
+  recordType,
+  requiresRequest,
+  isMessage
+) => {
+  return children.filter((child) => {
+    if (isPipeline || recordType) {
+      return child.has_record || child.children_can_support_records || child.has_provider;
+    }
+
+    if (requiresRequest) {
+      return child.up !== false && (child.supports_request || child.children_can_support_apis);
+    }
+
+    if (isMessage) {
+      return child.supports_messages || child.children_can_support_messages;
+    }
+
+    return true;
+  });
+};
+
 const MapperProvider: FC<IProviderProps> = ({
   provider,
   setProvider,
@@ -182,29 +211,6 @@ const MapperProvider: FC<IProviderProps> = ({
     realProviders = omit(realProviders, ['type']);
   }
 
-  /**
-   * It filters out children that don't have a record or request
-   * @param {any[]} children - any[] - the children of the current node
-   * @returns the children array after it has been filtered.
-   */
-  const filterChildren = (children: any[]) => {
-    return children.filter((child) => {
-      if (isPipeline || recordType) {
-        return child.has_record || child.children_can_support_records || child.has_provider;
-      }
-
-      if (requiresRequest) {
-        return child.up !== false && (child.supports_request || child.children_can_support_apis);
-      }
-
-      if (isMessage) {
-        return child.supports_messages || child.children_can_support_messages;
-      }
-
-      return true;
-    });
-  };
-
   const handleProviderChange = (provider) => {
     setProvider((current) => {
       // Fetch the url of the provider
@@ -240,7 +246,13 @@ const MapperProvider: FC<IProviderProps> = ({
           }
         }
         // Save the children
-        let children = filterChildren(data.children || data);
+        let children = filterChildren(
+          data.children || data,
+          isPipeline,
+          recordType,
+          requiresRequest,
+          isMessage
+        );
 
         // Add new child
         setChildren([

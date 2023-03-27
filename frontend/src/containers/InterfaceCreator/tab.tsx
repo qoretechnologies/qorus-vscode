@@ -76,7 +76,7 @@ const StyledSeparator = styled.div`
   vertical-align: bottom;
 `;
 
-const getTypeName = (type: string, t): string => {
+export const getTypeName = (type: string, t): string => {
   switch (type) {
     case 'fsm':
       return t('FiniteStateMachine');

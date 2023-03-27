@@ -30,7 +30,7 @@ const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
   }
 `;
 
-const WorkflowConfigItemsTable: Function = ({
+export const WorkflowConfigItemsTable: Function = ({
   globalConfig,
   onSubmit,
   globalItems,

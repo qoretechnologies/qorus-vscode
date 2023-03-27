@@ -250,7 +250,7 @@ const Mapper = ({
   );
 };
 
-const Connector: React.FC<IConnectorProps> = ({
+export const Connector: React.FC<IConnectorProps> = ({
   t,
   addMessageListener,
   postMessage,
@@ -408,7 +408,7 @@ const Connector: React.FC<IConnectorProps> = ({
 
 let mapperListener;
 
-const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
+export const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
   t,
   connection,
   classes,
@@ -440,21 +440,29 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
 
   connection = connection.map((connectionData: IClassConnection): IClassConnection => {
     // Get the class
-    const class_name_parts = connectionData.class.split(':'); // possibly with prefix
-    const class_name = class_name_parts[1] || class_name_parts[0];
-    const connClass = Object.values(classesData).find(
-      (class_data) => class_data.name === class_name
-    );
-    // Get the connector data
-    const connectorData = connClass['class-connectors'].find(
-      (conn) => conn.name === connectionData.connector
-    );
+    let connectorData;
+    if (!!connectionData && !!connectionData.class) {
+      const class_name_parts = connectionData.class?.split(':'); // possibly with prefix
+      const class_name = class_name_parts[1] || class_name_parts[0];
+      const connClass = Object.values(classesData).find(
+        (class_data) => class_data.name === class_name
+      );
+      // Get the connector data
+      connectorData = connClass['class-connectors'].find(
+        (conn) => conn.name === connectionData.connector
+      );
+    }
+    let isLast, isFirst;
+    if (!!connectorData) {
+      isLast = connectorData.type === 'input';
+      isFirst = connectorData.type === 'output' || connectorData.type === 'event';
+    }
     // Return updated data
     return {
       ...connectionData,
       ...connectorData,
-      isLast: connectorData.type === 'input',
-      isFirst: connectorData.type === 'output' || connectorData.type === 'event',
+      isLast: isLast,
+      isFirst: isFirst,
     };
   });
 
@@ -482,15 +490,20 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
     });
 
     return () => {
-      mapperListener();
-      mapperListener = null;
+      if (!!mapperListener) {
+        mapperListener();
+        mapperListener = null;
+      }
     };
   }, [manageDialog]);
 
   const getConnectorData = (className: string, connectorName: string) =>
     classesData?.[className]?.['class-connectors']?.find((c) => c.name === connectorName);
 
-  const methodsCount = methods.filter((m) => m.name).length;
+  let methodsCount;
+  if (!!methods) {
+    methodsCount = methods.filter((m) => m.name).length;
+  }
   const canHaveTrigger =
     manageDialog.isFirst &&
     getConnectorData(manageDialog.class, manageDialog.connector)?.type !== 'event';

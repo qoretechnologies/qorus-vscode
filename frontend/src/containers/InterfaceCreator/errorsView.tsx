@@ -46,7 +46,7 @@ export interface IServicesView {
   interfaceId: { [key: string]: string };
 }
 
-const ServicesView: FunctionComponent<IServicesView> = ({
+export const ServicesView: FunctionComponent<IServicesView> = ({
   t,
   isSubItemValid,
   removeSubItemFromFields,
@@ -56,7 +56,11 @@ const ServicesView: FunctionComponent<IServicesView> = ({
 }) => {
   const [errorIndex, setErrorIndex] = useState(size(interfaceId.error));
   const [errorsIndex, setErrorsIndex] = useState(size(interfaceId['errors']));
-  const { maybeApplyDraft, draft } = useContext(DraftsContext);
+  const draftsContext = useContext(DraftsContext);
+  if (!ErrorsContext || !draftsContext) {
+    return null;
+  }
+  const { maybeApplyDraft, draft } = draftsContext;
   const {
     showErrors,
     setShowErrors,
