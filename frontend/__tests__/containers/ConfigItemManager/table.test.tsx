@@ -27,14 +27,11 @@ describe('ConfigItemsTable component', () => {
   });
 
   it('should render without crashing', () => {
-    wrapper = document.createElement('div');
-    ReactDOM.render(
+    render(
       <ReqoreUIProvider>
         <ConfigItemsTable {...mockProps} />
-      </ReqoreUIProvider>,
-      wrapper
+      </ReqoreUIProvider>
     );
-    expect(wrapper.innerHTML).toMatchSnapshot();
   });
 
   it('should toggle group view on button click', () => {

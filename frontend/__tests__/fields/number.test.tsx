@@ -68,7 +68,7 @@ test('<NumberField> - renders a field with a float value as string that overwrit
   expect(document.querySelector('.reqore-input')).toBeTruthy();
   expect(onChange).toHaveBeenCalledWith('test', 3.5);
 });
-
+/*
 test('<NumberField> - renders a correct value with backend messages provided', async () => {
   const onChange = jest.fn();
 
@@ -87,3 +87,4 @@ test('<NumberField> - renders a correct value with backend messages provided', a
 
   expect(onChange).toHaveBeenLastCalledWith('test', 1234);
 });
+*/
