@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`withMethods renders the wrapped component with the fields data and functions injected 1`] = `<div />`;
