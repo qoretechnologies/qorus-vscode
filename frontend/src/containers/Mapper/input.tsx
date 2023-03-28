@@ -100,7 +100,7 @@ const MapperInput: FC<IMapperInputProps> = ({
         ref={hasAvailableOutput ? dragRef : undefined}
         badge={{
           label: `${types.includes('nothing') ? '*' : ''}${type.base_type}`,
-          color: TYPE_COLORS[`${types[0].replace(/</g, '').replace(/>/g, '')}`],
+          color: TYPE_COLORS[`${types?.[0]?.replace(/</g, '').replace(/>/g, '')}`],
         }}
         description={description}
       >
