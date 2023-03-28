@@ -34,7 +34,7 @@ describe('MapperInput component', () => {
     jest.spyOn(dnd, 'useDrag').mockImplementation(() => [100, undefined, jest.fn()]);
   });
 
-  it.only('should render correctly', () => {
+  it('should render correctly', () => {
 
     render(
       <ReqoreUIProvider>
@@ -43,7 +43,7 @@ describe('MapperInput component', () => {
     );
   });
 
-  it.only('should render with a drag handle when hasAvailableOutput is true', () => {
+  it('should render with a drag handle when hasAvailableOutput is true', () => {
     const { container } = render(
       <ReqoreUIProvider>
         <MapperInput {...props} />
@@ -54,7 +54,7 @@ describe('MapperInput component', () => {
     ).toBeDefined();
   });
 
-  it.only('should call the onClick function when clicked', () => {
+  it('should call the onClick function when clicked', () => {
     render(
       <ReqoreUIProvider>
         <MapperInput {...props} />
@@ -64,7 +64,7 @@ describe('MapperInput component', () => {
     expect(props.onClick).toHaveBeenCalled();
   });
 
-  it.only('should render the name prop', () => {
+  it('should render the name prop', () => {
      render(
       <ReqoreUIProvider>
         <MapperInput {...props} name="Test" />
