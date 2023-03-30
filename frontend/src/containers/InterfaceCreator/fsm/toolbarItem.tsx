@@ -87,7 +87,7 @@ export const getStateStyle = (type, toolbar?: boolean) => {
   }
 };
 
-const StyledToolbarItem = styled.div<{ type: string; disabled?: boolean }>`
+export const StyledToolbarItem = styled.div<{ type: string; disabled?: boolean }>`
   width: 150px;
   height: 30px;
   border: 1px solid #d7d7d7;
