@@ -4,6 +4,7 @@ import {
   ReqoreTabs,
   ReqoreTabsContent,
   ReqoreTag,
+  ReqoreTagGroup,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import { useContext, useState } from 'react';
@@ -67,6 +68,18 @@ export const TemplateField = ({ value, name, onChange, component: Comp, ...rest 
   }, [templateKey, templateValue]);
 
   const t = useContext(TextContext);
+
+  if (rest.disabled) {
+    if (isTemplate) {
+      return (
+        <ReqoreTagGroup>
+          <ReqoreTag labelKey={`$${templateKey}:`} label={templateValue} />
+        </ReqoreTagGroup>
+      );
+    }
+
+    return <Comp value={value} onChange={onChange} name={name} {...rest} />;
+  }
 
   return (
     <ReqoreTabs

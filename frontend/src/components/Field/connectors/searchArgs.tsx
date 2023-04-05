@@ -7,8 +7,8 @@ import {
 } from '@qoretechnologies/reqore';
 import jsyaml from 'js-yaml';
 import { reduce, size } from 'lodash';
-import React, { useContext, useEffect } from 'react';
-import { useUpdateEffect } from 'react-use';
+import React, { useContext } from 'react';
+import { useDebounce, useUpdateEffect } from 'react-use';
 import { TRecordType } from '.';
 import { TTranslator } from '../../../App';
 import { InitialContext } from '../../../context/init';
@@ -29,6 +29,7 @@ export interface ISearchArgsProps {
   onChange: (name: string, value?: IOptions | IOptions[]) => void;
   hasOperators?: boolean;
   isFreeform?: boolean;
+  searchOptions?: IOptions;
 }
 
 export const RecordQueryArgs = ({
@@ -52,28 +53,42 @@ export const RecordQueryArgs = ({
     setIsValueSubmitted(false);
   }, [localValue]);
 
-  useEffect(() => {
-    if (qorus_instance) {
-      (async () => {
-        setHasLoaded(false);
-        setError(undefined);
-        // Set fields and operators to undefined
-        setOptions(undefined);
-        // Fetch the fields and operators
-        const fieldsData = await fetchData(insertUrlPartBeforeQuery(`/${url}`, `/record`));
-        // Set the data
-        if (fieldsData.error) {
-          setError({ title: fieldsData.error.error.err, desc: fieldsData.error.error.desc });
-        }
+  useDebounce(
+    () => {
+      if (qorus_instance) {
+        (async () => {
+          setHasLoaded(false);
+          setError(undefined);
+          // Set fields and operators to undefined
+          setOptions(undefined);
+          // Fetch the fields and operators
+          const fieldsData = await fetchData(insertUrlPartBeforeQuery(`/${url}`, `/record`));
+          // Set the data
+          if (fieldsData.error) {
+            setHasLoaded(true);
+            setError({ title: fieldsData.error.err, desc: fieldsData.error.desc });
+            return;
+          }
 
-        setHasLoaded(true);
-        setOptions(fieldsData.data);
-      })();
-    }
-  }, [url, qorus_instance]);
+          setHasLoaded(true);
+          setOptions(fieldsData.data);
+        })();
+      }
+    },
+    1000,
+    [url, qorus_instance]
+  );
 
   if (!hasLoaded) {
     return <ReqoreMessage intent="pending">{t(`LoadingArgs`)}</ReqoreMessage>;
+  }
+
+  if (error) {
+    return (
+      <ReqoreMessage intent="danger" title={error.title}>
+        {error.desc}
+      </ReqoreMessage>
+    );
   }
 
   if (!size(options)) {

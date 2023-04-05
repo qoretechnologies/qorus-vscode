@@ -34,12 +34,12 @@ const preview: Preview = {
                   saveDraft: () => {},
                   fetchData: async (url, method) => {
                     const data = await fetch(
-                      `https://sandbox.qoretechnologies.com/api/latest/${url}`,
+                      `https://hq.qoretechnologies.com:8092/api/latest/${url}`,
                       {
                         method,
                         headers: {
                           'Content-Type': 'application/json',
-                          Authorization: `Basic ${btoa('sandbox:sandbox')}`,
+                          Authorization: `Basic ${btoa('fwitosz:fwitosz42')}`,
                         },
                       }
                     );

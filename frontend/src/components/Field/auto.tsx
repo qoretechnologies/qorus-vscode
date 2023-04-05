@@ -34,6 +34,8 @@ export interface IAutoFieldProps extends IField {
   defaultInternalType?: IQorusType;
   noSoft?: boolean;
   allowed_values?: { name: string; desc?: string }[];
+  isConfigItem?: boolean;
+  isVariable?: boolean;
 }
 
 const AutoField: FunctionComponent<IAutoFieldProps> = ({
@@ -52,6 +54,8 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
   column,
   level = 0,
   canBeNull,
+  isConfigItem = true,
+  isVariable,
   ...rest
 }) => {
   const [currentType, setType] = useState<IQorusType>(defaultInternalType || null);
@@ -371,7 +375,8 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
             name={name}
             inline
             minimal
-            isConfigItem
+            isConfigItem={isConfigItem}
+            isVariable={isVariable}
             onChange={handleChange}
           />
         );

@@ -9,18 +9,18 @@ import size from 'lodash/size';
 import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
-import { maybeBuildOptionProvider } from '../components/Field/connectors';
+import { IProviderType, maybeBuildOptionProvider } from '../components/Field/connectors';
 import {
-  fixOperatorValue,
   IOptions,
   IOptionsSchemaArg,
   IQorusType,
   TOption,
+  fixOperatorValue,
 } from '../components/Field/systemOptions';
 import { getTemplateKey, getTemplateValue, isValueTemplate } from '../components/Field/template';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { IField } from '../components/FieldWrapper';
-import { TTrigger } from '../containers/InterfaceCreator/fsm';
+import { TTrigger, TVariableActionValue } from '../containers/InterfaceCreator/fsm';
 import { splitByteSize } from './functions';
 
 const cron = require('cron-validator');
@@ -238,6 +238,40 @@ export const validateField: (
       const [code, method] = value.split('::');
       // Both fields need to be strings & filled
       return validateField('string', code) && validateField('string', method);
+    case 'var-action': {
+      const varAction: TVariableActionValue = value;
+
+      if (varAction.var_type !== 'var' && varAction.var_type !== 'transient') {
+        return false;
+      }
+
+      if (!validateField('string', varAction.var_name, { has_to_have_value: true })) {
+        return false;
+      }
+
+      if (!validateField('string', varAction.action_type, { has_to_have_value: true })) {
+        return false;
+      }
+
+      // If the action type is transaction, the transaction_action needs to be set
+      if (varAction.action_type === 'transaction') {
+        if (!validateField('string', varAction.transaction_action, { has_to_have_value: true })) {
+          return false;
+        }
+
+        return true;
+      }
+
+      // If the variable data is missing
+      if (!field?.variableData?.value) {
+        return false;
+      }
+
+      // Get the variable data
+      const variableData: TVariableActionValue = { ...value, ...field.variableData.value };
+
+      return validateField(varAction.action_type, variableData, field);
+    }
     case 'type-selector':
     case 'data-provider':
     case 'api-call':
@@ -247,7 +281,7 @@ export const validateField: (
     case 'update':
     case 'delete':
     case 'create':
-      let newValue = maybeBuildOptionProvider(value);
+      let newValue: IProviderType = maybeBuildOptionProvider(value);
 
       if (!newValue) {
         return false;
@@ -255,6 +289,22 @@ export const validateField: (
 
       // Api call only supports  requests / response
       if (type === 'api-call' && !value.supports_request) {
+        return false;
+      }
+
+      // If the provider is from FSM variables, it needs pass this
+      if (
+        field?.isVariable &&
+        !(
+          newValue.supports_read ||
+          newValue.supports_create ||
+          newValue.supports_update ||
+          newValue.supports_delete ||
+          newValue.supports_request ||
+          newValue.supports_messages ||
+          newValue.transaction_management
+        )
+      ) {
         return false;
       }
 
@@ -334,15 +384,19 @@ export const validateField: (
           options = validateField('system-options', newValue.options);
         }
 
-        if (newValue.search_options) {
-          options = validateField('system-options', newValue.search_options);
-        }
-
         // Type path and name are required
         return !!(newValue.type && newValue.name && options);
       }
 
-      return !!(newValue.type && newValue.path && newValue.name);
+      if (newValue.record_requires_search_options && newValue.searchOptionsChanged) {
+        return false;
+      }
+
+      if (newValue.search_options && !validateField('system-options', newValue.search_options)) {
+        return false;
+      }
+
+      return !!(newValue.type && newValue.name);
     case 'context-selector':
       if (isString(value)) {
         const cont: string[] = value.split(':');

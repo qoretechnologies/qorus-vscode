@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash';
-import { IFSMState, IFSMStates } from '../containers/InterfaceCreator/fsm';
+import { IFSMMetadata, IFSMState, IFSMStates } from '../containers/InterfaceCreator/fsm';
 import { getStateBoundingRect } from './diagram';
 
 export const autoAlign = (states: IFSMStates, config?: IAutoAlignConfig) => {
@@ -331,3 +331,18 @@ export interface IAutoAlignConfig {
   rowHeight?: number;
   grid?: IGrid[];
 }
+
+export const getVariable = (
+  varName: string,
+  varType: 'transient' | 'var',
+  metadata: IFSMMetadata
+) => {
+  const transient = metadata?.transient || {};
+  const vars = metadata?.var || {};
+
+  if (varType === 'transient') {
+    return transient[varName];
+  }
+
+  return vars[varName];
+};

@@ -9,13 +9,22 @@ import { getStateColor, TStateTypes } from './state';
 export interface IFSMToolbarItemProps {
   children: any;
   name: string;
+  stateName?: string;
   count?: number;
   type: string;
   disabled?: boolean;
-  onDoubleClick: (name: string, type: string, stateType: string) => any;
+  onDoubleClick: (
+    name: string,
+    type: string,
+    stateType: string,
+    varType?: 'transient' | 'var',
+    varName?: string
+  ) => any;
   onDragStart: () => void;
   category: TStateTypes;
   parentStateName?: string;
+  description?: string;
+  varType?: 'transient' | 'var';
 }
 
 export const getStateStyle = (type, toolbar?: boolean) => {
@@ -167,6 +176,7 @@ export const FSMItemDescByType: Record<string, string> = {
   update: 'Update records in a data provider',
   delete: 'Delete records in a data provider',
   'send-message': 'Send a message to a channel',
+  'var-action': 'Action from a variable',
 };
 
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
@@ -179,13 +189,16 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   onDragStart,
   category,
   parentStateName,
+  description,
+  stateName,
+  varType,
 }) => {
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
     item: () => {
       onDragStart?.();
 
-      return { name, type: TOOLBAR_ITEM_TYPE, stateType: type };
+      return { name, type: TOOLBAR_ITEM_TYPE, stateType: type, varType, varName: stateName };
     },
     previewOptions: {
       anchorX: 0,
@@ -195,17 +208,17 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
 
   return (
     <ReqoreMenuItem
-      id={`${parentStateName ? camelCase(parentStateName) : ''}${type}`}
+      id={`${parentStateName ? camelCase(parentStateName) : ''}${type}${stateName || ''}`}
       ref={!disabled ? drag : undefined}
       flat={false}
-      description={FSMItemDescByType[type]}
+      description={description || FSMItemDescByType[type]}
       badge={count}
       icon={FSMItemIconByType[type]}
       effect={{
         gradient: getStateColor(category),
       }}
       onDoubleClick={() => {
-        onDoubleClick(name, TOOLBAR_ITEM_TYPE, type);
+        onDoubleClick(name, TOOLBAR_ITEM_TYPE, type, varType, stateName);
       }}
     >
       {children}

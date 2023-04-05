@@ -23,7 +23,7 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { insertAtIndex } from '../../../helpers/functions';
 import { useGetInputOutputType } from '../../../hooks/useGetInputOutputType';
-import { IFSMState, STATE_ITEM_TYPE } from './';
+import { IFSMState, STATE_ITEM_TYPE, TVariableActionValue } from './';
 import { FSMItemIconByType } from './toolbarItem';
 
 export interface IFSMStateProps extends IFSMState {
@@ -58,18 +58,18 @@ export interface IFSMStateStyleProps {
   error?: boolean;
 }
 
-export type TStateTypes = 'interfaces' | 'logic' | 'api' | 'other';
+export type TStateTypes = 'interfaces' | 'logic' | 'api' | 'other' | 'variables';
 
 export const getCategoryColor = (category: TStateTypes): TReqoreHexColor => {
   switch (category) {
     case 'interfaces':
       return '#e8970b';
-
     case 'logic':
       return '#3b3b3b';
-
     case 'api':
       return '#1914b0';
+    case 'variables':
+      return '#14b06f';
     default:
       return '#950ea1';
   }
@@ -86,6 +86,9 @@ export const getStateColor = (stateType: TStateTypes): IReqoreEffect['gradient']
       break;
     case 'api':
       color = '#1914b0';
+      break;
+    case 'variables':
+      color = '#14b06f';
       break;
     default:
       color = '#950ea1';
@@ -173,6 +176,10 @@ export const getStateCategory = (type: string): TStateTypes => {
     return 'logic';
   }
 
+  if (type === 'var-action') {
+    return 'variables';
+  }
+
   if (type === 'apicall' || type === 'send-message') {
     return 'api';
   }
@@ -197,6 +204,10 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
 
   if (!action || !action.type || !action.value) {
     return '';
+  }
+
+  if (action.type === 'var-action') {
+    return (action.value as TVariableActionValue).var_name;
   }
 
   if (action.value?.class) {
@@ -380,8 +391,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
             }
           : 'Loading type information...'
       }
-      headerSize={2}
       onMouseDown={(e) => e.stopPropagation()}
+      iconProps={{ size: '25px' }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       minimal
@@ -497,7 +508,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           <ReqoreVerticalSpacer height={10} />
         </>
       ) : null}
-      <ReqoreControlGroup size="small" wrap fluid fill>
+      <ReqoreControlGroup size="small" wrap fluid fill vertical>
         <ReqoreControlGroup stack fill fluid>
           <ReqoreTag
             wrap
@@ -508,6 +519,18 @@ const FSMState: React.FC<IFSMStateProps> = ({
           />
           <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
         </ReqoreControlGroup>
+        {action.type === 'var-action' ? (
+          <ReqoreControlGroup stack fill fluid>
+            <ReqoreTag
+              wrap
+              fixed
+              color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
+              effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
+              label="Action type"
+            />
+            <ReqoreTag minimal wrap label={(action.value as TVariableActionValue)?.action_type} />
+          </ReqoreControlGroup>
+        ) : null}
       </ReqoreControlGroup>
     </StyledFSMState>
   );

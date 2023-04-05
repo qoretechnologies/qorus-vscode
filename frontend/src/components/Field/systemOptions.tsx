@@ -95,6 +95,7 @@ export type IQorusType =
   | 'int'
   | 'list'
   | 'bool'
+  | 'boolean'
   | 'float'
   | 'binary'
   | 'hash'
@@ -161,6 +162,8 @@ export interface IOptionsProps {
   noValueString?: string;
   isValid?: boolean;
   onOptionsLoaded?: (options: IOptionsSchema) => void;
+  recordRequiresSearchOptions?: boolean;
+  readOnly?: boolean;
 }
 
 export const getTypeAndCanBeNull = (
@@ -198,6 +201,8 @@ const Options = ({
   noValueString,
   isValid,
   onOptionsLoaded,
+  recordRequiresSearchOptions,
+  readOnly,
   ...rest
 }: IOptionsProps) => {
   const t: any = useContext(TextContext);
@@ -258,6 +263,7 @@ const Options = ({
         setLoading(true);
         // Fetch the options for this mapper type
         const data = await fetchData(getUrl());
+
         if (data.error) {
           setLoading(false);
           setOptions({});
@@ -432,8 +438,30 @@ const Options = ({
     {}
   );
 
+  const getIntent = (name, type, value, op) => {
+    const intent =
+      validateField(getType(type), value, {
+        has_to_have_value: true,
+        ...options[name],
+      }) && (operatorsUrl ? !!op : true)
+        ? undefined
+        : recordRequiresSearchOptions
+        ? 'info'
+        : 'danger';
+
+    return intent;
+  };
+
   return (
     <>
+      {recordRequiresSearchOptions && !readOnly ? (
+        <>
+          <ReqoreMessage intent="info">
+            This provider record requires some search options to be set. You can set them below.
+          </ReqoreMessage>
+          <ReqoreVerticalSpacer height={10} />
+        </>
+      ) : null}
       <ReqoreCollection
         label="Options"
         minColumnWidth="400px"
@@ -453,13 +481,7 @@ const Options = ({
             customTheme: {
               main: 'main:lighten',
             },
-            intent:
-              validateField(getType(type), other.value, {
-                has_to_have_value: true,
-                ...options[optionName],
-              }) && (operatorsUrl ? !!other.op : true)
-                ? undefined
-                : 'danger',
+            intent: getIntent(optionName, type, other.value, other.op),
             badge: getType(options[optionName].type),
             tooltip: {
               ...getGlobalDescriptionTooltip(options[optionName].desc, optionName),
@@ -470,7 +492,7 @@ const Options = ({
               {
                 icon: 'DeleteBinLine',
                 intent: 'danger',
-                show: !options[optionName].required,
+                show: !options[optionName].required && !readOnly,
                 onClick: () => {
                   confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
                 },
@@ -489,6 +511,7 @@ const Options = ({
                               name: operator.name,
                               desc: operator.desc,
                             }))}
+                            disabled={readOnly}
                             value={operator && `${operators?.[operator].name}`}
                             onChange={(_n, val) => {
                               if (val !== undefined) {
@@ -506,6 +529,7 @@ const Options = ({
                           operators[operator].supports_nesting ? (
                             <ReqoreButton
                               icon="AddLine"
+                              disabled={readOnly}
                               fixed
                               effect={PositiveColorEffect}
                               onClick={() => handleAddOperator(optionName, fixedValue, index + 1)}
@@ -513,6 +537,7 @@ const Options = ({
                           ) : null}
                           {size(fixOperatorValue(other.op)) > 1 ? (
                             <ReqoreButton
+                              disabled={readOnly}
                               icon="DeleteBinLine"
                               effect={NegativeColorEffect}
                               fixed
@@ -540,12 +565,15 @@ const Options = ({
                       );
                     }
                   }}
+                  key={optionName}
                   arg_schema={options[optionName]?.arg_schema}
                   noSoft={!!rest?.options}
                   value={other.value}
                   sensitive={options[optionName].sensitive}
                   default_value={options[optionName].default_value}
                   allowed_values={options[optionName].allowed_values}
+                  disabled={readOnly}
+                  readOnly={readOnly}
                 />
                 {operators && size(operators) && size(other.op) ? (
                   <>
@@ -573,19 +601,21 @@ const Options = ({
         )}
       />
 
-      <ReqoreVerticalSpacer height={10} />
-      {size(filteredOptions) >= 1 && (
-        <SelectField
-          name="options"
-          defaultItems={Object.keys(filteredOptions).map((option) => ({
-            name: option,
-            desc: options[option].desc,
-          }))}
-          fill
-          onChange={(_name, value) => addSelectedOption(value)}
-          placeholder={`${t(placeholder || 'AddNewOption')} (${size(filteredOptions)})`}
-        />
-      )}
+      {size(filteredOptions) >= 1 && !readOnly ? (
+        <>
+          <ReqoreVerticalSpacer height={10} />
+          <SelectField
+            name="options"
+            defaultItems={Object.keys(filteredOptions).map((option) => ({
+              name: option,
+              desc: options[option].desc,
+            }))}
+            fill
+            onChange={(_name, value) => addSelectedOption(value)}
+            placeholder={`${t(placeholder || 'AddNewOption')} (${size(filteredOptions)})`}
+          />
+        </>
+      ) : null}
     </>
   );
 };

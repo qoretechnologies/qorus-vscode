@@ -1,3 +1,4 @@
+import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { camelCase, map } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
@@ -7,7 +8,7 @@ import shortid from 'shortid';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
 import BooleanField from '../../../components/Field/boolean';
-import Connectors from '../../../components/Field/connectors';
+import Connectors, { IProviderType } from '../../../components/Field/connectors';
 import LongStringField from '../../../components/Field/longString';
 import {
   PositiveColorEffect,
@@ -15,7 +16,7 @@ import {
   WarningColorEffect,
 } from '../../../components/Field/multiPair';
 import RadioField from '../../../components/Field/radioField';
-import SelectField from '../../../components/Field/select';
+import { default as Select, default as SelectField } from '../../../components/Field/select';
 import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
 import FieldGroup from '../../../components/FieldGroup';
@@ -23,12 +24,13 @@ import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import { Messages } from '../../../constants/messages';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { getVariable } from '../../../helpers/fsm';
 import { getMaxExecutionOrderFromStates } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
 import ConfigItemManager from '../../ConfigItemManager';
 import ManageConfigItemsButton from '../../ConfigItemManager/manageButton';
-import FSMView, { IFSMState, IFSMStates } from './';
+import FSMView, { IFSMMetadata, IFSMState, IFSMStates, TVariableActionValue } from './';
 import ConnectorSelector from './connectorSelector';
 import { ConditionField, isConditionValid } from './transitionDialog';
 
@@ -43,6 +45,7 @@ export interface IFSMStateDialogProps {
   interfaceId: string;
   postMessage: TPostMessage;
   disableInitial?: boolean;
+  metadata?: IFSMMetadata;
 }
 
 export enum StateTypes {
@@ -57,6 +60,7 @@ export enum StateTypes {
   update = 'update',
   delete = 'delete',
   'send-message' = 'send-message',
+  'var-action' = 'var-action',
 }
 
 export type TAction = keyof typeof StateTypes;
@@ -73,6 +77,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   interfaceId,
   postMessage,
   disableInitial,
+  metadata,
 }) => {
   const [newData, setNewData] = useState<IFSMState>(data);
   const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
@@ -199,6 +204,21 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'search-single': {
         return validateField(actionType, newData?.action?.value);
       }
+      case 'var-action': {
+        const currentValue = newData?.action?.value as TVariableActionValue;
+        // We need to get the value from the variable
+        const variableData: { value: IProviderType } = getVariable(
+          currentValue?.var_name,
+          currentValue?.var_type,
+          metadata
+        );
+
+        if (!variableData) {
+          return false;
+        }
+
+        return validateField('var-action', newData?.action?.value, { variableData });
+      }
       default: {
         return true;
       }
@@ -207,6 +227,159 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
   const renderActionField = () => {
     switch (actionType) {
+      case 'var-action': {
+        const currentValue = newData?.action?.value as TVariableActionValue;
+        const actionValueType = currentValue?.action_type;
+        // We need to get the value from the variable
+        const variableData: { value: IProviderType } = getVariable(
+          currentValue?.var_name,
+          currentValue?.var_type,
+          metadata
+        );
+        // We need to combine the variable value & the action value
+        const value = {
+          ...variableData.value,
+          ...currentValue,
+        };
+
+        const getActionValueTypeItems = () => {
+          const items = [];
+
+          if (value.supports_read) {
+            items.push({ name: 'search' });
+            items.push({ name: 'search-single' });
+          }
+
+          if (value.supports_create) {
+            items.push({ name: 'create' });
+          }
+
+          if (value.supports_update) {
+            items.push({ name: 'update' });
+          }
+
+          if (value.supports_delete) {
+            items.push({ name: 'delete' });
+          }
+
+          if (value.supports_messages) {
+            items.push({ name: 'send-message' });
+          }
+
+          if (value.supports_request) {
+            items.push({ name: 'apicall' });
+          }
+
+          if (value.transaction_management) {
+            items.push({ name: 'transaction' });
+          }
+
+          return items;
+        };
+
+        return (
+          <>
+            <Select
+              value={actionValueType}
+              fluid
+              description="The action to perform on the variable"
+              defaultItems={getActionValueTypeItems()}
+              onChange={(_name, value) =>
+                handleDataUpdate('action', {
+                  type: actionType,
+                  value: { ...currentValue, action_type: value },
+                })
+              }
+            />
+            <ReqoreVerticalSpacer height={10} />
+
+            {actionValueType ? (
+              <Connectors
+                name={actionValueType}
+                // If the VARIABLE itself has search options, we need to disable the search options
+                // so the user can't change them
+                disableSearchOptions={!!variableData.value.search_options}
+                inline
+                minimal
+                key={actionValueType}
+                recordType={actionValueType}
+                isInitialEditing={!!data?.action?.value}
+                readOnly
+                info={
+                  <>
+                    <ReqoreMessage intent="info">
+                      This provider is read only because it is defined in a variable. You can edit
+                      the variable to change the provider configuration.
+                    </ReqoreMessage>
+                    <ReqoreVerticalSpacer height={10} />
+                  </>
+                }
+                onChange={(_name, providerValue: IProviderType) => {
+                  // We need to remove the duplicate data from the providerValue
+                  const {
+                    'search-single_args': searchSingleArgs,
+                    args,
+                    create_args,
+                    is_api_call,
+                    message,
+                    search_args,
+                    search_options,
+                    update_args,
+                    delete_args,
+                    use_args,
+                    message_id,
+                    options,
+                  } = providerValue;
+
+                  handleDataUpdate('action', {
+                    type: actionType,
+                    value: {
+                      ...currentValue,
+                      ...{
+                        'search-single_args': searchSingleArgs,
+                        args,
+                        create_args,
+                        is_api_call,
+                        message,
+                        search_args,
+                        search_options,
+                        update_args,
+                        delete_args,
+                        use_args,
+                        message_id,
+                        options,
+                      },
+                    },
+                  });
+                }}
+                value={value}
+              />
+            ) : null}
+            {actionValueType && actionValueType === 'transaction' ? (
+              <>
+                <ReqoreMessage intent="info">
+                  Please select the transaction action you want to perform
+                </ReqoreMessage>
+                <ReqoreVerticalSpacer height={10} />
+                <Select
+                  value={value?.transaction_action}
+                  defaultItems={[
+                    { name: 'begin-transaction', desc: 'Begin a transaction' },
+                    { name: 'commit', desc: 'Commit a transaction' },
+                    { name: 'rollback', desc: 'Rollback a transaction' },
+                  ]}
+                  onChange={(_name, value) =>
+                    handleDataUpdate('action', {
+                      type: actionType,
+                      value: { ...currentValue, transaction_action: value },
+                    })
+                  }
+                />
+              </>
+            ) : null}
+          </>
+        );
+      }
       case 'mapper': {
         return (
           <SelectField
@@ -548,33 +721,39 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           ) : null}
           {newData.type === 'state' && (
             <>
-              <FieldWrapper
-                label={t('Action')}
-                isValid={isActionValid()}
-                type={t('Optional')}
-                collapsible={false}
-              >
-                <SelectField
-                  defaultItems={map(StateTypes, (stateType) =>
-                    stateType !== 'none'
-                      ? {
-                          name: stateType,
-                          desc: t(`field-desc-state-${stateType}`),
-                        }
-                      : null
-                  ).filter((stateType) => stateType)}
-                  fluid
-                  onChange={(_name, value) => {
-                    handleDataUpdate('action', value === data?.action?.type ? data?.action : null);
-                    handleDataUpdate('id', data.id || shortid.generate());
-                    setActionType(value);
-                  }}
-                  value={actionType}
-                  placeholder={t('field-placeholder-action')}
-                  disabled={newData.injected}
-                  name="action"
-                />
-              </FieldWrapper>
+              {data.action.type !== 'var-action' ? (
+                <FieldWrapper
+                  label={t('Action')}
+                  isValid={isActionValid()}
+                  type={t('Optional')}
+                  collapsible={false}
+                >
+                  <SelectField
+                    defaultItems={map(StateTypes, (stateType) =>
+                      stateType !== 'none'
+                        ? {
+                            name: stateType,
+                            desc: t(`field-desc-state-${stateType}`),
+                          }
+                        : null
+                    ).filter((stateType) => stateType)}
+                    fluid
+                    onChange={(_name, value) => {
+                      handleDataUpdate(
+                        'action',
+                        value === data?.action?.type ? data?.action : null
+                      );
+                      handleDataUpdate('id', data.id || shortid.generate());
+                      setActionType(value);
+                    }}
+                    value={actionType}
+                    placeholder={t('field-placeholder-action')}
+                    disabled={newData.injected}
+                    name="action"
+                  />
+                </FieldWrapper>
+              ) : null}
+              {}
               {actionType && actionType !== 'none' ? (
                 <FieldWrapper
                   isValid={isActionValid()}

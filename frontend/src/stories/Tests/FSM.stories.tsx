@@ -3,13 +3,13 @@ import { StoryObj } from '@storybook/react';
 import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
-import { StoryMeta } from '../types';
 import { NewState } from '../Views/FSM.stories';
+import { StoryMeta } from '../types';
 import {
-  sleep,
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
   _testsSubmitFSMState,
+  sleep,
 } from './utils';
 
 const meta = {
@@ -96,6 +96,112 @@ export const SelectedStateChange: StoryFSM = {
     await fireEvent.click(document.querySelector('#state-1'));
 
     await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
+  },
+};
+
+export const NewVariableState: StoryFSM = {
+  play: async ({ canvasElement, mapperId = 'mapper', ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await SwitchesToBuilder.play({ canvasElement, ...rest });
+
+    // Open the variables dialog
+    await waitFor(async () => {
+      await fireEvent.click(document.querySelector('#fsm-variables'));
+      await expect(document.querySelector('#create-new-variable')).toBeInTheDocument();
+    });
+
+    await fireEvent.click(document.querySelector('#create-new-variable'));
+    await expect(document.querySelector('#save-variable')).toBeDisabled();
+
+    await fireEvent.change(document.querySelectorAll('.reqore-input')[0], {
+      target: { value: 'testVariable' },
+    });
+    await fireEvent.change(document.querySelectorAll('.reqore-textarea')[0], {
+      target: { value: 'This is a test description' },
+    });
+    await waitFor(_testsSelectItemFromDropdown(canvas, 'data-provider', 'string'));
+
+    await fireEvent.click(document.querySelector('.provider-type-selector'));
+    await fireEvent.click(canvas.getByText('datasource'));
+    await waitFor(
+      async () => {
+        await fireEvent.click(document.querySelector('.provider-selector'));
+        await fireEvent.click(canvas.getAllByText('omquser')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    await sleep(1000);
+
+    await waitFor(
+      async () => {
+        await fireEvent.change(document.querySelectorAll('.reqore-textarea')[1], {
+          target: { value: 'SELECT * FROM gl_record' },
+        });
+        await sleep(1000);
+        await fireEvent.click(canvas.getAllByText('Apply search options')[0]);
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    await sleep(1000);
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('#save-variable')).toBeEnabled();
+        await fireEvent.click(document.querySelector('#save-variable'));
+        await fireEvent.click(document.querySelector('#submit-variables'));
+      },
+      {
+        timeout: 5000,
+      }
+    );
+
+    await fireEvent.dblClick(document.querySelector(`#var-actiontestVariable`));
+    await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());
+    expect(document.querySelector('#state-1')).toBeInTheDocument();
+
+    // The submit button needs to be disabled
+    //await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await waitFor(_testsSelectItemFromDropdown(canvas, 'search-single'), { timeout: 5000 });
+    await waitFor(_testsSelectItemFromCollection(canvas, 'invoice_amount', 'AddArgument (39)'), {
+      timeout: 5000,
+    });
+
+    // Fill the search arg selected
+    await waitFor(
+      async () => {
+        await fireEvent.change(document.querySelectorAll('.system-option .reqore-input')[0], {
+          target: {
+            value: '100',
+          },
+        });
+        await sleep(500);
+      },
+      { timeout: 5000 }
+    );
+
+    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+
+    // Submit the state
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+
+    // Open the state
+    await waitFor(
+      async () => {
+        await expect(canvas.getByText('State 1')).toBeInTheDocument();
+        await sleep(500);
+        await fireEvent.click(document.querySelector(`#state-1`));
+        await sleep(1500);
+        await expect(document.querySelectorAll('.system-option.reqore-input')[0]).toHaveValue(100);
+      },
+      { timeout: 15000 }
+    );
   },
 };
 
@@ -267,7 +373,6 @@ export const NewApiCallState: StoryFSM = {
 
     await waitFor(
       async () => {
-        //await expect(document.querySelector('.provider-selector')).toBeInTheDocument();
         await fireEvent.click(document.querySelector('.provider-selector'));
         await fireEvent.click(canvas.getAllByText('qorus-api')[0]);
       },
@@ -417,12 +522,14 @@ export const NewSingleSearchState: StoryFSM = {
 
     await waitFor(
       async () => {
+        await canvas.findAllByText('AddNewOption (1)')[0];
         await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await sleep(1000);
         await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
       },
       {
-        timeout: 5000,
+        timeout: 10000,
       }
     );
 
@@ -504,6 +611,8 @@ export const NewUpdateState: StoryFSM = {
       }
     );
 
+    await sleep(1000);
+
     await waitFor(
       async () => {
         await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
@@ -569,6 +678,8 @@ export const NewCreateFromFormState: StoryFSM = {
         timeout: 5000,
       }
     );
+
+    await sleep(1000);
 
     await waitFor(
       async () => {
@@ -645,6 +756,8 @@ export const NewCreateFromTextState: StoryFSM = {
         timeout: 5000,
       }
     );
+
+    await sleep(1000);
 
     await waitFor(
       async () => {
