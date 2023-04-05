@@ -519,7 +519,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           />
           <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
         </ReqoreControlGroup>
-        {action.type === 'var-action' ? (
+        {action?.type === 'var-action' ? (
           <ReqoreControlGroup stack fill fluid>
             <ReqoreTag
               wrap
