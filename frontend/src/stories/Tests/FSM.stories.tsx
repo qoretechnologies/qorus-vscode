@@ -616,6 +616,7 @@ export const NewUpdateState: StoryFSM = {
       async () => {
         await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await sleep(1000);
         await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
       },
       {
@@ -684,6 +685,7 @@ export const NewCreateFromFormState: StoryFSM = {
       async () => {
         await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await sleep(1000);
         await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
       },
       {
@@ -762,6 +764,7 @@ export const NewCreateFromTextState: StoryFSM = {
       async () => {
         await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await sleep(1000);
         await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
       },
       {
