@@ -426,6 +426,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 
                 if (!isEqual(optionProvider.options, val)) {
                   result.optionsChanged = true;
+                } else {
+                  result.optionsChanged = false;
                 }
 
                 return result;
@@ -546,6 +548,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 
                 if (!isEqual(optionProvider?.search_options, val)) {
                   result.searchOptionsChanged = true;
+                } else {
+                  result.searchOptionsChanged = false;
                 }
 
                 return result;

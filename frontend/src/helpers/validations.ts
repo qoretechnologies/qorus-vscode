@@ -311,31 +311,31 @@ export const validateField: (
       // Send message only supports messages
       if (
         type === 'send-message' &&
-        (!value.supports_messages || !value.message_id || !value.message)
+        (!newValue.supports_messages || !newValue.message_id || !newValue.message)
       ) {
         return false;
       }
 
-      if (value.message_id) {
-        if (!validateField('string', value.message_id)) {
+      if (newValue.message_id) {
+        if (!validateField('string', newValue.message_id)) {
           return false;
         }
 
-        if (!value.message || !validateField(value.message.type, value.message.value)) {
+        if (!newValue.message || !validateField(newValue.message.type, newValue.message.value)) {
           return false;
         }
       }
 
-      if (value.use_args) {
-        if (value.args?.type !== 'nothing') {
-          if (!value.args) {
+      if (newValue.use_args) {
+        if (newValue.args?.type !== 'nothing') {
+          if (!newValue.args) {
             return false;
           }
 
           if (
             !validateField(
-              value.args.type === 'hash' ? 'system-options' : value.args.type,
-              value.args.value
+              newValue.args.type === 'hash' ? 'system-options' : newValue.args.type,
+              newValue.args.value
             )
           ) {
             return false;
@@ -345,8 +345,8 @@ export const validateField: (
 
       if (
         (type === 'search-single' || type === 'search') &&
-        size(value.search_args) !== 0 &&
-        !validateField('system-options-with-operators', value.search_args)
+        size(newValue.search_args) !== 0 &&
+        !validateField('system-options-with-operators', newValue.search_args)
       ) {
         return false;
       }
@@ -356,19 +356,19 @@ export const validateField: (
       if (isUpdateOrCreate) {
         const areNormalArgsInvalid =
           `${type}_args` in value &&
-          (size(value[`${type}_args`]) === 0 ||
-            !validateField('system-options', value[`${type}_args`]));
+          (size(newValue[`${type}_args`]) === 0 ||
+            !validateField('system-options', newValue[`${type}_args`]));
 
         const areFreeFormArgsInvalid =
           `${type}_args_freeform` in value &&
-          (size(value[`${type}_args_freeform`]) === 0 ||
-            !validateField('list-of-hashes', value[`${type}_args_freeform`]));
+          (size(newValue[`${type}_args_freeform`]) === 0 ||
+            !validateField('list-of-hashes', newValue[`${type}_args_freeform`]));
 
-        if (`${type}_args` in value && areNormalArgsInvalid) {
+        if (`${type}_args` in newValue && areNormalArgsInvalid) {
           return false;
         }
 
-        if (`${type}_args_freeform` in value && areFreeFormArgsInvalid) {
+        if (`${type}_args_freeform` in newValue && areFreeFormArgsInvalid) {
           return false;
         }
       }

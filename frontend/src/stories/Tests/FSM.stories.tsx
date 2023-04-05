@@ -522,7 +522,6 @@ export const NewSingleSearchState: StoryFSM = {
 
     await waitFor(
       async () => {
-        await canvas.findAllByText('AddNewOption (1)')[0];
         await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
         await sleep(1000);
