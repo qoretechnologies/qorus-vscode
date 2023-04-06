@@ -416,6 +416,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
       {provider === 'factory' && optionProvider ? (
         <SubField title={t('FactoryOptions')}>
           <Options
+            readOnly={readOnly}
             onOptionsLoaded={(options) => setAvailableOptions(options)}
             onChange={(nm, val) => {
               setOptionProvider((cur: IProviderType | null) => {
@@ -440,7 +441,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
         </SubField>
       ) : null}
       {/* This means that we are working with a Message provider */}
-      {isMessage && optionProvider?.supports_messages ? (
+      {optionProvider?.supports_messages ? (
         <>
           <SubField title={t('MessageType')} desc={t('SelectMessageType')}>
             <ProviderMessageSelector
