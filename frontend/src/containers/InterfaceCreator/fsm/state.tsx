@@ -317,11 +317,10 @@ const FSMState: React.FC<IFSMStateProps> = ({
           glow: shouldWiggle
             ? {
                 color: selectedState === id ? 'info' : 'success',
-                size: 2,
-                blur: 40,
+                size: 5,
+                blur: 10,
               }
             : undefined,
-          opacity: isIsolated ? 0.7 : 1,
         } as IReqoreEffect
       }
       icon={FSMItemIconByType[action?.type || type]}

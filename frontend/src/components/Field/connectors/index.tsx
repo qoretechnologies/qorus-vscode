@@ -1,5 +1,5 @@
 import { ReqoreMessage } from '@qoretechnologies/reqore';
-import { cloneDeep, isEqual, map, reduce } from 'lodash';
+import { cloneDeep, isEqual, map, omit, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useState } from 'react';
 import { useDebounce } from 'react-use';
@@ -63,7 +63,7 @@ export interface IProviderType extends TProviderTypeSupports, TProviderTypeArgs 
   use_args?: boolean;
   args?: any;
   supports_request?: boolean;
-  supports_messages?: 'ASYNC' | 'SYNC';
+  supports_messages?: 'ASYNC' | 'SYNC' | 'NONE';
   transaction_management?: boolean;
   record_requires_search_options?: boolean;
   is_api_call?: boolean;
@@ -420,6 +420,10 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             onOptionsLoaded={(options) => setAvailableOptions(options)}
             onChange={(nm, val) => {
               setOptionProvider((cur: IProviderType | null) => {
+                if (size(val) === 0) {
+                  return omit(cur, ['options', 'optionsChanged']);
+                }
+
                 const result: IProviderType = {
                   ...cur,
                   options: val,
@@ -441,7 +445,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
         </SubField>
       ) : null}
       {/* This means that we are working with a Message provider */}
-      {optionProvider?.supports_messages ? (
+      {optionProvider?.supports_messages && optionProvider?.supports_messages !== 'NONE' ? (
         <>
           <SubField title={t('MessageType')} desc={t('SelectMessageType')}>
             <ProviderMessageSelector
@@ -542,6 +546,11 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             readOnly={readOnly && disableSearchOptions}
             onChange={(_nm, val) => {
               setOptionProvider((cur: IProviderType | null) => {
+                // If there are no options then we need to remove the options object all together
+                if (size(val) === 0) {
+                  return omit(cur, ['search_options', 'searchOptionsChanged']);
+                }
+
                 const result: IProviderType = {
                   ...cur,
                   search_options: val,
