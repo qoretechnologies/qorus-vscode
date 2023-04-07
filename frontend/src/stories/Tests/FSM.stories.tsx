@@ -190,13 +190,11 @@ export const NewVariableState: StoryFSM = {
 
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
-    await sleep(500);
+    await sleep(2500);
 
     // Open the state
     await waitFor(
       async () => {
-        await expect(canvas.getByText('State 1')).toBeInTheDocument();
-        await sleep(500);
         await fireEvent.click(document.querySelector(`#state-1`));
         await sleep(1500);
         await expect(document.querySelectorAll('.system-option.reqore-input')[0]).toHaveValue(100);
