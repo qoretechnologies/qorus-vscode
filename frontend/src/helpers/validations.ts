@@ -392,8 +392,6 @@ export const validateField: (
         return false;
       }
 
-      console.log(newValue);
-
       if (newValue.search_options && !validateField('system-options', newValue.search_options)) {
         return false;
       }

@@ -14,7 +14,7 @@ import {
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { css } from 'styled-components';
 import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
@@ -268,11 +268,13 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const [shouldWiggle, setShouldWiggle] = useState<boolean>(false);
   const [isCompatible, setIsCompatible] = useState<boolean>(null);
   const [isLoadingCheck, setIsLoadingCheck] = useState<boolean>(false);
+  const clicks = useRef(0);
   const { addMenu } = useContext(ContextMenuContext);
   const t = useContext(TextContext);
   const { qorus_instance } = useContext(InitialContext);
   const theme = useReqoreTheme();
   const { inputType, outputType } = useGetInputOutputType(stateInputProvider, stateOutputProvider);
+  const clicksTimeout = useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -297,8 +299,24 @@ const FSMState: React.FC<IFSMStateProps> = ({
     })();
   }, [selectedState]);
 
-  const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: string) => any) => {
-    func?.(id);
+  const handleClick = () => {
+    clicks.current += 1;
+
+    clearTimeout(clicksTimeout.current);
+    clicksTimeout.current = null;
+    clicksTimeout.current = setTimeout(() => {
+      if (clicks.current === 1) {
+        if (!selectedState || !shouldWiggle) {
+          activateState?.(id, { inputType, outputType });
+        } else {
+          onClick?.(id);
+        }
+      } else {
+        onDblClick?.(id);
+      }
+
+      clicks.current = 0;
+    }, 300);
   };
 
   return (
@@ -329,12 +347,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       responsiveTitle={false}
       x={position?.x}
       y={position?.y}
-      onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}
-      onClick={
-        !selectedState || !shouldWiggle
-          ? () => activateState?.(id, { inputType, outputType })
-          : (e) => handleClick(e, onClick)
-      }
+      onClick={handleClick}
       selected={selected}
       size="small"
       tooltip={

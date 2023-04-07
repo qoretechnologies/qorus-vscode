@@ -49,7 +49,7 @@ import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
-import { IStateCorners, autoAlign } from '../../../helpers/fsm';
+import { IStateCorners, autoAlign, getVariable } from '../../../helpers/fsm';
 import {
   ITypeComparatorData,
   areTypesCompatible,
@@ -736,6 +736,20 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
       if (!obj.typeData) {
         delete obj.typeData;
+      }
+
+      // If the state is a variable, we need to get the variable data
+      if (type === 'var-action') {
+        const { var_name, var_type, action_type } = state.action.value as TVariableActionValue;
+        const variableData = getVariable(var_name, var_type, metadata);
+
+        if (variableData?.value) {
+          return {
+            ...obj,
+            interfaceKind: action_type,
+            interfaceName: { ...value, ...variableData.value },
+          };
+        }
       }
 
       return obj;

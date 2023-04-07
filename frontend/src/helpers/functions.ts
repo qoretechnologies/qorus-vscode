@@ -15,6 +15,7 @@ import omit from 'lodash/omit';
 import set from 'lodash/set';
 import size from 'lodash/size';
 import shortid from 'shortid';
+import { IProviderType } from '../components/Field/connectors';
 import { IOptions } from '../components/Field/systemOptions';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
@@ -112,9 +113,9 @@ export const isStateIsolated = (
 };
 
 export interface ITypeComparatorData {
-  interfaceName?: string;
+  interfaceName?: string | IProviderType;
   connectorName?: string;
-  interfaceKind?: 'if' | 'block' | 'processor' | TAction;
+  interfaceKind?: 'if' | 'block' | 'processor' | TAction | 'transaction';
   typeData?: any;
 }
 
@@ -152,6 +153,7 @@ export const getStateProvider = async (
 
   if (
     data.interfaceKind === 'apicall' ||
+    data.interfaceKind === 'send-message' ||
     data.interfaceKind === 'search-single' ||
     data.interfaceKind === 'search' ||
     data.interfaceKind === 'update' ||
@@ -159,9 +161,7 @@ export const getStateProvider = async (
     data.interfaceKind === 'delete'
   ) {
     return Promise.resolve({
-      ...data,
-      // @ts-expect-error
-      path: `${data.interfaceName.path}`,
+      ...(data?.interfaceName as IProviderType),
       typeAction: data.interfaceKind,
     });
   }
@@ -216,7 +216,7 @@ export const areTypesCompatible = async (
   output.options = await formatAndFixOptionsToKeyValuePairs(output.options);
   input.options = await formatAndFixOptionsToKeyValuePairs(input.options);
 
-  const comparison = await fetchData('/dataprovider/compareTypes', 'PUT', {
+  const comparison = await fetchData('/dataprovider/compareTypes?context=ui', 'PUT', {
     base_type: input,
     type: output,
   });
