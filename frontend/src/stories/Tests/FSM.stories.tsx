@@ -190,6 +190,7 @@ export const NewVariableState: StoryFSM = {
 
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await sleep(500);
 
     // Open the state
     await waitFor(
