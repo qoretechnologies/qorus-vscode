@@ -39,7 +39,7 @@ const preview: Preview = {
                         method,
                         headers: {
                           'Content-Type': 'application/json',
-                          Authorization: `Basic ${btoa('fwitosz:fwitosz42')}`,
+                          Authorization: `Basic ${btoa('sandbox:sandbox')}`,
                         },
                       }
                     );

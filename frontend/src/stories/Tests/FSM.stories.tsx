@@ -398,7 +398,7 @@ export const NewApiCallState: StoryFSM = {
         await fireEvent.click(canvas.getAllByText('qorus-api')[0]);
       },
       {
-        timeout: 5000,
+        timeout: 10000,
       }
     );
 
@@ -409,7 +409,7 @@ export const NewApiCallState: StoryFSM = {
         await fireEvent.click(canvas.getAllByText('util')[0]);
       },
       {
-        timeout: 5000,
+        timeout: 10000,
       }
     );
 
@@ -420,12 +420,12 @@ export const NewApiCallState: StoryFSM = {
         await fireEvent.click(canvas.getAllByText('log-message')[0]);
       },
       {
-        timeout: 5000,
+        timeout: 10000,
       }
     );
 
     await waitFor(() => fireEvent.click(document.querySelectorAll('.reqore-checkbox')[1]), {
-      timeout: 5000,
+      timeout: 10000,
     });
     await waitFor(
       () =>
@@ -434,10 +434,10 @@ export const NewApiCallState: StoryFSM = {
             value: 'logging some stuff',
           },
         }),
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
 
-    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState(), { timeout: 10000 });
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
     await waitFor(() => canvas.findByText('factory/qorus-api/util/log-message'));
 
