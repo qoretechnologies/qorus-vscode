@@ -108,16 +108,27 @@ export const SelectedStateChange: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await waitFor(() => document.querySelector('#state-3'));
     await fireEvent.click(document.querySelector('#state-3'));
-
-    await sleep(500);
-
-    await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
+        await expect(document.querySelector('.reqore-drawer h3').textContent).toBe(
+          'Intent: Close Ticket?'
+        );
+      },
+      { timeout: 10000 }
+    );
 
     await fireEvent.click(document.querySelector('#state-1'));
-
-    await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
+    await waitFor(
+      async () => {
+        // Make sure the h3 with text `Intent: Close Ticket?` inside .reqore-drawer is visible
+        await expect(document.querySelector('.reqore-drawer h3').textContent).toBe(
+          'Save Intent Info'
+        );
+      },
+      { timeout: 10000 }
+    );
   },
 };
 

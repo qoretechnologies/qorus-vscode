@@ -300,6 +300,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   }, [selectedState]);
 
   const handleClick = () => {
+    console.log('click');
     clicks.current += 1;
 
     clearTimeout(clicksTimeout.current);
