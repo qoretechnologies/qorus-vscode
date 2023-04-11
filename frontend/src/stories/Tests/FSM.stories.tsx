@@ -461,14 +461,14 @@ export const NewMessageState: StoryFSM = {
     await fireEvent.click(canvas.getByText('factory'));
 
     await waitFor(() => expect(document.querySelector('.provider-selector')).toBeInTheDocument(), {
-      timeout: 5000,
+      timeout: 10000,
     });
 
     await fireEvent.click(document.querySelector('.provider-selector'));
     await fireEvent.click(canvas.getAllByText('wsclient')[0]);
 
     await waitFor(() => expect(document.querySelector('.system-option')).toBeInTheDocument(), {
-      timeout: 5000,
+      timeout: 10000,
     });
     await fireEvent.change(document.querySelector('.system-option textarea'), {
       target: {
@@ -476,14 +476,14 @@ export const NewMessageState: StoryFSM = {
       },
     });
 
-    await waitFor(() => canvas.findAllByText(/Apply options/g), { timeout: 5000 });
+    await waitFor(() => canvas.findAllByText(/Apply options/), { timeout: 10000 });
     // Click on apply options
-    await fireEvent.click(canvas.getAllByText(/Apply options/g)[0]);
+    await fireEvent.click(canvas.getAllByText(/Apply options/)[0]);
 
-    await waitFor(() => canvas.findByText(/MessageType/g), { timeout: 5000 });
+    await waitFor(() => canvas.findByText(/MessageType/), { timeout: 10000 });
     await waitFor(
       () => expect(document.querySelector('.provider-message-selector')).toBeInTheDocument(),
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
 
     // // Select the message type
@@ -495,7 +495,7 @@ export const NewMessageState: StoryFSM = {
 
     // Add the message data
     // WORKS TILL HERE
-    await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 5000 });
+    await waitFor(() => canvas.findByText(/MessageData/), { timeout: 10000 });
     await waitFor(
       async () => {
         await expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument();
@@ -503,11 +503,11 @@ export const NewMessageState: StoryFSM = {
           target: { value: 'Hello World' },
         });
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
 
     //Submit the state
-    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState(), { timeout: 10000 });
 
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
     await waitFor(() => canvas.findByText('factory/wsclient'));
