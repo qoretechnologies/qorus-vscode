@@ -36,6 +36,11 @@ export const SwitchesToBuilder: StoryFSM = {
   args: {
     fsm,
   },
+  parameters: {
+    chromatic: {
+      disableSnapshot: false,
+    },
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -49,6 +54,11 @@ export const SwitchesToBuilder: StoryFSM = {
 export const ShowsStateIds: StoryFSM = {
   args: {
     fsm,
+  },
+  parameters: {
+    chromatic: {
+      disableSnapshot: false,
+    },
   },
   play: async ({ canvasElement, ...rest }) => {
     await AutoAlign.play({ canvasElement, ...rest });
@@ -64,6 +74,11 @@ export const ShowsStateIds: StoryFSM = {
 export const AutoAlign: StoryFSM = {
   args: {
     fsm,
+  },
+  parameters: {
+    chromatic: {
+      disableSnapshot: false,
+    },
   },
   play: async ({ canvasElement, ...rest }) => {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
@@ -85,11 +100,18 @@ export const SelectedStateChange: StoryFSM = {
   args: {
     fsm,
   },
+  parameters: {
+    chromatic: {
+      disableSnapshot: false,
+    },
+  },
   play: async ({ canvasElement, ...rest }) => {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
     await waitFor(() => document.querySelector('#state-3'));
     await fireEvent.click(document.querySelector('#state-3'));
+
+    await sleep(500);
 
     await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
 
