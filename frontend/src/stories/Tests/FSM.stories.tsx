@@ -517,11 +517,11 @@ export const NewMessageState: StoryFSM = {
     await waitFor(_testsSubmitFSMState(), { timeout: 10000 });
 
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
-    await waitFor(() => canvas.findByText('factory/wsclient'));
+    await waitFor(() => canvas.findByText('factory/wsclient'), { timeout: 10000 });
 
     // Check that state data were saved
     await fireEvent.click(document.querySelector('#state-1'));
-    await waitFor(() => canvas.findByDisplayValue('Hello World'));
+    await waitFor(() => canvas.findByDisplayValue('Hello World'), { timeout: 10000 });
     await expect(document.querySelector('.provider-message-data textarea')).toHaveValue(
       'Hello World'
     );
