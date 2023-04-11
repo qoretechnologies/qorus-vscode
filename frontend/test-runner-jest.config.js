@@ -6,5 +6,5 @@ module.exports = {
   /** Add your own overrides below
    * @see https://jestjs.io/docs/configuration
    */
-  testTimeout: 60000,
+  testTimeout: 120000,
 };

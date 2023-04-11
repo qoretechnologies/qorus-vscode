@@ -147,8 +147,13 @@ export const getStateProvider = async (
   data: ITypeComparatorData,
   providerType: 'input' | 'output'
 ) => {
+  console.log(data);
   if (!data) {
     return Promise.resolve(null);
+  }
+
+  if (data.interfaceKind === 'transaction') {
+    return null;
   }
 
   if (
@@ -212,7 +217,6 @@ export const areTypesCompatible = async (
   if (!input || !output) {
     return Promise.resolve(true);
   }
-
 
   output.options = await formatAndFixOptionsToKeyValuePairs(output.options);
   input.options = await formatAndFixOptionsToKeyValuePairs(input.options);
