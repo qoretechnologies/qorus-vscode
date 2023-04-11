@@ -203,15 +203,16 @@ export const areTypesCompatible = async (
   inputTypeData?: ITypeComparatorData
 ): Promise<boolean> => {
   if (!outputTypeData || !inputTypeData) {
-    return true;
+    return Promise.resolve(true);
   }
 
   let output = cloneDeep(await getStateProvider(outputTypeData, 'output'));
   let input = cloneDeep(await getStateProvider(inputTypeData, 'input'));
 
   if (!input || !output) {
-    return true;
+    return Promise.resolve(true);
   }
+
 
   output.options = await formatAndFixOptionsToKeyValuePairs(output.options);
   input.options = await formatAndFixOptionsToKeyValuePairs(input.options);
@@ -439,7 +440,6 @@ export const fetchData: (
 ) => Promise<any> = async (url, method = 'GET', body) => {
   // Create the unique ID for this request
   const uniqueId: string = shortid.generate();
-
   return new Promise((resolve, reject) => {
     // Create a timeout that will reject the request
     // after 2 minutes

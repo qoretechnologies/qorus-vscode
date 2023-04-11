@@ -906,10 +906,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const isAvailableForTransition = async (stateId: string, targetId: string): Promise<boolean> => {
     if (getTransitionByState(stateId, targetId)) {
-      return false;
+      return Promise.resolve(false);
     }
 
-    return await areStatesCompatible(stateId, targetId);
+    const areCompatible = await areStatesCompatible(stateId, targetId);
+
+    return areCompatible;
   };
 
   const handleStateClick = async (id: string) => {

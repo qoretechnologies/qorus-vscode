@@ -158,6 +158,7 @@ export const FSMItemIconByType: Record<string, IReqoreIconName> = {
   update: 'Edit2Line',
   delete: 'DeleteBin2Line',
   'send-message': 'ChatUploadLine',
+  'var-action': 'CodeLine',
 };
 
 export const FSMItemDescByType: Record<string, string> = {

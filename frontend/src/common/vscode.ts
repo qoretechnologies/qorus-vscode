@@ -29,6 +29,7 @@ export const vscode =
                 error: !requestData.ok ? json : undefined,
                 id,
               };
+              break;
             }
             case 'creator-get-objects': {
               messageData = {

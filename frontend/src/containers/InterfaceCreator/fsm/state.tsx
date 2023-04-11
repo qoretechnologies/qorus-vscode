@@ -324,7 +324,15 @@ const FSMState: React.FC<IFSMStateProps> = ({
       id={`state-${id}`}
       ref={drag}
       isStatic={isStatic}
-      intent={selectedState === id ? 'info' : undefined}
+      intent={
+        isLoadingCheck
+          ? 'pending'
+          : selectedState === id
+          ? 'info'
+          : isCompatible
+          ? 'success'
+          : undefined
+      }
       //customTheme={{ main: getStateColor(getStateCategory(type)) }}
       contentEffect={
         {
@@ -341,13 +349,13 @@ const FSMState: React.FC<IFSMStateProps> = ({
             : undefined,
         } as IReqoreEffect
       }
-      icon={FSMItemIconByType[action?.type || type]}
+      icon={isLoadingCheck ? 'Loader5Fill' : FSMItemIconByType[action?.type || type]}
       name={`fsm-state-${name}`}
       responsiveActions={false}
       responsiveTitle={false}
       x={position?.x}
       y={position?.y}
-      onClick={handleClick}
+      onClick={isLoadingCheck ? undefined : handleClick}
       selected={selected}
       size="small"
       tooltip={
@@ -404,7 +412,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           : 'Loading type information...'
       }
       onMouseDown={(e) => e.stopPropagation()}
-      iconProps={{ size: '25px' }}
+      iconProps={{ size: '25px', animation: isLoadingCheck ? 'spin' : undefined }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       minimal

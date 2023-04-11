@@ -494,7 +494,6 @@ export const NewMessageState: StoryFSM = {
     });
 
     // Add the message data
-    // WORKS TILL HERE
     await waitFor(() => canvas.findByText(/MessageData/), { timeout: 10000 });
     await waitFor(
       async () => {
