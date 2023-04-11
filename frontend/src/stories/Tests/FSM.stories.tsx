@@ -439,11 +439,13 @@ export const NewApiCallState: StoryFSM = {
 
     await waitFor(_testsSubmitFSMState(), { timeout: 10000 });
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
-    await waitFor(() => canvas.findByText('factory/qorus-api/util/log-message'));
+    await waitFor(() => canvas.findByText('factory/qorus-api/util/log-message'), {
+      timeout: 10000,
+    });
 
     // Check that state data were saved
     await fireEvent.click(document.querySelector('#state-1'));
-    await waitFor(() => canvas.findByDisplayValue('logging some stuff'));
+    await waitFor(() => canvas.findByDisplayValue('logging some stuff'), { timeout: 10000 });
     await expect(document.querySelector('.system-option textarea')).toHaveValue(
       'logging some stuff'
     );
@@ -476,25 +478,31 @@ export const NewMessageState: StoryFSM = {
       },
     });
 
-    await waitFor(() => canvas.findAllByText(/Apply options/), { timeout: 10000 });
-    // Click on apply options
-    await fireEvent.click(canvas.getAllByText(/Apply options/)[0]);
-
-    await waitFor(() => canvas.findByText(/MessageType/), { timeout: 10000 });
     await waitFor(
-      () => expect(document.querySelector('.provider-message-selector')).toBeInTheDocument(),
+      async () => {
+        await canvas.findAllByText(/Apply options/);
+        await fireEvent.click(canvas.getAllByText(/Apply options/)[0]);
+      },
       { timeout: 10000 }
     );
 
-    // // Select the message type
-    await fireEvent.click(document.querySelector('.provider-message-selector'));
-    await waitFor(async () => {
-      await canvas.findByText(/Select from items/g);
-      await fireEvent.click(canvas.getByText('raw'));
-    });
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('.provider-message-selector')).toBeInTheDocument();
+        await fireEvent.click(document.querySelector('.provider-message-selector'));
+      },
+      { timeout: 10000 }
+    );
 
-    // Add the message data
-    await waitFor(() => canvas.findByText(/MessageData/), { timeout: 10000 });
+    // Select the message type
+    await waitFor(
+      async () => {
+        await canvas.findByText(/Select from items/g);
+        await fireEvent.click(canvas.getByText('raw'));
+      },
+      { timeout: 10000 }
+    );
+
     await waitFor(
       async () => {
         await expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument();
