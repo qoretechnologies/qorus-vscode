@@ -127,19 +127,15 @@ test('insertUrlPartBeforeQuery should insert the part provided before the url qu
 
 test('getStateProvider should return the provider of the state', async () => {
   const data1: ITypeComparatorData = {
-    interfaceName: 'interfaceName',
-    connectorName: 'connectorName',
     interfaceKind: 'apicall',
-    typeData: 'typeData',
+    interfaceName: { name: 'test', type: 'apicall', path: '/path' },
   };
   const provider1 = await getStateProvider(data1, 'input');
   expect(provider1).toEqual({
-    connectorName: 'connectorName',
-    interfaceKind: 'apicall',
-    interfaceName: 'interfaceName',
-    path: 'undefined',
+    name: 'test',
+    type: 'apicall',
+    path: '/path',
     typeAction: 'apicall',
-    typeData: 'typeData',
   });
 
   const data2: ITypeComparatorData = {
@@ -152,10 +148,9 @@ test('getStateProvider should return the provider of the state', async () => {
   expect(provider2).toEqual(null);
 });
 
-
 describe('callBackendBasic', () => {
   it('does not call callBackendBasic if fileName is falsy', async () => {
-    const callBackendBasic = jest.fn(); 
+    const callBackendBasic = jest.fn();
 
     await deleteDraft('some-kind', undefined);
 
