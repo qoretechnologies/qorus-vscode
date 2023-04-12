@@ -1,13 +1,21 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
-import { fireEvent, waitFor, within } from '@testing-library/react';
+import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
+import multipleVariablesFsm from '../Data/multipleVariablesFsm.json';
 import { SwitchesToBuilder } from '../Tests/FSM.stories';
 import { StoryMeta } from '../types';
 
 const meta = {
   component: FSMView,
+  args: {
+    reqoreOptions: {
+      animations: {
+        dialogs: false,
+      },
+    },
+  },
 } as StoryMeta<typeof FSMView>;
 
 export default meta;
@@ -45,6 +53,36 @@ export const SelectedState: StoryFSM = {
 
     await waitFor(() => document.querySelector('#state-3'));
     await fireEvent.click(document.querySelector('#state-3'));
+  },
+};
+
+export const MultipleDeepVariableStates: StoryFSM = {
+  args: {
+    fsm: multipleVariablesFsm,
+  },
+  play: async ({ canvasElement, stateType, ...rest }) => {
+    const canvas = within(canvasElement);
+    await SwitchesToBuilder.play({ canvasElement, ...rest });
+
+    await fireEvent.click(canvas.getByText('State 2'));
+
+    await waitFor(async () => await canvas.findAllByText('Next'), {
+      timeout: 5000,
+    });
+
+    await fireEvent.click(canvas.getAllByText('Next')[0]);
+
+    await waitFor(async () => await canvas.findAllByText('State 2.State 3'), {
+      timeout: 5000,
+    });
+    await fireEvent.click(canvas.getAllByText('State 2.State 3')[0]);
+
+    await waitFor(async () => await canvas.findAllByText('Next'), {
+      timeout: 5000,
+    });
+
+    await fireEvent.click(canvas.getAllByText('Next')[0]);
+    await expect(canvas.getAllByText('State 2.State 3.State 6')[0]).toBeInTheDocument();
   },
 };
 

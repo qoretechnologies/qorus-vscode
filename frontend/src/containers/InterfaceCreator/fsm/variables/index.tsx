@@ -35,6 +35,11 @@ export interface IFSMVariablesProps {
   }: {
     transient: TFSMVariables;
     persistent: TFSMVariables;
+    changes?: {
+      name: string;
+      type: 'transient' | 'var';
+      changeType: 'add' | 'remove' | 'update';
+    }[];
   }) => void;
 }
 
@@ -51,11 +56,18 @@ export const FSMVariables = ({
     selectedVariable?.variableType === 'var' ? 'persistent' : 'transient'
   );
   const [_selectedVariable, setSelectedVariable] = useState<string>(selectedVariable?.name);
+  const [changes, setChanges] = useState<
+    {
+      name: string;
+      type: string;
+      changeType: 'add' | 'remove' | 'update';
+    }[]
+  >([]);
   const confirmAction = useReqoreProperty('confirmAction');
 
   const handleSubmitClick = useCallback(() => {
     onClose();
-    onSubmit({ transient: _transient, persistent: _persistent });
+    onSubmit({ transient: _transient, persistent: _persistent, changes });
   }, [_transient, _persistent]);
 
   const handleCreateNewClick = () => {
@@ -114,7 +126,7 @@ export const FSMVariables = ({
                   onClick={() => setSelectedVariable(name)}
                   minimal
                   intent={isVariableValid(variables[name]) ? undefined : 'danger'}
-                  rightIcon="DeleteBin2Fill"
+                  rightIcon={variables[name].readOnly ? undefined : 'DeleteBin2Fill'}
                   onRightIconClick={() => {
                     // Delete the variable
                     confirmAction({
@@ -134,6 +146,15 @@ export const FSMVariables = ({
                             return { ...newPersistent };
                           });
                         }
+
+                        setChanges([
+                          ...changes,
+                          {
+                            name,
+                            type,
+                            changeType: 'remove',
+                          },
+                        ]);
                       },
                     });
                   }}
@@ -179,6 +200,15 @@ export const FSMVariables = ({
                   return { ...newPersistent, [data.name]: data };
                 });
               }
+
+              setChanges([
+                ...changes,
+                {
+                  name: originalName,
+                  type,
+                  changeType: 'update',
+                },
+              ]);
             }}
           />
         );

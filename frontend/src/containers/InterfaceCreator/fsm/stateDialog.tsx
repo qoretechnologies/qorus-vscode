@@ -1,8 +1,8 @@
 import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
-import { camelCase, map } from 'lodash';
+import { camelCase, map, reduce } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { useUnmount, useUpdateEffect } from 'react-use';
 import shortid from 'shortid';
 import Content from '../../../components/Content';
@@ -30,7 +30,13 @@ import { validateField } from '../../../helpers/validations';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
 import ConfigItemManager from '../../ConfigItemManager';
 import ManageConfigItemsButton from '../../ConfigItemManager/manageButton';
-import FSMView, { IFSMMetadata, IFSMState, IFSMStates, TVariableActionValue } from './';
+import FSMView, {
+  IFSMMetadata,
+  IFSMState,
+  IFSMStates,
+  TFSMVariables,
+  TVariableActionValue,
+} from './';
 import ConnectorSelector from './connectorSelector';
 import { ConditionField, isConditionValid } from './transitionDialog';
 
@@ -124,6 +130,32 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   });
 
   const handleDataUpdate = (name: string, value: any) => {
+    if (name === 'metadata') {
+      // Remove the readonly transient variables
+      const transient = reduce<TFSMVariables, TFSMVariables>(
+        value.transient,
+        (newTransient, val, key): TFSMVariables => {
+          if (!val.readOnly) {
+            return {
+              ...newTransient,
+              [key]: val,
+            };
+          }
+
+          return newTransient;
+        },
+        {}
+      );
+
+      setNewData((cur) => ({
+        ...cur,
+        transient,
+        var: value?.var,
+      }));
+
+      return;
+    }
+
     setNewData((cur) => ({
       ...cur,
       [name]: value === 'none' ? null : value,
@@ -507,6 +539,43 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     return isMetadataHidden && newData.type === 'block' && blockLogicType === 'custom';
   };
 
+  const buildVariables = useCallback(() => {
+    // We need to combine the variables from the metadata with the current
+    // variables, but the variables from metadata need to be readonly
+
+    const variables: {
+      transient?: TFSMVariables;
+      var?: TFSMVariables;
+    } = {};
+
+    if (metadata?.transient) {
+      variables.transient = reduce<TFSMVariables, TFSMVariables>(
+        metadata?.transient,
+        (newTransient, item, variableName): TFSMVariables => ({
+          ...newTransient,
+          [variableName]: {
+            ...item,
+            readOnly: true,
+          },
+        }),
+        {}
+      );
+    }
+
+    if (newData?.transient) {
+      variables.transient = {
+        ...variables.transient,
+        ...newData.transient,
+      };
+    }
+
+    if (newData?.var) {
+      variables.var = newData.var;
+    }
+
+    return variables;
+  }, [metadata, newData]);
+
   return (
     <>
       <Content
@@ -602,6 +671,29 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                   delete modifiedData['input-output-type'];
                 }
 
+                if (!size(modifiedData['block-config'])) {
+                  delete modifiedData['block-config'];
+                }
+
+                modifiedData.transient = reduce<TFSMVariables, TFSMVariables>(
+                  modifiedData.transient,
+                  (newTransient, val, key): TFSMVariables => {
+                    if (!val.readOnly) {
+                      return {
+                        ...newTransient,
+                        [key]: val,
+                      };
+                    }
+
+                    return newTransient;
+                  },
+                  {}
+                );
+
+                if (!size(modifiedData.transient)) {
+                  delete modifiedData.transient;
+                }
+
                 onSubmit(id, modifiedData);
               } else {
                 setIsMetadataHidden(true);
@@ -692,7 +784,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 <Options
                   name="block-config"
                   onChange={handleDataUpdate}
-                  value={newData?.['block-config'] || {}}
+                  value={newData?.['block-config']}
                   url={`/block/${newData?.['block-type'] || 'for'}`}
                 />
               </FieldWrapper>
@@ -814,6 +906,14 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             defaultInterfaceId={interfaceId}
             onStatesChange={(states) => {
               handleDataUpdate('states', states);
+            }}
+            metadata={buildVariables()}
+            setMetadata={(data) => {
+              if (typeof data === 'function') {
+                handleDataUpdate('metadata', data(newData));
+              } else {
+                handleDataUpdate('metadata', data);
+              }
             }}
           />
         ) : null}

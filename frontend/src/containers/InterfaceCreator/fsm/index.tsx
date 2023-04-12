@@ -20,7 +20,7 @@ import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Dispatch, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { XYCoord, useDrop } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
@@ -49,7 +49,12 @@ import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
-import { IStateCorners, autoAlign, getVariable } from '../../../helpers/fsm';
+import {
+  IStateCorners,
+  autoAlign,
+  getVariable,
+  removeAllStatesWithVariable,
+} from '../../../helpers/fsm';
 import {
   ITypeComparatorData,
   areTypesCompatible,
@@ -66,7 +71,7 @@ import {
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
-import withMessageHandler from '../../../hocomponents/withMessageHandler';
+import withMessageHandler, { postMessage } from '../../../hocomponents/withMessageHandler';
 import TinyGrid from '../../../images/graphy-dark.png';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMInitialOrderDialog from './initialOrderDialog';
@@ -78,14 +83,25 @@ import FSMTransitionOrderDialog from './transitionOrderDialog';
 import { FSMVariables } from './variables';
 
 export interface IFSMViewProps {
-  onSubmitSuccess: (data: any) => any;
-  setFsmReset: () => void;
+  onSubmitSuccess?: (data: any) => any;
+  setFsmReset?: (func?: any) => void;
   embedded?: boolean;
   defaultStates?: IFSMStates;
   parentStateName?: string;
   defaultInterfaceId?: string;
-  states: IFSMStates;
+  states?: IFSMStates;
+  setStates?: Dispatch<React.SetStateAction<IFSMStates>>;
   fsm?: any;
+  metadata?: Partial<IFSMMetadata>;
+  setMetadata?: Dispatch<React.SetStateAction<any>>;
+  onHideMetadataClick?: () => void;
+  isExternalMetadataHidden?: boolean;
+  interfaceContext?: {
+    target_dir?: string;
+    inputType?: IProviderType;
+  };
+  onStatesChange?: (states: IFSMStates) => void;
+  setMapper?: (mapper: any) => void;
 }
 
 export interface IDraggableItem {
@@ -128,7 +144,7 @@ export type TVariableActionValue = {
   var_type: 'transient' | 'var';
   var_name: string;
   transaction_action?: 'commit' | 'rollback' | 'begin-transaction';
-  action_type:
+  action_type?:
     | 'search'
     | 'search-single'
     | 'update'
@@ -137,11 +153,14 @@ export type TVariableActionValue = {
     | 'transaction'
     | 'send-message'
     | 'apicall';
-} & IProviderType;
+} & Partial<IProviderType>;
+
+export type TFSMClassConnectorAction = { class: string; connector: string; prefix?: string };
 
 export interface IFSMState {
   key?: string;
   corners?: IStateCorners;
+  isNew?: boolean;
   position?: {
     x?: number;
     y?: number;
@@ -151,17 +170,14 @@ export interface IFSMState {
   initial?: boolean;
   action?: {
     type: TAction;
-    value?:
-      | string
-      | { class: string; connector: string; prefix?: string }
-      | IProviderType
-      | TVariableActionValue;
+    value?: string | TFSMClassConnectorAction | IProviderType | TVariableActionValue;
   };
   'input-type'?: any;
   'output-type'?: any;
+  'block-type'?: 'while' | 'for' | 'foreach';
   name?: string;
   type: TFSMStateType;
-  desc: string;
+  desc?: string;
   states?: IFSMStates;
   fsm?: string;
   id: string;
@@ -177,6 +193,9 @@ export interface IFSMState {
     to: string;
     name?: string;
   };
+  // Block states can have their own variables
+  transient?: TFSMVariables;
+  var?: TFSMVariables;
 }
 
 export interface IFSMStates {
@@ -281,6 +300,7 @@ export interface IFSMVariable {
   desc?: string;
   name?: string;
   variableType: 'transient' | 'var';
+  readOnly?: boolean;
 }
 
 export type TFSMVariables = Record<string, IFSMVariable>;
@@ -289,10 +309,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   onSubmitSuccess,
   setFsmReset,
   interfaceContext,
-  postMessage,
   embedded = false,
   states,
   setStates,
+  metadata,
+  setMetadata,
   parentStateName,
   onStatesChange,
   onHideMetadataClick,
@@ -315,9 +336,20 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const fsm = rest?.fsm || init?.fsm;
   const { addNotification } = useReqore();
-  const { resetAllInterfaceData } = useContext(GlobalContext);
+  const { resetAllInterfaceData }: any = useContext(GlobalContext);
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
   const [interfaceId, setInterfaceId] = useState(null);
+  const [st, setSt] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
+  const [mt, setMt] = useState<IFSMMetadata>({
+    target_dir: fsm?.target_dir || interfaceContext?.target_dir || null,
+    name: fsm?.name || null,
+    desc: fsm?.desc || null,
+    groups: fsm?.groups || [],
+    'input-type': fsm?.['input-type'] || interfaceContext?.inputType || null,
+    'output-type': fsm?.['output-type'] || null,
+    transient: fsm?.transient,
+    var: fsm?.var,
+  });
 
   const wrapperRef = useRef(null);
   const fieldsWrapperRef = useRef(null);
@@ -328,22 +360,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const currentHistoryPosition = useRef<number>(-1);
 
   if (!embedded) {
-    const [st, setSt] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
-
     states = st;
     setStates = setSt;
-  }
 
-  const [metadata, setMetadata] = useState<IFSMMetadata>({
-    target_dir: fsm?.target_dir || interfaceContext?.target_dir || null,
-    name: fsm?.name || null,
-    desc: fsm?.desc || null,
-    groups: fsm?.groups || [],
-    'input-type': fsm?.['input-type'] || interfaceContext?.inputType || null,
-    'output-type': fsm?.['output-type'] || null,
-    transient: fsm?.transient,
-    var: fsm?.var,
-  });
+    metadata = mt;
+    setMetadata = setMt;
+  }
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [activeState, setActiveState] = useState<string | number>(undefined);
   const [hoveredState, setHoveredState] = useState<string | null>(null);
@@ -422,7 +444,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           injected: item.injected,
           injectedData: item.injectedData,
           type: item.name,
-          'block-type': item.name === 'block' ? item.stateType : undefined,
+          'block-type':
+            item.name === 'block' ? (item.stateType as 'while' | 'for' | 'foreach') : undefined,
           id: shortid.generate(),
           states: item.name === 'block' ? {} : undefined,
           condition: item.name === 'if' ? '' : undefined,
@@ -679,7 +702,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     currentYPan.current = y;
   };
 
-  const getTransitionByState = (stateId: string, targetId: string): IFSMTransition | null => {
+  const getTransitionByState = (
+    stateId: string | number,
+    targetId: string | number
+  ): IFSMTransition | null => {
     const { transitions } = states[stateId];
 
     return transitions?.find((transition) => transition.state === targetId);
@@ -728,9 +754,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       const { type, value } = state.action;
 
       const obj = {
-        interfaceName: type === 'connector' ? value.class : value,
+        interfaceName: type === 'connector' ? (value as TFSMClassConnectorAction).class : value,
         interfaceKind: type,
-        connectorName: type === 'connector' ? value.connector : undefined,
+        connectorName:
+          type === 'connector' ? (value as TFSMClassConnectorAction).connector : undefined,
         typeData: state[`${providerType}-type`] || state['input-output-type'],
       };
 
@@ -747,7 +774,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           return {
             ...obj,
             interfaceKind: action_type,
-            interfaceName: { ...value, ...variableData.value },
+            interfaceName: { ...(value as TVariableActionValue), ...variableData.value },
           };
         }
       }
@@ -889,8 +916,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const areStatesCompatible = async (
-    stateId: string,
-    targetId: string,
+    stateId: string | number,
+    targetId: string | number,
     localStates: IFSMStates = states
   ): Promise<boolean> => {
     const outputState = localStates[stateId];
@@ -1036,7 +1063,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const fixIncomptibleStates = async (
-    id: string,
+    id: string | number,
     localStates: IFSMStates,
     onFinish?: () => any
   ) => {
@@ -1075,7 +1102,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return newStates;
   };
 
-  const updateStateData = async (id: string, data: IFSMState) => {
+  const updateStateData = async (id: string | number, data: Partial<IFSMState>) => {
     let fixedStates: IFSMStates = { ...states };
 
     fixedStates[id] = {
@@ -1177,7 +1204,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const updateTransitionData = async (
-    stateId: number,
+    stateId: number | string,
     index: number,
     data: IFSMTransition,
     remove?: boolean
@@ -1280,7 +1307,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     );
   };
 
-  const handleStateDeleteClick = (id: string, unfilled?: boolean): void => {
+  const handleStateDeleteClick = (id: string | number, unfilled?: boolean): void => {
     setStates((current) => {
       let newStates: IFSMStates = { ...current };
 
@@ -1798,11 +1825,15 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       {showVariables && (
         <FSMVariables
           onClose={() => setShowVariables(false)}
-          onSubmit={({ transient, persistent }) => {
+          onSubmit={({ transient, persistent, changes }) => {
             setMetadata({
               ...metadata,
               transient,
               var: persistent,
+            });
+            // For each change, remove the state using this variable
+            changes.forEach(({ name, type }) => {
+              setStates(removeAllStatesWithVariable(name, type, states));
             });
           }}
           persistent={metadata?.var}

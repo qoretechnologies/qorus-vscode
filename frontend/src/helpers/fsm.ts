@@ -1,5 +1,10 @@
-import { cloneDeep } from 'lodash';
-import { IFSMMetadata, IFSMState, IFSMStates } from '../containers/InterfaceCreator/fsm';
+import { cloneDeep, reduce, size } from 'lodash';
+import {
+  IFSMMetadata,
+  IFSMState,
+  IFSMStates,
+  TVariableActionValue,
+} from '../containers/InterfaceCreator/fsm';
 import { getStateBoundingRect } from './diagram';
 
 export const autoAlign = (states: IFSMStates, config?: IAutoAlignConfig) => {
@@ -345,4 +350,44 @@ export const getVariable = (
   }
 
   return vars[varName];
+};
+
+export const removeAllStatesWithVariable = (
+  varName: string,
+  varType: 'transient' | 'var',
+  states: IFSMStates
+): IFSMStates => {
+  let newStates = cloneDeep(states);
+
+  newStates = reduce<IFSMStates, IFSMStates>(
+    newStates,
+    (modifiedStates, state, stateId): IFSMStates => {
+      const newState = cloneDeep(state);
+      // If this state uses the defined variable, we simply removed it
+      if (
+        state.action?.type === 'var-action' &&
+        (state.action?.value as TVariableActionValue)?.var_name === varName &&
+        (state.action?.value as TVariableActionValue)?.var_type === varType
+      ) {
+        return modifiedStates;
+      }
+
+      if (newState.states) {
+        newState.states = removeAllStatesWithVariable(varName, varType, newState.states);
+
+        // If there are no states left in this state, we remove it
+        if (!size(newState.states)) {
+          return modifiedStates;
+        }
+      }
+
+      return {
+        ...modifiedStates,
+        [stateId]: newState,
+      };
+    },
+    {}
+  );
+
+  return newStates;
 };

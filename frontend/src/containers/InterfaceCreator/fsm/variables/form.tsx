@@ -21,6 +21,7 @@ export const VariableForm = ({
   type,
   desc,
   variableType,
+  readOnly,
   onChange,
   isVariableValid,
   variableNames,
@@ -31,6 +32,7 @@ export const VariableForm = ({
     type,
     desc,
     variableType,
+    readOnly,
   });
 
   const handleDataChange = useCallback(
@@ -65,6 +67,7 @@ export const VariableForm = ({
           onClick: () => setData({ name, value, type, desc, variableType }),
           position: 'left',
           id: 'reset-variable',
+          show: !data?.readOnly,
         },
         {
           label: 'Save variable',
@@ -74,6 +77,7 @@ export const VariableForm = ({
           disabled: !isValid(),
           position: 'right',
           id: 'save-variable',
+          show: !data?.readOnly,
         },
       ]}
     >
@@ -83,7 +87,13 @@ export const VariableForm = ({
         compact
         isValid={isNameValid(data.name)}
       >
-        <Field type="string" value={data?.name} name="name" onChange={handleDataChange} />
+        <Field
+          type="string"
+          value={data?.name}
+          name="name"
+          onChange={handleDataChange}
+          disabled={data?.readOnly}
+        />
       </FieldWrapper>
       <ReqoreVerticalSpacer height={10} />
       <FieldWrapper label="Description" desc="The description of the variable" compact isValid>
@@ -93,6 +103,7 @@ export const VariableForm = ({
           markdown
           name="desc"
           onChange={handleDataChange}
+          disabled={data?.readOnly}
         />
       </FieldWrapper>
       <ReqoreVerticalSpacer height={10} />
@@ -103,6 +114,7 @@ export const VariableForm = ({
         isValid={validateField('string', data.type)}
       >
         <Select
+          disabled={data?.readOnly}
           defaultItems={[
             { name: 'data-provider' },
             { name: 'bool' },
@@ -138,6 +150,8 @@ export const VariableForm = ({
           key={data.type}
           isConfigItem={false}
           isVariable
+          disabled={data?.readOnly}
+          disableSearchOptions={data?.readOnly}
         />
       </FieldWrapper>
     </ReqorePanel>

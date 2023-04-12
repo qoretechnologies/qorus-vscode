@@ -36,6 +36,7 @@ export interface IAutoFieldProps extends IField {
   allowed_values?: { name: string; desc?: string }[];
   isConfigItem?: boolean;
   isVariable?: boolean;
+  disableSearchOptions?: boolean;
 }
 
 const AutoField: FunctionComponent<IAutoFieldProps> = ({
@@ -378,6 +379,8 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
             isConfigItem={isConfigItem}
             isVariable={isVariable}
             onChange={handleChange}
+            readOnly={rest.disabled}
+            disableSearchOptions={rest.disableSearchOptions}
           />
         );
       }

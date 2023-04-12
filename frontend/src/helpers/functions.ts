@@ -19,7 +19,13 @@ import { IProviderType } from '../components/Field/connectors';
 import { IOptions } from '../components/Field/systemOptions';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
-import { IFSMState, IFSMStates, IFSMTransition } from '../containers/InterfaceCreator/fsm';
+import {
+  IFSMState,
+  IFSMStates,
+  IFSMTransition,
+  TFSMClassConnectorAction,
+  TVariableActionValue,
+} from '../containers/InterfaceCreator/fsm';
 import { TAction } from '../containers/InterfaceCreator/fsm/stateDialog';
 import { addMessageListener, postMessage } from '../hocomponents/withMessageHandler';
 const md5 = require('md5');
@@ -113,7 +119,7 @@ export const isStateIsolated = (
 };
 
 export interface ITypeComparatorData {
-  interfaceName?: string | IProviderType;
+  interfaceName?: string | IProviderType | TVariableActionValue | TFSMClassConnectorAction;
   connectorName?: string;
   interfaceKind?: 'if' | 'block' | 'processor' | TAction | 'transaction';
   typeData?: any;
@@ -147,7 +153,6 @@ export const getStateProvider = async (
   data: ITypeComparatorData,
   providerType: 'input' | 'output'
 ) => {
-  console.log(data);
   if (!data) {
     return Promise.resolve(null);
   }
