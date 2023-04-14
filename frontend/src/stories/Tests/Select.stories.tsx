@@ -5,6 +5,7 @@ import SelectField from '../../components/Field/select';
 
 export default {
   component: SelectField,
+  title: 'Tests/Select',
   argTypes: {
     onChange: { action: 'onChange' },
   },

@@ -3,8 +3,10 @@ import {
   IFSMMetadata,
   IFSMState,
   IFSMStates,
+  IFSMTransition,
   TVariableActionValue,
 } from '../containers/InterfaceCreator/fsm';
+import { postMessage } from '../hocomponents/withMessageHandler';
 import { getStateBoundingRect } from './diagram';
 
 export const autoAlign = (states: IFSMStates, config?: IAutoAlignConfig) => {
@@ -355,9 +357,11 @@ export const getVariable = (
 export const removeAllStatesWithVariable = (
   varName: string,
   varType: 'transient' | 'var',
-  states: IFSMStates
+  states: IFSMStates,
+  interfaceId: string
 ): IFSMStates => {
   let newStates = cloneDeep(states);
+  const removedStatesIds: (string | number)[] = [];
 
   newStates = reduce<IFSMStates, IFSMStates>(
     newStates,
@@ -369,11 +373,17 @@ export const removeAllStatesWithVariable = (
         (state.action?.value as TVariableActionValue)?.var_name === varName &&
         (state.action?.value as TVariableActionValue)?.var_type === varType
       ) {
+        removedStatesIds.push(stateId);
         return modifiedStates;
       }
 
       if (newState.states) {
-        newState.states = removeAllStatesWithVariable(varName, varType, newState.states);
+        newState.states = removeAllStatesWithVariable(
+          varName,
+          varType,
+          newState.states,
+          interfaceId
+        );
 
         // If there are no states left in this state, we remove it
         if (!size(newState.states)) {
@@ -388,6 +398,82 @@ export const removeAllStatesWithVariable = (
     },
     {}
   );
+
+  // Remove the states properly
+  removedStatesIds.forEach((stateId) => {
+    newStates = removeFSMState(newStates, stateId, interfaceId);
+  });
+
+  console.log(removedStatesIds, newStates);
+
+  return newStates;
+};
+
+export const getTransitionByState = (
+  states: IFSMStates,
+  stateId: string | number,
+  targetId: string | number
+): IFSMTransition | null => {
+  const { transitions } = states[stateId];
+
+  return transitions?.find((transition) => transition.state === targetId);
+};
+
+export const removeTransitionsWithStateId = (
+  states: IFSMStates,
+  removedStateId: string | number,
+  targetStateId: string | number
+) => {
+  const newState = cloneDeep(states[targetStateId]);
+
+  if (newState.transitions && getTransitionByState(states, targetStateId, removedStateId)) {
+    newState.transitions = newState.transitions.reduce(
+      (newTransitions: IFSMTransition[], transition: IFSMTransition) => {
+        if (transition.state === removedStateId) {
+          return newTransitions;
+        }
+
+        return [...newTransitions, transition];
+      },
+      []
+    );
+  }
+
+  return newState;
+};
+
+export const removeFSMState = (
+  states: IFSMStates,
+  id: string | number,
+  interfaceId: string,
+  onFinish?: (newStates: IFSMStates) => any
+): IFSMStates => {
+  let newStates: IFSMStates = cloneDeep(states);
+
+  newStates = reduce(
+    newStates,
+    (modifiedStates: IFSMStates, state: IFSMState, stateId: string) => {
+      let newState: IFSMState = { ...state };
+
+      if (stateId === id) {
+        return modifiedStates;
+      }
+
+      console.log(states, id, interfaceId);
+
+      newState = removeTransitionsWithStateId(states, id, stateId);
+
+      return { ...modifiedStates, [stateId]: newState };
+    },
+    {}
+  );
+
+  postMessage('remove-fsm-state', {
+    iface_id: interfaceId,
+    state_id: id,
+  });
+
+  onFinish?.(newStates);
 
   return newStates;
 };

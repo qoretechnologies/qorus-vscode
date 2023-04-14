@@ -54,6 +54,7 @@ import {
   autoAlign,
   getVariable,
   removeAllStatesWithVariable,
+  removeFSMState,
 } from '../../../helpers/fsm';
 import {
   ITypeComparatorData,
@@ -371,7 +372,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [showStateIds, setShowStateIds] = useState<boolean>(false);
   const [showStatesList, setShowStatesList] = useState<boolean>(true);
-  const [showVariables, setShowVariables] = useState<boolean>(false);
+  const [showVariables, setShowVariables] = useState<{
+    show?: boolean;
+    selected?: {
+      name: string;
+      variableType: 'var' | 'transient';
+    };
+  }>(undefined);
 
   const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(true);
   const [outputCompatibility, setOutputCompatibility] = useState<
@@ -928,6 +935,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       getStateDataForComparison(inputState, 'input')
     );
 
+    console.log(stateId, targetId, compatible);
+
     return compatible;
   };
 
@@ -1309,45 +1318,15 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const handleStateDeleteClick = (id: string | number, unfilled?: boolean): void => {
     setStates((current) => {
-      let newStates: IFSMStates = { ...current };
-
-      newStates = reduce(
-        newStates,
-        (modifiedStates: IFSMStates, state: IFSMState, stateId: string) => {
-          const newState: IFSMState = { ...state };
-
-          if (stateId === id) {
-            return modifiedStates;
-          }
-
-          if (state.transitions && getTransitionByState(stateId, id)) {
-            newState.transitions = newState.transitions.reduce(
-              (newTransitions: IFSMTransition[], transition: IFSMTransition) => {
-                if (transition.state === id) {
-                  return newTransitions;
-                }
-
-                return [...newTransitions, transition];
-              },
-              []
-            );
-          }
-
-          return { ...modifiedStates, [stateId]: newState };
-        },
-        {}
-      );
-
-      postMessage('remove-fsm-state', {
-        iface_id: interfaceId,
-        state_id: id,
+      const newStates = removeFSMState(current, id, interfaceId, (newStates) => {
+        // If this state was deleted because of unfilled data, do not
+        // save history
+        if (!unfilled) {
+          updateHistory(newStates);
+        }
       });
 
-      // If this state was deleted because of unfilled data, do not
-      // save history
-      if (!unfilled) {
-        updateHistory(newStates);
-      }
+      console.log(newStates);
 
       return newStates;
     });
@@ -1822,9 +1801,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           <Loader text={t('CheckingCompatibility')} />
         </StyledCompatibilityLoader>
       )}
-      {showVariables && (
+      {showVariables?.show && (
         <FSMVariables
-          onClose={() => setShowVariables(false)}
+          onClose={() => setShowVariables(undefined)}
           onSubmit={({ transient, persistent, changes }) => {
             setMetadata({
               ...metadata,
@@ -1833,11 +1812,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             });
             // For each change, remove the state using this variable
             changes.forEach(({ name, type }) => {
-              setStates(removeAllStatesWithVariable(name, type, states));
+              setStates(removeAllStatesWithVariable(name, type, states, interfaceId));
             });
           }}
           persistent={metadata?.var}
           transient={metadata?.transient}
+          selectedVariable={showVariables?.selected}
         />
       )}
 
@@ -1855,7 +1835,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           {
             label: 'Variables',
             icon: 'CodeSLine',
-            onClick: () => setShowVariables(true),
+            onClick: () => setShowVariables({ show: true }),
             intent: size(metadata?.transient) || size(metadata?.var) ? 'info' : undefined,
             badge: size(metadata?.transient) + size(metadata?.var),
             id: 'fsm-variables',
@@ -2149,6 +2129,15 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                                 type="var-action"
                                 stateName={variableId}
                                 varType={variable.variableType}
+                                onEditClick={() =>
+                                  setShowVariables({
+                                    show: true,
+                                    selected: {
+                                      name: variableId,
+                                      variableType: variable.variableType,
+                                    },
+                                  })
+                                }
                                 count={size(
                                   filter(
                                     states,
@@ -2503,6 +2492,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                             !isTransitionToSelf(state, targetState) ? (
                               <>
                                 <StyledFSMLine
+                                  className="fsm-transition"
                                   onClick={() => {
                                     setEditingTransition((cur) => {
                                       const result = [...cur];

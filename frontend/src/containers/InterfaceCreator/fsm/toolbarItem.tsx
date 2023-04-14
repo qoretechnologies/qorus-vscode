@@ -25,6 +25,7 @@ export interface IFSMToolbarItemProps {
   parentStateName?: string;
   description?: string;
   varType?: 'transient' | 'var';
+  onEditClick?: () => any;
 }
 
 export const getStateStyle = (type, toolbar?: boolean) => {
@@ -193,6 +194,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   description,
   stateName,
   varType,
+  onEditClick,
 }) => {
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
@@ -211,7 +213,6 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
     <ReqoreMenuItem
       id={`${parentStateName ? camelCase(parentStateName) : ''}${type}${stateName || ''}`}
       ref={!disabled ? drag : undefined}
-      flat={false}
       description={description || FSMItemDescByType[type]}
       badge={count}
       icon={FSMItemIconByType[type]}
@@ -221,6 +222,8 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
       onDoubleClick={() => {
         onDoubleClick(name, TOOLBAR_ITEM_TYPE, type, varType, stateName);
       }}
+      rightIcon={onEditClick ? 'EditLine' : undefined}
+      onRightIconClick={onEditClick}
     >
       {children}
     </ReqoreMenuItem>

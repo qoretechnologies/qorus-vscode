@@ -4,7 +4,8 @@ import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
 import multipleVariablesFsm from '../Data/multipleVariablesFsm.json';
-import { SwitchesToBuilder } from '../Tests/FSM.stories';
+import { AutoAlign, SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
+import { sleep } from '../Tests/utils';
 import { StoryMeta } from '../types';
 
 const meta = {
@@ -89,5 +90,20 @@ export const MultipleDeepVariableStates: StoryFSM = {
 export const NoInstance: StoryFSM = {
   args: {
     qorus_instance: false,
+  },
+};
+
+export const IncompatibleStates: StoryFSM = {
+  args: {
+    fsm,
+  },
+  play: async ({ canvasElement, ...rest }) => {
+    await AutoAlign.play({ canvasElement, ...rest });
+
+    await sleep(500);
+
+    // Fake double click lol
+    await fireEvent.click(document.querySelector('#state-1'));
+    await fireEvent.click(document.querySelector('#state-1'));
   },
 };

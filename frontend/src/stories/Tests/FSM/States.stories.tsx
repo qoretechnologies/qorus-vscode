@@ -1,19 +1,20 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-library';
-import FSMView from '../../containers/InterfaceCreator/fsm';
-import fsm from '../Data/fsm.json';
-import { NewState } from '../Views/FSM.stories';
-import { StoryMeta } from '../types';
+import FSMView from '../../../containers/InterfaceCreator/fsm';
+import { NewState } from '../../Views/FSM.stories';
+import { StoryMeta } from '../../types';
 import {
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
   _testsSubmitFSMState,
   sleep,
-} from './utils';
+} from '../utils';
+import { NewVariable } from './Variables.stories';
 
 const meta = {
   component: FSMView,
+  title: 'Tests/FSM/New states',
   args: {
     reqoreOptions: {
       animations: {
@@ -32,168 +33,10 @@ export default meta;
 
 type StoryFSM = StoryObj<typeof meta>;
 
-export const SwitchesToBuilder: StoryFSM = {
-  args: {
-    fsm,
-  },
-  parameters: {
-    chromatic: {
-      disableSnapshot: false,
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await waitFor(async () => {
-      await fireEvent.click(canvas.getAllByText('Go to flow builder')[0]);
-      await expect(document.querySelector('#fsm-diagram svg')).toBeInTheDocument();
-    });
-  },
-};
-
-export const ShowsStateIds: StoryFSM = {
-  args: {
-    fsm,
-  },
-  parameters: {
-    chromatic: {
-      disableSnapshot: false,
-    },
-  },
-  play: async ({ canvasElement, ...rest }) => {
-    await AutoAlign.play({ canvasElement, ...rest });
-
-    const canvas = within(canvasElement);
-
-    await fireEvent.click(document.querySelector('#show-state-ids'));
-
-    await expect(canvas.getAllByText('[1] Save Intent Info')[0]).toBeInTheDocument();
-  },
-};
-
-export const AutoAlign: StoryFSM = {
-  args: {
-    fsm,
-  },
-  parameters: {
-    chromatic: {
-      disableSnapshot: false,
-    },
-  },
-  play: async ({ canvasElement, ...rest }) => {
-    await SwitchesToBuilder.play({ canvasElement, ...rest });
-
-    const canvas = within(canvasElement);
-
-    await waitFor(
-      async () => {
-        await expect(document.querySelectorAll('#fsm-diagram .reqore-panel').length).toBe(9);
-        await sleep(1000);
-        await fireEvent.click(canvas.getAllByText('Auto align states')[0]);
-      },
-      { timeout: 5000 }
-    );
-  },
-};
-
-export const SelectedStateChange: StoryFSM = {
-  args: {
-    fsm,
-  },
-  parameters: {
-    chromatic: {
-      disableSnapshot: false,
-    },
-  },
-  play: async ({ canvasElement, ...rest }) => {
-    await SwitchesToBuilder.play({ canvasElement, ...rest });
-
-    await fireEvent.click(document.querySelector('#state-3'));
-    await waitFor(
-      async () => {
-        await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
-        await expect(document.querySelector('.reqore-drawer h3').textContent).toBe(
-          'Intent: Close Ticket?'
-        );
-      },
-      { timeout: 10000 }
-    );
-
-    await fireEvent.click(document.querySelector('#state-1'));
-    await waitFor(
-      async () => {
-        // Make sure the h3 with text `Intent: Close Ticket?` inside .reqore-drawer is visible
-        await expect(document.querySelector('.reqore-drawer h3').textContent).toBe(
-          'Save Intent Info'
-        );
-      },
-      { timeout: 10000 }
-    );
-  },
-};
-
-export const NewVariableState: StoryFSM = {
+export const NewStateFromVariable: StoryFSM = {
   play: async ({ canvasElement, mapperId = 'mapper', ...rest }) => {
     const canvas = within(canvasElement);
-
-    await SwitchesToBuilder.play({ canvasElement, ...rest });
-
-    // Open the variables dialog
-    await waitFor(async () => {
-      await fireEvent.click(document.querySelector('#fsm-variables'));
-      await expect(document.querySelector('#create-new-variable')).toBeInTheDocument();
-    });
-
-    await fireEvent.click(document.querySelector('#create-new-variable'));
-    await expect(document.querySelector('#save-variable')).toBeDisabled();
-
-    await fireEvent.change(document.querySelectorAll('.reqore-input')[0], {
-      target: { value: 'testVariable' },
-    });
-    await fireEvent.change(document.querySelectorAll('.reqore-textarea')[0], {
-      target: { value: 'This is a test description' },
-    });
-    await waitFor(_testsSelectItemFromDropdown(canvas, 'data-provider', 'string'));
-
-    await fireEvent.click(document.querySelector('.provider-type-selector'));
-    await fireEvent.click(canvas.getByText('datasource'));
-    await waitFor(
-      async () => {
-        await fireEvent.click(document.querySelector('.provider-selector'));
-        await fireEvent.click(canvas.getAllByText('omquser')[0]);
-      },
-      {
-        timeout: 5000,
-      }
-    );
-
-    await sleep(1000);
-
-    await waitFor(
-      async () => {
-        await fireEvent.change(document.querySelectorAll('.reqore-textarea')[1], {
-          target: { value: 'SELECT * FROM gl_record' },
-        });
-        await sleep(1000);
-        await fireEvent.click(canvas.getAllByText('Apply search options')[0]);
-      },
-      {
-        timeout: 5000,
-      }
-    );
-
-    await sleep(1000);
-
-    await waitFor(
-      async () => {
-        await expect(document.querySelector('#save-variable')).toBeEnabled();
-        await fireEvent.click(document.querySelector('#save-variable'));
-        await fireEvent.click(document.querySelector('#submit-variables'));
-      },
-      {
-        timeout: 5000,
-      }
-    );
+    await NewVariable.play({ canvasElement, ...rest });
 
     await fireEvent.dblClick(document.querySelector(`#var-actiontestVariable`));
     await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());

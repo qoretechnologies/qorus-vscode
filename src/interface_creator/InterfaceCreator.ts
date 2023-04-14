@@ -1054,7 +1054,7 @@ export abstract class InterfaceCreator {
           }
           case 'transient':
           case 'var': {
-            result += `${tag}:\n ${InterfaceCreator.indentYamlDump(value, 1, true)}`;
+            result += `${tag}:\n${InterfaceCreator.indentYamlDump(value, 1, true)}`;
             break;
           }
           case 'fields':

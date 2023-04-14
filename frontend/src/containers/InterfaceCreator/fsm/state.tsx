@@ -82,7 +82,7 @@ export const getStateColor = (stateType: TStateTypes): IReqoreEffect['gradient']
       color = '#e8970b';
       break;
     case 'logic':
-      color = '#3b3b3b';
+      color = '#0e041a';
       break;
     case 'api':
       color = '#1914b0';
@@ -265,8 +265,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
     },
   });
 
-  const [shouldWiggle, setShouldWiggle] = useState<boolean>(false);
-  const [isCompatible, setIsCompatible] = useState<boolean>(null);
+  const [isCompatible, setIsCompatible] = useState<boolean>(undefined);
   const [isLoadingCheck, setIsLoadingCheck] = useState<boolean>(false);
   const clicks = useRef(0);
   const { addMenu } = useContext(ContextMenuContext);
@@ -285,28 +284,27 @@ const FSMState: React.FC<IFSMStateProps> = ({
         if (selectedState) {
           setIsCompatible(isAvailable);
           setIsLoadingCheck(false);
-          setShouldWiggle(true);
         } else {
-          setShouldWiggle(false);
           setIsLoadingCheck(false);
-          setIsCompatible(null);
+          setIsCompatible(undefined);
         }
       } else {
-        setShouldWiggle(false);
         setIsLoadingCheck(false);
-        setIsCompatible(null);
+        setIsCompatible(undefined);
       }
     })();
   }, [selectedState]);
 
-  const handleClick = () => {
+  const handleClick = (e) => {
+    e.stopPropagation();
+
     clicks.current += 1;
 
     clearTimeout(clicksTimeout.current);
     clicksTimeout.current = null;
     clicksTimeout.current = setTimeout(() => {
       if (clicks.current === 1) {
-        if (!selectedState || !shouldWiggle) {
+        if (!selectedState || !isCompatible) {
           activateState?.(id, { inputType, outputType });
         } else {
           onClick?.(id);
@@ -324,6 +322,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       id={`state-${id}`}
       ref={drag}
       isStatic={isStatic}
+      disabled={isCompatible === false}
       intent={
         isLoadingCheck
           ? 'pending'
@@ -338,19 +337,21 @@ const FSMState: React.FC<IFSMStateProps> = ({
         {
           gradient: {
             ...getStateColor(getStateCategory(action?.type || type)),
-            animate: shouldWiggle ? 'always' : 'hover',
+            animate: isCompatible ? 'always' : 'hover',
           },
-          glow: shouldWiggle
+          glow: isCompatible
             ? {
                 color: selectedState === id ? 'info' : 'success',
                 size: 5,
                 blur: 10,
               }
             : undefined,
+          grayscale: selectedState && !isCompatible,
         } as IReqoreEffect
       }
       icon={isLoadingCheck ? 'Loader5Fill' : FSMItemIconByType[action?.type || type]}
       name={`fsm-state-${name}`}
+      className="fsm-state"
       responsiveActions={false}
       responsiveTitle={false}
       x={position?.x}
@@ -440,7 +441,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
             {
               icon: 'Edit2Line' as IReqoreIconName,
               disabled: type === 'block' && !qorus_instance,
-              onClick: (e) => handleClick(e, onEditClick),
+              onClick: () => {
+                onEditClick?.(id);
+              },
               minimal: true,
               flat: true,
               size: 'small',
@@ -448,7 +451,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
             },
             {
               icon: 'DeleteBin4Fill' as IReqoreIconName,
-              onClick: (e) => handleClick(e, onDeleteClick),
+              onClick: () => {
+                onDeleteClick?.(id);
+              },
               intent: 'danger',
               minimal: true,
               flat: true,
