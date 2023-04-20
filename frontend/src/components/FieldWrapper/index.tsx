@@ -235,6 +235,7 @@ export interface IInterfaceCreatorPanel {
 }
 
 export interface IField {
+  warning?: string;
   t?: TTranslator;
   group?: string;
   compact?: boolean;

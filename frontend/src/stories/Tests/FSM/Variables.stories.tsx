@@ -4,7 +4,8 @@ import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-librar
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import VariablesFSM from '../../Data/variablesFsm.json';
 import { StoryMeta } from '../../types';
-import { _testsSelectItemFromDropdown, sleep } from '../utils';
+import { NewVariable } from '../Variables.stories';
+import { sleep } from '../utils';
 import { SwitchesToBuilder } from './Basic.stories';
 
 const meta = {
@@ -28,63 +29,19 @@ export default meta;
 
 type StoryFSM = StoryObj<typeof meta>;
 
-export const NewVariable: StoryFSM = {
+export const NewVariableState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
-    const canvas = within(canvasElement);
-
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    // Open the variables dialog
-    await waitFor(async () => {
-      await fireEvent.click(document.querySelector('#fsm-variables'));
-      await expect(document.querySelector('#create-new-variable')).toBeInTheDocument();
-    });
+    await fireEvent.click(document.querySelector('#fsm-variables'));
 
-    await fireEvent.click(document.querySelector('#create-new-variable'));
-    await expect(document.querySelector('#save-variable')).toBeDisabled();
+    // @ts-ignore
+    await NewVariable.play({ canvasElement, ...rest });
 
-    await fireEvent.change(document.querySelectorAll('.reqore-input')[0], {
-      target: { value: 'testVariable' },
-    });
-    await fireEvent.change(document.querySelectorAll('.reqore-textarea')[0], {
-      target: { value: 'This is a test description' },
-    });
-    await waitFor(_testsSelectItemFromDropdown(canvas, 'data-provider', 'string'));
-
-    await fireEvent.click(document.querySelector('.provider-type-selector'));
-    await fireEvent.click(canvas.getByText('datasource'));
-    await waitFor(
-      async () => {
-        await fireEvent.click(document.querySelector('.provider-selector'));
-        await fireEvent.click(canvas.getAllByText('omquser')[0]);
-      },
-      {
-        timeout: 5000,
-      }
-    );
-
-    await sleep(1000);
+    await sleep(100);
 
     await waitFor(
       async () => {
-        await fireEvent.change(document.querySelectorAll('.reqore-textarea')[1], {
-          target: { value: 'SELECT * FROM gl_record' },
-        });
-        await sleep(1000);
-        await fireEvent.click(canvas.getAllByText('Apply search options')[0]);
-      },
-      {
-        timeout: 5000,
-      }
-    );
-
-    await sleep(1000);
-
-    await waitFor(
-      async () => {
-        await expect(document.querySelector('#save-variable')).toBeEnabled();
-        await fireEvent.click(document.querySelector('#save-variable'));
-        await fireEvent.click(document.querySelector('#submit-variables'));
         await expect(document.querySelector(`#var-actiontestVariable`)).toBeInTheDocument();
       },
       {

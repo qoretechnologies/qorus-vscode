@@ -23,18 +23,15 @@ import { VariableForm } from './form';
 
 export interface IFSMVariablesProps {
   transient?: TFSMVariables;
-  persistent?: TFSMVariables;
+  var?: TFSMVariables;
   selectedVariable?: {
     name: string;
     variableType: 'var' | 'transient';
   };
   onClose: () => void;
-  onSubmit: ({
-    transient,
-    persistent,
-  }: {
+  onSubmit: (data: {
     transient: TFSMVariables;
-    persistent: TFSMVariables;
+    var: TFSMVariables;
     changes?: {
       name: string;
       type: 'transient' | 'var';
@@ -45,21 +42,21 @@ export interface IFSMVariablesProps {
 
 export const FSMVariables = ({
   transient,
-  persistent,
+  var: varVars,
   onClose,
   onSubmit,
   selectedVariable,
 }: IFSMVariablesProps) => {
   const [_transient, setTransient] = useState<TFSMVariables>(transient);
-  const [_persistent, setPersistent] = useState<TFSMVariables>(persistent);
+  const [_persistent, setPersistent] = useState<TFSMVariables>(varVars);
   const [selectedTab, setSelectedTab] = useState<string | number>(
-    selectedVariable?.variableType === 'var' ? 'persistent' : 'transient'
+    selectedVariable?.variableType || 'transient'
   );
   const [_selectedVariable, setSelectedVariable] = useState<string>(selectedVariable?.name);
   const [changes, setChanges] = useState<
     {
       name: string;
-      type: string;
+      type: 'transient' | 'var';
       changeType: 'add' | 'remove' | 'update';
     }[]
   >([]);
@@ -67,7 +64,7 @@ export const FSMVariables = ({
 
   const handleSubmitClick = useCallback(() => {
     onClose();
-    onSubmit({ transient: _transient, persistent: _persistent, changes });
+    onSubmit({ transient: _transient, var: _persistent, changes });
   }, [_transient, _persistent]);
 
   const handleCreateNewClick = () => {
@@ -101,7 +98,7 @@ export const FSMVariables = ({
   };
 
   const renderVariableList = useCallback(
-    (type: 'transient' | 'persistent') => {
+    (type: 'transient' | 'var') => {
       const variables = type === 'transient' ? _transient : _persistent;
 
       return (
@@ -114,7 +111,7 @@ export const FSMVariables = ({
               wrap
               id="create-new-variable"
             >
-              Create new {type === 'transient' ? 'transient' : 'persistent'} variable
+              Create new {type === 'transient' ? 'transient' : 'var'} variable
             </ReqoreMenuItem>
             {size(variables) === 0 ? (
               <ReqoreMessage intent="muted">No variables created</ReqoreMessage>
@@ -125,6 +122,7 @@ export const FSMVariables = ({
                   selected={_selectedVariable === name}
                   onClick={() => setSelectedVariable(name)}
                   minimal
+                  className="variable-selector"
                   intent={isVariableValid(variables[name]) ? undefined : 'danger'}
                   rightIcon={variables[name].readOnly ? undefined : 'DeleteBin2Fill'}
                   onRightIconClick={() => {
@@ -172,9 +170,9 @@ export const FSMVariables = ({
   );
 
   const renderVariableForm = useCallback(
-    (type: 'transient' | 'persistent') => {
+    (type: 'transient' | 'var') => {
       const variableData: IFSMVariable = find(
-        { ..._transient, ..._persistent },
+        selectedTab === 'transient' ? _transient : _persistent,
         (_data, name) => name === _selectedVariable
       );
 
@@ -251,8 +249,8 @@ export const FSMVariables = ({
             badge: size(_transient),
           },
           {
-            label: 'Persistent',
-            id: 'persistent',
+            label: 'Var',
+            id: 'var',
             description: 'Variables that are saved',
             badge: size(_persistent),
           },
@@ -274,12 +272,12 @@ export const FSMVariables = ({
           {renderVariableForm('transient')}
         </ReqoreTabsContent>
         <ReqoreTabsContent
-          tabId="persistent"
+          tabId="var"
           style={{ flexFlow: 'row', paddingBottom: 0 }}
           padded="vertical"
         >
-          {renderVariableList('persistent')}
-          {renderVariableForm('persistent')}
+          {renderVariableList('var')}
+          {renderVariableForm('var')}
         </ReqoreTabsContent>
       </ReqoreTabs>
     </ReqoreModal>

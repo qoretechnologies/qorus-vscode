@@ -1,4 +1,5 @@
 import { ReqoreMenuItem } from '@qoretechnologies/reqore';
+import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { camelCase } from 'lodash';
 import { useDrag } from 'react-dnd';
@@ -26,6 +27,7 @@ export interface IFSMToolbarItemProps {
   description?: string;
   varType?: 'transient' | 'var';
   onEditClick?: () => any;
+  isInherited?: boolean;
 }
 
 export const getStateStyle = (type, toolbar?: boolean) => {
@@ -195,6 +197,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   stateName,
   varType,
   onEditClick,
+  isInherited,
 }) => {
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
@@ -209,12 +212,37 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
     },
   });
 
+  const getBadges = () => {
+    const badges: TReqoreBadge[] = [];
+
+    if (count !== 0) {
+      badges.push(count);
+    }
+
+    if (isInherited) {
+      badges.push({
+        label: 'Inherited',
+        effect: {
+          gradient: {
+            colors: {
+              0: '#28a89d',
+              100: '#05554c',
+            },
+          },
+        },
+      });
+    }
+
+    return badges;
+  };
+
   return (
     <ReqoreMenuItem
       id={`${parentStateName ? camelCase(parentStateName) : ''}${type}${stateName || ''}`}
       ref={!disabled ? drag : undefined}
       description={description || FSMItemDescByType[type]}
-      badge={count}
+      badge={getBadges()}
+      wrap={isInherited}
       icon={FSMItemIconByType[type]}
       effect={{
         gradient: getStateColor(category),

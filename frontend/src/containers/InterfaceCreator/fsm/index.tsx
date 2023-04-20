@@ -935,8 +935,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       getStateDataForComparison(inputState, 'input')
     );
 
-    console.log(stateId, targetId, compatible);
-
     return compatible;
   };
 
@@ -1325,8 +1323,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           updateHistory(newStates);
         }
       });
-
-      console.log(newStates);
 
       return newStates;
     });
@@ -1804,18 +1800,18 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       {showVariables?.show && (
         <FSMVariables
           onClose={() => setShowVariables(undefined)}
-          onSubmit={({ transient, persistent, changes }) => {
+          onSubmit={({ transient, var: varVars, changes }) => {
             setMetadata({
               ...metadata,
               transient,
-              var: persistent,
+              var: varVars,
             });
             // For each change, remove the state using this variable
             changes.forEach(({ name, type }) => {
               setStates(removeAllStatesWithVariable(name, type, states, interfaceId));
             });
           }}
-          persistent={metadata?.var}
+          var={metadata?.var}
           transient={metadata?.transient}
           selectedVariable={showVariables?.selected}
         />
@@ -2129,19 +2125,26 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                                 type="var-action"
                                 stateName={variableId}
                                 varType={variable.variableType}
-                                onEditClick={() =>
-                                  setShowVariables({
-                                    show: true,
-                                    selected: {
-                                      name: variableId,
-                                      variableType: variable.variableType,
-                                    },
-                                  })
+                                isInherited={variable.readOnly}
+                                onEditClick={
+                                  variable.readOnly
+                                    ? undefined
+                                    : () =>
+                                        setShowVariables({
+                                          show: true,
+                                          selected: {
+                                            name: variableId,
+                                            variableType: variable.variableType,
+                                          },
+                                        })
                                 }
                                 count={size(
                                   filter(
                                     states,
-                                    ({ action }: IFSMState) => action?.type === 'var-action'
+                                    ({ action }: IFSMState) =>
+                                      action?.type === 'var-action' &&
+                                      (action?.value as TVariableActionValue).var_name ===
+                                        variableId
                                   )
                                 )}
                                 onDoubleClick={handleToolbarItemDblClick}

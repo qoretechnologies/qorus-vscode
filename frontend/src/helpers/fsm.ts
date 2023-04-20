@@ -404,8 +404,6 @@ export const removeAllStatesWithVariable = (
     newStates = removeFSMState(newStates, stateId, interfaceId);
   });
 
-  console.log(removedStatesIds, newStates);
-
   return newStates;
 };
 
@@ -458,8 +456,6 @@ export const removeFSMState = (
       if (stateId === id) {
         return modifiedStates;
       }
-
-      console.log(states, id, interfaceId);
 
       newState = removeTransitionsWithStateId(states, id, stateId);
 

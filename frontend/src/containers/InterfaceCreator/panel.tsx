@@ -1,6 +1,8 @@
 import { ReqoreDropdown, ReqoreInput, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { IReqoreDropdownProps } from '@qoretechnologies/reqore/dist/components/Dropdown';
 import { IReqoreDropdownItemProps } from '@qoretechnologies/reqore/dist/components/Dropdown/item';
+import { IReqoreEffect } from '@qoretechnologies/reqore/dist/components/Effect';
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import {
   camelCase,
   capitalize,
@@ -41,6 +43,7 @@ import {
   PositiveColorEffect,
   SaveColorEffect,
   SelectorColorEffect,
+  WarningColorEffect,
 } from '../../components/Field/multiPair';
 import FieldGroup from '../../components/FieldGroup';
 import {
@@ -352,6 +355,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 : false,
             value: clonedData && field.name in clonedData ? clonedData[field.name] : undefined,
             hasValueSet: clonedData && field.name in clonedData,
+            warning:
+              field.name === 'lang' && !initialData.is_qore_installed
+                ? 'Qore language missing, you will not be able to create or edit qore interfaces.'
+                : undefined,
           }));
           if (!size(selectedFields)) {
             // Pull the pre-selected fields
@@ -843,6 +850,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           }),
           {}
         );
+
         result = await initialData.callBackend(
           isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
           undefined,
@@ -888,6 +896,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       }
 
       if (result.ok) {
+        // We need to change the `orig_name` field to a new name
+        //handleFieldChange('orig_name', newData.name);
+
         if (onSubmitSuccess) {
           onSubmitSuccess(newData);
         }
@@ -1115,6 +1126,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   const canSubmit: () => boolean = () => {
     let isValid = true;
 
+    if (!initialData.is_qore_installed) {
+      const lang = requestFieldData('lang', 'value');
+
+      if (lang === 'qore') {
+        isValid = false;
+      }
+    }
+
     if (hasClassConnections && !areClassConnectionsValid()) {
       isValid = false;
     }
@@ -1199,6 +1218,36 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
       return <React.Fragment key={groupName}>{renderFields(fields)}</React.Fragment>;
     });
+  };
+
+  const getSubmitIcon = (): IReqoreIconName => {
+    const lang = requestFieldData('lang', 'value');
+
+    if (lang === 'qore' && !initialData.is_qore_installed) {
+      return 'ErrorWarningLine';
+    }
+
+    return 'CheckLine';
+  };
+
+  const getSubmitEffect = (): IReqoreEffect => {
+    const lang = requestFieldData('lang', 'value');
+
+    if (lang === 'qore' && !initialData.is_qore_installed) {
+      return WarningColorEffect;
+    }
+
+    return SaveColorEffect;
+  };
+
+  const getSubmitTooltip = (): string => {
+    const lang = requestFieldData('lang', 'value');
+
+    if (lang === 'qore' && !initialData.is_qore_installed) {
+      return 'Qore language is missing, please select a different language';
+    }
+
+    return 'Save this interface';
   };
 
   return (
@@ -1294,10 +1343,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           {
             label: t(submitLabel),
             disabled: !canSubmit(),
-            icon: 'CheckLine',
+            icon: getSubmitIcon(),
             responsive: false,
-            effect: SaveColorEffect,
+            effect: getSubmitEffect(),
             onClick: handleSubmitClick,
+            tooltip: getSubmitTooltip(),
             position: 'right',
           },
         ]}

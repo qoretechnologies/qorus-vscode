@@ -1,6 +1,6 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
-import { fireEvent, waitFor, within } from '@storybook/testing-library';
+import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
 import multipleVariablesFsm from '../Data/multipleVariablesFsm.json';
@@ -84,6 +84,18 @@ export const MultipleDeepVariableStates: StoryFSM = {
 
     await fireEvent.click(canvas.getAllByText('Next')[0]);
     await expect(canvas.getAllByText('State 2.State 3.State 6')[0]).toBeInTheDocument();
+  },
+};
+
+export const ReadonlyVariablesInState: StoryFSM = {
+  args: {
+    fsm: multipleVariablesFsm,
+  },
+  play: async ({ canvasElement, stateType, ...rest }) => {
+    await MultipleDeepVariableStates.play({ canvasElement, ...rest });
+
+    await userEvent.click(document.querySelectorAll('.reqore-menu-item-right-icon')[3]);
+    await userEvent.click(document.querySelectorAll('.variable-selector')[0]);
   },
 };
 

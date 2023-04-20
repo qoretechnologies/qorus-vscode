@@ -1,0 +1,15 @@
+# This is a generated file, don't edit!
+type: job
+name: asgRenamed
+desc: asg
+lang: qore
+base-class-name: QorusJob
+class-name: Asg
+schedule:
+    minutes: "*"
+    hours: "*"
+    days: "*"
+    months: "*"
+    dow: "*"
+version: '123'
+code: asgRenamed-123.qjob

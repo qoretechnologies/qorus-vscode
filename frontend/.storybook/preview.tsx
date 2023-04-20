@@ -21,6 +21,11 @@ const preview: Preview = {
   },
   args: {
     qorus_instance: true,
+    reqoreOptions: {
+      animations: {
+        dialogs: false,
+      },
+    },
   },
   decorators: [
     (Story, context) => (

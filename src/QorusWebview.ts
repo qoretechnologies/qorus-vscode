@@ -16,6 +16,7 @@ import { qorus_request } from './QorusRequest';
 import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
 import { FormChangesResponder } from './interface_creator/FormChangesResponder';
 import { triggers } from './interface_creator/standard_methods';
+import { isLangClientAvailable } from './qore_vscode';
 import * as msg from './qorus_message';
 import { deepCopy } from './qorus_utils';
 
@@ -66,7 +67,7 @@ class QorusWebview {
     const { authority, path, scheme } = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path));
     const project: QorusProject = projects.getProject();
 
-    project.validateConfigFileAndDo((file_data) => {
+    project.validateConfigFileAndDo(async (file_data) => {
       const data = QorusProject.file2data(file_data);
 
       this.postMessage({
@@ -76,6 +77,7 @@ class QorusWebview {
           theme: data.theme,
           image_path: `${scheme}://${authority}${path}`,
           qorus_instance: qorus_request.activeQorusInstance(),
+          is_qore_installed: await isLangClientAvailable(),
           ...this.initial_data,
         },
       });

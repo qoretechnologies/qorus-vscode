@@ -10,7 +10,7 @@ import {
   _testsSubmitFSMState,
   sleep,
 } from '../utils';
-import { NewVariable } from './Variables.stories';
+import { NewVariableState } from './Variables.stories';
 
 const meta = {
   component: FSMView,
@@ -36,7 +36,7 @@ type StoryFSM = StoryObj<typeof meta>;
 export const NewStateFromVariable: StoryFSM = {
   play: async ({ canvasElement, mapperId = 'mapper', ...rest }) => {
     const canvas = within(canvasElement);
-    await NewVariable.play({ canvasElement, ...rest });
+    await NewVariableState.play({ canvasElement, ...rest });
 
     await fireEvent.dblClick(document.querySelector(`#var-actiontestVariable`));
     await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());
