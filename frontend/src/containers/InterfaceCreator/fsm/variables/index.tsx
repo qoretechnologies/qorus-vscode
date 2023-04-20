@@ -103,7 +103,13 @@ export const FSMVariables = ({
 
       return (
         <>
-          <ReqoreMenu padded={false} flat={false} position="left" width="200px">
+          <ReqoreMenu
+            padded={false}
+            flat={false}
+            position="left"
+            width="200px"
+            className="variable-list"
+          >
             <ReqoreMenuItem
               icon="AddLine"
               effect={PositiveColorEffect}
