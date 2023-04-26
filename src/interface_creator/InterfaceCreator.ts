@@ -962,6 +962,7 @@ export abstract class InterfaceCreator {
             break;
           case 'steps':
           case 'fsm':
+          case 'event-handlers':
           case 'triggers':
             const lines = JSON.stringify(value, null, 4).split('\n');
             for (let line of lines) {

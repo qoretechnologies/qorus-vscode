@@ -108,6 +108,8 @@ export default () =>
         const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
           props.setTheme(data.theme);
 
+          console.log('initial data', data);
+
           flushSync(() => setInitialData({}));
 
           let currentInitialData;

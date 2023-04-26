@@ -23,13 +23,13 @@ export type TRealRecordType = 'read' | 'create' | 'update' | 'delete';
 export interface IConnectorFieldProps {
   title?: string;
   onChange: (name: string, data: any) => void;
-  name: string;
+  name?: string;
   value: IProviderType;
   isInitialEditing?: boolean;
-  initialData: any;
+  initialData?: any;
   inline?: boolean;
   providerType?: 'inputs' | 'outputs' | 'event' | 'input-output' | 'condition';
-  t: TTranslator;
+  t?: TTranslator;
   requiresRequest?: boolean;
   recordType?: TRecordType;
   minimal?: boolean;
@@ -37,6 +37,7 @@ export interface IConnectorFieldProps {
   isPipeline?: boolean;
   isMessage?: boolean;
   isVariable?: boolean;
+  isEvent?: boolean;
   readOnly?: boolean;
   disableSearchOptions?: boolean;
   info?: any;
@@ -64,11 +65,12 @@ export interface IProviderType extends TProviderTypeSupports, TProviderTypeArgs 
   args?: any;
   supports_request?: boolean;
   supports_messages?: 'ASYNC' | 'SYNC' | 'NONE';
+  supports_observable?: boolean;
   transaction_management?: boolean;
   record_requires_search_options?: boolean;
   is_api_call?: boolean;
   search_options?: IOptions;
-  descriptions?: { [key: string]: string };
+  descriptions?: string[];
   message_id?: string;
   message?: {
     type: IQorusType;
@@ -264,6 +266,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   isPipeline,
   isMessage,
   isVariable,
+  isEvent,
   readOnly,
   disableSearchOptions,
   info,
@@ -272,8 +275,9 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   const [optionProvider, setOptionProvider] = useState<IProviderType | null>(
     maybeBuildOptionProvider(value)
   );
+
   const [nodes, setChildren] = useState(
-    optionProvider
+    optionProvider && providers[optionProvider?.type]
       ? [
           {
             value: optionProvider.name,
@@ -306,7 +310,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   const clear = () => {
     setIsEditing(false);
     setOptionProvider(null);
-    onChange(name, undefined);
+    onChange?.(name, undefined);
   };
 
   const reset = () => {
@@ -314,14 +318,14 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     setProvider(null);
     setOptionProvider(null);
     setIsLoading(false);
-    onChange(name, undefined);
+    onChange?.(name, undefined);
   };
 
   useDebounce(
     () => {
       if (!isEditing) {
         if (!optionProvider) {
-          onChange(name, undefined);
+          onChange?.(name, undefined);
           return;
         }
 
@@ -358,13 +362,13 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 
             const value = newNodes.map((node) => node.value).join('/');
 
-            onChange(name, `${type}/${value}${val.optionsChanged ? `?options_changed` : ''}`);
+            onChange?.(name, `${type}/${value}${val.optionsChanged ? `?options_changed` : ''}`);
           } else {
             const value = nodes.map((node) => node.value).join('/');
-            onChange(name, `${type}/${value}`);
+            onChange?.(name, `${type}/${value}`);
           }
         } else {
-          onChange(name, val);
+          onChange?.(name, val);
         }
       }
     },
@@ -410,6 +414,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           isPipeline={isPipeline}
           isMessage={isMessage}
           isVariable={isVariable}
+          isEvent={isEvent}
           readOnly={readOnly}
         />
       </SubField>
@@ -445,7 +450,9 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
         </SubField>
       ) : null}
       {/* This means that we are working with a Message provider */}
-      {optionProvider?.supports_messages && optionProvider?.supports_messages !== 'NONE' ? (
+      {isMessage &&
+      optionProvider?.supports_messages &&
+      optionProvider?.supports_messages !== 'NONE' ? (
         <>
           <SubField title={t('MessageType')} desc={t('SelectMessageType')}>
             <ProviderMessageSelector
@@ -611,4 +618,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   );
 };
 
-export default compose(withTextContext(), withInitialDataConsumer())(ConnectorField);
+export default compose(
+  withTextContext(),
+  withInitialDataConsumer()
+)(ConnectorField) as React.FC<IConnectorFieldProps>;

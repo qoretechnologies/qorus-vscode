@@ -10,6 +10,7 @@ import { StoryMeta } from '../types';
 
 const meta = {
   component: FSMView,
+  title: 'Views/FSM',
   args: {
     reqoreOptions: {
       animations: {

@@ -403,6 +403,32 @@ export const validateField: (
         return validateField('string', cont[0]) && validateField('string', cont[1]);
       }
       return !!value?.iface_kind && !!value?.name;
+    case 'service-event': {
+      if (!validateField('type-selector', value)) {
+        return false;
+      }
+
+      if (
+        !size(value.handlers) ||
+        !every(
+          value.handlers,
+          (handler) => (handler.type === 'fsm' || handler.type === 'method') && handler.value
+        )
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+    case 'service-events': {
+      if (!isArray(value) || !size(value)) {
+        return false;
+      }
+
+      return value.every((serviceEvent) => {
+        return validateField('service-event', serviceEvent);
+      });
+    }
     case 'auto':
     case 'any': {
       // Parse the string as yaml

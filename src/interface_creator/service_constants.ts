@@ -44,6 +44,11 @@ export const serviceFields = ({
   field.tags,
   field.classes,
   {
+    name: 'event-handlers',
+    type: 'service-events',
+    mandatory: false,
+  },
+  {
     name: 'base-class-name',
     type: 'select-string',
     get_message: {

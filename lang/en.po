@@ -1254,11 +1254,17 @@ msgstr "One or more interface groups that the object is a member of"
 msgid "field-label-event"
 msgstr "Event"
 
+msgid "field-label-event-handlers"
+msgstr "Event handlers"
+
 msgid "field-label-step"
 msgstr "Step"
 
 msgid "field-desc-event"
 msgstr "The name of the event associated with the step"
+
+msgid "field-desc-event-handlers"
+msgstr "Event handlers associated with this service"
 
 msgid "field-label-queue"
 msgstr "Queue"

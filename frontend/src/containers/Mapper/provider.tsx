@@ -47,6 +47,7 @@ export interface IProviderProps {
   onResetClick?: () => void;
   isMessage?: boolean;
   isVariable?: boolean;
+  isEvent?: boolean;
   availableOptions?: IOptionsSchema;
   readOnly?: boolean;
 }
@@ -167,6 +168,7 @@ const MapperProvider: FC<IProviderProps> = ({
   isVariable,
   availableOptions,
   readOnly,
+  isEvent,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [descriptions, setDescriptions] = useState<string[]>([]);
@@ -204,7 +206,14 @@ const MapperProvider: FC<IProviderProps> = ({
       }
 
       if (isMessage) {
-        return child.supports_messages || child.children_can_support_messages;
+        return (
+          (child.supports_messages && child.supports_messages !== 'NONE') ||
+          child.children_can_support_messages
+        );
+      }
+
+      if (isEvent) {
+        return child.supports_observable || child.children_can_support_observers;
       }
 
       return true;
@@ -371,6 +380,7 @@ const MapperProvider: FC<IProviderProps> = ({
         ? ''
         : `${suffix}?action=childDetails`
       : suffix;
+    console.log({ customOptionString });
     // Build the suffix
     let suffixString =
       customOptionString && customOptionString !== '' && size(options)
@@ -378,7 +388,7 @@ const MapperProvider: FC<IProviderProps> = ({
         : itemIndex === 1
         ? value === 'request' || value === 'response'
           ? ''
-          : '?action=childDetails'
+          : `?action=childDetails&${buildOptions()}`
         : newSuffix;
     // Fetch the data
 
@@ -512,6 +522,7 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             supports_messages: data.supports_messages,
+            supports_observable: data.supports_observable,
             transaction_management: data.transaction_management,
             record_requires_search_options: data.record_requires_search_options,
             can_manage_fields: record.data?.can_manage_fields,
@@ -539,6 +550,7 @@ const MapperProvider: FC<IProviderProps> = ({
       // If this provider has children
       if (size(data.children)) {
         const children = filterChildren(data.children);
+        console.log(children, isMessage);
         // Return the updated items and add
         // the new item
         return [
@@ -603,6 +615,7 @@ const MapperProvider: FC<IProviderProps> = ({
           supports_create: data.supports_create,
           supports_delete: data.supports_delete,
           supports_messages: data.supports_messages,
+          supports_observable: data.supports_observable,
           transaction_management: data.transaction_management,
           record_requires_search_options: data.record_requires_search_options,
           subtype: value === 'request' || value === 'response' ? value : undefined,
@@ -672,6 +685,7 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_delete: data.supports_delete,
             can_manage_fields: record.data.can_manage_fields,
             supports_messages: data.supports_messages,
+            supports_observable: data.supports_observable,
             transaction_management: data.transaction_management,
             record_requires_search_options: data.record_requires_search_options,
             subtype: value === 'request' || value === 'response' ? value : undefined,
@@ -752,41 +766,43 @@ const MapperProvider: FC<IProviderProps> = ({
           />
           {nodes.map((child, index) => (
             <ReqoreControlGroup fluid={false} key={index}>
-              <SelectField
-                key={`${title}-${index}`}
-                name={`provider-${type ? `${type}-` : ''}${index}`}
-                disabled={isLoading || readOnly}
-                className="provider-selector"
-                filters={['supports_read', 'supports_request', 'has_record']}
-                defaultItems={child.values}
-                onChange={(_name, value) => {
-                  // Get the child data
-                  const { url, suffix, provider_info } = child.values.find(
-                    (val) => val.name === value
-                  );
-                  // If the value is a wildcard present a dialog that the user has to fill
-                  if (value === '*') {
-                    setWildcardDiagram({
-                      index,
-                      isOpen: true,
-                      url,
-                      suffix,
-                    });
-                  } else {
-                    // Change the child
-                    handleChildFieldChange(
-                      value,
-                      url,
-                      index,
-                      suffix,
-                      undefined,
-                      !!provider_info?.constructor_options,
-                      !!provider_info?.record_requires_search_options
+              {size(child.values) ? (
+                <SelectField
+                  key={`${title}-${index}`}
+                  name={`provider-${type ? `${type}-` : ''}${index}`}
+                  disabled={isLoading || readOnly}
+                  className="provider-selector"
+                  filters={['supports_read', 'supports_request', 'has_record']}
+                  defaultItems={child.values}
+                  onChange={(_name, value) => {
+                    // Get the child data
+                    const { url, suffix, provider_info } = child.values.find(
+                      (val) => val.name === value
                     );
-                  }
-                }}
-                value={child.value}
-              />
+                    // If the value is a wildcard present a dialog that the user has to fill
+                    if (value === '*') {
+                      setWildcardDiagram({
+                        index,
+                        isOpen: true,
+                        url,
+                        suffix,
+                      });
+                    } else {
+                      // Change the child
+                      handleChildFieldChange(
+                        value,
+                        url,
+                        index,
+                        suffix,
+                        undefined,
+                        !!provider_info?.constructor_options,
+                        !!provider_info?.record_requires_search_options
+                      );
+                    }
+                  }}
+                  value={child.value}
+                />
+              ) : null}
               {index === 0 &&
               searchOptionsChanged &&
               optionProvider?.record_requires_search_options &&

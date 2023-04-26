@@ -3,6 +3,7 @@ import { ProviderMessageData } from '../../../components/Field/connectors/Messag
 
 const meta = {
   component: ProviderMessageData,
+  title: 'Fields/DataProvider/MessageData',
 } as Meta<typeof ProviderMessageData>;
 
 export default meta;

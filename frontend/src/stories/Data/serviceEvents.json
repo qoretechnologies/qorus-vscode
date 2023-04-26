@@ -1,0 +1,62 @@
+[
+  {
+    "type": "factory",
+    "name": "wsclient",
+    "transaction_management": false,
+    "path": "",
+    "options": {
+      "url": {
+        "type": "string",
+        "value": "asg"
+      }
+    },
+    "optionsChanged": false,
+    "supports_request": false,
+    "supports_read": false,
+    "supports_update": false,
+    "supports_create": false,
+    "supports_delete": false,
+    "supports_messages": "ASYNC",
+    "supports_observable": true,
+    "record_requires_search_options": false,
+    "descriptions": ["WebSocket client to URL \"ws://asg/\""],
+    "handlers": {
+      "ws-closed-event": {
+        "type": "fsm",
+        "value": "Variables"
+      },
+      "ws-pong-event": {
+        "type": "method",
+        "value": "method"
+      }
+    }
+  },
+  {
+    "type": "factory",
+    "name": "wsclient",
+    "transaction_management": false,
+    "path": "",
+    "options": {
+      "url": {
+        "type": "string",
+        "value": "asgasgasg"
+      }
+    },
+    "optionsChanged": false,
+    "supports_request": false,
+    "supports_read": false,
+    "supports_update": false,
+    "supports_create": false,
+    "supports_delete": false,
+    "supports_messages": "ASYNC",
+    "supports_observable": true,
+    "record_requires_search_options": false,
+    "descriptions": ["WebSocket client to URL \"ws://asgasgasg/\""],
+    "handlers": {
+      "ws-data-event": {
+        "type": "fsm",
+        "value": "AutoLayoutTest"
+      }
+    }
+  }
+]

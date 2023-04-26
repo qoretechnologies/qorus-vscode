@@ -1,9 +1,10 @@
 import { StoryObj } from '@storybook/react';
-import { FSMVariables } from '../../../containers/InterfaceCreator/fsm/variables';
-import { StoryMeta } from '../../types';
+import { FSMVariables } from '../../containers/InterfaceCreator/fsm/variables';
+import { StoryMeta } from '../types';
 
 const meta = {
   component: FSMVariables,
+  title: 'Components/Variables Editor',
 } as StoryMeta<typeof FSMVariables>;
 
 export default meta;
