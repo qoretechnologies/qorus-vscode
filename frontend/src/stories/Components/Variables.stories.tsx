@@ -12,43 +12,43 @@ export default meta;
 export const Empty = {};
 export const Existing: StoryObj<typeof meta> = {
   args: {
-    transient: {
+    global: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var3: {
         type: 'bool',
         value: true,
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var4: {
         type: 'hash',
         value: 'key: value',
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
     },
-    var: {
+    local: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'var',
+        variableType: 'local',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'var',
+        variableType: 'local',
         desc: 'Description for my variable',
       },
     },
@@ -59,50 +59,50 @@ export const New: StoryObj<typeof meta> = {
   args: {
     selectedVariable: {
       name: 'var5',
-      variableType: 'transient',
+      variableType: 'global',
     },
-    transient: {
+    global: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var3: {
         type: 'bool',
         value: true,
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var4: {
         type: 'hash',
         value: 'key: value',
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var5: {
         type: 'string',
-        variableType: 'transient',
+        variableType: 'global',
         value: undefined,
       },
     },
-    var: {
+    local: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'var',
+        variableType: 'local',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'var',
+        variableType: 'local',
         desc: 'Description for my variable',
       },
     },
@@ -113,45 +113,45 @@ export const Selected: StoryObj<typeof meta> = {
   args: {
     selectedVariable: {
       name: 'var2',
-      variableType: 'var',
+      variableType: 'local',
     },
-    transient: {
+    global: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var3: {
         type: 'bool',
         value: true,
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var4: {
         type: 'hash',
         value: 'key: value',
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
     },
-    var: {
+    local: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'var',
+        variableType: 'local',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'var',
+        variableType: 'local',
         desc: 'Description for my variable',
       },
     },
@@ -162,13 +162,13 @@ export const ReadOnly: StoryObj<typeof meta> = {
   args: {
     selectedVariable: {
       name: 'var2',
-      variableType: 'transient',
+      variableType: 'global',
     },
-    transient: {
+    global: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var2: {
@@ -189,34 +189,34 @@ export const ReadOnly: StoryObj<typeof meta> = {
             'Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations',
           ],
         },
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
         readOnly: true,
       },
       var3: {
         type: 'bool',
         value: true,
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
       var4: {
         type: 'hash',
         value: 'key: value',
-        variableType: 'transient',
+        variableType: 'global',
         desc: 'Description for my variable',
       },
     },
-    var: {
+    local: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'var',
+        variableType: 'local',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 20,
-        variableType: 'var',
+        variableType: 'local',
         desc: 'Description for my variable',
       },
     },

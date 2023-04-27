@@ -131,26 +131,26 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
   const handleDataUpdate = (name: string, value: any) => {
     if (name === 'metadata') {
-      // Remove the readonly transient variables
-      const transient = reduce<TFSMVariables, TFSMVariables>(
-        value.transient,
-        (newTransient, val, key): TFSMVariables => {
+      // Remove the readonly global variables
+      const global = reduce<TFSMVariables, TFSMVariables>(
+        value.global,
+        (newGlobal, val, key): TFSMVariables => {
           if (!val.readOnly) {
             return {
-              ...newTransient,
+              ...newGlobal,
               [key]: val,
             };
           }
 
-          return newTransient;
+          return newGlobal;
         },
         {}
       );
 
       setNewData((cur) => ({
         ...cur,
-        transient,
-        var: value?.var,
+        global,
+        local: value?.local,
       }));
 
       return;
@@ -544,15 +544,15 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     // variables, but the variables from metadata need to be readonly
 
     const variables: {
-      transient?: TFSMVariables;
-      var?: TFSMVariables;
+      global?: TFSMVariables;
+      local?: TFSMVariables;
     } = {};
 
-    if (metadata?.transient) {
-      variables.transient = reduce<TFSMVariables, TFSMVariables>(
-        metadata?.transient,
-        (newTransient, item, variableName): TFSMVariables => ({
-          ...newTransient,
+    if (metadata?.global) {
+      variables.global = reduce<TFSMVariables, TFSMVariables>(
+        metadata?.global,
+        (newGlobal, item, variableName): TFSMVariables => ({
+          ...newGlobal,
           [variableName]: {
             ...item,
             readOnly: true,
@@ -562,15 +562,15 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       );
     }
 
-    if (newData?.transient) {
-      variables.transient = {
-        ...variables.transient,
-        ...newData.transient,
+    if (newData?.global) {
+      variables.global = {
+        ...variables.global,
+        ...newData.global,
       };
     }
 
-    if (newData?.var) {
-      variables.var = newData.var;
+    if (newData?.local) {
+      variables.local = newData.local;
     }
 
     return variables;
@@ -675,23 +675,23 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                   delete modifiedData['block-config'];
                 }
 
-                modifiedData.transient = reduce<TFSMVariables, TFSMVariables>(
-                  modifiedData.transient,
-                  (newTransient, val, key): TFSMVariables => {
+                modifiedData.global = reduce<TFSMVariables, TFSMVariables>(
+                  modifiedData.global,
+                  (newGlobal, val, key): TFSMVariables => {
                     if (!val.readOnly) {
                       return {
-                        ...newTransient,
+                        ...newGlobal,
                         [key]: val,
                       };
                     }
 
-                    return newTransient;
+                    return newGlobal;
                   },
                   {}
                 );
 
-                if (!size(modifiedData.transient)) {
-                  delete modifiedData.transient;
+                if (!size(modifiedData.global)) {
+                  delete modifiedData.global;
                 }
 
                 onSubmit(id, modifiedData);

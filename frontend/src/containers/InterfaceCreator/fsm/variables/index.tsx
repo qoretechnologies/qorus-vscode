@@ -22,41 +22,41 @@ import { submitControl } from '../../controls';
 import { VariableForm } from './form';
 
 export interface IFSMVariablesProps {
-  transient?: TFSMVariables;
-  var?: TFSMVariables;
+  global?: TFSMVariables;
+  local?: TFSMVariables;
   selectedVariable?: {
     name: string;
-    variableType: 'var' | 'transient';
+    variableType: 'global' | 'local';
   };
   onClose: () => void;
   onSubmit: (data: {
-    transient: TFSMVariables;
-    var: TFSMVariables;
+    global: TFSMVariables;
+    local: TFSMVariables;
     changes?: {
       name: string;
-      type: 'transient' | 'var';
+      type: 'global' | 'local';
       changeType: 'add' | 'remove' | 'update';
     }[];
   }) => void;
 }
 
 export const FSMVariables = ({
-  transient,
-  var: varVars,
+  global,
+  local,
   onClose,
   onSubmit,
   selectedVariable,
 }: IFSMVariablesProps) => {
-  const [_transient, setTransient] = useState<TFSMVariables>(transient);
-  const [_persistent, setPersistent] = useState<TFSMVariables>(varVars);
+  const [_transient, setTransient] = useState<TFSMVariables>(global);
+  const [_persistent, setPersistent] = useState<TFSMVariables>(local);
   const [selectedTab, setSelectedTab] = useState<string | number>(
-    selectedVariable?.variableType || 'transient'
+    selectedVariable?.variableType || 'global'
   );
   const [_selectedVariable, setSelectedVariable] = useState<string>(selectedVariable?.name);
   const [changes, setChanges] = useState<
     {
       name: string;
-      type: 'transient' | 'var';
+      type: 'global' | 'local';
       changeType: 'add' | 'remove' | 'update';
     }[]
   >([]);
@@ -64,20 +64,20 @@ export const FSMVariables = ({
 
   const handleSubmitClick = useCallback(() => {
     onClose();
-    onSubmit({ transient: _transient, var: _persistent, changes });
+    onSubmit({ global: _transient, local: _persistent, changes });
   }, [_transient, _persistent]);
 
   const handleCreateNewClick = () => {
-    if (selectedTab === 'transient') {
+    if (selectedTab === 'global') {
       setTransient((prev) => ({
         ...prev,
-        [`variable_${size(prev)}`]: { type: 'string', value: undefined, variableType: 'transient' },
+        [`variable_${size(prev)}`]: { type: 'string', value: undefined, variableType: 'global' },
       }));
       setSelectedVariable(`variable_${size(_transient)}`);
     } else {
       setPersistent((prev) => ({
         ...prev,
-        [`variable_${size(prev)}`]: { type: 'string', value: undefined, variableType: 'var' },
+        [`variable_${size(prev)}`]: { type: 'string', value: undefined, variableType: 'local' },
       }));
       setSelectedVariable(`variable_${size(_persistent)}`);
     }
@@ -98,8 +98,8 @@ export const FSMVariables = ({
   };
 
   const renderVariableList = useCallback(
-    (type: 'transient' | 'var') => {
-      const variables = type === 'transient' ? _transient : _persistent;
+    (type: 'global' | 'local') => {
+      const variables = type === 'global' ? _transient : _persistent;
 
       return (
         <>
@@ -117,7 +117,7 @@ export const FSMVariables = ({
               wrap
               id="create-new-variable"
             >
-              Create new {type === 'transient' ? 'transient' : 'var'} variable
+              Create new {type === 'global' ? 'global' : 'local'} variable
             </ReqoreMenuItem>
             {size(variables) === 0 ? (
               <ReqoreMessage intent="muted">No variables created</ReqoreMessage>
@@ -137,7 +137,7 @@ export const FSMVariables = ({
                       title: 'Delete variable',
                       description: `Are you sure you want to delete the variable "${name}"?`,
                       onConfirm: () => {
-                        if (type === 'transient') {
+                        if (type === 'global') {
                           setTransient((prev) => {
                             const newTransient = { ...prev };
                             delete newTransient[name];
@@ -176,9 +176,9 @@ export const FSMVariables = ({
   );
 
   const renderVariableForm = useCallback(
-    (type: 'transient' | 'var') => {
+    (type: 'global' | 'local') => {
       const variableData: IFSMVariable = find(
-        selectedTab === 'transient' ? _transient : _persistent,
+        selectedTab === 'global' ? _transient : _persistent,
         (_data, name) => name === _selectedVariable
       );
 
@@ -191,7 +191,7 @@ export const FSMVariables = ({
             isVariableValid={isVariableValid}
             variableNames={keys(omit(_transient, _selectedVariable))}
             onChange={(originalName: string, data: IFSMVariable) => {
-              if (type === 'transient') {
+              if (type === 'global') {
                 setTransient((prev) => {
                   const newTransient = { ...prev };
                   delete newTransient[originalName];
@@ -249,15 +249,15 @@ export const FSMVariables = ({
         padded={false}
         tabs={[
           {
-            label: 'Transient',
-            id: 'transient',
-            description: 'Variables that are not saved',
+            label: 'Global',
+            id: 'global',
+            description: 'Global variables',
             badge: size(_transient),
           },
           {
-            label: 'Var',
-            id: 'var',
-            description: 'Variables that are saved',
+            label: 'Local',
+            id: 'local',
+            description: 'Local variables',
             badge: size(_persistent),
           },
         ]}
@@ -270,20 +270,20 @@ export const FSMVariables = ({
         fill
       >
         <ReqoreTabsContent
-          tabId="transient"
+          tabId="global"
           style={{ flexFlow: 'row', paddingBottom: 0 }}
           padded="vertical"
         >
-          {renderVariableList('transient')}
-          {renderVariableForm('transient')}
+          {renderVariableList('global')}
+          {renderVariableForm('global')}
         </ReqoreTabsContent>
         <ReqoreTabsContent
-          tabId="var"
+          tabId="local"
           style={{ flexFlow: 'row', paddingBottom: 0 }}
           padded="vertical"
         >
-          {renderVariableList('var')}
-          {renderVariableForm('var')}
+          {renderVariableList('local')}
+          {renderVariableForm('local')}
         </ReqoreTabsContent>
       </ReqoreTabs>
     </ReqoreModal>

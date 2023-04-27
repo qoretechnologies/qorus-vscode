@@ -18,14 +18,14 @@ export interface IFSMToolbarItemProps {
     name: string,
     type: string,
     stateType: string,
-    varType?: 'transient' | 'var',
+    varType?: 'global' | 'local',
     varName?: string
   ) => any;
   onDragStart: () => void;
   category: TStateTypes;
   parentStateName?: string;
   description?: string;
-  varType?: 'transient' | 'var';
+  varType?: 'global' | 'local';
   onEditClick?: () => any;
   isInherited?: boolean;
 }

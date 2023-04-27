@@ -341,22 +341,22 @@ export interface IAutoAlignConfig {
 
 export const getVariable = (
   varName: string,
-  varType: 'transient' | 'var',
+  varType: 'global' | 'local',
   metadata: IFSMMetadata
 ) => {
-  const transient = metadata?.transient || {};
-  const vars = metadata?.var || {};
+  const global = metadata?.global || {};
+  const local = metadata?.local || {};
 
-  if (varType === 'transient') {
-    return transient[varName];
+  if (varType === 'global') {
+    return global[varName];
   }
 
-  return vars[varName];
+  return local[varName];
 };
 
 export const removeAllStatesWithVariable = (
   varName: string,
-  varType: 'transient' | 'var',
+  varType: 'global' | 'local',
   states: IFSMStates,
   interfaceId: string
 ): IFSMStates => {

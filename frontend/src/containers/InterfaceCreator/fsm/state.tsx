@@ -188,6 +188,8 @@ export const getStateCategory = (type: string): TStateTypes => {
 };
 
 export const getStateType = ({ type, action, ...rest }: IFSMState) => {
+  console.log(type, action, rest);
+
   if (type === 'block') {
     return `${rest['block-type'] || 'for'} block (${size(rest.states)})`;
   }

@@ -150,14 +150,19 @@ describe('Align states with the grid', () => {
   });
 });
 
-test.only('it should remove all states with a certain variable', () => {
+test('it should remove all states with a certain variable', () => {
   const states: IFSMStates = multipleVariableStates.states as IFSMStates;
 
   expect(size(states)).toBe(2);
   expect(size(states['2'].states)).toBe(4);
   expect(size(states['2'].states['3'].states)).toBe(6);
 
-  const modifiedStates = removeAllStatesWithVariable('RootVariableProvider', 'transient', states);
+  const modifiedStates = removeAllStatesWithVariable(
+    'RootVariableProvider',
+    'global',
+    states,
+    'asdf'
+  );
 
   expect(size(modifiedStates)).toBe(1);
   expect(modifiedStates['1']).toBe(undefined);
@@ -166,8 +171,9 @@ test.only('it should remove all states with a certain variable', () => {
 
   const newModifiedStates = removeAllStatesWithVariable(
     'WhileVariableProvider',
-    'transient',
-    modifiedStates
+    'global',
+    modifiedStates,
+    'asdf'
   );
 
   expect(size(newModifiedStates['2'].states)).toBe(2);

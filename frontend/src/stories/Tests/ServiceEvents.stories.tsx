@@ -20,6 +20,8 @@ export const CreateNew: StoryObj<typeof meta> = {
     // @ts-expect-error
     await Event.play({ canvasElement, ...rest });
 
+    await sleep(1000);
+
     await waitFor(
       _testsSelectItemFromCollection(canvas, 'ws-data-event', 'Select from available events')
     );
@@ -27,6 +29,8 @@ export const CreateNew: StoryObj<typeof meta> = {
     await fireEvent.click(document.querySelectorAll('.reqore-checkbox')[1]);
 
     await waitFor(_testsSelectItemFromDropdown(canvas, 'Test FSM 1'));
+
+    await sleep(1000);
 
     await waitFor(
       _testsSelectItemFromCollection(canvas, 'ws-pong-event', 'Select from available events')
@@ -43,7 +47,7 @@ export const ModifyExisting: StoryObj<typeof meta> = {
   args: {
     value: serviceEvents as IServiceEventList,
   },
-  play: async ({ canvasElement, ...rest }) => {
+  play: async ({ canvasElement }) => {
     const canvas = await within(canvasElement);
 
     await waitFor(

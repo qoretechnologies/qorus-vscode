@@ -110,7 +110,7 @@ export interface IDraggableItem {
   name: 'fsm' | 'state' | 'block' | 'if';
   id?: number;
   stateType?: TAction;
-  varType?: 'transient' | 'var';
+  varType?: 'global' | 'local';
   varName?: string;
   injected?: boolean;
   injectedData?: any;
@@ -136,13 +136,13 @@ export interface IFSMMetadata {
   groups?: any[];
   'input-type'?: IProviderType;
   'output-type'?: IProviderType;
-  transient?: TFSMVariables;
-  var?: TFSMVariables;
+  global?: TFSMVariables;
+  local?: TFSMVariables;
 }
 
 export type TFSMStateType = 'state' | 'fsm' | 'block' | 'if';
 export type TVariableActionValue = {
-  var_type: 'transient' | 'var';
+  var_type: 'global' | 'local';
   var_name: string;
   transaction_action?: 'commit' | 'rollback' | 'begin-transaction';
   action_type?:
@@ -195,8 +195,8 @@ export interface IFSMState {
     name?: string;
   };
   // Block states can have their own variables
-  transient?: TFSMVariables;
-  var?: TFSMVariables;
+  global?: TFSMVariables;
+  local?: TFSMVariables;
 }
 
 export interface IFSMStates {
@@ -300,7 +300,7 @@ export interface IFSMVariable {
   value: any;
   desc?: string;
   name?: string;
-  variableType: 'transient' | 'var';
+  variableType: 'global' | 'local';
   readOnly?: boolean;
 }
 
@@ -348,8 +348,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     groups: fsm?.groups || [],
     'input-type': fsm?.['input-type'] || interfaceContext?.inputType || null,
     'output-type': fsm?.['output-type'] || null,
-    transient: fsm?.transient,
-    var: fsm?.var,
+    global: fsm?.global,
+    local: fsm?.local,
   });
 
   const wrapperRef = useRef(null);
@@ -376,7 +376,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     show?: boolean;
     selected?: {
       name: string;
-      variableType: 'var' | 'transient';
+      variableType: 'global' | 'local';
     };
   }>(undefined);
 
@@ -1800,19 +1800,19 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       {showVariables?.show && (
         <FSMVariables
           onClose={() => setShowVariables(undefined)}
-          onSubmit={({ transient, var: varVars, changes }) => {
+          onSubmit={({ global, local, changes }) => {
             setMetadata({
               ...metadata,
-              transient,
-              var: varVars,
+              global,
+              local,
             });
             // For each change, remove the state using this variable
             changes.forEach(({ name, type }) => {
               setStates(removeAllStatesWithVariable(name, type, states, interfaceId));
             });
           }}
-          var={metadata?.var}
-          transient={metadata?.transient}
+          global={metadata?.global}
+          local={metadata?.local}
           selectedVariable={showVariables?.selected}
         />
       )}
@@ -1832,8 +1832,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             label: 'Variables',
             icon: 'CodeSLine',
             onClick: () => setShowVariables({ show: true }),
-            intent: size(metadata?.transient) || size(metadata?.var) ? 'info' : undefined,
-            badge: size(metadata?.transient) + size(metadata?.var),
+            intent: size(metadata?.global) || size(metadata?.local) ? 'info' : undefined,
+            badge: size(metadata?.global) + size(metadata?.local),
             id: 'fsm-variables',
           },
           {
@@ -2109,11 +2109,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       label="Hide states list"
                       onClick={() => setShowStatesList(false)}
                     />
-                    {metadata.transient || metadata.var ? (
+                    {metadata.global || metadata.local ? (
                       <>
                         <ReqoreMenuDivider label="Variables" align="left" />
                         {map(
-                          { ...(metadata.transient || {}), ...(metadata.var || {}) },
+                          { ...(metadata.global || {}), ...(metadata.local || {}) },
                           (variable, variableId) =>
                             variable.type === 'data-provider' ? (
                               <FSMToolbarItem

@@ -241,7 +241,7 @@ export const validateField: (
     case 'var-action': {
       const varAction: TVariableActionValue = value;
 
-      if (varAction.var_type !== 'var' && varAction.var_type !== 'transient') {
+      if (varAction.var_type !== 'local' && varAction.var_type !== 'global') {
         return false;
       }
 
