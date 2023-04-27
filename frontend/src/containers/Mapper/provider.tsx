@@ -380,7 +380,7 @@ const MapperProvider: FC<IProviderProps> = ({
         ? ''
         : `${suffix}?action=childDetails`
       : suffix;
-    console.log({ customOptionString });
+
     // Build the suffix
     let suffixString =
       customOptionString && customOptionString !== '' && size(options)
@@ -550,7 +550,6 @@ const MapperProvider: FC<IProviderProps> = ({
       // If this provider has children
       if (size(data.children)) {
         const children = filterChildren(data.children);
-        console.log(children, isMessage);
         // Return the updated items and add
         // the new item
         return [

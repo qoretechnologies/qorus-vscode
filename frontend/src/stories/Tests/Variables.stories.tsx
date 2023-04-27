@@ -30,6 +30,8 @@ export const NewVariable: StoryFSM = {
       await expect(document.querySelector('#create-new-variable')).toBeInTheDocument();
     });
 
+    console.log('ABOUT TO CLICK #CREATE-NEW-VARIABLE');
+
     await fireEvent.click(document.querySelector('#create-new-variable'));
     await expect(document.querySelector('#save-variable')).toBeDisabled();
 
@@ -41,10 +43,13 @@ export const NewVariable: StoryFSM = {
     });
     await waitFor(_testsSelectItemFromDropdown(canvas, 'data-provider', 'string'));
 
+    console.log('ABOUT TO CLICK TYPE SELECTOR');
     await fireEvent.click(document.querySelector('.provider-type-selector'));
+    console.log('ABOUT TO CLICK DATASOURCE');
     await fireEvent.click(canvas.getByText('datasource'));
     await waitFor(
       async () => {
+        console.log('ABOUT TO CLICK FIRST PROVIDER SELECTOR');
         await fireEvent.click(document.querySelector('.provider-selector'));
         await fireEvent.click(canvas.getAllByText('omquser')[0]);
       },
@@ -61,6 +66,7 @@ export const NewVariable: StoryFSM = {
           target: { value: 'SELECT * FROM gl_record' },
         });
         await sleep(1000);
+        console.log('ABOUT TO CLICK APPLY SEARCH OPTIONS');
         await fireEvent.click(canvas.getAllByText('Apply search options')[0]);
       },
       {
@@ -73,6 +79,7 @@ export const NewVariable: StoryFSM = {
     await waitFor(
       async () => {
         await expect(document.querySelector('#save-variable')).toBeEnabled();
+        console.log('ABOUT TO CLICK SAVE & SUBMIT VARIABLES');
         await fireEvent.click(document.querySelector('#save-variable'));
         await fireEvent.click(document.querySelector('#submit-variables'));
       },

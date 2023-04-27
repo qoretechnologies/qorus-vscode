@@ -33,6 +33,8 @@ export const NewVariableState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
+    console.log('ABOUT TO CLICK #FSM-VARIABLES');
+
     await fireEvent.click(document.querySelector('#fsm-variables'));
 
     // @ts-ignore

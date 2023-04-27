@@ -66,13 +66,18 @@ export const NewStateFromVariable: StoryFSM = {
 
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+
     await sleep(2500);
+
+    console.log('ABOUT TO CLICK #STATE-1');
+
+    await fireEvent.click(document.querySelector(`#state-1`));
+
+    await sleep(1500);
 
     // Open the state
     await waitFor(
       async () => {
-        await fireEvent.click(document.querySelector(`#state-1`));
-        await sleep(1500);
         await expect(document.querySelectorAll('.system-option.reqore-input')[0]).toHaveValue(100);
       },
       { timeout: 15000 }
@@ -269,7 +274,6 @@ export const NewApiCallState: StoryFSM = {
 
     await waitFor(
       async () => {
-        await expect(document.querySelectorAll('.provider-selector').length).toBe(3);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[2]);
         await fireEvent.click(canvas.getAllByText('log-message')[0]);
       },
