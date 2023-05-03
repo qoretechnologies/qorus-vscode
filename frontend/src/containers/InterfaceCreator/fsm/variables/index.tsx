@@ -117,7 +117,7 @@ export const FSMVariables = ({
               wrap
               id="create-new-variable"
             >
-              Create new {type === 'globalvar' ? 'globalvar' : 'localvar'} variable
+              Create new {type === 'globalvar' ? 'global' : 'local'} variable
             </ReqoreMenuItem>
             {size(variables) === 0 ? (
               <ReqoreMessage intent="muted">No variables created</ReqoreMessage>
