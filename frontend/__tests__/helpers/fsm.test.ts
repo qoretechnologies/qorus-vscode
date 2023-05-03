@@ -159,7 +159,7 @@ test('it should remove all states with a certain variable', () => {
 
   const modifiedStates = removeAllStatesWithVariable(
     'RootVariableProvider',
-    'global',
+    'globalvar',
     states,
     'asdf'
   );
@@ -171,7 +171,7 @@ test('it should remove all states with a certain variable', () => {
 
   const newModifiedStates = removeAllStatesWithVariable(
     'WhileVariableProvider',
-    'global',
+    'globalvar',
     modifiedStates,
     'asdf'
   );
