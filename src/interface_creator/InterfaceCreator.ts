@@ -1053,8 +1053,8 @@ export abstract class InterfaceCreator {
 
             break;
           }
-          case 'transient':
-          case 'var': {
+          case 'globalvar':
+          case 'localvar': {
             result += `${tag}:\n${InterfaceCreator.indentYamlDump(value, 1, true)}`;
             break;
           }

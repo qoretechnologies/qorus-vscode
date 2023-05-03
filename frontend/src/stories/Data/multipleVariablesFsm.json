@@ -2,7 +2,7 @@
   "type": "fsm",
   "name": "MultipleVariablesFSMTest",
   "desc": "Test with multiple variables",
-  "global": {
+  "globalvar": {
     "RootVariableProvider": {
       "name": "RootVariableProvider",
       "value": {
@@ -22,10 +22,10 @@
         ]
       },
       "type": "data-provider",
-      "variableType": "global"
+      "variableType": "globalvar"
     }
   },
-  "local": {
+  "localvar": {
     "VarTest": {
       "name": "VarTest",
       "value": {
@@ -59,7 +59,7 @@
       },
       "type": "data-provider",
       "desc": "Var test",
-      "variableType": "local"
+      "variableType": "localvar"
     }
   },
   "states": {
@@ -76,7 +76,7 @@
       "action": {
         "type": "var-action",
         "value": {
-          "var_type": "global",
+          "var_type": "globalvar",
           "var_name": "RootVariableProvider",
           "action_type": "search"
         }
@@ -93,7 +93,7 @@
       "type": "block",
       "block-type": "while",
       "id": "70-tc5OyU",
-      "global": {
+      "globalvar": {
         "WhileVariableProvider": {
           "name": "WhileVariableProvider",
           "value": {
@@ -114,7 +114,7 @@
             ]
           },
           "type": "data-provider",
-          "variableType": "global"
+          "variableType": "globalvar"
         }
       },
       "block-config": {},
@@ -132,7 +132,7 @@
           "action": {
             "type": "var-action",
             "value": {
-              "var_type": "global",
+              "var_type": "globalvar",
               "var_name": "RootVariableProvider",
               "action_type": "search-single"
             }
@@ -151,7 +151,7 @@
           "action": {
             "type": "var-action",
             "value": {
-              "var_type": "global",
+              "var_type": "globalvar",
               "var_name": "WhileVariableProvider",
               "action_type": "search"
             }
@@ -168,7 +168,7 @@
           "type": "block",
           "block-type": "for",
           "id": "6AqkSItvA",
-          "global": {
+          "globalvar": {
             "DeepVariable": {
               "name": "DeepVariable",
               "value": {
@@ -188,11 +188,11 @@
                 ]
               },
               "type": "data-provider",
-              "variableType": "global"
+              "variableType": "globalvar"
             }
           },
           "block-config": {},
-          "local": {
+          "localvar": {
             "DeepPersistentTest": {
               "name": "DeepPersistentTest",
               "value": {
@@ -217,7 +217,7 @@
                 "descriptions": ["WebSocket client to URL \"ws://asg/\""]
               },
               "type": "data-provider",
-              "variableType": "local"
+              "variableType": "localvar"
             }
           },
           "states": {
@@ -234,7 +234,7 @@
               "action": {
                 "type": "var-action",
                 "value": {
-                  "var_type": "global",
+                  "var_type": "globalvar",
                   "var_name": "WhileVariableProvider",
                   "action_type": "search"
                 }
@@ -253,7 +253,7 @@
               "action": {
                 "type": "var-action",
                 "value": {
-                  "var_type": "global",
+                  "var_type": "globalvar",
                   "var_name": "RootVariableProvider",
                   "action_type": "search-single"
                 }
@@ -272,7 +272,7 @@
               "action": {
                 "type": "var-action",
                 "value": {
-                  "var_type": "global",
+                  "var_type": "globalvar",
                   "var_name": "RootVariableProvider",
                   "action_type": "transaction",
                   "transaction_action": "begin-transaction"
@@ -292,7 +292,7 @@
               "action": {
                 "type": "var-action",
                 "value": {
-                  "var_type": "global",
+                  "var_type": "globalvar",
                   "var_name": "DeepVariable",
                   "action_type": "transaction",
                   "transaction_action": "rollback"
@@ -312,7 +312,7 @@
               "action": {
                 "type": "var-action",
                 "value": {
-                  "var_type": "local",
+                  "var_type": "localvar",
                   "var_name": "DeepPersistentTest",
                   "action_type": "send-message",
                   "message": {
@@ -354,7 +354,7 @@
                   "action": {
                     "type": "var-action",
                     "value": {
-                      "var_type": "global",
+                      "var_type": "globalvar",
                       "var_name": "RootVariableProvider",
                       "action_type": "search"
                     }

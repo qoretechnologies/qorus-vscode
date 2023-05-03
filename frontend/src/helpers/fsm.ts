@@ -341,13 +341,13 @@ export interface IAutoAlignConfig {
 
 export const getVariable = (
   varName: string,
-  varType: 'global' | 'local',
+  varType: 'globalvar' | 'localvar',
   metadata: IFSMMetadata
 ) => {
-  const global = metadata?.global || {};
-  const local = metadata?.local || {};
+  const global = metadata?.globalvar || {};
+  const local = metadata?.localvar || {};
 
-  if (varType === 'global') {
+  if (varType === 'globalvar') {
     return global[varName];
   }
 
@@ -356,7 +356,7 @@ export const getVariable = (
 
 export const removeAllStatesWithVariable = (
   varName: string,
-  varType: 'global' | 'local',
+  varType: 'globalvar' | 'localvar',
   states: IFSMStates,
   interfaceId: string
 ): IFSMStates => {

@@ -22,41 +22,41 @@ import { submitControl } from '../../controls';
 import { VariableForm } from './form';
 
 export interface IFSMVariablesProps {
-  global?: TFSMVariables;
-  local?: TFSMVariables;
+  globalvar?: TFSMVariables;
+  localvar?: TFSMVariables;
   selectedVariable?: {
     name: string;
-    variableType: 'global' | 'local';
+    variableType: 'globalvar' | 'localvar';
   };
   onClose: () => void;
   onSubmit: (data: {
-    global: TFSMVariables;
-    local: TFSMVariables;
+    globalvar: TFSMVariables;
+    localvar: TFSMVariables;
     changes?: {
       name: string;
-      type: 'global' | 'local';
+      type: 'globalvar' | 'localvar';
       changeType: 'add' | 'remove' | 'update';
     }[];
   }) => void;
 }
 
 export const FSMVariables = ({
-  global,
-  local,
+  globalvar,
+  localvar,
   onClose,
   onSubmit,
   selectedVariable,
 }: IFSMVariablesProps) => {
-  const [_transient, setTransient] = useState<TFSMVariables>(global);
-  const [_persistent, setPersistent] = useState<TFSMVariables>(local);
+  const [_transient, setTransient] = useState<TFSMVariables>(globalvar);
+  const [_persistent, setPersistent] = useState<TFSMVariables>(localvar);
   const [selectedTab, setSelectedTab] = useState<string | number>(
-    selectedVariable?.variableType || 'global'
+    selectedVariable?.variableType || 'globalvar'
   );
   const [_selectedVariable, setSelectedVariable] = useState<string>(selectedVariable?.name);
   const [changes, setChanges] = useState<
     {
       name: string;
-      type: 'global' | 'local';
+      type: 'globalvar' | 'localvar';
       changeType: 'add' | 'remove' | 'update';
     }[]
   >([]);
@@ -64,20 +64,20 @@ export const FSMVariables = ({
 
   const handleSubmitClick = useCallback(() => {
     onClose();
-    onSubmit({ global: _transient, local: _persistent, changes });
+    onSubmit({ globalvar: _transient, localvar: _persistent, changes });
   }, [_transient, _persistent]);
 
   const handleCreateNewClick = () => {
-    if (selectedTab === 'global') {
+    if (selectedTab === 'globalvar') {
       setTransient((prev) => ({
         ...prev,
-        [`variable_${size(prev)}`]: { type: 'string', value: undefined, variableType: 'global' },
+        [`variable_${size(prev)}`]: { type: 'string', value: undefined, variableType: 'globalvar' },
       }));
       setSelectedVariable(`variable_${size(_transient)}`);
     } else {
       setPersistent((prev) => ({
         ...prev,
-        [`variable_${size(prev)}`]: { type: 'string', value: undefined, variableType: 'local' },
+        [`variable_${size(prev)}`]: { type: 'string', value: undefined, variableType: 'localvar' },
       }));
       setSelectedVariable(`variable_${size(_persistent)}`);
     }
@@ -98,8 +98,8 @@ export const FSMVariables = ({
   };
 
   const renderVariableList = useCallback(
-    (type: 'global' | 'local') => {
-      const variables = type === 'global' ? _transient : _persistent;
+    (type: 'globalvar' | 'localvar') => {
+      const variables = type === 'globalvar' ? _transient : _persistent;
 
       return (
         <>
@@ -117,7 +117,7 @@ export const FSMVariables = ({
               wrap
               id="create-new-variable"
             >
-              Create new {type === 'global' ? 'global' : 'local'} variable
+              Create new {type === 'globalvar' ? 'globalvar' : 'localvar'} variable
             </ReqoreMenuItem>
             {size(variables) === 0 ? (
               <ReqoreMessage intent="muted">No variables created</ReqoreMessage>
@@ -137,7 +137,7 @@ export const FSMVariables = ({
                       title: 'Delete variable',
                       description: `Are you sure you want to delete the variable "${name}"?`,
                       onConfirm: () => {
-                        if (type === 'global') {
+                        if (type === 'globalvar') {
                           setTransient((prev) => {
                             const newTransient = { ...prev };
                             delete newTransient[name];
@@ -176,9 +176,9 @@ export const FSMVariables = ({
   );
 
   const renderVariableForm = useCallback(
-    (type: 'global' | 'local') => {
+    (type: 'globalvar' | 'localvar') => {
       const variableData: IFSMVariable = find(
-        selectedTab === 'global' ? _transient : _persistent,
+        selectedTab === 'globalvar' ? _transient : _persistent,
         (_data, name) => name === _selectedVariable
       );
 
@@ -191,7 +191,7 @@ export const FSMVariables = ({
             isVariableValid={isVariableValid}
             variableNames={keys(omit(_transient, _selectedVariable))}
             onChange={(originalName: string, data: IFSMVariable) => {
-              if (type === 'global') {
+              if (type === 'globalvar') {
                 setTransient((prev) => {
                   const newTransient = { ...prev };
                   delete newTransient[originalName];
@@ -250,13 +250,13 @@ export const FSMVariables = ({
         tabs={[
           {
             label: 'Global',
-            id: 'global',
+            id: 'globalvar',
             description: 'Global variables',
             badge: size(_transient),
           },
           {
             label: 'Local',
-            id: 'local',
+            id: 'localvar',
             description: 'Local variables',
             badge: size(_persistent),
           },
@@ -270,20 +270,20 @@ export const FSMVariables = ({
         fill
       >
         <ReqoreTabsContent
-          tabId="global"
+          tabId="globalvar"
           style={{ flexFlow: 'row', paddingBottom: 0 }}
           padded="vertical"
         >
-          {renderVariableList('global')}
-          {renderVariableForm('global')}
+          {renderVariableList('globalvar')}
+          {renderVariableForm('globalvar')}
         </ReqoreTabsContent>
         <ReqoreTabsContent
-          tabId="local"
+          tabId="localvar"
           style={{ flexFlow: 'row', paddingBottom: 0 }}
           padded="vertical"
         >
-          {renderVariableList('local')}
-          {renderVariableForm('local')}
+          {renderVariableList('localvar')}
+          {renderVariableForm('localvar')}
         </ReqoreTabsContent>
       </ReqoreTabs>
     </ReqoreModal>

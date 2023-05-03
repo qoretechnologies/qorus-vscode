@@ -12,43 +12,43 @@ export default meta;
 export const Empty = {};
 export const Existing: StoryObj<typeof meta> = {
   args: {
-    global: {
+    globalvar: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var3: {
         type: 'bool',
         value: true,
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var4: {
         type: 'hash',
         value: 'key: value',
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
     },
-    local: {
+    localvar: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'local',
+        variableType: 'localvar',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'local',
+        variableType: 'localvar',
         desc: 'Description for my variable',
       },
     },
@@ -59,50 +59,50 @@ export const New: StoryObj<typeof meta> = {
   args: {
     selectedVariable: {
       name: 'var5',
-      variableType: 'global',
+      variableType: 'globalvar',
     },
-    global: {
+    globalvar: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var3: {
         type: 'bool',
         value: true,
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var4: {
         type: 'hash',
         value: 'key: value',
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var5: {
         type: 'string',
-        variableType: 'global',
+        variableType: 'globalvar',
         value: undefined,
       },
     },
-    local: {
+    localvar: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'local',
+        variableType: 'localvar',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'local',
+        variableType: 'localvar',
         desc: 'Description for my variable',
       },
     },
@@ -113,45 +113,45 @@ export const Selected: StoryObj<typeof meta> = {
   args: {
     selectedVariable: {
       name: 'var2',
-      variableType: 'local',
+      variableType: 'localvar',
     },
-    global: {
+    globalvar: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var3: {
         type: 'bool',
         value: true,
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var4: {
         type: 'hash',
         value: 'key: value',
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
     },
-    local: {
+    localvar: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'local',
+        variableType: 'localvar',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 10,
-        variableType: 'local',
+        variableType: 'localvar',
         desc: 'Description for my variable',
       },
     },
@@ -162,13 +162,13 @@ export const ReadOnly: StoryObj<typeof meta> = {
   args: {
     selectedVariable: {
       name: 'var2',
-      variableType: 'global',
+      variableType: 'globalvar',
     },
-    global: {
+    globalvar: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var2: {
@@ -178,7 +178,7 @@ export const ReadOnly: StoryObj<typeof meta> = {
           name: 'omquser',
           transaction_management: true,
           record_requires_search_options: false,
-          path: '/bb_local',
+          path: '/bb_localvar',
           supports_read: true,
           supports_update: true,
           supports_create: true,
@@ -186,37 +186,37 @@ export const ReadOnly: StoryObj<typeof meta> = {
           supports_messages: 'NONE',
           descriptions: [
             'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
-            'Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations',
+            'Record-based data provider for db table `public.bb_localvar`; supports create, read/search, update, delete, upsert, and bulk operations',
           ],
         },
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
         readOnly: true,
       },
       var3: {
         type: 'bool',
         value: true,
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
       var4: {
         type: 'hash',
         value: 'key: value',
-        variableType: 'global',
+        variableType: 'globalvar',
         desc: 'Description for my variable',
       },
     },
-    local: {
+    localvar: {
       var1: {
         type: 'string',
         value: 'This is a test var',
-        variableType: 'local',
+        variableType: 'localvar',
         desc: 'Description for my variable',
       },
       var2: {
         type: 'number',
         value: 20,
-        variableType: 'local',
+        variableType: 'localvar',
         desc: 'Description for my variable',
       },
     },

@@ -132,8 +132,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   const handleDataUpdate = (name: string, value: any) => {
     if (name === 'metadata') {
       // Remove the readonly global variables
-      const global = reduce<TFSMVariables, TFSMVariables>(
-        value.global,
+      const globalvar = reduce<TFSMVariables, TFSMVariables>(
+        value.globalvar,
         (newGlobal, val, key): TFSMVariables => {
           if (!val.readOnly) {
             return {
@@ -149,8 +149,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
       setNewData((cur) => ({
         ...cur,
-        global,
-        local: value?.local,
+        globalvar,
+        localvar: value?.localvar,
       }));
 
       return;
@@ -544,13 +544,13 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     // variables, but the variables from metadata need to be readonly
 
     const variables: {
-      global?: TFSMVariables;
-      local?: TFSMVariables;
+      globalvar?: TFSMVariables;
+      localvar?: TFSMVariables;
     } = {};
 
-    if (metadata?.global) {
-      variables.global = reduce<TFSMVariables, TFSMVariables>(
-        metadata?.global,
+    if (metadata?.globalvar) {
+      variables.globalvar = reduce<TFSMVariables, TFSMVariables>(
+        metadata?.globalvar,
         (newGlobal, item, variableName): TFSMVariables => ({
           ...newGlobal,
           [variableName]: {
@@ -562,15 +562,15 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       );
     }
 
-    if (newData?.global) {
-      variables.global = {
-        ...variables.global,
-        ...newData.global,
+    if (newData?.globalvar) {
+      variables.globalvar = {
+        ...variables.globalvar,
+        ...newData.globalvar,
       };
     }
 
-    if (newData?.local) {
-      variables.local = newData.local;
+    if (newData?.localvar) {
+      variables.localvar = newData.localvar;
     }
 
     return variables;
@@ -675,8 +675,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                   delete modifiedData['block-config'];
                 }
 
-                modifiedData.global = reduce<TFSMVariables, TFSMVariables>(
-                  modifiedData.global,
+                modifiedData.globalvar = reduce<TFSMVariables, TFSMVariables>(
+                  modifiedData.globalvar,
                   (newGlobal, val, key): TFSMVariables => {
                     if (!val.readOnly) {
                       return {
@@ -690,8 +690,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                   {}
                 );
 
-                if (!size(modifiedData.global)) {
-                  delete modifiedData.global;
+                if (!size(modifiedData.globalvar)) {
+                  delete modifiedData.globalvar;
                 }
 
                 onSubmit(id, modifiedData);
