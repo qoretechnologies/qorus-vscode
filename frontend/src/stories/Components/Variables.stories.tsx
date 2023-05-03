@@ -178,7 +178,7 @@ export const ReadOnly: StoryObj<typeof meta> = {
           name: 'omquser',
           transaction_management: true,
           record_requires_search_options: false,
-          path: '/bb_localvar',
+          path: '/bb_local',
           supports_read: true,
           supports_update: true,
           supports_create: true,
@@ -186,7 +186,7 @@ export const ReadOnly: StoryObj<typeof meta> = {
           supports_messages: 'NONE',
           descriptions: [
             'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
-            'Record-based data provider for db table `public.bb_localvar`; supports create, read/search, update, delete, upsert, and bulk operations',
+            'Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations',
           ],
         },
         variableType: 'globalvar',
