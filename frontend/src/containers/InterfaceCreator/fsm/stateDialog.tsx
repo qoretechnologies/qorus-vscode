@@ -316,6 +316,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               fluid
               description="The action to perform on the variable"
               defaultItems={getActionValueTypeItems()}
+              className="fsm-action-type-selector"
               onChange={(_name, value) =>
                 handleDataUpdate('action', {
                   type: actionType,
@@ -333,6 +334,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 disableSearchOptions={!!variableData.value.search_options}
                 inline
                 minimal
+                isMessage={actionValueType === 'send-message'}
+                requiresRequest={actionValueType === 'apicall'}
                 key={actionValueType}
                 recordType={actionValueType}
                 isInitialEditing={!!data?.action?.value}

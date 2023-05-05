@@ -15,7 +15,7 @@ import {
 } from '@qoretechnologies/reqore';
 import { find, keys, omit, size } from 'lodash';
 import { useCallback, useState } from 'react';
-import { IFSMVariable, TFSMVariables } from '..';
+import { IFSMVariable, TFSMAutoVariables, TFSMVariables } from '..';
 import { PositiveColorEffect } from '../../../../components/Field/multiPair';
 import { validateField } from '../../../../helpers/validations';
 import { submitControl } from '../../controls';
@@ -24,9 +24,10 @@ import { VariableForm } from './form';
 export interface IFSMVariablesProps {
   globalvar?: TFSMVariables;
   localvar?: TFSMVariables;
+  autovar?: TFSMAutoVariables;
   selectedVariable?: {
     name: string;
-    variableType: 'globalvar' | 'localvar';
+    variableType: 'globalvar' | 'localvar' | 'autovar';
   };
   onClose: () => void;
   onSubmit: (data: {
@@ -43,6 +44,7 @@ export interface IFSMVariablesProps {
 export const FSMVariables = ({
   globalvar,
   localvar,
+  autovar,
   onClose,
   onSubmit,
   selectedVariable,
@@ -98,8 +100,9 @@ export const FSMVariables = ({
   };
 
   const renderVariableList = useCallback(
-    (type: 'globalvar' | 'localvar') => {
-      const variables = type === 'globalvar' ? _transient : _persistent;
+    (type: 'globalvar' | 'localvar' | 'autovar') => {
+      const variables =
+        type === 'autovar' ? autovar : type === 'globalvar' ? _transient : _persistent;
 
       return (
         <>
@@ -110,15 +113,17 @@ export const FSMVariables = ({
             width="200px"
             className="variable-list"
           >
-            <ReqoreMenuItem
-              icon="AddLine"
-              effect={PositiveColorEffect}
-              onClick={handleCreateNewClick}
-              wrap
-              id="create-new-variable"
-            >
-              Create new {type === 'globalvar' ? 'global' : 'local'} variable
-            </ReqoreMenuItem>
+            {type !== 'autovar' && (
+              <ReqoreMenuItem
+                icon="AddLine"
+                effect={PositiveColorEffect}
+                onClick={handleCreateNewClick}
+                wrap
+                id="create-new-variable"
+              >
+                Create new {type === 'globalvar' ? 'global' : 'local'} variable
+              </ReqoreMenuItem>
+            )}
             {size(variables) === 0 ? (
               <ReqoreMessage intent="muted">No variables created</ReqoreMessage>
             ) : (
@@ -129,39 +134,45 @@ export const FSMVariables = ({
                   onClick={() => setSelectedVariable(name)}
                   minimal
                   className="variable-selector"
-                  intent={isVariableValid(variables[name]) ? undefined : 'danger'}
+                  intent={
+                    isVariableValid(variables[name]) || type === 'autovar' ? undefined : 'danger'
+                  }
                   rightIcon={variables[name].readOnly ? undefined : 'DeleteBin2Fill'}
-                  onRightIconClick={() => {
-                    // Delete the variable
-                    confirmAction({
-                      title: 'Delete variable',
-                      description: `Are you sure you want to delete the variable "${name}"?`,
-                      onConfirm: () => {
-                        if (type === 'globalvar') {
-                          setTransient((prev) => {
-                            const newTransient = { ...prev };
-                            delete newTransient[name];
-                            return { ...newTransient };
-                          });
-                        } else {
-                          setPersistent((prev) => {
-                            const newPersistent = { ...prev };
-                            delete newPersistent[name];
-                            return { ...newPersistent };
+                  onRightIconClick={
+                    variables[name].readOnly
+                      ? undefined
+                      : () => {
+                          // Delete the variable
+                          confirmAction({
+                            title: 'Delete variable',
+                            description: `Are you sure you want to delete the variable "${name}"?`,
+                            onConfirm: () => {
+                              if (type === 'globalvar') {
+                                setTransient((prev) => {
+                                  const newTransient = { ...prev };
+                                  delete newTransient[name];
+                                  return { ...newTransient };
+                                });
+                              } else {
+                                setPersistent((prev) => {
+                                  const newPersistent = { ...prev };
+                                  delete newPersistent[name];
+                                  return { ...newPersistent };
+                                });
+                              }
+
+                              setChanges([
+                                ...changes,
+                                {
+                                  name,
+                                  type: type as 'globalvar' | 'localvar',
+                                  changeType: 'remove',
+                                },
+                              ]);
+                            },
                           });
                         }
-
-                        setChanges([
-                          ...changes,
-                          {
-                            name,
-                            type,
-                            changeType: 'remove',
-                          },
-                        ]);
-                      },
-                    });
-                  }}
+                  }
                 >
                   {name}
                 </ReqoreMenuItem>
@@ -176,9 +187,13 @@ export const FSMVariables = ({
   );
 
   const renderVariableForm = useCallback(
-    (type: 'globalvar' | 'localvar') => {
+    (type: 'globalvar' | 'localvar' | 'autovar') => {
       const variableData: IFSMVariable = find(
-        selectedTab === 'globalvar' ? _transient : _persistent,
+        selectedTab === 'autovar'
+          ? autovar
+          : selectedTab === 'globalvar'
+          ? _transient
+          : _persistent,
         (_data, name) => name === _selectedVariable
       );
 
@@ -209,7 +224,7 @@ export const FSMVariables = ({
                 ...changes,
                 {
                   name: originalName,
-                  type,
+                  type: type as 'globalvar' | 'localvar',
                   changeType: 'update',
                 },
               ]);
@@ -228,7 +243,7 @@ export const FSMVariables = ({
         </ReqorePanel>
       );
     },
-    [_selectedVariable, _transient, _persistent, selectedTab]
+    [_selectedVariable, _transient, _persistent, autovar, selectedTab]
   );
 
   return (
@@ -260,6 +275,12 @@ export const FSMVariables = ({
             description: 'Local variables',
             badge: size(_persistent),
           },
+          {
+            label: 'Auto',
+            id: 'autovar',
+            description: 'Variables from context',
+            badge: size(autovar),
+          },
         ]}
         activeTab={selectedTab}
         onTabChange={(tabId) => {
@@ -284,6 +305,14 @@ export const FSMVariables = ({
         >
           {renderVariableList('localvar')}
           {renderVariableForm('localvar')}
+        </ReqoreTabsContent>
+        <ReqoreTabsContent
+          tabId="autovar"
+          style={{ flexFlow: 'row', paddingBottom: 0 }}
+          padded="vertical"
+        >
+          {renderVariableList('autovar')}
+          {renderVariableForm('autovar')}
         </ReqoreTabsContent>
       </ReqoreTabs>
     </ReqoreModal>

@@ -18,16 +18,17 @@ export interface IFSMToolbarItemProps {
     name: string,
     type: string,
     stateType: string,
-    varType?: 'globalvar' | 'localvar',
+    varType?: 'globalvar' | 'localvar' | 'autovar',
     varName?: string
   ) => any;
   onDragStart: () => void;
   category: TStateTypes;
   parentStateName?: string;
   description?: string;
-  varType?: 'globalvar' | 'localvar';
+  varType?: 'globalvar' | 'localvar' | 'autovar';
   onEditClick?: () => any;
-  isInherited?: boolean;
+  rightIcon?: IReqoreIconName;
+  readOnly?: boolean;
 }
 
 export const getStateStyle = (type, toolbar?: boolean) => {
@@ -197,7 +198,8 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   stateName,
   varType,
   onEditClick,
-  isInherited,
+  readOnly,
+  rightIcon,
 }) => {
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
@@ -219,14 +221,14 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
       badges.push(count);
     }
 
-    if (isInherited) {
+    if (varType) {
       badges.push({
-        label: 'Inherited',
+        label: varType,
         effect: {
           gradient: {
             colors: {
               0: '#28a89d',
-              100: '#05554c',
+              100: '#053a55',
             },
           },
         },
@@ -242,7 +244,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
       ref={!disabled ? drag : undefined}
       description={description || FSMItemDescByType[type]}
       badge={getBadges()}
-      wrap={isInherited}
+      wrap={!!varType}
       icon={FSMItemIconByType[type]}
       effect={{
         gradient: getStateColor(category),
@@ -250,7 +252,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
       onDoubleClick={() => {
         onDoubleClick(name, TOOLBAR_ITEM_TYPE, type, varType, stateName);
       }}
-      rightIcon={onEditClick ? 'EditLine' : undefined}
+      rightIcon={rightIcon}
       onRightIconClick={onEditClick}
     >
       {children}

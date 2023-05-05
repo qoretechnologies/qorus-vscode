@@ -480,6 +480,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                   <ReqoreButton
                     icon="AddLine"
                     fixed
+                    className="select-reference-add-new"
                     effect={PositiveColorEffect}
                     onClick={() => onCreateClick(reference, handleEditSubmit)}
                   />
@@ -488,6 +489,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                   <ReqoreButton
                     icon="EditLine"
                     fixed
+                    className="select-reference-edit"
                     onClick={() => onEditClick(value, reference, handleEditSubmit)}
                   />
                 )}

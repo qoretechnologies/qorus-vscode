@@ -317,6 +317,14 @@ const FSMState: React.FC<IFSMStateProps> = ({
     }, 300);
   };
 
+  const getStateTypeLabel = () => {
+    if (action?.type === 'var-action') {
+      return 'variable';
+    }
+
+    return action?.type || type;
+  };
+
   return (
     <StyledFSMState
       id={`state-${id}`}
@@ -540,7 +548,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             fixed
             color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
             effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
-            label={action?.type || type}
+            label={getStateTypeLabel()}
           />
           <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
         </ReqoreControlGroup>

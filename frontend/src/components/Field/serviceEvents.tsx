@@ -59,9 +59,23 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers> = ({
     }
 
     return data.data;
-  }, [value?.factory]);
+  }, [eventProvider]);
 
-  if (eventsData.loading) {
+  const autoVars = useAsyncRetry(async () => {
+    const data = await fetchData('/system/autoVarContext', 'PUT', {
+      type: 'event',
+      provider: eventProvider,
+    });
+
+    if (data.error) {
+      console.error(data.error);
+      throw new Error(data.error);
+    }
+
+    return data.data;
+  }, [eventProvider]);
+
+  if (eventsData.loading || autoVars.loading) {
     return <Loader />;
   }
 
@@ -177,6 +191,12 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers> = ({
                         action: 'creator-return-objects',
                         object_type: 'fsm',
                         return_value: 'objects',
+                      }}
+                      reference={{
+                        iface_kind: 'fsm',
+                        context: {
+                          autovar: autoVars.value,
+                        },
                       }}
                     />
                   </>

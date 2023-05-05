@@ -100,6 +100,7 @@ export interface IFSMViewProps {
   interfaceContext?: {
     target_dir?: string;
     inputType?: IProviderType;
+    [key: string]: any;
   };
   onStatesChange?: (states: IFSMStates) => void;
   setMapper?: (mapper: any) => void;
@@ -138,11 +139,12 @@ export interface IFSMMetadata {
   'output-type'?: IProviderType;
   globalvar?: TFSMVariables;
   localvar?: TFSMVariables;
+  autovar?: TFSMAutoVariables;
 }
 
 export type TFSMStateType = 'state' | 'fsm' | 'block' | 'if';
 export type TVariableActionValue = {
-  var_type: 'globalvar' | 'localvar';
+  var_type: 'globalvar' | 'localvar' | 'autovar';
   var_name: string;
   transaction_action?: 'commit' | 'rollback' | 'begin-transaction';
   action_type?:
@@ -300,11 +302,16 @@ export interface IFSMVariable {
   value: any;
   desc?: string;
   name?: string;
-  variableType: 'globalvar' | 'localvar';
+  variableType: 'globalvar' | 'localvar' | 'autovar';
   readOnly?: boolean;
 }
 
+export interface IFSMAutoVariable extends Omit<IFSMVariable, 'readOnly'> {
+  readOnly: true;
+}
+
 export type TFSMVariables = Record<string, IFSMVariable>;
+export type TFSMAutoVariables = Record<string, IFSMAutoVariable>;
 
 export const FSMView: React.FC<IFSMViewProps> = ({
   onSubmitSuccess,
@@ -350,7 +357,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     'output-type': fsm?.['output-type'] || null,
     globalvar: fsm?.globalvar,
     localvar: fsm?.localvar,
+    autovar: fsm?.autovar || interfaceContext?.autovar,
   });
+
+  console.log(interfaceContext);
 
   const wrapperRef = useRef(null);
   const fieldsWrapperRef = useRef(null);
@@ -376,7 +386,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     show?: boolean;
     selected?: {
       name: string;
-      variableType: 'globalvar' | 'localvar';
+      variableType: 'globalvar' | 'localvar' | 'autovar';
     };
   }>(undefined);
 
@@ -1813,6 +1823,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           }}
           globalvar={metadata?.globalvar}
           localvar={metadata?.localvar}
+          autovar={metadata?.autovar}
           selectedVariable={showVariables?.selected}
         />
       )}
@@ -1832,8 +1843,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             label: 'Variables',
             icon: 'CodeSLine',
             onClick: () => setShowVariables({ show: true }),
-            intent: size(metadata?.globalvar) || size(metadata?.localvar) ? 'info' : undefined,
-            badge: size(metadata?.globalvar) + size(metadata?.localvar),
+            intent:
+              size(metadata?.globalvar) || size(metadata?.localvar) || size(metadata?.autovar)
+                ? 'info'
+                : undefined,
+            badge: size(metadata?.globalvar) + size(metadata?.localvar) + size(metadata?.autovar),
             id: 'fsm-variables',
           },
           {
@@ -2109,11 +2123,15 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       label="Hide states list"
                       onClick={() => setShowStatesList(false)}
                     />
-                    {metadata.globalvar || metadata.localvar ? (
+                    {metadata.globalvar || metadata.localvar || metadata.autovar ? (
                       <>
                         <ReqoreMenuDivider label="Variables" align="left" />
                         {map(
-                          { ...(metadata.globalvar || {}), ...(metadata.localvar || {}) },
+                          {
+                            ...(metadata.globalvar || {}),
+                            ...(metadata.localvar || {}),
+                            ...(metadata.autovar || {}),
+                          },
                           (variable, variableId) =>
                             variable.type === 'data-provider' ? (
                               <FSMToolbarItem
@@ -2125,18 +2143,16 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                                 type="var-action"
                                 stateName={variableId}
                                 varType={variable.variableType}
-                                isInherited={variable.readOnly}
-                                onEditClick={
-                                  variable.readOnly
-                                    ? undefined
-                                    : () =>
-                                        setShowVariables({
-                                          show: true,
-                                          selected: {
-                                            name: variableId,
-                                            variableType: variable.variableType,
-                                          },
-                                        })
+                                readOnly={variable.readOnly}
+                                rightIcon={variable.readOnly ? 'EyeLine' : 'EditLine'}
+                                onEditClick={() =>
+                                  setShowVariables({
+                                    show: true,
+                                    selected: {
+                                      name: variableId,
+                                      variableType: variable.variableType,
+                                    },
+                                  })
                                 }
                                 count={size(
                                   filter(

@@ -241,7 +241,11 @@ export const validateField: (
     case 'var-action': {
       const varAction: TVariableActionValue = value;
 
-      if (varAction.var_type !== 'localvar' && varAction.var_type !== 'globalvar') {
+      if (
+        varAction.var_type !== 'localvar' &&
+        varAction.var_type !== 'globalvar' &&
+        varAction.var_type !== 'autovar'
+      ) {
         return false;
       }
 

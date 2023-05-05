@@ -341,14 +341,21 @@ export interface IAutoAlignConfig {
 
 export const getVariable = (
   varName: string,
-  varType: 'globalvar' | 'localvar',
+  varType: 'globalvar' | 'localvar' | 'autovar',
   metadata: IFSMMetadata
 ) => {
+  console.log(metadata, varName, varType);
+
   const global = metadata?.globalvar || {};
   const local = metadata?.localvar || {};
+  const auto = metadata?.autovar || {};
 
   if (varType === 'globalvar') {
     return global[varName];
+  }
+
+  if (varType === 'autovar') {
+    return auto[varName];
   }
 
   return local[varName];
