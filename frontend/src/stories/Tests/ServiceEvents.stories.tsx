@@ -15,6 +15,11 @@ import {
 const meta = {
   component: ServiceEventListField,
   title: 'Tests/Service Events',
+  parameters: {
+    chromatic: {
+      disableSnapshot: true,
+    },
+  },
 } as Meta<typeof ServiceEventListField>;
 
 export default meta;
