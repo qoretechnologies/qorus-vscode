@@ -360,8 +360,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     autovar: fsm?.autovar || interfaceContext?.autovar,
   });
 
-  console.log(interfaceContext);
-
   const wrapperRef = useRef(null);
   const fieldsWrapperRef = useRef(null);
   const showTransitionsToaster = useRef(0);

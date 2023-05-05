@@ -59,7 +59,7 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers> = ({
     }
 
     return data.data;
-  }, [eventProvider]);
+  }, []);
 
   const autoVars = useAsyncRetry(async () => {
     const data = await fetchData('/system/autoVarContext', 'PUT', {
@@ -73,7 +73,7 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers> = ({
     }
 
     return data.data;
-  }, [eventProvider]);
+  }, []);
 
   if (eventsData.loading || autoVars.loading) {
     return <Loader />;
@@ -156,7 +156,7 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers> = ({
                     <MethodSelector
                       value={handler.value}
                       name="method"
-                      onChange={(method) => {
+                      onChange={(_name, method) => {
                         onChange({
                           ...value,
                           [eventName]: {
@@ -207,12 +207,14 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers> = ({
         )}
       ></ReqoreCollection>
       <ReqoreVerticalSpacer height={10} />
-      <Select
-        defaultItems={availableEvents}
-        onChange={handleAddNewEvent}
-        placeholder="Select from available events"
-        className="service-event-select"
-      />
+      {size(availableEvents) !== 0 ? (
+        <Select
+          defaultItems={availableEvents}
+          onChange={handleAddNewEvent}
+          placeholder="Select from available events"
+          className="service-event-select"
+        />
+      ) : null}
     </>
   );
 };
@@ -270,7 +272,7 @@ export const ServiceEventListField: React.FC<IServiceEventListFieldProps> = ({
   return (
     <>
       <ReqoreMessage intent="info">
-        Service events are not related to "Event" interfaces.
+        Service events are not related to workflow synchronization events
       </ReqoreMessage>
       <ReqoreVerticalSpacer height={10} />
       <ReqoreCollection

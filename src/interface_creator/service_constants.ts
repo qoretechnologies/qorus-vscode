@@ -35,7 +35,10 @@ export const serviceFields = ({
     ...field.class_name,
     disabled: limited_editing,
   },
-  field.lang,
+  {
+    ...field.lang,
+    default_value: limited_editing ? 'python' : 'qore',
+  },
   field.mappers,
   field.vmaps,
   field.modules,

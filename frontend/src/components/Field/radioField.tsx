@@ -81,7 +81,7 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
       <ReqoreRadioGroup
         items={(items || []).map((item) => ({
           label: item.title || t(`field-label-${item.value}`),
-          disabled,
+          disabled: disabled || item.disabled,
           value: item.value,
           margin: 'right',
           labelEffect: {

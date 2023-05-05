@@ -91,6 +91,7 @@ export const mapperCodeFields = ({ default_target_dir, limited_editing }) => [
   },
   {
     ...field.lang,
+    default_value: limited_editing ? 'python' : 'qore',
     mandatory: false,
     compact: true,
     group: 'info',

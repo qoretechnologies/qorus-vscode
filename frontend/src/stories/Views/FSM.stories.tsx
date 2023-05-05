@@ -95,7 +95,7 @@ export const ReadonlyVariablesInState: StoryFSM = {
   play: async ({ canvasElement, stateType, ...rest }) => {
     await MultipleDeepVariableStates.play({ canvasElement, ...rest });
 
-    await userEvent.click(document.querySelectorAll('.reqore-menu-item-right-icon')[3]);
+    await userEvent.click(document.querySelectorAll('.reqore-menu-item-right-icon')[6]);
     await userEvent.click(document.querySelectorAll('.variable-list .reqore-menu-item')[1]);
   },
 };

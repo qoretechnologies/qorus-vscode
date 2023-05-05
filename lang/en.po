@@ -781,10 +781,10 @@ msgid "Errors"
 msgstr "Errors"
 
 msgid "Event"
-msgstr "Event"
+msgstr "Sync Event"
 
 msgid "Events"
-msgstr "Events"
+msgstr "Sync Events"
 
 msgid "Functions"
 msgstr "Functions"
@@ -1252,7 +1252,7 @@ msgid "field-desc-groups"
 msgstr "One or more interface groups that the object is a member of"
 
 msgid "field-label-event"
-msgstr "Event"
+msgstr "Sync Event"
 
 msgid "field-label-event-handlers"
 msgstr "Event handlers"
@@ -1672,10 +1672,10 @@ msgid "field-desc-Group"
 msgstr "Group"
 
 msgid "field-label-Event"
-msgstr "Event"
+msgstr "Sync Event"
 
 msgid "field-desc-Event"
-msgstr "Event"
+msgstr "Workflow Sync Event"
 
 msgid "field-label-code"
 msgstr "Code"

@@ -258,6 +258,7 @@ export interface IField {
     icon?: string;
     isDivider?: boolean;
     title?: string;
+    disabled?: boolean;
   }[];
   prefill?: any;
   name?: string;

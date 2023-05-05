@@ -344,8 +344,6 @@ export const getVariable = (
   varType: 'globalvar' | 'localvar' | 'autovar',
   metadata: IFSMMetadata
 ) => {
-  console.log(metadata, varName, varType);
-
   const global = metadata?.globalvar || {};
   const local = metadata?.localvar || {};
   const auto = metadata?.autovar || {};

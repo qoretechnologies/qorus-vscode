@@ -359,7 +359,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               field.name === 'lang' && !initialData.is_qore_installed
                 ? 'Qore language missing, you will not be able to create or edit qore interfaces.'
                 : undefined,
+            items:
+              field.name === 'lang' && !initialData.is_qore_installed
+                ? field.items.map((item) => ({
+                    ...item,
+                    disabled: item.value === 'qore',
+                  }))
+                : field.items,
           }));
+
           if (!size(selectedFields)) {
             // Pull the pre-selected fields
             const preselectedFields: IField[] = filter(

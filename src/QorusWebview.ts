@@ -201,7 +201,7 @@ class QorusWebview {
           }
         });
 
-        this.panel.webview.onDidReceiveMessage((message) => {
+        this.panel.webview.onDidReceiveMessage(async (message) => {
           const project: QorusProject = projects.getProject();
           if (!project) {
             this.dispose();
@@ -321,6 +321,7 @@ class QorusWebview {
                   ...message,
                   interface_info,
                   default_target_dir: message.context?.target_dir || this.uri?.fsPath,
+                  limited_editing: !(await isLangClientAvailable()),
                 })
                 .then((fields) => {
                   this.panel.webview.postMessage({

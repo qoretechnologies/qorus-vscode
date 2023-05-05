@@ -175,7 +175,7 @@ class QorusDraftCategory extends TreeItem {
   public type: string;
 
   constructor(label: string, count: number | string, collapsibleState: TreeItemCollapsibleState) {
-    super(label, collapsibleState);
+    super(label === 'Event' ? 'Sync Event' : label, collapsibleState);
 
     this.tooltip = label.toLowerCase();
     this.description = label === '' ? (count as string) : `(${count})`;

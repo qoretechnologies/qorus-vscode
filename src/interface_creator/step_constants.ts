@@ -31,7 +31,10 @@ export const stepFields = ({ default_target_dir, limited_editing }) => [
     ...field.class_name,
     disabled: limited_editing,
   },
-  field.lang,
+  {
+    ...field.lang,
+    default_value: limited_editing ? 'python' : 'qore',
+  },
   field.classes,
   field.mappers,
   field.vmaps,

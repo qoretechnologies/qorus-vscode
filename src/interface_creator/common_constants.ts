@@ -108,7 +108,10 @@ export const classFields = ({ default_target_dir, limited_editing }) => [
     group: 'info',
     autoFocus: true,
   },
-  field.lang,
+  {
+    ...field.lang,
+    default_value: limited_editing ? 'python' : 'qore',
+  },
   {
     name: 'base-class-name',
     mandatory: false,
