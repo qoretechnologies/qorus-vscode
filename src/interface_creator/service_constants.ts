@@ -33,7 +33,6 @@ export const serviceFields = ({
   field.version,
   {
     ...field.class_name,
-    disabled: limited_editing,
   },
   {
     ...field.lang,
@@ -64,7 +63,6 @@ export const serviceFields = ({
       return_value: 'objects',
     },
     on_change: 'get-config-items',
-    disabled: limited_editing,
     compact: true,
     group: 'info',
   },

@@ -29,7 +29,6 @@ export const stepFields = ({ default_target_dir, limited_editing }) => [
   field.version,
   {
     ...field.class_name,
-    disabled: limited_editing,
   },
   {
     ...field.lang,
@@ -52,7 +51,6 @@ export const stepFields = ({ default_target_dir, limited_editing }) => [
     },
     on_change: ['get-config-items', 'creator-set-fields'],
     notify_on_remove: true,
-    disabled: limited_editing,
   },
   {
     name: 'event',
