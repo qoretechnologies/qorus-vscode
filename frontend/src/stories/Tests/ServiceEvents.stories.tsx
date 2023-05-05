@@ -82,6 +82,8 @@ export const ModifyExisting: StoryObj<typeof meta> = {
     // Remove existing handler
     await fireEvent.click(document.querySelectorAll('.service-event-handler-remove')[0]);
 
+    await sleep(1000);
+
     await expect(document.querySelectorAll('.service-event-handler').length).toBe(2);
     await expect(document.querySelectorAll('.service-event').length).toBe(2);
   },
