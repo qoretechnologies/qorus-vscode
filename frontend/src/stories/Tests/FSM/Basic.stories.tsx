@@ -139,11 +139,11 @@ export const StatesCanBeConnected: StoryFSM = {
     await fireEvent.click(document.querySelector('#state-1'));
     await fireEvent.click(document.querySelector('#state-1'));
 
-    await sleep(500);
+    await sleep(2000);
 
     await fireEvent.click(document.querySelector('#state-6'));
 
-    await sleep(500);
+    await sleep(2000);
 
     await waitFor(() => expect(document.querySelectorAll('.fsm-transition').length).toBe(5), {
       timeout: 10000,
