@@ -198,7 +198,7 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers & Part
                         iface_kind: 'fsm',
                         context: {
                           autovar: autoVars.value,
-                          target_dir: requestFieldData('target_dir', 'value'),
+                          target_dir: requestFieldData?.('target_dir', 'value'),
                         },
                       }}
                     />
