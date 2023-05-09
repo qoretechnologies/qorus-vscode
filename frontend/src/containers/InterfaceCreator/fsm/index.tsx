@@ -35,6 +35,7 @@ import {
   NegativeColorEffect,
   PositiveColorEffect,
   SaveColorEffect,
+  WarningColorEffect,
 } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
@@ -538,7 +539,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return valid;
   };
 
-  const isFSMValid = () => {
+  const areMetadataValid = (): boolean => {
     if (metadata['input-type'] && !validateField('type-selector', metadata['input-type'])) {
       return false;
     }
@@ -550,7 +551,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return (
       validateField('string', metadata.target_dir) &&
       validateField('string', metadata.name) &&
-      validateField('string', metadata.desc) &&
+      validateField('string', metadata.desc)
+    );
+  };
+
+  const isFSMValid = () => {
+    return (
+      areMetadataValid() &&
       areStatesValid(states) &&
       isTypeCompatible('input') &&
       isTypeCompatible('output') &&
@@ -1888,15 +1895,16 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       ? onHideMetadataClick((cur) => !cur)
                       : setIsMetadataHidden((cur) => !cur);
                   },
+                  effect: !areMetadataValid() ? WarningColorEffect : undefined,
                   icon: 'ArrowLeftLine',
                   show: getIsMetadataHidden(),
                 },
                 {
-                  label: t('Submit'),
+                  label: !areMetadataValid() ? 'Page 1 needs attention' : t('Submit'),
                   onClick: handleSubmitClick,
                   disabled: !isFSMValid(),
-                  icon: 'CheckLine',
-                  effect: SaveColorEffect,
+                  icon: !areMetadataValid() ? 'ErrorWarningLine' : 'CheckLine',
+                  effect: !areMetadataValid() ? NegativeColorEffect : SaveColorEffect,
                   position: 'right',
                   show: getIsMetadataHidden(),
                 },

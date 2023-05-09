@@ -43,10 +43,11 @@ export interface IServiceEventListHandlers {
   onChange: (value: IServiceEventHandlers) => void;
 }
 
-export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers> = ({
+export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers & Partial<IField>> = ({
   eventProvider,
   value,
   onChange,
+  requestFieldData,
 }) => {
   const eventsData = useAsyncRetry(async () => {
     const data = await fetchData(
@@ -181,6 +182,7 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers> = ({
                           },
                         })
                       }
+                      requestFieldData={requestFieldData}
                       name="fsm"
                       value={handler.value}
                       get_message={{
@@ -196,6 +198,7 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers> = ({
                         iface_kind: 'fsm',
                         context: {
                           autovar: autoVars.value,
+                          target_dir: requestFieldData('target_dir', 'value'),
                         },
                       }}
                     />
@@ -223,6 +226,7 @@ export const ServiceEventListField: React.FC<IServiceEventListFieldProps> = ({
   value,
   name,
   onChange,
+  requestFieldData,
 }) => {
   const t = useContext(TextContext);
   const [data, setData] = useState<IServiceEventList>(
@@ -308,6 +312,7 @@ export const ServiceEventListField: React.FC<IServiceEventListFieldProps> = ({
                       eventProvider={datum}
                       value={datum.handlers}
                       onChange={(value) => updateEventHandlers(index, value)}
+                      requestFieldData={requestFieldData}
                     />
                   </>
                 )}
