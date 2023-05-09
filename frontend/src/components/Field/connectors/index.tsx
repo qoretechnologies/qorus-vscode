@@ -133,6 +133,7 @@ export const getUrlFromProvider: (
     hasApiContext,
     subtype,
     supports_messages,
+    supports_observable,
     record_requires_search_options,
   } = val;
   let optionString = '';
@@ -171,7 +172,9 @@ export const getUrlFromProvider: (
 
   // Build the suffix
   const realPath = `${suffix}${finalPath}${
-    hasSubtype || is_api_call || supports_messages || isRecord ? '' : recordSuffix || ''
+    hasSubtype || is_api_call || supports_messages || supports_observable || isRecord
+      ? ''
+      : recordSuffix || ''
   }`;
 
   const suffixString =
