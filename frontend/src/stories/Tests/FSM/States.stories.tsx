@@ -337,10 +337,15 @@ export const NewIfState: StoryFSM = {
 
     // The submit button needs to be disabled
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await userEvent.type(document.querySelector('#condition-field'), 'asfg condition');
     await waitFor(
-      async () => await userEvent.type(document.querySelector('#condition-field'), 'asfg condition')
+      async () => {
+        await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+      },
+      {
+        timeout: 10000,
+      }
     );
-    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
