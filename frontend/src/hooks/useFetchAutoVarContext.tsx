@@ -24,7 +24,7 @@ export const useFetchAutoVarContext = (provider?: IProviderType, type: string = 
 
   useEffect(() => {
     result.retry();
-  }, [provider]);
+  }, [JSON.stringify(provider)]);
 
   return result;
 };

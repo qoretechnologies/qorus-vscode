@@ -72,7 +72,7 @@ export const ModifyExisting: StoryObj<typeof meta> = {
 
     await fireEvent.click(document.querySelectorAll('.reqore-checkbox')[3]);
 
-    await sleep(500);
+    await sleep(2500);
 
     await _testsSelectItemFromDropdown(canvas, 'Test FSM 1')();
 
