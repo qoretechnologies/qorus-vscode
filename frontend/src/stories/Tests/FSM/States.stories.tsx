@@ -228,9 +228,15 @@ export const NewTransactionState: StoryFSM = {
 
     await NewState.play({ canvasElement, ...rest, stateType: 'transaction' });
 
-    await sleep(500);
-
     // The submit button needs to be disabled
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.system-option').length).toBe(1);
+      },
+      {
+        timeout: 10000,
+      }
+    );
     await expect(document.querySelector('.state-next-button')).toBeDisabled();
 
     await fireEvent.click(document.querySelector('.provider-type-selector'));
@@ -277,7 +283,7 @@ export const NewTransactionState: StoryFSM = {
       }
     );
 
-    await sleep(500);
+    await sleep(1500);
 
     await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
     await fireEvent.click(canvas.getAllByText('bb_local')[0]);
