@@ -606,7 +606,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       forEach(newData.states, (state: IFSMState, id: string) => {
         if (
           state.action?.type === 'var-action' &&
-          (state.action?.value as TVariableActionValue).var_type === 'autovar' &&
+          (state.action?.value as TVariableActionValue)?.var_type === 'autovar' &&
           !variables?.autovar?.[(state.action?.value as TVariableActionValue).var_name]
         ) {
           statesToRemove.push(id);
