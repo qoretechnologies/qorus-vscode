@@ -1,6 +1,7 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-library';
+import { size } from 'lodash';
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
@@ -218,6 +219,107 @@ export const NewForState: StoryFSM = {
 export const NewForEachState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     await NewWhileState.play({ canvasElement, blockType: 'foreach', ...rest });
+  },
+};
+
+export const NewTransactionState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest, stateType: 'transaction' });
+
+    await sleep(500);
+
+    // The submit button needs to be disabled
+    await expect(document.querySelector('.state-next-button')).toBeDisabled();
+
+    await fireEvent.click(document.querySelector('.provider-type-selector'));
+    await fireEvent.click(canvas.getByText('factory'));
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.provider-selector').length).toBe(1);
+      },
+      {
+        timeout: 10000,
+      }
+    );
+
+    await fireEvent.click(document.querySelector('.provider-selector'));
+    await fireEvent.click(canvas.getAllByText('db')[0]);
+
+    await waitFor(
+      () => expect(document.querySelector('.system-option .reqore-textarea')).toBeInTheDocument(),
+      {
+        timeout: 10000,
+      }
+    );
+    await fireEvent.change(document.querySelector('.system-option .reqore-textarea'), {
+      target: {
+        value: 'omquser',
+      },
+    });
+
+    await waitFor(
+      async () => {
+        await canvas.findAllByText(/Apply options/);
+        await fireEvent.click(canvas.getAllByText(/Apply options/)[0]);
+      },
+      { timeout: 10000 }
+    );
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
+      },
+      {
+        timeout: 10000,
+      }
+    );
+
+    await sleep(500);
+
+    await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+    await fireEvent.click(canvas.getAllByText('bb_local')[0]);
+
+    await sleep(1500);
+
+    await waitFor(
+      async () => {
+        // The submit button needs to be disabled
+        await expect(document.querySelector('.state-next-button')).not.toBeDisabled();
+      },
+      {
+        timeout: 10000,
+      }
+    );
+
+    await fireEvent.click(document.querySelector('.state-next-button'));
+
+    await waitFor(
+      async () => {
+        // The submit button needs to be disabled
+        await expect(document.querySelector('#state1var-actiontrans')).toBeInTheDocument();
+      },
+      {
+        timeout: 10000,
+      }
+    );
+
+    await fireEvent.dblClick(document.querySelector(`#state1var-actiontrans`));
+
+    await waitFor(_testsSelectItemFromDropdown(canvas, 'transaction'), { timeout: 5000 });
+    await waitFor(_testsSelectItemFromCollection(canvas, 'begin-transaction'), {
+      timeout: 5000,
+    });
+
+    await waitFor(_testsSubmitFSMState('state-state1State1-submit-button'), { timeout: 5000 });
+    await expect(document.querySelectorAll('.reqore-drawer').length).toBe(1);
+    await waitFor(() => expect(canvas.getByText('State 1.State 1')).toBeInTheDocument());
+
+    await waitFor(_testsSubmitFSMState('state-state1-submit-button'), { timeout: 5000 });
+    await expect(size(document.querySelectorAll('.reqore-drawer'))).toBe(0);
+    await waitFor(() => expect(canvas.getByText('transaction block (1)')).toBeInTheDocument());
   },
 };
 

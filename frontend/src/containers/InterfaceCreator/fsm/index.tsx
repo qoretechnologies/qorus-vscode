@@ -178,7 +178,7 @@ export interface IFSMState {
   };
   'input-type'?: any;
   'output-type'?: any;
-  'block-type'?: 'while' | 'for' | 'foreach';
+  'block-type'?: 'while' | 'for' | 'foreach' | 'transaction';
   name?: string;
   type: TFSMStateType;
   desc?: string;
@@ -200,6 +200,7 @@ export interface IFSMState {
   // Block states can have their own variables
   globalvar?: TFSMVariables;
   localvar?: TFSMVariables;
+  autovar?: TFSMAutoVariables;
 }
 
 export interface IFSMStates {
@@ -2282,6 +2283,19 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       onDragStart={handleDragStart}
                     >
                       {t('If')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="block"
+                      category="logic"
+                      parentStateName={parentStateName}
+                      type="transaction"
+                      count={size(
+                        filter(states, (state: IFSMState) => state['block-type'] === 'transaction')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('Transaction')}
                     </FSMToolbarItem>
                     <ReqoreMenuDivider label="API" effect={{ textAlign: 'left' }} />
                     <FSMToolbarItem

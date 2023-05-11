@@ -1,5 +1,5 @@
 import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
-import { camelCase, map, reduce } from 'lodash';
+import { camelCase, forEach, map, reduce } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
 import React, { useCallback, useContext, useState } from 'react';
@@ -24,10 +24,11 @@ import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import { Messages } from '../../../constants/messages';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { getVariable } from '../../../helpers/fsm';
+import { getVariable, removeFSMState } from '../../../helpers/fsm';
 import { getMaxExecutionOrderFromStates } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
+import { useFetchAutoVarContext } from '../../../hooks/useFetchAutoVarContext';
 import ConfigItemManager from '../../ConfigItemManager';
 import ManageConfigItemsButton from '../../ConfigItemManager/manageButton';
 import FSMView, {
@@ -115,6 +116,11 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     }
   }, [newData.action?.value?.['class']]);
 
+  const autoVars = useFetchAutoVarContext(
+    newData['block-config']?.['data-provider']?.value,
+    'transaction-block'
+  );
+
   useUnmount(() => {
     if (data.isNew) {
       // If the name is empty and the original name was empty
@@ -187,11 +193,24 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     validateField('string', name) &&
     !find(otherStates, (state: IFSMState): boolean => state.name === name);
 
+  const isBlockConfigValid = () => {
+    return (
+      size(newData['block-config']) === 0 ||
+      validateField('system-options', newData['block-config'])
+    );
+  };
   const isDataValid: () => boolean = () => {
+    if (autoVars.loading) {
+      return false;
+    }
+
     if (newData.type === 'block') {
       return (
         isNameValid(newData.name) &&
-        (blockLogicType === 'custom' ? size(newData.states) : validateField('string', newData.fsm))
+        isBlockConfigValid() &&
+        (blockLogicType === 'custom'
+          ? size(newData.states) !== 0
+          : validateField('string', newData.fsm))
       );
     }
 
@@ -549,6 +568,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     const variables: {
       globalvar?: TFSMVariables;
       localvar?: TFSMVariables;
+      autovar?: TFSMVariables;
     } = {};
 
     if (metadata?.globalvar) {
@@ -576,8 +596,39 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       variables.localvar = newData.localvar;
     }
 
+    variables.autovar = autoVars.value;
+
+    // Check that for every state created from an autovar,
+    // if the autovar is still present
+    if (size(newData.states)) {
+      const statesToRemove = [];
+
+      forEach(newData.states, (state: IFSMState, id: string) => {
+        if (
+          state.action.type === 'var-action' &&
+          (state.action.value as TVariableActionValue).var_type === 'autovar' &&
+          !variables?.autovar?.[(state.action.value as TVariableActionValue).var_name]
+        ) {
+          statesToRemove.push(id);
+        }
+      });
+
+      if (size(statesToRemove)) {
+        let newStates = newData.states;
+
+        statesToRemove.forEach((stateId) => {
+          newStates = removeFSMState(newStates, stateId, interfaceId);
+        });
+
+        setNewData({
+          ...newData,
+          states: newStates,
+        });
+      }
+    }
+
     return variables;
-  }, [metadata, newData]);
+  }, [metadata.globalvar, newData.globalvar, newData.localvar, autoVars.value, newData.states]);
 
   return (
     <>
@@ -634,7 +685,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           },
           {
             label: isCustomBlockFirstPage() ? t('Next') : t('Submit'),
-            disabled: isCustomBlockFirstPage() ? false : !isDataValid() || isLoading,
+            disabled: isCustomBlockFirstPage()
+              ? !isBlockConfigValid()
+              : !isDataValid() || isLoading,
             className: isCustomBlockFirstPage() ? 'state-next-button' : 'state-submit-button',
             id: `state-${camelCase(newData?.name)}-submit-button`,
             icon: 'CheckLine',
@@ -695,6 +748,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
                 if (!size(modifiedData.globalvar)) {
                   delete modifiedData.globalvar;
+                }
+
+                if (size(autoVars.value)) {
+                  modifiedData.autovar = autoVars.value;
                 }
 
                 onSubmit(id, modifiedData);
@@ -764,25 +821,32 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             </FieldWrapper>
           </FieldGroup>
           {newData.type === 'block' && (
-            <FieldGroup label="Block configuration">
-              <FieldWrapper label={t('field-label-block-logic')} isValid compact>
-                <RadioField
-                  name="block-logic"
-                  onChange={(_name, value) => {
-                    setBlockLogicType(value);
-                  }}
-                  value={blockLogicType}
-                  items={[{ value: 'custom' }, { value: 'fsm' }]}
-                />
-              </FieldWrapper>
-              <FieldWrapper label={t('field-label-block-type')} isValid compact>
-                <RadioField
-                  name="block-type"
-                  onChange={handleDataUpdate}
-                  value={newData?.['block-type'] || 'for'}
-                  items={[{ value: 'for' }, { value: 'foreach' }, { value: 'while' }]}
-                />
-              </FieldWrapper>
+            <>
+              <FieldGroup label="Block configuration">
+                <FieldWrapper label={t('field-label-block-logic')} isValid compact>
+                  <RadioField
+                    name="block-logic"
+                    onChange={(_name, value) => {
+                      setBlockLogicType(value);
+                    }}
+                    value={blockLogicType}
+                    items={[{ value: 'custom' }, { value: 'fsm' }]}
+                  />
+                </FieldWrapper>
+                <FieldWrapper label={t('field-label-block-type')} isValid compact>
+                  <RadioField
+                    name="block-type"
+                    onChange={handleDataUpdate}
+                    value={newData?.['block-type'] || 'for'}
+                    items={[
+                      { value: 'for' },
+                      { value: 'foreach' },
+                      { value: 'while' },
+                      { value: 'transaction' },
+                    ]}
+                  />
+                </FieldWrapper>
+              </FieldGroup>
               <FieldWrapper label={t('field-label-block-config')} isValid compact>
                 <Options
                   name="block-config"
@@ -791,7 +855,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                   url={`/block/${newData?.['block-type'] || 'for'}`}
                 />
               </FieldWrapper>
-            </FieldGroup>
+            </>
           )}
           {newData.type === 'block' && blockLogicType === 'fsm' ? (
             <FieldWrapper label={t('FSM')} isValid={validateField('string', newData?.fsm)}>
@@ -860,7 +924,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               ) : null}
             </>
           )}
-          {newData.type === 'block' ? (
+          {newData.type === 'block' && newData['block-type'] !== 'transaction' ? (
             <FieldGroup label="Types">
               <FieldWrapper label={t('InputType')} isValid type={t('Optional')}>
                 <Connectors

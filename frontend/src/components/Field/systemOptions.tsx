@@ -551,6 +551,7 @@ const Options = ({
                   </>
                 ) : null}
                 <TemplateField
+                  {...options[optionName]}
                   component={AutoField}
                   {...getTypeAndCanBeNull(type, options[optionName].allowed_values, other.op)}
                   className="system-option"

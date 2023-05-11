@@ -38,6 +38,7 @@ export interface IConnectorFieldProps {
   isMessage?: boolean;
   isVariable?: boolean;
   isEvent?: boolean;
+  isTransaction?: boolean;
   readOnly?: boolean;
   disableSearchOptions?: boolean;
   info?: any;
@@ -270,6 +271,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   isMessage,
   isVariable,
   isEvent,
+  isTransaction,
   readOnly,
   disableSearchOptions,
   info,
@@ -418,6 +420,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           isMessage={isMessage}
           isVariable={isVariable}
           isEvent={isEvent}
+          isTransaction={isTransaction}
           readOnly={readOnly}
         />
       </SubField>

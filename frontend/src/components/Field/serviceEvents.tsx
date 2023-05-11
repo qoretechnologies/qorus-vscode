@@ -14,6 +14,7 @@ import { IField } from '../../components/FieldWrapper';
 import { TextContext } from '../../context/text';
 import { fetchData, insertUrlPartBeforeQuery } from '../../helpers/functions';
 import { validateField } from '../../helpers/validations';
+import { useFetchAutoVarContext } from '../../hooks/useFetchAutoVarContext';
 import Loader from '../Loader';
 import Connectors, { IProviderType, getUrlFromProvider } from './connectors';
 import MethodSelector from './methodSelector';
@@ -62,19 +63,7 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers & Part
     return data.data;
   }, []);
 
-  const autoVars = useAsyncRetry(async () => {
-    const data = await fetchData('/system/autoVarContext', 'PUT', {
-      type: 'event',
-      provider: eventProvider,
-    });
-
-    if (data.error) {
-      console.error(data.error);
-      throw new Error(data.error);
-    }
-
-    return data.data;
-  }, []);
+  const autoVars = useFetchAutoVarContext(eventProvider);
 
   if (eventsData.loading || autoVars.loading) {
     return <Loader />;

@@ -55,7 +55,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
   column,
   level = 0,
   canBeNull,
-  isConfigItem = true,
+  isConfigItem,
   isVariable,
   ...rest
 }) => {
@@ -381,6 +381,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
             onChange={handleChange}
             readOnly={rest.disabled}
             disableSearchOptions={rest.disableSearchOptions}
+            {...rest}
           />
         );
       }

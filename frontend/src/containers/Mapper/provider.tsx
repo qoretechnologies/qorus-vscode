@@ -48,6 +48,7 @@ export interface IProviderProps {
   isMessage?: boolean;
   isVariable?: boolean;
   isEvent?: boolean;
+  isTransaction?: boolean;
   availableOptions?: IOptionsSchema;
   readOnly?: boolean;
 }
@@ -132,6 +133,7 @@ export const configItemFactory = {
   requiresRecord: false,
   suffixRequiresOptions: true,
   type: 'factory',
+  desc: 'Data provider factories for creating data providers from options',
 };
 
 const MapperProvider: FC<IProviderProps> = ({
@@ -169,6 +171,7 @@ const MapperProvider: FC<IProviderProps> = ({
   availableOptions,
   readOnly,
   isEvent,
+  isTransaction,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [descriptions, setDescriptions] = useState<string[]>([]);
@@ -209,6 +212,14 @@ const MapperProvider: FC<IProviderProps> = ({
         return (
           (child.supports_messages && child.supports_messages !== 'NONE') ||
           child.children_can_support_messages
+        );
+      }
+
+      if (isTransaction) {
+        return (
+          child.transaction_management ||
+          child.children_can_support_transaction_management ||
+          child.children_can_support_transactions
         );
       }
 
@@ -482,9 +493,9 @@ const MapperProvider: FC<IProviderProps> = ({
           const childDetailsSuffix =
             data.supports_children || data.has_type === false
               ? value === 'request' || value === 'response'
-                ? ''
-                : `?action=childDetails`
-              : '';
+                ? buildOptions()
+                : `action=childDetails&${buildOptions()}`
+              : buildOptions();
 
           suffixString =
             customOptionString && customOptionString !== ''
@@ -492,8 +503,8 @@ const MapperProvider: FC<IProviderProps> = ({
                   data.has_record ? realProviders[provider].recordSuffix : ''
                 }?${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
-                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
-                }${childDetailsSuffix}`;
+                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
+                }?${childDetailsSuffix}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
@@ -644,9 +655,9 @@ const MapperProvider: FC<IProviderProps> = ({
           const childDetailsSuffix =
             data.supports_children || data.has_type === false
               ? value === 'request' || value === 'response'
-                ? ''
-                : `?action=childDetails`
-              : '';
+                ? buildOptions()
+                : `?action=childDetails&${buildOptions()}`
+              : buildOptions();
 
           const newSuffix = suffix;
           suffixString =
@@ -655,8 +666,8 @@ const MapperProvider: FC<IProviderProps> = ({
                   data.has_record ? realProviders[provider].recordSuffix : ''
                 }?${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
-                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
-                }${childDetailsSuffix}`;
+                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
+                }?${childDetailsSuffix}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
