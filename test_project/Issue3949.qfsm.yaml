@@ -1,0 +1,271 @@
+# This is a generated file, don't edit!
+type: fsm
+name: issue-3979
+desc: test for transaction block states
+groups:
+  - regression
+  - test
+states:
+  '1':
+    position:
+      x: 74
+      'y': 43.5
+    initial: false
+    name: Transaction block
+    desc: transaction block test
+    type: block
+    id: RdIUgSDY_
+    block-config:
+      data_provider:
+        type: datasource
+        name: omquser
+        supports_read: true
+        supports_update: true
+        supports_create: true
+        supports_delete: true
+        supports_messages: NONE
+        transaction_management: true
+        descriptions:
+          - >-
+            Data provider for database `pgsql:omquser@omquser`; use the
+            search API with the `sql` and `args` arguments to execute
+            record-based queries
+          - >-
+            Record-based data provider for db table `public.test_table_1`;
+            supports create, read/search, update, delete, upsert, and bulk
+            operations
+        path: /test_table_1
+    block-type: transaction
+    transitions:
+      - state: '4'
+        language: qore
+    states:
+      '2':
+        position:
+          x: 121.796875
+          'y': 53.09375
+        initial: false
+        name: Insert Row
+        desc: insert data in the target table
+        type: state
+        id: 9eCBOtAmh
+        action:
+          type: var-action
+          value:
+            var_type: autovar
+            var_name: trans
+            action_type: create
+            create_args_freeform:
+              - col_1: 1
+                col_2: a
+        transitions:
+          - state: '3'
+            language: qore
+      '3':
+        position:
+          x: 73
+          'y': 261.5
+        initial: false
+        name: Verify Transaction in Progress
+        desc: verify that rows are not in the target table
+        type: state
+        id: UOGwhUWsi
+        action:
+          type: apicall
+          value:
+            type: factory
+            name: qorus-api
+            is_api_call: true
+            supports_request: true
+            supports_read: false
+            supports_update: false
+            supports_create: false
+            supports_delete: false
+            descriptions:
+              - >-
+                Top-level Qorus API data provider; request/response (API) data
+                providers are provided as children
+              - >-
+                Data provider providing child request-response data providers
+                representing supported service APIs in Qorus
+              - Data provider providing a list of existing services in Qorus
+              - >-
+                Top-level Qorus API data provider; request/response (API) data
+                providers are provided as children
+              - >-
+                Top-level Qorus API data provider; request/response (API) data
+                providers are provided as children
+              - >-
+                Data provider providing child request-response data providers
+                representing supported service APIs in Qorus
+              - Data provider providing a list of existing services in Qorus
+              - >-
+                Data provider providing child request-response data providers
+                representing supported utility APIs in Qorus
+              - >-
+                Top-level Qorus API data provider; request/response (API) data
+                providers are provided as children
+              - >-
+                Data provider providing child request-response data providers
+                representing supported utility APIs in Qorus
+              - Data provider providing a list of existing services in Qorus
+              - >-
+                Request/response data provider: throws an `FSM-CONTINUE`
+                exception to execute a continue in a loop in a finite state
+                machine flow.
+
+
+                This API call only has an effect when executed internally in
+                Qorus.
+
+
+                This API call does not return any response.
+              - >-
+                Top-level Qorus API data provider; request/response (API) data
+                providers are provided as children
+              - >-
+                Top-level Qorus API data provider; request/response (API) data
+                providers are provided as children
+              - >-
+                Data provider providing child request-response data providers
+                representing supported service APIs in Qorus
+              - >-
+                Top-level Qorus API data provider; request/response (API) data
+                providers are provided as children
+              - >-
+                Data provider providing child request-response data providers
+                representing supported service APIs in Qorus
+              - Data provider providing a list of existing services in Qorus
+              - >-
+                Top-level Qorus API data provider; request/response (API) data
+                providers are provided as children
+              - >-
+                Data provider providing child request-response data providers
+                representing supported service APIs in Qorus
+              - Data provider providing a list of existing services in Qorus
+              - Data provider providing a list of existing services in Qorus
+              - >-
+                Top-level Qorus API data provider; request/response (API) data
+                providers are provided as children
+              - >-
+                Data provider providing child request-response data providers
+                representing supported service APIs in Qorus
+              - Data provider providing a list of existing services in Qorus
+              - >-
+                Top-level Qorus API service data provider; request/response
+                (API) data providers are provided as children
+              - >-
+                Top-level Qorus API data provider; request/response (API) data
+                providers are provided as children
+              - >-
+                Data provider providing child request-response data providers
+                representing supported service APIs in Qorus
+              - Data provider providing a list of existing services in Qorus
+              - >-
+                Top-level Qorus API service data provider; request/response
+                (API) data providers are provided as children
+              - >-
+                Request/response data provider: call the given method in service
+                `157` with the given arguments and return the result
+            path: /services/list/issue-3978/call-method
+            use_args: true
+            args:
+              type: hash
+              value:
+                method:
+                  type: string
+                  value: checkNoRow
+  '4':
+    position:
+      x: 24
+      'y': 215.5
+    initial: false
+    name: Verify New Data
+    desc: verify that the new rows are in the table
+    type: state
+    id: cD4BiNcXp
+    action:
+      type: apicall
+      value:
+        type: factory
+        name: qorus-api
+        is_api_call: true
+        supports_request: true
+        supports_read: false
+        supports_update: false
+        supports_create: false
+        supports_delete: false
+        descriptions:
+          - >-
+            Top-level Qorus API data provider; request/response (API) data
+            providers are provided as children
+          - >-
+            Top-level Qorus API data provider; request/response (API) data
+            providers are provided as children
+          - >-
+            Data provider providing child request-response data providers
+            representing supported utility APIs in Qorus
+          - >-
+            Top-level Qorus API data provider; request/response (API) data
+            providers are provided as children
+          - >-
+            Data provider providing child request-response data providers
+            representing supported utility APIs in Qorus
+          - >-
+            Request/response data provider: throws an `FSM-CONTINUE`
+            exception to execute a continue in a loop in a finite state
+            machine flow.
+
+
+            This API call only has an effect when executed internally in
+            Qorus.
+
+
+            This API call does not return any response.
+          - >-
+            Top-level Qorus API data provider; request/response (API) data
+            providers are provided as children
+          - >-
+            Top-level Qorus API data provider; request/response (API) data
+            providers are provided as children
+          - >-
+            Data provider providing child request-response data providers
+            representing supported service APIs in Qorus
+          - >-
+            Top-level Qorus API data provider; request/response (API) data
+            providers are provided as children
+          - >-
+            Data provider providing child request-response data providers
+            representing supported service APIs in Qorus
+          - Data provider providing a list of existing services in Qorus
+          - >-
+            Top-level Qorus API data provider; request/response (API) data
+            providers are provided as children
+          - >-
+            Data provider providing child request-response data providers
+            representing supported service APIs in Qorus
+          - Data provider providing a list of existing services in Qorus
+          - >-
+            Top-level Qorus API service data provider; request/response
+            (API) data providers are provided as children
+          - >-
+            Top-level Qorus API data provider; request/response (API) data
+            providers are provided as children
+          - >-
+            Data provider providing child request-response data providers
+            representing supported service APIs in Qorus
+          - Data provider providing a list of existing services in Qorus
+          - >-
+            Top-level Qorus API service data provider; request/response
+            (API) data providers are provided as children
+          - >-
+            Request/response data provider: call the given method in service
+            `157` with the given arguments and return the result
+        path: /services/list/issue-3978/call-method
+        use_args: true
+        args:
+          type: hash
+          value:
+            method:
+              type: string
+              value: checkRow

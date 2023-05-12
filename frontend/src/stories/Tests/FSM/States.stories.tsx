@@ -172,8 +172,34 @@ export const NewWhileState: StoryFSM = {
     const canvas = within(canvasElement);
 
     await NewState.play({ canvasElement, ...rest, stateType: blockType });
-    await waitFor(async () => await fireEvent.click(document.querySelector('.state-next-button')));
 
+    await waitFor(
+      async () => await expect(document.querySelector('.state-next-button')).toBeDisabled(),
+      {
+        timeout: 5000,
+      }
+    );
+
+    // Fill the required option
+    await waitFor(
+      async () => {
+        await fireEvent.change(document.querySelectorAll('.system-option .reqore-textarea')[0], {
+          target: {
+            value: 'This is a test',
+          },
+        });
+      },
+      { timeout: 5000 }
+    );
+
+    await waitFor(
+      async () => await expect(document.querySelector('.state-next-button')).toBeEnabled(),
+      {
+        timeout: 5000,
+      }
+    );
+
+    await fireEvent.click(document.querySelector('.state-next-button'));
     // The submit button needs to be disabled
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
 

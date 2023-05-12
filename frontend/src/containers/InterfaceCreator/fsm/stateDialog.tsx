@@ -88,7 +88,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 }) => {
   const [newData, setNewData] = useState<IFSMState>(data);
   const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
-  const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>('custom');
+  const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>(
+    data.fsm ? 'fsm' : 'custom'
+  );
   const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
   const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -830,7 +832,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                       setBlockLogicType(value);
                     }}
                     value={blockLogicType}
-                    items={[{ value: 'custom' }, { value: 'fsm' }]}
+                    items={[
+                      { value: 'custom', title: 'Inline Implementation' },
+                      { value: 'fsm', title: 'Use Existing FSM' },
+                    ]}
                   />
                 </FieldWrapper>
                 <FieldWrapper label={t('field-label-block-type')} isValid compact>

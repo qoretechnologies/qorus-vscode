@@ -388,17 +388,17 @@ const MapperProvider: FC<IProviderProps> = ({
     setIsLoading(true);
     const newSuffix = realProviders[provider].withDetails
       ? value === 'request' || value === 'response'
-        ? ''
-        : `${suffix}?action=childDetails`
+        ? `?${buildOptions()}`
+        : `${suffix}?action=childDetails&${buildOptions()}`
       : suffix;
 
     // Build the suffix
     let suffixString =
       customOptionString && customOptionString !== '' && size(options)
-        ? `${newSuffix}${realProviders[provider].withDetails ? '&' : '?'}${customOptionString}`
+        ? `${newSuffix}${realProviders[provider].withDetails ? '&' : '?'}`
         : itemIndex === 1
         ? value === 'request' || value === 'response'
-          ? ''
+          ? `?${buildOptions()}`
           : `?action=childDetails&${buildOptions()}`
         : newSuffix;
     // Fetch the data
@@ -895,53 +895,73 @@ const MapperProvider: FC<IProviderProps> = ({
           {isLoading && <Loader />}
           {nodes.length > 0 && !readOnly ? (
             <ReqoreControlGroup fluid={false}>
-              <ReqoreButton
-                tooltip="Go back a step"
-                intent="danger"
-                icon="ArrowGoBackLine"
-                fixed
-                onClick={() => {
-                  setChildren((cur) => {
-                    const result = [...cur];
+              {nodes[nodes.length - 2]?.values?.[0]?.url ? (
+                <ReqoreButton
+                  tooltip="Go back a step"
+                  intent="danger"
+                  icon="ArrowGoBackLine"
+                  className="provider-go-back"
+                  fixed
+                  onClick={() => {
+                    setChildren((cur) => {
+                      const result = [...cur];
+                      let lastChild = nth(result, -1);
 
-                    result.pop();
-
-                    const lastChild = nth(result, -2);
-
-                    if (lastChild) {
-                      const index = size(result) - 2;
-                      const { value, values } = lastChild;
-                      const { url, suffix } = values.find((val) => val.name === value);
-
-                      // If the value is a wildcard present a dialog that the user has to fill
-                      if (value === '*') {
-                        setWildcardDiagram({
-                          index,
-                          isOpen: true,
-                          url,
-                          suffix,
-                        });
+                      if (lastChild.value === null) {
+                        result.pop();
+                        result.pop();
                       } else {
-                        // Change the child
-                        handleChildFieldChange(value, url, index, suffix);
+                        result.pop();
                       }
-                    }
 
-                    // If there are no children then we need to reset the provider
-                    if (size(result) === 0) {
-                      handleProviderChange(provider);
-                    }
+                      lastChild = nth(result, -1);
 
-                    return result;
-                  });
-                }}
-              />
+                      if (lastChild) {
+                        const index = size(result) - 1;
+                        const { value, values } = lastChild;
+                        // Get the child data
+                        const { url, suffix, provider_info } = values.find((val) => {
+                          return val.name === value;
+                        });
 
+                        // If the value is a wildcard present a dialog that the user has to fill
+                        if (value === '*') {
+                          setWildcardDiagram({
+                            index,
+                            isOpen: true,
+                            url,
+                            suffix,
+                          });
+                        } else {
+                          // Change the child
+                          handleChildFieldChange(
+                            value,
+                            url,
+                            index,
+                            suffix,
+                            undefined,
+                            !!provider_info?.constructor_options,
+                            !!provider_info?.record_requires_search_options
+                          );
+                        }
+                      }
+
+                      // If there are no children then we need to reset the provider
+                      if (size(result) === 0) {
+                        handleProviderChange(provider);
+                      }
+
+                      return result;
+                    });
+                  }}
+                />
+              ) : null}
               {onResetClick && (
                 <ReqoreButton
                   tooltip="Remove all data"
                   intent="danger"
                   icon="CloseLine"
+                  className="provider-reset"
                   onClick={onResetClick}
                   fixed
                 />
