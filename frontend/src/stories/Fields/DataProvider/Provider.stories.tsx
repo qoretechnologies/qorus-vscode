@@ -134,7 +134,7 @@ export const ApiCall: StoryObj<typeof meta> = {
       timeout: 10000,
     });
 
-    await sleep(500);
+    await sleep(1500);
 
     await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
     await fireEvent.click(canvas.getAllByText('util')[0]);
@@ -143,7 +143,7 @@ export const ApiCall: StoryObj<typeof meta> = {
       timeout: 10000,
     });
 
-    await sleep(500);
+    await sleep(1500);
 
     await fireEvent.click(document.querySelectorAll('.provider-selector')[2]);
     await fireEvent.click(canvas.getAllByText('log-message')[0]);
