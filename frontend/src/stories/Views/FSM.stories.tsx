@@ -69,6 +69,32 @@ export const MultipleDeepVariableStates: StoryFSM = {
 
     await fireEvent.click(canvas.getByText('State 2'));
 
+    await waitFor(
+      async () => await expect(document.querySelector('.state-next-button')).toBeDisabled(),
+      {
+        timeout: 5000,
+      }
+    );
+
+    // Fill the required option
+    await waitFor(
+      async () => {
+        await fireEvent.change(document.querySelectorAll('.system-option .reqore-textarea')[0], {
+          target: {
+            value: 'This is a test',
+          },
+        });
+      },
+      { timeout: 5000 }
+    );
+
+    await waitFor(
+      async () => await expect(document.querySelector('.state-next-button')).toBeEnabled(),
+      {
+        timeout: 5000,
+      }
+    );
+
     await waitFor(async () => await canvas.findAllByText('Next'), {
       timeout: 5000,
     });
@@ -79,6 +105,32 @@ export const MultipleDeepVariableStates: StoryFSM = {
       timeout: 5000,
     });
     await fireEvent.click(canvas.getAllByText('State 2.State 3')[0]);
+
+    await waitFor(
+      async () => await expect(document.querySelector('.state-next-button')).toBeDisabled(),
+      {
+        timeout: 5000,
+      }
+    );
+
+    // Fill the required option
+    await waitFor(
+      async () => {
+        await fireEvent.change(document.querySelectorAll('.system-option .reqore-textarea')[1], {
+          target: {
+            value: 'This is a test 2',
+          },
+        });
+      },
+      { timeout: 5000 }
+    );
+
+    await waitFor(
+      async () => await expect(document.querySelector('.state-next-button')).toBeEnabled(),
+      {
+        timeout: 5000,
+      }
+    );
 
     await waitFor(async () => await canvas.findAllByText('Next'), {
       timeout: 5000,
@@ -104,6 +156,8 @@ export const TransactionState: StoryFSM = {
     await waitFor(async () => await canvas.findAllByText('Next'), {
       timeout: 5000,
     });
+
+    await sleep(1500);
 
     await fireEvent.click(canvas.getAllByText('Next')[0]);
   },

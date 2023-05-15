@@ -202,7 +202,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     );
   };
   const isDataValid: () => boolean = () => {
-    if (autoVars.loading) {
+    if (autoVars.loading || (newData['block-type'] === 'transaction' && !size(autoVars.value))) {
       return false;
     }
 
@@ -602,7 +602,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
     // Check that for every state created from an autovar,
     // if the autovar is still present
-    if (size(newData.states)) {
+    if (size(newData.states) && autoVars.loading === false) {
       const statesToRemove = [];
 
       forEach(newData.states, (state: IFSMState, id: string) => {
