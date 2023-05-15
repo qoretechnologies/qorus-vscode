@@ -345,13 +345,26 @@ export const NewTransactionState: StoryFSM = {
       timeout: 5000,
     });
 
+    await sleep(1500);
+
     await waitFor(_testsSubmitFSMState('state-state1State1-submit-button'), { timeout: 5000 });
     await expect(document.querySelectorAll('.reqore-drawer').length).toBe(1);
+
+    await sleep(1500);
+
     await waitFor(() => expect(canvas.getByText('State 1.State 1')).toBeInTheDocument());
 
     await waitFor(_testsSubmitFSMState('state-state1-submit-button'), { timeout: 5000 });
     await expect(size(document.querySelectorAll('.reqore-drawer'))).toBe(0);
     await waitFor(() => expect(canvas.getByText('transaction block (1)')).toBeInTheDocument());
+
+    await fireEvent.click(document.querySelector(`#state-1`));
+
+    await sleep(2000);
+
+    await fireEvent.click(document.querySelector('.state-next-button'));
+
+    await waitFor(() => expect(canvas.getByText('transaction')).toBeInTheDocument());
   },
 };
 
