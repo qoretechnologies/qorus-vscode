@@ -645,9 +645,13 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             icon: 'CloseLine',
             onClick: () => {
               onClose();
-              deleteState(id, true);
+
+              if (newData.isNew) {
+                deleteState(id, true);
+              }
             },
             show: !isMetadataHidden,
+            className: 'fsm-state-dialog-cancel',
             responsive: false,
           },
           {

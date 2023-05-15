@@ -1197,6 +1197,9 @@ msgstr "False"
 msgid "field-label-foreach"
 msgstr "foreach"
 
+msgid "field-label-transaction"
+msgstr "transaction"
+
 msgid "field-label-while"
 msgstr "while"
 

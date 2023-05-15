@@ -3,6 +3,7 @@ import { StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
+import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
 import { sleep } from './../utils';
 
@@ -148,5 +149,40 @@ export const StatesCanBeConnected: StoryFSM = {
     await waitFor(() => expect(document.querySelectorAll('.fsm-transition').length).toBe(5), {
       timeout: 10000,
     });
+  },
+};
+
+export const StatesIsNotRemovedOnCancel: StoryFSM = {
+  args: {
+    fsm,
+  },
+  play: async ({ canvasElement, ...rest }) => {
+    await SwitchesToBuilder.play({ canvasElement, ...rest });
+
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
+
+    await fireEvent.click(document.querySelector('#state-1'));
+
+    await sleep(1000);
+
+    await fireEvent.click(document.querySelector('.fsm-state-dialog-cancel'));
+
+    await sleep(200);
+
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
+  },
+};
+
+export const StatesIsRemovedIfUnfinished: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    await NewState.play({ canvasElement, ...rest });
+
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(2);
+
+    await fireEvent.click(document.querySelector('.fsm-state-dialog-cancel'));
+
+    await sleep(200);
+
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(0);
   },
 };

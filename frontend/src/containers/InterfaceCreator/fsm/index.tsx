@@ -1778,7 +1778,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 setEditingState(undefined);
                 setEditingTransitionOrder(undefined);
               }}
-              onClose={() => setEditingState(null)}
+              onClose={() => {
+                setSelectedState(null);
+                setActiveState(undefined);
+                setEditingState(null);
+              }}
               data={states[state]}
               id={state}
               deleteState={handleStateDeleteClick}
