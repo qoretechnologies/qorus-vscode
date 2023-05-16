@@ -1,10 +1,36 @@
 export const vscode =
   process.env.NODE_ENV === 'test'
     ? {
-        postMessage: (data) => {
+        postMessage: async (data) => {
           let messageData: any;
 
           switch (data.action) {
+            case 'fetch-data': {
+              const { url, method, body, id } = data;
+
+              const requestData = await fetch(
+                `https://hq.qoretechnologies.com:8092/api/latest/${url}`,
+                {
+                  method,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Basic ${btoa('fwitosz:fwitosz42')}`,
+                  },
+                  body: JSON.stringify(body),
+                }
+              );
+
+              const json = await requestData.json();
+
+              messageData = {
+                action: 'fetch-data-complete',
+                data: json,
+                ok: requestData.ok,
+                error: !requestData.ok ? json : undefined,
+                id,
+              };
+              break;
+            }
             case 'creator-get-objects': {
               messageData = {
                 action: 'creator-return-objects',

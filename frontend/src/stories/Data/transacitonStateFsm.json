@@ -1,0 +1,3925 @@
+{
+  "type": "fsm",
+  "name": "TransactionBlockTest",
+  "desc": "kek",
+  "globalvar": {
+    "variable_0": {
+      "name": "variable_0",
+      "value": {
+        "type": "factory",
+        "name": "wsclient",
+        "transaction_management": false,
+        "path": "",
+        "options": {
+          "url": {
+            "type": "string",
+            "value": "asg"
+          }
+        },
+        "optionsChanged": false,
+        "supports_request": false,
+        "supports_read": false,
+        "supports_update": false,
+        "supports_create": false,
+        "supports_delete": false,
+        "supports_messages": "ASYNC",
+        "supports_observable": true,
+        "record_requires_search_options": false,
+        "descriptions": ["WebSocket client to URL \"ws://asg/\""]
+      },
+      "type": "data-provider",
+      "desc": "tsst",
+      "variableType": "globalvar"
+    }
+  },
+  "states": {
+    "1": {
+      "position": {
+        "x": 141,
+        "y": 55.5
+      },
+      "initial": false,
+      "name": "State 1",
+      "desc": "",
+      "type": "block",
+      "block-type": "transaction",
+      "id": "H542Qir6n",
+      "block-config": {
+        "data-provider": {
+          "type": "data-provider",
+          "value": {
+            "type": "factory",
+            "name": "db",
+            "transaction_management": true,
+            "path": "/bb_local",
+            "options": {
+              "datasource": {
+                "type": "string",
+                "value": "omquser"
+              }
+            },
+            "optionsChanged": false,
+            "record_requires_search_options": false,
+            "supports_read": true,
+            "supports_update": true,
+            "supports_create": true,
+            "supports_delete": true,
+            "supports_messages": "NONE",
+            "supports_observable": false,
+            "descriptions": [
+              "Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries",
+              "Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations"
+            ]
+          }
+        }
+      },
+      "autovar": {
+        "trans": {
+          "type": "data-provider",
+          "desc": "the data provider for the transaction",
+          "value": {
+            "supports_read": true,
+            "supports_create": true,
+            "supports_update": true,
+            "supports_upsert": true,
+            "supports_delete": true,
+            "supports_native_search": true,
+            "supports_bulk_read": true,
+            "supports_bulk_create": true,
+            "supports_bulk_upsert": true,
+            "supports_request": false,
+            "supports_children": false,
+            "transaction_management": true,
+            "has_record": true,
+            "record_requires_search_options": false,
+            "supports_child_create": false,
+            "supports_child_delete": false,
+            "supports_add_field": true,
+            "supports_update_field": true,
+            "supports_delete_field": true,
+            "supports_schema": false,
+            "supports_search_expressions": true,
+            "supports_observable": false,
+            "supports_messages": "NONE",
+            "children_can_support_apis": false,
+            "children_can_support_records": false,
+            "children_can_support_observers": false,
+            "children_can_support_messages": false,
+            "children_can_support_transactions": false,
+            "search_logic_capabilities": 3,
+            "type": "factory",
+            "constructor_options": {
+              "datasource": {
+                "type": ["string", "object<AbstractDatasource>"],
+                "required": false,
+                "desc": "the datasource connection string or an abstract datasource object; in case a connection string is given, then the \"table\" option also needs to be given as a string",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "string",
+                    "desc": "Qore data type \"string\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      },
+                      "string.encoding": {
+                        "type": "string",
+                        "desc": "the output encoding when writing to the type"
+                      },
+                      "string.max_size_chars": {
+                        "type": "integer",
+                        "desc": "the maximum length of the string in characters"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "string",
+                    "mandatory": true,
+                    "types_accepted": ["string"],
+                    "types_returned": ["string"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  },
+                  {
+                    "name": "object<AbstractDatasource>",
+                    "desc": "Qore data type \"object<AbstractDatasource>\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "object<AbstractDatasource>",
+                    "mandatory": true,
+                    "types_accepted": ["AbstractDatasource"],
+                    "types_returned": ["AbstractDatasource"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  }
+                ]
+              },
+              "table": {
+                "type": ["string", "object<AbstractTable>"],
+                "required": true,
+                "desc": "the table name or table object; if a table string is provided, then the \"datasource\" option must also be provided",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "string",
+                    "desc": "Qore data type \"string\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      },
+                      "string.encoding": {
+                        "type": "string",
+                        "desc": "the output encoding when writing to the type"
+                      },
+                      "string.max_size_chars": {
+                        "type": "integer",
+                        "desc": "the maximum length of the string in characters"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "string",
+                    "mandatory": true,
+                    "types_accepted": ["string"],
+                    "types_returned": ["string"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  },
+                  {
+                    "name": "object<AbstractTable>",
+                    "desc": "Qore data type \"object<AbstractTable>\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "object<AbstractTable>",
+                    "mandatory": true,
+                    "types_accepted": ["AbstractTable"],
+                    "types_returned": ["AbstractTable"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  }
+                ]
+              }
+            },
+            "create_options": {
+              "returning": {
+                "type": ["auto"],
+                "required": false,
+                "desc": "a string (giving the output name) or a hash describing the return parameters for an insert; a hash will have the following keys: 'key': (required) the column name to return, and 'type' (optional) the data type for the output placeholder buffer (ex: 'number')",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "auto",
+                    "desc": "Qore data type \"auto\"",
+                    "supported_options": null,
+                    "options": null,
+                    "base_type": "auto",
+                    "mandatory": false,
+                    "types_accepted": ["any"],
+                    "types_returned": ["any"],
+                    "fields": {},
+                    "can_manage_fields": true,
+                    "tags": null
+                  }
+                ]
+              }
+            },
+            "upsert_options": {
+              "upsert_strategy": {
+                "type": ["string"],
+                "required": false,
+                "desc": "providers the upsert strategy; 'UpsertInsertFirst': try to insert first, if it fails, try updating; 'UpsertUpdateFirst': try to update first, if it fails, try inserting; 'UpsertSelectFirst': try to select first, if it fails, insert, if it succeeds, update if necessary; 'UpsertInsertOnly': only insert, never update, 'UpsertUpdateOnly': only update, never insert; 'UpsertAuto' (the default) use the most efficient upsert for the underlying DB",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "string",
+                    "desc": "Qore data type \"string\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      },
+                      "string.encoding": {
+                        "type": "string",
+                        "desc": "the output encoding when writing to the type"
+                      },
+                      "string.max_size_chars": {
+                        "type": "integer",
+                        "desc": "the maximum length of the string in characters"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "string",
+                    "mandatory": true,
+                    "types_accepted": ["string"],
+                    "types_returned": ["string"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  }
+                ]
+              },
+              "omit_update": {
+                "type": ["softlist<string>"],
+                "required": false,
+                "desc": "allows for an asymmetrical upsert where a set of column values is inserted, but a smaller set is updated in case the unique key values are present in the target table; the value of this option should be set to the columns to omit in the update clause",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "softlist<string>",
+                    "desc": "Qore data type \"softlist<string>\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "list<string>",
+                    "mandatory": true,
+                    "types_accepted": ["list<string>", "list", "nothing"],
+                    "types_returned": ["list<string>"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  }
+                ]
+              }
+            },
+            "search_options": {
+              "columns": {
+                "type": ["auto"],
+                "required": false,
+                "desc": "column argument for the select expression",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "auto",
+                    "desc": "Qore data type \"auto\"",
+                    "supported_options": null,
+                    "options": null,
+                    "base_type": "auto",
+                    "mandatory": false,
+                    "types_accepted": ["any"],
+                    "types_returned": ["any"],
+                    "fields": {},
+                    "can_manage_fields": true,
+                    "tags": null
+                  }
+                ]
+              },
+              "limit": {
+                "type": ["int"],
+                "required": false,
+                "desc": "the maximum number of records to return",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "int",
+                    "desc": "Qore data type \"int\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "int",
+                    "mandatory": true,
+                    "types_accepted": ["int", "integer"],
+                    "types_returned": ["int", "integer"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  }
+                ]
+              },
+              "offset": {
+                "type": ["int"],
+                "required": false,
+                "desc": "the offset number in records to return",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "int",
+                    "desc": "Qore data type \"int\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "int",
+                    "mandatory": true,
+                    "types_accepted": ["int", "integer"],
+                    "types_returned": ["int", "integer"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  }
+                ]
+              },
+              "groupby": {
+                "type": ["softlist<auto>"],
+                "required": false,
+                "desc": "group by argument for the select expression",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "softlist<auto>",
+                    "desc": "Qore data type \"softlist<auto>\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "list<auto>",
+                    "mandatory": true,
+                    "types_accepted": ["list<auto>", "nothing", "auto"],
+                    "types_returned": ["list<auto>"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  }
+                ]
+              },
+              "having": {
+                "type": ["hash<auto>"],
+                "required": false,
+                "desc": "having argument for the select expression",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "hash<auto>",
+                    "desc": "Qore data type \"hash<auto>\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "hash<auto>",
+                    "mandatory": true,
+                    "types_accepted": ["hash<auto>"],
+                    "types_returned": ["hash<auto>"],
+                    "fields": {},
+                    "can_manage_fields": true,
+                    "tags": null
+                  }
+                ]
+              },
+              "orderby": {
+                "type": ["softlist<string>"],
+                "required": false,
+                "desc": "order by argument for the select expression",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "softlist<string>",
+                    "desc": "Qore data type \"softlist<string>\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "list<string>",
+                    "mandatory": true,
+                    "types_accepted": ["list<string>", "list", "nothing"],
+                    "types_returned": ["list<string>"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  }
+                ]
+              },
+              "forupdate": {
+                "type": ["softbool"],
+                "required": false,
+                "desc": "uses FOR UPDATE with the query to lock records selected",
+                "sensitive": false,
+                "type_info": [
+                  {
+                    "name": "softbool",
+                    "desc": "Qore data type \"softbool\"",
+                    "supported_options": {
+                      "qore.no_null": {
+                        "type": "bool",
+                        "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                      }
+                    },
+                    "options": null,
+                    "base_type": "bool",
+                    "mandatory": true,
+                    "types_accepted": [
+                      "bool",
+                      "float",
+                      "int",
+                      "integer",
+                      "string",
+                      "date",
+                      "number",
+                      "null"
+                    ],
+                    "types_returned": ["bool"],
+                    "fields": {},
+                    "can_manage_fields": false,
+                    "tags": null
+                  }
+                ]
+              },
+              "requires_result": {
+                "type": ["bool"],
+                "required": false,
+                "desc": "If True, then an operation that returns no result or affects no records results in an error",
+                "default_value": false
+              }
+            },
+            "expressions": {
+              "AND": {
+                "type": 1,
+                "label": "AND",
+                "name": "and (&&)",
+                "desc": "logical AND operation supporting logic short-circuiting",
+                "symbol": "&&",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "bool"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": true,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "bool",
+                      "desc": "Qore data type \"bool\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "bool",
+                      "mandatory": true,
+                      "types_accepted": ["bool"],
+                      "types_returned": ["bool"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "OR": {
+                "type": 1,
+                "label": "OR",
+                "name": "or (||)",
+                "desc": "logical OR operation supporting logic short-circuiting",
+                "symbol": "||",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "bool"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": true,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "bool",
+                      "desc": "Qore data type \"bool\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "bool",
+                      "mandatory": true,
+                      "types_accepted": ["bool"],
+                      "types_returned": ["bool"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "like": {
+                "type": 1,
+                "label": "like",
+                "name": "like",
+                "desc": "The value to bind as the 'like' value (ex: '%some string%')",
+                "symbol": "like",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "string"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "string"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "<": {
+                "type": 1,
+                "label": "<",
+                "name": "less than (<)",
+                "desc": "a value for less than comparisons; if the field value is less than the argument, then the operation returns true; the type of the value should correspond to the field type",
+                "symbol": "<",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "<=": {
+                "type": 1,
+                "label": "<=",
+                "name": "less than or equals (<=)",
+                "desc": "a value for less than or equals comparisons; if the field value is less than or equal to the argument, then the operation returns true; the type of the value should correspond to the field type",
+                "symbol": "<=",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              ">": {
+                "type": 1,
+                "label": ">",
+                "name": "greater than (>)",
+                "desc": "a value for less than comparisons; if the field value is less than the argument, then the operation returns true; the type of the value should correspond to the field type",
+                "symbol": ">",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              ">=": {
+                "type": 1,
+                "label": ">=",
+                "name": "greater than or equals (>=)",
+                "desc": "a value for greater than or equals comparisons; if the field value is greater than or equal to the argument, then the operation returns true; the type of the value should correspond to the field type",
+                "symbol": ">=",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "!=": {
+                "type": 1,
+                "label": "!=",
+                "name": "not equals (!=)",
+                "desc": "a value for not-equals comparisons; the type of the value should correspond to the field type",
+                "symbol": "!=",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "=": {
+                "type": 1,
+                "label": "=",
+                "name": "equals (=)",
+                "desc": "a value for equality comparisons; the type of the value should correspond to the field type",
+                "symbol": "==",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "between": {
+                "type": 1,
+                "label": "between",
+                "name": "between",
+                "desc": "A list with two elements giving the lower and upper bounds of the field value; the list element value types must be equal to the field's type",
+                "symbol": "between",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "in": {
+                "type": 1,
+                "label": "in",
+                "name": "in",
+                "desc": "A list giving possible values of the field;  if the field's value matches any of the values in the list, then the operation returns true; element value types must be equal to the field's type",
+                "symbol": "in",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": true,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "not": {
+                "type": 1,
+                "label": "not",
+                "name": "logical not (!)",
+                "desc": "This operator reverses the logcal value of the operator expression given as an argument",
+                "symbol": "!",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "bool"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "bool",
+                      "desc": "Qore data type \"bool\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "bool",
+                      "mandatory": true,
+                      "types_accepted": ["bool"],
+                      "types_returned": ["bool"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "substr": {
+                "type": 1,
+                "label": "substr",
+                "name": "substr",
+                "desc": "returns a substring from a string; args: string, int start char, [int length]",
+                "symbol": "substr",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "string"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "int"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "*int"
+                  }
+                ],
+                "return_type": "string",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "int",
+                      "desc": "Qore data type \"int\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "int",
+                      "mandatory": true,
+                      "types_accepted": ["int", "integer"],
+                      "types_returned": ["int", "integer"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "*int",
+                      "desc": "Qore data type \"*int\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "int",
+                      "mandatory": false,
+                      "types_accepted": ["int", "integer", "nothing", "null"],
+                      "types_returned": ["int", "integer", "nothing"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "string",
+                  "desc": "Qore data type \"string\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    },
+                    "string.encoding": {
+                      "type": "string",
+                      "desc": "the output encoding when writing to the type"
+                    },
+                    "string.max_size_chars": {
+                      "type": "integer",
+                      "desc": "the maximum length of the string in characters"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "string",
+                  "mandatory": true,
+                  "types_accepted": ["string"],
+                  "types_returned": ["string"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "in_select": {
+                "type": 1,
+                "label": "in_select",
+                "name": "in_select",
+                "desc": "check if a value is in a sub-select; args: value, table name for the subselect, subselect query hash",
+                "symbol": "in_select",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "string"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "hash<auto>"
+                  }
+                ],
+                "return_type": "bool",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "hash<auto>",
+                      "desc": "Qore data type \"hash<auto>\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "hash<auto>",
+                      "mandatory": true,
+                      "types_accepted": ["hash<auto>"],
+                      "types_returned": ["hash<auto>"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "bool",
+                  "desc": "Qore data type \"bool\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "bool",
+                  "mandatory": true,
+                  "types_accepted": ["bool"],
+                  "types_returned": ["bool"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "as": {
+                "type": 1,
+                "label": "as",
+                "name": "as",
+                "desc": "aliases a result; args: expression or value, string label",
+                "symbol": "as",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "string"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "prepend": {
+                "type": 1,
+                "label": "prepend",
+                "name": "prepend",
+                "desc": "prepends a string to another string; args: string to be prepended, string to prepend to the first string",
+                "symbol": "prepend",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "string"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "string"
+                  }
+                ],
+                "return_type": "string",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "string",
+                  "desc": "Qore data type \"string\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    },
+                    "string.encoding": {
+                      "type": "string",
+                      "desc": "the output encoding when writing to the type"
+                    },
+                    "string.max_size_chars": {
+                      "type": "integer",
+                      "desc": "the maximum length of the string in characters"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "string",
+                  "mandatory": true,
+                  "types_accepted": ["string"],
+                  "types_returned": ["string"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "append": {
+                "type": 1,
+                "label": "append",
+                "name": "append",
+                "desc": "appends or catenates a string to another string; args: string to be appended, string to append or concatenate to the first string",
+                "symbol": "append",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "string"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "string"
+                  }
+                ],
+                "return_type": "string",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "string",
+                  "desc": "Qore data type \"string\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    },
+                    "string.encoding": {
+                      "type": "string",
+                      "desc": "the output encoding when writing to the type"
+                    },
+                    "string.max_size_chars": {
+                      "type": "integer",
+                      "desc": "the maximum length of the string in characters"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "string",
+                  "mandatory": true,
+                  "types_accepted": ["string"],
+                  "types_returned": ["string"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "upper": {
+                "type": 1,
+                "label": "upper",
+                "name": "upper",
+                "desc": "converts a string to all upper case; arg: string",
+                "symbol": "upper",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "string"
+                  }
+                ],
+                "return_type": "string",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "string",
+                  "desc": "Qore data type \"string\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    },
+                    "string.encoding": {
+                      "type": "string",
+                      "desc": "the output encoding when writing to the type"
+                    },
+                    "string.max_size_chars": {
+                      "type": "integer",
+                      "desc": "the maximum length of the string in characters"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "string",
+                  "mandatory": true,
+                  "types_accepted": ["string"],
+                  "types_returned": ["string"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "lower": {
+                "type": 1,
+                "label": "lower",
+                "name": "lower",
+                "desc": "converts a string to all lower case; arg: string",
+                "symbol": "lower",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "string"
+                  }
+                ],
+                "return_type": "string",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "string",
+                  "desc": "Qore data type \"string\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    },
+                    "string.encoding": {
+                      "type": "string",
+                      "desc": "the output encoding when writing to the type"
+                    },
+                    "string.max_size_chars": {
+                      "type": "integer",
+                      "desc": "the maximum length of the string in characters"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "string",
+                  "mandatory": true,
+                  "types_accepted": ["string"],
+                  "types_returned": ["string"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "distinct": {
+                "type": 1,
+                "label": "distinct",
+                "name": "distinct",
+                "desc": "indicates that only records with distinct values of the given field should be returned",
+                "symbol": "distinct",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "min": {
+                "type": 1,
+                "label": "min",
+                "name": "min",
+                "desc": "Returns the minimum value in the group",
+                "symbol": "min",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "max": {
+                "type": 1,
+                "label": "max",
+                "name": "max",
+                "desc": "Returns the maximum value in the group",
+                "symbol": "max",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "avg": {
+                "type": 1,
+                "label": "avg",
+                "name": "avg",
+                "desc": "Returns the average of the given values in the group",
+                "symbol": "avg",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "sum": {
+                "type": 1,
+                "label": "sum",
+                "name": "sum",
+                "desc": "Returns the sum of the given values",
+                "symbol": "sum",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "count": {
+                "type": 1,
+                "label": "count",
+                "name": "count",
+                "desc": "Count the number of rows in the group",
+                "symbol": "count",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "int",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "int",
+                  "desc": "Qore data type \"int\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "int",
+                  "mandatory": true,
+                  "types_accepted": ["int", "integer"],
+                  "types_returned": ["int", "integer"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "minus": {
+                "type": 1,
+                "label": "minus",
+                "name": "minus",
+                "desc": "Subtracts one number from another",
+                "symbol": "minus",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "plus": {
+                "type": 1,
+                "label": "plus",
+                "name": "plus",
+                "desc": "Adds two numbers",
+                "symbol": "plus",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "divide": {
+                "type": 1,
+                "label": "divide",
+                "name": "divide",
+                "desc": "Divides one number by another",
+                "symbol": "divide",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "multiply": {
+                "type": 1,
+                "label": "multiply",
+                "name": "multiply",
+                "desc": "Multiplies two numbers",
+                "symbol": "multiply",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "coalesce": {
+                "type": 1,
+                "label": "coalesce",
+                "name": "coalesce",
+                "desc": "Returns the value of the first expression with a value",
+                "symbol": "coalesce",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": true,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "length": {
+                "type": 1,
+                "label": "length",
+                "name": "length",
+                "desc": "Returns the length of the argument",
+                "symbol": "length",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "int",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "int",
+                  "desc": "Qore data type \"int\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "int",
+                  "mandatory": true,
+                  "types_accepted": ["int", "integer"],
+                  "types_returned": ["int", "integer"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "seq": {
+                "type": 1,
+                "label": "seq",
+                "name": "seq",
+                "desc": "returns the next value in the given sequence; args: sequence name",
+                "symbol": "seq",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "value",
+                    "type": "string"
+                  }
+                ],
+                "return_type": "int",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "int",
+                  "desc": "Qore data type \"int\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "int",
+                  "mandatory": true,
+                  "types_accepted": ["int", "integer"],
+                  "types_returned": ["int", "integer"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "seq_currval": {
+                "type": 1,
+                "label": "seq_currval",
+                "name": "seq_currval",
+                "desc": "returns the current value in the given sequence; args: sequence name",
+                "symbol": "seq_currval",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "value",
+                    "type": "string"
+                  }
+                ],
+                "return_type": "int",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "int",
+                  "desc": "Qore data type \"int\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "int",
+                  "mandatory": true,
+                  "types_accepted": ["int", "integer"],
+                  "types_returned": ["int", "integer"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "over": {
+                "type": 1,
+                "label": "over",
+                "name": "over",
+                "desc": "returns the output of the SQL window given by the arguments; args: *string partiion by, *string order by",
+                "symbol": "over",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "field reference",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "*string"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "*string"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "field reference",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "*string",
+                      "desc": "Qore data type \"*string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        },
+                        "string.empty_to_nothing": {
+                          "type": "bool",
+                          "desc": "if an empty string should be converted to no value"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": false,
+                      "types_accepted": ["string", "nothing", "null"],
+                      "types_returned": ["string", "nothing"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "*string",
+                      "desc": "Qore data type \"*string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        },
+                        "string.empty_to_nothing": {
+                          "type": "bool",
+                          "desc": "if an empty string should be converted to no value"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": false,
+                      "types_accepted": ["string", "nothing", "null"],
+                      "types_returned": ["string", "nothing"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "dense_rank": {
+                "type": 1,
+                "label": "dense_rank",
+                "name": "dense_rank",
+                "desc": "Returns the rank of a row in an ordered group of rows as a number",
+                "symbol": "dense_rank",
+                "role": 2,
+                "args": [],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "first_value": {
+                "type": 1,
+                "label": "first_value",
+                "name": "first_value",
+                "desc": "Returns the first value in an ordered group of rows",
+                "symbol": "first_value",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "field reference",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "field reference",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "last_value": {
+                "type": 1,
+                "label": "last_value",
+                "name": "last_value",
+                "desc": "Returns the last value in an ordered group of rows",
+                "symbol": "last_value",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "field reference",
+                    "type": "auto"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "field reference",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "ntile": {
+                "type": 1,
+                "label": "ntile",
+                "name": "ntile",
+                "desc": "Returns the group number of an ordered group of rows",
+                "symbol": "ntile",
+                "role": 2,
+                "args": [
+                  {
+                    "type_code": "value",
+                    "type": "int"
+                  }
+                ],
+                "return_type": "int",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "int",
+                      "desc": "Qore data type \"int\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "int",
+                      "mandatory": true,
+                      "types_accepted": ["int", "integer"],
+                      "types_returned": ["int", "integer"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "int",
+                  "desc": "Qore data type \"int\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "int",
+                  "mandatory": true,
+                  "types_accepted": ["int", "integer"],
+                  "types_returned": ["int", "integer"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "percent_rank": {
+                "type": 1,
+                "label": "percent_rank",
+                "name": "percent_rank",
+                "desc": "Returns the percent rank of a row in an ordered group of rows",
+                "symbol": "percent_rank",
+                "role": 2,
+                "args": [],
+                "return_type": "int",
+                "varargs": false,
+                "arg_type_info": [],
+                "return_type_info": {
+                  "name": "int",
+                  "desc": "Qore data type \"int\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "int",
+                  "mandatory": true,
+                  "types_accepted": ["int", "integer"],
+                  "types_returned": ["int", "integer"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "rank": {
+                "type": 1,
+                "label": "percent_rank",
+                "name": "percent_rank",
+                "desc": "Returns the row number of a row in an ordered group of rows",
+                "symbol": "percent_rank",
+                "role": 2,
+                "args": [],
+                "return_type": "int",
+                "varargs": false,
+                "arg_type_info": [],
+                "return_type_info": {
+                  "name": "int",
+                  "desc": "Qore data type \"int\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "int",
+                  "mandatory": true,
+                  "types_accepted": ["int", "integer"],
+                  "types_returned": ["int", "integer"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "row_number": {
+                "type": 1,
+                "label": "row_number",
+                "name": "row_number",
+                "desc": "Returns the row number of a result set",
+                "symbol": "row_number",
+                "role": 2,
+                "args": [],
+                "return_type": "int",
+                "varargs": false,
+                "arg_type_info": [],
+                "return_type_info": {
+                  "name": "int",
+                  "desc": "Qore data type \"int\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "int",
+                  "mandatory": true,
+                  "types_accepted": ["int", "integer"],
+                  "types_returned": ["int", "integer"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "cast": {
+                "type": 1,
+                "label": "cast",
+                "name": "cast",
+                "desc": "cast operator",
+                "symbol": "cast",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "auto"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "string"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "*int"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "*int"
+                  }
+                ],
+                "return_type": "auto",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "*int",
+                      "desc": "Qore data type \"*int\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "int",
+                      "mandatory": false,
+                      "types_accepted": ["int", "integer", "nothing", "null"],
+                      "types_returned": ["int", "integer", "nothing"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "*int",
+                      "desc": "Qore data type \"*int\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "int",
+                      "mandatory": false,
+                      "types_accepted": ["int", "integer", "nothing", "null"],
+                      "types_returned": ["int", "integer", "nothing"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "auto",
+                  "desc": "Qore data type \"auto\"",
+                  "supported_options": null,
+                  "options": null,
+                  "base_type": "auto",
+                  "mandatory": false,
+                  "types_accepted": ["any"],
+                  "types_returned": ["any"],
+                  "fields": {},
+                  "can_manage_fields": true,
+                  "tags": null
+                }
+              },
+              "year": {
+                "type": 1,
+                "label": "year",
+                "name": "year",
+                "desc": "returns the year component of a date as a string (ex: `2022`)",
+                "symbol": "year",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "date"
+                  }
+                ],
+                "return_type": "string",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "date",
+                      "desc": "Qore data type \"date\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "date",
+                      "mandatory": true,
+                      "types_accepted": ["date"],
+                      "types_returned": ["date"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "string",
+                  "desc": "Qore data type \"string\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    },
+                    "string.encoding": {
+                      "type": "string",
+                      "desc": "the output encoding when writing to the type"
+                    },
+                    "string.max_size_chars": {
+                      "type": "integer",
+                      "desc": "the maximum length of the string in characters"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "string",
+                  "mandatory": true,
+                  "types_accepted": ["string"],
+                  "types_returned": ["string"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "year_month": {
+                "type": 1,
+                "label": "year_month",
+                "name": "year_month",
+                "desc": "returns the year and month components of a date as a string (ex: `2022-06`)",
+                "symbol": "year_month",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "date"
+                  }
+                ],
+                "return_type": "string",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "date",
+                      "desc": "Qore data type \"date\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "date",
+                      "mandatory": true,
+                      "types_accepted": ["date"],
+                      "types_returned": ["date"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "string",
+                  "desc": "Qore data type \"string\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    },
+                    "string.encoding": {
+                      "type": "string",
+                      "desc": "the output encoding when writing to the type"
+                    },
+                    "string.max_size_chars": {
+                      "type": "integer",
+                      "desc": "the maximum length of the string in characters"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "string",
+                  "mandatory": true,
+                  "types_accepted": ["string"],
+                  "types_returned": ["string"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "year_day": {
+                "type": 1,
+                "label": "year_day",
+                "name": "year_day",
+                "desc": "returns the year, month, and day components of a date as a string (ex: `2022-06-29`)",
+                "symbol": "year_day",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "date"
+                  }
+                ],
+                "return_type": "string",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "date",
+                      "desc": "Qore data type \"date\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "date",
+                      "mandatory": true,
+                      "types_accepted": ["date"],
+                      "types_returned": ["date"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "string",
+                  "desc": "Qore data type \"string\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    },
+                    "string.encoding": {
+                      "type": "string",
+                      "desc": "the output encoding when writing to the type"
+                    },
+                    "string.max_size_chars": {
+                      "type": "integer",
+                      "desc": "the maximum length of the string in characters"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "string",
+                  "mandatory": true,
+                  "types_accepted": ["string"],
+                  "types_returned": ["string"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "year_hour": {
+                "type": 1,
+                "label": "year_hour",
+                "name": "year_hour",
+                "desc": "returns the year, month, day, and hour components of a date as a string (ex: `2022-06-29 15`)",
+                "symbol": "year_hour",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "date"
+                  }
+                ],
+                "return_type": "string",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "date",
+                      "desc": "Qore data type \"date\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "date",
+                      "mandatory": true,
+                      "types_accepted": ["date"],
+                      "types_returned": ["date"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "string",
+                  "desc": "Qore data type \"string\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    },
+                    "string.encoding": {
+                      "type": "string",
+                      "desc": "the output encoding when writing to the type"
+                    },
+                    "string.max_size_chars": {
+                      "type": "integer",
+                      "desc": "the maximum length of the string in characters"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "string",
+                  "mandatory": true,
+                  "types_accepted": ["string"],
+                  "types_returned": ["string"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              },
+              "truncate_date": {
+                "type": 1,
+                "label": "truncate_date",
+                "name": "truncate_date",
+                "desc": "truncates the given date to the given resolution; args: date, string code: Y: year, M: month, D: day, H: hour, m: minute, S: second",
+                "symbol": "truncate_date",
+                "role": 3,
+                "args": [
+                  {
+                    "type_code": "any",
+                    "type": "date"
+                  },
+                  {
+                    "type_code": "value",
+                    "type": "string"
+                  }
+                ],
+                "return_type": "date",
+                "varargs": false,
+                "arg_type_info": [
+                  {
+                    "type_code": "any",
+                    "type": {
+                      "name": "date",
+                      "desc": "Qore data type \"date\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "date",
+                      "mandatory": true,
+                      "types_accepted": ["date"],
+                      "types_returned": ["date"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  },
+                  {
+                    "type_code": "value",
+                    "type": {
+                      "name": "string",
+                      "desc": "Qore data type \"string\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        },
+                        "string.encoding": {
+                          "type": "string",
+                          "desc": "the output encoding when writing to the type"
+                        },
+                        "string.max_size_chars": {
+                          "type": "integer",
+                          "desc": "the maximum length of the string in characters"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "string",
+                      "mandatory": true,
+                      "types_accepted": ["string"],
+                      "types_returned": ["string"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  }
+                ],
+                "return_type_info": {
+                  "name": "date",
+                  "desc": "Qore data type \"date\"",
+                  "supported_options": {
+                    "qore.no_null": {
+                      "type": "bool",
+                      "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                    }
+                  },
+                  "options": null,
+                  "base_type": "date",
+                  "mandatory": true,
+                  "types_accepted": ["date"],
+                  "types_returned": ["date"],
+                  "fields": {},
+                  "can_manage_fields": false,
+                  "tags": null
+                }
+              }
+            },
+            "children": null,
+            "name": "db",
+            "desc": "Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations",
+            "path": "/bb_local",
+            "options": {
+              "datasource": {
+                "type": "string",
+                "value": "omquser"
+              }
+            }
+          },
+          "variableType": "autovar",
+          "readOnly": true
+        }
+      },
+      "states": {
+        "1": {
+          "position": {
+            "x": 44,
+            "y": 75.5
+          },
+          "initial": false,
+          "name": "State 1.State 1",
+          "desc": "",
+          "type": "state",
+          "id": "p5lN4sJLi",
+          "action": {
+            "type": "var-action",
+            "value": {
+              "var_type": "autovar",
+              "var_name": "trans",
+              "action_type": "transaction",
+              "search_options": {
+                "columns": {
+                  "type": ["auto"],
+                  "required": false,
+                  "desc": "column argument for the select expression",
+                  "sensitive": false,
+                  "type_info": [
+                    {
+                      "name": "auto",
+                      "desc": "Qore data type \"auto\"",
+                      "supported_options": null,
+                      "options": null,
+                      "base_type": "auto",
+                      "mandatory": false,
+                      "types_accepted": ["any"],
+                      "types_returned": ["any"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  ]
+                },
+                "limit": {
+                  "type": ["int"],
+                  "required": false,
+                  "desc": "the maximum number of records to return",
+                  "sensitive": false,
+                  "type_info": [
+                    {
+                      "name": "int",
+                      "desc": "Qore data type \"int\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "int",
+                      "mandatory": true,
+                      "types_accepted": ["int", "integer"],
+                      "types_returned": ["int", "integer"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  ]
+                },
+                "offset": {
+                  "type": ["int"],
+                  "required": false,
+                  "desc": "the offset number in records to return",
+                  "sensitive": false,
+                  "type_info": [
+                    {
+                      "name": "int",
+                      "desc": "Qore data type \"int\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "int",
+                      "mandatory": true,
+                      "types_accepted": ["int", "integer"],
+                      "types_returned": ["int", "integer"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  ]
+                },
+                "groupby": {
+                  "type": ["softlist<auto>"],
+                  "required": false,
+                  "desc": "group by argument for the select expression",
+                  "sensitive": false,
+                  "type_info": [
+                    {
+                      "name": "softlist<auto>",
+                      "desc": "Qore data type \"softlist<auto>\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "list<auto>",
+                      "mandatory": true,
+                      "types_accepted": ["list<auto>", "nothing", "auto"],
+                      "types_returned": ["list<auto>"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  ]
+                },
+                "having": {
+                  "type": ["hash<auto>"],
+                  "required": false,
+                  "desc": "having argument for the select expression",
+                  "sensitive": false,
+                  "type_info": [
+                    {
+                      "name": "hash<auto>",
+                      "desc": "Qore data type \"hash<auto>\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "hash<auto>",
+                      "mandatory": true,
+                      "types_accepted": ["hash<auto>"],
+                      "types_returned": ["hash<auto>"],
+                      "fields": {},
+                      "can_manage_fields": true,
+                      "tags": null
+                    }
+                  ]
+                },
+                "orderby": {
+                  "type": ["softlist<string>"],
+                  "required": false,
+                  "desc": "order by argument for the select expression",
+                  "sensitive": false,
+                  "type_info": [
+                    {
+                      "name": "softlist<string>",
+                      "desc": "Qore data type \"softlist<string>\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "list<string>",
+                      "mandatory": true,
+                      "types_accepted": ["list<string>", "list", "nothing"],
+                      "types_returned": ["list<string>"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  ]
+                },
+                "forupdate": {
+                  "type": ["softbool"],
+                  "required": false,
+                  "desc": "uses FOR UPDATE with the query to lock records selected",
+                  "sensitive": false,
+                  "type_info": [
+                    {
+                      "name": "softbool",
+                      "desc": "Qore data type \"softbool\"",
+                      "supported_options": {
+                        "qore.no_null": {
+                          "type": "bool",
+                          "desc": "if True then NULL is not supported on input if NOTHING is also not accepted"
+                        }
+                      },
+                      "options": null,
+                      "base_type": "bool",
+                      "mandatory": true,
+                      "types_accepted": [
+                        "bool",
+                        "float",
+                        "int",
+                        "integer",
+                        "string",
+                        "date",
+                        "number",
+                        "null"
+                      ],
+                      "types_returned": ["bool"],
+                      "fields": {},
+                      "can_manage_fields": false,
+                      "tags": null
+                    }
+                  ]
+                },
+                "requires_result": {
+                  "type": ["bool"],
+                  "required": false,
+                  "desc": "If True, then an operation that returns no result or affects no records results in an error",
+                  "default_value": false
+                }
+              },
+              "options": {
+                "datasource": {
+                  "type": "string",
+                  "value": "omquser"
+                }
+              },
+              "transaction_action": "begin-transaction"
+            }
+          },
+          "transitions": [
+            {
+              "state": "2",
+              "language": "qore"
+            }
+          ]
+        },
+        "2": {
+          "position": {
+            "x": 44,
+            "y": 354.5
+          },
+          "initial": false,
+          "name": "State 1.State 2",
+          "desc": "",
+          "type": "state",
+          "id": "6DmGBEhKY0t",
+          "action": {
+            "type": "var-action",
+            "value": {
+              "var_type": "globalvar",
+              "var_name": "variable_0",
+              "action_type": "send-message",
+              "message": {
+                "type": "data",
+                "value": "asg"
+              },
+              "message_id": "ping",
+              "options": {
+                "url": {
+                  "type": "string",
+                  "value": "asg"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

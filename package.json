@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "4.0.6",
+  "version": "4.1.0",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
@@ -484,7 +484,7 @@
       },
       {
         "command": "qorus.createEvent",
-        "title": "Create New Event",
+        "title": "Create New Sync Event",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/create-new.svg",
@@ -565,7 +565,7 @@
       },
       {
         "command": "qorus.views.deleteEvent",
-        "title": "Delete Event",
+        "title": "Delete Sync Event",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/trash.svg",
@@ -763,7 +763,7 @@
       },
       {
         "command": "qorus.views.deployEvent",
-        "title": "Deploy Event",
+        "title": "Deploy Sync Event",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/cloud-upload.svg",
@@ -916,7 +916,7 @@
       },
       {
         "command": "qorus.views.editEvent",
-        "title": "Edit Event",
+        "title": "Edit Sync Event",
         "category": "Qorus",
         "icon": {
           "dark": "images/icons/dark/edit.svg",

@@ -46,7 +46,11 @@ export interface IProviderProps {
   optionsChanged?: boolean;
   onResetClick?: () => void;
   isMessage?: boolean;
+  isVariable?: boolean;
+  isEvent?: boolean;
+  isTransaction?: boolean;
   availableOptions?: IOptionsSchema;
+  readOnly?: boolean;
 }
 
 export const providers: any = {
@@ -129,6 +133,7 @@ export const configItemFactory = {
   requiresRecord: false,
   suffixRequiresOptions: true,
   type: 'factory',
+  desc: 'Data provider factories for creating data providers from options',
 };
 
 const MapperProvider: FC<IProviderProps> = ({
@@ -153,14 +158,20 @@ const MapperProvider: FC<IProviderProps> = ({
   style,
   isConfigItem,
   options,
+  searchOptions,
   requiresRequest,
   optionsChanged,
+  searchOptionsChanged,
   onResetClick,
   optionProvider,
   recordType,
   isPipeline,
   isMessage,
+  isVariable,
   availableOptions,
+  readOnly,
+  isEvent,
+  isTransaction,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [descriptions, setDescriptions] = useState<string[]>([]);
@@ -198,7 +209,22 @@ const MapperProvider: FC<IProviderProps> = ({
       }
 
       if (isMessage) {
-        return child.supports_messages || child.children_can_support_messages;
+        return (
+          (child.supports_messages && child.supports_messages !== 'NONE') ||
+          child.children_can_support_messages
+        );
+      }
+
+      if (isTransaction) {
+        return (
+          child.transaction_management ||
+          child.children_can_support_transaction_management ||
+          child.children_can_support_transactions
+        );
+      }
+
+      if (isEvent) {
+        return child.supports_observable || child.children_can_support_observers;
       }
 
       return true;
@@ -219,7 +245,7 @@ const MapperProvider: FC<IProviderProps> = ({
         let { data, error } = await fetchData(`${url}`);
 
         if (error) {
-          onError?.(`${record.error.error.err}: ${record.error.error.desc}`);
+          onError?.(`${record.error.err}: ${record.error.desc}`);
         } else {
           onError?.(null);
         }
@@ -272,14 +298,38 @@ const MapperProvider: FC<IProviderProps> = ({
     });
   };
 
-  const handleChildFieldChange: (
+  const buildOptions = () => {
+    let customOptionString = '';
+
+    if (size(options)) {
+      // Turn the options hash into a query string
+      const str = map(options, (value, key) => `${key}=${btoa(value.value)}`).join(',');
+      customOptionString = `provider_yaml_options={${str}}`;
+    } else {
+      customOptionString = 'provider_yaml_options={}';
+    }
+
+    if (size(searchOptions)) {
+      // Turn the options hash into a query string
+      const str = map(searchOptions, (value, key) => `${key}=${btoa(value.value)}`).join(',');
+      customOptionString += `&provider_yaml_search_options={${str}}`;
+    } else {
+      customOptionString += `&provider_yaml_search_options={}`;
+    }
+
+    return customOptionString;
+  };
+
+  const handleChildFieldChange = async (
     value: string,
     url: string,
     itemIndex: number,
     suffix?: string,
     customOptionString?: string,
-    supportsOptions?: boolean
-  ) => void = async (value, url, itemIndex, suffix, customOptionString, supportsOptions) => {
+    supportsOptions?: boolean,
+    requiresSearchOptions?: boolean,
+    didApplyOptions?: boolean
+  ) => {
     // If this is a factory and it requires options
     // and no required options are filled, do not go further
     // User will have to fill the required options first and
@@ -313,10 +363,12 @@ const MapperProvider: FC<IProviderProps> = ({
       const name = `${url}/${value}`.split('/')[2];
       // Set the provider option
       setOptionProvider({
+        ...optionProvider,
         type: realProviders[provider].type,
         name,
         is_api_call: requiresRequest,
         can_manage_fields: record?.data?.can_manage_fields,
+        transaction_management: record?.data?.transaction_management,
         subtype: value === 'request' || value === 'response' ? value : undefined,
         path: `${url}/${value}`
           .replace(`${name}`, '')
@@ -325,6 +377,7 @@ const MapperProvider: FC<IProviderProps> = ({
           .replace('request', '')
           .replace('response', ''),
         options,
+        searchOptionsChanged: false,
       });
 
       return;
@@ -335,19 +388,19 @@ const MapperProvider: FC<IProviderProps> = ({
     setIsLoading(true);
     const newSuffix = realProviders[provider].withDetails
       ? value === 'request' || value === 'response'
-        ? ''
-        : `${suffix}?action=childDetails`
+        ? `?${buildOptions()}`
+        : `${suffix}?action=childDetails&${buildOptions()}`
       : suffix;
+
     // Build the suffix
-    let suffixString = realProviders[provider].suffixRequiresOptions
-      ? customOptionString && customOptionString !== '' && size(options)
-        ? `${newSuffix}${realProviders[provider].withDetails ? '&' : '?'}${customOptionString}`
+    let suffixString =
+      customOptionString && customOptionString !== '' && size(options)
+        ? `${newSuffix}${realProviders[provider].withDetails ? '&' : '?'}`
         : itemIndex === 1
         ? value === 'request' || value === 'response'
-          ? ''
-          : '?action=childDetails'
-        : newSuffix
-      : newSuffix;
+          ? `?${buildOptions()}`
+          : `?action=childDetails&${buildOptions()}`
+        : newSuffix;
     // Fetch the data
 
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
@@ -391,10 +444,42 @@ const MapperProvider: FC<IProviderProps> = ({
         .filter((item) => item);
 
       if (
+        (requiresSearchOptions || data?.record_requires_search_options) &&
+        !validateField('system-options', searchOptions)
+      ) {
+        const name = `${url}/${value}`.split('/')[2];
+        // Set the provider option
+        setOptionProvider({
+          ...optionProvider,
+          type: realProviders[provider].type,
+          name,
+          is_api_call: requiresRequest,
+          can_manage_fields: data?.can_manage_fields,
+          transaction_management: data?.transaction_management,
+          record_requires_search_options: data?.record_requires_search_options,
+          subtype: value === 'request' || value === 'response' ? value : undefined,
+          path: `${url}/${value}`
+            .replace(`${name}`, '')
+            .replace(`${realProviders[provider].url}/`, '')
+            .replace(`provider/`, '')
+            .replace('request', '')
+            .replace('response', ''),
+          options,
+          search_options: didApplyOptions ? searchOptions : undefined,
+          searchOptionsChanged: false,
+        });
+      } else if (
         data.has_type ||
         isConfigItem ||
         provider === 'factory' ||
-        (requiresRequest && data.supports_request)
+        (requiresRequest && data.supports_request) ||
+        (isVariable &&
+          (data.supports_read ||
+            data.supports_create ||
+            data.supports_update ||
+            data.supports_delete ||
+            data.supports_messages ||
+            data.transaction_management))
       ) {
         (async () => {
           setIsLoading(true);
@@ -408,26 +493,24 @@ const MapperProvider: FC<IProviderProps> = ({
           const childDetailsSuffix =
             data.supports_children || data.has_type === false
               ? value === 'request' || value === 'response'
-                ? ''
-                : `action=childDetails`
-              : '';
+                ? buildOptions()
+                : `action=childDetails&${buildOptions()}`
+              : buildOptions();
 
-          suffixString = realProviders[provider].suffixRequiresOptions
-            ? customOptionString && customOptionString !== '' && size(options)
+          suffixString =
+            customOptionString && customOptionString !== ''
               ? `${suffix}${
                   data.has_record ? realProviders[provider].recordSuffix : ''
                 }?${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
-                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
-                }${childDetailsSuffix}`
-            : `${newSuffix}${
-                data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
-              }${childDetailsSuffix}`;
+                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
+                }?${childDetailsSuffix}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
+
           if (record.error) {
-            const errMessage = `${record.error.error.err}: ${record.error.error.desc}`;
+            const errMessage = `${record.error.err}: ${record.error.desc}`;
             onError?.(errMessage);
           } else {
             onError?.(null);
@@ -440,6 +523,7 @@ const MapperProvider: FC<IProviderProps> = ({
           const name = `${url}/${value}`.split('/')[2];
           // Set the provider option
           setOptionProvider({
+            ...optionProvider,
             type: realProviders[provider].type,
             name,
             is_api_call: requiresRequest,
@@ -448,7 +532,10 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_update: data.supports_update,
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
-            supports_messages: isMessage && data.supports_messages,
+            supports_messages: data.supports_messages,
+            supports_observable: data.supports_observable,
+            transaction_management: data.transaction_management,
+            record_requires_search_options: data.record_requires_search_options,
             can_manage_fields: record.data?.can_manage_fields,
             subtype: value === 'request' || value === 'response' ? value : undefined,
             descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
@@ -459,6 +546,8 @@ const MapperProvider: FC<IProviderProps> = ({
               .replace('request', '')
               .replace('response', ''),
             options,
+            search_options: didApplyOptions ? searchOptions : undefined,
+            searchOptionsChanged: false,
           });
 
           if (data.has_type || isConfigItem) {
@@ -527,6 +616,7 @@ const MapperProvider: FC<IProviderProps> = ({
         const name = `${url}/${value}`.split('/')[2];
         // Set the provider option
         setOptionProvider({
+          ...optionProvider,
           type: realProviders[provider].type,
           can_manage_fields: data.can_manage_fields,
           name,
@@ -534,7 +624,10 @@ const MapperProvider: FC<IProviderProps> = ({
           supports_update: data.supports_update,
           supports_create: data.supports_create,
           supports_delete: data.supports_delete,
-          supports_messages: isMessage && data.supports_messages,
+          supports_messages: data.supports_messages,
+          supports_observable: data.supports_observable,
+          transaction_management: data.transaction_management,
+          record_requires_search_options: data.record_requires_search_options,
           subtype: value === 'request' || value === 'response' ? value : undefined,
           descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
           path: `${url}/${value}`
@@ -543,6 +636,9 @@ const MapperProvider: FC<IProviderProps> = ({
             .replace('provider/', '')
             .replace('request', '')
             .replace('response', ''),
+          options,
+          search_options: didApplyOptions ? searchOptions : undefined,
+          searchOptionsChanged: false,
         });
         // Set the record data
         setRecord && setRecord(data.fields);
@@ -559,28 +655,25 @@ const MapperProvider: FC<IProviderProps> = ({
           const childDetailsSuffix =
             data.supports_children || data.has_type === false
               ? value === 'request' || value === 'response'
-                ? ''
-                : `action=childDetails`
-              : '';
+                ? buildOptions()
+                : `?action=childDetails&${buildOptions()}`
+              : buildOptions();
 
           const newSuffix = suffix;
-          suffixString = realProviders[provider].suffixRequiresOptions
-            ? customOptionString && customOptionString !== '' && size(options)
+          suffixString =
+            customOptionString && customOptionString !== ''
               ? `${suffix}${
                   data.has_record ? realProviders[provider].recordSuffix : ''
                 }?${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
-                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
-                }${childDetailsSuffix}`
-            : `${newSuffix}${
-                data.has_record || data.has_type ? realProviders[provider].recordSuffix : '?'
-              }${childDetailsSuffix}`;
+                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
+                }?${childDetailsSuffix}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
 
           if (record.error) {
-            const errMessage = `${record.error.error.err}: ${record.error.error.desc}`;
+            const errMessage = `${record.error.err}: ${record.error.desc}`;
             onError?.(errMessage);
           } else {
             onError?.(null);
@@ -593,6 +686,7 @@ const MapperProvider: FC<IProviderProps> = ({
           const name = `${url}/${value}`.split('/')[2];
           // Set the provider option
           setOptionProvider({
+            ...optionProvider,
             type: realProviders[provider].type,
             name,
             supports_read: data.supports_read,
@@ -600,7 +694,10 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             can_manage_fields: record.data.can_manage_fields,
-            supports_messages: isMessage && data.supports_messages,
+            supports_messages: data.supports_messages,
+            supports_observable: data.supports_observable,
+            transaction_management: data.transaction_management,
+            record_requires_search_options: data.record_requires_search_options,
             subtype: value === 'request' || value === 'response' ? value : undefined,
             descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
             path: `${url}/${value}`
@@ -610,6 +707,8 @@ const MapperProvider: FC<IProviderProps> = ({
               .replace('request', '')
               .replace('response', ''),
             options,
+            search_options: didApplyOptions ? searchOptions : undefined,
+            searchOptionsChanged: false,
           });
           // Set the record data
           setRecord &&
@@ -667,7 +766,7 @@ const MapperProvider: FC<IProviderProps> = ({
           <SelectField
             fixed
             name={`provider${type ? `-${type}` : ''}`}
-            disabled={isLoading}
+            disabled={isLoading || readOnly}
             className="provider-type-selector"
             defaultItems={getDefaultItems()}
             onChange={(_name, value) => {
@@ -677,58 +776,55 @@ const MapperProvider: FC<IProviderProps> = ({
           />
           {nodes.map((child, index) => (
             <ReqoreControlGroup fluid={false} key={index}>
-              <SelectField
-                key={`${title}-${index}`}
-                name={`provider-${type ? `${type}-` : ''}${index}`}
-                disabled={isLoading}
-                className="provider-selector"
-                filters={['supports_read', 'supports_request', 'has_record']}
-                defaultItems={child.values}
-                onChange={(_name, value) => {
-                  // Get the child data
-                  const { url, suffix, provider_info } = child.values.find(
-                    (val) => val.name === value
-                  );
-                  // If the value is a wildcard present a dialog that the user has to fill
-                  if (value === '*') {
-                    setWildcardDiagram({
-                      index,
-                      isOpen: true,
-                      url,
-                      suffix,
-                    });
-                  } else {
-                    // Change the child
-                    handleChildFieldChange(
-                      value,
-                      url,
-                      index,
-                      suffix,
-                      undefined,
-                      !!provider_info?.constructor_options
+              {size(child.values) ? (
+                <SelectField
+                  key={`${title}-${index}`}
+                  name={`provider-${type ? `${type}-` : ''}${index}`}
+                  disabled={isLoading || readOnly}
+                  className="provider-selector"
+                  filters={['supports_read', 'supports_request', 'has_record']}
+                  defaultItems={child.values}
+                  onChange={(_name, value) => {
+                    // Get the child data
+                    const { url, suffix, provider_info } = child.values.find(
+                      (val) => val.name === value
                     );
-                  }
-                }}
-                value={child.value}
-              />
-              {index === 0 && optionsChanged ? (
+                    // If the value is a wildcard present a dialog that the user has to fill
+                    if (value === '*') {
+                      setWildcardDiagram({
+                        index,
+                        isOpen: true,
+                        url,
+                        suffix,
+                      });
+                    } else {
+                      // Change the child
+                      handleChildFieldChange(
+                        value,
+                        url,
+                        index,
+                        suffix,
+                        undefined,
+                        !!provider_info?.constructor_options,
+                        !!provider_info?.record_requires_search_options
+                      );
+                    }
+                  }}
+                  value={child.value}
+                />
+              ) : null}
+              {index === 0 &&
+              searchOptionsChanged &&
+              optionProvider?.record_requires_search_options &&
+              !readOnly ? (
                 <ReqoreButton
-                  tooltip="Apply the current options to move forward"
+                  tooltip="Apply the search options to move forward"
                   icon="RefreshLine"
                   intent="info"
-                  disabled={!validateField('system-options', options)}
+                  disabled={!validateField('system-options', searchOptions)}
                   fixed
                   onClick={() => {
-                    let customOptionString = '';
-                    if (size(options)) {
-                      // Turn the options hash into a query string
-                      const str = map(options, (value, key) => `${key}=${btoa(value.value)}`).join(
-                        ','
-                      );
-                      customOptionString = `provider_yaml_options={${str}}`;
-                    } else {
-                      customOptionString = 'provider_yaml_options={}';
-                    }
+                    const customOptionString = buildOptions();
                     // Get the child data
                     const { url, suffix } = child.values.find((val) => val.name === child.value);
                     // If the value is a wildcard present a dialog that the user has to fill
@@ -741,7 +837,53 @@ const MapperProvider: FC<IProviderProps> = ({
                       });
                     } else {
                       // Change the child
-                      handleChildFieldChange(child.value, url, 0, suffix, customOptionString);
+                      handleChildFieldChange(
+                        child.value,
+                        url,
+                        0,
+                        suffix,
+                        customOptionString,
+                        undefined,
+                        undefined,
+                        true
+                      );
+                    }
+                  }}
+                >
+                  Apply search options
+                </ReqoreButton>
+              ) : null}
+              {index === 0 && optionsChanged && !readOnly ? (
+                <ReqoreButton
+                  tooltip="Apply the current options to move forward"
+                  icon="RefreshLine"
+                  intent="info"
+                  disabled={!validateField('system-options', options)}
+                  fixed
+                  onClick={() => {
+                    const customOptionString = buildOptions();
+                    // Get the child data
+                    const { url, suffix } = child.values.find((val) => val.name === child.value);
+                    // If the value is a wildcard present a dialog that the user has to fill
+                    if (child.value === '*') {
+                      setWildcardDiagram({
+                        index: 0,
+                        isOpen: true,
+                        url,
+                        suffix,
+                      });
+                    } else {
+                      // Change the child
+                      handleChildFieldChange(
+                        child.value,
+                        url,
+                        0,
+                        suffix,
+                        customOptionString,
+                        undefined,
+                        undefined,
+                        true
+                      );
                     }
                   }}
                 >
@@ -751,61 +893,81 @@ const MapperProvider: FC<IProviderProps> = ({
             </ReqoreControlGroup>
           ))}
           {isLoading && <Loader />}
-          {nodes.length > 0 && (
+          {nodes.length > 0 && !readOnly ? (
             <ReqoreControlGroup fluid={false}>
-              <ReqoreButton
-                tooltip="Go back a step"
-                intent="danger"
-                icon="ArrowGoBackLine"
-                fixed
-                onClick={() => {
-                  setChildren((cur) => {
-                    const result = [...cur];
+              {nodes[nodes.length - 2]?.values?.[0]?.url ? (
+                <ReqoreButton
+                  tooltip="Go back a step"
+                  intent="danger"
+                  icon="ArrowGoBackLine"
+                  className="provider-go-back"
+                  fixed
+                  onClick={() => {
+                    setChildren((cur) => {
+                      const result = [...cur];
+                      let lastChild = nth(result, -1);
 
-                    result.pop();
-
-                    const lastChild = nth(result, -2);
-
-                    if (lastChild) {
-                      const index = size(result) - 2;
-                      const { value, values } = lastChild;
-                      const { url, suffix } = values.find((val) => val.name === value);
-
-                      // If the value is a wildcard present a dialog that the user has to fill
-                      if (value === '*') {
-                        setWildcardDiagram({
-                          index,
-                          isOpen: true,
-                          url,
-                          suffix,
-                        });
+                      if (lastChild.value === null) {
+                        result.pop();
+                        result.pop();
                       } else {
-                        // Change the child
-                        handleChildFieldChange(value, url, index, suffix);
+                        result.pop();
                       }
-                    }
 
-                    // If there are no children then we need to reset the provider
-                    if (size(result) === 0) {
-                      handleProviderChange(provider);
-                    }
+                      lastChild = nth(result, -1);
 
-                    return result;
-                  });
-                }}
-              />
+                      if (lastChild) {
+                        const index = size(result) - 1;
+                        const { value, values } = lastChild;
+                        // Get the child data
+                        const { url, suffix, provider_info } = values.find((val) => {
+                          return val.name === value;
+                        });
 
+                        // If the value is a wildcard present a dialog that the user has to fill
+                        if (value === '*') {
+                          setWildcardDiagram({
+                            index,
+                            isOpen: true,
+                            url,
+                            suffix,
+                          });
+                        } else {
+                          // Change the child
+                          handleChildFieldChange(
+                            value,
+                            url,
+                            index,
+                            suffix,
+                            undefined,
+                            !!provider_info?.constructor_options,
+                            !!provider_info?.record_requires_search_options
+                          );
+                        }
+                      }
+
+                      // If there are no children then we need to reset the provider
+                      if (size(result) === 0) {
+                        handleProviderChange(provider);
+                      }
+
+                      return result;
+                    });
+                  }}
+                />
+              ) : null}
               {onResetClick && (
                 <ReqoreButton
                   tooltip="Remove all data"
                   intent="danger"
                   icon="CloseLine"
+                  className="provider-reset"
                   onClick={onResetClick}
                   fixed
                 />
               )}
             </ReqoreControlGroup>
-          )}
+          ) : null}
           {record && !optionsChanged ? (
             <ReqoreButton
               intent="success"

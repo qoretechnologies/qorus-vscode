@@ -1,4 +1,4 @@
-import { ReqoreRadioGroup } from '@qoretechnologies/reqore';
+import { ReqoreMessage, ReqoreRadioGroup } from '@qoretechnologies/reqore';
 import { FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -57,6 +57,7 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
   value,
   initialData,
   disabled,
+  warning,
 }) => {
   useMount(() => {
     // Set the default value
@@ -71,28 +72,35 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
   };
 
   return (
-    <ReqoreRadioGroup
-      items={(items || []).map((item) => ({
-        label: item.title || t(`field-label-${item.value}`),
-        disabled,
-        value: item.value,
-        margin: 'right',
-        labelEffect: {
-          spaced: 1,
-          weight: 'bold',
-          uppercase: true,
-          textSize: 'small',
-        },
-        image:
-          item.icon_filename || item.icon
-            ? LangToIcon[item.icon_filename || icons[item.icon!]]
-            : undefined,
-        divider: item.isDivider,
-      }))}
-      disabled={disabled}
-      onSelectClick={(value) => handleValueChange(value)}
-      selected={value}
-    />
+    <>
+      {warning && (
+        <ReqoreMessage intent="warning" minimal>
+          {warning}
+        </ReqoreMessage>
+      )}
+      <ReqoreRadioGroup
+        items={(items || []).map((item) => ({
+          label: item.title || t(`field-label-${item.value}`),
+          disabled: disabled || item.disabled,
+          value: item.value,
+          margin: 'right',
+          labelEffect: {
+            spaced: 1,
+            weight: 'bold',
+            uppercase: true,
+            textSize: 'small',
+          },
+          image:
+            item.icon_filename || item.icon
+              ? LangToIcon[item.icon_filename || icons[item.icon!]]
+              : undefined,
+          divider: item.isDivider,
+        }))}
+        disabled={disabled}
+        onSelectClick={(value) => handleValueChange(value)}
+        selected={value}
+      />
+    </>
   );
 };
 

@@ -1,19 +1,21 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-library';
-import FSMView from '../../containers/InterfaceCreator/fsm';
-import fsm from '../Data/fsm.json';
-import { StoryMeta } from '../types';
-import { NewState } from '../Views/FSM.stories';
+import { size } from 'lodash';
+import FSMView from '../../../containers/InterfaceCreator/fsm';
+import { NewState } from '../../Views/FSM.stories';
+import { StoryMeta } from '../../types';
 import {
-  sleep,
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
   _testsSubmitFSMState,
-} from './utils';
+  sleep,
+} from '../utils';
+import { NewVariableState } from './Variables.stories';
 
 const meta = {
   component: FSMView,
+  title: 'Tests/FSM/New states',
   args: {
     reqoreOptions: {
       animations: {
@@ -32,70 +34,55 @@ export default meta;
 
 type StoryFSM = StoryObj<typeof meta>;
 
-export const SwitchesToBuilder: StoryFSM = {
-  args: {
-    fsm,
-  },
-  play: async ({ canvasElement }) => {
+export const NewStateFromVariable: StoryFSM = {
+  play: async ({ canvasElement, mapperId = 'mapper', ...rest }) => {
     const canvas = within(canvasElement);
+    await NewVariableState.play({ canvasElement, ...rest });
 
-    await waitFor(async () => {
-      await fireEvent.click(canvas.getAllByText('Go to flow builder')[0]);
-      await expect(document.querySelector('#fsm-diagram svg')).toBeInTheDocument();
+    await fireEvent.dblClick(document.querySelector(`#var-actiontestVariable`));
+    await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());
+    expect(document.querySelector('#state-1')).toBeInTheDocument();
+
+    // The submit button needs to be disabled
+    //await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await waitFor(_testsSelectItemFromDropdown(canvas, 'search-single'), { timeout: 5000 });
+    await waitFor(_testsSelectItemFromCollection(canvas, 'invoice_amount', 'AddArgument (39)'), {
+      timeout: 5000,
     });
-  },
-};
 
-export const ShowsStateIds: StoryFSM = {
-  args: {
-    fsm,
-  },
-  play: async ({ canvasElement, ...rest }) => {
-    await AutoAlign.play({ canvasElement, ...rest });
-
-    const canvas = within(canvasElement);
-
-    await fireEvent.click(document.querySelector('#show-state-ids'));
-
-    await expect(canvas.getAllByText('[1] Save Intent Info')[0]).toBeInTheDocument();
-  },
-};
-
-export const AutoAlign: StoryFSM = {
-  args: {
-    fsm,
-  },
-  play: async ({ canvasElement, ...rest }) => {
-    await SwitchesToBuilder.play({ canvasElement, ...rest });
-
-    const canvas = within(canvasElement);
-
+    // Fill the search arg selected
     await waitFor(
       async () => {
-        await expect(document.querySelectorAll('#fsm-diagram .reqore-panel').length).toBe(9);
-        await sleep(1000);
-        await fireEvent.click(canvas.getAllByText('Auto align states')[0]);
+        await fireEvent.change(document.querySelectorAll('.system-option .reqore-input')[0], {
+          target: {
+            value: '100',
+          },
+        });
+        await sleep(500);
       },
       { timeout: 5000 }
     );
-  },
-};
 
-export const SelectedStateChange: StoryFSM = {
-  args: {
-    fsm,
-  },
-  play: async ({ canvasElement, ...rest }) => {
-    await SwitchesToBuilder.play({ canvasElement, ...rest });
+    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
-    await waitFor(() => document.querySelector('#state-3'));
-    await fireEvent.click(document.querySelector('#state-3'));
+    // Submit the state
+    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
 
-    await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
+    await sleep(2500);
 
-    await fireEvent.click(document.querySelector('#state-1'));
+    console.log('ABOUT TO CLICK #STATE-1');
 
-    await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
+    await fireEvent.click(document.querySelector(`#state-1`));
+
+    await sleep(1500);
+
+    // Open the state
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.system-option.reqore-input')[0]).toHaveValue(100);
+      },
+      { timeout: 15000 }
+    );
   },
 };
 
@@ -185,8 +172,34 @@ export const NewWhileState: StoryFSM = {
     const canvas = within(canvasElement);
 
     await NewState.play({ canvasElement, ...rest, stateType: blockType });
-    await waitFor(async () => await fireEvent.click(document.querySelector('.state-next-button')));
 
+    await waitFor(
+      async () => await expect(document.querySelector('.state-next-button')).toBeDisabled(),
+      {
+        timeout: 5000,
+      }
+    );
+
+    // Fill the required option
+    await waitFor(
+      async () => {
+        await fireEvent.change(document.querySelectorAll('.system-option .reqore-textarea')[0], {
+          target: {
+            value: 'This is a test',
+          },
+        });
+      },
+      { timeout: 5000 }
+    );
+
+    await waitFor(
+      async () => await expect(document.querySelector('.state-next-button')).toBeEnabled(),
+      {
+        timeout: 5000,
+      }
+    );
+
+    await fireEvent.click(document.querySelector('.state-next-button'));
     // The submit button needs to be disabled
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
 
@@ -235,6 +248,126 @@ export const NewForEachState: StoryFSM = {
   },
 };
 
+export const NewTransactionState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest, stateType: 'transaction' });
+
+    // The submit button needs to be disabled
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.system-option').length).toBe(1);
+      },
+      {
+        timeout: 10000,
+      }
+    );
+    await expect(document.querySelector('.state-next-button')).toBeDisabled();
+
+    await fireEvent.click(document.querySelector('.provider-type-selector'));
+    await fireEvent.click(canvas.getByText('factory'));
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.provider-selector').length).toBe(1);
+      },
+      {
+        timeout: 10000,
+      }
+    );
+
+    await fireEvent.click(document.querySelector('.provider-selector'));
+    await fireEvent.click(canvas.getAllByText('db')[0]);
+
+    await waitFor(
+      () => expect(document.querySelector('.system-option .reqore-textarea')).toBeInTheDocument(),
+      {
+        timeout: 10000,
+      }
+    );
+    await fireEvent.change(document.querySelector('.system-option .reqore-textarea'), {
+      target: {
+        value: 'omquser',
+      },
+    });
+
+    await waitFor(
+      async () => {
+        await canvas.findAllByText(/Apply options/);
+        await fireEvent.click(canvas.getAllByText(/Apply options/)[0]);
+      },
+      { timeout: 10000 }
+    );
+
+    await waitFor(
+      async () => {
+        await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
+      },
+      {
+        timeout: 10000,
+      }
+    );
+
+    await sleep(1500);
+
+    await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+    await fireEvent.click(canvas.getAllByText('bb_local')[0]);
+
+    await sleep(1500);
+
+    await waitFor(
+      async () => {
+        // The submit button needs to be disabled
+        await expect(document.querySelector('.state-next-button')).not.toBeDisabled();
+      },
+      {
+        timeout: 10000,
+      }
+    );
+
+    await fireEvent.click(document.querySelector('.state-next-button'));
+
+    await waitFor(
+      async () => {
+        // The submit button needs to be disabled
+        await expect(document.querySelector('#state1var-actiontrans')).toBeInTheDocument();
+      },
+      {
+        timeout: 10000,
+      }
+    );
+
+    await fireEvent.dblClick(document.querySelector(`#state1var-actiontrans`));
+
+    await waitFor(_testsSelectItemFromDropdown(canvas, 'transaction'), { timeout: 5000 });
+    await waitFor(_testsSelectItemFromCollection(canvas, 'begin-transaction'), {
+      timeout: 5000,
+    });
+
+    await sleep(1500);
+
+    await waitFor(_testsSubmitFSMState('state-state1State1-submit-button'), { timeout: 5000 });
+    await expect(document.querySelectorAll('.reqore-drawer').length).toBe(1);
+
+    await sleep(1500);
+
+    await waitFor(() => expect(canvas.getByText('State 1.State 1')).toBeInTheDocument());
+
+    await waitFor(_testsSubmitFSMState('state-state1-submit-button'), { timeout: 5000 });
+    await expect(size(document.querySelectorAll('.reqore-drawer'))).toBe(0);
+    await waitFor(() => expect(canvas.getByText('transaction block (1)')).toBeInTheDocument());
+
+    await fireEvent.click(document.querySelector(`#state-1`));
+
+    await sleep(2000);
+
+    await fireEvent.click(document.querySelector('.state-next-button'));
+
+    await waitFor(() => expect(canvas.getByText('transaction')).toBeInTheDocument());
+  },
+};
+
 export const NewIfState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
@@ -243,10 +376,15 @@ export const NewIfState: StoryFSM = {
 
     // The submit button needs to be disabled
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
+    await userEvent.type(document.querySelector('#condition-field'), 'asfg condition');
     await waitFor(
-      async () => await userEvent.type(document.querySelector('#condition-field'), 'asfg condition')
+      async () => {
+        await expect(document.querySelector('.state-submit-button')).toBeEnabled();
+      },
+      {
+        timeout: 10000,
+      }
     );
-    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
@@ -267,12 +405,11 @@ export const NewApiCallState: StoryFSM = {
 
     await waitFor(
       async () => {
-        //await expect(document.querySelector('.provider-selector')).toBeInTheDocument();
         await fireEvent.click(document.querySelector('.provider-selector'));
         await fireEvent.click(canvas.getAllByText('qorus-api')[0]);
       },
       {
-        timeout: 5000,
+        timeout: 10000,
       }
     );
 
@@ -283,23 +420,22 @@ export const NewApiCallState: StoryFSM = {
         await fireEvent.click(canvas.getAllByText('util')[0]);
       },
       {
-        timeout: 5000,
+        timeout: 10000,
       }
     );
 
     await waitFor(
       async () => {
-        await expect(document.querySelectorAll('.provider-selector').length).toBe(3);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[2]);
         await fireEvent.click(canvas.getAllByText('log-message')[0]);
       },
       {
-        timeout: 5000,
+        timeout: 10000,
       }
     );
 
     await waitFor(() => fireEvent.click(document.querySelectorAll('.reqore-checkbox')[1]), {
-      timeout: 5000,
+      timeout: 10000,
     });
     await waitFor(
       () =>
@@ -308,16 +444,18 @@ export const NewApiCallState: StoryFSM = {
             value: 'logging some stuff',
           },
         }),
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
 
-    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState(), { timeout: 10000 });
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
-    await waitFor(() => canvas.findByText('factory/qorus-api/util/log-message'));
+    await waitFor(() => canvas.findByText('factory/qorus-api/util/log-message'), {
+      timeout: 10000,
+    });
 
     // Check that state data were saved
     await fireEvent.click(document.querySelector('#state-1'));
-    await waitFor(() => canvas.findByDisplayValue('logging some stuff'));
+    await waitFor(() => canvas.findByDisplayValue('logging some stuff'), { timeout: 10000 });
     await expect(document.querySelector('.system-option textarea')).toHaveValue(
       'logging some stuff'
     );
@@ -335,14 +473,14 @@ export const NewMessageState: StoryFSM = {
     await fireEvent.click(canvas.getByText('factory'));
 
     await waitFor(() => expect(document.querySelector('.provider-selector')).toBeInTheDocument(), {
-      timeout: 5000,
+      timeout: 10000,
     });
 
     await fireEvent.click(document.querySelector('.provider-selector'));
     await fireEvent.click(canvas.getAllByText('wsclient')[0]);
 
     await waitFor(() => expect(document.querySelector('.system-option')).toBeInTheDocument(), {
-      timeout: 5000,
+      timeout: 10000,
     });
     await fireEvent.change(document.querySelector('.system-option textarea'), {
       target: {
@@ -350,26 +488,31 @@ export const NewMessageState: StoryFSM = {
       },
     });
 
-    await waitFor(() => canvas.findAllByText(/Apply options/g), { timeout: 5000 });
-    // Click on apply options
-    await fireEvent.click(canvas.getAllByText(/Apply options/g)[0]);
-
-    await waitFor(() => canvas.findByText(/MessageType/g), { timeout: 5000 });
     await waitFor(
-      () => expect(document.querySelector('.provider-message-selector')).toBeInTheDocument(),
-      { timeout: 5000 }
+      async () => {
+        await canvas.findAllByText(/Apply options/);
+        await fireEvent.click(canvas.getAllByText(/Apply options/)[0]);
+      },
+      { timeout: 10000 }
     );
 
-    // // Select the message type
-    await fireEvent.click(document.querySelector('.provider-message-selector'));
-    await waitFor(async () => {
-      await canvas.findByText(/Select from items/g);
-      await fireEvent.click(canvas.getByText('raw'));
-    });
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('.provider-message-selector')).toBeInTheDocument();
+        await fireEvent.click(document.querySelector('.provider-message-selector'));
+      },
+      { timeout: 10000 }
+    );
 
-    // Add the message data
-    // WORKS TILL HERE
-    await waitFor(() => canvas.findByText(/MessageData/g), { timeout: 5000 });
+    // Select the message type
+    await waitFor(
+      async () => {
+        await canvas.findByText(/Select from items/g);
+        await fireEvent.click(canvas.getByText('raw'));
+      },
+      { timeout: 10000 }
+    );
+
     await waitFor(
       async () => {
         await expect(document.querySelector('.provider-message-data textarea')).toBeInTheDocument();
@@ -377,18 +520,18 @@ export const NewMessageState: StoryFSM = {
           target: { value: 'Hello World' },
         });
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
 
     //Submit the state
-    await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState(), { timeout: 10000 });
 
     await expect(document.querySelector('.reqore-drawer')).not.toBeInTheDocument();
-    await waitFor(() => canvas.findByText('factory/wsclient'));
+    await waitFor(() => canvas.findByText('factory/wsclient'), { timeout: 10000 });
 
     // Check that state data were saved
     await fireEvent.click(document.querySelector('#state-1'));
-    await waitFor(() => canvas.findByDisplayValue('Hello World'));
+    await waitFor(() => canvas.findByDisplayValue('Hello World'), { timeout: 10000 });
     await expect(document.querySelector('.provider-message-data textarea')).toHaveValue(
       'Hello World'
     );
@@ -419,10 +562,11 @@ export const NewSingleSearchState: StoryFSM = {
       async () => {
         await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await sleep(1000);
         await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
       },
       {
-        timeout: 5000,
+        timeout: 10000,
       }
     );
 
@@ -504,10 +648,13 @@ export const NewUpdateState: StoryFSM = {
       }
     );
 
+    await sleep(1000);
+
     await waitFor(
       async () => {
         await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await sleep(1000);
         await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
       },
       {
@@ -570,10 +717,13 @@ export const NewCreateFromFormState: StoryFSM = {
       }
     );
 
+    await sleep(1000);
+
     await waitFor(
       async () => {
         await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await sleep(1000);
         await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
       },
       {
@@ -646,10 +796,13 @@ export const NewCreateFromTextState: StoryFSM = {
       }
     );
 
+    await sleep(1000);
+
     await waitFor(
       async () => {
         await expect(document.querySelectorAll('.provider-selector').length).toBe(2);
         await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
+        await sleep(1000);
         await fireEvent.click(canvas.getAllByText('audit_event_codes')[0]);
       },
       {

@@ -83,6 +83,7 @@ const App: FunctionComponent<IApp> = ({
   tab,
   project_folder,
   qorus_instance,
+  is_qore_installed,
   changeTab,
   main_color,
   path,
@@ -404,6 +405,17 @@ const App: FunctionComponent<IApp> = ({
                         }
                       />
                     </ReqoreNavbarItem>
+                    {!is_qore_installed && (
+                      <ReqoreNavbarItem>
+                        <ReqoreTag
+                          size="small"
+                          icon="ErrorWarningLine"
+                          labelKey="qore"
+                          label="missing"
+                          effect={{ gradient: { colors: '#ac1728' }, weight: 'bold' }}
+                        />
+                      </ReqoreNavbarItem>
+                    )}
                   </ReqoreNavbarGroup>
                   <ReqoreNavbarGroup position="right">
                     <ReqorePopover

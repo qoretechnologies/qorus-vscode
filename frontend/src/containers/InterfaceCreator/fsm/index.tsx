@@ -20,8 +20,8 @@ import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useDrop, XYCoord } from 'react-dnd';
+import React, { Dispatch, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { XYCoord, useDrop } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -35,9 +35,11 @@ import {
   NegativeColorEffect,
   PositiveColorEffect,
   SaveColorEffect,
+  WarningColorEffect,
 } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
+import { IQorusType } from '../../../components/Field/systemOptions';
 import FieldGroup from '../../../components/FieldGroup';
 import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import { InputOutputType } from '../../../components/InputOutputType';
@@ -48,8 +50,15 @@ import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
-import { autoAlign, IStateCorners } from '../../../helpers/fsm';
 import {
+  IStateCorners,
+  autoAlign,
+  getVariable,
+  removeAllStatesWithVariable,
+  removeFSMState,
+} from '../../../helpers/fsm';
+import {
+  ITypeComparatorData,
   areTypesCompatible,
   deleteDraft,
   fetchData,
@@ -60,12 +69,11 @@ import {
   hasValue,
   isFSMStateValid,
   isStateIsolated,
-  ITypeComparatorData,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
-import withMessageHandler from '../../../hocomponents/withMessageHandler';
+import withMessageHandler, { postMessage } from '../../../hocomponents/withMessageHandler';
 import TinyGrid from '../../../images/graphy-dark.png';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMInitialOrderDialog from './initialOrderDialog';
@@ -74,16 +82,29 @@ import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog, { IModifiedTransitions } from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
+import { FSMVariables } from './variables';
 
 export interface IFSMViewProps {
-  onSubmitSuccess: (data: any) => any;
-  setFsmReset: () => void;
+  onSubmitSuccess?: (data: any) => any;
+  setFsmReset?: (func?: any) => void;
   embedded?: boolean;
   defaultStates?: IFSMStates;
   parentStateName?: string;
   defaultInterfaceId?: string;
-  states: IFSMStates;
+  states?: IFSMStates;
+  setStates?: Dispatch<React.SetStateAction<IFSMStates>>;
   fsm?: any;
+  metadata?: Partial<IFSMMetadata>;
+  setMetadata?: Dispatch<React.SetStateAction<any>>;
+  onHideMetadataClick?: () => void;
+  isExternalMetadataHidden?: boolean;
+  interfaceContext?: {
+    target_dir?: string;
+    inputType?: IProviderType;
+    [key: string]: any;
+  };
+  onStatesChange?: (states: IFSMStates) => void;
+  setMapper?: (mapper: any) => void;
 }
 
 export interface IDraggableItem {
@@ -91,6 +112,10 @@ export interface IDraggableItem {
   name: 'fsm' | 'state' | 'block' | 'if';
   id?: number;
   stateType?: TAction;
+  varType?: 'globalvar' | 'localvar';
+  varName?: string;
+  injected?: boolean;
+  injectedData?: any;
 }
 
 export interface IFSMTransition {
@@ -113,13 +138,33 @@ export interface IFSMMetadata {
   groups?: any[];
   'input-type'?: IProviderType;
   'output-type'?: IProviderType;
+  globalvar?: TFSMVariables;
+  localvar?: TFSMVariables;
+  autovar?: TFSMAutoVariables;
 }
 
 export type TFSMStateType = 'state' | 'fsm' | 'block' | 'if';
+export type TVariableActionValue = {
+  var_type: 'globalvar' | 'localvar' | 'autovar';
+  var_name: string;
+  transaction_action?: 'commit' | 'rollback' | 'begin-transaction';
+  action_type?:
+    | 'search'
+    | 'search-single'
+    | 'update'
+    | 'create'
+    | 'delete'
+    | 'transaction'
+    | 'send-message'
+    | 'apicall';
+} & Partial<IProviderType>;
+
+export type TFSMClassConnectorAction = { class: string; connector: string; prefix?: string };
 
 export interface IFSMState {
   key?: string;
   corners?: IStateCorners;
+  isNew?: boolean;
   position?: {
     x?: number;
     y?: number;
@@ -129,13 +174,14 @@ export interface IFSMState {
   initial?: boolean;
   action?: {
     type: TAction;
-    value?: string | { class: string; connector: string; prefix?: string };
+    value?: string | TFSMClassConnectorAction | IProviderType | TVariableActionValue;
   };
   'input-type'?: any;
   'output-type'?: any;
+  'block-type'?: 'while' | 'for' | 'foreach' | 'transaction';
   name?: string;
   type: TFSMStateType;
-  desc: string;
+  desc?: string;
   states?: IFSMStates;
   fsm?: string;
   id: string;
@@ -151,6 +197,10 @@ export interface IFSMState {
     to: string;
     name?: string;
   };
+  // Block states can have their own variables
+  globalvar?: TFSMVariables;
+  localvar?: TFSMVariables;
+  autovar?: TFSMAutoVariables;
 }
 
 export interface IFSMStates {
@@ -249,14 +299,31 @@ const StyledFSMCircle = styled.circle`
   }
 `;
 
+export interface IFSMVariable {
+  type: IQorusType;
+  value: any;
+  desc?: string;
+  name?: string;
+  variableType: 'globalvar' | 'localvar' | 'autovar';
+  readOnly?: boolean;
+}
+
+export interface IFSMAutoVariable extends Omit<IFSMVariable, 'readOnly'> {
+  readOnly: true;
+}
+
+export type TFSMVariables = Record<string, IFSMVariable>;
+export type TFSMAutoVariables = Record<string, IFSMAutoVariable>;
+
 export const FSMView: React.FC<IFSMViewProps> = ({
   onSubmitSuccess,
   setFsmReset,
   interfaceContext,
-  postMessage,
   embedded = false,
   states,
   setStates,
+  metadata,
+  setMetadata,
   parentStateName,
   onStatesChange,
   onHideMetadataClick,
@@ -279,9 +346,21 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const fsm = rest?.fsm || init?.fsm;
   const { addNotification } = useReqore();
-  const { resetAllInterfaceData } = useContext(GlobalContext);
+  const { resetAllInterfaceData }: any = useContext(GlobalContext);
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
   const [interfaceId, setInterfaceId] = useState(null);
+  const [st, setSt] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
+  const [mt, setMt] = useState<IFSMMetadata>({
+    target_dir: fsm?.target_dir || interfaceContext?.target_dir || null,
+    name: fsm?.name || null,
+    desc: fsm?.desc || null,
+    groups: fsm?.groups || [],
+    'input-type': fsm?.['input-type'] || interfaceContext?.inputType || null,
+    'output-type': fsm?.['output-type'] || null,
+    globalvar: fsm?.globalvar,
+    localvar: fsm?.localvar,
+    autovar: fsm?.autovar || interfaceContext?.autovar,
+  });
 
   const wrapperRef = useRef(null);
   const fieldsWrapperRef = useRef(null);
@@ -292,25 +371,24 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const currentHistoryPosition = useRef<number>(-1);
 
   if (!embedded) {
-    const [st, setSt] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
-
     states = st;
     setStates = setSt;
-  }
 
-  const [metadata, setMetadata] = useState<IFSMMetadata>({
-    target_dir: fsm?.target_dir || interfaceContext?.target_dir || null,
-    name: fsm?.name || null,
-    desc: fsm?.desc || null,
-    groups: fsm?.groups || [],
-    'input-type': fsm?.['input-type'] || interfaceContext?.inputType || null,
-    'output-type': fsm?.['output-type'] || null,
-  });
+    metadata = mt;
+    setMetadata = setMt;
+  }
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [activeState, setActiveState] = useState<string | number>(undefined);
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [showStateIds, setShowStateIds] = useState<boolean>(false);
   const [showStatesList, setShowStatesList] = useState<boolean>(true);
+  const [showVariables, setShowVariables] = useState<{
+    show?: boolean;
+    selected?: {
+      name: string;
+      variableType: 'globalvar' | 'localvar' | 'autovar';
+    };
+  }>(undefined);
 
   const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(true);
   const [outputCompatibility, setOutputCompatibility] = useState<
@@ -364,7 +442,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     },
   });
 
-  const addNewState = (item, x, y, onSuccess?: (stateId: string) => any) => {
+  const addNewState = (item: IDraggableItem, x, y, onSuccess?: (stateId: string) => any) => {
     const ids: number[] = size(states) ? Object.keys(states).map((key) => parseInt(key)) : [0];
     const id = (Math.max(...ids) + 1).toString();
 
@@ -383,7 +461,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           injected: item.injected,
           injectedData: item.injectedData,
           type: item.name,
-          'block-type': item.name === 'block' ? item.stateType : undefined,
+          'block-type':
+            item.name === 'block' ? (item.stateType as 'while' | 'for' | 'foreach') : undefined,
           id: shortid.generate(),
           states: item.name === 'block' ? {} : undefined,
           condition: item.name === 'if' ? '' : undefined,
@@ -391,6 +470,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             item.name === 'state'
               ? {
                   type: item.stateType,
+                  value:
+                    item.stateType === 'var-action'
+                      ? { var_type: item.varType, var_name: item.varName }
+                      : undefined,
                 }
               : undefined,
         },
@@ -457,7 +540,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return valid;
   };
 
-  const isFSMValid = () => {
+  const areMetadataValid = (): boolean => {
     if (metadata['input-type'] && !validateField('type-selector', metadata['input-type'])) {
       return false;
     }
@@ -469,7 +552,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return (
       validateField('string', metadata.target_dir) &&
       validateField('string', metadata.name) &&
-      validateField('string', metadata.desc) &&
+      validateField('string', metadata.desc)
+    );
+  };
+
+  const isFSMValid = () => {
+    return (
+      areMetadataValid() &&
       areStatesValid(states) &&
       isTypeCompatible('input') &&
       isTypeCompatible('output') &&
@@ -636,7 +725,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     currentYPan.current = y;
   };
 
-  const getTransitionByState = (stateId: string, targetId: string): IFSMTransition | null => {
+  const getTransitionByState = (
+    stateId: string | number,
+    targetId: string | number
+  ): IFSMTransition | null => {
     const { transitions } = states[stateId];
 
     return transitions?.find((transition) => transition.state === targetId);
@@ -685,14 +777,29 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       const { type, value } = state.action;
 
       const obj = {
-        interfaceName: type === 'connector' ? value.class : value,
+        interfaceName: type === 'connector' ? (value as TFSMClassConnectorAction).class : value,
         interfaceKind: type,
-        connectorName: type === 'connector' ? value.connector : undefined,
+        connectorName:
+          type === 'connector' ? (value as TFSMClassConnectorAction).connector : undefined,
         typeData: state[`${providerType}-type`] || state['input-output-type'],
       };
 
       if (!obj.typeData) {
         delete obj.typeData;
+      }
+
+      // If the state is a variable, we need to get the variable data
+      if (type === 'var-action') {
+        const { var_name, var_type, action_type } = state.action.value as TVariableActionValue;
+        const variableData = getVariable(var_name, var_type, metadata);
+
+        if (variableData?.value) {
+          return {
+            ...obj,
+            interfaceKind: action_type,
+            interfaceName: { ...(value as TVariableActionValue), ...variableData.value },
+          };
+        }
       }
 
       return obj;
@@ -832,8 +939,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const areStatesCompatible = async (
-    stateId: string,
-    targetId: string,
+    stateId: string | number,
+    targetId: string | number,
     localStates: IFSMStates = states
   ): Promise<boolean> => {
     const outputState = localStates[stateId];
@@ -849,10 +956,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const isAvailableForTransition = async (stateId: string, targetId: string): Promise<boolean> => {
     if (getTransitionByState(stateId, targetId)) {
-      return false;
+      return Promise.resolve(false);
     }
 
-    return await areStatesCompatible(stateId, targetId);
+    const areCompatible = await areStatesCompatible(stateId, targetId);
+
+    return areCompatible;
   };
 
   const handleStateClick = async (id: string) => {
@@ -977,7 +1086,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const fixIncomptibleStates = async (
-    id: string,
+    id: string | number,
     localStates: IFSMStates,
     onFinish?: () => any
   ) => {
@@ -1016,7 +1125,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return newStates;
   };
 
-  const updateStateData = async (id: string, data: IFSMState) => {
+  const updateStateData = async (id: string | number, data: Partial<IFSMState>) => {
     let fixedStates: IFSMStates = { ...states };
 
     fixedStates[id] = {
@@ -1118,7 +1227,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const updateTransitionData = async (
-    stateId: number,
+    stateId: number | string,
     index: number,
     data: IFSMTransition,
     remove?: boolean
@@ -1197,12 +1306,14 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return null;
   };
 
-  const handleToolbarItemDblClick = (name, type, stateType) => {
+  const handleToolbarItemDblClick = (name, type, stateType, varType, varName) => {
     addNewState(
       {
         name,
         type,
         stateType,
+        varType,
+        varName,
       },
       100,
       size(states) * 100 + 100
@@ -1219,47 +1330,15 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     );
   };
 
-  const handleStateDeleteClick = (id: string, unfilled?: boolean): void => {
+  const handleStateDeleteClick = (id: string | number, unfilled?: boolean): void => {
     setStates((current) => {
-      let newStates: IFSMStates = { ...current };
-
-      newStates = reduce(
-        newStates,
-        (modifiedStates: IFSMStates, state: IFSMState, stateId: string) => {
-          const newState: IFSMState = { ...state };
-
-          if (stateId === id) {
-            return modifiedStates;
-          }
-
-          if (state.transitions && getTransitionByState(stateId, id)) {
-            newState.transitions = newState.transitions.reduce(
-              (newTransitions: IFSMTransition[], transition: IFSMTransition) => {
-                if (transition.state === id) {
-                  return newTransitions;
-                }
-
-                return [...newTransitions, transition];
-              },
-              []
-            );
-          }
-
-          return { ...modifiedStates, [stateId]: newState };
-        },
-        {}
-      );
-
-      postMessage('remove-fsm-state', {
-        iface_id: interfaceId,
-        state_id: id,
+      const newStates = removeFSMState(current, id, interfaceId, (newStates) => {
+        // If this state was deleted because of unfilled data, do not
+        // save history
+        if (!unfilled) {
+          updateHistory(newStates);
+        }
       });
-
-      // If this state was deleted because of unfilled data, do not
-      // save history
-      if (!unfilled) {
-        updateHistory(newStates);
-      }
 
       return newStates;
     });
@@ -1692,13 +1771,18 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               key={state}
               fsmName={metadata.name}
               target_dir={metadata.target_dir}
+              metadata={metadata}
               onSubmit={(id, data) => {
                 updateStateData(id, data);
                 setActiveState(undefined);
                 setEditingState(undefined);
                 setEditingTransitionOrder(undefined);
               }}
-              onClose={() => setEditingState(null)}
+              onClose={() => {
+                setSelectedState(null);
+                setActiveState(undefined);
+                setEditingState(null);
+              }}
               data={states[state]}
               id={state}
               deleteState={handleStateDeleteClick}
@@ -1733,6 +1817,26 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           <Loader text={t('CheckingCompatibility')} />
         </StyledCompatibilityLoader>
       )}
+      {showVariables?.show && (
+        <FSMVariables
+          onClose={() => setShowVariables(undefined)}
+          onSubmit={({ globalvar, localvar, changes }) => {
+            setMetadata({
+              ...metadata,
+              globalvar,
+              localvar,
+            });
+            // For each change, remove the state using this variable
+            changes.forEach(({ name, type }) => {
+              setStates(removeAllStatesWithVariable(name, type, states, interfaceId));
+            });
+          }}
+          globalvar={metadata?.globalvar}
+          localvar={metadata?.localvar}
+          autovar={metadata?.autovar}
+          selectedVariable={showVariables?.selected}
+        />
+      )}
 
       {renderStateDetail()}
 
@@ -1745,6 +1849,17 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             : t('DescribeYourFSM')
         }
         actions={[
+          {
+            label: 'Variables',
+            icon: 'CodeSLine',
+            onClick: () => setShowVariables({ show: true }),
+            intent:
+              size(metadata?.globalvar) || size(metadata?.localvar) || size(metadata?.autovar)
+                ? 'info'
+                : undefined,
+            badge: size(metadata?.globalvar) + size(metadata?.localvar) + size(metadata?.autovar),
+            id: 'fsm-variables',
+          },
           {
             label: 'Show states list',
             icon: 'EyeLine',
@@ -1785,15 +1900,16 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       ? onHideMetadataClick((cur) => !cur)
                       : setIsMetadataHidden((cur) => !cur);
                   },
+                  effect: !areMetadataValid() ? WarningColorEffect : undefined,
                   icon: 'ArrowLeftLine',
                   show: getIsMetadataHidden(),
                 },
                 {
-                  label: t('Submit'),
+                  label: !areMetadataValid() ? 'Page 1 needs attention' : t('Submit'),
                   onClick: handleSubmitClick,
                   disabled: !isFSMValid(),
-                  icon: 'CheckLine',
-                  effect: SaveColorEffect,
+                  icon: !areMetadataValid() ? 'ErrorWarningLine' : 'CheckLine',
+                  effect: !areMetadataValid() ? NegativeColorEffect : SaveColorEffect,
                   position: 'right',
                   show: getIsMetadataHidden(),
                 },
@@ -2018,6 +2134,55 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       label="Hide states list"
                       onClick={() => setShowStatesList(false)}
                     />
+                    {metadata.globalvar || metadata.localvar || metadata.autovar ? (
+                      <>
+                        <ReqoreMenuDivider label="Variables" align="left" />
+                        {map(
+                          {
+                            ...(metadata.globalvar || {}),
+                            ...(metadata.localvar || {}),
+                            ...(metadata.autovar || {}),
+                          },
+                          (variable, variableId) =>
+                            variable.type === 'data-provider' ? (
+                              <FSMToolbarItem
+                                key={variableId}
+                                name="state"
+                                category="variables"
+                                description={variable.desc}
+                                parentStateName={parentStateName}
+                                type="var-action"
+                                stateName={variableId}
+                                varType={variable.variableType}
+                                readOnly={variable.readOnly}
+                                rightIcon={variable.readOnly ? 'EyeLine' : 'EditLine'}
+                                onEditClick={() =>
+                                  setShowVariables({
+                                    show: true,
+                                    selected: {
+                                      name: variableId,
+                                      variableType: variable.variableType,
+                                    },
+                                  })
+                                }
+                                count={size(
+                                  filter(
+                                    states,
+                                    ({ action }: IFSMState) =>
+                                      action?.type === 'var-action' &&
+                                      (action?.value as TVariableActionValue).var_name ===
+                                        variableId
+                                  )
+                                )}
+                                onDoubleClick={handleToolbarItemDblClick}
+                                onDragStart={handleDragStart}
+                              >
+                                {variableId}
+                              </FSMToolbarItem>
+                            ) : null
+                        )}
+                      </>
+                    ) : null}
                     <ReqoreMenuDivider label="Interfaces" effect={{ textAlign: 'left' }} />
                     <FSMToolbarItem
                       name="state"
@@ -2122,6 +2287,19 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       onDragStart={handleDragStart}
                     >
                       {t('If')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                      name="block"
+                      category="logic"
+                      parentStateName={parentStateName}
+                      type="transaction"
+                      count={size(
+                        filter(states, (state: IFSMState) => state['block-type'] === 'transaction')
+                      )}
+                      onDoubleClick={handleToolbarItemDblClick}
+                      onDragStart={handleDragStart}
+                    >
+                      {t('Transaction')}
                     </FSMToolbarItem>
                     <ReqoreMenuDivider label="API" effect={{ textAlign: 'left' }} />
                     <FSMToolbarItem
@@ -2357,6 +2535,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                             !isTransitionToSelf(state, targetState) ? (
                               <>
                                 <StyledFSMLine
+                                  className="fsm-transition"
                                   onClick={() => {
                                     setEditingTransition((cur) => {
                                       const result = [...cur];

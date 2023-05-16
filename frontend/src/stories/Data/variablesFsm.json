@@ -1,0 +1,148 @@
+{
+  "type": "fsm",
+  "name": "Variables",
+  "desc": "FSM with variables",
+  "globalvar": {
+    "FirstVariable": {
+      "name": "FirstVariable",
+      "value": {
+        "type": "datasource",
+        "name": "omquser",
+        "transaction_management": true,
+        "record_requires_search_options": false,
+        "path": "/bb_local",
+        "supports_request": false,
+        "supports_read": true,
+        "supports_update": true,
+        "supports_create": true,
+        "supports_delete": true,
+        "supports_messages": "NONE",
+        "descriptions": [
+          "Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries",
+          "Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations"
+        ]
+      },
+      "type": "data-provider",
+      "desc": "This is a first variable",
+      "variableType": "globalvar"
+    },
+    "SecondVariable": {
+      "name": "SecondVariable",
+      "value": {
+        "type": "factory",
+        "name": "wsclient",
+        "transaction_management": false,
+        "path": "",
+        "options": {
+          "url": {
+            "type": "string",
+            "value": "test"
+          }
+        },
+        "optionsChanged": false,
+        "supports_request": false,
+        "supports_read": false,
+        "supports_update": false,
+        "supports_create": false,
+        "supports_delete": false,
+        "supports_messages": "ASYNC",
+        "record_requires_search_options": false,
+        "descriptions": ["WebSocket client to URL \"ws://test/\""],
+        "message_id": "ping",
+        "message": {
+          "type": "data",
+          "value": "pong"
+        }
+      },
+      "type": "data-provider",
+      "variableType": "globalvar"
+    }
+  },
+  "states": {
+    "1": {
+      "position": {
+        "x": 156,
+        "y": 85.5
+      },
+      "initial": false,
+      "name": "State 1",
+      "desc": "",
+      "type": "state",
+      "id": "QQ1vIxMkG",
+      "action": {
+        "type": "var-action",
+        "value": {
+          "var_type": "globalvar",
+          "var_name": "FirstVariable",
+          "action_type": "search"
+        }
+      },
+      "transitions": [
+        {
+          "state": "2",
+          "language": "qore"
+        },
+        {
+          "state": "3",
+          "language": "qore"
+        }
+      ]
+    },
+    "2": {
+      "position": {
+        "x": 155,
+        "y": 314.5
+      },
+      "initial": false,
+      "name": "State 2",
+      "desc": "",
+      "type": "state",
+      "id": "rew5msGOnvs6",
+      "action": {
+        "type": "var-action",
+        "value": {
+          "var_type": "globalvar",
+          "var_name": "SecondVariable",
+          "action_type": "send-message",
+          "message": {
+            "type": "data",
+            "value": "pong"
+          },
+          "message_id": "ping",
+          "options": {
+            "url": {
+              "type": "string",
+              "value": "test"
+            }
+          }
+        }
+      },
+      "transitions": [
+        {
+          "state": "3",
+          "language": "qore"
+        }
+      ]
+    },
+    "3": {
+      "position": {
+        "x": 515,
+        "y": 205.5
+      },
+      "initial": false,
+      "name": "State 3",
+      "desc": "",
+      "type": "state",
+      "id": "_fVYW_uhr",
+      "action": {
+        "type": "var-action",
+        "value": {
+          "var_type": "globalvar",
+          "var_name": "FirstVariable",
+          "action_type": "transaction",
+          "transaction_action": "commit"
+        }
+      }
+    }
+  }
+}

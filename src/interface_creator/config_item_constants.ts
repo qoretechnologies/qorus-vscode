@@ -55,9 +55,9 @@ export const configItemFields = (params) => {
     },
     {
       name: 'strictly_local',
-      mandatory: iface_info?.isConfigItemFieldSetByParent(params, 'strictly_local'),
+      mandatory: true,
       type: 'boolean',
-      default_value: false,
+      default_value: true,
       compact: true,
       group: 'info',
     },

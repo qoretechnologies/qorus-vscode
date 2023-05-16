@@ -4,6 +4,7 @@ import StringField from '../../components/Field/string';
 
 const meta = {
   component: StringField,
+  title: 'Fields/String',
 };
 
 export default meta;

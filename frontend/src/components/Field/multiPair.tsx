@@ -32,10 +32,10 @@ export const WarningColorEffect: IReqoreEffect = {
   gradient: {
     direction: 'to right',
     colors: {
-      0: 'warning:lighten',
-      100: 'warning',
+      0: 'warning:lighten:2',
+      100: 'warning:lighten',
     },
-    animate: 'hover',
+    animate: 'always',
   },
 };
 

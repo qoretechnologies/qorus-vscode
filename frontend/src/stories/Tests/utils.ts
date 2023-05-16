@@ -19,10 +19,13 @@ export function _testsSubmitFSMState(buttonId?: string) {
 export function _testsSelectItemFromDropdown(
   canvas,
   itemLabel: string,
-  dropdownLabel: string = 'PleaseSelect'
+  dropdownLabel: string = 'PleaseSelect',
+  className?: string
 ) {
   return async () => {
-    await fireEvent.click(canvas.getAllByText(dropdownLabel)[1]);
+    await fireEvent.click(
+      className ? document.querySelectorAll(className)[0] : canvas.getAllByText(dropdownLabel)[1]
+    );
     await expect(document.querySelector('.reqore-popover-content')).toBeInTheDocument();
     await fireEvent.click(canvas.getAllByText(itemLabel)[1]);
   };

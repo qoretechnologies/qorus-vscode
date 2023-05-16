@@ -32,10 +32,10 @@ export const workflowFields = ({ default_target_dir, limited_editing }) => [
     mandatory: false,
     notify_on_add: true,
     notify_on_remove: true,
-    disabled: limited_editing,
   },
   {
     ...field.lang,
+    default_value: limited_editing ? 'python' : 'qore',
     mandatory: false,
     notify_on_add: true,
     notify_on_remove: true,
@@ -66,7 +66,6 @@ export const workflowFields = ({ default_target_dir, limited_editing }) => [
     mandatory: false,
     notify_on_add: true,
     notify_on_remove: true,
-    disabled: limited_editing,
   },
   {
     name: 'staticdata-type',

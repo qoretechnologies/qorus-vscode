@@ -3,6 +3,7 @@ import Component from '../../components/Field/number';
 
 const meta = {
   component: Component,
+  title: 'Fields/Number',
 };
 
 export default meta;

@@ -1,8 +1,48 @@
-import { ReqoreContent, ReqoreLayoutContent, ReqoreUIProvider } from '@qoretechnologies/reqore';
+import {
+  ReqoreContent,
+  ReqoreLayoutContent,
+  ReqoreUIProvider,
+  useReqoreProperty,
+} from '@qoretechnologies/reqore';
 import { Preview } from '@storybook/react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { InitialContext } from '../src/context/init';
+
+const StorybookWrapper = ({ context, Story }) => {
+  const confirmAction = useReqoreProperty('confirmAction');
+
+  return (
+    <ReqoreLayoutContent>
+      <ReqoreContent style={{ padding: '20px', display: 'flex', flexFlow: 'column' }}>
+        <DndProvider backend={HTML5Backend}>
+          <InitialContext.Provider
+            value={{
+              qorus_instance: context.args.qorus_instance,
+              confirmAction,
+              saveDraft: () => {},
+              fetchData: async (url, method) => {
+                const data = await fetch(`https://hq.qoretechnologies.com:8092/api/latest/${url}`, {
+                  method,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Basic ${btoa('fwitosz:fwitosz42')}`,
+                  },
+                });
+
+                const json = await data.json();
+
+                return { data: json, ok: data.ok, error: !data.ok ? json : undefined };
+              },
+            }}
+          >
+            <Story />
+          </InitialContext.Provider>
+        </DndProvider>
+      </ReqoreContent>
+    </ReqoreLayoutContent>
+  );
+};
 
 const preview: Preview = {
   parameters: {
@@ -21,40 +61,16 @@ const preview: Preview = {
   },
   args: {
     qorus_instance: true,
+    reqoreOptions: {
+      animations: {
+        dialogs: false,
+      },
+    },
   },
   decorators: [
     (Story, context) => (
       <ReqoreUIProvider options={{ ...context.args.reqoreOptions }}>
-        <ReqoreLayoutContent>
-          <ReqoreContent style={{ padding: '20px', display: 'flex', flexFlow: 'column' }}>
-            <DndProvider backend={HTML5Backend}>
-              <InitialContext.Provider
-                value={{
-                  qorus_instance: context.args.qorus_instance,
-                  saveDraft: () => {},
-                  fetchData: async (url, method) => {
-                    const data = await fetch(
-                      `https://sandbox.qoretechnologies.com/api/latest/${url}`,
-                      {
-                        method,
-                        headers: {
-                          'Content-Type': 'application/json',
-                          Authorization: `Basic ${btoa('sandbox:sandbox')}`,
-                        },
-                      }
-                    );
-
-                    const json = await data.json();
-
-                    return { data: json, ok: data.ok, error: !data.ok ? json : undefined };
-                  },
-                }}
-              >
-                <Story />
-              </InitialContext.Provider>
-            </DndProvider>
-          </ReqoreContent>
-        </ReqoreLayoutContent>
+        <StorybookWrapper context={context} Story={Story} />
       </ReqoreUIProvider>
     ),
   ],

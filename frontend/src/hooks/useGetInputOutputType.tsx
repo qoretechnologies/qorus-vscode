@@ -16,8 +16,8 @@ export const useGetInputOutputType = (
       (async () => {
         const input = await getStateProvider(inputProvider, 'input');
 
-        if (inputProvider) {
-          const inputTypeData = await fetchData('/dataprovider/type', 'PUT', {
+        if (input) {
+          const inputTypeData = await fetchData('/dataprovider/type?context=ui', 'PUT', {
             type: input,
           });
           if (!inputTypeData.error) {
@@ -31,8 +31,8 @@ export const useGetInputOutputType = (
 
         const output = await getStateProvider(outputProvider, 'output');
 
-        if (outputProvider) {
-          const outputTypeData = await fetchData('/dataprovider/type', 'PUT', {
+        if (output) {
+          const outputTypeData = await fetchData('/dataprovider/type?context=ui', 'PUT', {
             type: output,
           });
 

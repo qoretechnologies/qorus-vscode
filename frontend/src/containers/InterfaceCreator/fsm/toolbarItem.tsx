@@ -1,4 +1,5 @@
 import { ReqoreMenuItem } from '@qoretechnologies/reqore';
+import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { camelCase } from 'lodash';
 import { useDrag } from 'react-dnd';
@@ -9,13 +10,25 @@ import { getStateColor, TStateTypes } from './state';
 export interface IFSMToolbarItemProps {
   children: any;
   name: string;
+  stateName?: string;
   count?: number;
   type: string;
   disabled?: boolean;
-  onDoubleClick: (name: string, type: string, stateType: string) => any;
+  onDoubleClick: (
+    name: string,
+    type: string,
+    stateType: string,
+    varType?: 'globalvar' | 'localvar' | 'autovar',
+    varName?: string
+  ) => any;
   onDragStart: () => void;
   category: TStateTypes;
   parentStateName?: string;
+  description?: string;
+  varType?: 'globalvar' | 'localvar' | 'autovar';
+  onEditClick?: () => any;
+  rightIcon?: IReqoreIconName;
+  readOnly?: boolean;
 }
 
 export const getStateStyle = (type, toolbar?: boolean) => {
@@ -142,6 +155,7 @@ export const FSMItemIconByType: Record<string, IReqoreIconName> = {
   foreach: 'RestartLine',
   connector: 'ExchangeLine',
   if: 'QuestionMark',
+  transaction: 'RecordCircleLine',
   apicall: 'ArrowLeftRightLine',
   'search-single': 'SearchLine',
   search: 'FileSearchLine',
@@ -149,6 +163,7 @@ export const FSMItemIconByType: Record<string, IReqoreIconName> = {
   update: 'Edit2Line',
   delete: 'DeleteBin2Line',
   'send-message': 'ChatUploadLine',
+  'var-action': 'CodeLine',
 };
 
 export const FSMItemDescByType: Record<string, string> = {
@@ -160,6 +175,7 @@ export const FSMItemDescByType: Record<string, string> = {
   while: 'Execute a while loop',
   connector: 'Use a building block connector',
   if: 'Control the logical flow with an expression',
+  transaction: 'Execute a transaction',
   apicall: 'Execute an API call',
   'search-single': 'Search for one matching record in a data provider',
   search: 'Search for any matching records in a data provider',
@@ -167,6 +183,7 @@ export const FSMItemDescByType: Record<string, string> = {
   update: 'Update records in a data provider',
   delete: 'Delete records in a data provider',
   'send-message': 'Send a message to a channel',
+  'var-action': 'Action from a variable',
 };
 
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
@@ -179,13 +196,19 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   onDragStart,
   category,
   parentStateName,
+  description,
+  stateName,
+  varType,
+  onEditClick,
+  readOnly,
+  rightIcon,
 }) => {
   const [, drag] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
     item: () => {
       onDragStart?.();
 
-      return { name, type: TOOLBAR_ITEM_TYPE, stateType: type };
+      return { name, type: TOOLBAR_ITEM_TYPE, stateType: type, varType, varName: stateName };
     },
     previewOptions: {
       anchorX: 0,
@@ -193,20 +216,46 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
     },
   });
 
+  const getBadges = () => {
+    const badges: TReqoreBadge[] = [];
+
+    if (count !== 0) {
+      badges.push(count);
+    }
+
+    if (varType) {
+      badges.push({
+        label: varType,
+        effect: {
+          gradient: {
+            colors: {
+              0: '#28a89d',
+              100: '#053a55',
+            },
+          },
+        },
+      });
+    }
+
+    return badges;
+  };
+
   return (
     <ReqoreMenuItem
-      id={`${parentStateName ? camelCase(parentStateName) : ''}${type}`}
+      id={`${parentStateName ? camelCase(parentStateName) : ''}${type}${stateName || ''}`}
       ref={!disabled ? drag : undefined}
-      flat={false}
-      description={FSMItemDescByType[type]}
-      badge={count}
+      description={description || FSMItemDescByType[type]}
+      badge={getBadges()}
+      wrap={!!varType}
       icon={FSMItemIconByType[type]}
       effect={{
         gradient: getStateColor(category),
       }}
       onDoubleClick={() => {
-        onDoubleClick(name, TOOLBAR_ITEM_TYPE, type);
+        onDoubleClick(name, TOOLBAR_ITEM_TYPE, type, varType, stateName);
       }}
+      rightIcon={rightIcon}
+      onRightIconClick={onEditClick}
     >
       {children}
     </ReqoreMenuItem>

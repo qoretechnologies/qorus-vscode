@@ -235,6 +235,7 @@ export interface IInterfaceCreatorPanel {
 }
 
 export interface IField {
+  warning?: string;
   t?: TTranslator;
   group?: string;
   compact?: boolean;
@@ -257,6 +258,7 @@ export interface IField {
     icon?: string;
     isDivider?: boolean;
     title?: string;
+    disabled?: boolean;
   }[];
   prefill?: any;
   name?: string;

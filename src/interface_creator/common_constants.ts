@@ -103,12 +103,14 @@ export const classFields = ({ default_target_dir, limited_editing }) => [
   {
     name: 'class-class-name',
     has_to_be_valid_identifier: true,
-    disabled: limited_editing,
     compact: true,
     group: 'info',
     autoFocus: true,
   },
-  field.lang,
+  {
+    ...field.lang,
+    default_value: limited_editing ? 'python' : 'qore',
+  },
   {
     name: 'base-class-name',
     mandatory: false,
@@ -124,7 +126,6 @@ export const classFields = ({ default_target_dir, limited_editing }) => [
     },
     on_change: 'get-config-items',
     notify_on_remove: true,
-    disabled: limited_editing,
     compact: true,
     group: 'info',
   },

@@ -33,9 +33,11 @@ export const serviceFields = ({
   field.version,
   {
     ...field.class_name,
-    disabled: limited_editing,
   },
-  field.lang,
+  {
+    ...field.lang,
+    default_value: limited_editing ? 'python' : 'qore',
+  },
   field.mappers,
   field.vmaps,
   field.modules,
@@ -43,6 +45,11 @@ export const serviceFields = ({
   field.groups,
   field.tags,
   field.classes,
+  {
+    name: 'event-handlers',
+    type: 'service-events',
+    mandatory: false,
+  },
   {
     name: 'base-class-name',
     type: 'select-string',
@@ -56,7 +63,6 @@ export const serviceFields = ({
       return_value: 'objects',
     },
     on_change: 'get-config-items',
-    disabled: limited_editing,
     compact: true,
     group: 'info',
   },

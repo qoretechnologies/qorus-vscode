@@ -4,11 +4,11 @@ import { cloneDeep } from 'lodash';
 import * as path from 'path';
 import { t } from 'ttag';
 import { Position } from 'vscode';
-import * as globals from '../global_config_item_values';
-import { isLangClientAvailable } from '../qore_vscode';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
+import * as globals from '../global_config_item_values';
+import { isLangClientAvailable } from '../qore_vscode';
 import { default_lang, default_version, types_with_version } from '../qorus_constants';
 import * as msg from '../qorus_message';
 import {
@@ -962,6 +962,7 @@ export abstract class InterfaceCreator {
             break;
           case 'steps':
           case 'fsm':
+          case 'event-handlers':
           case 'triggers':
             const lines = JSON.stringify(value, null, 4).split('\n');
             for (let line of lines) {
@@ -1050,6 +1051,12 @@ export abstract class InterfaceCreator {
 
             result += `${tag}:\n` + InterfaceCreator.indentYamlDump(fixed_value, 1, true);
 
+            break;
+          }
+          case 'autovar':
+          case 'globalvar':
+          case 'localvar': {
+            result += `${tag}:\n${InterfaceCreator.indentYamlDump(value, 1, true)}`;
             break;
           }
           case 'fields':

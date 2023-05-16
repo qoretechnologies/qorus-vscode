@@ -54,7 +54,7 @@ export const MenuSubItems: Omit<IQorusSidebarItem, 'id'>[] = [
     icon: 'GridFill',
   },
   {
-    name: 'Event',
+    name: 'Sync Event',
     icon: 'GitCommitLine',
   },
   {
@@ -122,7 +122,11 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
       items: MenuSubItems.map((item) => ({
         ...item,
         props: {
-          onClick: () => initialData?.changeTab('CreateInterface', interfaceNameToKind[item.name]),
+          onClick: () =>
+            initialData?.changeTab(
+              'CreateInterface',
+              interfaceNameToKind[item.name === 'Sync Event' ? 'Event' : item.name]
+            ),
         },
         id: item.name!.toLowerCase(),
       })),

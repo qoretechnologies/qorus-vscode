@@ -2,6 +2,7 @@ import { ProviderMessageSelector } from '../../../components/Field/connectors/Me
 
 export default {
   component: ProviderMessageSelector,
+  title: 'Fields/DataProvider/MessageSelector',
 };
 
 export const Basic = {

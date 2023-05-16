@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "4.0.6",
+  "version": "4.1.0",
   "private": true,
   "dependencies": {
     "@andrewhead/python-program-analysis": "^0.4.8",
@@ -9,7 +9,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@previewjs/plugin-react": "^3.1.2",
     "@qoretechnologies/python-parser": "^0.4.10",
-    "@qoretechnologies/reqore": "^0.34.7",
+    "@qoretechnologies/reqore": "^0.34.8",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
@@ -124,7 +124,7 @@
     "update-reqore": "yarn add @qoretechnologies/reqore@beta",
     "storybook": "BROWSER=chrome storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test-storybook": "test-storybook",
+    "test-storybook": "test-storybook --maxWorkers=1",
     "install-playwright": "npx playwright install --with-deps"
   },
   "eslintConfig": {
