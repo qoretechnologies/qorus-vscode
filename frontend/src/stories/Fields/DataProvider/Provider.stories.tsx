@@ -173,3 +173,160 @@ export const ExistingData: StoryObj<typeof meta> = {
     },
   },
 };
+
+export const ExistingFavorites: StoryObj<typeof meta> = {
+  args: {
+    favorites: {
+      test: {
+        id: 'test',
+        value: {
+          type: 'datasource',
+          name: 'omquser',
+          transaction_management: true,
+          record_requires_search_options: false,
+          path: '/bb_local',
+          supports_request: false,
+          supports_read: true,
+          supports_update: true,
+          supports_create: true,
+          supports_delete: true,
+          supports_messages: 'NONE',
+          descriptions: [
+            'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
+            'Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations',
+          ],
+        },
+      },
+    },
+  },
+  play: async () => {
+    await fireEvent.click(document.querySelector('.data-provider-show-favorites'));
+    await expect(document.querySelectorAll('.reqore-collection-item').length).toBe(1);
+  },
+};
+
+export const SelectedFavorite: StoryObj<typeof meta> = {
+  args: {
+    favorites: {
+      test: {
+        id: 'test',
+        value: {
+          type: 'datasource',
+          name: 'omquser',
+          transaction_management: true,
+          record_requires_search_options: false,
+          path: '/bb_local',
+          supports_request: false,
+          supports_read: true,
+          supports_update: true,
+          supports_create: true,
+          supports_delete: true,
+          supports_messages: 'NONE',
+          descriptions: [
+            'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
+            'Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations',
+          ],
+        },
+      },
+    },
+  },
+  play: async () => {
+    await fireEvent.click(document.querySelector('.data-provider-show-favorites'));
+    await expect(document.querySelectorAll('.reqore-collection-item').length).toBe(1);
+    await fireEvent.click(document.querySelector('.data-provider-favorite-apply'));
+  },
+};
+
+export const MultipleFavorites: StoryObj<typeof meta> = {
+  args: {
+    favorites: {
+      test: {
+        id: 'test',
+        value: {
+          type: 'datasource',
+          name: 'omquser',
+          transaction_management: true,
+          record_requires_search_options: false,
+          path: '/bb_local',
+          supports_request: false,
+          supports_read: true,
+          supports_update: true,
+          supports_create: true,
+          supports_delete: true,
+          supports_messages: 'NONE',
+          descriptions: [
+            'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
+            'Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations',
+          ],
+        },
+      },
+      test1: {
+        id: 'test1',
+        name: 'External GL Journal',
+        desc: 'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
+        value: {
+          type: 'datasource',
+          name: 'omquser',
+          transaction_management: true,
+          record_requires_search_options: false,
+          path: '/external_gl_journal',
+          supports_request: false,
+          supports_read: true,
+          supports_update: true,
+          supports_create: true,
+          supports_delete: true,
+          supports_messages: 'NONE',
+          descriptions: [
+            'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
+            'Record-based data provider for db table `public.external_gl_journal`; supports create, read/search, update, delete, upsert, and bulk operations',
+          ],
+        },
+      },
+      test2: {
+        id: 'test2',
+        name: 'OMQUser',
+        desc: 'Just the datasource',
+        value: {
+          type: 'datasource',
+          name: 'omquser',
+          transaction_management: true,
+          record_requires_search_options: false,
+          supports_request: false,
+          supports_read: true,
+          supports_update: true,
+          supports_create: true,
+          supports_delete: true,
+          supports_messages: 'NONE',
+          descriptions: [
+            'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
+          ],
+        },
+      },
+      test3: {
+        id: 'test3',
+        desc: 'Order items without name',
+        value: {
+          type: 'datasource',
+          name: 'omquser',
+          transaction_management: true,
+          record_requires_search_options: false,
+          path: '/order_items',
+          supports_request: false,
+          supports_read: true,
+          supports_update: true,
+          supports_create: true,
+          supports_delete: true,
+          supports_messages: 'NONE',
+          descriptions: [
+            'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
+            'Record-based data provider for db table `public.order_items`; supports create, read/search, update, delete, upsert, and bulk operations',
+          ],
+        },
+      },
+    },
+  },
+  play: async () => {
+    await fireEvent.click(document.querySelector('.data-provider-show-favorites'));
+    await expect(document.querySelectorAll('.reqore-collection-item').length).toBe(4);
+  },
+};

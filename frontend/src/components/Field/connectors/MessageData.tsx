@@ -12,6 +12,7 @@ export interface IProviderMessageDataProps {
   onChange: (value: unknown, type: IQorusType) => void;
   value?: string;
   type?: IQorusType;
+  readOnly?: boolean;
 }
 
 export const ProviderMessageData = ({
@@ -20,6 +21,7 @@ export const ProviderMessageData = ({
   onChange,
   value,
   type,
+  readOnly,
 }: IProviderMessageDataProps) => {
   const { fetchData, qorus_instance }: any = useContext(InitialContext);
 
@@ -65,6 +67,7 @@ export const ProviderMessageData = ({
       }}
       value={value}
       noSoft
+      disabled={readOnly}
     />
   );
 };
