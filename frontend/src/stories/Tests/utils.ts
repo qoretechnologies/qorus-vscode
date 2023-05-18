@@ -24,15 +24,18 @@ export function _testsSelectItemFromDropdown(
 ) {
   return async () => {
     await sleep(500);
+
     await fireEvent.click(
       className ? document.querySelectorAll(className)[0] : canvas.getAllByText(dropdownLabel)[1]
     );
     await waitFor(
-      () => expect(document.querySelector('.reqore-popover-content')).toBeInTheDocument(),
+      async () => {
+        await expect(document.querySelector('.reqore-popover-content')).toBeInTheDocument();
+        await sleep(500);
+        await fireEvent.click(canvas.getAllByText(itemLabel)[1]);
+      },
       { timeout: 10000 }
     );
-    await sleep(500);
-    await fireEvent.click(canvas.getAllByText(itemLabel)[1]);
   };
 }
 
@@ -44,10 +47,9 @@ export function _testsSelectItemFromCollection(
   return async () => {
     await sleep(500);
     await fireEvent.click(canvas.getAllByText(collectionLabel)[1]);
-    await await waitFor(
-      () => expect(document.querySelector('.q-select-dialog')).toBeInTheDocument(),
-      { timeout: 10000 }
-    );
+    await waitFor(() => expect(document.querySelector('.q-select-dialog')).toBeInTheDocument(), {
+      timeout: 10000,
+    });
     await sleep(500);
     await fireEvent.click(canvas.getByText(itemLabel));
   };

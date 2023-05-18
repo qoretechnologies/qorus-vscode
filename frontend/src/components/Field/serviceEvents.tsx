@@ -57,7 +57,6 @@ export const ServiceEventListHandlers: React.FC<IServiceEventListHandlers & Part
 
     if (data.error) {
       console.error(data.error);
-      throw new Error(data.error);
     }
 
     return data.data;

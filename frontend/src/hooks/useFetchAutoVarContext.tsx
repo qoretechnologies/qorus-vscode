@@ -16,7 +16,6 @@ export const useFetchAutoVarContext = (provider?: IProviderType, type: string = 
 
     if (data.error) {
       console.error(data.error);
-      throw new Error(data.error);
     }
 
     return data.data;

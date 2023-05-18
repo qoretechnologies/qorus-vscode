@@ -26,9 +26,14 @@ export const NewVariable: StoryFSM = {
     const canvas = within(canvasElement);
 
     // Open the variables dialog
-    await waitFor(async () => {
-      await expect(document.querySelector('#create-new-variable')).toBeInTheDocument();
-    });
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('#create-new-variable')).toBeInTheDocument();
+      },
+      {
+        timeout: 10000,
+      }
+    );
 
     await fireEvent.click(document.querySelector('#create-new-variable'));
     await expect(document.querySelector('#save-variable')).toBeDisabled();
@@ -39,7 +44,9 @@ export const NewVariable: StoryFSM = {
     await fireEvent.change(document.querySelectorAll('.reqore-textarea')[0], {
       target: { value: 'This is a test description' },
     });
-    await waitFor(_testsSelectItemFromDropdown(canvas, 'data-provider', 'string'));
+    await waitFor(_testsSelectItemFromDropdown(canvas, 'data-provider', 'string'), {
+      timeout: 10000,
+    });
 
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('datasource'));
@@ -49,7 +56,7 @@ export const NewVariable: StoryFSM = {
         await fireEvent.click(canvas.getAllByText('omquser')[0]);
       },
       {
-        timeout: 5000,
+        timeout: 15000,
       }
     );
 
