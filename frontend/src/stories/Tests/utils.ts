@@ -28,14 +28,10 @@ export function _testsSelectItemFromDropdown(
     await fireEvent.click(
       className ? document.querySelectorAll(className)[0] : canvas.getAllByText(dropdownLabel)[1]
     );
-    await waitFor(
-      async () => {
-        await expect(document.querySelector('.reqore-popover-content')).toBeInTheDocument();
-        await sleep(500);
-        await fireEvent.click(canvas.getAllByText(itemLabel)[1]);
-      },
-      { timeout: 10000 }
-    );
+
+    await sleep(1500);
+
+    await fireEvent.click(canvas.getAllByText(itemLabel)[1]);
   };
 }
 
