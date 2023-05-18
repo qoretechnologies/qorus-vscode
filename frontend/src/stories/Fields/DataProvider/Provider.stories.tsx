@@ -2,7 +2,11 @@ import { expect } from '@storybook/jest';
 import { Meta, StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import connectors from '../../../components/Field/connectors';
-import { sleep } from '../../Tests/utils';
+import {
+  _testsSelectItemFromCollection,
+  _testsSelectItemFromDropdown,
+  sleep,
+} from '../../Tests/utils';
 
 const meta = {
   component: connectors,
@@ -12,6 +16,33 @@ const meta = {
 export default meta;
 
 export const Basic: StoryObj<typeof meta> = {};
+export const Type: StoryObj<typeof meta> = {
+  play: async ({ canvasElement }) => {
+    const canvas = await within(canvasElement);
+
+    await fireEvent.click(document.querySelector('.provider-type-selector'));
+    await fireEvent.click(canvas.getByText('type'));
+
+    await waitFor(() => expect(document.querySelectorAll('.provider-selector').length).toBe(1), {
+      timeout: 10000,
+    });
+    await _testsSelectItemFromDropdown(canvas, 'qore')();
+    await waitFor(() => expect(document.querySelectorAll('.provider-selector').length).toBe(2), {
+      timeout: 10000,
+    });
+    await _testsSelectItemFromCollection(canvas, 'fsevents')();
+    await waitFor(() => expect(document.querySelectorAll('.provider-selector').length).toBe(3), {
+      timeout: 10000,
+    });
+    await _testsSelectItemFromCollection(canvas, 'event')();
+    await waitFor(() => expect(document.querySelectorAll('.provider-selector').length).toBe(4), {
+      timeout: 10000,
+    });
+    await _testsSelectItemFromCollection(canvas, 'action')();
+    await sleep(1000);
+  },
+};
+
 export const Event: StoryObj<typeof meta> = {
   args: {
     isEvent: true,

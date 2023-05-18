@@ -1,8 +1,8 @@
 import { expect } from '@storybook/jest';
 import { Meta, StoryObj } from '@storybook/react';
-import { fireEvent, waitFor } from '@storybook/testing-library';
+import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import connectors from '../../../components/Field/connectors';
-import { ApiCall, Message } from '../../Fields/DataProvider/Provider.stories';
+import { ApiCall, Message, Type } from '../../Fields/DataProvider/Provider.stories';
 import { sleep } from '../utils';
 
 const meta = {
@@ -110,114 +110,49 @@ export const CreateFavoriteWithDetails: StoryObj<typeof meta> = {
   },
 };
 
-export const RemoveFromFavorites: StoryObj<typeof meta> = {
+export const AddAndRemoveFromFavorites: StoryObj<typeof meta> = {
   args: {
-    value: {
-      type: 'datasource',
-      name: 'omquser',
-      transaction_management: true,
-      record_requires_search_options: false,
-      path: '/external_gl_journal',
-      supports_request: false,
-      supports_read: true,
-      supports_update: true,
-      supports_create: true,
-      supports_delete: true,
-      supports_messages: 'NONE',
-      descriptions: [
-        'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
-        'Record-based data provider for db table `public.external_gl_journal`; supports create, read/search, update, delete, upsert, and bulk operations',
-      ],
-    },
+    isMessage: true,
+    localOnlyFavorites: true,
+  },
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+    await CreateFavorite.play({ canvasElement, ...rest });
+
+    await fireEvent.click(document.querySelector('.data-provider-show-favorites'));
+    await expect(document.querySelectorAll('.data-provider-favorite').length).toBe(1);
+
+    await fireEvent.click(document.querySelector('.data-provider-favorite-delete'));
+
+    // Confirm the action
+    await fireEvent.click(canvas.getAllByText('Confirm')[0]);
+    await expect(document.querySelectorAll('.data-provider-favorite').length).toBe(0);
+  },
+};
+
+export const ReplaceWithExistingFavorite: StoryObj<typeof meta> = {
+  args: {
+    localOnlyFavorites: true,
     favorites: {
-      test: {
-        id: 'test',
+      FSEventAction: {
+        name: 'FSEventAction',
+        desc: 'This is my first favorite',
         value: {
-          type: 'datasource',
-          name: 'omquser',
-          transaction_management: true,
-          record_requires_search_options: false,
-          path: '/bb_local',
-          supports_request: false,
-          supports_read: true,
-          supports_update: true,
-          supports_create: true,
-          supports_delete: true,
-          supports_messages: 'NONE',
-          descriptions: [
-            'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
-            'Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations',
-          ],
-        },
-      },
-      test1: {
-        id: 'test1',
-        name: 'External GL Journal',
-        desc: 'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
-        value: {
-          type: 'datasource',
-          name: 'omquser',
-          transaction_management: true,
-          record_requires_search_options: false,
-          path: '/external_gl_journal',
-          supports_request: false,
-          supports_read: true,
-          supports_update: true,
-          supports_create: true,
-          supports_delete: true,
-          supports_messages: 'NONE',
-          descriptions: [
-            'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
-            'Record-based data provider for db table `public.external_gl_journal`; supports create, read/search, update, delete, upsert, and bulk operations',
-          ],
-        },
-      },
-      test2: {
-        id: 'test2',
-        name: 'OMQUser',
-        desc: 'Just the datasource',
-        value: {
-          type: 'datasource',
-          name: 'omquser',
-          transaction_management: true,
-          record_requires_search_options: false,
-          supports_request: false,
-          supports_read: true,
-          supports_update: true,
-          supports_create: true,
-          supports_delete: true,
-          supports_messages: 'NONE',
-          descriptions: [
-            'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
-          ],
-        },
-      },
-      test3: {
-        id: 'test3',
-        desc: 'Order items without name',
-        value: {
-          type: 'datasource',
-          name: 'omquser',
-          transaction_management: true,
-          record_requires_search_options: false,
-          path: '/order_items',
-          supports_request: false,
-          supports_read: true,
-          supports_update: true,
-          supports_create: true,
-          supports_delete: true,
-          supports_messages: 'NONE',
-          descriptions: [
-            'Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries',
-            'Record-based data provider for db table `public.order_items`; supports create, read/search, update, delete, upsert, and bulk operations',
-          ],
+          type: 'type',
+          name: 'qore',
+          path: '/date',
+          descriptions: ['Qore types', 'Date type format'],
         },
       },
     },
   },
-  play: async () => {
-    await fireEvent.click(document.querySelector('.data-provider-add-favorite'));
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+    await Type.play({ canvasElement, ...rest });
+
     await fireEvent.click(document.querySelector('.data-provider-show-favorites'));
-    await expect(document.querySelectorAll('.reqore-collection-item').length).toBe(3);
+    await fireEvent.click(document.querySelector('.data-provider-favorite-apply'));
+
+    expect(canvas.getAllByText('date')[0]).toBeInTheDocument();
   },
 };

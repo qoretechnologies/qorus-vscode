@@ -1,5 +1,5 @@
 import { expect } from '@storybook/jest';
-import { fireEvent } from '@storybook/testing-library';
+import { fireEvent, waitFor } from '@storybook/testing-library';
 
 export const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -23,10 +23,15 @@ export function _testsSelectItemFromDropdown(
   className?: string
 ) {
   return async () => {
+    await sleep(500);
     await fireEvent.click(
       className ? document.querySelectorAll(className)[0] : canvas.getAllByText(dropdownLabel)[1]
     );
-    await expect(document.querySelector('.reqore-popover-content')).toBeInTheDocument();
+    await waitFor(
+      () => expect(document.querySelector('.reqore-popover-content')).toBeInTheDocument(),
+      { timeout: 10000 }
+    );
+    await sleep(500);
     await fireEvent.click(canvas.getAllByText(itemLabel)[1]);
   };
 }
@@ -37,8 +42,13 @@ export function _testsSelectItemFromCollection(
   collectionLabel: string = 'PleaseSelect'
 ) {
   return async () => {
+    await sleep(500);
     await fireEvent.click(canvas.getAllByText(collectionLabel)[1]);
-    await expect(document.querySelector('.q-select-dialog')).toBeInTheDocument();
+    await await waitFor(
+      () => expect(document.querySelector('.q-select-dialog')).toBeInTheDocument(),
+      { timeout: 10000 }
+    );
+    await sleep(500);
     await fireEvent.click(canvas.getByText(itemLabel));
   };
 }

@@ -497,14 +497,15 @@ const MapperProvider: FC<IProviderProps> = ({
                 : `action=childDetails&${buildOptions()}`
               : buildOptions();
 
+          const splitter = `${realProviders[provider].recordSuffix.includes('?') ? '&' : '?'}`;
           suffixString =
             customOptionString && customOptionString !== ''
               ? `${suffix}${
                   data.has_record ? realProviders[provider].recordSuffix : ''
-                }?${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
+                }${splitter}${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
                   data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
-                }?${childDetailsSuffix}`;
+                }${splitter}${childDetailsSuffix}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
@@ -659,15 +660,16 @@ const MapperProvider: FC<IProviderProps> = ({
                 : `?action=childDetails&${buildOptions()}`
               : buildOptions();
 
+          const splitter = `${realProviders[provider].recordSuffix.includes('?') ? '&' : '?'}`;
           const newSuffix = suffix;
           suffixString =
             customOptionString && customOptionString !== ''
               ? `${suffix}${
                   data.has_record ? realProviders[provider].recordSuffix : ''
-                }?${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
+                }${splitter}${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
               : `${newSuffix}${
                   data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
-                }?${childDetailsSuffix}`;
+                }${splitter}${childDetailsSuffix}`;
 
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);

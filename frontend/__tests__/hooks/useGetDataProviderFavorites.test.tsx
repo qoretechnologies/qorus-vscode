@@ -7,7 +7,5 @@ test.skip('useGetDataProviderFavorites returns current favorites', async () => {
 
   await sleep(2000);
 
-  console.log(result.current);
-
   expect(result.current).toEqual(9002);
 });

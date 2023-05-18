@@ -70,8 +70,6 @@ export const NewStateFromVariable: StoryFSM = {
 
     await sleep(2500);
 
-    console.log('ABOUT TO CLICK #STATE-1');
-
     await fireEvent.click(document.querySelector(`#state-1`));
 
     await sleep(1500);

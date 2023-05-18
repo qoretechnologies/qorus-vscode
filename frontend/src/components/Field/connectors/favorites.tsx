@@ -145,6 +145,7 @@ export const DataProviderFavorites = ({
                 id,
                 label: favoriteData.name || id,
                 flat: false,
+                className: 'data-provider-favorite',
                 content: (
                   <>
                     {favoriteData.desc && (
@@ -176,6 +177,7 @@ export const DataProviderFavorites = ({
                   },
                   {
                     icon: 'DeleteBinLine',
+                    className: 'data-provider-favorite-delete',
                     onClick: () => {
                       confirmAction({
                         title: 'Delete favorite',
