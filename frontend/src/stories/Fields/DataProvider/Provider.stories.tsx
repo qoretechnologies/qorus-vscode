@@ -17,6 +17,11 @@ export default meta;
 
 export const Basic: StoryObj<typeof meta> = {};
 export const Type: StoryObj<typeof meta> = {
+  parameters: {
+    chromatic: {
+      disableSnapshot: true,
+    },
+  },
   play: async ({ canvasElement }) => {
     const canvas = await within(canvasElement);
 

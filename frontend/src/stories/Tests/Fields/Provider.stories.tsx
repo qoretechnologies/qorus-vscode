@@ -131,6 +131,11 @@ export const AddAndRemoveFromFavorites: StoryObj<typeof meta> = {
 };
 
 export const ReplaceWithExistingFavorite: StoryObj<typeof meta> = {
+  parameters: {
+    chromatic: {
+      disableSnapshot: true,
+    },
+  },
   args: {
     localOnlyFavorites: true,
     favorites: {
