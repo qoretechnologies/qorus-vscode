@@ -184,9 +184,10 @@ export const ApiCall: StoryObj<typeof meta> = {
     await fireEvent.click(document.querySelectorAll('.provider-selector')[2]);
     await fireEvent.click(canvas.getAllByText('log-message')[0]);
 
-    await sleep(1500);
+    await sleep(2500);
 
     await fireEvent.click(document.querySelector('.reqore-checkbox'));
+
     await waitFor(
       () =>
         fireEvent.change(document.querySelector('.system-option textarea'), {
