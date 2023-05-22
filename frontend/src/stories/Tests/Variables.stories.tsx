@@ -44,9 +44,8 @@ export const NewVariable: StoryFSM = {
     await fireEvent.change(document.querySelectorAll('.reqore-textarea')[0], {
       target: { value: 'This is a test description' },
     });
-    await waitFor(_testsSelectItemFromDropdown(canvas, 'data-provider', 'string'), {
-      timeout: 10000,
-    });
+
+    await _testsSelectItemFromDropdown(canvas, 'data-provider', 'string')();
 
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('datasource'));

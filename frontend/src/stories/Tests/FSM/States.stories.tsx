@@ -45,10 +45,9 @@ export const NewStateFromVariable: StoryFSM = {
 
     // The submit button needs to be disabled
     //await expect(document.querySelector('.state-submit-button')).toBeDisabled();
-    await waitFor(_testsSelectItemFromDropdown(canvas, 'search-single'), { timeout: 5000 });
-    await waitFor(_testsSelectItemFromCollection(canvas, 'invoice_amount', 'AddArgument (39)'), {
-      timeout: 5000,
-    });
+    await _testsSelectItemFromDropdown(canvas, 'search-single')();
+    await sleep(300);
+    await _testsSelectItemFromCollection(canvas, 'invoice_amount', 'AddArgument (39)')();
 
     // Fill the search arg selected
     await waitFor(
@@ -92,10 +91,8 @@ export const NewMapperState: StoryFSM = {
 
     // The submit button needs to be disabled
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
-    await waitFor(
-      _testsSelectItemFromCollection(canvas, 'Test Mapper 1', 'Select or create a Mapper'),
-      { timeout: 5000 }
-    );
+    await sleep(1000);
+    await _testsSelectItemFromCollection(canvas, 'Test Mapper 1', 'Select or create a Mapper')();
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
@@ -113,7 +110,8 @@ export const NewPipelineState: StoryFSM = {
 
     // The submit button needs to be disabled
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
-    await waitFor(_testsSelectItemFromCollection(canvas, 'Test Pipeline 1'), { timeout: 5000 });
+    await sleep(1000);
+    await _testsSelectItemFromCollection(canvas, 'Test Pipeline 1')();
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
@@ -134,8 +132,10 @@ export const NewConnectorState: StoryFSM = {
 
     // The submit button needs to be disabled
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
-    await waitFor(_testsSelectItemFromDropdown(canvas, className), { timeout: 5000 });
-    await waitFor(_testsSelectItemFromCollection(canvas, connectorName), { timeout: 5000 });
+    await sleep(1000);
+    await _testsSelectItemFromDropdown(canvas, className)();
+    await sleep(300);
+    await _testsSelectItemFromCollection(canvas, connectorName)();
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
@@ -155,7 +155,8 @@ export const NewFSMState: StoryFSM = {
 
     // The submit button needs to be disabled
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
-    await waitFor(_testsSelectItemFromDropdown(canvas, 'Test FSM 1'), { timeout: 5000 });
+    await sleep(1000);
+    await _testsSelectItemFromDropdown(canvas, 'Test FSM 1')();
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
@@ -204,10 +205,10 @@ export const NewWhileState: StoryFSM = {
     // Add new mapper state to the block
     await fireEvent.dblClick(document.querySelector(`#state1mapper`));
     await waitFor(() => expect(document.querySelectorAll('.reqore-drawer').length).toBe(2));
-    await waitFor(
-      _testsSelectItemFromCollection(canvas, 'Test Mapper 1', 'Select or create a Mapper'),
-      { timeout: 5000 }
-    );
+
+    await sleep(1000);
+
+    await _testsSelectItemFromCollection(canvas, 'Test Mapper 1', 'Select or create a Mapper')();
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
@@ -338,11 +339,10 @@ export const NewTransactionState: StoryFSM = {
 
     await fireEvent.dblClick(document.querySelector(`#state1var-actiontrans`));
 
-    await waitFor(_testsSelectItemFromDropdown(canvas, 'transaction'), { timeout: 5000 });
-    await waitFor(_testsSelectItemFromCollection(canvas, 'begin-transaction'), {
-      timeout: 5000,
-    });
-
+    await sleep(500);
+    await _testsSelectItemFromDropdown(canvas, 'transaction')();
+    await sleep(1000);
+    await _testsSelectItemFromCollection(canvas, 'begin-transaction')();
     await sleep(1500);
 
     await waitFor(_testsSubmitFSMState('state-state1State1-submit-button'), { timeout: 5000 });
@@ -569,22 +569,16 @@ export const NewSingleSearchState: StoryFSM = {
     );
 
     // Add the search criteria
-    await waitFor(_testsSelectItemFromCollection(canvas, 'audit_event_code', 'AddArgument (4)'), {
-      timeout: 5000,
-    });
+    await _testsSelectItemFromCollection(canvas, 'audit_event_code', 'AddArgument (4)')();
 
     // Change the operator to logical not, which allows us to add second operator
-    await waitFor(_testsSelectItemFromCollection(canvas, 'logical not (!)', 'equals (=)'), {
-      timeout: 5000,
-    });
+    await _testsSelectItemFromCollection(canvas, 'logical not (!)', 'equals (=)')();
 
     // Add second operator like
     await waitFor(
       async () => await fireEvent.click(document.querySelectorAll('.operators .reqore-button')[1])
     );
-    await waitFor(_testsSelectItemFromCollection(canvas, 'like'), {
-      timeout: 5000,
-    });
+    await _testsSelectItemFromCollection(canvas, 'like')();
 
     // Add the search criteria value
     await waitFor(
@@ -661,9 +655,7 @@ export const NewUpdateState: StoryFSM = {
     );
 
     // Add the search criteria
-    await waitFor(_testsSelectItemFromCollection(canvas, 'description', 'AddArgument (4)'), {
-      timeout: 5000,
-    });
+    await _testsSelectItemFromCollection(canvas, 'description', 'AddArgument (4)')();
 
     // Add the search criteria value
     await waitFor(
@@ -740,9 +732,7 @@ export const NewCreateFromFormState: StoryFSM = {
     );
 
     // Add the search criteria
-    await waitFor(_testsSelectItemFromCollection(canvas, 'description', 'AddArgument (4)'), {
-      timeout: 5000,
-    });
+    await _testsSelectItemFromCollection(canvas, 'description', 'AddArgument (4)')();
 
     // Add the search criteria value
     await waitFor(

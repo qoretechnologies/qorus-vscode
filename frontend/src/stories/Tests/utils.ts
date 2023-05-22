@@ -23,16 +23,26 @@ export function _testsSelectItemFromDropdown(
   className?: string
 ) {
   return async () => {
-    await sleep(200);
+    if (className) {
+      await waitFor(() => expect(document.querySelectorAll(className)[0]).toBeInTheDocument(), {
+        timeout: 10000,
+      });
+      await fireEvent.click(document.querySelectorAll(className)[0]);
+    } else {
+      await waitFor(async () => await canvas.getAllByText(dropdownLabel)[0], {
+        timeout: 10000,
+      });
+      // HOW TO GET RID OF THIS SLEEP?????????????
+      await sleep(100);
 
-    await fireEvent.click(
-      className ? document.querySelectorAll(className)[0] : canvas.getAllByText(dropdownLabel)[1]
-    );
+      await fireEvent.click(canvas.getAllByText(dropdownLabel)[0]);
+    }
 
     await waitFor(() => expect(document.querySelector('.q-select-input')).toBeInTheDocument(), {
       timeout: 10000,
     });
 
+    await waitFor(async () => await canvas.getAllByText(itemLabel)[1], { timeout: 10000 });
     await fireEvent.click(canvas.getAllByText(itemLabel)[1]);
   };
 }
@@ -43,12 +53,15 @@ export function _testsSelectItemFromCollection(
   collectionLabel: string = 'PleaseSelect'
 ) {
   return async () => {
-    await sleep(200);
+    await waitFor(async () => await canvas.getAllByText(collectionLabel)[0], { timeout: 30000 });
+
     await fireEvent.click(canvas.getAllByText(collectionLabel)[1]);
+
     await waitFor(() => expect(document.querySelector('.q-select-dialog')).toBeInTheDocument(), {
       timeout: 10000,
     });
-    await sleep(200);
+    await waitFor(async () => await canvas.getByText(itemLabel), { timeout: 10000 });
+
     await fireEvent.click(canvas.getByText(itemLabel));
   };
 }
