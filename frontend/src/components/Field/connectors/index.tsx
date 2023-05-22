@@ -75,6 +75,7 @@ export interface IProviderType extends TProviderTypeSupports, TProviderTypeArgs 
   supports_observable?: boolean;
   transaction_management?: boolean;
   record_requires_search_options?: boolean;
+  create_args_freeform?: IOptions[];
   is_api_call?: boolean;
   search_options?: IOptions;
   descriptions?: string[];

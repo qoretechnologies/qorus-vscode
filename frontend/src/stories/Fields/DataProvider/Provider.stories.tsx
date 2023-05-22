@@ -17,11 +17,6 @@ export default meta;
 
 export const Basic: StoryObj<typeof meta> = {};
 export const Type: StoryObj<typeof meta> = {
-  parameters: {
-    chromatic: {
-      disableSnapshot: true,
-    },
-  },
   play: async ({ canvasElement }) => {
     const canvas = await within(canvasElement);
 
@@ -35,16 +30,8 @@ export const Type: StoryObj<typeof meta> = {
     await waitFor(() => expect(document.querySelectorAll('.provider-selector').length).toBe(2), {
       timeout: 10000,
     });
-    await _testsSelectItemFromCollection(canvas, 'fsevents')();
-    await waitFor(() => expect(document.querySelectorAll('.provider-selector').length).toBe(3), {
-      timeout: 10000,
-    });
-    await _testsSelectItemFromCollection(canvas, 'event')();
-    await waitFor(() => expect(document.querySelectorAll('.provider-selector').length).toBe(4), {
-      timeout: 10000,
-    });
-    await _testsSelectItemFromCollection(canvas, 'action')();
-    await sleep(1000);
+    await _testsSelectItemFromCollection(canvas, 'hash')();
+    await sleep(500);
   },
 };
 

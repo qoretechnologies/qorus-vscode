@@ -459,6 +459,12 @@ const SelectField: React.FC<ISelectField & IField> = ({
                   infinite: true,
                   includeBottomControls: false,
                 }}
+                wrapperProps={{
+                  className: 'q-select-popup',
+                }}
+                inputProps={{
+                  className: 'q-select-input',
+                }}
                 description={getItemDescription(value) || description}
                 effect={{
                   gradient: {

@@ -23,13 +23,15 @@ export function _testsSelectItemFromDropdown(
   className?: string
 ) {
   return async () => {
-    await sleep(500);
+    await sleep(200);
 
     await fireEvent.click(
       className ? document.querySelectorAll(className)[0] : canvas.getAllByText(dropdownLabel)[1]
     );
 
-    await sleep(1500);
+    await waitFor(() => expect(document.querySelector('.q-select-input')).toBeInTheDocument(), {
+      timeout: 10000,
+    });
 
     await fireEvent.click(canvas.getAllByText(itemLabel)[1]);
   };
@@ -41,12 +43,12 @@ export function _testsSelectItemFromCollection(
   collectionLabel: string = 'PleaseSelect'
 ) {
   return async () => {
-    await sleep(500);
+    await sleep(200);
     await fireEvent.click(canvas.getAllByText(collectionLabel)[1]);
     await waitFor(() => expect(document.querySelector('.q-select-dialog')).toBeInTheDocument(), {
       timeout: 10000,
     });
-    await sleep(500);
+    await sleep(200);
     await fireEvent.click(canvas.getByText(itemLabel));
   };
 }

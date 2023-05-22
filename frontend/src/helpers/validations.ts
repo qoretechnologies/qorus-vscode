@@ -34,6 +34,7 @@ export const validateField: (
   if (!type) {
     return false;
   }
+
   // Check if the type starts with a * to indicate it can be null
   if (type.startsWith('*')) {
     type = type.substring(1);
@@ -228,7 +229,7 @@ export const validateField: (
         return false;
       }
       // If the value is not an object or empty
-      return parsedValue.every((item: any) => validateField('hash', item));
+      return parsedValue.every((item: any) => size(item) && validateField('hash', item));
     }
     case 'mapper-code':
       if (!value) {
@@ -359,20 +360,20 @@ export const validateField: (
 
       if (isUpdateOrCreate) {
         const areNormalArgsInvalid =
-          `${type}_args` in value &&
+          `${type}_args` in newValue &&
           (size(newValue[`${type}_args`]) === 0 ||
             !validateField('system-options', newValue[`${type}_args`]));
 
         const areFreeFormArgsInvalid =
-          `${type}_args_freeform` in value &&
+          `${type}_args_freeform` in newValue &&
           (size(newValue[`${type}_args_freeform`]) === 0 ||
             !validateField('list-of-hashes', newValue[`${type}_args_freeform`]));
 
-        if (`${type}_args` in newValue && areNormalArgsInvalid) {
+        if (`${type}_args` in newValue && areNormalArgsInvalid && areFreeFormArgsInvalid) {
           return false;
         }
 
-        if (`${type}_args_freeform` in newValue && areFreeFormArgsInvalid) {
+        if (`${type}_args_freeform` in newValue && areFreeFormArgsInvalid && areNormalArgsInvalid) {
           return false;
         }
       }
