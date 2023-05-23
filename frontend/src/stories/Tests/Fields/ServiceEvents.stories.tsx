@@ -1,20 +1,20 @@
 import { expect } from '@storybook/jest';
 import { Meta, StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
-import { IServiceEventList, ServiceEventListField } from '../../components/Field/serviceEvents';
-import serviceEvents from '../Data/serviceEvents.json';
-import { Event } from '../Fields/DataProvider/Provider.stories';
-import { SwitchesToBuilder } from './FSM/Basic.stories';
+import { IServiceEventList, ServiceEventListField } from '../../../components/Field/serviceEvents';
+import serviceEvents from '../../Data/serviceEvents.json';
+import { Event } from '../../Fields/DataProvider/Provider.stories';
+import { SwitchesToBuilder } from '../FSM/Basic.stories';
 import {
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
   _testsSubmitFSMState,
   sleep,
-} from './utils';
+} from '../utils';
 
 const meta = {
   component: ServiceEventListField,
-  title: 'Tests/Service Events',
+  title: 'Tests/Fields/Service Events',
   parameters: {
     chromatic: {
       disableSnapshot: true,

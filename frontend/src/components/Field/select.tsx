@@ -404,6 +404,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                 fluid
                 key={value}
                 wrap
+                icon={icon}
                 rightIcon="ListUnordered"
                 onClick={() => setSelectDialogOpen(true)}
                 description={

@@ -7,7 +7,7 @@ import { sleep } from '../utils';
 
 const meta = {
   component: connectors,
-  title: 'Tests/Data Provider',
+  title: 'Tests/Fields/Data Provider',
 } as Meta<typeof connectors>;
 
 export default meta;

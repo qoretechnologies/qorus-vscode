@@ -8,10 +8,10 @@ import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { getValueOrDefaultValue } from '../../helpers/validations';
 import withMessageHandler, {
-  addMessageListener,
-  postMessage,
   TMessageListener,
   TPostMessage,
+  addMessageListener,
+  postMessage,
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 
@@ -29,6 +29,7 @@ export interface IStringField
   autoFocus?: boolean;
   onChange?: IFieldChange;
   label?: string | number;
+  fillVertically?: boolean;
 }
 
 const StringField = ({
@@ -47,6 +48,7 @@ const StringField = ({
   autoFocus,
   label,
   id,
+  fillVertically,
   ...rest
 }: IStringField) => {
   // Fetch data on mount
@@ -75,7 +77,7 @@ const StringField = ({
   };
 
   return (
-    <ReqoreControlGroup {...rest} fluid={!!fill}>
+    <ReqoreControlGroup {...rest} fluid={!!fill} fill={fillVertically}>
       {label || label === 0 ? <ReqoreTag label={label} fixed /> : null}
       <ReqoreInput
         key={name}
