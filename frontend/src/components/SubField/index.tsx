@@ -52,6 +52,7 @@ const SubField: React.FC<ISubFieldProps> = ({
   actions = [],
   ...rest
 }) => {
+  console.log(actions);
   return (
     <>
       <ReqorePanel

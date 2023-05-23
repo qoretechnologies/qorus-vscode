@@ -206,35 +206,33 @@ export const DataProviderFavorites = ({
             Select from favorites
           </ReqoreButton>
         ) : null}
-        {currentProvider && hasTypeAndName ? (
-          <ReqoreButton
-            icon={
-              isBuiltInFavorite ? 'StarHalfFill' : existsInFavorites ? 'DeleteBinLine' : 'StarFill'
-            }
-            effect={
-              isBuiltInFavorite
-                ? PositiveColorEffect
-                : existsInFavorites
-                ? NegativeColorEffect
-                : SelectorColorEffect
-            }
-            onClick={
-              isBuiltInFavorite
-                ? undefined
-                : existsInFavorites
-                ? handleRemoveFavorite
-                : handleAddNewFavorite
-            }
-            className="data-provider-add-favorite"
-            disabled={isBuiltInFavorite}
-          >
-            {existsInFavorites
-              ? isBuiltInFavorite
-                ? 'Built in template'
-                : 'Remove from favorites'
-              : 'Add to favorites'}
-          </ReqoreButton>
-        ) : null}
+        <ReqoreButton
+          icon={
+            isBuiltInFavorite ? 'StarHalfFill' : existsInFavorites ? 'DeleteBinLine' : 'StarFill'
+          }
+          effect={
+            isBuiltInFavorite
+              ? PositiveColorEffect
+              : existsInFavorites
+              ? NegativeColorEffect
+              : SelectorColorEffect
+          }
+          onClick={
+            isBuiltInFavorite
+              ? undefined
+              : existsInFavorites
+              ? handleRemoveFavorite
+              : handleAddNewFavorite
+          }
+          className="data-provider-add-favorite"
+          disabled={isBuiltInFavorite || !hasTypeAndName}
+        >
+          {existsInFavorites
+            ? isBuiltInFavorite
+              ? 'Built in template'
+              : 'Remove from favorites'
+            : 'Add to favorites'}
+        </ReqoreButton>
       </ReqoreControlGroup>
     </>
   );
