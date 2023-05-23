@@ -2328,7 +2328,7 @@ msgid "Datasources"
 msgstr "Datasource connections"
 
 msgid "SelectDataProvider"
-msgstr "Select data provider"
+msgstr "Data provider"
 
 msgid "CurrentDataProvider"
 msgstr "Current data provider"

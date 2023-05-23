@@ -49,6 +49,7 @@ const SubField: React.FC<ISubFieldProps> = ({
   detail,
   isValid,
   collapsible,
+  actions = [],
   ...rest
 }) => {
   return (
@@ -70,6 +71,7 @@ const SubField: React.FC<ISubFieldProps> = ({
         collapsible={collapsible}
         unMountContentOnCollapse={false}
         actions={[
+          ...actions,
           getFieldDescriptionAction(desc),
           {
             icon: 'DeleteBinLine',

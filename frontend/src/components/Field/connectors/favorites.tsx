@@ -118,6 +118,8 @@ export const DataProviderFavorites = ({
     }
   };
 
+  const hasTypeAndName = currentProvider?.type && currentProvider?.name;
+
   return (
     <>
       {isAdding && (
@@ -193,7 +195,7 @@ export const DataProviderFavorites = ({
           />
         </ReqoreModal>
       )}
-      <ReqoreControlGroup>
+      <ReqoreControlGroup size="small">
         {size(favorites) ? (
           <ReqoreButton
             badge={count}
@@ -204,7 +206,7 @@ export const DataProviderFavorites = ({
             Select from favorites
           </ReqoreButton>
         ) : null}
-        {currentProvider && (
+        {currentProvider && hasTypeAndName ? (
           <ReqoreButton
             icon={
               isBuiltInFavorite ? 'StarHalfFill' : existsInFavorites ? 'DeleteBinLine' : 'StarFill'
@@ -232,9 +234,8 @@ export const DataProviderFavorites = ({
                 : 'Remove from favorites'
               : 'Add to favorites'}
           </ReqoreButton>
-        )}
+        ) : null}
       </ReqoreControlGroup>
-      {size(favorites) || currentProvider ? <ReqoreSpacer height={18} lineSize="tiny" /> : null}
     </>
   );
 };

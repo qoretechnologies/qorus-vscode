@@ -418,26 +418,30 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
       {info}
 
       <SubField
-        title={!minimal && !readOnly ? title || t('SelectDataProvider') : undefined}
+        title={!minimal && !readOnly ? title || t('DataProvider') : undefined}
         isValid
+        actions={[
+          {
+            as: DataProviderFavorites,
+            props: {
+              currentProvider: optionProvider,
+              onFavoriteApply: applyFavorite,
+              defaultFavorites: favorites,
+              localOnly: localOnlyFavorites,
+              requiresRequest,
+              recordType,
+              isConfigItem,
+              isPipeline,
+              isMessage,
+              isVariable,
+              isEvent,
+              isTransaction,
+              disableSearchOptions,
+            },
+            show: !readOnly,
+          },
+        ]}
       >
-        {!readOnly && (
-          <DataProviderFavorites
-            currentProvider={optionProvider}
-            onFavoriteApply={applyFavorite}
-            defaultFavorites={favorites}
-            localOnly={localOnlyFavorites}
-            requiresRequest={requiresRequest}
-            recordType={recordType}
-            isConfigItem={isConfigItem}
-            isPipeline={isPipeline}
-            isMessage={isMessage}
-            isVariable={isVariable}
-            isEvent={isEvent}
-            isTransaction={isTransaction}
-            disableSearchOptions={disableSearchOptions}
-          />
-        )}
         <Provider
           isConfigItem={isConfigItem}
           nodes={nodes}
