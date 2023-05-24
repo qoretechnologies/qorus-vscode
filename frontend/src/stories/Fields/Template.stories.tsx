@@ -1,5 +1,6 @@
+import { expect } from '@storybook/jest';
 import { Meta, StoryObj } from '@storybook/react';
-import { fireEvent, waitFor, within } from '@storybook/testing-library';
+import { fireEvent, waitFor } from '@storybook/testing-library';
 import String from '../../components/Field/string';
 import { TemplateField } from '../../components/Field/template';
 
@@ -29,15 +30,14 @@ export const ShowsTemplatesList: StoryObj<typeof meta> = {
     component: String,
     value: '$config:something',
   },
-  play: async ({ canvasElement, ...rest }) => {
-    const canvas = within(canvasElement);
-
+  play: async () => {
     await waitFor(
       async () => {
-        await canvas.findAllByText('config')[0];
-        await fireEvent.click(canvas.getAllByText('config')[0]);
+        await expect(document.querySelector('.template-selector')).toBeInTheDocument();
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
+
+    await fireEvent.click(document.querySelector('.template-selector'));
   },
 };

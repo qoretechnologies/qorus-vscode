@@ -165,6 +165,7 @@ export const TemplateField = ({
                 value={templateKey}
                 name="templateKey"
                 icon="ExchangeDollarLine"
+                className="template-selector"
               />
               <ReqoreTag label=":" />
               <String
