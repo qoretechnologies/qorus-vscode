@@ -10,6 +10,8 @@ import InterfaceCreatorPanel from '../../containers/InterfaceCreator/panel';
 import withMessageHandler, {
   TMessageListener,
   TPostMessage,
+  addMessageListener,
+  postMessage,
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import GlobalTable from './globalTable';
@@ -45,8 +47,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   t,
   type,
   baseClassName,
-  postMessage,
-  addMessageListener,
   classes,
   interfaceId,
   resetFields,

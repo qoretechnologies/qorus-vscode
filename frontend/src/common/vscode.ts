@@ -1,3 +1,5 @@
+import { sleep } from '../stories/Tests/utils';
+
 export const vscode =
   process.env.NODE_ENV === 'test'
     ? {
@@ -128,6 +130,184 @@ export const vscode =
                   iface_kind: data.iface_kind,
                   [data.iface_kind]: { name: 'Test Interface' },
                 },
+              };
+              break;
+            }
+            case 'get-config-items': {
+              await sleep(1000);
+
+              messageData = {
+                action: 'return-config-items',
+                global_items: [],
+                items: [
+                  {
+                    name: 'CFG',
+                    default_value: 'test',
+                    description: 'asg',
+                    config_group: 1,
+                    parent_data: {
+                      name: 'CFG',
+                      default_value: 'test',
+                      description: 'asg',
+                      config_group: 1,
+                    },
+                    parent: {
+                      'interface-type': 'class',
+                      'interface-name': 'ConfigItems',
+                      'interface-version': '1',
+                    },
+                    parent_class: 'ConfigItems',
+                    type: 'string',
+                    value: 'test',
+                    level: 'default',
+                    is_set: true,
+                    yamlData: {
+                      value: 'test',
+                      default_value: 'test',
+                    },
+                  },
+                  {
+                    name: 'CFG',
+                    default_value: 'test',
+                    description: 'asg',
+                    config_group: 1,
+                    parent_data: {
+                      name: 'CFG',
+                      default_value: 'test',
+                      description: 'asg',
+                      config_group: 1,
+                    },
+                    parent: {
+                      'interface-type': 'class',
+                      'interface-name': 'ConfigItems',
+                      'interface-version': '1',
+                    },
+                    parent_class: 'ConfigItems',
+                    type: 'string',
+                    value: 'test',
+                    level: 'default',
+                    is_set: true,
+                    yamlData: {
+                      value: 'test',
+                      default_value: 'test',
+                    },
+                  },
+                ],
+              };
+              break;
+            }
+            case 'get-config-items-custom-call': {
+              await sleep(1000);
+
+              messageData = {
+                action: 'return-config-items',
+                global_items: [],
+                items: [
+                  {
+                    name: 'CFG',
+                    default_value: 'test',
+                    description: 'asg',
+                    config_group: 1,
+                    parent_data: {
+                      name: 'CFG',
+                      default_value: 'test',
+                      description: 'asg',
+                      config_group: 1,
+                    },
+                    parent: {
+                      'interface-type': 'class',
+                      'interface-name': 'ConfigItems',
+                      'interface-version': '1',
+                    },
+                    parent_class: 'ConfigItems',
+                    type: 'string',
+                    value: 'test',
+                    level: 'default',
+                    is_set: true,
+                    yamlData: {
+                      value: 'test',
+                      default_value: 'test',
+                    },
+                  },
+                  {
+                    name: 'CFG',
+                    default_value: 'test',
+                    description: 'asg',
+                    config_group: 1,
+                    parent_data: {
+                      name: 'CFG',
+                      default_value: 'test',
+                      description: 'asg',
+                      config_group: 1,
+                    },
+                    parent: {
+                      'interface-type': 'class',
+                      'interface-name': 'ConfigItems',
+                      'interface-version': '1',
+                    },
+                    parent_class: 'ConfigItems',
+                    type: 'string',
+                    value: 'test',
+                    level: 'default',
+                    is_set: true,
+                    yamlData: {
+                      value: 'test',
+                      default_value: 'test',
+                    },
+                  },
+                  {
+                    name: 'CFG',
+                    default_value: 'test',
+                    description: 'asg',
+                    config_group: 1,
+                    parent_data: {
+                      name: 'CFG',
+                      default_value: 'test',
+                      description: 'asg',
+                      config_group: 1,
+                    },
+                    parent: {
+                      'interface-type': 'class',
+                      'interface-name': 'ConfigItems',
+                      'interface-version': '1',
+                    },
+                    parent_class: 'ConfigItems',
+                    type: 'string',
+                    value: 'test',
+                    level: 'default',
+                    is_set: true,
+                    yamlData: {
+                      value: 'test',
+                      default_value: 'test',
+                    },
+                  },
+                  {
+                    name: 'CFG',
+                    default_value: 'test',
+                    description: 'asg',
+                    config_group: 1,
+                    parent_data: {
+                      name: 'CFG',
+                      default_value: 'test',
+                      description: 'asg',
+                      config_group: 1,
+                    },
+                    parent: {
+                      'interface-type': 'class',
+                      'interface-name': 'ConfigItems',
+                      'interface-version': '1',
+                    },
+                    parent_class: 'ConfigItems',
+                    type: 'string',
+                    value: 'test',
+                    level: 'default',
+                    is_set: true,
+                    yamlData: {
+                      value: 'test',
+                      default_value: 'test',
+                    },
+                  },
+                ],
               };
               break;
             }

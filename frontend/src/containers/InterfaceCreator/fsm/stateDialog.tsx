@@ -688,6 +688,11 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             props: {
               type: 'fsm',
               onClick: () => setShowConfigItemsManager(true),
+              state_data: {
+                id: newData.id,
+                class_name: newData.action?.value?.['class'],
+              },
+              iface_id: interfaceId,
             },
             show: !!newData.action?.value?.['class'],
           },

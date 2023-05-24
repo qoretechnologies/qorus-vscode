@@ -1,30 +1,39 @@
 import { ReqoreButton } from '@qoretechnologies/reqore';
 import size from 'lodash/size';
-import { FunctionComponent, memo, useState } from 'react';
+import { FunctionComponent, memo, useContext, useState } from 'react';
 import { useMount } from 'react-use';
-import compose from 'recompose/compose';
-import { TTranslator } from '../../App';
 import { Messages } from '../../constants/messages';
-import withMessageHandler, { TMessageListener } from '../../hocomponents/withMessageHandler';
-import withTextContext from '../../hocomponents/withTextContext';
+import { TextContext } from '../../context/text';
+import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
 
 export interface IManageConfigButton {
-  t: TTranslator;
-  addMessageListener: TMessageListener;
   disabled: boolean;
   onClick: () => void;
   type?: string;
   fetchCall?: (ifaceId?: string) => void;
+  'base-class-name'?: string;
+  classes?: string[];
+  iface_id?: string;
+  iface_kind?: string;
+  steps?: any[];
+  state_data?: {
+    id: string;
+    class_name?: string;
+  };
+  processor_data: any;
 }
 
 const ManageConfigButton: FunctionComponent<IManageConfigButton> = memo(
-  ({ t, addMessageListener, disabled, onClick, type, fetchCall }) => {
+  ({ disabled, onClick, type, fetchCall, ...rest }) => {
     const [configCount, setConfigCount] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const t = useContext(TextContext);
 
     useMount(() => {
       // Listen for changes in config items for
       // this interface
       const messageHandler = addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
+        setIsLoading(false);
         const itemCount =
           type === 'workflow'
             ? size(data.workflow_items?.filter((item) => item.is_set))
@@ -33,7 +42,16 @@ const ManageConfigButton: FunctionComponent<IManageConfigButton> = memo(
         setConfigCount(itemCount);
       });
 
-      fetchCall?.();
+      if (fetchCall) {
+        fetchCall();
+      } else {
+        // Fetch the config items for this interface
+        // Ask for the config items
+        postMessage(Messages.GET_CONFIG_ITEMS, {
+          iface_kind: type,
+          ...rest,
+        });
+      }
       // Unregister the message handler
       return () => {
         messageHandler();
@@ -43,15 +61,16 @@ const ManageConfigButton: FunctionComponent<IManageConfigButton> = memo(
     return (
       <ReqoreButton
         disabled={disabled}
-        badge={configCount}
+        readOnly={isLoading}
+        badge={isLoading ? undefined : configCount}
         icon={'SettingsLine'}
         onClick={onClick}
         tooltip={t('ManageConfigItems')}
       >
-        {t('ManageConfigItems')}
+        {isLoading ? 'Loading...' : t('ManageConfigItems')}
       </ReqoreButton>
     );
   }
 );
 
-export default compose(withTextContext(), withMessageHandler())(ManageConfigButton);
+export default ManageConfigButton;
