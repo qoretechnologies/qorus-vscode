@@ -158,22 +158,6 @@ export default () =>
         fieldType,
         provider
       ) => {
-        /* GetRealUrlFromProvider(provider, withOptions)
-
-        The above code is a function that takes two parameters:
-
-        provider: the provider to use to get the real url
-        withOptions: a boolean that indicates whether or not to include the options
-
-        The function returns a function that takes one parameter:
-
-        fieldType: the type of field to get the real url for
-
-        The function returns a string that is the real url for the field type.
-
-        The function is used in the following way:
-
-        const realUrl = getReal */
         const prov = provider
           ? provider
           : fieldType === 'input'
@@ -188,39 +172,12 @@ export default () =>
 
       const getProviderUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {
         // Get the mapper options data
-        const {
-          type,
-          name,
-          path = '',
-          subtype,
-          can_manage_fields,
-          options,
-          supports_request,
-          is_api_call,
-        } = mapper.mapper_options[`mapper-${fieldType}`];
+        const provider = mapper.mapper_options[`mapper-${fieldType}`];
         // Save the provider options
         if (fieldType === 'input') {
-          setInputOptionProvider({
-            type,
-            name,
-            path,
-            subtype,
-            can_manage_fields,
-            options,
-            supports_request,
-            is_api_call,
-          });
+          setInputOptionProvider(provider);
         } else {
-          setOutputOptionProvider({
-            type,
-            name,
-            path,
-            subtype,
-            can_manage_fields,
-            options,
-            supports_request,
-            is_api_call,
-          });
+          setOutputOptionProvider(provider);
         }
 
         return getUrlFromProvider(fieldType, mapper.mapper_options[`mapper-${fieldType}`]);

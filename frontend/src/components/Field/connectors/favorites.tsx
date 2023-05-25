@@ -30,7 +30,7 @@ import {
 
 export interface IDaraProviderFavoritesProps extends Partial<IConnectorFieldProps> {
   currentProvider?: IProviderType;
-  onFavoriteApply?: (provider: IProviderType) => void;
+  onFavoriteApply?: (provider: IProviderType, record?: any) => void;
   defaultFavorites?: TDataProviderFavorites;
   localOnly?: boolean;
 }
@@ -97,6 +97,7 @@ export const DataProviderFavorites = ({
   onFavoriteApply,
   defaultFavorites,
   localOnly,
+  record,
   ...rest
 }: IDaraProviderFavoritesProps) => {
   const confirmAction = useReqoreProperty('confirmAction');
@@ -130,6 +131,7 @@ export const DataProviderFavorites = ({
               name,
               desc,
               value: currentProvider,
+              record,
             });
             setIsAdding(false);
           }}
@@ -171,7 +173,7 @@ export const DataProviderFavorites = ({
                     icon: 'CheckLine',
                     label: 'Apply',
                     onClick: () => {
-                      onFavoriteApply?.(favoriteData.value);
+                      onFavoriteApply?.(favoriteData.value, favoriteData?.record);
                       setShowFavorites(false);
                     },
                     className: 'data-provider-favorite-apply',

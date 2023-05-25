@@ -48,6 +48,10 @@ export interface IConnectorFieldProps {
   info?: any;
   favorites?: TDataProviderFavorites;
   localOnlyFavorites?: boolean;
+  record?: any;
+  setRecord?: any;
+  setFields?: any;
+  hide?: any;
 }
 
 export type TProviderTypeSupports = {
@@ -321,6 +325,10 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   t,
   favorites,
   localOnlyFavorites,
+  record,
+  setRecord,
+  setFields,
+  hide,
 }) => {
   const [optionProvider, setOptionProvider] = useState<IProviderType | null>(
     maybeBuildOptionProvider(value)
@@ -334,10 +342,11 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [availableOptions, setAvailableOptions] = useState(undefined);
 
-  const applyFavorite = (favorite: IProviderType) => {
+  const applyFavorite = (favorite: IProviderType, storedRecord?: any) => {
     setProvider(favorite.type);
     setOptionProvider(favorite);
     setChildren(buildChildren(favorite));
+    setRecord(storedRecord);
   };
 
   const clear = () => {
@@ -426,6 +435,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
             : [
                 {
                   as: DataProviderFavorites,
+                  responsive: false,
                   props: {
                     currentProvider: optionProvider,
                     onFavoriteApply: applyFavorite,
@@ -440,6 +450,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                     isEvent,
                     isTransaction,
                     disableSearchOptions,
+                    record,
+                    setRecord,
                   },
                   show: !readOnly,
                 },
@@ -479,6 +491,10 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           isEvent={isEvent}
           isTransaction={isTransaction}
           readOnly={readOnly}
+          record={record}
+          setRecord={setRecord}
+          setFields={setFields}
+          hide={hide}
         />
       </SubField>
       {provider === 'factory' && optionProvider ? (

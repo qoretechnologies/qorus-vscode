@@ -9,6 +9,7 @@ export interface IDataProviderFavorite {
   name?: string;
   desc?: string;
   value: IProviderType;
+  record?: any;
   id?: string;
   builtIn?: boolean;
 }
