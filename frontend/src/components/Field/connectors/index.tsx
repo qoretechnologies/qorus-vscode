@@ -346,7 +346,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     setProvider(favorite.type);
     setOptionProvider(favorite);
     setChildren(buildChildren(favorite));
-    setRecord(storedRecord);
+    setRecord?.(storedRecord);
   };
 
   const clear = () => {
