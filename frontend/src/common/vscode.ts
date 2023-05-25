@@ -1,5 +1,9 @@
 import { sleep } from '../stories/Tests/utils';
 
+export const username = 'IDETestUser';
+export const password = 'wegkur-hegji7-woKnez';
+export const basicAuthCredentials = `${username}:${password}`;
+
 export const vscode =
   process.env.NODE_ENV === 'test'
     ? {
@@ -16,7 +20,7 @@ export const vscode =
                   method,
                   headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Basic ${btoa('fwitosz:fwitosz42')}`,
+                    Authorization: `Basic ${btoa(basicAuthCredentials)}`,
                   },
                   body: JSON.stringify(body),
                 }
