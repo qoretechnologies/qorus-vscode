@@ -19,10 +19,10 @@ module.exports = {
     NODE_ENV: 'test',
     BROWSER: 'chrome',
   }),
-  refs: {
-    reqore: {
-      title: 'ReQore',
-      url: 'https://reqore.qoretechnologies.com/',
-    },
-  },
+  // refs: {
+  //   reqore: {
+  //     title: 'ReQore',
+  //     url: 'https://reqore.qoretechnologies.com/',
+  //   },
+  // },
 };

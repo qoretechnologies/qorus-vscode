@@ -8,6 +8,14 @@ import Minimap from './minimap';
 
 const eventListener = require('eventlistener');
 
+export const calculateReverseValueWithZoom = (value: number, zoom: number) => {
+  return zoom < 1 ? value - (value * (1 - zoom)) / (zoom + 1) : value + value * (zoom - 1) * zoom;
+};
+
+export const calculateValueWithZoom = (value: number, zoom: number) => {
+  return zoom < 1 ? value + (value * (1 - zoom)) / zoom : value - (value * (zoom - 1)) / zoom;
+};
+
 export interface ElementPanState {
   dragging: boolean;
   elHeight: number;
@@ -23,6 +31,8 @@ export interface ElementPanState {
   showMinimap: boolean;
   showToolbar: boolean;
 }
+
+const StyledContainer = styled.div``;
 
 const StyledToolbar = styled(ReqorePanel)`
   position: absolute !important;
@@ -91,6 +101,10 @@ export class ElementPan extends React.Component<
     this.ref = this.ref.bind(this);
   }
 
+  public calculateValueWithZoom(value: number, zoom: number = this.props.zoom) {
+    return calculateValueWithZoom(value, zoom);
+  }
+
   public onDragStart(e) {
     // We want to be able to pan around inside the container even when the
     // mouse is on the outside of the element (as long as the mouse button
@@ -147,22 +161,27 @@ export class ElementPan extends React.Component<
       return;
     }
 
-    var x = typeof e.clientX === 'undefined' ? e.changedTouches[0].clientX : e.clientX,
+    let x = typeof e.clientX === 'undefined' ? e.changedTouches[0].clientX : e.clientX,
       y = typeof e.clientY === 'undefined' ? e.changedTouches[0].clientY : e.clientY;
 
     // Letting the browser automatically stop on scrollHeight
     // gives weird bugs where some extra pixels are showing.
     // Substracting the height/width of the container from the
     // inner content seems to do the trick.
-    this.el.scrollLeft = Math.min(
+    let leftScroll = Math.min(
       this.state.maxX - this.state.elWidth,
       this.state.baseScrollX - (x - this.state.startX)
     );
-
-    this.el.scrollTop = Math.min(
+    let topScroll = Math.min(
       this.state.maxY - this.state.elHeight,
       this.state.baseScrollY - (y - this.state.startY)
     );
+
+    // leftScroll = this.calculateValueWithZoom(leftScroll, this.props.zoom);
+    // topScroll = this.calculateValueWithZoom(topScroll, this.props.zoom);
+
+    this.el.scrollLeft = leftScroll;
+    this.el.scrollTop = topScroll;
 
     if (this.props.onPan) {
       this.props.onPan({ x: this.el.scrollLeft, y: this.el.scrollTop });
@@ -205,9 +224,9 @@ export class ElementPan extends React.Component<
   public onWheel(e) {
     // Less then 0 means scrolling up / zoom in
     if (e.deltaY < 0) {
-      this.props.setZoom(this.props.zoom + 0.1);
+      this.props.setZoom(this.props.zoom + 0.1 > 1.5 ? 1.5 : this.props.zoom + 0.1);
     } else {
-      this.props.setZoom(this.props.zoom - 0.1 < 0.1 ? 0.1 : this.props.zoom - 0.1);
+      this.props.setZoom(this.props.zoom - 0.1 < 0.5 ? 0.5 : this.props.zoom - 0.1);
     }
   }
 
@@ -232,7 +251,7 @@ export class ElementPan extends React.Component<
       state.scrollY = this.el.scrollTop;
     }
 
-    //window.addEventListener('wheel', this.onWheel);
+    window.addEventListener('wheel', this.onWheel);
 
     this.setState(state);
   };
@@ -271,13 +290,14 @@ export class ElementPan extends React.Component<
     const { panElementId } = this.state;
 
     return (
-      <div
+      <StyledContainer
         ref={this.ref}
         className={this.props.className || 'element-pan'}
         style={this.getContainerStyles()}
         onTouchStart={this.props.enableDragging ? this.onDragStart : undefined}
         onMouseDown={this.props.enableDragging ? this.onDragStart : undefined}
         id={`panElement${panElementId}`}
+        bgColor={this.props.bgColor}
       >
         {this.props.children}
         <StyledToolbar
@@ -285,6 +305,7 @@ export class ElementPan extends React.Component<
           id="pan-element-toolbar"
           size="small"
           padded={false}
+          badge={this.props.zoom}
           actions={[
             {
               icon: 'PriceTag2Line',
@@ -301,13 +322,12 @@ export class ElementPan extends React.Component<
             items={this.props.items}
             x={this.state.scrollX}
             y={this.state.scrollY}
-            width={this.el?.getBoundingClientRect().width}
-            height={this.el?.getBoundingClientRect().height}
+            zoom={this.props.zoom}
             onDrag={this.handleMinimapMove}
             panElementId={panElementId}
           />
         </StyledToolbar>
-      </div>
+      </StyledContainer>
     );
   }
 }

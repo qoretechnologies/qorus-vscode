@@ -44,6 +44,7 @@ import FieldGroup from '../../../components/FieldGroup';
 import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import { InputOutputType } from '../../../components/InputOutputType';
 import Loader from '../../../components/Loader';
+import { calculateValueWithZoom } from '../../../components/PanElement';
 import { Messages } from '../../../constants/messages';
 import { DraftsContext, IDraftData } from '../../../context/drafts';
 import { GlobalContext } from '../../../context/global';
@@ -430,10 +431,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
         let { x, y } = monitor.getClientOffset();
         const calculatePercDiff = (value) => value + (value / 100) * Math.abs(100 * (zoom - 1));
-        x = x / zoom;
-        y = y / zoom;
-        x = x - diagram.left + calculatePercDiff(currentXPan.current);
-        y = y - diagram.top + calculatePercDiff(currentYPan.current);
+        x = calculateValueWithZoom(x, zoom);
+        y = calculateValueWithZoom(y, zoom);
+        x = x - diagram.left + currentXPan.current;
+        y = y - diagram.top + currentYPan.current;
 
         addNewState(item, x, y);
       } else if (item.type === STATE_ITEM_TYPE) {
@@ -2407,7 +2408,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     setShowStateIds={setShowStateIds}
                     showStateIds={showStateIds}
                     zoom={zoom}
-                    setZoom={setZoom}
+                    setZoom={(zoom) => setZoom(parseFloat(zoom.toFixed(1)))}
                     items={map(states, (state, id) => ({
                       x: state.position.x,
                       y: state.position.y,
@@ -2423,7 +2424,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       onClick={() => setSelectedState(null)}
                       bgColor={theme.main}
                       style={{
-                        transform: `scale(${zoom})`,
+                        zoom,
                         transformOrigin: 'left top',
                       }}
                     >
