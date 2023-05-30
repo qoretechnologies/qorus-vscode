@@ -1,5 +1,5 @@
 import { ReqorePanel } from '@qoretechnologies/reqore';
-import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
+import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import React from 'react';
 import shortid from 'shortid';
 import styled from 'styled-components';
@@ -34,7 +34,7 @@ export interface ElementPanState {
 
 const StyledContainer = styled.div``;
 
-const StyledToolbar = styled(ReqorePanel)`
+const StyledToolbar: React.FC<IReqorePanelProps> = styled(ReqorePanel)`
   position: absolute !important;
   width: 202px;
   right: 15px;
@@ -67,7 +67,8 @@ export class ElementPan extends React.Component<
       [key: string]: any;
     };
     zoom: number;
-    setZoom: (number: number) => void;
+    zoomIn: () => void;
+    zoomOut: () => void;
     items?: { y: number; x: number }[];
     t: TTranslator;
     panElementId?: string;
@@ -222,11 +223,12 @@ export class ElementPan extends React.Component<
   }
 
   public onWheel(e) {
+    e.stopPropagation();
     // Less then 0 means scrolling up / zoom in
     if (e.deltaY < 0) {
-      this.props.setZoom(this.props.zoom + 0.1 > 1.5 ? 1.5 : this.props.zoom + 0.1);
+      this.props.zoomIn();
     } else {
-      this.props.setZoom(this.props.zoom - 0.1 < 0.5 ? 0.5 : this.props.zoom - 0.1);
+      this.props.zoomOut();
     }
   }
 
@@ -300,23 +302,7 @@ export class ElementPan extends React.Component<
         bgColor={this.props.bgColor}
       >
         {this.props.children}
-        <StyledToolbar
-          draggable
-          id="pan-element-toolbar"
-          size="small"
-          padded={false}
-          badge={this.props.zoom}
-          actions={[
-            {
-              icon: 'PriceTag2Line',
-              tooltip: 'Show state & path IDs',
-              id: 'show-state-ids',
-              active: this.props.showStateIds,
-              onClick: () => this.props.setShowStateIds(!this.props.showStateIds),
-            } as IReqorePanelAction,
-          ]}
-          collapsible
-        >
+        <StyledToolbar draggable id="pan-element-toolbar" size="small" padded={false}>
           <Minimap
             show={this.state.showMinimap}
             items={this.props.items}

@@ -155,17 +155,6 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panEle
     const { x, y } = item;
     let { width, height } = getStateBoundingRect(item.id);
 
-    // if (zoom > 1) {
-    //   width = width / zoom;
-    //   height = height / zoom;
-    // } else {
-    //   width = width * zoom;
-    //   height = height * zoom;
-    // }
-
-    // width = calculateValueWithZoom(width, zoom);
-    // height = calculateValueWithZoom(height, zoom);
-
     return (
       <ReqoreEffect
         key={index}

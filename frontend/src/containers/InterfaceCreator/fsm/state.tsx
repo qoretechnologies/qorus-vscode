@@ -43,6 +43,7 @@ export interface IFSMStateProps extends IFSMState {
   isIsolated: boolean;
   category: TStateTypes;
   hasTransitionToItself?: boolean;
+  zoom?: number;
 }
 
 export interface IFSMStateStyleProps {
@@ -251,6 +252,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   activateState,
   error,
   isStatic,
+  zoom,
   ...rest
 }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -399,7 +401,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
               flat: true,
               size: 'small',
               tooltip:
-                inputType && outputType
+                inputType && outputType && zoom === 100
                   ? {
                       title: name,
                       delay: 200,

@@ -422,6 +422,45 @@ export const getTransitionByState = (
   return transitions?.find((transition) => transition.state === targetId);
 };
 
+/* A function that given an object of states with x and y coordinates
+ * returns boolean if any of the states overlap
+ */
+export function checkOverlap(states: IFSMStates): boolean {
+  const keys = Object.keys(states);
+  const length = keys.length;
+
+  for (let i = 0; i < length - 1; i++) {
+    const {
+      position: { x: aX, y: aY },
+    } = states[keys[i]];
+    const { width: aW, height: aH } = getStateBoundingRect(keys[i]);
+
+    for (let j = i + 1; j < length; j++) {
+      const {
+        position: { x: bX, y: bY },
+      } = states[keys[j]];
+      const { width: bW, height: bH } = getStateBoundingRect(keys[j]);
+
+      console.log({
+        aX,
+        aY,
+        aW,
+        aH,
+        bX,
+        bY,
+        bW,
+        bH,
+      });
+
+      if (aX < bX + bW && aX + aW > bX && aY < bY + bH && aY + aH > bY) {
+        return true; // Overlapping states found
+      }
+    }
+  }
+
+  return false; // No overlapping states found
+}
+
 export const removeTransitionsWithStateId = (
   states: IFSMStates,
   removedStateId: string | number,

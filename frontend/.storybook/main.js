@@ -16,7 +16,7 @@ module.exports = {
   typescript: { reactDocgen: 'react-docgen' },
   env: (config) => ({
     ...config,
-    NODE_ENV: 'test',
+    NODE_ENV: 'storybook',
     BROWSER: 'chrome',
   }),
   // refs: {

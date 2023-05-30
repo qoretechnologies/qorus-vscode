@@ -54,6 +54,7 @@ import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
   IStateCorners,
   autoAlign,
+  checkOverlap,
   getVariable,
   removeAllStatesWithVariable,
   removeFSMState,
@@ -430,11 +431,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         const diagram = document.getElementById('fsm-diagram')!.getBoundingClientRect();
 
         let { x, y } = monitor.getClientOffset();
-        const calculatePercDiff = (value) => value + (value / 100) * Math.abs(100 * (zoom - 1));
-        x = calculateValueWithZoom(x, zoom);
-        y = calculateValueWithZoom(y, zoom);
-        x = x - diagram.left + currentXPan.current;
-        y = y - diagram.top + currentYPan.current;
+
+        x =
+          calculateValueWithZoom(x - diagram.left, zoom) +
+          calculateValueWithZoom(currentXPan.current, zoom);
+        y =
+          calculateValueWithZoom(y - diagram.top, zoom) +
+          calculateValueWithZoom(currentYPan.current, zoom);
 
         addNewState(item, x, y);
       } else if (item.type === STATE_ITEM_TYPE) {
@@ -578,8 +581,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     setStates((cur) => {
       const newBoxes = { ...cur };
 
-      newBoxes[id].position.x += coords.x;
-      newBoxes[id].position.y += coords.y;
+      newBoxes[id].position.x += calculateValueWithZoom(coords.x, zoom);
+      newBoxes[id].position.y += calculateValueWithZoom(coords.y, zoom);
 
       updateHistory(newBoxes);
 
@@ -606,6 +609,14 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         setIsReady(true);
       }
     );
+  };
+
+  const zoomIn = () => {
+    setZoom(zoom + 0.1 > 1.5 ? 1.5 : zoom + 0.1);
+  };
+
+  const zoomOut = () => {
+    setZoom(zoom - 0.1 < 0.5 ? 0.5 : zoom - 0.1);
   };
 
   useUpdateEffect(() => {
@@ -1849,6 +1860,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             ? t('CreateFlowDiagram')
             : t('DescribeYourFSM')
         }
+        responsiveTitle
+        responsiveActions={false}
         actions={[
           {
             label: 'Variables',
@@ -1860,6 +1873,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 : undefined,
             badge: size(metadata?.globalvar) + size(metadata?.localvar) + size(metadata?.autovar),
             id: 'fsm-variables',
+            show: isMetadataHidden,
           },
           {
             label: 'Show states list',
@@ -1870,11 +1884,61 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           {
             label: 'Auto align states',
             icon: 'Apps2Line',
+            show: isMetadataHidden,
+            flat: !checkOverlap(states),
+            effect: checkOverlap(states)
+              ? {
+                  gradient: {
+                    colors: {
+                      0: '#5865f2',
+                      100: '#6e1977',
+                    },
+                    animate: 'always',
+                  },
+                }
+              : undefined,
             onClick: () => {
               const { alignedStates } = autoAlign(states);
 
               setStates(alignedStates);
             },
+          },
+          {
+            icon: 'PriceTag2Line',
+            label: 'Show state & path IDs',
+            id: 'show-state-ids',
+            active: showStateIds,
+            onClick: () => setShowStateIds(!showStateIds),
+            intent: showStateIds ? 'info' : undefined,
+            show: isMetadataHidden,
+          },
+          {
+            fixed: true,
+            group: [
+              {
+                icon: 'ZoomOutLine',
+                onClick: () => zoomOut(),
+                tooltip: t('Zoom out'),
+                show: isMetadataHidden,
+                className: `fsm-${parentStateName ? `${parentStateName}-` : ''}zoom-out`,
+              },
+              {
+                icon: 'HistoryLine',
+                onClick: () => setZoom(1),
+                tooltip: t('Reset zoom'),
+                label: `${Math.round(zoom * 100)}%`,
+                show: isMetadataHidden,
+                intent: zoom > 0.9 && zoom < 1.09 ? undefined : 'info',
+                className: `fsm-${parentStateName ? `${parentStateName}-` : ''}zoom-reset`,
+              },
+              {
+                icon: 'ZoomInLine',
+                onClick: () => zoomIn(),
+                tooltip: t('Zoom in'),
+                show: isMetadataHidden,
+                className: `fsm-${parentStateName ? `${parentStateName}-` : ''}zoom-in`,
+              },
+            ],
           },
         ]}
         bottomActions={
@@ -2408,7 +2472,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     setShowStateIds={setShowStateIds}
                     showStateIds={showStateIds}
                     zoom={zoom}
-                    setZoom={(zoom) => setZoom(parseFloat(zoom.toFixed(1)))}
+                    zoomIn={zoomIn}
+                    zoomOut={zoomOut}
                     items={map(states, (state, id) => ({
                       x: state.position.x,
                       y: state.position.y,
@@ -2451,6 +2516,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           stateInputProvider={getStateDataForComparison(states[id], 'input')}
                           stateOutputProvider={getStateDataForComparison(states[id], 'output')}
                           activateState={(id, data) => setActiveState(id)}
+                          zoom={Math.round(zoom * 100)}
                         />
                       ))}
                       <svg

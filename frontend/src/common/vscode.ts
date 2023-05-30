@@ -5,7 +5,7 @@ export const password = 'wegkur-hegji7-woKnez';
 export const basicAuthCredentials = `${username}:${password}`;
 
 export const vscode =
-  process.env.NODE_ENV === 'test'
+  process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'storybook'
     ? {
         postMessage: async (data) => {
           let messageData: any;

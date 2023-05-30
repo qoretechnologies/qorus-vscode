@@ -1,6 +1,7 @@
 import { cloneDeep, size } from 'lodash';
 import { IFSMStates } from '../../src/containers/InterfaceCreator/fsm';
-import { IGrid, autoAlign, removeAllStatesWithVariable } from '../../src/helpers/fsm';
+import { IGrid, autoAlign, checkOverlap, removeAllStatesWithVariable } from '../../src/helpers/fsm';
+import OndewoFSM from '../../src/stories/Data/fsm.json';
 import multipleVariableStates from '../../src/stories/Data/multipleVariablesFsm.json';
 import multipleStatesInMultipleRows from './json/fsmMultipleStatesInMultipleRows.json';
 import multipleStatesInOneRow from './json/fsmMultipleStatesInOneRow.json';
@@ -19,6 +20,7 @@ describe('Align states with the grid', () => {
     const { grid } = autoAlign(statesObj as IFSMStates, {
       rowHeight: stateMargin,
     });
+
     expect(grid[findGridIndex('00', grid)].state?.key).toEqual('1');
     expect(grid[findGridIndex('01', grid)].state?.key).toEqual('2');
     expect(grid[findGridIndex('10', grid)].state?.key).toEqual('3');
@@ -178,4 +180,17 @@ test('it should remove all states with a certain variable', () => {
 
   expect(size(newModifiedStates['2'].states)).toBe(2);
   expect(size(newModifiedStates['2'].states['3'].states)).toBe(2);
+});
+
+test.skip('it should return true if 2 states are overlapping', () => {
+  const overlappingStates: IFSMStates = OndewoFSM.states as IFSMStates;
+  let overlapping = checkOverlap(overlappingStates);
+
+  expect(overlapping).toBe(true);
+
+  const nonOverlappingStates: IFSMStates = multipleVariableStates.states as IFSMStates;
+
+  overlapping = checkOverlap(nonOverlappingStates);
+
+  expect(overlapping).toBe(false);
 });
