@@ -60,6 +60,14 @@ export const CreateFavorite: StoryObj<typeof meta> = {
 
     await sleep(200);
 
+    await fireEvent.change(document.querySelector('.reqore-modal .reqore-input'), {
+      target: {
+        value: 'Test',
+      },
+    });
+
+    await sleep(200);
+
     await fireEvent.click(document.querySelector('.data-provider-favorite-submit-details'));
 
     await waitFor(

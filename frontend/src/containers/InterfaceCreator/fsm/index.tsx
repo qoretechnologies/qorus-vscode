@@ -1713,6 +1713,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         label={stateData.name}
         hidable
         flat={false}
+        responsiveTitle={false}
         floating
         hasBackdrop={false}
         onClose={() => {
@@ -1860,7 +1861,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             ? t('CreateFlowDiagram')
             : t('DescribeYourFSM')
         }
-        responsiveTitle
         responsiveActions={false}
         actions={[
           {

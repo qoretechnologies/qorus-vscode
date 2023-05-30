@@ -441,17 +441,6 @@ export function checkOverlap(states: IFSMStates): boolean {
       } = states[keys[j]];
       const { width: bW, height: bH } = getStateBoundingRect(keys[j]);
 
-      console.log({
-        aX,
-        aY,
-        aW,
-        aH,
-        bX,
-        bY,
-        bW,
-        bH,
-      });
-
       if (aX < bX + bW && aX + aW > bX && aY < bY + bH && aY + aH > bY) {
         return true; // Overlapping states found
       }

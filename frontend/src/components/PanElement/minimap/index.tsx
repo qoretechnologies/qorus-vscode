@@ -14,6 +14,7 @@ const StyledMinimapWrapper = styled.div<{ show: boolean }>`
   height: ${({ show }) => (show ? '200px' : '0px')};
   transition: height 0.2s ease-in-out;
   position: relative;
+  z-index: 100;
   cursor: no-drop;
 `;
 

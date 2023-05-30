@@ -39,7 +39,7 @@ const StyledToolbar: React.FC<IReqorePanelProps> = styled(ReqorePanel)`
   width: 202px;
   right: 15px;
   top: 15px;
-  z-index: 10;
+  z-index: 100;
   opacity: 0.3;
 
   &:hover {

@@ -17,11 +17,6 @@ const meta = {
       },
     },
   },
-  parameters: {
-    chromatic: {
-      disableSnapshot: true,
-    },
-  },
 } as StoryMeta<typeof FSMView, { stateType?: string }>;
 
 export default meta;
