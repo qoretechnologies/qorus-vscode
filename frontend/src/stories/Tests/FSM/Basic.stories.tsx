@@ -110,11 +110,13 @@ export const StateIsDeleted: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     await AutoAlign.play({ canvasElement, ...rest });
 
-    await sleep(500);
+    await sleep(1500);
+
     await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
     await expect(document.querySelectorAll('.fsm-transition').length).toBe(7);
 
     await fireEvent.click(document.querySelectorAll('#state-3 .reqore-button')[2]);
+
     await expect(document.querySelectorAll('.fsm-state').length).toBe(7);
     await expect(document.querySelectorAll('.fsm-transition').length).toBe(4);
   },
