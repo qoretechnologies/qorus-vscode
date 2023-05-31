@@ -2,10 +2,12 @@ import { ReqoreMenuItem } from '@qoretechnologies/reqore';
 import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { camelCase } from 'lodash';
+import { useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import styled, { css } from 'styled-components';
 import { TOOLBAR_ITEM_TYPE } from '.';
-import { getStateColor, TStateTypes } from './state';
+import { TStateTypes, getStateColor } from './state';
 
 export interface IFSMToolbarItemProps {
   children: any;
@@ -203,18 +205,22 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   readOnly,
   rightIcon,
 }) => {
-  const [, drag] = useDrag({
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragData, drag, preview] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
     item: () => {
       onDragStart?.();
-
+      setIsDragging(true);
       return { name, type: TOOLBAR_ITEM_TYPE, stateType: type, varType, varName: stateName };
     },
-    previewOptions: {
-      anchorX: 0,
-      anchorY: 0,
+    end: () => {
+      setIsDragging(false);
     },
   });
+
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true });
+  }, []);
 
   const getBadges = () => {
     const badges: TReqoreBadge[] = [];
@@ -249,6 +255,7 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
       wrap={!!varType}
       icon={FSMItemIconByType[type]}
       effect={{
+        opacity: isDragging ? 0 : 1,
         gradient: getStateColor(category),
       }}
       onDoubleClick={() => {

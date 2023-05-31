@@ -16,6 +16,7 @@ import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import styled, { css } from 'styled-components';
 import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
 import { ContextMenuContext } from '../../../context/contextMenu';
@@ -135,6 +136,7 @@ const StyledFSMState: React.FC<IReqorePanelProps> = styled(ReqorePanel)`
         `
       : css`
           min-width: 250px;
+          max-width: 350px !important;
         `}
 `;
 
@@ -256,7 +258,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   ...rest
 }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [_, drag] = useDrag({
+  const [_, drag, preview] = useDrag({
     type: STATE_ITEM_TYPE,
     item() {
       setIsDragging(true);
@@ -296,6 +298,10 @@ const FSMState: React.FC<IFSMStateProps> = ({
       }
     })();
   }, [selectedState]);
+
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true });
+  }, []);
 
   const handleClick = (e) => {
     e.stopPropagation();
@@ -342,6 +348,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
           ? 'success'
           : undefined
       }
+      style={{
+        opacity: isDragging ? 0 : 1,
+      }}
       //customTheme={{ main: getStateColor(getStateCategory(type)) }}
       contentEffect={
         {

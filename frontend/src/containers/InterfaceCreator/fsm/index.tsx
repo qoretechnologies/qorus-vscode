@@ -77,6 +77,7 @@ import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsCo
 import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
 import withMessageHandler, { postMessage } from '../../../hocomponents/withMessageHandler';
 import TinyGrid from '../../../images/graphy-dark.png';
+import { CustomDragLayer } from './customDragLayer';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMInitialOrderDialog from './initialOrderDialog';
 import FSMState from './state';
@@ -429,7 +430,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     drop: (item: IDraggableItem, monitor) => {
       if (item.type === TOOLBAR_ITEM_TYPE) {
         const diagram = document.getElementById('fsm-diagram')!.getBoundingClientRect();
-
         let { x, y } = monitor.getClientOffset();
 
         x =
@@ -1825,6 +1825,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   return (
     <>
+      <CustomDragLayer zoom={zoom} states={states} />
       {!compatibilityChecked && (
         <StyledCompatibilityLoader>
           <Loader text={t('CheckingCompatibility')} />

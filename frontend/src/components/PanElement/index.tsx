@@ -237,7 +237,7 @@ export class ElementPan extends React.Component<
   }
 
   public componentWillUnmount() {
-    window.removeEventListener('wheel', this.onWheel);
+    document.getElementById('fsm-diagram').removeEventListener('wheel', this.onWheel);
   }
 
   init = () => {
@@ -253,7 +253,7 @@ export class ElementPan extends React.Component<
       state.scrollY = this.el.scrollTop;
     }
 
-    window.addEventListener('wheel', this.onWheel);
+    document.getElementById('fsm-diagram').addEventListener('wheel', this.onWheel);
 
     this.setState(state);
   };
