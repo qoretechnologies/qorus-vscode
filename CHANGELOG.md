@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 4.1.0
+
+! Important ! - Some features of this release require Qorus 6.0.3 or later to be installed on the server.
+
+#### New features
+
+- Variables in FSMS - Variables in FSMs can be declared which allows Qorus developers to restrict the data type of values that can be assigned to of the variable. When a variable is declared as type `data-provider`, then the variable will be instantiated when referenced according to the configuration provided in the IDE, and the variable will be persistent until it goes out of scope. Variable action states can be created from `data-provider` variables as well, that allow actions to be executed on the data provider. Because these variables are persistent, and because `data-provider` variables normally represent a connection to a server or network service, this allows Qorus users to implement actions on a persistent object or connection in FSMs such as transaction management or connection-oriented actions that require persistence to work properly.
+- Data providers now support Favorites - save any data provider you frequently use to your favorites and access them quickly from the Favorites button in the data provider browser
+- Flow Builder (FSM) now supports zooming in and out of the diagram! See the new zoom controls in the top right corner of the diagram.
+- Template values are now fetched from the Qorus server and provide descriptions for each value. This makes it easier to understand what each value is for
+- New Transaction block added to FSMs. This block allows you to group multiple states into a single transaction. This is useful for example when you want to perform complex manipulations on records in a record-based data provider (such as a database, for example) in a single transaction. If any of the states in the transaction fail, the transaction will be automatically rolled back, while if the transaction block exits with no errors, the transaction is automatically committed.
+- Event based data providers are now supported for services, including automatic variables for events with FSMs associated to them
+
+#### Bug fixes
+
+- Fixed a bug that caused the config item button in Connector states in Flow Builder to always show 0
+- Many other small bug fixes and QOL improvements
+
 ## Version 4.0.6
 
 - New send message state: Added the ability to use the message-based integration pattern to send messages from no-code flows / finite state machines

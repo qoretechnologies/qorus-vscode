@@ -1,0 +1,25 @@
+# This is a generated file, don't edit!
+type: fsm
+name: asg
+desc: asg
+states:
+    '1':
+        position:
+            x: 258
+            'y': 172.5
+        initial: false
+        name: State 1
+        desc: ''
+        type: state
+        id: mCoUgE-7J
+        action:
+            type: connector
+            value:
+                class: ConfigItems
+                connector: Connector1
+        config-items:
+          - name: CFG
+            parent:
+                interface-type: class
+                interface-name: ConfigItems
+                interface-version: '1'

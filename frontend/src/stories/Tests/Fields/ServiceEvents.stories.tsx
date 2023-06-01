@@ -1,20 +1,20 @@
 import { expect } from '@storybook/jest';
 import { Meta, StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
-import { IServiceEventList, ServiceEventListField } from '../../components/Field/serviceEvents';
-import serviceEvents from '../Data/serviceEvents.json';
-import { Event } from '../Fields/DataProvider/Provider.stories';
-import { SwitchesToBuilder } from './FSM/Basic.stories';
+import { IServiceEventList, ServiceEventListField } from '../../../components/Field/serviceEvents';
+import serviceEvents from '../../Data/serviceEvents.json';
+import { Event } from '../../Fields/DataProvider/Provider.stories';
+import { SwitchesToBuilder } from '../FSM/Basic.stories';
 import {
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
   _testsSubmitFSMState,
   sleep,
-} from './utils';
+} from '../utils';
 
 const meta = {
   component: ServiceEventListField,
-  title: 'Tests/Service Events',
+  title: 'Tests/Fields/Service Events',
   parameters: {
     chromatic: {
       disableSnapshot: true,
@@ -33,19 +33,17 @@ export const CreateNew: StoryObj<typeof meta> = {
 
     await sleep(1000);
 
-    await waitFor(
-      _testsSelectItemFromCollection(canvas, 'ws-data-event', 'Select from available events')
-    );
+    await _testsSelectItemFromCollection(canvas, 'ws-data-event', 'Select from available events')();
 
     await fireEvent.click(document.querySelectorAll('.reqore-checkbox')[1]);
 
-    await waitFor(_testsSelectItemFromDropdown(canvas, 'Test FSM 1'));
+    await sleep(1000);
+
+    await _testsSelectItemFromDropdown(canvas, 'Test FSM 1')();
 
     await sleep(1000);
 
-    await waitFor(
-      _testsSelectItemFromCollection(canvas, 'ws-pong-event', 'Select from available events')
-    );
+    await _testsSelectItemFromCollection(canvas, 'ws-pong-event', 'Select from available events')();
 
     await fireEvent.click(document.querySelector('.service-event-add-new'));
 
@@ -65,14 +63,14 @@ export const ModifyExisting: StoryObj<typeof meta> = {
       () => {
         expect(document.querySelectorAll('.reqore-checkbox').length).toBe(6);
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
 
     await expect(document.querySelectorAll('.service-event-handler').length).toBe(3);
 
     await fireEvent.click(document.querySelectorAll('.reqore-checkbox')[3]);
 
-    await sleep(2500);
+    await sleep(500);
 
     await _testsSelectItemFromDropdown(canvas, 'Test FSM 1')();
 

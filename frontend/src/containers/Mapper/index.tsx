@@ -8,7 +8,7 @@ import {
 } from '@qoretechnologies/reqore';
 import { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreControlGroupProps } from '@qoretechnologies/reqore/dist/components/ControlGroup';
-import { find, isEqual } from 'lodash';
+import { find } from 'lodash';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
@@ -18,18 +18,13 @@ import React, { useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import styled, { css } from 'styled-components';
 import { TTranslator } from '../../App';
-import {
-  getUrlFromProvider as getRealUrlFromProvider,
-  IProviderType,
-} from '../../components/Field/connectors';
+import Connectors, { IProviderType } from '../../components/Field/connectors';
 import {
   NegativeColorEffect,
   PositiveColorEffect,
   SaveColorEffect,
 } from '../../components/Field/multiPair';
-import Options from '../../components/Field/systemOptions';
 import { IField } from '../../components/FieldWrapper';
-import SubField from '../../components/SubField';
 import { Messages } from '../../constants/messages';
 import { deleteDraft, getDraftId } from '../../helpers/functions';
 import {
@@ -43,7 +38,6 @@ import MapperInput from './input';
 import MappingModal, { getKeyType } from './mappingModal';
 import MapperFieldModal from './modal';
 import MapperOutput from './output';
-import Provider from './provider';
 
 import compose from 'recompose/compose';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
@@ -218,8 +212,8 @@ export interface IMapperCreatorProps {
   setMapperKeys: (keys: any) => void;
   mapperKeys: any;
   methods: any[];
-  inputOptionProvider: { optionKey: string; optionUrl: string };
-  outputOptionProvider: { optionKey: string; optionUrl: string };
+  inputOptionProvider: IProviderType;
+  outputOptionProvider: IProviderType;
   setInputOptionProvider: any;
   setOutputOptionProvider: any;
   isEditing?: boolean;
@@ -395,32 +389,35 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     });
   };
 
-  const removeRelation: (outputPath: string, usesContext?: boolean, isInputHash?: boolean) => void =
-    (outputPath, usesContext, isInputHash) => {
-      if (inputsError || outputsError) {
-        return;
-      }
-      // Remove the selected relation
-      // @ts-ignore
-      setRelations((current: any): any =>
-        reduce(
-          current,
-          (newRelations, rel: any, relationOutput): boolean => {
-            if (relationOutput === outputPath) {
-              return {
-                ...newRelations,
-                [relationOutput]: omit(
-                  rel,
-                  usesContext ? ['context'] : isInputHash ? ['use_input_record'] : ['name']
-                ),
-              };
-            }
-            return { ...newRelations, [relationOutput]: rel };
-          },
-          {}
-        )
-      );
-    };
+  const removeRelation: (
+    outputPath: string,
+    usesContext?: boolean,
+    isInputHash?: boolean
+  ) => void = (outputPath, usesContext, isInputHash) => {
+    if (inputsError || outputsError) {
+      return;
+    }
+    // Remove the selected relation
+    // @ts-ignore
+    setRelations((current: any): any =>
+      reduce(
+        current,
+        (newRelations, rel: any, relationOutput): boolean => {
+          if (relationOutput === outputPath) {
+            return {
+              ...newRelations,
+              [relationOutput]: omit(
+                rel,
+                usesContext ? ['context'] : isInputHash ? ['use_input_record'] : ['name']
+              ),
+            };
+          }
+          return { ...newRelations, [relationOutput]: rel };
+        },
+        {}
+      )
+    );
+  };
 
   const removeFieldRelations: (path: string, type: string) => void = (path, type) => {
     // Remove the selected relation
@@ -889,102 +886,34 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         <div style={{ display: 'flex' }}>
           {!hideInputSelector && (
             <div style={{ width: '50%' }}>
-              <Provider
-                type="inputs"
-                title={t('InputProvider')}
-                provider={inputProvider}
-                setProvider={(provider) => {
-                  setInputOptionProvider(null);
-                  setInputProvider(provider);
+              <Connectors
+                title={t('Input fields')}
+                providerType="inputs"
+                value={inputOptionProvider}
+                onChange={(_name, provider) => {
+                  setInputOptionProvider(provider);
                 }}
                 record={inputRecord}
                 setRecord={setInputRecord}
-                nodes={inputChildren}
-                setChildren={setInputChildren}
-                isLoading={inputsLoading}
-                setIsLoading={setInputsLoading}
                 setFields={setInputs}
-                clear={clearInputs}
-                setOptionProvider={setInputOptionProvider}
                 hide={() => setHideInputSelector(true)}
-                canSelectNull
-                compact
-                optionsChanged={inputOptionProvider?.optionsChanged}
-                options={inputOptionProvider?.options}
               />
-              {inputProvider === 'factory' && inputOptionProvider ? (
-                <SubField title={t('FactoryOptions')}>
-                  <Options
-                    onChange={(nm, val) => {
-                      setInputOptionProvider((cur: IProviderType | null) => {
-                        const result: IProviderType = {
-                          ...cur,
-                          options: val,
-                        } as IProviderType;
-
-                        if (!isEqual(inputOptionProvider.options, val)) {
-                          result.optionsChanged = true;
-                        }
-
-                        return result;
-                      });
-                    }}
-                    name="options"
-                    value={inputOptionProvider.options}
-                    customUrl={`${getRealUrlFromProvider(inputOptionProvider, true)}`}
-                  />
-                </SubField>
-              ) : null}
             </div>
           )}
           {!hideOutputSelector && (
             <div style={{ width: '50%' }}>
-              <Provider
-                type="outputs"
-                title={t('OutputProvider')}
-                provider={outputProvider}
-                setProvider={(provider) => {
-                  setOutputOptionProvider(null);
-                  setOutputProvider(provider);
+              <Connectors
+                title={t('Output fields')}
+                providerType="outputs"
+                value={outputOptionProvider}
+                onChange={(_name, provider) => {
+                  setOutputOptionProvider(provider);
                 }}
                 record={outputRecord}
                 setRecord={setOutputRecord}
-                nodes={outputChildren}
-                setChildren={setOutputChildren}
-                isLoading={outputsLoading}
-                setIsLoading={setOutputsLoading}
                 setFields={setOutputs}
-                clear={clearOutputs}
-                setMapperKeys={setMapperKeys}
-                setOptionProvider={setOutputOptionProvider}
                 hide={() => setHideOutputSelector(true)}
-                compact
-                options={outputOptionProvider?.options}
-                optionsChanged={outputOptionProvider?.optionsChanged}
               />
-              {outputProvider === 'factory' && outputOptionProvider ? (
-                <SubField title={t('FactoryOptions')}>
-                  <Options
-                    onChange={(nm, val) => {
-                      setOutputOptionProvider((cur: IProviderType | null) => {
-                        const result: IProviderType = {
-                          ...cur,
-                          options: val,
-                        } as IProviderType;
-
-                        if (!isEqual(outputOptionProvider.options, val)) {
-                          result.optionsChanged = true;
-                        }
-
-                        return result;
-                      });
-                    }}
-                    name="options"
-                    value={outputOptionProvider.options}
-                    customUrl={`${getRealUrlFromProvider(outputOptionProvider, true)}`}
-                  />
-                </SubField>
-              ) : null}
             </div>
           )}
         </div>
@@ -1305,7 +1234,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                     />
                   ))
                 : null}
-              {!outputsError && size(flattenedOutputs) === 0 ? (
+              {!outputsError &&
+              size(flattenedOutputs) === 0 &&
+              !(hideOutputSelector && outputOptionProvider?.can_manage_fields) ? (
                 <ReqorePanel intent="warning">{t('MapperNoOutputFields')}</ReqorePanel>
               ) : null}
               {!outputsError && hideOutputSelector && outputOptionProvider?.can_manage_fields && (

@@ -16,13 +16,13 @@ module.exports = {
   typescript: { reactDocgen: 'react-docgen' },
   env: (config) => ({
     ...config,
-    NODE_ENV: 'test',
+    NODE_ENV: 'storybook',
     BROWSER: 'chrome',
   }),
-  refs: {
-    reqore: {
-      title: 'ReQore',
-      url: 'https://reqore.qoretechnologies.com/',
-    },
-  },
+  // refs: {
+  //   reqore: {
+  //     title: 'ReQore',
+  //     url: 'https://reqore.qoretechnologies.com/',
+  //   },
+  // },
 };

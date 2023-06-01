@@ -10,12 +10,14 @@ export interface IProviderMessageSelectorProps {
   url: string;
   onChange: (value: string) => void;
   value?: string;
+  readOnly?: boolean;
 }
 
 export const ProviderMessageSelector = ({
   url,
   onChange,
   value,
+  readOnly,
 }: IProviderMessageSelectorProps) => {
   const { fetchData, qorus_instance }: any = useContext(InitialContext);
 
@@ -58,6 +60,7 @@ export const ProviderMessageSelector = ({
       defaultItems={map(messages, (data, key) => ({ name: key, desc: data.desc }))}
       onChange={(_name, value) => onChange(value)}
       value={value}
+      disabled={readOnly}
     />
   );
 };

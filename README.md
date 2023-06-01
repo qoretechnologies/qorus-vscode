@@ -10,44 +10,18 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools extension enables creating, editing, and extending reusable IT and AI building blocks for advanced automation challenges.
 
-## Version 4.0.6
-
-- New send message state: Added the ability to use the message-based integration pattern to send messages from no-code flows / finite state machines
-
-## Version 4.0.5
-
-- Fixed a bug where the selecting a table in a Create State action would crash the webview
-
-## Version 4.0.4
-
-- General improvements and bug fixes.
-
-## Version 4.0.3
+## Version 4.1.0
 
 #### New features
 
-- Relevant inputs now have either auto-focus or are focused when the user starts typing automatically (such inputs are indicated by a keyboard icon on the right side of the input) #1157
-- Tidied up more fields and put them in their respective groups so that the interface is even more readable
+! Important ! - Some features of this release require Qorus 6.0.3 or later to be installed on the server.
 
-#### Bug fixes
-
-- Drafts can now be properly deleted inside the WebView using the delete butto n#1154
-- Fixed a layout issue with pipeline descriptions #1153
-- Only showing event triggers for FSMs in services #1013
-- Pipeline element processor tooltip shows the original description after a change #1155
-- When comparing of type call fails, the IDE now properly treats those types as compatible #1137
-- Output field dialogue now provides the key description in a tooltip #1057
-- Fixed FSM state descriptions in the state selector #1160
-- Fixed a bug that did not show the description when hovering config item name #1163
-- Fixed a bug where the `remove` control on the FSM trigger item wouldn't work. Closes #1164
-- It is no longer possible to select 2 same triggers for one FSM
-
-## Version 4.0.0
-
-- The WebView has been redesigned to use the new in-house UI library and to be more responsive, faster and overall more pleasant to use
-- The WebView now supports dark mode, light mode or your current theme mode
-
-- !IMPORTANT - the extension now requires Qorus 6.0.0 or newer
+- Variables in FSMS - Variables in FSMs can be declared which allows Qorus developers to restrict the data type of values that can be assigned to of the variable. When a variable is declared as type `data-provider`, then the variable will be instantiated when referenced according to the configuration provided in the IDE, and the variable will be persistent until it goes out of scope. Variable action states can be created from `data-provider` variables as well, that allow actions to be executed on the data provider. Because these variables are persistent, and because `data-provider` variables normally represent a connection to a server or network service, this allows Qorus users to implement actions on a persistent object or connection in FSMs such as transaction management or connection-oriented actions that require persistence to work properly.
+- Data providers now support Favorites - save any data provider you frequently use to your favorites and access them quickly from the Favorites button in the data provider browser
+- Flow Builder (FSM) now supports zooming in and out of the diagram! See the new zoom controls in the top right corner of the diagram.
+- Template values are now fetched from the Qorus server and provide descriptions for each value. This makes it easier to understand what each value is for
+- New Transaction block added to FSMs. This block allows you to group multiple states into a single transaction. This is useful for example when you want to perform complex manipulations on records in a record-based data provider (such as a database, for example) in a single transaction. If any of the states in the transaction fail, the transaction will be automatically rolled back, while if the transaction block exits with no errors, the transaction is automatically committed.
+- Event based data providers are now supported for services, including automatic variables for events with FSMs associated to them
 
 ## Main Features
 

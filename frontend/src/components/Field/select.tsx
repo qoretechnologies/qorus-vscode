@@ -404,6 +404,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                 fluid
                 key={value}
                 wrap
+                icon={icon}
                 rightIcon="ListUnordered"
                 onClick={() => setSelectDialogOpen(true)}
                 description={
@@ -458,6 +459,12 @@ const SelectField: React.FC<ISelectField & IField> = ({
                   itemsPerPage: 20,
                   infinite: true,
                   includeBottomControls: false,
+                }}
+                wrapperProps={{
+                  className: 'q-select-popup',
+                }}
+                inputProps={{
+                  className: 'q-select-input',
                 }}
                 description={getItemDescription(value) || description}
                 effect={{

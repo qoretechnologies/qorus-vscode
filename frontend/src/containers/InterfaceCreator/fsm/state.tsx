@@ -16,6 +16,7 @@ import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import styled, { css } from 'styled-components';
 import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
 import { ContextMenuContext } from '../../../context/contextMenu';
@@ -43,6 +44,7 @@ export interface IFSMStateProps extends IFSMState {
   isIsolated: boolean;
   category: TStateTypes;
   hasTransitionToItself?: boolean;
+  zoom?: number;
 }
 
 export interface IFSMStateStyleProps {
@@ -134,6 +136,7 @@ const StyledFSMState: React.FC<IReqorePanelProps> = styled(ReqorePanel)`
         `
       : css`
           min-width: 250px;
+          max-width: 350px !important;
         `}
 `;
 
@@ -251,10 +254,11 @@ const FSMState: React.FC<IFSMStateProps> = ({
   activateState,
   error,
   isStatic,
+  zoom,
   ...rest
 }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [_, drag] = useDrag({
+  const [_, drag, preview] = useDrag({
     type: STATE_ITEM_TYPE,
     item() {
       setIsDragging(true);
@@ -294,6 +298,10 @@ const FSMState: React.FC<IFSMStateProps> = ({
       }
     })();
   }, [selectedState]);
+
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true });
+  }, []);
 
   const handleClick = (e) => {
     e.stopPropagation();
@@ -340,6 +348,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
           ? 'success'
           : undefined
       }
+      style={{
+        opacity: isDragging ? 0 : undefined,
+      }}
       //customTheme={{ main: getStateColor(getStateCategory(type)) }}
       contentEffect={
         {
@@ -367,59 +378,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
       onClick={isLoadingCheck ? undefined : handleClick}
       selected={selected}
       size="small"
-      tooltip={
-        inputType && outputType
-          ? {
-              title: name,
-              delay: 200,
-              icon: 'InformationFill',
-              content: (
-                <React.Fragment key={Date.now()}>
-                  {desc || 'This state has no description'}
-                  {size(inputType) ? (
-                    <>
-                      <ReqoreVerticalSpacer height={10} />
-                      <ReqorePanel
-                        label="Input type"
-                        badge={[
-                          inputType.name,
-                          { labelKey: 'Fields', label: size(inputType.fields) },
-                        ]}
-                        size="small"
-                      >
-                        {inputType.desc}
-                      </ReqorePanel>
-                    </>
-                  ) : null}
-
-                  {size(outputType) ? (
-                    <>
-                      <ReqoreVerticalSpacer height={5} />
-                      <ReqorePanel
-                        label="Output type"
-                        badge={[
-                          outputType.name,
-                          { labelKey: 'Fields', label: size(outputType.fields) },
-                        ]}
-                        size="small"
-                      >
-                        {outputType.desc}
-                      </ReqorePanel>
-                    </>
-                  ) : null}
-                  {size(outputType) || size(inputType) ? (
-                    <>
-                      <ReqoreVerticalSpacer height={5} />
-                      <ReqoreMessage minimal flat intent="info" size="small">
-                        Click the state for even more information
-                      </ReqoreMessage>
-                    </>
-                  ) : null}
-                </React.Fragment>
-              ),
-            }
-          : 'Loading type information...'
-      }
       onMouseDown={(e) => e.stopPropagation()}
       iconProps={{ size: '25px', animation: isLoadingCheck ? 'spin' : undefined }}
       onMouseEnter={onMouseEnter}
@@ -446,6 +404,64 @@ const FSMState: React.FC<IFSMStateProps> = ({
         },
         {
           group: [
+            {
+              icon: 'InformationFill',
+              minimal: true,
+              flat: true,
+              size: 'small',
+              tooltip:
+                inputType && outputType && zoom === 100
+                  ? {
+                      title: name,
+                      delay: 200,
+                      icon: 'InformationFill',
+                      content: (
+                        <React.Fragment key={Date.now()}>
+                          {desc || 'This state has no description'}
+                          {size(inputType) ? (
+                            <>
+                              <ReqoreVerticalSpacer height={10} />
+                              <ReqorePanel
+                                label="Input type"
+                                badge={[
+                                  inputType.name,
+                                  { labelKey: 'Fields', label: size(inputType.fields) },
+                                ]}
+                                size="small"
+                              >
+                                {inputType.desc}
+                              </ReqorePanel>
+                            </>
+                          ) : null}
+
+                          {size(outputType) ? (
+                            <>
+                              <ReqoreVerticalSpacer height={5} />
+                              <ReqorePanel
+                                label="Output type"
+                                badge={[
+                                  outputType.name,
+                                  { labelKey: 'Fields', label: size(outputType.fields) },
+                                ]}
+                                size="small"
+                              >
+                                {outputType.desc}
+                              </ReqorePanel>
+                            </>
+                          ) : null}
+                          {size(outputType) || size(inputType) ? (
+                            <>
+                              <ReqoreVerticalSpacer height={5} />
+                              <ReqoreMessage minimal flat intent="info" size="small">
+                                Click the state for even more information
+                              </ReqoreMessage>
+                            </>
+                          ) : null}
+                        </React.Fragment>
+                      ),
+                    }
+                  : 'Loading type information...',
+            },
             {
               icon: 'Edit2Line' as IReqoreIconName,
               disabled: type === 'block' && !qorus_instance,

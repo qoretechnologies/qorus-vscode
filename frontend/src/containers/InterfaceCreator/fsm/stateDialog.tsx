@@ -376,6 +376,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     'search-single_args': searchSingleArgs,
                     args,
                     create_args,
+                    create_args_freeform,
                     is_api_call,
                     message,
                     search_args,
@@ -399,6 +400,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                         message,
                         search_args,
                         search_options,
+                        create_args_freeform,
                         update_args,
                         delete_args,
                         use_args,
@@ -686,6 +688,11 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             props: {
               type: 'fsm',
               onClick: () => setShowConfigItemsManager(true),
+              state_data: {
+                id: newData.id,
+                class_name: newData.action?.value?.['class'],
+              },
+              iface_id: interfaceId,
             },
             show: !!newData.action?.value?.['class'],
           },

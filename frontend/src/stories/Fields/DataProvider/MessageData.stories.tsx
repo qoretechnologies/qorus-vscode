@@ -14,3 +14,11 @@ export const Basic: StoryObj<typeof meta> = {
     messageId: 'raw',
   },
 };
+
+export const ReadOnly: StoryObj<typeof meta> = {
+  args: {
+    readOnly: true,
+    url: '/dataprovider/factories/wsclient/provider?provider_yaml_options={url=d3NzOi8vc2FuZGJveDpzYW5kYm94QHNhbmRib3gucW9yZXRlY2hub2xvZ2llcy5jb20vYXBpZXZlbnRz}',
+    messageId: 'raw',
+  },
+};

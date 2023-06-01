@@ -5,6 +5,7 @@ import map from 'lodash/map';
 import useMount from 'react-use/lib/useMount';
 import ResizeObserver from 'resize-observer-polyfill';
 import styled, { css } from 'styled-components';
+import { calculateValueWithZoom } from '..';
 import { getStateCategory, getStateColor } from '../../../containers/InterfaceCreator/fsm/state';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 
@@ -13,13 +14,14 @@ const StyledMinimapWrapper = styled.div<{ show: boolean }>`
   height: ${({ show }) => (show ? '200px' : '0px')};
   transition: height 0.2s ease-in-out;
   position: relative;
+  z-index: 100;
   cursor: no-drop;
 `;
 
-const StyledMinimapView = styled.div<{ height: number; width: number }>`
-  ${({ width, height }) => css`
-    width: ${width / 20}px;
-    height: ${height / 20}px;
+const StyledMinimapView = styled.div<{ height: number; width: number; zoom: number }>`
+  ${({ width, height, zoom }) => css`
+    width: ${calculateValueWithZoom(width, zoom) / 20}px;
+    height: ${calculateValueWithZoom(height, zoom) / 20}px;
     box-shadow: inset 1px 1px 0 0 #277fba, inset -1px -1px 0 0 #277fba,
       inset 1px 1px 3px -1px #277fba, inset -1px -1px 3px -1px #277fba;
     position: absolute;
@@ -38,19 +40,18 @@ const StyledMinimapView = styled.div<{ height: number; width: number }>`
 `;
 
 export interface IFSMMinimapProps {
-  width: number;
-  height: number;
   x: number;
   y: number;
   items?: { y: number; x: number }[];
   onDrag: (x: number, y: number) => void;
   show: boolean;
   panElementId: string;
+  zoom: number;
 }
 
 const staticPosition = { x: null, y: null };
 
-const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panElementId }) => {
+const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panElementId, zoom }) => {
   const viewRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ x: number; y: number }>({ x, y });
   const [wrapperSize, setWrapperSize] = useState<{ width: number; height: number }>({
@@ -65,16 +66,7 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panEle
           return;
         }
 
-        const el = document.querySelector(`#panElement${panElementId}`);
-
-        if (el) {
-          const { width, height } = el.getBoundingClientRect();
-
-          setWrapperSize({
-            width,
-            height,
-          });
-        }
+        adjustWrapperSize();
       });
     });
 
@@ -89,10 +81,30 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panEle
   });
 
   useEffect(() => {
-    setPosition({ x: x / 20, y: y / 20 });
-    staticPosition.x = x / 20;
-    staticPosition.y = y / 20;
-  }, [x, y]);
+    adjustWrapperSize();
+  }, [zoom]);
+
+  const adjustWrapperSize = () => {
+    const el = document.querySelector(`#panElement${panElementId}`);
+
+    if (el) {
+      let { width, height } = el.getBoundingClientRect();
+
+      setWrapperSize({
+        width,
+        height,
+      });
+    }
+  };
+
+  useEffect(() => {
+    const modifiedX = calculateValueWithZoom(x, zoom) / 20;
+    const modifiedY = calculateValueWithZoom(y, zoom) / 20;
+
+    setPosition({ x: modifiedX, y: modifiedY });
+    staticPosition.x = modifiedX;
+    staticPosition.y = modifiedY;
+  }, [x, y, zoom]);
 
   const onDragStart = (e) => {
     e.persist();
@@ -106,8 +118,8 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panEle
   const onDragMove = (e) => {
     const { width: viewWidth, height: viewHeight } = viewRef.current.getBoundingClientRect();
 
-    staticPosition.x += e.movementX;
-    staticPosition.y += e.movementY;
+    staticPosition.x += calculateValueWithZoom(e.movementX, zoom);
+    staticPosition.y += calculateValueWithZoom(e.movementY, zoom);
 
     if (staticPosition.x < 0) {
       staticPosition.x = 0;
@@ -142,7 +154,7 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panEle
 
   const renderMinimapItem = (item, index) => {
     const { x, y } = item;
-    const { width, height } = getStateBoundingRect(item.id);
+    let { width, height } = getStateBoundingRect(item.id);
 
     return (
       <ReqoreEffect
@@ -170,6 +182,7 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panEle
           <StyledMinimapView
             width={wrapperSize.width}
             height={wrapperSize.height}
+            zoom={zoom}
             style={{
               top: `${position.y}px`,
               left: `${position.x}px`,
