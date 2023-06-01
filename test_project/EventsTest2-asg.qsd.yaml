@@ -1,0 +1,46 @@
+# This is a generated file, don't edit!
+type: service
+name: EventsTest2
+desc: asg
+lang: python
+base-class-name: QorusService
+class-name: EventsTest2
+version: asg
+event-handlers:
+    [
+        {
+            "type": "factory",
+            "name": "wsclient",
+            "transaction_management": false,
+            "path": "",
+            "options": {
+                "url": {
+                    "type": "string",
+                    "value": "test"
+                }
+            },
+            "optionsChanged": false,
+            "supports_request": false,
+            "supports_read": false,
+            "supports_update": false,
+            "supports_create": false,
+            "supports_delete": false,
+            "supports_messages": "ASYNC",
+            "supports_observable": true,
+            "record_requires_search_options": false,
+            "descriptions": [
+                "WebSocket client to URL \"ws://test/\""
+            ],
+            "handlers": {
+                "ws-closed-event": {
+                    "type": "method",
+                    "value": "init"
+                }
+            }
+        }
+    ]
+servicetype: USER
+code: EventsTest2-asg.qsd.py
+methods:
+  - name: init
+    desc: init

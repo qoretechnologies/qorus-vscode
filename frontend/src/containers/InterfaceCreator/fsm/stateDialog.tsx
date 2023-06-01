@@ -1,13 +1,14 @@
-import { map } from 'lodash';
+import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import { camelCase, forEach, map, reduce } from 'lodash';
 import find from 'lodash/find';
 import size from 'lodash/size';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { useUnmount, useUpdateEffect } from 'react-use';
 import shortid from 'shortid';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
 import BooleanField from '../../../components/Field/boolean';
-import Connectors from '../../../components/Field/connectors';
+import Connectors, { IProviderType } from '../../../components/Field/connectors';
 import LongStringField from '../../../components/Field/longString';
 import {
   PositiveColorEffect,
@@ -15,7 +16,7 @@ import {
   WarningColorEffect,
 } from '../../../components/Field/multiPair';
 import RadioField from '../../../components/Field/radioField';
-import SelectField from '../../../components/Field/select';
+import { default as Select, default as SelectField } from '../../../components/Field/select';
 import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
 import FieldGroup from '../../../components/FieldGroup';
@@ -23,12 +24,20 @@ import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import { Messages } from '../../../constants/messages';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { getVariable, removeFSMState } from '../../../helpers/fsm';
 import { getMaxExecutionOrderFromStates } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
+import { useFetchAutoVarContext } from '../../../hooks/useFetchAutoVarContext';
 import ConfigItemManager from '../../ConfigItemManager';
 import ManageConfigItemsButton from '../../ConfigItemManager/manageButton';
-import FSMView, { IFSMState, IFSMStates } from './';
+import FSMView, {
+  IFSMMetadata,
+  IFSMState,
+  IFSMStates,
+  TFSMVariables,
+  TVariableActionValue,
+} from './';
 import ConnectorSelector from './connectorSelector';
 import { ConditionField, isConditionValid } from './transitionDialog';
 
@@ -43,6 +52,7 @@ export interface IFSMStateDialogProps {
   interfaceId: string;
   postMessage: TPostMessage;
   disableInitial?: boolean;
+  metadata?: IFSMMetadata;
 }
 
 export enum StateTypes {
@@ -56,6 +66,8 @@ export enum StateTypes {
   create = 'create',
   update = 'update',
   delete = 'delete',
+  'send-message' = 'send-message',
+  'var-action' = 'var-action',
 }
 
 export type TAction = keyof typeof StateTypes;
@@ -72,10 +84,13 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   interfaceId,
   postMessage,
   disableInitial,
+  metadata,
 }) => {
   const [newData, setNewData] = useState<IFSMState>(data);
   const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
-  const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>('custom');
+  const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>(
+    data.fsm ? 'fsm' : 'custom'
+  );
   const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
   const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -103,6 +118,11 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     }
   }, [newData.action?.value?.['class']]);
 
+  const autoVars = useFetchAutoVarContext(
+    newData['block-config']?.['data-provider']?.value,
+    'transaction-block'
+  );
+
   useUnmount(() => {
     if (data.isNew) {
       // If the name is empty and the original name was empty
@@ -118,6 +138,32 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   });
 
   const handleDataUpdate = (name: string, value: any) => {
+    if (name === 'metadata') {
+      // Remove the readonly global variables
+      const globalvar = reduce<TFSMVariables, TFSMVariables>(
+        value.globalvar,
+        (newGlobal, val, key): TFSMVariables => {
+          if (!val.readOnly) {
+            return {
+              ...newGlobal,
+              [key]: val,
+            };
+          }
+
+          return newGlobal;
+        },
+        {}
+      );
+
+      setNewData((cur) => ({
+        ...cur,
+        globalvar,
+        localvar: value?.localvar,
+      }));
+
+      return;
+    }
+
     setNewData((cur) => ({
       ...cur,
       [name]: value === 'none' ? null : value,
@@ -149,11 +195,24 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     validateField('string', name) &&
     !find(otherStates, (state: IFSMState): boolean => state.name === name);
 
+  const isBlockConfigValid = () => {
+    return (
+      size(newData['block-config']) === 0 ||
+      validateField('system-options', newData['block-config'])
+    );
+  };
   const isDataValid: () => boolean = () => {
+    if (autoVars.loading || (newData['block-type'] === 'transaction' && !size(autoVars.value))) {
+      return false;
+    }
+
     if (newData.type === 'block') {
       return (
         isNameValid(newData.name) &&
-        (blockLogicType === 'custom' ? size(newData.states) : validateField('string', newData.fsm))
+        isBlockConfigValid() &&
+        (blockLogicType === 'custom'
+          ? size(newData.states) !== 0
+          : validateField('string', newData.fsm))
       );
     }
 
@@ -188,12 +247,30 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       case 'apicall': {
         return validateField('api-call', newData?.action?.value);
       }
+      case 'send-message': {
+        return validateField('send-message', newData?.action?.value);
+      }
       case 'search':
       case 'delete':
       case 'update':
       case 'create':
       case 'search-single': {
         return validateField(actionType, newData?.action?.value);
+      }
+      case 'var-action': {
+        const currentValue = newData?.action?.value as TVariableActionValue;
+        // We need to get the value from the variable
+        const variableData: { value: IProviderType } = getVariable(
+          currentValue?.var_name,
+          currentValue?.var_type,
+          metadata
+        );
+
+        if (!variableData) {
+          return false;
+        }
+
+        return validateField('var-action', newData?.action?.value, { variableData });
       }
       default: {
         return true;
@@ -203,6 +280,164 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
   const renderActionField = () => {
     switch (actionType) {
+      case 'var-action': {
+        const currentValue = newData?.action?.value as TVariableActionValue;
+        const actionValueType = currentValue?.action_type;
+        // We need to get the value from the variable
+        const variableData: { value: IProviderType } = getVariable(
+          currentValue?.var_name,
+          currentValue?.var_type,
+          metadata
+        );
+        // We need to combine the variable value & the action value
+        const value = {
+          ...variableData.value,
+          ...currentValue,
+        };
+
+        const getActionValueTypeItems = () => {
+          const items = [];
+
+          if (value.supports_read) {
+            items.push({ name: 'search' });
+            items.push({ name: 'search-single' });
+          }
+
+          if (value.supports_create) {
+            items.push({ name: 'create' });
+          }
+
+          if (value.supports_update) {
+            items.push({ name: 'update' });
+          }
+
+          if (value.supports_delete) {
+            items.push({ name: 'delete' });
+          }
+
+          if (value.supports_messages) {
+            items.push({ name: 'send-message' });
+          }
+
+          if (value.supports_request) {
+            items.push({ name: 'apicall' });
+          }
+
+          if (value.transaction_management) {
+            items.push({ name: 'transaction' });
+          }
+
+          return items;
+        };
+
+        return (
+          <>
+            <Select
+              value={actionValueType}
+              fluid
+              description="The action to perform on the variable"
+              defaultItems={getActionValueTypeItems()}
+              className="fsm-action-type-selector"
+              onChange={(_name, value) =>
+                handleDataUpdate('action', {
+                  type: actionType,
+                  value: { ...currentValue, action_type: value },
+                })
+              }
+            />
+            <ReqoreVerticalSpacer height={10} />
+
+            {actionValueType ? (
+              <Connectors
+                name={actionValueType}
+                // If the VARIABLE itself has search options, we need to disable the search options
+                // so the user can't change them
+                disableSearchOptions={!!variableData.value.search_options}
+                inline
+                minimal
+                isMessage={actionValueType === 'send-message'}
+                requiresRequest={actionValueType === 'apicall'}
+                key={actionValueType}
+                recordType={actionValueType}
+                isInitialEditing={!!data?.action?.value}
+                readOnly
+                info={
+                  <>
+                    <ReqoreMessage intent="info">
+                      This provider is read only because it is defined in a variable. You can edit
+                      the variable to change the provider configuration.
+                    </ReqoreMessage>
+                    <ReqoreVerticalSpacer height={10} />
+                  </>
+                }
+                onChange={(_name, providerValue: IProviderType) => {
+                  // We need to remove the duplicate data from the providerValue
+                  const {
+                    'search-single_args': searchSingleArgs,
+                    args,
+                    create_args,
+                    create_args_freeform,
+                    is_api_call,
+                    message,
+                    search_args,
+                    search_options,
+                    update_args,
+                    delete_args,
+                    use_args,
+                    message_id,
+                    options,
+                  } = providerValue;
+
+                  handleDataUpdate('action', {
+                    type: actionType,
+                    value: {
+                      ...currentValue,
+                      ...{
+                        'search-single_args': searchSingleArgs,
+                        args,
+                        create_args,
+                        is_api_call,
+                        message,
+                        search_args,
+                        search_options,
+                        create_args_freeform,
+                        update_args,
+                        delete_args,
+                        use_args,
+                        message_id,
+                        options,
+                      },
+                    },
+                  });
+                }}
+                value={value}
+              />
+            ) : null}
+            {actionValueType && actionValueType === 'transaction' ? (
+              <>
+                <ReqoreMessage intent="info">
+                  Please select the transaction action you want to perform
+                </ReqoreMessage>
+                <ReqoreVerticalSpacer height={10} />
+                <Select
+                  value={value?.transaction_action}
+                  defaultItems={[
+                    { name: 'begin-transaction', desc: 'Begin a transaction' },
+                    { name: 'commit', desc: 'Commit a transaction' },
+                    { name: 'rollback', desc: 'Rollback a transaction' },
+                  ]}
+                  onChange={(_name, value) =>
+                    handleDataUpdate('action', {
+                      type: actionType,
+                      value: { ...currentValue, transaction_action: value },
+                    })
+                  }
+                />
+              </>
+            ) : null}
+          </>
+        );
+      }
       case 'mapper': {
         return (
           <SelectField
@@ -215,6 +450,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               object_type: 'mapper',
               return_value: 'objects',
             }}
+            placeholder="Select or create a Mapper"
             onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
             value={newData?.action?.value}
             target_dir={target_dir}
@@ -285,6 +521,19 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           />
         );
       }
+      case 'send-message': {
+        return (
+          <Connectors
+            name="send-message"
+            inline
+            minimal
+            isMessage
+            isInitialEditing={!!data?.action?.value}
+            onChange={(_name, value) => handleDataUpdate('action', { type: 'send-message', value })}
+            value={newData?.action?.value}
+          />
+        );
+      }
       case 'search-single':
       case 'update':
       case 'delete':
@@ -316,6 +565,75 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     return isMetadataHidden && newData.type === 'block' && blockLogicType === 'custom';
   };
 
+  const buildVariables = useCallback(() => {
+    // We need to combine the variables from the metadata with the current
+    // variables, but the variables from metadata need to be readonly
+
+    const variables: {
+      globalvar?: TFSMVariables;
+      localvar?: TFSMVariables;
+      autovar?: TFSMVariables;
+    } = {};
+
+    if (metadata?.globalvar) {
+      variables.globalvar = reduce<TFSMVariables, TFSMVariables>(
+        metadata?.globalvar,
+        (newGlobal, item, variableName): TFSMVariables => ({
+          ...newGlobal,
+          [variableName]: {
+            ...item,
+            readOnly: true,
+          },
+        }),
+        {}
+      );
+    }
+
+    if (newData?.globalvar) {
+      variables.globalvar = {
+        ...variables.globalvar,
+        ...newData.globalvar,
+      };
+    }
+
+    if (newData?.localvar) {
+      variables.localvar = newData.localvar;
+    }
+
+    variables.autovar = autoVars.value;
+
+    // Check that for every state created from an autovar,
+    // if the autovar is still present
+    if (size(newData.states) && autoVars.loading === false) {
+      const statesToRemove = [];
+
+      forEach(newData.states, (state: IFSMState, id: string) => {
+        if (
+          state.action?.type === 'var-action' &&
+          (state.action?.value as TVariableActionValue)?.var_type === 'autovar' &&
+          !variables?.autovar?.[(state.action?.value as TVariableActionValue).var_name]
+        ) {
+          statesToRemove.push(id);
+        }
+      });
+
+      if (size(statesToRemove)) {
+        let newStates = newData.states;
+
+        statesToRemove.forEach((stateId) => {
+          newStates = removeFSMState(newStates, stateId, interfaceId);
+        });
+
+        setNewData({
+          ...newData,
+          states: newStates,
+        });
+      }
+    }
+
+    return variables;
+  }, [metadata.globalvar, newData.globalvar, newData.localvar, autoVars.value, newData.states]);
+
   return (
     <>
       <Content
@@ -329,9 +647,13 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             icon: 'CloseLine',
             onClick: () => {
               onClose();
-              deleteState(id, true);
+
+              if (newData.isNew) {
+                deleteState(id, true);
+              }
             },
             show: !isMetadataHidden,
+            className: 'fsm-state-dialog-cancel',
             responsive: false,
           },
           {
@@ -366,12 +688,21 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             props: {
               type: 'fsm',
               onClick: () => setShowConfigItemsManager(true),
+              state_data: {
+                id: newData.id,
+                class_name: newData.action?.value?.['class'],
+              },
+              iface_id: interfaceId,
             },
             show: !!newData.action?.value?.['class'],
           },
           {
             label: isCustomBlockFirstPage() ? t('Next') : t('Submit'),
-            disabled: isCustomBlockFirstPage() ? false : !isDataValid() || isLoading,
+            disabled: isCustomBlockFirstPage()
+              ? !isBlockConfigValid()
+              : !isDataValid() || isLoading,
+            className: isCustomBlockFirstPage() ? 'state-next-button' : 'state-submit-button',
+            id: `state-${camelCase(newData?.name)}-submit-button`,
             icon: 'CheckLine',
             effect: isLoading
               ? WarningColorEffect
@@ -407,6 +738,33 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
                 if (modifiedData.type === 'if' && !modifiedData['input-output-type']) {
                   delete modifiedData['input-output-type'];
+                }
+
+                if (!size(modifiedData['block-config'])) {
+                  delete modifiedData['block-config'];
+                }
+
+                modifiedData.globalvar = reduce<TFSMVariables, TFSMVariables>(
+                  modifiedData.globalvar,
+                  (newGlobal, val, key): TFSMVariables => {
+                    if (!val.readOnly) {
+                      return {
+                        ...newGlobal,
+                        [key]: val,
+                      };
+                    }
+
+                    return newGlobal;
+                  },
+                  {}
+                );
+
+                if (!size(modifiedData.globalvar)) {
+                  delete modifiedData.globalvar;
+                }
+
+                if (size(autoVars.value)) {
+                  modifiedData.autovar = autoVars.value;
                 }
 
                 onSubmit(id, modifiedData);
@@ -446,7 +804,12 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               )}
             </FieldWrapper>
             <FieldWrapper label={t('Description')} isValid compact>
-              <LongStringField name="desc" onChange={handleDataUpdate} value={newData.desc} />
+              <LongStringField
+                name="desc"
+                onChange={handleDataUpdate}
+                value={newData.desc}
+                id="state-description-field"
+              />
             </FieldWrapper>
             <FieldWrapper label={t('Type')} isValid compact>
               <SelectField
@@ -471,34 +834,44 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             </FieldWrapper>
           </FieldGroup>
           {newData.type === 'block' && (
-            <FieldGroup label="Block configuration">
-              <FieldWrapper label={t('field-label-block-logic')} isValid compact>
-                <RadioField
-                  name="block-logic"
-                  onChange={(_name, value) => {
-                    setBlockLogicType(value);
-                  }}
-                  value={blockLogicType}
-                  items={[{ value: 'custom' }, { value: 'fsm' }]}
-                />
-              </FieldWrapper>
-              <FieldWrapper label={t('field-label-block-type')} isValid compact>
-                <RadioField
-                  name="block-type"
-                  onChange={handleDataUpdate}
-                  value={newData?.['block-type'] || 'for'}
-                  items={[{ value: 'for' }, { value: 'foreach' }, { value: 'while' }]}
-                />
-              </FieldWrapper>
+            <>
+              <FieldGroup label="Block configuration">
+                <FieldWrapper label={t('field-label-block-logic')} isValid compact>
+                  <RadioField
+                    name="block-logic"
+                    onChange={(_name, value) => {
+                      setBlockLogicType(value);
+                    }}
+                    value={blockLogicType}
+                    items={[
+                      { value: 'custom', title: 'Inline Implementation' },
+                      { value: 'fsm', title: 'Use Existing FSM' },
+                    ]}
+                  />
+                </FieldWrapper>
+                <FieldWrapper label={t('field-label-block-type')} isValid compact>
+                  <RadioField
+                    name="block-type"
+                    onChange={handleDataUpdate}
+                    value={newData?.['block-type'] || 'for'}
+                    items={[
+                      { value: 'for' },
+                      { value: 'foreach' },
+                      { value: 'while' },
+                      { value: 'transaction' },
+                    ]}
+                  />
+                </FieldWrapper>
+              </FieldGroup>
               <FieldWrapper label={t('field-label-block-config')} isValid compact>
                 <Options
                   name="block-config"
                   onChange={handleDataUpdate}
-                  value={newData?.['block-config'] || {}}
+                  value={newData?.['block-config']}
                   url={`/block/${newData?.['block-type'] || 'for'}`}
                 />
               </FieldWrapper>
-            </FieldGroup>
+            </>
           )}
           {newData.type === 'block' && blockLogicType === 'fsm' ? (
             <FieldWrapper label={t('FSM')} isValid={validateField('string', newData?.fsm)}>
@@ -523,33 +896,39 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           ) : null}
           {newData.type === 'state' && (
             <>
-              <FieldWrapper
-                label={t('Action')}
-                isValid={isActionValid()}
-                type={t('Optional')}
-                collapsible={false}
-              >
-                <SelectField
-                  defaultItems={map(StateTypes, (stateType) =>
-                    stateType !== 'none'
-                      ? {
-                          name: stateType,
-                          desc: t(`field-desc-state-${stateType}`),
-                        }
-                      : null
-                  ).filter((stateType) => stateType)}
-                  fluid
-                  onChange={(_name, value) => {
-                    handleDataUpdate('action', value === data?.action?.type ? data?.action : null);
-                    handleDataUpdate('id', data.id || shortid.generate());
-                    setActionType(value);
-                  }}
-                  value={actionType}
-                  placeholder={t('field-placeholder-action')}
-                  disabled={newData.injected}
-                  name="action"
-                />
-              </FieldWrapper>
+              {data.action.type !== 'var-action' ? (
+                <FieldWrapper
+                  label={t('Action')}
+                  isValid={isActionValid()}
+                  type={t('Optional')}
+                  collapsible={false}
+                >
+                  <SelectField
+                    defaultItems={map(StateTypes, (stateType) =>
+                      stateType !== 'none'
+                        ? {
+                            name: stateType,
+                            desc: t(`field-desc-state-${stateType}`),
+                          }
+                        : null
+                    ).filter((stateType) => stateType)}
+                    fluid
+                    onChange={(_name, value) => {
+                      handleDataUpdate(
+                        'action',
+                        value === data?.action?.type ? data?.action : null
+                      );
+                      handleDataUpdate('id', data.id || shortid.generate());
+                      setActionType(value);
+                    }}
+                    value={actionType}
+                    placeholder={t('field-placeholder-action')}
+                    disabled={newData.injected}
+                    name="action"
+                  />
+                </FieldWrapper>
+              ) : null}
+              {}
               {actionType && actionType !== 'none' ? (
                 <FieldWrapper
                   isValid={isActionValid()}
@@ -561,7 +940,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               ) : null}
             </>
           )}
-          {newData.type === 'block' ? (
+          {newData.type === 'block' && newData['block-type'] !== 'transaction' ? (
             <FieldGroup label="Types">
               <FieldWrapper label={t('InputType')} isValid type={t('Optional')}>
                 <Connectors
@@ -610,6 +989,14 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             defaultInterfaceId={interfaceId}
             onStatesChange={(states) => {
               handleDataUpdate('states', states);
+            }}
+            metadata={buildVariables()}
+            setMetadata={(data) => {
+              if (typeof data === 'function') {
+                handleDataUpdate('metadata', data(newData));
+              } else {
+                handleDataUpdate('metadata', data);
+              }
             }}
           />
         ) : null}

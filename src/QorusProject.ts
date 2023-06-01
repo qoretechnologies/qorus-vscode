@@ -268,11 +268,8 @@ export class QorusProject {
   updateIncrementalConfigFromWebview(data) {
     this.validateConfigFileAndDo((configFile) => {
       const config = QorusProject.file2data(configFile);
-      console.log(config);
       const newConfig = { ...config, ...data };
-      console.log(config);
       const newConfigFile = this.data2file(newConfig);
-      console.log(config);
       this.writeConfig(newConfigFile);
     });
   }

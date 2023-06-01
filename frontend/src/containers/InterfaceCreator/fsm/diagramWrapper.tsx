@@ -8,6 +8,8 @@ export interface IFSMDiagramWrapperProps {
   setPan: (x: number, y: number) => void;
   children: any;
   zoom: number;
+  zoomIn: () => void;
+  zoomOut: () => void;
   setShowStateIds: (show: boolean) => void;
   showStateIds: boolean;
 }

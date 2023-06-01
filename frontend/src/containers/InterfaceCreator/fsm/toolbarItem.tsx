@@ -1,21 +1,36 @@
-import { ReqoreMenuItem, useReqoreTheme } from '@qoretechnologies/reqore';
+import { ReqoreMenuItem } from '@qoretechnologies/reqore';
+import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
-import { useContext } from 'react';
+import { camelCase } from 'lodash';
+import { useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import styled, { css } from 'styled-components';
 import { TOOLBAR_ITEM_TYPE } from '.';
-import { TextContext } from '../../../context/text';
-import { getStateColor, TStateTypes } from './state';
+import { TStateTypes, getStateColor } from './state';
 
 export interface IFSMToolbarItemProps {
   children: any;
   name: string;
+  stateName?: string;
   count?: number;
   type: string;
   disabled?: boolean;
-  onDoubleClick: (name: string, type: string, stateType: string) => any;
+  onDoubleClick: (
+    name: string,
+    type: string,
+    stateType: string,
+    varType?: 'globalvar' | 'localvar' | 'autovar',
+    varName?: string
+  ) => any;
   onDragStart: () => void;
   category: TStateTypes;
+  parentStateName?: string;
+  description?: string;
+  varType?: 'globalvar' | 'localvar' | 'autovar';
+  onEditClick?: () => any;
+  rightIcon?: IReqoreIconName;
+  readOnly?: boolean;
 }
 
 export const getStateStyle = (type, toolbar?: boolean) => {
@@ -137,31 +152,40 @@ export const FSMItemIconByType: Record<string, IReqoreIconName> = {
   mapper: 'FileTransferLine',
   pipeline: 'Database2Line',
   fsm: 'ShareLine',
-  block: 'NodeTree',
+  while: 'RepeatLine',
+  for: 'Repeat2Line',
+  foreach: 'RestartLine',
   connector: 'ExchangeLine',
   if: 'QuestionMark',
+  transaction: 'RecordCircleLine',
   apicall: 'ArrowLeftRightLine',
   'search-single': 'SearchLine',
   search: 'FileSearchLine',
   create: 'FolderAddLine',
   update: 'Edit2Line',
   delete: 'DeleteBin2Line',
+  'send-message': 'ChatUploadLine',
+  'var-action': 'CodeLine',
 };
 
 export const FSMItemDescByType: Record<string, string> = {
   mapper: 'Execute data transformations on the input data',
   pipeline: 'Execute a data pipeline',
   fsm: 'Execute a subflow',
-  block:
-    'Execute a for, foreach, or while loop (NOTE: consider splitting these into 3 different states)',
+  for: 'Execute a for loop',
+  foreach: 'Execute a foreach loop',
+  while: 'Execute a while loop',
   connector: 'Use a building block connector',
   if: 'Control the logical flow with an expression',
+  transaction: 'Execute a transaction',
   apicall: 'Execute an API call',
   'search-single': 'Search for one matching record in a data provider',
   search: 'Search for any matching records in a data provider',
   create: 'Create records in a data provider',
   update: 'Update records in a data provider',
   delete: 'Delete records in a data provider',
+  'send-message': 'Send a message to a channel',
+  'var-action': 'Action from a variable',
 };
 
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
@@ -173,35 +197,72 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({
   onDoubleClick,
   onDragStart,
   category,
+  parentStateName,
+  description,
+  stateName,
+  varType,
+  onEditClick,
+  readOnly,
+  rightIcon,
 }) => {
-  const t = useContext(TextContext);
-  const theme = useReqoreTheme();
-  const [, drag] = useDrag({
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragData, drag, preview] = useDrag({
     type: TOOLBAR_ITEM_TYPE,
     item: () => {
       onDragStart?.();
-
-      return { name, type: TOOLBAR_ITEM_TYPE, stateType: type };
+      setIsDragging(true);
+      return { name, type: TOOLBAR_ITEM_TYPE, stateType: type, varType, varName: stateName };
     },
-    previewOptions: {
-      anchorX: 0,
-      anchorY: 0,
+    end: () => {
+      setIsDragging(false);
     },
   });
 
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true });
+  }, []);
+
+  const getBadges = () => {
+    const badges: TReqoreBadge[] = [];
+
+    if (count !== 0) {
+      badges.push(count);
+    }
+
+    if (varType) {
+      badges.push({
+        label: varType,
+        effect: {
+          gradient: {
+            colors: {
+              0: '#28a89d',
+              100: '#053a55',
+            },
+          },
+        },
+      });
+    }
+
+    return badges;
+  };
+
   return (
     <ReqoreMenuItem
+      id={`${parentStateName ? camelCase(parentStateName) : ''}${type}${stateName || ''}`}
       ref={!disabled ? drag : undefined}
-      flat={false}
-      description={FSMItemDescByType[type]}
-      badge={count}
+      description={description || FSMItemDescByType[type]}
+      badge={getBadges()}
+      wrap={!!varType}
       icon={FSMItemIconByType[type]}
       effect={{
+        opacity: isDragging ? 0 : 1,
         gradient: getStateColor(category),
       }}
       onDoubleClick={() => {
-        onDoubleClick(name, TOOLBAR_ITEM_TYPE, type);
+        onDoubleClick(name, TOOLBAR_ITEM_TYPE, type, varType, stateName);
       }}
+      rightIcon={rightIcon}
+      onRightIconClick={onEditClick}
     >
       {children}
     </ReqoreMenuItem>

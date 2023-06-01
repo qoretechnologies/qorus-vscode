@@ -44,6 +44,7 @@ export interface ISelectField extends IField {
   target_dir?: string;
   forceDropdown?: boolean;
   context?: any;
+  className?: string;
 }
 
 export const StyledDialogSelectItem = styled.div`
@@ -126,6 +127,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
   asMenu,
   icon,
   filters,
+  className,
   ...rest
 }) => {
   const [items, setItems] = useState<{ name: string; desc?: string }[]>(defaultItems || []);
@@ -329,6 +331,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
           showSelectedFirst
           selectedIcon="CheckLine"
           fill
+          className="q-select-dialog"
           inputProps={{
             rightIcon: 'KeyboardFill',
             focusRules: {
@@ -401,6 +404,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                 fluid
                 key={value}
                 wrap
+                icon={icon}
                 rightIcon="ListUnordered"
                 onClick={() => setSelectDialogOpen(true)}
                 description={
@@ -424,6 +428,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                     colors: value ? 'info' : 'main',
                   },
                 }}
+                className={className}
               >
                 {value ? value : placeholder || t('PleaseSelect')}
               </ReqoreButton>
@@ -433,6 +438,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                   <ReqoreMenuItem
                     key={item.name}
                     label={item.name}
+                    className={className}
                     onClick={() => {
                       handleSelectClick(item);
                       setSelectDialogOpen(false);
@@ -448,10 +454,17 @@ const SelectField: React.FC<ISelectField & IField> = ({
                 key={value}
                 disabled={disabled}
                 wrap
+                className={className}
                 paging={{
                   itemsPerPage: 20,
                   infinite: true,
                   includeBottomControls: false,
+                }}
+                wrapperProps={{
+                  className: 'q-select-popup',
+                }}
+                inputProps={{
+                  className: 'q-select-input',
                 }}
                 description={getItemDescription(value) || description}
                 effect={{
@@ -474,6 +487,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                   <ReqoreButton
                     icon="AddLine"
                     fixed
+                    className="select-reference-add-new"
                     effect={PositiveColorEffect}
                     onClick={() => onCreateClick(reference, handleEditSubmit)}
                   />
@@ -482,6 +496,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
                   <ReqoreButton
                     icon="EditLine"
                     fixed
+                    className="select-reference-edit"
                     onClick={() => onEditClick(value, reference, handleEditSubmit)}
                   />
                 )}

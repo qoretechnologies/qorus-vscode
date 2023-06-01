@@ -26,6 +26,7 @@ import NumberField from './number';
 import ProcessorField from './processor';
 import RadioField from './radioField';
 import SelectField from './select';
+import { ServiceEventListField } from './serviceEvents';
 import StringField from './string';
 import Options from './systemOptions';
 import TypeSelector from './typeSelector';
@@ -96,6 +97,7 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
       {type === 'processor' && <ProcessorField {...rest} type={type} />}
       {type === 'class-connectors' && <ClassConnectors {...rest} type={type} />}
       {type === 'fsm-list' && <FSMListField {...rest} type={type} />}
+      {type === 'service-events' && <ServiceEventListField {...rest} type={type} />}
       {type === 'options' && <Options {...rest} />}
       {type === 'url' && <URLField {...rest} type={type} />}
       {type === 'api-manager' && <ApiManager {...rest} />}

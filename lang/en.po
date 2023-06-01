@@ -781,10 +781,10 @@ msgid "Errors"
 msgstr "Errors"
 
 msgid "Event"
-msgstr "Event"
+msgstr "Sync Event"
 
 msgid "Events"
-msgstr "Events"
+msgstr "Sync Events"
 
 msgid "Functions"
 msgstr "Functions"
@@ -1053,6 +1053,9 @@ msgstr "Connector"
 msgid "field-label-apicall"
 msgstr "API Call"
 
+msgid "field-label-message"
+msgstr "Send message"
+
 msgid "field-label-search-single"
 msgstr "Single search"
 
@@ -1194,6 +1197,9 @@ msgstr "False"
 msgid "field-label-foreach"
 msgstr "foreach"
 
+msgid "field-label-transaction"
+msgstr "transaction"
+
 msgid "field-label-while"
 msgstr "while"
 
@@ -1249,13 +1255,19 @@ msgid "field-desc-groups"
 msgstr "One or more interface groups that the object is a member of"
 
 msgid "field-label-event"
-msgstr "Event"
+msgstr "Sync Event"
+
+msgid "field-label-event-handlers"
+msgstr "Event handlers"
 
 msgid "field-label-step"
 msgstr "Step"
 
 msgid "field-desc-event"
 msgstr "The name of the event associated with the step"
+
+msgid "field-desc-event-handlers"
+msgstr "Event handlers associated with this service"
 
 msgid "field-label-queue"
 msgstr "Queue"
@@ -1663,10 +1675,10 @@ msgid "field-desc-Group"
 msgstr "Group"
 
 msgid "field-label-Event"
-msgstr "Event"
+msgstr "Sync Event"
 
 msgid "field-desc-Event"
-msgstr "Event"
+msgstr "Workflow Sync Event"
 
 msgid "field-label-code"
 msgstr "Code"
@@ -2316,7 +2328,7 @@ msgid "Datasources"
 msgstr "Datasource connections"
 
 msgid "SelectDataProvider"
-msgstr "Select data provider"
+msgstr "Data provider"
 
 msgid "CurrentDataProvider"
 msgstr "Current data provider"
@@ -3229,3 +3241,9 @@ msgstr "Action value"
 
 msgid "AddAnotherRecord"
 msgstr "Add record"
+
+msgid "MessageType"
+msgstr "Message type"
+
+msgid "MesasgeData"
+msgstr "Message data"

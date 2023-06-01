@@ -295,3 +295,111 @@ test('isValueSet should verify if the value is valid', () => {
   expect(isValueSet('test', true)).toEqual(true);
   expect(isValueSet(null, false)).toEqual(false);
 });
+
+it('should test validity of service events', () => {
+  // Shouldn't pass
+  expect(validateField('service-events', [])).toEqual(false);
+  expect(validateField('service-events', [{}])).toEqual(false);
+  expect(validateField('service-events', [{ type: 'factory', name: 'wsclient' }])).toEqual(false);
+  expect(
+    validateField('service-events', [{ type: 'factory', name: 'wsclient', handlers: {} }])
+  ).toEqual(false);
+  expect(
+    validateField('service-events', [
+      {
+        type: 'factory',
+        name: 'wsclient',
+        handlers: {
+          test: {
+            type: 'wrong',
+            value: 'ok',
+          },
+        },
+      },
+    ])
+  ).toEqual(false);
+  expect(
+    validateField('service-events', [
+      {
+        type: 'factory',
+        name: 'wsclient',
+        options: { url: { type: 'string', value: 'test' } },
+        handlers: {
+          test: {
+            type: 'fsm',
+            value: 'ok',
+          },
+        },
+      },
+      {
+        type: 'factory',
+        name: 'wsclient',
+        handlers: {
+          test: {
+            type: 'wrong',
+            value: 'ok',
+          },
+        },
+      },
+    ])
+  ).toEqual(false);
+  expect(
+    validateField('service-events', [
+      {
+        type: 'factory',
+        name: 'wsclient',
+        options: { url: { type: 'string', value: 'test' } },
+        handlers: {
+          test: {
+            type: 'fsm',
+            value: 'ok',
+          },
+        },
+      },
+      {},
+    ])
+  ).toEqual(false);
+
+  // Should pass
+  expect(
+    validateField('service-events', [
+      {
+        type: 'factory',
+        name: 'wsclient',
+        options: { url: { type: 'string', value: 'test' } },
+        handlers: {
+          test: {
+            type: 'fsm',
+            value: 'ok',
+          },
+        },
+      },
+    ])
+  ).toEqual(true);
+  expect(
+    validateField('service-events', [
+      {
+        type: 'factory',
+        name: 'wsclient',
+        options: { url: { type: 'string', value: 'test' } },
+        handlers: {
+          test: {
+            type: 'fsm',
+            value: 'ok',
+          },
+        },
+      },
+      {
+        type: 'factory',
+        name: 'wsclient',
+        options: { url: { type: 'string', value: 'test' } },
+        handlers: {
+          test: {
+            type: 'method',
+            value: 'ok',
+          },
+        },
+      },
+    ])
+  ).toEqual(true);
+});

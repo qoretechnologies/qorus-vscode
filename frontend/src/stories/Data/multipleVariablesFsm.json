@@ -1,0 +1,385 @@
+{
+  "type": "fsm",
+  "name": "MultipleVariablesFSMTest",
+  "desc": "Test with multiple variables",
+  "globalvar": {
+    "RootVariableProvider": {
+      "name": "RootVariableProvider",
+      "value": {
+        "type": "datasource",
+        "name": "omquser",
+        "transaction_management": true,
+        "record_requires_search_options": false,
+        "path": "/bb_local",
+        "supports_read": true,
+        "supports_update": true,
+        "supports_create": true,
+        "supports_delete": true,
+        "supports_messages": "NONE",
+        "descriptions": [
+          "Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries",
+          "Record-based data provider for db table `public.bb_local`; supports create, read/search, update, delete, upsert, and bulk operations"
+        ]
+      },
+      "type": "data-provider",
+      "variableType": "globalvar"
+    }
+  },
+  "localvar": {
+    "VarTest": {
+      "name": "VarTest",
+      "value": {
+        "type": "factory",
+        "name": "wsclient",
+        "transaction_management": false,
+        "path": "",
+        "options": {
+          "url": {
+            "type": "string",
+            "value": "Test"
+          }
+        },
+        "optionsChanged": false,
+        "supports_request": false,
+        "supports_read": false,
+        "supports_update": false,
+        "supports_create": false,
+        "supports_delete": false,
+        "supports_messages": "ASYNC",
+        "record_requires_search_options": false,
+        "descriptions": [
+          "Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries",
+          "WebSocket client to URL \"ws://Test/\""
+        ],
+        "message_id": "ping",
+        "message": {
+          "type": "data",
+          "value": "pong"
+        }
+      },
+      "type": "data-provider",
+      "desc": "Var test",
+      "variableType": "localvar"
+    }
+  },
+  "states": {
+    "1": {
+      "position": {
+        "x": 157,
+        "y": 126.5
+      },
+      "initial": false,
+      "name": "State 1",
+      "desc": "",
+      "type": "state",
+      "id": "KsLFP0eU2",
+      "action": {
+        "type": "var-action",
+        "value": {
+          "var_type": "globalvar",
+          "var_name": "RootVariableProvider",
+          "action_type": "search"
+        }
+      }
+    },
+    "2": {
+      "position": {
+        "x": 208,
+        "y": 326.5
+      },
+      "initial": false,
+      "name": "State 2",
+      "desc": "",
+      "type": "block",
+      "block-type": "while",
+      "id": "70-tc5OyU",
+      "globalvar": {
+        "WhileVariableProvider": {
+          "name": "WhileVariableProvider",
+          "value": {
+            "type": "datasource",
+            "name": "omquser",
+            "transaction_management": true,
+            "record_requires_search_options": false,
+            "path": "/erp_order_import",
+            "supports_request": false,
+            "supports_read": true,
+            "supports_update": true,
+            "supports_create": true,
+            "supports_delete": true,
+            "supports_messages": "NONE",
+            "descriptions": [
+              "Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries",
+              "Record-based data provider for db table `public.erp_order_import`; supports create, read/search, update, delete, upsert, and bulk operations"
+            ]
+          },
+          "type": "data-provider",
+          "variableType": "globalvar"
+        }
+      },
+      "block-config": {},
+      "states": {
+        "1": {
+          "position": {
+            "x": 112,
+            "y": 57.5
+          },
+          "initial": false,
+          "name": "State 2.State 1",
+          "desc": "",
+          "type": "state",
+          "id": "G5l_XPLEd",
+          "action": {
+            "type": "var-action",
+            "value": {
+              "var_type": "globalvar",
+              "var_name": "RootVariableProvider",
+              "action_type": "search-single"
+            }
+          }
+        },
+        "2": {
+          "position": {
+            "x": 110,
+            "y": 237.5
+          },
+          "initial": false,
+          "name": "State 2.State 2",
+          "desc": "",
+          "type": "state",
+          "id": "PGlZi7h6J",
+          "action": {
+            "type": "var-action",
+            "value": {
+              "var_type": "globalvar",
+              "var_name": "WhileVariableProvider",
+              "action_type": "search"
+            }
+          }
+        },
+        "3": {
+          "position": {
+            "x": 115,
+            "y": 415.5
+          },
+          "initial": false,
+          "name": "State 2.State 3",
+          "desc": "",
+          "type": "block",
+          "block-type": "for",
+          "id": "6AqkSItvA",
+          "globalvar": {
+            "DeepVariable": {
+              "name": "DeepVariable",
+              "value": {
+                "type": "datasource",
+                "name": "omquser",
+                "transaction_management": true,
+                "record_requires_search_options": false,
+                "path": "/inventory_example",
+                "supports_read": true,
+                "supports_update": true,
+                "supports_create": true,
+                "supports_delete": true,
+                "supports_messages": "NONE",
+                "descriptions": [
+                  "Data provider for database `pgsql:omquser@omquser`; use the search API with the `sql` and `args` arguments to execute record-based queries",
+                  "Record-based data provider for db table `public.inventory_example`; supports create, read/search, update, delete, upsert, and bulk operations"
+                ]
+              },
+              "type": "data-provider",
+              "variableType": "globalvar"
+            }
+          },
+          "block-config": {},
+          "localvar": {
+            "DeepPersistentTest": {
+              "name": "DeepPersistentTest",
+              "value": {
+                "type": "factory",
+                "name": "wsclient",
+                "transaction_management": false,
+                "path": "",
+                "options": {
+                  "url": {
+                    "type": "string",
+                    "value": "asg"
+                  }
+                },
+                "optionsChanged": false,
+                "supports_request": false,
+                "supports_read": false,
+                "supports_update": false,
+                "supports_create": false,
+                "supports_delete": false,
+                "supports_messages": "ASYNC",
+                "record_requires_search_options": false,
+                "descriptions": ["WebSocket client to URL \"ws://asg/\""]
+              },
+              "type": "data-provider",
+              "variableType": "localvar"
+            }
+          },
+          "states": {
+            "1": {
+              "position": {
+                "x": 131,
+                "y": 97.5
+              },
+              "initial": false,
+              "name": "State 2.State 3.State 1",
+              "desc": "",
+              "type": "state",
+              "id": "lw-m5eAIf",
+              "action": {
+                "type": "var-action",
+                "value": {
+                  "var_type": "globalvar",
+                  "var_name": "WhileVariableProvider",
+                  "action_type": "search"
+                }
+              }
+            },
+            "2": {
+              "position": {
+                "x": 137,
+                "y": 268.5
+              },
+              "initial": false,
+              "name": "State 2.State 3.State 2",
+              "desc": "",
+              "type": "state",
+              "id": "jubgfxB8U",
+              "action": {
+                "type": "var-action",
+                "value": {
+                  "var_type": "globalvar",
+                  "var_name": "RootVariableProvider",
+                  "action_type": "search-single"
+                }
+              }
+            },
+            "3": {
+              "position": {
+                "x": 138,
+                "y": 443.5
+              },
+              "initial": false,
+              "name": "State 2.State 3.State 3",
+              "desc": "",
+              "type": "state",
+              "id": "h9wikD8XQ",
+              "action": {
+                "type": "var-action",
+                "value": {
+                  "var_type": "globalvar",
+                  "var_name": "RootVariableProvider",
+                  "action_type": "transaction",
+                  "transaction_action": "begin-transaction"
+                }
+              }
+            },
+            "4": {
+              "position": {
+                "x": 476,
+                "y": 264.5
+              },
+              "initial": false,
+              "name": "State 2.State 3.State 4",
+              "desc": "",
+              "type": "state",
+              "id": "VAppIEARY",
+              "action": {
+                "type": "var-action",
+                "value": {
+                  "var_type": "globalvar",
+                  "var_name": "DeepVariable",
+                  "action_type": "transaction",
+                  "transaction_action": "rollback"
+                }
+              }
+            },
+            "5": {
+              "position": {
+                "x": 473,
+                "y": 94.5
+              },
+              "initial": false,
+              "name": "State 2.State 3.State 5",
+              "desc": "",
+              "type": "state",
+              "id": "a7x4V_-3_",
+              "action": {
+                "type": "var-action",
+                "value": {
+                  "var_type": "localvar",
+                  "var_name": "DeepPersistentTest",
+                  "action_type": "send-message",
+                  "message": {
+                    "type": "data",
+                    "value": "ping"
+                  },
+                  "message_id": "pong",
+                  "options": {
+                    "url": {
+                      "type": "string",
+                      "value": "asg"
+                    }
+                  }
+                }
+              }
+            },
+            "6": {
+              "position": {
+                "x": 466,
+                "y": 443.5
+              },
+              "initial": false,
+              "name": "State 2.State 3.State 6",
+              "desc": "",
+              "type": "block",
+              "block-type": "foreach",
+              "id": "KmIak5rqo",
+              "states": {
+                "1": {
+                  "position": {
+                    "x": 78,
+                    "y": 78.5
+                  },
+                  "initial": false,
+                  "name": "State 2.State 3.State 6.State 1",
+                  "desc": "",
+                  "type": "state",
+                  "id": "p1zA0JSKA",
+                  "action": {
+                    "type": "var-action",
+                    "value": {
+                      "var_type": "globalvar",
+                      "var_name": "RootVariableProvider",
+                      "action_type": "search"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4": {
+          "position": {
+            "x": 432,
+            "y": 251.5
+          },
+          "initial": false,
+          "name": "State 2.State 4",
+          "desc": "",
+          "type": "state",
+          "id": "haq3rEZYT",
+          "action": {
+            "type": "mapper",
+            "value": "test:1.0"
+          }
+        }
+      }
+    }
+  }
+}

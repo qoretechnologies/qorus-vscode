@@ -10,10 +10,19 @@ module.exports = {
     name: '@storybook/react-webpack5',
     options: {},
   },
+  features: {
+    interactionsDebugger: true,
+  },
   typescript: { reactDocgen: 'react-docgen' },
   env: (config) => ({
     ...config,
-    NODE_ENV: 'test',
+    NODE_ENV: 'storybook',
     BROWSER: 'chrome',
   }),
+  // refs: {
+  //   reqore: {
+  //     title: 'ReQore',
+  //     url: 'https://reqore.qoretechnologies.com/',
+  //   },
+  // },
 };

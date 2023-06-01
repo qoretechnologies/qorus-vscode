@@ -1,0 +1,25 @@
+# This is a generated file, don't edit!
+type: class
+name: ConfigItems
+desc: ConfigItems
+lang: python
+version: '1'
+class-connectors:
+  - name: Connector1
+    type: input
+    method: asg
+    input-provider:
+        type: type
+        name: qore
+        can_manage_fields: true
+        descriptions:
+            - type entry group
+            - Qore data type "hash<auto>"
+        path: /hash
+code: ConfigItems-1.qclass.py
+config-items:
+  - name: CFG
+    default_value:
+        "test"
+    description: asg
+    config_group: 1

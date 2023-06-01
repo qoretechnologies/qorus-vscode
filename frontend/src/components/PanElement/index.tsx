@@ -1,5 +1,5 @@
 import { ReqorePanel } from '@qoretechnologies/reqore';
-import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
+import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import React from 'react';
 import shortid from 'shortid';
 import styled from 'styled-components';
@@ -7,6 +7,14 @@ import { TTranslator } from '../../App';
 import Minimap from './minimap';
 
 const eventListener = require('eventlistener');
+
+export const calculateReverseValueWithZoom = (value: number, zoom: number) => {
+  return zoom < 1 ? value - (value * (1 - zoom)) / (zoom + 1) : value + value * (zoom - 1) * zoom;
+};
+
+export const calculateValueWithZoom = (value: number, zoom: number) => {
+  return zoom < 1 ? value + (value * (1 - zoom)) / zoom : value - (value * (zoom - 1)) / zoom;
+};
 
 export interface ElementPanState {
   dragging: boolean;
@@ -24,12 +32,14 @@ export interface ElementPanState {
   showToolbar: boolean;
 }
 
-const StyledToolbar = styled(ReqorePanel)`
+const StyledContainer = styled.div``;
+
+const StyledToolbar: React.FC<IReqorePanelProps> = styled(ReqorePanel)`
   position: absolute !important;
   width: 202px;
   right: 15px;
   top: 15px;
-  z-index: 10;
+  z-index: 100;
   opacity: 0.3;
 
   &:hover {
@@ -57,7 +67,8 @@ export class ElementPan extends React.Component<
       [key: string]: any;
     };
     zoom: number;
-    setZoom: (number: number) => void;
+    zoomIn: () => void;
+    zoomOut: () => void;
     items?: { y: number; x: number }[];
     t: TTranslator;
     panElementId?: string;
@@ -89,6 +100,10 @@ export class ElementPan extends React.Component<
     this.onDragStop = this.onDragStop.bind(this);
     this.onWheel = this.onWheel.bind(this);
     this.ref = this.ref.bind(this);
+  }
+
+  public calculateValueWithZoom(value: number, zoom: number = this.props.zoom) {
+    return calculateValueWithZoom(value, zoom);
   }
 
   public onDragStart(e) {
@@ -147,22 +162,27 @@ export class ElementPan extends React.Component<
       return;
     }
 
-    var x = typeof e.clientX === 'undefined' ? e.changedTouches[0].clientX : e.clientX,
+    let x = typeof e.clientX === 'undefined' ? e.changedTouches[0].clientX : e.clientX,
       y = typeof e.clientY === 'undefined' ? e.changedTouches[0].clientY : e.clientY;
 
     // Letting the browser automatically stop on scrollHeight
     // gives weird bugs where some extra pixels are showing.
     // Substracting the height/width of the container from the
     // inner content seems to do the trick.
-    this.el.scrollLeft = Math.min(
+    let leftScroll = Math.min(
       this.state.maxX - this.state.elWidth,
       this.state.baseScrollX - (x - this.state.startX)
     );
-
-    this.el.scrollTop = Math.min(
+    let topScroll = Math.min(
       this.state.maxY - this.state.elHeight,
       this.state.baseScrollY - (y - this.state.startY)
     );
+
+    // leftScroll = this.calculateValueWithZoom(leftScroll, this.props.zoom);
+    // topScroll = this.calculateValueWithZoom(topScroll, this.props.zoom);
+
+    this.el.scrollLeft = leftScroll;
+    this.el.scrollTop = topScroll;
 
     if (this.props.onPan) {
       this.props.onPan({ x: this.el.scrollLeft, y: this.el.scrollTop });
@@ -203,11 +223,12 @@ export class ElementPan extends React.Component<
   }
 
   public onWheel(e) {
+    e.stopPropagation();
     // Less then 0 means scrolling up / zoom in
     if (e.deltaY < 0) {
-      this.props.setZoom(this.props.zoom + 0.1);
+      this.props.zoomIn();
     } else {
-      this.props.setZoom(this.props.zoom - 0.1 < 0.1 ? 0.1 : this.props.zoom - 0.1);
+      this.props.zoomOut();
     }
   }
 
@@ -216,7 +237,7 @@ export class ElementPan extends React.Component<
   }
 
   public componentWillUnmount() {
-    window.removeEventListener('wheel', this.onWheel);
+    document.getElementById('fsm-diagram').removeEventListener('wheel', this.onWheel);
   }
 
   init = () => {
@@ -232,7 +253,7 @@ export class ElementPan extends React.Component<
       state.scrollY = this.el.scrollTop;
     }
 
-    //window.addEventListener('wheel', this.onWheel);
+    document.getElementById('fsm-diagram').addEventListener('wheel', this.onWheel);
 
     this.setState(state);
   };
@@ -271,42 +292,28 @@ export class ElementPan extends React.Component<
     const { panElementId } = this.state;
 
     return (
-      <div
+      <StyledContainer
         ref={this.ref}
         className={this.props.className || 'element-pan'}
         style={this.getContainerStyles()}
         onTouchStart={this.props.enableDragging ? this.onDragStart : undefined}
         onMouseDown={this.props.enableDragging ? this.onDragStart : undefined}
         id={`panElement${panElementId}`}
+        bgColor={this.props.bgColor}
       >
         {this.props.children}
-        <StyledToolbar
-          draggable
-          id="pan-element-toolbar"
-          size="small"
-          padded={false}
-          actions={[
-            {
-              icon: 'PriceTag2Line',
-              tooltip: 'Show state & path IDs',
-              active: this.props.showStateIds,
-              onClick: () => this.props.setShowStateIds(!this.props.showStateIds),
-            } as IReqorePanelAction,
-          ]}
-          collapsible
-        >
+        <StyledToolbar draggable id="pan-element-toolbar" size="small" padded={false}>
           <Minimap
             show={this.state.showMinimap}
             items={this.props.items}
             x={this.state.scrollX}
             y={this.state.scrollY}
-            width={this.el?.getBoundingClientRect().width}
-            height={this.el?.getBoundingClientRect().height}
+            zoom={this.props.zoom}
             onDrag={this.handleMinimapMove}
             panElementId={panElementId}
           />
         </StyledToolbar>
-      </div>
+      </StyledContainer>
     );
   }
 }

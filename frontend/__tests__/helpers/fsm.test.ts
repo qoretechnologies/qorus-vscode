@@ -1,11 +1,14 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, size } from 'lodash';
 import { IFSMStates } from '../../src/containers/InterfaceCreator/fsm';
-import { autoAlign, IGrid } from '../../src/helpers/fsm';
+import { IGrid, autoAlign, checkOverlap, removeAllStatesWithVariable } from '../../src/helpers/fsm';
+import OndewoFSM from '../../src/stories/Data/fsm.json';
+import multipleVariableStates from '../../src/stories/Data/multipleVariablesFsm.json';
 import multipleStatesInMultipleRows from './json/fsmMultipleStatesInMultipleRows.json';
 import multipleStatesInOneRow from './json/fsmMultipleStatesInOneRow.json';
 import statesObj from './json/fsmStates.json';
 import stateApart from './json/fsmStatesApart.json';
 import statesOverlappedApart from './json/fsmStatesOverlappedApart.json';
+
 const findGridIndex = (id: string, grid: IGrid[]) => {
   return grid.findIndex((cell) => cell.id === id);
 };
@@ -17,6 +20,7 @@ describe('Align states with the grid', () => {
     const { grid } = autoAlign(statesObj as IFSMStates, {
       rowHeight: stateMargin,
     });
+
     expect(grid[findGridIndex('00', grid)].state?.key).toEqual('1');
     expect(grid[findGridIndex('01', grid)].state?.key).toEqual('2');
     expect(grid[findGridIndex('10', grid)].state?.key).toEqual('3');
@@ -107,4 +111,86 @@ describe('Align states with the grid', () => {
     expect(JSON.stringify(alignedStates)).not.toEqual(JSON.stringify(statesOverlappedApart));
     expect(JSON.stringify(statesOverlappedApart)).toEqual(JSON.stringify(originalStatesObj));
   });
+
+  it('should never have two states with same position after auto align', () => {
+    const { alignedStates } = autoAlign(statesOverlappedApart as IFSMStates, {
+      rowHeight: stateMargin,
+    });
+
+    // Changing the position of a single state
+    alignedStates['2'].position.x = alignedStates['2'].position.x - 200;
+    alignedStates['2'].position.y = alignedStates['2'].position.y + 200;
+
+    // Auto aligning again
+    const autoAligned = autoAlign(alignedStates, { rowHeight: stateMargin });
+    const newAlignedStates = autoAligned.alignedStates;
+    const grid = autoAligned.grid;
+
+    // Checking if any two states have same position
+    let isOverlapped = false;
+    Object.keys(newAlignedStates).forEach((key) => {
+      const selectedState = newAlignedStates[key];
+
+      Object.keys(newAlignedStates).forEach((newKey) => {
+        if (newAlignedStates[newKey].position === selectedState.position && !(newKey === key)) {
+          isOverlapped = true;
+        }
+      });
+    });
+
+    // Checking if all the states are aligned to a grid cell
+    let gridOverlapped = false;
+    Object.keys(newAlignedStates).forEach((key) => {
+      const state = newAlignedStates[key];
+      if (!grid.find((cell) => cell.state === state)) {
+        gridOverlapped = true;
+      }
+    });
+
+    expect(isOverlapped).toBe(false);
+    expect(gridOverlapped).toBe(false);
+  });
+});
+
+test('it should remove all states with a certain variable', () => {
+  const states: IFSMStates = multipleVariableStates.states as IFSMStates;
+
+  expect(size(states)).toBe(2);
+  expect(size(states['2'].states)).toBe(4);
+  expect(size(states['2'].states['3'].states)).toBe(6);
+
+  const modifiedStates = removeAllStatesWithVariable(
+    'RootVariableProvider',
+    'globalvar',
+    states,
+    'asdf'
+  );
+
+  expect(size(modifiedStates)).toBe(1);
+  expect(modifiedStates['1']).toBe(undefined);
+  expect(size(modifiedStates['2'].states)).toBe(3);
+  expect(size(modifiedStates['2'].states['3'].states)).toBe(3);
+
+  const newModifiedStates = removeAllStatesWithVariable(
+    'WhileVariableProvider',
+    'globalvar',
+    modifiedStates,
+    'asdf'
+  );
+
+  expect(size(newModifiedStates['2'].states)).toBe(2);
+  expect(size(newModifiedStates['2'].states['3'].states)).toBe(2);
+});
+
+test.skip('it should return true if 2 states are overlapping', () => {
+  const overlappingStates: IFSMStates = OndewoFSM.states as IFSMStates;
+  let overlapping = checkOverlap(overlappingStates);
+
+  expect(overlapping).toBe(true);
+
+  const nonOverlappingStates: IFSMStates = multipleVariableStates.states as IFSMStates;
+
+  overlapping = checkOverlap(nonOverlappingStates);
+
+  expect(overlapping).toBe(false);
 });

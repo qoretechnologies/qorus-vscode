@@ -7,8 +7,8 @@ import * as msg from '../qorus_message';
 import { capitalize, hasConfigItems, toValidIdentifier } from '../qorus_utils';
 import { ClassConnectionsCreate } from './ClassConnectionsCreate';
 import { ClassConnectionsEdit } from './ClassConnectionsEdit';
-import { classImports, classTemplate, simple_method_template } from './common_constants';
 import { InterfaceCreator } from './InterfaceCreator';
+import { classImports, classTemplate, simple_method_template } from './common_constants';
 import { jobImports } from './job_constants';
 import { stepImports, stepTypeHeaders } from './step_constants';
 import { workflowImports } from './workflow_constants';
@@ -224,10 +224,17 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
     );
 
     if (this.has_code) {
-      if (edit_type === 'create' || this.is_editable) {
+      if (edit_type === 'edit') {
+        if (this.is_editable) {
+          ({ ok, message } = this.writeFiles(contents, headers));
+        } else {
+          ok = false;
+          message = 'UnableToEditQoreFileWithoutQore';
+        }
+      }
+
+      if (edit_type === 'create') {
         ({ ok, message } = this.writeFiles(contents, headers));
-      } else {
-        ({ ok, message } = this.writeYamlFile(headers));
       }
 
       if (ok) {

@@ -4,12 +4,15 @@ import {
   ReqoreTabs,
   ReqoreTabsContent,
   ReqoreTag,
+  ReqoreTagGroup,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import { useContext, useState } from 'react';
-import { useUpdateEffect } from 'react-use';
+import { useAsyncRetry, useUpdateEffect } from 'react-use';
 import { templatesList } from '../../containers/ConfigItemManager/modal';
 import { TextContext } from '../../context/text';
+import { fetchData } from '../../helpers/functions';
+import Loader from '../Loader';
 import Select from './select';
 import String from './string';
 
@@ -54,10 +57,37 @@ export const getTemplateValue = (value?: string) => {
   return null;
 };
 
-export const TemplateField = ({ value, name, onChange, component: Comp, ...rest }) => {
+export interface ITemplateFieldProps {
+  value?: any;
+  name?: string;
+  onChange?: (name: string, value: any) => void;
+  // React element
+  component: React.FC<any>;
+  [key: string]: any;
+  templateContext?: 1 | 2 | 4 | 7 | 8 | 15;
+}
+
+export const TemplateField = ({
+  value,
+  name,
+  onChange,
+  component: Comp,
+  templateContext = 15,
+  ...rest
+}: ITemplateFieldProps) => {
   const [isTemplate, setIsTemplate] = useState<boolean>(isValueTemplate(value));
   const [templateKey, setTemplateKey] = useState<string | null>(getTemplateKey(value));
   const [templateValue, setTemplateValue] = useState<string | null>(getTemplateValue(value));
+
+  const templates = useAsyncRetry(async () => {
+    const serverTemplates = await fetchData(`/system/templates?filter=${templateContext}`);
+
+    if (serverTemplates.ok) {
+      return serverTemplates.data;
+    }
+
+    throw new Error(serverTemplates.error);
+  }, []);
 
   // When template key or template value change run the onChange function
   useUpdateEffect(() => {
@@ -67,6 +97,18 @@ export const TemplateField = ({ value, name, onChange, component: Comp, ...rest 
   }, [templateKey, templateValue]);
 
   const t = useContext(TextContext);
+
+  if (rest.disabled) {
+    if (isTemplate) {
+      return (
+        <ReqoreTagGroup>
+          <ReqoreTag labelKey={`$${templateKey}:`} label={templateValue} />
+        </ReqoreTagGroup>
+      );
+    }
+
+    return <Comp value={value} onChange={onChange} name={name} {...rest} />;
+  }
 
   return (
     <ReqoreTabs
@@ -109,27 +151,34 @@ export const TemplateField = ({ value, name, onChange, component: Comp, ...rest 
         <Comp value={value} onChange={onChange} name={name} {...rest} />
       </ReqoreTabsContent>
       <ReqoreTabsContent tabId={'template'}>
-        <ReqoreMessage intent="info" size="small">
-          {`${t('ConfigTemplatesFormat')} $<type>:<key>`}
-        </ReqoreMessage>
-        <ReqoreVerticalSpacer height={10} />
-        <ReqoreControlGroup fluid stack>
-          <Select
-            defaultItems={templatesList.map((template) => ({ name: template }))}
-            onChange={(_n, val) => setTemplateKey(val)}
-            value={templateKey}
-            name="templateKey"
-            icon="dollar"
-          />
-          <ReqoreTag label=":" />
-          <String
-            fill
-            type="string"
-            name="templateVal"
-            value={templateValue}
-            onChange={(_n, val) => setTemplateValue(val)}
-          />
-        </ReqoreControlGroup>
+        {templates.loading && <Loader />}
+        {templates.value ? (
+          <>
+            <ReqoreMessage intent="info" size="small">
+              {`${t('ConfigTemplatesFormat')} $<type>:<key>`}
+            </ReqoreMessage>
+            <ReqoreVerticalSpacer height={10} />
+            <ReqoreControlGroup fluid stack fill>
+              <Select
+                defaultItems={templates.value.map((template) => template)}
+                onChange={(_n, val) => setTemplateKey(val)}
+                value={templateKey}
+                name="templateKey"
+                icon="ExchangeDollarLine"
+                className="template-selector"
+              />
+              <ReqoreTag label=":" />
+              <String
+                fill
+                fillVertically
+                type="string"
+                name="templateVal"
+                value={templateValue}
+                onChange={(_n, val) => setTemplateValue(val)}
+              />
+            </ReqoreControlGroup>
+          </>
+        ) : null}
       </ReqoreTabsContent>
     </ReqoreTabs>
   );

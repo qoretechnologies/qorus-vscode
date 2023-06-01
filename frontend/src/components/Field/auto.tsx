@@ -34,6 +34,9 @@ export interface IAutoFieldProps extends IField {
   defaultInternalType?: IQorusType;
   noSoft?: boolean;
   allowed_values?: { name: string; desc?: string }[];
+  isConfigItem?: boolean;
+  isVariable?: boolean;
+  disableSearchOptions?: boolean;
 }
 
 const AutoField: FunctionComponent<IAutoFieldProps> = ({
@@ -51,14 +54,17 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
   arg_schema,
   column,
   level = 0,
+  canBeNull,
+  isConfigItem,
+  isVariable,
   ...rest
 }) => {
-  const [currentType, setType] = useState<string>(defaultInternalType || null);
-  const [currentInternalType, setInternalType] = useState<string>(defaultInternalType || 'any');
+  const [currentType, setType] = useState<IQorusType>(defaultInternalType || null);
+  const [currentInternalType, setInternalType] = useState<IQorusType>(defaultInternalType || 'any');
   const [isSetToNull, setIsSetToNull] = useState<boolean>(false);
 
   useMount(() => {
-    let defType = defaultType && defaultType.replace(/"/g, '').trim();
+    let defType: IQorusType = defaultType && (defaultType.replace(/"/g, '').trim() as any);
     defType = defType || 'any';
     let internalType;
     // If value already exists, but the type is auto or any
@@ -72,9 +78,9 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     setType(defType);
     // If the value is null and can be null, set the null flag
     if (
-      (getValueOrDefaultValue(value, default_value, canBeNull(defType)) === 'null' ||
-        getValueOrDefaultValue(value, default_value, canBeNull(defType)) === null) &&
-      canBeNull(defType)
+      (getValueOrDefaultValue(value, default_value, _canBeNull(defType)) === 'null' ||
+        getValueOrDefaultValue(value, default_value, _canBeNull(defType)) === null) &&
+      _canBeNull(defType)
     ) {
       setIsSetToNull(true);
     }
@@ -82,7 +88,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     // Set the default value
     handleChange(
       name,
-      getValueOrDefaultValue(value, default_value, canBeNull(internalType)),
+      getValueOrDefaultValue(value, default_value, _canBeNull(internalType)),
       internalType
     );
   });
@@ -92,7 +98,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     // which will be used as a type
     if (rest['type-depends-on']) {
       // Get the requested type
-      const typeValue: string = requestFieldData(rest['type-depends-on'], 'value');
+      const typeValue: IQorusType = requestFieldData(rest['type-depends-on'], 'value');
       // Check if the field has the value set yet
       if (typeValue && typeValue !== currentType) {
         // If this is auto / any field
@@ -120,14 +126,14 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     }
     // If can be undefined was toggled off, but the value right now is null
     // we need to set the ability to be null to false and remove
-    if (!canBeNull() && isSetToNull) {
+    if (!_canBeNull() && isSetToNull) {
       setIsSetToNull(false);
       handleChange(name, null);
     }
   });
 
-  const canBeNull = (type = currentType) => {
-    if (type === 'any' || type === 'Any') {
+  const _canBeNull = (type = currentType) => {
+    if (type === 'any' || type === 'Any' || canBeNull) {
       return true;
     }
 
@@ -138,11 +144,15 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     return false;
   };
 
-  const handleChange: (name: string, value: any, type?: string) => void = (name, value, type) => {
-    const returnType = currentInternalType || type;
+  const handleChange: (name: string, value: any, type?: IQorusType) => void = (
+    name,
+    value,
+    type
+  ) => {
+    const returnType: IQorusType = currentInternalType || currentType || type;
     // Run the onchange
     if (onChange && returnType) {
-      onChange(name, value, returnType, canBeNull(returnType));
+      onChange(name, value, returnType, _canBeNull(returnType));
     }
   };
 
@@ -366,8 +376,12 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
             name={name}
             inline
             minimal
-            isConfigItem
+            isConfigItem={isConfigItem}
+            isVariable={isVariable}
             onChange={handleChange}
+            readOnly={rest.disabled}
+            disableSearchOptions={rest.disableSearchOptions}
+            {...rest}
           />
         );
       }
@@ -458,7 +472,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
       )}
 
       {renderField(currentInternalType)}
-      {canBeNull() && (
+      {_canBeNull() && (
         <ReqoreButton
           intent={isSetToNull ? 'warning' : undefined}
           icon={isSetToNull ? 'CloseLine' : undefined}

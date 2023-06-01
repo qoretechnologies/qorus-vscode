@@ -4,10 +4,10 @@ import useMount from 'react-use/lib/useMount';
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
 import {
-  addMessageListener,
-  postMessage,
   TMessageListener,
   TPostMessage,
+  addMessageListener,
+  postMessage,
 } from '../../hocomponents/withMessageHandler';
 
 export interface ILongStringField {
@@ -18,6 +18,7 @@ export interface ILongStringField {
   placeholder?: string;
   noWrap?: boolean;
   onChange: IFieldChange;
+  id?: string;
 }
 
 const LongStringField: FunctionComponent<ILongStringField & IField> = ({
@@ -31,6 +32,8 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
   placeholder,
   intent,
   noWrap,
+  id,
+  disabled,
 }) => {
   // Fetch data on mount
   useMount(() => {
@@ -51,7 +54,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
 
   // When input value changes
   const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
-    onChange(name, event.target.value);
+    onChange(name, event.target.value.toString());
   };
 
   return (
@@ -63,6 +66,8 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
       onChange={handleInputChange}
       onClearClick={() => onChange(name, '')}
       intent={intent}
+      id={id}
+      disabled={disabled}
     />
   );
 };

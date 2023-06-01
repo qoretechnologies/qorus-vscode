@@ -25,9 +25,11 @@ export const jobFields = ({ default_target_dir, limited_editing }) => [
   field.version,
   {
     ...field.class_name,
-    disabled: limited_editing,
   },
-  field.lang,
+  {
+    ...field.lang,
+    default_value: limited_editing ? 'python' : 'qore',
+  },
   field.mappers,
   field.vmaps,
   field.modules,
@@ -48,7 +50,6 @@ export const jobFields = ({ default_target_dir, limited_editing }) => [
       return_value: 'objects',
     },
     on_change: 'get-config-items',
-    disabled: limited_editing,
     group: 'info',
     compact: true,
   },

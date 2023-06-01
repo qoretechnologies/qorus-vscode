@@ -1,0 +1,10 @@
+# This is a generated file, don't edit!
+type: step
+name: asgqwe
+desc: asg
+lang: qore
+base-class-name: QorusNormalStep
+class-name: Asgqwe
+version: '1'
+steptype: NORMAL
+code: asgqwe-1.qstep

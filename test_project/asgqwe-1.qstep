@@ -1,0 +1,9 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+class Asgqwe inherits QorusNormalStep {
+    primary() {
+    }
+}

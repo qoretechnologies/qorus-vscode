@@ -9,18 +9,18 @@ import size from 'lodash/size';
 import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
-import { maybeBuildOptionProvider } from '../components/Field/connectors';
+import { IProviderType, maybeBuildOptionProvider } from '../components/Field/connectors';
 import {
-  fixOperatorValue,
   IOptions,
   IOptionsSchemaArg,
   IQorusType,
   TOption,
+  fixOperatorValue,
 } from '../components/Field/systemOptions';
 import { getTemplateKey, getTemplateValue, isValueTemplate } from '../components/Field/template';
 import { getAddress, getProtocol } from '../components/Field/urlField';
 import { IField } from '../components/FieldWrapper';
-import { TTrigger } from '../containers/InterfaceCreator/fsm';
+import { TTrigger, TVariableActionValue } from '../containers/InterfaceCreator/fsm';
 import { splitByteSize } from './functions';
 
 const cron = require('cron-validator');
@@ -34,6 +34,7 @@ export const validateField: (
   if (!type) {
     return false;
   }
+
   // Check if the type starts with a * to indicate it can be null
   if (type.startsWith('*')) {
     type = type.substring(1);
@@ -71,7 +72,8 @@ export const validateField: (
     case 'file-string':
     case 'file-as-string':
     case 'long-string':
-    case 'method-name': {
+    case 'method-name':
+    case 'data': {
       if (value === undefined || value === null || value === '' || typeof value !== 'string') {
         return false;
       }
@@ -227,7 +229,7 @@ export const validateField: (
         return false;
       }
       // If the value is not an object or empty
-      return parsedValue.every((item: any) => validateField('hash', item));
+      return parsedValue.every((item: any) => size(item) && validateField('hash', item));
     }
     case 'mapper-code':
       if (!value) {
@@ -237,15 +239,54 @@ export const validateField: (
       const [code, method] = value.split('::');
       // Both fields need to be strings & filled
       return validateField('string', code) && validateField('string', method);
+    case 'var-action': {
+      const varAction: TVariableActionValue = value;
+
+      if (
+        varAction.var_type !== 'localvar' &&
+        varAction.var_type !== 'globalvar' &&
+        varAction.var_type !== 'autovar'
+      ) {
+        return false;
+      }
+
+      if (!validateField('string', varAction.var_name, { has_to_have_value: true })) {
+        return false;
+      }
+
+      if (!validateField('string', varAction.action_type, { has_to_have_value: true })) {
+        return false;
+      }
+
+      // If the action type is transaction, the transaction_action needs to be set
+      if (varAction.action_type === 'transaction') {
+        if (!validateField('string', varAction.transaction_action, { has_to_have_value: true })) {
+          return false;
+        }
+
+        return true;
+      }
+
+      // If the variable data is missing
+      if (!field?.variableData?.value) {
+        return false;
+      }
+
+      // Get the variable data
+      const variableData: TVariableActionValue = { ...value, ...field.variableData.value };
+
+      return validateField(varAction.action_type, variableData, field);
+    }
     case 'type-selector':
     case 'data-provider':
     case 'api-call':
     case 'search-single':
+    case 'send-message':
     case 'search':
     case 'update':
     case 'delete':
     case 'create':
-      let newValue = maybeBuildOptionProvider(value);
+      let newValue: IProviderType = maybeBuildOptionProvider(value);
 
       if (!newValue) {
         return false;
@@ -256,16 +297,50 @@ export const validateField: (
         return false;
       }
 
-      if (value.use_args) {
-        if (value.args?.type !== 'nothing') {
-          if (!value.args) {
+      // If the provider is from FSM variables, it needs pass this
+      if (
+        field?.isVariable &&
+        !(
+          newValue.supports_read ||
+          newValue.supports_create ||
+          newValue.supports_update ||
+          newValue.supports_delete ||
+          newValue.supports_request ||
+          newValue.supports_messages ||
+          newValue.transaction_management
+        )
+      ) {
+        return false;
+      }
+
+      // Send message only supports messages
+      if (
+        type === 'send-message' &&
+        (!newValue.supports_messages || !newValue.message_id || !newValue.message)
+      ) {
+        return false;
+      }
+
+      if (newValue.message_id) {
+        if (!validateField('string', newValue.message_id)) {
+          return false;
+        }
+
+        if (!newValue.message || !validateField(newValue.message.type, newValue.message.value)) {
+          return false;
+        }
+      }
+
+      if (newValue.use_args) {
+        if (newValue.args?.type !== 'nothing') {
+          if (!newValue.args) {
             return false;
           }
 
           if (
             !validateField(
-              value.args.type === 'hash' ? 'system-options' : value.args.type,
-              value.args.value
+              newValue.args.type === 'hash' ? 'system-options' : newValue.args.type,
+              newValue.args.value
             )
           ) {
             return false;
@@ -275,8 +350,8 @@ export const validateField: (
 
       if (
         (type === 'search-single' || type === 'search') &&
-        size(value.search_args) !== 0 &&
-        !validateField('system-options-with-operators', value.search_args)
+        size(newValue.search_args) !== 0 &&
+        !validateField('system-options-with-operators', newValue.search_args)
       ) {
         return false;
       }
@@ -285,20 +360,20 @@ export const validateField: (
 
       if (isUpdateOrCreate) {
         const areNormalArgsInvalid =
-          `${type}_args` in value &&
-          (size(value[`${type}_args`]) === 0 ||
-            !validateField('system-options', value[`${type}_args`]));
+          `${type}_args` in newValue &&
+          (size(newValue[`${type}_args`]) === 0 ||
+            !validateField('system-options', newValue[`${type}_args`]));
 
         const areFreeFormArgsInvalid =
-          `${type}_args_freeform` in value &&
-          (size(value[`${type}_args_freeform`]) === 0 ||
-            !validateField('list-of-hashes', value[`${type}_args_freeform`]));
+          `${type}_args_freeform` in newValue &&
+          (size(newValue[`${type}_args_freeform`]) === 0 ||
+            !validateField('list-of-hashes', newValue[`${type}_args_freeform`]));
 
-        if (`${type}_args` in value && areNormalArgsInvalid) {
+        if (`${type}_args` in newValue && areNormalArgsInvalid && areFreeFormArgsInvalid) {
           return false;
         }
 
-        if (`${type}_args_freeform` in value && areFreeFormArgsInvalid) {
+        if (`${type}_args_freeform` in newValue && areFreeFormArgsInvalid && areNormalArgsInvalid) {
           return false;
         }
       }
@@ -314,21 +389,51 @@ export const validateField: (
           options = validateField('system-options', newValue.options);
         }
 
-        if (newValue.search_options) {
-          options = validateField('system-options', newValue.search_options);
-        }
-
         // Type path and name are required
         return !!(newValue.type && newValue.name && options);
       }
 
-      return !!(newValue.type && newValue.path && newValue.name);
+      if (newValue.record_requires_search_options && newValue.searchOptionsChanged) {
+        return false;
+      }
+
+      if (newValue.search_options && !validateField('system-options', newValue.search_options)) {
+        return false;
+      }
+
+      return !!(newValue.type && newValue.name);
     case 'context-selector':
       if (isString(value)) {
         const cont: string[] = value.split(':');
         return validateField('string', cont[0]) && validateField('string', cont[1]);
       }
       return !!value?.iface_kind && !!value?.name;
+    case 'service-event': {
+      if (!validateField('type-selector', value)) {
+        return false;
+      }
+
+      if (
+        !size(value.handlers) ||
+        !every(
+          value.handlers,
+          (handler) => (handler.type === 'fsm' || handler.type === 'method') && handler.value
+        )
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+    case 'service-events': {
+      if (!isArray(value) || !size(value)) {
+        return false;
+      }
+
+      return value.every((serviceEvent) => {
+        return validateField('service-event', serviceEvent);
+      });
+    }
     case 'auto':
     case 'any': {
       // Parse the string as yaml

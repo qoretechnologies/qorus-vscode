@@ -3,7 +3,7 @@
 %require-types
 %enable-all-warnings
 
-class Asg inherits QorusNormalStep {
-    primary() {
+class Asgasgasg inherits QorusJob {
+    run() {
     }
 }
