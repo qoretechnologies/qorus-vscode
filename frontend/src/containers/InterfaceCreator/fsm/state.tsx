@@ -349,7 +349,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           : undefined
       }
       style={{
-        opacity: isDragging ? 0 : 1,
+        opacity: isDragging ? 0 : undefined,
       }}
       //customTheme={{ main: getStateColor(getStateCategory(type)) }}
       contentEffect={
