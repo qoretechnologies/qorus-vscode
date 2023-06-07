@@ -115,6 +115,14 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
             onClick: () => initialData?.changeTab('Drafts'),
           },
         },
+        {
+          name: 'Interfaces',
+          icon: 'FileList2Line',
+          id: 'Interfaces',
+          props: {
+            onClick: () => initialData?.changeTab('Interfaces'),
+          },
+        },
       ],
     },
     interfaces: {

@@ -24,6 +24,7 @@ import Loader from './components/Loader';
 import Menu from './components/Menu';
 import { Messages } from './constants/messages';
 import InterfaceCreator from './containers/InterfaceCreator';
+import { InterfacesView } from './containers/InterfacesView';
 import { ContextMenuContext, IContextMenu } from './context/contextMenu';
 import { DialogsContext } from './context/dialogs';
 import { DraftsContext, IDraftData } from './context/drafts';
@@ -499,6 +500,7 @@ const App: FunctionComponent<IApp> = ({
                     {tab == 'ReleasePackage' && <ReleasePackage />}
                     {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
                     {tab === 'Drafts' && <DraftsView />}
+                    {tab === 'Interfaces' && <InterfacesView />}
                     {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
                   </>
                 </div>

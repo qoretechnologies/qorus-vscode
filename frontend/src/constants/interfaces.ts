@@ -42,6 +42,28 @@ export const interfaceToPlural = {
   test: 'tests',
 };
 
+export const interfaceIcons = {
+  service: 'ServerLine',
+  step: 'StickyNoteLine',
+  'mapper-code': 'FunctionLine',
+  errors: 'ErrorWarningLine',
+  workflow: 'GitBranchLine',
+  job: 'CalendarLine',
+  mapper: 'MindMap',
+  group: 'GridFill',
+  event: 'GitCommitLine',
+  queue: 'StackLine',
+  connection: 'Plug2Line',
+  fsm: 'DashboardLine',
+  pipeline: 'NodeTree',
+  'value-map': 'BringToFront',
+  type: 'Asterisk',
+  class: 'CodeSLine',
+  'schema-module': 'Asterisk',
+  script: 'Asterisk',
+  test: 'Asterisk',
+};
+
 export const interfaceNameToKind = {
   Service: 'service',
   Step: 'step',

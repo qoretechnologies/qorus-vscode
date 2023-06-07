@@ -98,6 +98,15 @@ export class QorusProjectCodeInfo {
 
   private notifyTrees() {
     this.notif_trees.forEach((tree) => tree.notify(this));
+    // Also notify the webview
+    const data = drafts_tree.getObjectWithAllInterfaces();
+
+    console.log('DATA', data);
+
+    qorus_webview.postMessage({
+      action: 'get-all-interfaces-complete',
+      data,
+    });
   }
 
   fileTree() {

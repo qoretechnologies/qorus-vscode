@@ -1,3 +1,4 @@
+import items from '../stories/Data/interfaces.json';
 import { sleep } from '../stories/Tests/utils';
 
 export const username = 'IDETestUser';
@@ -34,6 +35,13 @@ export const vscode =
                 ok: requestData.ok,
                 error: !requestData.ok ? json : undefined,
                 id,
+              };
+              break;
+            }
+            case 'get-all-interfaces': {
+              messageData = {
+                action: 'get-all-interfaces-complete',
+                data: items,
               };
               break;
             }
