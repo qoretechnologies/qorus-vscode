@@ -2,13 +2,13 @@ import * as fs from 'fs';
 import { join } from 'path';
 import { t } from 'ttag';
 import { commands, ExtensionContext, Uri, window as vswindow, workspace } from 'vscode';
+import * as msg from './qorus_message';
+import { dash2Pascal } from './qorus_utils';
 import { deployer } from './QorusDeploy';
 import { drafts_tree, otherFilesNames, QorusDraftItem } from './QorusDraftsTree';
 import { interface_tree } from './QorusInterfaceTree';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { tester } from './QorusTest';
-import * as msg from './qorus_message';
-import { dash2Pascal } from './qorus_utils';
 
 const maybeDeleteInterface = (data: QorusDraftItem['data']) => {
   vswindow
@@ -37,7 +37,7 @@ const maybeDeleteInterface = (data: QorusDraftItem['data']) => {
       QorusProjectCodeInfo.deleteInterface({ iface_kind: data.type, iface_data: data });
     });
 };
-const maybeDeployInterface = (data: any) => {
+export const maybeDeployInterface = (data: any) => {
   if (!deployer.isRunning) {
     if (otherFilesNames.includes(data.type)) {
       vswindow.showInformationMessage(t`ConfirmDeployFile`, t`Yes`, t`No`).then((selection) => {

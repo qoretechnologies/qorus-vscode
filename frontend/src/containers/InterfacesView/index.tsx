@@ -10,7 +10,11 @@ import { capitalize, map, size } from 'lodash';
 import { useContext, useState } from 'react';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import { useMount } from 'react-use';
-import { NegativeColorEffect, SelectorColorEffect } from '../../components/Field/multiPair';
+import {
+  NegativeColorEffect,
+  PositiveColorEffect,
+  SelectorColorEffect,
+} from '../../components/Field/multiPair';
 import { IField } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
 import {
@@ -80,13 +84,13 @@ export const InterfacesView = () => {
   const [items, setItems] = useState<Record<string, IQorusInterface[]>>(null);
   const confirmAction = useReqoreProperty('confirmAction');
   const addNotification = useReqoreProperty('addNotification');
-  const { changeDraft } = useContext(InitialContext);
-
-  console.log(items);
+  const { changeDraft, changeTab } = useContext(InitialContext);
 
   useMount(() => {
     addMessageListener('get-all-interfaces-complete', (data) => {
-      setItems(data.data);
+      if (data?.data) {
+        setItems(data.data);
+      }
     });
 
     (async () => {
@@ -100,8 +104,12 @@ export const InterfacesView = () => {
     return <Loader text="Loading interfaces" />;
   }
 
-  const onDeleteClick = async (interfaceKind, interfaceId) => {
-    await deleteDraft(interfaceKindTransform[interfaceKind], interfaceId, false, addNotification);
+  const onDeleteClick = async (interfaceKind, interfaceId?) => {
+    await deleteDraft(interfaceKindTransform[interfaceKind], interfaceId, true, addNotification);
+  };
+
+  const onDeployClick = (data) => {
+    postMessage(Messages.DEPLOY_INTERFACE, { data });
   };
 
   const isValid = (draftData: IDraftData) => {
@@ -159,6 +167,14 @@ export const InterfacesView = () => {
     return badges;
   };
 
+  const getItemsCount = (data: IQorusInterface[]) => {
+    return size(data.filter((item) => !item.isDraft));
+  };
+
+  const getDraftsCount = (data: IQorusInterface[]) => {
+    return size(data.filter((item) => item.isDraft || item.hasDraft));
+  };
+
   return (
     <ReqorePanel
       minimal
@@ -166,6 +182,22 @@ export const InterfacesView = () => {
       transparent
       fill
       label="Interfaces view"
+      actions={[
+        {
+          label: 'Delete all drafts',
+          icon: 'CloseLine',
+          effect: NegativeColorEffect,
+          onClick: () => {
+            postMessage(Messages.DELETE_ALL_DRAFTS);
+            addNotification({
+              intent: 'success',
+              title: 'All drafts deleted',
+              content: 'All drafts were deleted successfully',
+              duration: 2000,
+            });
+          },
+        },
+      ]}
       contentStyle={{
         display: 'flex',
         flexDirection: 'column',
@@ -180,8 +212,12 @@ export const InterfacesView = () => {
         tabs={map(items, (data, iface) => ({
           id: iface,
           label: capitalize(interfaceToPlural[iface]).replace('-', ' '),
-          badge: size(data),
+          badge: [
+            getItemsCount(data),
+            { labelKey: 'Drafts', label: getDraftsCount(data), intent: 'pending' },
+          ],
           icon: interfaceIcons[iface],
+          wrap: true,
         }))}
       >
         {map(items, (data, iface) => (
@@ -193,7 +229,30 @@ export const InterfacesView = () => {
               flat={false}
               opacity={1}
               minimal
+              responsiveActions={false}
+              actions={[
+                {
+                  icon: 'AddLine',
+                  label: 'Create new',
+                  onClick: () => changeTab('CreateInterface', iface),
+                  effect: PositiveColorEffect,
+                },
+                {
+                  icon: 'CloseLine',
+                  label: 'Delete drafts',
+                  effect: NegativeColorEffect,
+                  onClick: () => {
+                    onDeleteClick(iface);
+                  },
+                },
+              ]}
               icon={interfaceIcons[iface]}
+              inputProps={{
+                focusRules: {
+                  type: 'keypress',
+                  shortcut: 'letters',
+                },
+              }}
               paging="buttons"
               items={data.map(({ name, data, isDraft, hasDraft, ...rest }) => ({
                 label: name,
@@ -219,6 +278,13 @@ export const InterfacesView = () => {
                   }
                 },
                 actions: [
+                  {
+                    icon: 'UploadLine',
+                    effect: PositiveColorEffect,
+                    tooltip: 'Deploy',
+                    show: !isDraft,
+                    onClick: () => onDeployClick(data),
+                  },
                   {
                     icon: 'FileEditLine',
                     effect: SelectorColorEffect,

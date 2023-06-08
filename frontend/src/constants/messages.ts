@@ -58,4 +58,6 @@ export const Messages = {
   GET_ALL_INTERFACES: 'get-all-interfaces',
   RETURN_ALL_INTERFACES: 'return-all-interfaces',
   DELETE_INTERFACE: 'delete-interface',
+  DEPLOY_INTERFACE: 'deploy-interface',
+  DELETE_ALL_DRAFTS: 'delete-all-drafts',
 };

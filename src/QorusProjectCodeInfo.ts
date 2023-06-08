@@ -101,8 +101,6 @@ export class QorusProjectCodeInfo {
     // Also notify the webview
     const data = drafts_tree.getObjectWithAllInterfaces();
 
-    console.log('DATA', data);
-
     qorus_webview.postMessage({
       action: 'get-all-interfaces-complete',
       data,

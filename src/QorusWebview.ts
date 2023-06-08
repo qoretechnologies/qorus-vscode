@@ -19,6 +19,7 @@ import { triggers } from './interface_creator/standard_methods';
 import { isLangClientAvailable } from './qore_vscode';
 import * as msg from './qorus_message';
 import { deepCopy } from './qorus_utils';
+import { maybeDeployInterface } from './qorus_views_commands';
 
 const web_path = path.join(__dirname, '..', 'frontend', 'build');
 const public_path = path.join(__dirname, '..', 'frontend', 'public');
@@ -466,6 +467,9 @@ class QorusWebview {
             case 'delete-interface':
               project.code_info.deleteInterfaceFromWebview(message);
               break;
+            case 'deploy-interface':
+              maybeDeployInterface(message.data);
+              break;
             case 'get-all-drafts':
               this.panel.webview.postMessage({
                 action: 'get-all-drafts-complete',
@@ -514,6 +518,10 @@ class QorusWebview {
                   ok: false,
                 });
               }
+              break;
+            }
+            case 'delete-all-drafts': {
+              QorusDraftsInstance.deleteAllDrafts();
               break;
             }
             case 'delete-draft':
