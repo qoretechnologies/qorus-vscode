@@ -201,11 +201,13 @@ export const InterfacesView = () => {
       contentStyle={{
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden',
       }}
     >
       <ReqoreTabs
         padded={false}
         activeTabIntent="info"
+        flat
         fillParent
         vertical
         tabsPadding="horizontal"
@@ -229,7 +231,9 @@ export const InterfacesView = () => {
               flat={false}
               opacity={1}
               minimal
+              maxItemHeight={200}
               responsiveActions={false}
+              fill
               actions={[
                 {
                   icon: 'AddLine',
@@ -253,8 +257,10 @@ export const InterfacesView = () => {
                   shortcut: 'letters',
                 },
               }}
-              paging="buttons"
-              items={data.map(({ name, data, isDraft, hasDraft, ...rest }) => ({
+              paging={{
+                itemsPerPage: 20,
+              }}
+              items={data.map(({ name, data, isDraft, hasDraft, ...rest }, index) => ({
                 label: name,
                 icon: isDraft || hasDraft ? 'EditLine' : undefined,
                 iconColor: isDraft || hasDraft ? 'pending' : undefined,
@@ -262,7 +268,10 @@ export const InterfacesView = () => {
                 content: data?.desc ? <ReactMarkdown>{data.desc}</ReactMarkdown> : 'No description',
                 responsiveTitle: false,
                 responsiveActions: false,
+                b: [],
                 size: 'small',
+                intent: isDraft || hasDraft ? 'pending' : undefined,
+                contentEffect: SelectorColorEffect,
                 onClick: () => {
                   if (isDraft) {
                     changeDraft({

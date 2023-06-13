@@ -1,19 +1,14 @@
 import {
-  ReqoreButton,
-  ReqoreControlGroup,
-  ReqoreMessage,
-  ReqorePanel,
+  ReqoreCollection,
   ReqoreTable,
   ReqoreTag,
+  ReqoreTagGroup,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
-import {
-  IReqoreTableColumn,
-  IReqoreTableProps,
-} from '@qoretechnologies/reqore/dist/components/Table';
+import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
+import { IReqoreTableProps } from '@qoretechnologies/reqore/dist/components/Table';
 import size from 'lodash/size';
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
@@ -22,7 +17,7 @@ import withState from 'recompose/withState';
 import styled from 'styled-components';
 import withTextContext from '../../hocomponents/withTextContext';
 import AddConfigItemModal from './modal';
-import { Value } from './table';
+import { Value, zoomToSize, zoomToWidth } from './table';
 
 const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
   .reqore-table-body {
@@ -40,10 +35,12 @@ const WorkflowConfigItemsTable: Function = ({
   workflow,
   t,
   definitionsOnly,
+  zoom,
+  itemsPerPage,
 }) => {
   const isInitialItemValueSame = (item) => {
     const initialItem = initialItems.find(
-      (inItem) => inItem.name === item.name && inItem.group === item.group
+      (inItem) => inItem.name === item.name && inItem.config_group === item.config_group
     );
 
     if (!initialItem) {
@@ -51,102 +48,6 @@ const WorkflowConfigItemsTable: Function = ({
     }
 
     return initialItem.value === item.value;
-  };
-
-  const columns = () => {
-    let cols: IReqoreTableColumn[] = [
-      {
-        dataId: 'name',
-        header: t('Name'),
-        sortable: true,
-        cellTooltip: (data) => {
-          return data.name;
-        },
-      },
-    ];
-
-    cols = [
-      ...cols,
-      {
-        dataId: 'value',
-        header: t('Value'),
-        sortable: true,
-        cellTooltip(data) {
-          return (
-            <>
-              <ReqoreMessage intent="info" size="small">
-                <ReactMarkdown>{data.description}</ReactMarkdown>
-              </ReqoreMessage>
-              <ReqoreVerticalSpacer height={10} />
-              <Value item={data} />
-            </>
-          );
-        },
-      },
-      {
-        dataId: 'type',
-        header: t('Type'),
-        sortable: true,
-        width: 200,
-        align: 'center',
-        content: ({ type, can_be_undefined }) => (
-          <ReqoreTag size="small" icon="CodeLine" label={`${can_be_undefined ? '*' : ''}${type}`} />
-        ),
-      },
-
-      {
-        dataId: '_actions',
-        header: t('Actions'),
-        width: 150,
-        align: 'center',
-        content: (item) => (
-          <ReqoreControlGroup stack size="small">
-            <ReqoreButton
-              icon="EditLine"
-              tooltip={t('button.edit-this-value')}
-              disabled={definitionsOnly}
-              onClick={() => {
-                handleModalToggle({
-                  onSubmit: (name, value, parent, isTemplatedString, remove, currentType) => {
-                    onSubmit(
-                      name,
-                      value,
-                      parent,
-                      workflow ? 'workflow' : 'global',
-                      isTemplatedString,
-                      remove,
-                      currentType
-                    );
-                    handleModalToggle(null);
-                  },
-                  globalConfig: globalItems,
-                  item,
-                  isGlobal: true,
-                });
-              }}
-            />
-            <ReqoreButton
-              icon="CloseLine"
-              intent={'warning'}
-              tooltip={t('button.remove-this-value')}
-              disabled={definitionsOnly}
-              onClick={() => {
-                onSubmit(
-                  item.name,
-                  null,
-                  item.parent_class,
-                  workflow ? 'workflow' : 'global',
-                  item.is_templated_string,
-                  true
-                );
-              }}
-            />
-          </ReqoreControlGroup>
-        ),
-      },
-    ];
-
-    return cols;
   };
 
   return (
@@ -161,52 +62,119 @@ const WorkflowConfigItemsTable: Function = ({
         />
       )}
       {globalConfig && globalConfig.length !== 0 ? (
-        <ReqorePanel
-          label={`${t(workflow ? 'Workflow' : 'Global')} ${t('ConfigItemValues')}`}
-          minimal
-          transparent
-          flat
-          collapsible
-          icon={'Settings3Fill'}
-          actions={[
-            {
-              disabled: !size(globalItems),
-              icon: 'AddLine',
-              label: t('button.add-new-value'),
-              tooltip: t('button.add-new-value'),
-              onClick: () => {
-                handleModalToggle({
-                  onSubmit: (name, value, parent, isTemplatedString) => {
-                    onSubmit(
-                      name,
-                      value,
-                      parent,
-                      workflow ? 'workflow' : 'global',
-                      isTemplatedString
-                    );
-                    handleModalToggle(null);
-                  },
-                  globalConfig: globalItems,
-                  isGlobal: true,
-                });
-              },
-            },
-          ]}
-        >
-          <StyledTable
-            rounded
-            striped
-            sort={{
-              by: 'name',
-              direction: 'asc',
+        <>
+          <ReqoreCollection
+            label={`${t(workflow ? 'Workflow' : 'Global')} ${t('ConfigItemValues')}`}
+            filterable
+            sortable
+            icon="PriceTagFill"
+            maxItemHeight={250}
+            minColumnWidth={zoomToWidth[zoom]}
+            responsiveActions={false}
+            responsiveTitle
+            inputInTitle={false}
+            inputProps={{
+              fluid: true,
             }}
-            columns={columns()}
-            data={globalConfig.map((item) => ({
-              ...item,
-              _intent: !isInitialItemValueSame(item) ? 'success' : undefined,
-            }))}
+            paging={{
+              infinite: true,
+              loadMoreLabel: 'Load more...',
+              showLabels: true,
+              itemsPerPage,
+            }}
+            actions={[
+              {
+                disabled: !size(globalItems),
+                icon: 'AddLine',
+                label: t('button.add-new-value'),
+                tooltip: t('button.add-new-value'),
+                onClick: () => {
+                  handleModalToggle({
+                    onSubmit: (name, value, parent, isTemplatedString) => {
+                      onSubmit(
+                        name,
+                        value,
+                        parent,
+                        workflow ? 'workflow' : 'global',
+                        isTemplatedString
+                      );
+                      handleModalToggle(null);
+                    },
+                    globalConfig: globalItems,
+                    isGlobal: true,
+                  });
+                },
+              },
+            ]}
+            items={globalConfig.map(
+              (item): IReqoreCollectionItemProps => ({
+                label: item.name,
+                size: zoomToSize[zoom],
+                tooltip: {
+                  content: item.description,
+                  delay: 300,
+                },
+                intent:
+                  !item.value && !item.is_set
+                    ? 'danger'
+                    : !isInitialItemValueSame(item)
+                    ? 'success'
+                    : undefined,
+                onClick: definitionsOnly
+                  ? undefined
+                  : () => {
+                      handleModalToggle({
+                        onSubmit: (name, value, parent, isTemplatedString, remove, currentType) => {
+                          onSubmit(
+                            name,
+                            value,
+                            parent,
+                            workflow ? 'workflow' : 'global',
+                            isTemplatedString,
+                            remove,
+                            currentType
+                          );
+                          handleModalToggle(null);
+                        },
+                        globalConfig: globalItems,
+                        item,
+                        isGlobal: true,
+                      });
+                    },
+                actions: [
+                  {
+                    icon: 'CloseLine',
+                    tooltip: 'Clear',
+                    intent: 'warning',
+                    disabled: definitionsOnly,
+                    onClick: () => {
+                      onSubmit(
+                        item.name,
+                        null,
+                        item.parent_class,
+                        workflow ? 'workflow' : 'global',
+                        item.is_templated_string,
+                        true
+                      );
+                    },
+                  },
+                ],
+                content: (
+                  <>
+                    <Value item={item} />
+                    <ReqoreVerticalSpacer height={15} />
+                    <ReqoreTagGroup size={zoomToSize[zoom]}>
+                      {item.parent_class ? (
+                        <ReqoreTag labelKey="Parent" icon="CodeBoxFill" label={item.parent_class} />
+                      ) : null}
+                      <ReqoreTag labelKey="Type" label={item.type} icon="CodeLine" />
+                    </ReqoreTagGroup>
+                  </>
+                ),
+              })
+            )}
           />
-        </ReqorePanel>
+        </>
       ) : null}
 
       <ReqoreVerticalSpacer height={10} />

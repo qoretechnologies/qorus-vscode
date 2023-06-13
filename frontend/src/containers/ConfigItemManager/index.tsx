@@ -1,10 +1,11 @@
-import { ReqoreButton, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import { ReqorePanel } from '@qoretechnologies/reqore';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { useMount } from 'react-use';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
+import { PositiveColorEffect } from '../../components/Field/multiPair';
 import { Messages } from '../../constants/messages';
 import InterfaceCreatorPanel from '../../containers/InterfaceCreator/panel';
 import withMessageHandler, {
@@ -15,7 +16,7 @@ import withMessageHandler, {
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import GlobalTable from './globalTable';
-import ConfigItemsTable from './table';
+import ConfigItemsTable, { zoomToLabel } from './table';
 
 export interface IConfigItemManager {
   t: TTranslator;
@@ -60,6 +61,8 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
   const [configItemData, setConfigItemData] = useState<any>(false);
   const [configItems, setConfigItems] = useState<any>({});
+  const [zoom, setZoom] = useState(0.5);
+  const [itemsPerPage, setItemsPerPage] = useState(30);
   const initialConfigItems = useRef(null);
 
   useMount(() => {
@@ -163,16 +166,64 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   };
 
   return (
-    <>
-      {type !== 'workflow' && !disableAdding ? (
-        <ReqoreButton intent="success" icon="AddLine" onClick={() => setShowConfigItemPanel(true)}>
-          {t('AddConfigItem')}
-        </ReqoreButton>
-      ) : null}
-      <ReqoreVerticalSpacer height={10} />
+    <ReqorePanel
+      flat
+      fill
+      transparent
+      actions={[
+        {
+          icon: 'ZoomInLine',
+          tooltip: 'Zoom in',
+          disabled: zoom === 2,
+          className: 'config-items-zoom-in',
+          onClick: () => {
+            setZoom(zoom + 0.5);
+          },
+        },
+        {
+          icon: 'RestartLine',
+          label: zoomToLabel[zoom],
+          tooltip: 'Reset zoom',
+          disabled: zoom === 0.5,
+          className: 'config-items-zoom-reset',
+          onClick: () => {
+            setZoom(0.5);
+          },
+        },
+        {
+          icon: 'ZoomOutLine',
+          tooltip: 'Zoom out',
+          disabled: zoom === 0,
+          className: 'config-items-zoom-out',
+          onClick: () => {
+            setZoom(zoom - 0.5);
+          },
+        },
+        {
+          label: 'Items per page',
+          className: 'config-items-page-size',
+          badge: itemsPerPage,
+          actions: Array.from({ length: 5 }, (_, i) => ({
+            label: `${i + 1}0 items`,
+            onClick: () => {
+              setItemsPerPage((i + 1) * 10);
+            },
+          })),
+        },
+        {
+          label: 'Add Config Item',
+          icon: 'AddLine',
+          effect: PositiveColorEffect,
+          onClick: () => setShowConfigItemPanel(true),
+          show: type !== 'workflow' && !disableAdding,
+        },
+      ]}
+    >
       <div>
         {configItems.global_items && (
           <GlobalTable
+            zoom={zoom}
+            itemsPerPage={itemsPerPage}
             definitionsOnly={definitionsOnly}
             configItems={configItems.global_items}
             initialItems={initialConfigItems.current.global_items}
@@ -181,6 +232,8 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         )}
         {(type === 'step' || type === 'workflow') && configItems.workflow_items ? (
           <GlobalTable
+            zoom={zoom}
+            itemsPerPage={itemsPerPage}
             definitionsOnly={definitionsOnly}
             configItems={configItems.workflow_items}
             initialItems={initialConfigItems.current.workflow_items}
@@ -190,6 +243,8 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         ) : null}
         {configItems.items && type !== 'workflow' ? (
           <ConfigItemsTable
+            zoom={zoom}
+            itemsPerPage={itemsPerPage}
             configItems={{
               data: configItems.items,
             }}
@@ -231,7 +286,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
           />
         </CustomDialog>
       )}
-    </>
+    </ReqorePanel>
   );
 };
 
