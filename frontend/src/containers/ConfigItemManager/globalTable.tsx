@@ -37,6 +37,7 @@ const WorkflowConfigItemsTable: Function = ({
   definitionsOnly,
   zoom,
   itemsPerPage,
+  query,
 }) => {
   const isInitialItemValueSame = (item) => {
     const initialItem = initialItems.find(
@@ -49,6 +50,17 @@ const WorkflowConfigItemsTable: Function = ({
 
     return initialItem.value === item.value;
   };
+
+  const items = globalConfig.filter((item) => {
+    if (query) {
+      return (
+        item.name.toLowerCase().includes(query.toLowerCase()) ||
+        item.description.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+
+    return item;
+  });
 
   return (
     <>
@@ -65,17 +77,18 @@ const WorkflowConfigItemsTable: Function = ({
         <>
           <ReqoreCollection
             label={`${t(workflow ? 'Workflow' : 'Global')} ${t('ConfigItemValues')}`}
-            filterable
             sortable
             icon="PriceTagFill"
             maxItemHeight={250}
             minColumnWidth={zoomToWidth[zoom]}
             responsiveActions={false}
             responsiveTitle
+            collapsible
             inputInTitle={false}
             inputProps={{
               fluid: true,
             }}
+            emptyMessage={`No global config items found ${query ? `for query "${query}"` : ''}`}
             paging={{
               infinite: true,
               loadMoreLabel: 'Load more...',
@@ -106,7 +119,7 @@ const WorkflowConfigItemsTable: Function = ({
                 },
               },
             ]}
-            items={globalConfig.map(
+            items={items.map(
               (item): IReqoreCollectionItemProps => ({
                 label: item.name,
                 size: zoomToSize[zoom],
@@ -147,6 +160,7 @@ const WorkflowConfigItemsTable: Function = ({
                     tooltip: 'Clear',
                     intent: 'warning',
                     disabled: definitionsOnly,
+                    show: 'hover',
                     onClick: () => {
                       onSubmit(
                         item.name,

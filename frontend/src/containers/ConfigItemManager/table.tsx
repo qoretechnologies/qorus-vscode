@@ -1,14 +1,13 @@
 // @flow
 import {
   ReqoreCollection,
+  ReqoreMessage,
   ReqoreTag,
   ReqoreTagGroup,
   ReqoreTree,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import map from 'lodash/map';
-import reduce from 'lodash/reduce';
-import size from 'lodash/size';
 import React, { useEffect, useState } from 'react';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
@@ -19,6 +18,7 @@ import { isNull, isUndefined } from 'util';
 import ContentByType from '../../components/ContentByType';
 //import ConfigItemsModal from './modal';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
+import { size } from 'lodash';
 import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
 import Modal from './modal';
@@ -55,6 +55,7 @@ export const zoomToWidth = {
   2: '600px',
 };
 
+// This code converts a zoom level to a label.
 export const zoomToLabel = {
   0: '50%',
   0.5: '100%',
@@ -63,43 +64,51 @@ export const zoomToLabel = {
   2: '250%',
 };
 
-const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
-  <React.Fragment>
-    {props.isGrouped && size(props.data) ? (
-      map(props.data, (configItemsData, groupName) => (
-        <>
-          <ItemsTable
-            {...props}
-            groupName={groupName}
-            configItemsData={configItemsData}
-            title={groupName}
-            onGroupClick={() => {
-              props.handleGroupedToggle();
-            }}
-          />
-          <ReqoreVerticalSpacer height={10} />
-        </>
-      ))
-    ) : (
-      <ItemsTable
-        {...props}
-        configItemsData={props.configItems.data}
-        onGroupClick={() => {
-          props.handleGroupedToggle();
-        }}
-      />
-    )}
-    {props.modalData && (
-      <Modal
-        onClose={props.handleModalToggle}
-        item={{ ...props.modalData.item }}
-        onSubmit={props.modalData.onSubmit}
-        intrf={props.modalData.intrf}
-        levelType={props.modalData.levelType}
-      />
-    )}
-  </React.Fragment>
-);
+const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => {
+  return (
+    <React.Fragment>
+      {!size(props.isGrouped ? props.data : props.unGroupedData) ? (
+        <ReqoreMessage icon="Search2Line" flat>
+          No local config items found {props.query ? `for query "${props.query}"` : ''}
+        </ReqoreMessage>
+      ) : null}
+      {props.isGrouped && size(props.data)
+        ? map(props.data, (configItemsData, groupName) => (
+            <>
+              <ItemsTable
+                {...props}
+                groupName={groupName}
+                configItemsData={configItemsData}
+                title={groupName}
+                onGroupClick={() => {
+                  props.handleGroupedToggle();
+                }}
+              />
+              <ReqoreVerticalSpacer height={10} />
+            </>
+          ))
+        : null}
+      {!props.isGrouped && size(props.unGroupedData) ? (
+        <ItemsTable
+          {...props}
+          configItemsData={props.unGroupedData}
+          onGroupClick={() => {
+            props.handleGroupedToggle();
+          }}
+        />
+      ) : null}
+      {props.modalData && (
+        <Modal
+          onClose={props.handleModalToggle}
+          item={{ ...props.modalData.item }}
+          onSubmit={props.modalData.onSubmit}
+          intrf={props.modalData.intrf}
+          levelType={props.modalData.levelType}
+        />
+      )}
+    </React.Fragment>
+  );
+};
 
 export const getItemType = (type, value) => {
   let result = type;
@@ -201,6 +210,7 @@ let ItemsTable: Function = ({
   zoom,
   itemsPerPage,
   onGroupClick,
+  query,
 }: ConfigItemsTableProps) => {
   const isInitialItemValueSame = (item) => {
     const initialItem = initialItems.find((inItem) => {
@@ -218,7 +228,6 @@ let ItemsTable: Function = ({
     <React.Fragment>
       <ReqoreCollection
         label={groupName || 'All config items'}
-        filterable
         sortable
         icon="PriceTagFill"
         maxItemHeight={250}
@@ -276,6 +285,7 @@ let ItemsTable: Function = ({
                 icon: 'CloseLine',
                 tooltip: 'Clear',
                 intent: 'warning',
+                show: 'hover',
                 disabled:
                   definitionsOnly || (item.level ? !item.level.startsWith(levelType || '') : true),
                 onClick: () => {
@@ -292,6 +302,7 @@ let ItemsTable: Function = ({
               {
                 icon: 'EditLine',
                 tooltip: 'Edit',
+                show: 'hover',
                 disabled: definitionsOnly,
                 onClick: () => {
                   onEditStructureClick(item.name);
@@ -354,9 +365,28 @@ export default compose(
       },
   }),
   mapProps(({ configItems, ...rest }) => ({
-    data: reduce(
-      configItems.data,
-      (newItems, item) => {
+    unGroupedData: configItems.data.filter((item) => {
+      if (rest.query) {
+        return (
+          item.name.toLowerCase().includes(rest.query.toLowerCase()) ||
+          item.description.toLowerCase().includes(rest.query.toLowerCase())
+        );
+      }
+
+      return item;
+    }),
+    data: configItems.data
+      .filter((item) => {
+        if (rest.query) {
+          return (
+            item.name.toLowerCase().includes(rest.query.toLowerCase()) ||
+            item.description.toLowerCase().includes(rest.query.toLowerCase())
+          );
+        }
+
+        return item;
+      })
+      .reduce((newItems, item) => {
         // Check if this group exists
         if (!newItems[item.config_group]) {
           newItems[item.config_group] = [];
@@ -364,11 +394,9 @@ export default compose(
         // Push the item
         newItems[item.config_group].push(item);
         return newItems;
-      },
-      {}
-    ),
+      }, {}),
     configItems,
     ...rest,
   })),
-  onlyUpdateForKeys(['configItems', 'showDescription', 'isGrouped', 'modalData'])
+  onlyUpdateForKeys(['configItems', 'showDescription', 'isGrouped', 'modalData', 'query'])
 )(ConfigItemsTable);

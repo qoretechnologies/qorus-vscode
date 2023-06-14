@@ -1,4 +1,5 @@
-import { ReqorePanel } from '@qoretechnologies/reqore';
+import { ReqoreInput, ReqorePanel } from '@qoretechnologies/reqore';
+import { IReqoreInputProps } from '@qoretechnologies/reqore/dist/components/Input';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { useMount } from 'react-use';
 import compose from 'recompose/compose';
@@ -62,7 +63,9 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   const [configItemData, setConfigItemData] = useState<any>(false);
   const [configItems, setConfigItems] = useState<any>({});
   const [zoom, setZoom] = useState(0.5);
+  const [query, setQuery] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(30);
+  const [filters, setFilters] = useState<Record<string, string[]>>({});
   const initialConfigItems = useRef(null);
 
   useMount(() => {
@@ -172,32 +175,51 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
       transparent
       actions={[
         {
-          icon: 'ZoomInLine',
-          tooltip: 'Zoom in',
-          disabled: zoom === 2,
-          className: 'config-items-zoom-in',
-          onClick: () => {
-            setZoom(zoom + 0.5);
-          },
+          as: ReqoreInput,
+          props: {
+            icon: 'SearchLine',
+            placeholder: 'Search',
+            className: 'config-items-search',
+            onClearClick: () => setQuery(''),
+            value: query,
+            onChange: (e) => setQuery(e.target.value),
+            focusRules: {
+              type: 'auto',
+            },
+          } as IReqoreInputProps,
         },
         {
-          icon: 'RestartLine',
-          label: zoomToLabel[zoom],
-          tooltip: 'Reset zoom',
-          disabled: zoom === 0.5,
-          className: 'config-items-zoom-reset',
-          onClick: () => {
-            setZoom(0.5);
-          },
-        },
-        {
-          icon: 'ZoomOutLine',
-          tooltip: 'Zoom out',
-          disabled: zoom === 0,
-          className: 'config-items-zoom-out',
-          onClick: () => {
-            setZoom(zoom - 0.5);
-          },
+          fluid: false,
+          group: [
+            {
+              icon: 'ZoomInLine',
+              tooltip: 'Zoom in',
+              disabled: zoom === 2,
+              className: 'config-items-zoom-in',
+              onClick: () => {
+                setZoom(zoom + 0.5);
+              },
+            },
+            {
+              icon: 'RestartLine',
+              label: zoomToLabel[zoom],
+              tooltip: 'Reset zoom',
+              disabled: zoom === 0.5,
+              className: 'config-items-zoom-reset',
+              onClick: () => {
+                setZoom(0.5);
+              },
+            },
+            {
+              icon: 'ZoomOutLine',
+              tooltip: 'Zoom out',
+              disabled: zoom === 0,
+              className: 'config-items-zoom-out',
+              onClick: () => {
+                setZoom(zoom - 0.5);
+              },
+            },
+          ],
         },
         {
           label: 'Items per page',
@@ -223,6 +245,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         {configItems.global_items && (
           <GlobalTable
             zoom={zoom}
+            query={query}
             itemsPerPage={itemsPerPage}
             definitionsOnly={definitionsOnly}
             configItems={configItems.global_items}
@@ -233,6 +256,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         {(type === 'step' || type === 'workflow') && configItems.workflow_items ? (
           <GlobalTable
             zoom={zoom}
+            query={query}
             itemsPerPage={itemsPerPage}
             definitionsOnly={definitionsOnly}
             configItems={configItems.workflow_items}
@@ -244,6 +268,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         {configItems.items && type !== 'workflow' ? (
           <ConfigItemsTable
             zoom={zoom}
+            query={query}
             itemsPerPage={itemsPerPage}
             configItems={{
               data: configItems.items,

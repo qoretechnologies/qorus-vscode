@@ -1,5 +1,6 @@
 import { isArray } from 'util';
 import { IField } from '../components/FieldWrapper';
+import { TConfigItem } from '../containers/ConfigItemManager/filters';
 import { postMessage } from '../hocomponents/withMessageHandler';
 
 export const maybeSendOnChangeEvent = (field, value, type, interfaceId, sendResponse?: boolean) => {
@@ -33,4 +34,14 @@ export const mapFieldsToGroups = (fields: IField[]) => {
   });
 
   return groups;
+};
+
+export const getUniqueValuesFromConfigItemsByKey = (configItems: TConfigItem[], key: string) => {
+  const uniqueValues = new Set();
+
+  configItems.forEach((item) => {
+    uniqueValues.add(item[key]);
+  });
+
+  return Array.from(uniqueValues);
 };

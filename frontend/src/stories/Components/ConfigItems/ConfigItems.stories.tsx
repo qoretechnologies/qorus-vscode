@@ -1,18 +1,24 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
-import ConfigItemManager from '../../containers/ConfigItemManager';
-import { sleep } from '../Tests/utils';
-import { StoryMeta } from '../types';
+import ConfigItemManager from '../../../containers/ConfigItemManager';
+import { sleep } from '../../Tests/utils';
+import { StoryMeta } from '../../types';
 
 const meta = {
   component: ConfigItemManager,
-  title: 'Components/Config Items',
+  title: 'Components/Config Items/Collection',
 } as StoryMeta<typeof ConfigItemManager>;
 
 export default meta;
 
-export const Grouped: StoryObj<typeof meta> = {};
+export const Grouped: StoryObj<typeof meta> = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await waitFor(() => canvas.getByText('Another Item'), { timeout: 10000 });
+  },
+};
 export const Ungrouped: StoryObj<typeof meta> = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -30,6 +36,11 @@ export const Workflow: StoryObj<typeof meta> = {
   args: {
     type: 'workflow',
     interfaceId: 'test',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await waitFor(() => canvas.getByText('Workflow Item 2'), { timeout: 10000 });
   },
 };
 
