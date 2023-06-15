@@ -28,6 +28,17 @@ export const FancyColorEffect: IReqoreEffect = {
   },
 };
 
+export const SynthColorEffect: IReqoreEffect = {
+  gradient: {
+    colors: {
+      0: '#5865f2',
+      100: '#6e1977',
+    },
+    animate: 'always',
+    animationSpeed: 5,
+  },
+};
+
 export const PositiveColorEffect: IReqoreEffect = {
   gradient: {
     direction: 'to right',

@@ -1,13 +1,13 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
-import ConfigItemManager from '../../../containers/ConfigItemManager';
-import { sleep } from '../../Tests/utils';
-import { StoryMeta } from '../../types';
+import ConfigItemManager from '../../containers/ConfigItemManager';
+import { sleep } from '../Tests/utils';
+import { StoryMeta } from '../types';
 
 const meta = {
   component: ConfigItemManager,
-  title: 'Components/Config Items/Collection',
+  title: 'Components/Config Items',
 } as StoryMeta<typeof ConfigItemManager>;
 
 export default meta;
@@ -58,6 +58,24 @@ export const ItemView: StoryObj<typeof meta> = {
   },
 };
 
+export const NewValueView: StoryObj<typeof meta> = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await waitFor(() => canvas.getByText('Another Item'), { timeout: 10000 });
+
+    await fireEvent.click(canvas.getAllByText('button.add-new-value')[0]);
+
+    await waitFor(() => expect(canvas.getByText('AssignNewConfig')).toBeInTheDocument(), {
+      timeout: 10000,
+    });
+
+    await sleep(1000);
+
+    await fireEvent.click(canvas.getAllByText('PleaseSelect')[0]);
+  },
+};
+
 export const ZoomedIn: StoryObj<typeof meta> = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -103,5 +121,19 @@ export const SetItemsPerPage: StoryObj<typeof meta> = {
     await fireEvent.click(canvas.getAllByText('Items per page')[0]);
     await waitFor(async () => await canvas.getAllByText('10 items')[1], { timeout: 10000 });
     await fireEvent.click(canvas.getAllByText('10 items')[1]);
+  },
+};
+
+export const FiltersOpened: StoryObj<typeof meta> = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await waitFor(() => canvas.getByText('Another Item'), { timeout: 10000 });
+
+    await fireEvent.click(document.querySelector('.config-items-filters'));
+
+    await waitFor(() => expect(canvas.getAllByText('View items')[0]).toBeInTheDocument(), {
+      timeout: 10000,
+    });
   },
 };

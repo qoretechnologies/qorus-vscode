@@ -20,7 +20,7 @@ export default {
       },
       parent_class: 'SomeOtherClass',
       type: 'number',
-      value: i,
+      value: i % 4 !== 0 ? i : undefined,
       level: 'default',
       // Every 5th item is not set
       is_set: i % 5 !== 0,
@@ -49,7 +49,7 @@ export default {
       },
       parent_class: 'SomeOtherClass',
       type: 'number',
-      value: i,
+      value: i % 2 !== 0 ? i : undefined,
       level: 'default',
       // Every 2nd item is not set
       is_set: i % 2 !== 0,
@@ -163,7 +163,7 @@ export default {
       },
     },
     ...Array.from({ length: 50 }, (_v, i) => ({
-      name: `Item ${i + 1}`,
+      name: `${i % 6 === 0 ? 'Special' : 'Normal'} Item ${i + 1}`,
       default_value: 'test',
       description: 'asg',
       config_group: 'Paged group',
@@ -180,9 +180,12 @@ export default {
       },
       parent_class: 'SomeOtherClass',
       type: 'number',
-      value: i,
-      level: 'default',
-      is_set: true,
+      value: i % 5 !== 0 ? i : undefined,
+      level: i % 17 === 0 ? 'step' : 'default',
+      // Every 5th item is not set
+      is_set: i % 5 !== 0,
+      // Every 12th item is strictly local
+      strictly_local: i % 12 === 0,
       yamlData: {
         value: 2,
         default_value: 2,

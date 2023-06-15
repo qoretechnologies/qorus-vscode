@@ -43,5 +43,24 @@ export const getUniqueValuesFromConfigItemsByKey = (configItems: TConfigItem[], 
     uniqueValues.add(item[key]);
   });
 
-  return Array.from(uniqueValues);
+  return Array.from(uniqueValues).filter((item) => item);
+};
+
+export const getFilteredItems = (
+  items: { [key: string | number]: any }[],
+  filters: Record<string, string[]>
+): { [key: string | number]: any }[] => {
+  const filteredItems = items.filter((item) => {
+    let isMatch = true;
+
+    Object.keys(filters).forEach((category) => {
+      if (!filters[category].includes(item[category])) {
+        isMatch = false;
+      }
+    });
+
+    return isMatch;
+  });
+
+  return filteredItems;
 };

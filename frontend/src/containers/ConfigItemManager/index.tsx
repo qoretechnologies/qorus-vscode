@@ -1,14 +1,16 @@
 import { ReqoreInput, ReqorePanel } from '@qoretechnologies/reqore';
 import { IReqoreInputProps } from '@qoretechnologies/reqore/dist/components/Input';
+import { reduce, size } from 'lodash';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { useMount } from 'react-use';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
-import { PositiveColorEffect } from '../../components/Field/multiPair';
+import { PositiveColorEffect, SynthColorEffect } from '../../components/Field/multiPair';
 import { Messages } from '../../constants/messages';
 import InterfaceCreatorPanel from '../../containers/InterfaceCreator/panel';
+import { getFilteredItems } from '../../helpers/common';
 import withMessageHandler, {
   TMessageListener,
   TPostMessage,
@@ -16,6 +18,7 @@ import withMessageHandler, {
   postMessage,
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
+import { ConfigItemsManagerFilters } from './filters';
 import GlobalTable from './globalTable';
 import ConfigItemsTable, { zoomToLabel } from './table';
 
@@ -65,6 +68,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   const [zoom, setZoom] = useState(0.5);
   const [query, setQuery] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(30);
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Record<string, string[]>>({});
   const initialConfigItems = useRef(null);
 
@@ -169,149 +173,188 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   };
 
   return (
-    <ReqorePanel
-      flat
-      fill
-      transparent
-      actions={[
-        {
-          as: ReqoreInput,
-          props: {
-            icon: 'SearchLine',
-            placeholder: 'Search',
-            className: 'config-items-search',
-            onClearClick: () => setQuery(''),
-            value: query,
-            onChange: (e) => setQuery(e.target.value),
-            focusRules: {
-              type: 'auto',
-            },
-          } as IReqoreInputProps,
-        },
-        {
-          fluid: false,
-          group: [
-            {
-              icon: 'ZoomInLine',
-              tooltip: 'Zoom in',
-              disabled: zoom === 2,
-              className: 'config-items-zoom-in',
-              onClick: () => {
-                setZoom(zoom + 0.5);
+    <>
+      {showFilters && (
+        <ConfigItemsManagerFilters
+          filters={filters}
+          onSubmit={(filters) => setFilters(filters)}
+          localItems={configItems.items}
+          globalItems={configItems.global_items}
+          workflowItems={configItems.workflow_items}
+          onClose={() => setShowFilters(false)}
+        />
+      )}
+      <ReqorePanel
+        flat
+        fill
+        transparent
+        actions={[
+          {
+            fluid: true,
+            as: ReqoreInput,
+            props: {
+              fluid: true,
+              icon: 'SearchLine',
+              placeholder: 'Search',
+              className: 'config-items-search',
+              onClearClick: () => setQuery(''),
+              value: query,
+              effect: query ? SynthColorEffect : undefined,
+              onChange: (e) => setQuery(e.target.value),
+              focusRules: {
+                type: 'auto',
               },
-            },
-            {
-              icon: 'RestartLine',
-              label: zoomToLabel[zoom],
-              tooltip: 'Reset zoom',
-              disabled: zoom === 0.5,
-              className: 'config-items-zoom-reset',
-              onClick: () => {
-                setZoom(0.5);
+            } as IReqoreInputProps,
+          },
+          {
+            fluid: false,
+            group: [
+              {
+                icon: 'FilterLine',
+                tooltip: 'Filter config items',
+                label: 'Filters',
+                className: 'config-items-filters',
+                onClick: () => setShowFilters(!showFilters),
+                flat: !size(filters),
+                effect: size(filters) ? SynthColorEffect : undefined,
+                badge: reduce(filters, (count, filters) => count + size(filters), 0),
               },
-            },
-            {
-              icon: 'ZoomOutLine',
-              tooltip: 'Zoom out',
-              disabled: zoom === 0,
-              className: 'config-items-zoom-out',
-              onClick: () => {
-                setZoom(zoom - 0.5);
+              {
+                icon: 'CloseLine',
+                flat: !size(filters),
+                effect: size(filters) ? SynthColorEffect : undefined,
+                tooltip: 'Clear filters',
+                className: 'config-items-filters-reset',
+                show: !!size(filters),
+                onClick: () => setFilters({}),
               },
-            },
-          ],
-        },
-        {
-          label: 'Items per page',
-          className: 'config-items-page-size',
-          badge: itemsPerPage,
-          actions: Array.from({ length: 5 }, (_, i) => ({
-            label: `${i + 1}0 items`,
-            onClick: () => {
-              setItemsPerPage((i + 1) * 10);
-            },
-          })),
-        },
-        {
-          label: 'Add Config Item',
-          icon: 'AddLine',
-          effect: PositiveColorEffect,
-          onClick: () => setShowConfigItemPanel(true),
-          show: type !== 'workflow' && !disableAdding,
-        },
-      ]}
-    >
-      <div>
-        {configItems.global_items && (
-          <GlobalTable
-            zoom={zoom}
-            query={query}
-            itemsPerPage={itemsPerPage}
-            definitionsOnly={definitionsOnly}
-            configItems={configItems.global_items}
-            initialItems={initialConfigItems.current.global_items}
-            onSubmit={handleSubmit}
-          />
-        )}
-        {(type === 'step' || type === 'workflow') && configItems.workflow_items ? (
-          <GlobalTable
-            zoom={zoom}
-            query={query}
-            itemsPerPage={itemsPerPage}
-            definitionsOnly={definitionsOnly}
-            configItems={configItems.workflow_items}
-            initialItems={initialConfigItems.current.workflow_items}
-            workflow
-            onSubmit={handleSubmit}
-          />
-        ) : null}
-        {configItems.items && type !== 'workflow' ? (
-          <ConfigItemsTable
-            zoom={zoom}
-            query={query}
-            itemsPerPage={itemsPerPage}
-            configItems={{
-              data: configItems.items,
-            }}
-            initialItems={initialConfigItems.current.items}
-            definitionsOnly={definitionsOnly}
-            onEditStructureClick={handleEditStructureClick}
-            onDeleteStructureClick={handleDeleteStructureClick}
-            onSubmit={handleSubmit}
-            disableAdding={disableAdding}
-            type={type}
-          />
-        ) : null}
-      </div>
+            ],
+          },
+          {
+            fluid: false,
+            group: [
+              {
+                icon: 'ZoomInLine',
+                tooltip: 'Zoom in',
+                disabled: zoom === 2,
+                className: 'config-items-zoom-in',
+                onClick: () => {
+                  setZoom(zoom + 0.5);
+                },
+              },
+              {
+                icon: 'RestartLine',
+                label: zoomToLabel[zoom],
+                tooltip: 'Reset zoom',
+                disabled: zoom === 0.5,
+                className: 'config-items-zoom-reset',
+                onClick: () => {
+                  setZoom(0.5);
+                },
+              },
+              {
+                icon: 'ZoomOutLine',
+                tooltip: 'Zoom out',
+                disabled: zoom === 0,
+                className: 'config-items-zoom-out',
+                onClick: () => {
+                  setZoom(zoom - 0.5);
+                },
+              },
+            ],
+          },
+          {
+            label: 'Items per page',
+            className: 'config-items-page-size',
+            badge: itemsPerPage,
+            actions: Array.from({ length: 5 }, (_, i) => ({
+              label: `${i + 1}0 items`,
+              onClick: () => {
+                setItemsPerPage((i + 1) * 10);
+              },
+            })),
+          },
+          {
+            label: 'Add Config Item',
+            icon: 'AddLine',
+            effect: PositiveColorEffect,
+            onClick: () => setShowConfigItemPanel(true),
+            show: type !== 'workflow' && !disableAdding,
+          },
+        ]}
+      >
+        <div>
+          {configItems.global_items && (
+            <GlobalTable
+              zoom={zoom}
+              query={query}
+              itemsPerPage={itemsPerPage}
+              definitionsOnly={definitionsOnly}
+              configItems={getFilteredItems(configItems.global_items, filters)}
+              initialItems={initialConfigItems.current.global_items}
+              onSubmit={handleSubmit}
+            />
+          )}
+          {(type === 'step' || type === 'workflow') && configItems.workflow_items ? (
+            <GlobalTable
+              zoom={zoom}
+              query={query}
+              itemsPerPage={itemsPerPage}
+              definitionsOnly={definitionsOnly}
+              configItems={getFilteredItems(configItems.workflow_items, filters)}
+              initialItems={initialConfigItems.current.workflow_items}
+              workflow
+              onSubmit={handleSubmit}
+            />
+          ) : null}
+          {configItems.items && type !== 'workflow' ? (
+            <ConfigItemsTable
+              zoom={zoom}
+              query={query}
+              itemsPerPage={itemsPerPage}
+              configItems={{
+                data: getFilteredItems(configItems.items, filters),
+              }}
+              initialItems={initialConfigItems.current.items}
+              definitionsOnly={definitionsOnly}
+              onEditStructureClick={handleEditStructureClick}
+              onDeleteStructureClick={handleDeleteStructureClick}
+              onSubmit={handleSubmit}
+              disableAdding={disableAdding}
+              type={type}
+            />
+          ) : null}
+        </div>
 
-      {showConfigItemPanel && (
-        <CustomDialog
-          isOpen
-          label={t('ConfigItemEditor')}
-          onClose={() => {
-            setConfigItemData(null);
-            setShowConfigItemPanel(false);
-            resetFields && resetFields('config-item');
-          }}
-        >
-          <InterfaceCreatorPanel
-            fileName={configItems.file_name}
-            parent={type}
-            type={'config-item'}
-            initialInterfaceId={interfaceId}
-            data={configItemData}
-            disabledFields={configItemData && configItemData.parent && ['name']}
-            isEditing={!!configItemData}
-            onSubmitSuccess={() => {
+        {showConfigItemPanel && (
+          <CustomDialog
+            isOpen
+            label={t('ConfigItemEditor')}
+            onClose={() => {
               setConfigItemData(null);
               setShowConfigItemPanel(false);
               resetFields && resetFields('config-item');
             }}
-            forceSubmit
-          />
-        </CustomDialog>
-      )}
-    </ReqorePanel>
+          >
+            <InterfaceCreatorPanel
+              fileName={configItems.file_name}
+              parent={type}
+              type={'config-item'}
+              initialInterfaceId={interfaceId}
+              data={configItemData}
+              disabledFields={configItemData && configItemData.parent && ['name']}
+              isEditing={!!configItemData}
+              onSubmitSuccess={() => {
+                setConfigItemData(null);
+                setShowConfigItemPanel(false);
+                resetFields && resetFields('config-item');
+              }}
+              forceSubmit
+            />
+          </CustomDialog>
+        )}
+      </ReqorePanel>
+    </>
   );
 };
 

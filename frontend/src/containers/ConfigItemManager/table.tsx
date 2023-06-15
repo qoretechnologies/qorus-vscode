@@ -262,7 +262,7 @@ let ItemsTable: Function = ({
               delay: 300,
             },
             intent:
-              !item.value && !item.is_set
+              !item.value && item.value !== 0 && !item.is_set
                 ? 'danger'
                 : !isInitialItemValueSame(item)
                 ? 'success'

@@ -1,15 +1,18 @@
 import {
+  ReqoreCheckbox,
   ReqoreColumn,
   ReqoreColumns,
+  ReqoreControlGroup,
   ReqoreModal,
   ReqorePanel,
   ReqoreTag,
   ReqoreTagGroup,
 } from '@qoretechnologies/reqore';
-import { size } from 'lodash';
+import { reduce, size } from 'lodash';
 import { useState } from 'react';
+import { SaveColorEffect, WarningColorEffect } from '../../components/Field/multiPair';
 import { IQorusType } from '../../components/Field/systemOptions';
-import { getUniqueValuesFromConfigItemsByKey } from '../../helpers/common';
+import { getFilteredItems, getUniqueValuesFromConfigItemsByKey } from '../../helpers/common';
 
 export type TConfigItem = {
   name: string;
@@ -30,7 +33,7 @@ export type TConfigItem = {
   parent_class?: string;
   type: IQorusType;
   value?: any;
-  level?: 'default' | 'step';
+  level?: 'default' | 'step' | 'workflow' | 'global';
   // Every 5th item is not set
   is_set: boolean;
   yamlData?: {
@@ -44,7 +47,7 @@ export interface IConfigItemsManagerFiltersProps {
   globalItems: TConfigItem[];
   workflowItems: TConfigItem[];
   filters: Record<keyof TConfigItem, string[]> | {};
-  onSubmit: (filters: Record<string, string>) => void;
+  onSubmit: (filters: Record<string, string[]>) => void;
   onClose: () => void;
 }
 
@@ -77,6 +80,10 @@ export const ConfigItemsManagerFilters = ({
       newFilters[category] = newFilters[category].filter((val) => val !== value);
     }
 
+    if (!newFilters[category].length) {
+      delete newFilters[category];
+    }
+
     setLocalFilters(newFilters);
   };
 
@@ -84,19 +91,46 @@ export const ConfigItemsManagerFilters = ({
     return localFilters[category]?.includes(value);
   };
 
-  console.log(!size(localFilters));
+  const filteredItems = getFilteredItems(items, localFilters);
+  const filterCount = reduce(localFilters, (count, filters) => count + size(filters), 0);
 
   return (
     <ReqoreModal
       isOpen
       onClose={onClose}
       label="Filters"
+      className="filters"
       actions={[
         {
           label: `Reset all filters`,
-          badge: size(localFilters),
+          badge: filterCount,
           icon: 'HistoryLine',
+          className: 'filters-reset',
           onClick: () => setLocalFilters({}),
+          show: !!size(localFilters),
+        },
+      ]}
+      bottomActions={[
+        {
+          label: 'View items',
+          onClick: () => {
+            onSubmit(localFilters);
+            onClose();
+          },
+          effect: SaveColorEffect,
+          icon: 'CheckLine',
+          badge: size(filteredItems),
+          disabled: !size(filteredItems),
+          position: 'right',
+          show: !!size(filteredItems),
+        },
+        {
+          label: 'No items match your filters',
+          effect: WarningColorEffect,
+          readOnly: true,
+          icon: 'InformationLine',
+          position: 'right',
+          show: !size(filteredItems),
         },
       ]}
     >
@@ -151,6 +185,74 @@ export const ConfigItemsManagerFilters = ({
                 />
               ))}
             </ReqoreTagGroup>
+          </ReqorePanel>
+        </ReqoreColumn>
+        <ReqoreColumn>
+          <ReqorePanel flat minimal label="Show items">
+            <ReqoreControlGroup vertical size="small">
+              <ReqoreCheckbox
+                checked={isSelected('is_set', true)}
+                label="With value"
+                asSwitch
+                intent={isSelected('is_set', true) ? 'info' : undefined}
+                margin="none"
+                onClick={() => {
+                  if (isSelected('is_set', true)) {
+                    removeFilter('is_set', true);
+                  } else {
+                    addFilter('is_set', true);
+                  }
+                }}
+              />
+              <ReqoreCheckbox
+                checked={isSelected('is_set', false)}
+                label="Without value"
+                asSwitch
+                intent={isSelected('is_set', false) ? 'info' : undefined}
+                margin="none"
+                onClick={() => {
+                  if (isSelected('is_set', false)) {
+                    removeFilter('is_set', false);
+                  } else {
+                    addFilter('is_set', false);
+                  }
+                }}
+              />
+            </ReqoreControlGroup>
+          </ReqorePanel>
+        </ReqoreColumn>
+        <ReqoreColumn>
+          <ReqorePanel flat minimal label="Strictly local">
+            <ReqoreControlGroup vertical size="small">
+              <ReqoreCheckbox
+                checked={isSelected('strictly_local', true)}
+                label="Yes"
+                asSwitch
+                intent={isSelected('strictly_local', true) ? 'info' : undefined}
+                margin="none"
+                onClick={() => {
+                  if (isSelected('strictly_local', true)) {
+                    removeFilter('strictly_local', true);
+                  } else {
+                    addFilter('strictly_local', true);
+                  }
+                }}
+              />
+              <ReqoreCheckbox
+                checked={isSelected('strictly_local', false)}
+                label="No"
+                asSwitch
+                intent={isSelected('strictly_local', false) ? 'info' : undefined}
+                margin="none"
+                onClick={() => {
+                  if (isSelected('strictly_local', false)) {
+                    removeFilter('strictly_local', false);
+                  } else {
+                    addFilter('strictly_local', false);
+                  }
+                }}
+              />
+            </ReqoreControlGroup>
           </ReqorePanel>
         </ReqoreColumn>
       </ReqoreColumns>
