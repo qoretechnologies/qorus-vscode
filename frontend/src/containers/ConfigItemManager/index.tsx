@@ -67,7 +67,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   const [configItems, setConfigItems] = useState<any>({});
   const [zoom, setZoom] = useState(0.5);
   const [query, setQuery] = useState('');
-  const [itemsPerPage, setItemsPerPage] = useState(30);
+  const [itemsPerPage, setItemsPerPage] = useState(undefined);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Record<string, string[]>>({});
   const initialConfigItems = useRef(null);
@@ -90,6 +90,15 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
       if (!initialConfigItems.current) {
         initialConfigItems.current = data;
       }
+      const configItemsCount = size([...data.items, ...data.global_items, ...data.workflow_items]);
+
+      if (configItemsCount > 100) {
+        // The larger the number of items, the smaller the paging
+        // When the count is 100 the paging is 50, when the count is 500 the paging is 10
+        const pages = Math.floor(100 / Math.floor(configItemsCount / 50));
+        setItemsPerPage(pages < 10 ? 10 : pages);
+      }
+
       setConfigItems(data);
       // Check if the initial config items are the same as the current config items
       // If they are, then we don't need to update the config items
@@ -262,17 +271,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                 },
               },
             ],
-          },
-          {
-            label: 'Items per page',
-            className: 'config-items-page-size',
-            badge: itemsPerPage,
-            actions: Array.from({ length: 5 }, (_, i) => ({
-              label: `${i + 1}0 items`,
-              onClick: () => {
-                setItemsPerPage((i + 1) * 10);
-              },
-            })),
           },
           {
             label: 'Add Config Item',

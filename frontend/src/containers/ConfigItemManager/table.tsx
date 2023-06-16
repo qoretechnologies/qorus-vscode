@@ -247,12 +247,16 @@ let ItemsTable: Function = ({
             },
           },
         ]}
-        paging={{
-          infinite: true,
-          loadMoreLabel: 'Load more...',
-          showLabels: true,
-          itemsPerPage,
-        }}
+        paging={
+          itemsPerPage
+            ? {
+                infinite: true,
+                loadMoreLabel: 'Load more...',
+                showLabels: true,
+                itemsPerPage,
+              }
+            : undefined
+        }
         items={configItemsData.map(
           (item): IReqoreCollectionItemProps => ({
             label: item.name,

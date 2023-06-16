@@ -106,24 +106,6 @@ export const ZoomedOut: StoryObj<typeof meta> = {
   },
 };
 
-export const SetItemsPerPage: StoryObj<typeof meta> = {
-  play: async ({ canvasElement, ...rest }) => {
-    const canvas = within(canvasElement);
-
-    await Ungrouped.play({ canvasElement, ...rest });
-
-    await waitFor(async () => await canvas.getAllByText('Items per page')[0], {
-      timeout: 10000,
-    });
-
-    await sleep(100);
-
-    await fireEvent.click(canvas.getAllByText('Items per page')[0]);
-    await waitFor(async () => await canvas.getAllByText('10 items')[1], { timeout: 10000 });
-    await fireEvent.click(canvas.getAllByText('10 items')[1]);
-  },
-};
-
 export const FiltersOpened: StoryObj<typeof meta> = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

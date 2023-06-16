@@ -89,12 +89,16 @@ const WorkflowConfigItemsTable: Function = ({
               fluid: true,
             }}
             emptyMessage={`No global config items found ${query ? `for query "${query}"` : ''}`}
-            paging={{
-              infinite: true,
-              loadMoreLabel: 'Load more...',
-              showLabels: true,
-              itemsPerPage,
-            }}
+            paging={
+              itemsPerPage
+                ? {
+                    infinite: true,
+                    loadMoreLabel: 'Load more...',
+                    showLabels: true,
+                    itemsPerPage,
+                  }
+                : undefined
+            }
             actions={[
               {
                 disabled: !size(globalItems),

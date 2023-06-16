@@ -33,7 +33,7 @@ export const ItemsCanBeFiltered: StoryObj<typeof meta> = {
     // @ts-ignore
     await SelectFilters.play({ canvasElement, ...rest });
 
-    await expect(document.querySelectorAll('.reqore-collection-item').length).toBe(39);
+    await expect(document.querySelectorAll('.reqore-collection-item').length).toBe(49);
   },
 };
 
@@ -59,6 +59,6 @@ export const ResetFilters: StoryObj<typeof meta> = {
 
     await fireEvent.click(document.querySelector('.config-items-filters-reset'));
 
-    await expect(document.querySelectorAll('.reqore-collection-item').length).toBe(42);
+    await expect(document.querySelectorAll('.reqore-collection-item').length).toBe(62);
   },
 };

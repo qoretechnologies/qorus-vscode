@@ -122,7 +122,7 @@ describe('mapFieldsToGroups', () => {
   });
 });
 
-describe.only('getUniqueValuesFromConfigItemsByKey', () => {
+describe('getUniqueValuesFromConfigItemsByKey', () => {
   const items = configItems;
 
   it('should return unique types from config items', () => {
@@ -130,8 +130,6 @@ describe.only('getUniqueValuesFromConfigItemsByKey', () => {
       [...items.global_items, ...items.workflow_items, ...items.items],
       'type'
     );
-
-    console.log(result);
 
     expect(result).toContain('string');
     expect(result).toContain('number');
