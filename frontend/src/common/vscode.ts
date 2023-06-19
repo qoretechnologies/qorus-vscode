@@ -155,6 +155,15 @@ export const vscode =
               };
               break;
             }
+            case 'creator-get-resources': {
+              if (data.object_type === 'files') {
+                messageData = {
+                  object_type: 'files',
+                  action: 'creator-return-resources',
+                };
+              }
+              break;
+            }
             case 'get-config-items-custom-call': {
               await sleep(1000);
 

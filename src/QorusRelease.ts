@@ -1,6 +1,6 @@
 import * as archiver from 'archiver';
 import * as fs from 'fs';
-import { size, uniq } from 'lodash';
+import { forEach, size, some, uniq } from 'lodash';
 import * as moment from 'moment';
 import * as os from 'os';
 import * as tmp_dir from 'os-tmpdir';
@@ -9,12 +9,24 @@ import { t } from 'ttag';
 import * as vscode from 'vscode';
 import * as zlib from 'zlib';
 import { deployer } from './QorusDeploy';
-import { projects, QorusProject } from './QorusProject';
+import { QorusProject, projects } from './QorusProject';
 import { QorusRepository } from './QorusRepository';
 import { QorusRepositoryGit } from './QorusRepositoryGit';
 import { qorus_webview } from './QorusWebview';
+import { InterfaceCreator } from './interface_creator/InterfaceCreator';
 import * as msg from './qorus_message';
 import { filesInDir, isDeployable } from './qorus_utils';
+
+export const getSchemaFile = (value: string, target_dir: string): string => {
+  // Get the schema file path
+  const schemaFilePath = path.resolve(target_dir, value);
+  // Get the schema file relative path
+  return vscode.workspace.asRelativePath(schemaFilePath, false);
+};
+
+export const hasFileAsStringOption = (options: Record<string, any>): boolean => {
+  return some(options, (option) => option.type === 'file-as-string');
+};
 
 class QorusRelease {
   private repository: QorusRepository = new QorusRepositoryGit();
@@ -99,16 +111,27 @@ class QorusRelease {
               )
             );
           }
+          if (fileData.type === 'connection' && hasFileAsStringOption(fileData.options)) {
+            forEach(fileData.options, (option) => {
+              if (option.type === 'file-as-string') {
+                // Get the schema file relative path
+                result.push(
+                  getSchemaFile(
+                    InterfaceCreator.getFileWithoutProtocol(option.value),
+                    fileData.target_dir
+                  )
+                );
+              }
+            });
+          }
           // If the file is a service
           if (fileData.type === 'service') {
             // Check if there is a api-manager schema
             if (fileData['api-manager']?.['provider-options']?.schema?.value) {
               // Get the schema file
               const schemaFile = fileData['api-manager']['provider-options'].schema.value;
-              // Get the schema file path
-              const schemaFilePath = path.resolve(fileData.target_dir, schemaFile);
               // Get the schema file relative path
-              result.push(vscode.workspace.asRelativePath(schemaFilePath, false));
+              result.push(getSchemaFile(schemaFile, fileData.target_dir));
             }
             // Check if the service has any resource associated
             if (size(fileData.resources)) {

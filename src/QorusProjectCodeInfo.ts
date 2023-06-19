@@ -5,6 +5,7 @@ import {
   cloneDeep,
   filter,
   flattenDeep,
+  forEach,
   isArray as lodashIsArray,
   isObject as lodashIsObject,
   size,
@@ -19,9 +20,11 @@ import { QorusProject, config_filename, projects } from './QorusProject';
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import { QorusProjectYamlInfo } from './QorusProjectYamlInfo';
+import { hasFileAsStringOption } from './QorusRelease';
 import { qorus_request } from './QorusRequest';
 import { qorus_webview } from './QorusWebview';
 import * as globals from './global_config_item_values';
+import { InterfaceCreator } from './interface_creator/InterfaceCreator';
 import { field } from './interface_creator/common_constants';
 import {
   all_root_classes,
@@ -386,6 +389,9 @@ export class QorusProjectCodeInfo {
     const data = deepCopy(orig_data);
 
     if (data.options) {
+      // Change all file as string options to use absolute paths again
+      data.options = InterfaceCreator.fixFileAsStringOption(data.options, data.target_dir, true);
+
       data[data.type + '_options'] = data.options;
       delete data.options;
     }
@@ -903,6 +909,19 @@ export class QorusProjectCodeInfo {
       checkObjects('group', data.groups);
       checkObjects('fsm', data.fsm);
       checkObjects('value-map', data.vmaps);
+
+      if (data.type === 'connection' && hasFileAsStringOption(data.options)) {
+        forEach(data.options, (option) => {
+          if (option.type === 'file-as-string') {
+            result.push({
+              yaml_file: path.resolve(
+                data.target_dir,
+                InterfaceCreator.getFileWithoutProtocol(option.value)
+              ),
+            });
+          }
+        });
+      }
 
       if (data.type === 'service' && data['api-manager']) {
         // Add the schema to other files to be deployed

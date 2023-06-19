@@ -388,8 +388,11 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
       case 'file-as-string': {
         return (
           <FileField
+            {...rest}
             name={name}
             value={value}
+            filesOnly
+            label="Select File"
             onChange={handleChange}
             type={currentType}
             get_message={{
