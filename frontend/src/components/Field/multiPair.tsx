@@ -28,6 +28,17 @@ export const FancyColorEffect: IReqoreEffect = {
   },
 };
 
+export const QorusColorEffect: IReqoreEffect = {
+  gradient: {
+    colors: {
+      0: '#6e1977:lighten',
+      100: '#6e1977',
+    },
+    animate: 'hover',
+    animationSpeed: 5,
+  },
+};
+
 export const SynthColorEffect: IReqoreEffect = {
   gradient: {
     colors: {

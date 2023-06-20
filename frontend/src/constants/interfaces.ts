@@ -11,6 +11,7 @@ export const interfaceKindTransform = {
   mapper: 'mapper',
   group: 'group',
   event: 'event',
+  'sync-event': 'sync-event',
   queue: 'queue',
   connection: 'connection',
   fsm: 'fsm',
@@ -18,6 +19,9 @@ export const interfaceKindTransform = {
   'value-map': 'value-map',
   type: 'type',
   class: 'class',
+  'schema-modules': 'schema-modules',
+  scripts: 'scripts',
+  tests: 'tests',
 };
 
 export const interfaceToPlural = {
@@ -30,6 +34,7 @@ export const interfaceToPlural = {
   mapper: 'mappers',
   group: 'groups',
   event: 'events',
+  'sync-event': 'sync-events',
   queue: 'queues',
   connection: 'connections',
   fsm: 'fsms',
@@ -37,9 +42,9 @@ export const interfaceToPlural = {
   'value-map': 'valuemaps',
   type: 'types',
   class: 'classes',
-  'schema-module': 'schema-modules',
-  script: 'scripts',
-  test: 'tests',
+  'schema-modules': 'schema-modules',
+  scripts: 'scripts',
+  tests: 'tests',
 };
 
 export const interfaceIcons = {
@@ -52,6 +57,7 @@ export const interfaceIcons = {
   mapper: 'MindMap',
   group: 'GridFill',
   event: 'GitCommitLine',
+  'sync-event': 'GitCommitLine',
   queue: 'StackLine',
   connection: 'Plug2Line',
   fsm: 'DashboardLine',
@@ -59,9 +65,9 @@ export const interfaceIcons = {
   'value-map': 'BringToFront',
   type: 'Asterisk',
   class: 'CodeSLine',
-  'schema-module': 'Asterisk',
-  script: 'Asterisk',
-  test: 'Asterisk',
+  'schema-modules': 'Asterisk',
+  scripts: 'Asterisk',
+  tests: 'Asterisk',
 };
 
 export const interfaceNameToKind = {
@@ -74,6 +80,7 @@ export const interfaceNameToKind = {
   Mapper: 'mapper',
   Group: 'group',
   Event: 'event',
+  'Sync Event': 'sync-event',
   Queue: 'queue',
   Connection: 'connection',
   'Flow Builder': 'fsm',
@@ -81,7 +88,7 @@ export const interfaceNameToKind = {
   'Value Map': 'value-map',
   Type: 'type',
   Class: 'class',
-  'Schema Module': 'schema-module',
-  Script: 'script',
-  Test: 'test',
+  'Schema Module': 'schema-modules',
+  Script: 'scripts',
+  Test: 'tests',
 };

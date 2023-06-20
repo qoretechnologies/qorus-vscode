@@ -43,6 +43,7 @@ export const vscode =
               messageData = {
                 action: 'get-all-interfaces-complete',
                 data: items,
+                request_id: data.request_id,
               };
               break;
             }
