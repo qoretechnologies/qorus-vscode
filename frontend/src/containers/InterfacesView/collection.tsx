@@ -1,5 +1,6 @@
 import { ReqoreCollection, ReqoreSpinner, useReqoreProperty } from '@qoretechnologies/reqore';
-import { capitalize } from 'lodash';
+import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
+import { capitalize, size } from 'lodash';
 import { useContext, useMemo } from 'react';
 import { useMeasure } from 'react-use';
 import { IQorusInterface } from '.';
@@ -9,6 +10,7 @@ import {
   SelectorColorEffect,
   WarningColorEffect,
 } from '../../components/Field/multiPair';
+import { Markdown } from '../../components/Markdown';
 import {
   interfaceIcons,
   interfaceKindTransform,
@@ -19,25 +21,30 @@ import { InitialContext } from '../../context/init';
 import { deleteDraft } from '../../helpers/functions';
 import { postMessage } from '../../hocomponents/withMessageHandler';
 import { useFetchInterfaces } from '../../hooks/useFetchInterfaces';
+import { zoomToSize, zoomToWidth } from '../ConfigItemManager/table';
 import { InterfacesViewItem } from './item';
 
 export interface IInterfaceViewCollectionProps {
   type: string;
   items: IQorusInterface[];
   showRemotes?: boolean;
+  zoom: number;
+  isOther: boolean;
 }
 
 export const InterfacesViewCollection = ({
   type,
   items,
   showRemotes,
+  zoom,
+  isOther,
 }: IInterfaceViewCollectionProps) => {
   const addNotification = useReqoreProperty('addNotification');
   const confirmAction = useReqoreProperty('confirmAction');
   const { changeDraft, changeTab, qorus_instance } = useContext(InitialContext);
   const [ref, { width, height }] = useMeasure<HTMLDivElement>();
 
-  const { value, loading } = useFetchInterfaces(
+  const { value, loading, onDeleteRemoteClick } = useFetchInterfaces(
     qorus_instance && showRemotes,
     interfaceToPlural[type],
     items
@@ -52,8 +59,26 @@ export const InterfacesViewCollection = ({
   };
 
   const itemsPerPage = useMemo(() => {
-    return Math.floor(width / 400) * Math.floor(height / 65) || 100;
+    return Math.floor(width / 400) * Math.floor(height / 120) || 100;
   }, [width, height]);
+
+  const getItemsCount = () => {
+    return size(value.filter((item) => !item.isDraft));
+  };
+
+  const getDraftsCount = () => {
+    return size(value.filter((item) => item.isDraft || item.hasDraft));
+  };
+
+  const badges = useMemo(() => {
+    const badgeList: TReqoreBadge[] = [getItemsCount()];
+
+    if (!isOther) {
+      badgeList.push({ labelKey: 'Drafts', label: getDraftsCount(), intent: 'pending' });
+    }
+
+    return badgeList;
+  }, [getItemsCount, getDraftsCount]);
 
   if (loading) {
     return <ReqoreSpinner size="big">Loading server data...</ReqoreSpinner>;
@@ -66,7 +91,9 @@ export const InterfacesViewCollection = ({
       getContentRef={ref}
       filterable
       minimal
-      maxItemHeight={200}
+      minColumnWidth={zoomToWidth[zoom]}
+      badge={badges}
+      maxItemHeight={120}
       responsiveActions={false}
       fill
       paging={{
@@ -80,15 +107,17 @@ export const InterfacesViewCollection = ({
           icon: 'AddCircleLine',
           tooltip: `Create new ${type}`,
           minimal: true,
+          show: !isOther,
           flat: false,
           onClick: () => changeTab('CreateInterface', type),
           effect: PositiveColorEffect,
         },
         {
           icon: 'DeleteBin6Fill',
-          tooltip: 'Delete drafts',
+          tooltip: `Delete ${type} drafts`,
           effect: WarningColorEffect,
           minimal: true,
+          show: !isOther,
           flat: false,
           onClick: () => {
             onDeleteClick(type);
@@ -103,13 +132,21 @@ export const InterfacesViewCollection = ({
         },
       }}
       items={value.map(({ name, data, isDraft, hasDraft, isServerInterface, ...rest }, index) => ({
-        label: name,
+        label: name || data.error,
         icon: isServerInterface ? 'ServerLine' : isDraft || hasDraft ? 'EditLine' : 'FileLine',
         iconColor: isServerInterface
           ? '#6f1977:lighten:2'
           : isDraft || hasDraft
           ? 'pending'
-          : undefined,
+          : 'info:lighten:2',
+        tooltip: {
+          delay: 1000,
+          content:
+            data?.desc || data?.description ? (
+              <Markdown>{data?.desc || data?.description}</Markdown>
+            ) : undefined,
+          maxWidth: '800px',
+        },
         content: (
           <InterfacesViewItem
             {...rest}
@@ -120,11 +157,21 @@ export const InterfacesViewCollection = ({
             isServerInterface={isServerInterface}
           />
         ),
+        contentEffect: {
+          gradient: {
+            direction: 'to right bottom',
+            colors: {
+              50: 'main',
+              300:
+                isDraft || hasDraft ? 'pending' : isServerInterface ? '#6f1977' : 'info:lighten:2',
+            },
+          },
+        },
+        flat: true,
         responsiveTitle: false,
         responsiveActions: false,
-        b: [],
-        size: 'small',
-        intent: isDraft || hasDraft ? 'pending' : undefined,
+        expandable: isServerInterface,
+        size: zoomToSize[zoom],
         onClick: () => {
           if (isServerInterface) {
             return;
@@ -148,14 +195,14 @@ export const InterfacesViewCollection = ({
             icon: 'UploadLine',
             effect: PositiveColorEffect,
             tooltip: 'Deploy',
-            show: !isDraft ? 'hover' : false,
+            show: !isDraft && !isServerInterface ? 'hover' : false,
             onClick: () => onDeployClick(data),
           },
           {
             icon: 'FileEditLine',
             effect: SelectorColorEffect,
             tooltip: 'Edit code',
-            show: !!data?.code ? 'hover' : false,
+            show: !!data?.code && !isServerInterface ? 'hover' : false,
           },
           {
             icon: 'DeleteBinLine',
@@ -169,6 +216,15 @@ export const InterfacesViewCollection = ({
                   description: 'Are you sure you want to delete this draft?',
                   onConfirm: () => {
                     onDeleteClick(type, rest.interfaceId);
+                  },
+                });
+              } else if (isServerInterface) {
+                confirmAction({
+                  title: 'Delete server interface',
+                  description:
+                    'Are you sure you want to delete this interface FROM THE ACTIVE INSTANCE?',
+                  onConfirm: () => {
+                    onDeleteRemoteClick(name || data.id);
                   },
                 });
               } else {

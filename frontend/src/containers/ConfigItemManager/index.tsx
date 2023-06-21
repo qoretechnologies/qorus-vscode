@@ -1,5 +1,6 @@
 import { ReqoreInput, ReqorePanel } from '@qoretechnologies/reqore';
 import { IReqoreInputProps } from '@qoretechnologies/reqore/dist/components/Input';
+import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
 import { reduce, size } from 'lodash';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { useMount } from 'react-use';
@@ -47,6 +48,41 @@ export const StyledSeparator = styled.hr`
   border-bottom: 1px solid #eee;
   margin: 10px 0;
 `;
+
+export const getZoomActions = (
+  type: string,
+  zoom: number,
+  setter: (zoom: number) => void
+): IReqorePanelAction[] => [
+  {
+    icon: 'ZoomInLine',
+    tooltip: 'Zoom in',
+    disabled: zoom === 2,
+    className: `${type}-zoom-in`,
+    onClick: () => {
+      setter(zoom + 0.5);
+    },
+  },
+  {
+    icon: 'RestartLine',
+    label: zoomToLabel[zoom],
+    tooltip: 'Reset zoom',
+    disabled: zoom === 0.5,
+    className: `${type}-zoom-reset`,
+    onClick: () => {
+      setter(0.5);
+    },
+  },
+  {
+    icon: 'ZoomOutLine',
+    tooltip: 'Zoom out',
+    disabled: zoom === 0,
+    className: `${type}-zoom-out`,
+    onClick: () => {
+      setter(zoom - 0.5);
+    },
+  },
+];
 
 const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
   t,
@@ -241,36 +277,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
           },
           {
             fluid: false,
-            group: [
-              {
-                icon: 'ZoomInLine',
-                tooltip: 'Zoom in',
-                disabled: zoom === 2,
-                className: 'config-items-zoom-in',
-                onClick: () => {
-                  setZoom(zoom + 0.5);
-                },
-              },
-              {
-                icon: 'RestartLine',
-                label: zoomToLabel[zoom],
-                tooltip: 'Reset zoom',
-                disabled: zoom === 0.5,
-                className: 'config-items-zoom-reset',
-                onClick: () => {
-                  setZoom(0.5);
-                },
-              },
-              {
-                icon: 'ZoomOutLine',
-                tooltip: 'Zoom out',
-                disabled: zoom === 0,
-                className: 'config-items-zoom-out',
-                onClick: () => {
-                  setZoom(zoom - 0.5);
-                },
-              },
-            ],
+            group: getZoomActions('config-items', zoom, setZoom),
           },
           {
             label: 'Add Config Item',

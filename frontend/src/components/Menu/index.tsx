@@ -32,6 +32,8 @@ const Sidebar: Function = ({ projectFolder, qorusInstance }: SidebarProps) => {
   const initialData = useContext(InitialContext);
   const t = useContext(TextContext);
 
+  console.log(initialData.tab);
+
   return (
     <ReqoreSidebar
       onCollapseChange={(isCollapsed) => {
@@ -74,7 +76,7 @@ const Sidebar: Function = ({ projectFolder, qorusInstance }: SidebarProps) => {
         },
       ]}
       items={buildMenu(initialData)}
-      path="/"
+      path={`/${initialData.tab}`}
     />
   );
 };

@@ -1,12 +1,13 @@
 import {
   ReqoreHorizontalSpacer,
   ReqoreMenu,
+  ReqoreMenuDivider,
   ReqoreMenuItem,
   ReqorePanel,
   useReqoreProperty,
 } from '@qoretechnologies/reqore';
-import { capitalize, map, size } from 'lodash';
-import { useContext, useState } from 'react';
+import { cloneDeep, map, size } from 'lodash';
+import { useContext, useMemo, useState } from 'react';
 import { useMount } from 'react-use';
 import {
   QorusColorEffect,
@@ -15,12 +16,13 @@ import {
 } from '../../components/Field/multiPair';
 import { IField } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
-import { interfaceIcons, interfaceToPlural } from '../../constants/interfaces';
+import { interfaceIcons, interfaceKindToName, interfaceToPlural } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
 import { InitialContext } from '../../context/init';
 import { callBackendBasic } from '../../helpers/functions';
 import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
 import { IClassConnections } from '../ClassConnectionsManager';
+import { getZoomActions } from '../ConfigItemManager';
 import { IConnection } from '../InterfaceCreator/connection';
 import { IFSMMetadata, IFSMStates } from '../InterfaceCreator/fsm';
 import { IPipelineElement, IPipelineMetadata } from '../InterfaceCreator/pipeline';
@@ -82,6 +84,7 @@ export const InterfacesView = () => {
   const [showRemotes, setShowRemotes] = useState(false);
   const addNotification = useReqoreProperty('addNotification');
   const { qorus_instance } = useContext(InitialContext);
+  const [zoom, setZoom] = useState(0.5);
 
   useMount(() => {
     addMessageListener('get-all-interfaces-complete', (data) => {
@@ -106,17 +109,31 @@ export const InterfacesView = () => {
     })();
   });
 
-  if (!items) {
-    return <Loader text="Loading interfaces" />;
-  }
-
-  const getItemsCount = (data: IQorusInterface[]) => {
-    return size(data.filter((item) => !item.isDraft));
-  };
-
   const getDraftsCount = (data: IQorusInterface[]) => {
     return size(data.filter((item) => item.isDraft || item.hasDraft));
   };
+
+  const { interfaces, otherItems } = useMemo(() => {
+    console.log(items);
+    const newItems = cloneDeep(items);
+    const otherItems = {
+      'schema-modules': items?.['schema-modules'],
+      scripts: items?.scripts,
+      tests: items?.tests,
+    };
+
+    delete newItems?.['schema-modules'];
+    delete newItems?.scripts;
+    delete newItems?.tests;
+
+    return { interfaces: newItems, otherItems };
+  }, [items]);
+
+  const isCurrentTypeOther = useMemo(() => !!otherItems[type], [type, otherItems]);
+
+  if (!items) {
+    return <Loader text="Loading interfaces" />;
+  }
 
   return (
     <ReqorePanel
@@ -127,6 +144,10 @@ export const InterfacesView = () => {
       label="Interfaces view"
       actions={[
         {
+          fluid: false,
+          group: getZoomActions('interfaces', zoom, setZoom),
+        },
+        {
           icon: showRemotes ? 'ServerFill' : 'ServerLine',
           label: `${showRemotes ? 'Hide' : 'Show'} remote ${interfaceToPlural[type]}`,
           minimal: !showRemotes,
@@ -134,6 +155,8 @@ export const InterfacesView = () => {
           disabled: !qorus_instance,
           onClick: () => setShowRemotes(!showRemotes),
           effect: QorusColorEffect,
+          show: !isCurrentTypeOther,
+          className: 'interfaces-toggle-remotes',
         },
         {
           tooltip: 'Delete all drafts',
@@ -141,6 +164,7 @@ export const InterfacesView = () => {
           effect: WarningColorEffect,
           flat: false,
           minimal: true,
+          show: !isCurrentTypeOther,
           onClick: () => {
             postMessage(Messages.DELETE_ALL_DRAFTS);
             addNotification({
@@ -159,7 +183,8 @@ export const InterfacesView = () => {
       }}
     >
       <ReqoreMenu transparent width="250px">
-        {map(items, (data, iface) => (
+        <ReqoreMenuDivider label="Interfaces" align="left" />
+        {map(interfaces, (data, iface) => (
           <ReqoreMenuItem
             icon={interfaceIcons[iface]}
             flat={type !== iface}
@@ -177,12 +202,39 @@ export const InterfacesView = () => {
             onClick={() => setType(iface)}
             badge={[{ labelKey: 'Drafts', label: getDraftsCount(data), intent: 'pending' }]}
           >
-            {capitalize(interfaceToPlural[iface]).replace('-', ' ')}
+            {interfaceKindToName[iface]}
+          </ReqoreMenuItem>
+        ))}
+        <ReqoreMenuDivider label="Other files" align="left" />
+        {map(otherItems, (data, iface) => (
+          <ReqoreMenuItem
+            icon={interfaceIcons[iface]}
+            flat={type !== iface}
+            wrap
+            effect={
+              type === iface
+                ? {
+                    gradient: {
+                      ...SynthColorEffect.gradient,
+                      animate: 'hover',
+                    },
+                  }
+                : undefined
+            }
+            onClick={() => setType(iface)}
+          >
+            {interfaceKindToName[iface]}
           </ReqoreMenuItem>
         ))}
       </ReqoreMenu>
       <ReqoreHorizontalSpacer width={10} />
-      <InterfacesViewCollection items={items[type]} type={type} showRemotes={showRemotes} />
+      <InterfacesViewCollection
+        items={items[type]}
+        type={type}
+        showRemotes={showRemotes}
+        zoom={zoom}
+        isOther={!!otherItems[type]}
+      />
     </ReqorePanel>
   );
 };

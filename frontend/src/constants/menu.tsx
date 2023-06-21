@@ -77,6 +77,7 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
       items: [
         {
           name: 'Environments',
+          activePaths: ['ProjectConfig'],
           icon: 'Home3Fill',
           id: 'ProjectConfig',
           props: {
@@ -84,7 +85,17 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
           },
         },
         {
+          name: 'Interfaces, drafts & files',
+          activePaths: ['Interfaces'],
+          icon: 'FileList2Line',
+          id: 'Interfaces',
+          props: {
+            onClick: () => initialData?.changeTab('Interfaces'),
+          },
+        },
+        {
           name: 'Source Directories',
+          activePaths: ['SourceDirs'],
           icon: 'FolderAddLine',
           id: 'SourceDirs',
           props: {
@@ -93,32 +104,17 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
         },
         {
           name: 'Release Management',
+          activePaths: ['ReleasePackage'],
           icon: 'CodeBoxLine',
           id: 'ReleasePackage',
           props: {
             onClick: () => initialData?.changeTab('ReleasePackage'),
           },
         },
-        {
-          name: 'Interface Management',
-          icon: 'FileCopyLine',
-          id: 'DeleteInterfaces',
-          props: {
-            onClick: () => initialData?.changeTab('DeleteInterfaces'),
-          },
-        },
-        {
-          name: 'Interface List',
-          icon: 'FileList2Line',
-          id: 'Interfaces',
-          props: {
-            onClick: () => initialData?.changeTab('Interfaces'),
-          },
-        },
       ],
     },
     interfaces: {
-      title: 'Interface Management',
+      title: 'Quickly create new',
       items: MenuSubItems.map((item) => ({
         ...item,
         props: {

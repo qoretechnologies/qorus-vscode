@@ -1,3 +1,6 @@
+import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
+import { keys } from 'lodash';
+
 export const interfaceKindTransform = {
   'service-methods': 'service',
   step: 'step',
@@ -47,7 +50,7 @@ export const interfaceToPlural = {
   tests: 'tests',
 };
 
-export const interfaceIcons = {
+export const interfaceIcons: Record<string, IReqoreIconName> = {
   service: 'ServerLine',
   step: 'StickyNoteLine',
   'mapper-code': 'FunctionLine',
@@ -65,9 +68,9 @@ export const interfaceIcons = {
   'value-map': 'BringToFront',
   type: 'Asterisk',
   class: 'CodeSLine',
-  'schema-modules': 'Asterisk',
-  scripts: 'Asterisk',
-  tests: 'Asterisk',
+  'schema-modules': 'Database2Line',
+  scripts: 'FileCodeLine',
+  tests: 'FilterLine',
 };
 
 export const interfaceNameToKind = {
@@ -92,3 +95,9 @@ export const interfaceNameToKind = {
   Script: 'scripts',
   Test: 'tests',
 };
+
+// Reverse the interfaceNameToKind object
+export const interfaceKindToName = keys(interfaceNameToKind).reduce((acc, key) => {
+  acc[interfaceNameToKind[key]] = key;
+  return acc;
+}, {});
