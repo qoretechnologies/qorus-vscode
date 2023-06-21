@@ -22,11 +22,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async () => {
-    await waitFor(
-      () => expect(document.querySelectorAll('.reqore-collection-item')).toHaveLength(15),
-      { timeout: 10000 }
-    );
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await waitFor(() => canvas.getAllByText('_DraftTestClass'), { timeout: 10000 });
   },
 };
 

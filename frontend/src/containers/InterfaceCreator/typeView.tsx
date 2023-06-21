@@ -6,6 +6,7 @@ import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import Content from '../../components/Content';
+import Field from '../../components/Field';
 import FileField from '../../components/Field/fileString';
 import {
   NegativeColorEffect,
@@ -64,6 +65,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
   );
   const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
   const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
+  const [desc, setDesc] = useState(initialData?.type?.desc || '');
   const [selectedField, setSelectedField] = useState(undefined);
   const theme = useReqoreTheme();
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
@@ -77,12 +79,14 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
       setFields(initialData.type ? cloneDeep(initialData.type.typeinfo.fields) : {});
       setTargetDir(initialData?.type?.target_dir || '');
       setTargetFile(initialData?.type?.target_file || '');
+      setDesc(initialData?.type?.desc || '');
     } else {
       setVal('');
       setAddDialog({});
       setFields({});
       setTargetDir('');
       setTargetFile('');
+      setDesc('');
     }
   };
 
@@ -92,10 +96,14 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
       'type',
       undefined,
       initialData?.type,
-      ({ typeData: { fields, val, targetDir, targetFile, types }, interfaceId }: IDraftData) => {
+      ({
+        typeData: { fields, val, targetDir, targetFile, types, desc },
+        interfaceId,
+      }: IDraftData) => {
         setInterfaceId(interfaceId);
         setVal(val);
         setTypes(types);
+        setDesc(desc);
         setTargetDir(targetDir);
         setTargetFile(targetFile);
         setFields(fields);
@@ -154,6 +162,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
               val,
               targetDir,
               targetFile,
+              desc,
               fields,
               types,
             },
@@ -292,6 +301,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
         data: {
           target_dir: !targetDir || targetDir === '' ? undefined : targetDir,
           target_file: !targetFile || targetFile === '' ? undefined : targetFile,
+          desc,
           path: val,
           typeinfo: {
             base_type: 'hash<auto>',
@@ -309,6 +319,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
         onSubmitSuccess({
           target_dir: !targetDir || targetDir === '' ? undefined : targetDir,
           target_file: !targetFile || targetFile === '' ? undefined : targetFile,
+          desc,
           path: val,
           typeinfo: {
             base_type: 'hash<auto>',
@@ -416,6 +427,21 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
             }}
           />
         </FieldWrapper>
+        <FieldWrapper
+          compact
+          name="selected-field"
+          label={t('field-label-desc')}
+          type={t('Optional')}
+          isValid
+        >
+          <Field
+            onChange={(_name, value) => setDesc(value)}
+            name="desc"
+            value={desc}
+            markdown
+            type="long-string"
+          />
+        </FieldWrapper>
         <FieldGroup isValid={validateField('string', val)}>
           <FieldWrapper
             compact
@@ -430,7 +456,6 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
               value={targetFile}
             />
           </FieldWrapper>
-
           <FieldWrapper
             name="selected-field"
             label={t('Path')}

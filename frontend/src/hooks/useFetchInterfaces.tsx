@@ -8,6 +8,7 @@ const transformTypeForFetch = (type: string) => {
     case 'queues':
       return 'async-queues';
     case 'types':
+      return '/dataprovider/types?action=listAll';
     case 'mapper-codes':
     case 'schema-modules':
     case 'scripts':
