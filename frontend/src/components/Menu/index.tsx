@@ -32,8 +32,6 @@ const Sidebar: Function = ({ projectFolder, qorusInstance }: SidebarProps) => {
   const initialData = useContext(InitialContext);
   const t = useContext(TextContext);
 
-  console.log(initialData.tab);
-
   return (
     <ReqoreSidebar
       onCollapseChange={(isCollapsed) => {

@@ -114,7 +114,6 @@ export const InterfacesView = () => {
   };
 
   const { interfaces, otherItems } = useMemo(() => {
-    console.log(items);
     const newItems = cloneDeep(items);
     const otherItems = {
       'schema-modules': items?.['schema-modules'],

@@ -63,7 +63,11 @@ export const InterfacesViewCollection = ({
   }, [width, height]);
 
   const getItemsCount = () => {
-    return size(value.filter((item) => !item.isDraft));
+    return size(value.filter((item) => !item.isDraft && !item.isServerInterface));
+  };
+
+  const getRemotesCount = () => {
+    return size(value.filter((item) => item.isServerInterface));
   };
 
   const getDraftsCount = () => {
@@ -71,14 +75,28 @@ export const InterfacesViewCollection = ({
   };
 
   const badges = useMemo(() => {
-    const badgeList: TReqoreBadge[] = [getItemsCount()];
+    const badgeList: TReqoreBadge[] = [
+      {
+        labelKey: 'Local',
+        label: getItemsCount(),
+        intent: 'info',
+      },
+    ];
 
     if (!isOther) {
       badgeList.push({ labelKey: 'Drafts', label: getDraftsCount(), intent: 'pending' });
     }
 
+    if (qorus_instance && showRemotes) {
+      badgeList.push({
+        labelKey: 'Remotes',
+        label: getRemotesCount(),
+        color: '#6f1977',
+      });
+    }
+
     return badgeList;
-  }, [getItemsCount, getDraftsCount]);
+  }, [getItemsCount, getDraftsCount, showRemotes, getRemotesCount, qorus_instance]);
 
   if (loading) {
     return <ReqoreSpinner size="big">Loading server data...</ReqoreSpinner>;

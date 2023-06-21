@@ -84,7 +84,7 @@ export const ShowRemoteDetail: Story = {
 
     await sleep(500);
 
-    await fireEvent.click(canvas.getAllByText('BBM_AutoMapperRecordStep')[0]);
+    await fireEvent.click(canvas.getAllByText('BBM_AutoMapper')[0]);
 
     await sleep(1000);
   },
