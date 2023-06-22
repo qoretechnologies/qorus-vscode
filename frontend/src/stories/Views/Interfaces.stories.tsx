@@ -82,9 +82,11 @@ export const ShowRemoteDetail: Story = {
 
     await WithRemotes.play({ canvasElement, ...rest });
 
-    await sleep(500);
+    await fireEvent.click(canvas.getAllByText('Connection')[0]);
 
-    await fireEvent.click(canvas.getAllByText('BBM_AutoMapper')[0]);
+    await waitFor(() => canvas.getAllByText('bee'), { timeout: 10000 });
+
+    await fireEvent.click(canvas.getAllByText('bee')[0]);
 
     await sleep(1000);
   },
