@@ -50,6 +50,13 @@ export const interfaceToPlural = {
   tests: 'tests',
 };
 
+export const viewsIcons: Record<string, IReqoreIconName> = {
+  ProjectConfig: 'Home3Fill',
+  Interfaces: 'FileList2Line',
+  SourceDirs: 'FolderAddLine',
+  ReleasePackage: 'CodeBoxLine',
+};
+
 export const interfaceIcons: Record<string, IReqoreIconName> = {
   service: 'ServerLine',
   step: 'StickyNoteLine',

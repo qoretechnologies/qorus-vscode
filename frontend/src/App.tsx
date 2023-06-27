@@ -23,6 +23,7 @@ import { DraftsView } from './DraftsView';
 import ContextMenu from './components/ContextMenu';
 import Loader from './components/Loader';
 import Menu from './components/Menu';
+import { interfaceIcons, interfaceKindToName, viewsIcons } from './constants/interfaces';
 import { Messages } from './constants/messages';
 import InterfaceCreator from './containers/InterfaceCreator';
 import { InterfacesView } from './containers/InterfacesView';
@@ -420,13 +421,34 @@ const App: FunctionComponent<IApp> = ({
                     )}
                   </ReqoreNavbarGroup>
                   <ReqoreNavbarGroup position="right">
-                    <ReqoreNavbarItem
-                      onClick={onHistoryBackClick}
-                      interactive
-                      disabled={!size(tabHistory)}
+                    <ReqorePopover
+                      component={ReqoreNavbarItem}
+                      componentProps={{
+                        interactive: true,
+                        onClick: () => onHistoryBackClick(),
+                        disabled: size(tabHistory) <= 1,
+                      }}
+                      handler="hoverStay"
+                      isReqoreComponent
+                      noWrapper
+                      content={
+                        <ReqoreMenu rounded maxHeight="300px">
+                          <ReqoreMenuDivider label={'History'} />
+                          {tabHistory.map(({ subtab, tab, name }, index) => (
+                            <ReqoreMenuItem
+                              icon={subtab ? interfaceIcons[subtab] : viewsIcons[tab]}
+                              onClick={() => onHistoryBackClick(index)}
+                              description={name || (tab === 'CreateInterface' ? 'New' : undefined)}
+                            >
+                              {t(tab)}
+                              {subtab ? ` : ${interfaceKindToName[subtab]}` : ''}
+                            </ReqoreMenuItem>
+                          ))}
+                        </ReqoreMenu>
+                      }
                     >
-                      <ReqoreIcon icon="ArrowLeftSLine" tooltip="Go back" size="huge" />
-                    </ReqoreNavbarItem>
+                      <ReqoreIcon icon="ArrowLeftSLine" size="huge" />
+                    </ReqorePopover>
                     <ReqorePopover
                       component={ReqoreNavbarItem}
                       componentProps={{

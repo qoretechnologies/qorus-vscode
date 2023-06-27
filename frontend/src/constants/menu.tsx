@@ -2,7 +2,7 @@ import {
   IQorusSidebarItem,
   IQorusSidebarItems,
 } from '@qoretechnologies/reqore/dist/components/Sidebar';
-import { interfaceNameToKind } from './interfaces';
+import { interfaceNameToKind, viewsIcons } from './interfaces';
 
 export const MenuSubItems: Omit<IQorusSidebarItem, 'id'>[] = [
   {
@@ -78,7 +78,7 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
         {
           name: 'Environments',
           activePaths: ['ProjectConfig'],
-          icon: 'Home3Fill',
+          icon: viewsIcons['ProjectConfig'],
           id: 'ProjectConfig',
           props: {
             onClick: () => initialData?.changeTab('ProjectConfig'),
@@ -87,7 +87,7 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
         {
           name: 'Interfaces, drafts & files',
           activePaths: ['Interfaces'],
-          icon: 'FileList2Line',
+          icon: viewsIcons['Interfaces'],
           id: 'Interfaces',
           props: {
             onClick: () => initialData?.changeTab('Interfaces'),
@@ -96,7 +96,7 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
         {
           name: 'Source Directories',
           activePaths: ['SourceDirs'],
-          icon: 'FolderAddLine',
+          icon: viewsIcons['SourceDirs'],
           id: 'SourceDirs',
           props: {
             onClick: () => initialData?.changeTab('SourceDirs'),
@@ -105,7 +105,7 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
         {
           name: 'Release Management',
           activePaths: ['ReleasePackage'],
-          icon: 'CodeBoxLine',
+          icon: viewsIcons['ReleasePackage'],
           id: 'ReleasePackage',
           props: {
             onClick: () => initialData?.changeTab('ReleasePackage'),

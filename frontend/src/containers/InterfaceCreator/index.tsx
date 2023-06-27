@@ -1,4 +1,5 @@
 import { FunctionComponent } from 'react';
+import { useMount } from 'react-use';
 import compose from 'recompose/compose';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
@@ -16,7 +17,10 @@ import TypeView from './typeView';
 import WorkflowsView, { CreatorWrapper } from './workflowsView';
 
 export interface ICreateInterface {
-  initialData: any;
+  initialData: {
+    updateCurrentHistoryTab: (data: { [key: string]: any }) => void;
+    [key: string]: any;
+  };
   onSubmit: any;
   onDelete?: () => any;
   context: any;
@@ -36,6 +40,23 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({
     initialData?.[initialData.subtab]?.name || initialData?.[initialData.subtab]?.path;
 
   const getVersion: () => string = () => initialData?.[initialData.subtab]?.version;
+
+  const getNameWithVersion: () => string = () => {
+    const name = getName();
+    const version = getVersion();
+
+    return version ? `${name}:${version}` : name;
+  };
+
+  useMount(() => {
+    if (initialData[initialData.subtab]?.iface_id) {
+      // Update the history tab with this iface_id
+      initialData.updateCurrentHistoryTab({
+        iface_id: initialData[initialData.subtab]?.iface_id,
+        name: getNameWithVersion(),
+      });
+    }
+  });
 
   return (
     <Tab
