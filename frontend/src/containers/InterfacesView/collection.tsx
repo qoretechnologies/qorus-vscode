@@ -2,7 +2,6 @@ import { ReqoreCollection, ReqoreSpinner, useReqoreProperty } from '@qoretechnol
 import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
 import { capitalize, size } from 'lodash';
 import { useContext, useMemo } from 'react';
-import { useMeasure } from 'react-use';
 import { IQorusInterface } from '.';
 import {
   NegativeColorEffect,
@@ -42,7 +41,6 @@ export const InterfacesViewCollection = ({
   const addNotification = useReqoreProperty('addNotification');
   const confirmAction = useReqoreProperty('confirmAction');
   const { changeDraft, changeTab, qorus_instance } = useContext(InitialContext);
-  const [ref, { width, height }] = useMeasure<HTMLDivElement>();
 
   const { value, loading, onDeleteRemoteClick } = useFetchInterfaces(
     qorus_instance && showRemotes,
@@ -59,8 +57,8 @@ export const InterfacesViewCollection = ({
   };
 
   const itemsPerPage = useMemo(() => {
-    return Math.floor(width / 400) * Math.floor(height / 120) || 100;
-  }, [width, height]);
+    return 50;
+  }, []);
 
   const getItemsCount = () => {
     return size(value.filter((item) => !item.isDraft && !item.isServerInterface));
@@ -106,7 +104,6 @@ export const InterfacesViewCollection = ({
     <ReqoreCollection
       label={capitalize(interfaceToPlural[type]).replace('-', ' ')}
       sortable
-      getContentRef={ref}
       filterable
       minimal
       minColumnWidth={zoomToWidth[zoom]}
