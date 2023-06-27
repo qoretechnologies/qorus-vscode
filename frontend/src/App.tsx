@@ -5,6 +5,7 @@ import {
   ReqoreMenu,
   ReqoreMenuDivider,
   ReqoreMenuItem,
+  ReqoreNavbarDivider,
   ReqoreNavbarGroup,
   ReqoreNavbarItem,
   ReqorePopover,
@@ -110,7 +111,7 @@ const App: FunctionComponent<IApp> = ({
   const { setErrorsFromDraft }: any = useContext(ErrorsContext);
   const [isDirsDialogOpen, setIsDirsDialogOpen] = useState<boolean>(false);
   const { addNotification } = useReqore();
-  const { t } = useContext(InitialContext);
+  const { t, tabHistory, onHistoryBackClick } = useContext(InitialContext);
 
   const addDraft = (draftData: any) => {
     setDraft(draftData);
@@ -419,6 +420,42 @@ const App: FunctionComponent<IApp> = ({
                     )}
                   </ReqoreNavbarGroup>
                   <ReqoreNavbarGroup position="right">
+                    <ReqoreNavbarItem
+                      onClick={onHistoryBackClick}
+                      interactive
+                      disabled={!size(tabHistory)}
+                    >
+                      <ReqoreIcon icon="ArrowLeftSLine" tooltip="Go back" size="huge" />
+                    </ReqoreNavbarItem>
+                    <ReqorePopover
+                      component={ReqoreNavbarItem}
+                      componentProps={{
+                        interactive: true,
+                        as: 'a',
+                        href: 'command:workbench.action.webview.reloadWebviewAction',
+                        onClick: () =>
+                          addNotification({
+                            content: t('ReloadingWebview'),
+                            intent: 'warning',
+                            icon: 'RefreshLine',
+                          }),
+                      }}
+                      content={'Reload webview'}
+                    >
+                      <ReqoreIcon icon="RefreshLine" size="20px" />
+                    </ReqorePopover>
+                    <ReqoreNavbarDivider />
+                    <ReqorePopover
+                      isReqoreComponent
+                      component={ReqoreNavbarItem}
+                      componentProps={{
+                        interactive: true,
+                        onClick: () => setIsDirsDialogOpen(true),
+                      }}
+                      content={'Manage source directories'}
+                    >
+                      <ReqoreIcon icon="FolderAddLine" size="20px" />
+                    </ReqorePopover>
                     <ReqorePopover
                       component={ReqoreNavbarItem}
                       componentProps={{ interactive: true }}
@@ -457,37 +494,17 @@ const App: FunctionComponent<IApp> = ({
                     >
                       <ReqoreIcon icon="PaletteLine" size="20px" tooltip="Change theme" />
                     </ReqorePopover>
-                    <ReqorePopover
-                      isReqoreComponent
-                      component={ReqoreNavbarItem}
-                      componentProps={{
-                        interactive: true,
-                        onClick: () => setIsDirsDialogOpen(true),
-                      }}
-                      content={'Manage source directories'}
-                    >
-                      <ReqoreIcon icon="FolderAddLine" size="20px" />
-                    </ReqorePopover>
-                    <ReqorePopover
-                      component={ReqoreNavbarItem}
-                      componentProps={{
-                        interactive: true,
-                        as: 'a',
-                        href: 'command:workbench.action.webview.reloadWebviewAction',
-                        onClick: () =>
-                          addNotification({
-                            content: t('ReloadingWebview'),
-                            intent: 'warning',
-                            icon: 'RefreshLine',
-                          }),
-                      }}
-                      content={'Reload webview'}
-                    >
-                      <ReqoreIcon icon="RefreshLine" size="20px" />
-                    </ReqorePopover>
                   </ReqoreNavbarGroup>
                 </ReqoreHeader>
-                <div style={{ margin: '0 10px', overflow: 'auto', display: 'flex', flex: 1 }}>
+                <div
+                  style={{
+                    margin: '0 10px',
+                    overflow: 'auto',
+                    display: 'flex',
+                    flex: 1,
+                    flexFlow: 'column',
+                  }}
+                >
                   <SourceDirectories
                     isOpen={isDirsDialogOpen}
                     onClose={() => setIsDirsDialogOpen(false)}

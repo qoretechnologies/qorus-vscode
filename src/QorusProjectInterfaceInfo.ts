@@ -562,13 +562,10 @@ export class QorusProjectInterfaceInfo {
       return;
     }
 
-    console.log(iface_id, class_name, prefix, specific_data_id);
-
     const version = (class_yaml_data.version || default_version).toString();
 
     (class_yaml_data['config-items'] || []).forEach((raw_item) => {
       let item = { ...this.configItemInheritedData(raw_item) };
-      console.log(raw_item, item);
 
       item.parent_data = { ...item };
       item.parent = {

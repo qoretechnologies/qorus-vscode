@@ -338,7 +338,8 @@ class ReleasePackage extends Component<
     return (
       <ReqorePanel
         label="Release Management"
-        headerSize={1}
+        size="big"
+        icon="CodeBoxLine"
         transparent
         minimal
         flat

@@ -7,7 +7,7 @@ import {
   useReqoreProperty,
 } from '@qoretechnologies/reqore';
 import { cloneDeep, map, size } from 'lodash';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useMount } from 'react-use';
 import {
   QorusColorEffect,
@@ -79,12 +79,16 @@ export interface IDraftData {
 export interface IQorusInterfacesViewProps {}
 
 export const InterfacesView = () => {
+  const { qorus_instance, subtab, changeTab } = useContext(InitialContext);
   const [items, setItems] = useState<Record<string, IQorusInterface[]>>(null);
-  const [type, setType] = useState('class');
+  const [type, setType] = useState(subtab || 'class');
   const [showRemotes, setShowRemotes] = useState(false);
   const addNotification = useReqoreProperty('addNotification');
-  const { qorus_instance } = useContext(InitialContext);
   const [zoom, setZoom] = useState(0.5);
+
+  useEffect(() => {
+    setType(subtab || 'class');
+  }, [subtab]);
 
   useMount(() => {
     addMessageListener('get-all-interfaces-complete', (data) => {
@@ -140,7 +144,11 @@ export const InterfacesView = () => {
       flat
       transparent
       fill
-      label="Interfaces view"
+      icon="FileList2Line"
+      label="Interfaces"
+      responsiveTitle
+      responsiveActions={false}
+      size="big"
       actions={[
         {
           fluid: false,
@@ -198,7 +206,10 @@ export const InterfacesView = () => {
                   }
                 : undefined
             }
-            onClick={() => setType(iface)}
+            onClick={() => {
+              changeTab?.('Interfaces', iface);
+              setType(iface);
+            }}
             badge={[{ labelKey: 'Drafts', label: getDraftsCount(data), intent: 'pending' }]}
           >
             {interfaceKindToName[iface]}
@@ -220,7 +231,10 @@ export const InterfacesView = () => {
                   }
                 : undefined
             }
-            onClick={() => setType(iface)}
+            onClick={() => {
+              changeTab?.('Interfaces', iface);
+              setType(iface);
+            }}
           >
             {interfaceKindToName[iface]}
           </ReqoreMenuItem>

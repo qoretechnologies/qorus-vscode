@@ -38,6 +38,7 @@ export default () =>
       const confirmActionReqore = useReqoreProperty('confirmAction');
       const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
       const [t, setT] = useState<(text_id) => string>(undefined);
+      const [tabHistory, setTabHistory] = useState<{ tab: string; subtab?: string }[]>([]);
       const { addNotification } = useReqore();
 
       useMount(() => {
@@ -144,6 +145,7 @@ export default () =>
                 ...current,
                 ...data,
               }));
+              changeTab(data.tab, data.subtab);
             }
           }
         );
@@ -201,6 +203,11 @@ export default () =>
             tab,
             subtab: subtab || null,
           }));
+          setTabHistory((current) => {
+            const newHistory = [...current];
+            newHistory.push({ tab, subtab });
+            return newHistory;
+          });
         };
 
         setTabs();
@@ -210,6 +217,25 @@ export default () =>
         setInitialData((current) => ({
           ...current,
           stepCallback: callback,
+        }));
+      };
+
+      const onHistoryBackClick = () => {
+        const newHistory = [...tabHistory];
+
+        newHistory.pop();
+        setTabHistory(newHistory);
+
+        let newTab = newHistory[newHistory.length - 1];
+
+        if (!newTab) {
+          newTab = { tab: 'ProjectConfig' };
+        }
+
+        setInitialData((current) => ({
+          ...current,
+          tab: newTab.tab,
+          subtab: newTab.subtab,
         }));
       };
 
@@ -390,6 +416,8 @@ export default () =>
             lastDraft,
             setLastDraft,
             changeDraft,
+            tabHistory,
+            onHistoryBackClick,
             t,
             texts,
             setTexts,

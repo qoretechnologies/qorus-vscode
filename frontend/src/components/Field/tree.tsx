@@ -43,7 +43,6 @@ export interface ITreeField {
 }
 
 const StyledTreeScroller = styled.div`
-  max-height: 400px;
   overflow: auto;
 `;
 
