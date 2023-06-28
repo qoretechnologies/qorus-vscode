@@ -1,13 +1,15 @@
 import * as fs from 'fs';
 import * as glob from 'glob';
-import { size } from 'lodash';
+import { forEach, size } from 'lodash';
 import * as path from 'path';
 import { t } from 'ttag';
 import * as urlJoin from 'url-join';
 import * as vscode from 'vscode';
 import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { hasFileAsStringOption } from './QorusRelease';
 import { QorusRequestTexts, qorus_request } from './QorusRequest';
+import { InterfaceCreator } from './interface_creator/InterfaceCreator';
 import * as msg from './qorus_message';
 import { filesInDir, isDeployable, isVersion3, removeDuplicates } from './qorus_utils';
 
@@ -180,6 +182,16 @@ class QorusDeploy {
     let otherFiles = [this.code_info.pairFile(file_path)];
     // Get the data of the given file
     const fileData = this.code_info.yaml_info.yamlDataByFile(file_path);
+    // Check if the file is a conneciton & has schemes
+    if (fileData.type === 'connection' && hasFileAsStringOption(fileData.options)) {
+      forEach(fileData.options, (option) => {
+        if (option.type === 'file-as-string') {
+          otherFiles.push(
+            path.resolve(fileData.target_dir, InterfaceCreator.getFileWithoutProtocol(option.value))
+          );
+        }
+      });
+    }
     // Check if the file is a service & its an api manager
     if (fileData.type === 'service' && fileData['api-manager']) {
       // Add the schema to other files to be deployed

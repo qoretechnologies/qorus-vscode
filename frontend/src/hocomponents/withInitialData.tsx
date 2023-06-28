@@ -38,7 +38,31 @@ export default () =>
       const confirmActionReqore = useReqoreProperty('confirmAction');
       const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
       const [t, setT] = useState<(text_id) => string>(undefined);
+      const [tabHistory, setTabHistory] = useState<
+        { tab: string; subtab?: string; iface_id?: string; name?: string; draftId?: string }[]
+      >([]);
       const { addNotification } = useReqore();
+
+      const changeTab: (tab: string, subtab?: string, force?: boolean) => void = (
+        tab,
+        subtab,
+        force
+      ) => {
+        const setTabs = () => {
+          setInitialData((current) => ({
+            ...current,
+            tab,
+            subtab: subtab || null,
+          }));
+          setTabHistory((current) => {
+            const newHistory = [...current];
+            newHistory.push({ tab, subtab });
+            return newHistory;
+          });
+        };
+
+        setTabs();
+      };
 
       useMount(() => {
         postMessage(Messages.GET_INITIAL_DATA);
@@ -127,12 +151,16 @@ export default () =>
             setDraftData(data.draftData);
           }
 
-          flushSync(() =>
+          flushSync(() => {
             setInitialData({
               ...currentInitialData,
               ...data,
-            })
-          );
+            });
+
+            if (data?.tab) {
+              changeTab(data.tab, data.subtab);
+            }
+          });
         });
 
         const interfaceDataListener = addMessageListener(
@@ -144,6 +172,7 @@ export default () =>
                 ...current,
                 ...data,
               }));
+              changeTab(data.tab, data.subtab);
             }
           }
         );
@@ -190,26 +219,67 @@ export default () =>
         });
       };
 
-      const changeTab: (tab: string, subtab?: string, force?: boolean) => void = (
-        tab,
-        subtab,
-        force
-      ) => {
-        const setTabs = () => {
-          setInitialData((current) => ({
-            ...current,
-            tab,
-            subtab: subtab || null,
-          }));
-        };
-
-        setTabs();
-      };
-
       const setStepSubmitCallback: (callback: () => any) => void = (callback): void => {
         setInitialData((current) => ({
           ...current,
           stepCallback: callback,
+        }));
+      };
+
+      const updateCurrentHistoryTab = (data: any) => {
+        setTabHistory((current) => {
+          const newHistory = [...current];
+          const currentTab = newHistory.pop();
+
+          newHistory.push({ ...currentTab, ...data });
+
+          return newHistory;
+        });
+      };
+
+      const onHistoryBackClick = async (index?: number) => {
+        const newHistory = [...tabHistory];
+
+        if (index) {
+          newHistory.splice(index + 1);
+        } else {
+          newHistory.pop();
+        }
+
+        setTabHistory(newHistory);
+
+        let newTab = newHistory[newHistory.length - 1];
+
+        if (!newTab) {
+          newTab = { tab: 'ProjectConfig' };
+        }
+
+        let data = {};
+
+        if (newTab.draftId) {
+          changeDraft({
+            interfaceKind: newTab.subtab,
+            interfaceId: newTab.draftId,
+          });
+
+          return;
+        }
+
+        if (newTab.iface_id) {
+          ({ data } = await callBackendBasic(
+            Messages.GET_INTERFACE_DATA,
+            'return-interface-data-complete',
+            {
+              iface_kind: newTab.subtab,
+              name: newTab.name,
+            }
+          ));
+        }
+        setInitialData((current) => ({
+          ...current,
+          ...data,
+          tab: newTab.tab,
+          subtab: newTab.subtab,
         }));
       };
 
@@ -356,6 +426,9 @@ export default () =>
             ...fileData,
           },
         });
+
+        updateCurrentHistoryTab({ draftId: interfaceId });
+
         setIsSavingDraft(false);
       };
 
@@ -390,6 +463,9 @@ export default () =>
             lastDraft,
             setLastDraft,
             changeDraft,
+            tabHistory,
+            onHistoryBackClick,
+            updateCurrentHistoryTab,
             t,
             texts,
             setTexts,

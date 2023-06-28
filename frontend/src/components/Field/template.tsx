@@ -86,7 +86,7 @@ export const TemplateField = ({
       return serverTemplates.data;
     }
 
-    throw new Error(serverTemplates.error);
+    return null;
   }, []);
 
   // When template key or template value change run the onChange function

@@ -1,3 +1,5 @@
+import configItems from '../stories/Data/configItems';
+import items from '../stories/Data/interfaces.json';
 import { sleep } from '../stories/Tests/utils';
 
 export const username = 'IDETestUser';
@@ -34,6 +36,14 @@ export const vscode =
                 ok: requestData.ok,
                 error: !requestData.ok ? json : undefined,
                 id,
+              };
+              break;
+            }
+            case 'get-all-interfaces': {
+              messageData = {
+                action: 'get-all-interfaces-complete',
+                data: items,
+                request_id: data.request_id,
               };
               break;
             }
@@ -142,62 +152,17 @@ export const vscode =
 
               messageData = {
                 action: 'return-config-items',
-                global_items: [],
-                items: [
-                  {
-                    name: 'CFG',
-                    default_value: 'test',
-                    description: 'asg',
-                    config_group: 1,
-                    parent_data: {
-                      name: 'CFG',
-                      default_value: 'test',
-                      description: 'asg',
-                      config_group: 1,
-                    },
-                    parent: {
-                      'interface-type': 'class',
-                      'interface-name': 'ConfigItems',
-                      'interface-version': '1',
-                    },
-                    parent_class: 'ConfigItems',
-                    type: 'string',
-                    value: 'test',
-                    level: 'default',
-                    is_set: true,
-                    yamlData: {
-                      value: 'test',
-                      default_value: 'test',
-                    },
-                  },
-                  {
-                    name: 'CFG',
-                    default_value: 'test',
-                    description: 'asg',
-                    config_group: 1,
-                    parent_data: {
-                      name: 'CFG',
-                      default_value: 'test',
-                      description: 'asg',
-                      config_group: 1,
-                    },
-                    parent: {
-                      'interface-type': 'class',
-                      'interface-name': 'ConfigItems',
-                      'interface-version': '1',
-                    },
-                    parent_class: 'ConfigItems',
-                    type: 'string',
-                    value: 'test',
-                    level: 'default',
-                    is_set: true,
-                    yamlData: {
-                      value: 'test',
-                      default_value: 'test',
-                    },
-                  },
-                ],
+                ...configItems,
               };
+              break;
+            }
+            case 'creator-get-resources': {
+              if (data.object_type === 'files') {
+                messageData = {
+                  object_type: 'files',
+                  action: 'creator-return-resources',
+                };
+              }
               break;
             }
             case 'get-config-items-custom-call': {

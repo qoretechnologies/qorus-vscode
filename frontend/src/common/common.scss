@@ -31,4 +31,15 @@ code {
   border-radius: 3px;
 }
 
+.markdown {
+  // Remove the margins from the first & last p
+  p:first-child {
+    margin-top: 0;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
 @import '../components/ContentByType/style.scss';

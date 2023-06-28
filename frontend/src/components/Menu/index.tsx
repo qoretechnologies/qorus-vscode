@@ -74,7 +74,7 @@ const Sidebar: Function = ({ projectFolder, qorusInstance }: SidebarProps) => {
         },
       ]}
       items={buildMenu(initialData)}
-      path="/"
+      path={`/${initialData.tab}`}
     />
   );
 };

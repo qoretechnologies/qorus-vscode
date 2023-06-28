@@ -746,6 +746,67 @@ export abstract class InterfaceCreator {
     return result;
   };
 
+  public static fixFileAsStringOption = (
+    options: any,
+    target_dir?: string,
+    toAbsolute?: boolean
+  ) => {
+    if (!target_dir) {
+      return options;
+    }
+
+    const transformedOptions = cloneDeep(options);
+    const transformFunction = toAbsolute
+      ? InterfaceCreator.changePathToAbsolute
+      : InterfaceCreator.changePathToRelative;
+
+    Object.keys(transformedOptions).forEach((key) => {
+      if (transformedOptions[key].type === 'file-as-string') {
+        transformedOptions[key].value = transformFunction(
+          transformedOptions[key].value,
+          target_dir
+        );
+      }
+    });
+
+    return transformedOptions;
+  };
+
+  public static changePathToAbsolute = (filePath: string, target_dir: string) => {
+    // Check if the path already has a protocol
+    if (!filePath.match(/^[a-z]+:\/\//)) {
+      // Update the schema option to use relative path
+      return path.resolve(target_dir, filePath);
+    } else {
+      const [protocol, file] = filePath.split('://');
+      // Update the schema option to use relative path
+      return `${protocol}://${path.resolve(target_dir, file)}`;
+    }
+  };
+
+  public static getFileWithoutProtocol = (filePath: string) => {
+    // Check if the path already has a protocol
+    if (!filePath.match(/^[a-z]+:\/\//)) {
+      return filePath;
+    } else {
+      const [_protocol, file] = filePath.split('://');
+      return file;
+    }
+  };
+
+  public static changePathToRelative = (filePath: string, target_dir: string) => {
+    // Check if the path already has a protocol
+    if (!filePath.match(/^[a-z]+:\/\//)) {
+      // Update the schema option to use relative path
+      return path.relative(target_dir, filePath).replace(/\\/g, '/');
+    } else {
+      const [protocol, file] = filePath.split('://');
+
+      // Update the schema option to use relative path
+      return `${protocol}://${path.relative(target_dir, file).replace(/\\/g, '/')}`;
+    }
+  };
+
   protected createHeaders = (headers: any, iface_id: string, iface_kind?: string): string => {
     let result: string = '';
 
@@ -1045,9 +1106,10 @@ export abstract class InterfaceCreator {
           case 'api-manager': {
             let fixed_value = cloneDeep(value);
             // Update the schema option to use relative path
-            fixed_value['provider-options'].schema.value = path
-              .relative(headers.target_dir, fixed_value['provider-options'].schema.value)
-              .replace(/\\/g, '/');
+            fixed_value['provider-options'].schema.value = InterfaceCreator.changePathToRelative(
+              fixed_value['provider-options'].schema.value,
+              headers.target_dir
+            );
 
             result += `${tag}:\n` + InterfaceCreator.indentYamlDump(fixed_value, 1, true);
 
@@ -1071,7 +1133,8 @@ export abstract class InterfaceCreator {
           case 'context':
           case 'input-type':
           case 'output-type':
-            let fixed_value;
+            let fixed_value = cloneDeep(value);
+
             if (['staticdata-type', 'input-provider'].includes(tag)) {
               fixed_value = fixOptions(value);
             } else {
@@ -1084,6 +1147,11 @@ export abstract class InterfaceCreator {
                   fixed_value[key] = fixOptions(value[key]);
                 }
               });
+            }
+
+            // Update each file-as-string option to use relative path
+            if (['mapper_options', 'fsm_options', 'connection_options'].includes(tag)) {
+              fixed_value = InterfaceCreator.fixFileAsStringOption(fixed_value, headers.target_dir);
             }
 
             result +=

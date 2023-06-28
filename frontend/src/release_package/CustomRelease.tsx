@@ -184,7 +184,7 @@ export const CustomRelease = ({ selected, onItemClick }: ICustomReleaseProps) =>
   }
 
   const getItemFile = (item: any): string => {
-    return item.data.yaml_file || item.data.path;
+    return item.data?.yaml_file || item.data?.path;
   };
 
   const handleSelectAll = (interfaceKind: string) => {

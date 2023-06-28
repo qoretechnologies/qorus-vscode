@@ -1,4 +1,5 @@
 import { ReqoreControlGroup } from '@qoretechnologies/reqore';
+import { size } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { InitialContext } from '../../context/init';
@@ -10,6 +11,7 @@ export interface IURLFieldProps {
   value: string;
   name: string;
   onChange: (name: string, value: string) => any;
+  protocols?: string[];
 }
 
 const StyledUrlSeparator = styled.div`
@@ -24,16 +26,34 @@ const StyledUrlSeparator = styled.div`
 `;
 
 export const getProtocol = (v) => {
-  return v?.split('://')?.[0] || '';
+  const valueList = v?.split('://');
+
+  if (size(valueList) === 0 || size(valueList) === 1) {
+    return '';
+  }
+
+  return valueList[0];
 };
 
 export const getAddress = (v) => {
-  return v?.split('://')?.[1] || '';
+  const valueList = v?.split('://');
+
+  if (size(valueList) === 0) {
+    return '';
+  }
+
+  if (size(valueList) === 1) {
+    return valueList[0];
+  }
+
+  return valueList[1];
 };
 
-const URLField: React.FC<IURLFieldProps> = ({ url, value, name, onChange }) => {
+const URLField: React.FC<IURLFieldProps> = ({ url, value, name, onChange, ...rest }) => {
   const { fetchData, qorus_instance } = useContext(InitialContext);
-  const [protocols, setProtocols] = useState<string[]>(['http', 'https', 'rest', 'rests']);
+  const [protocols, setProtocols] = useState<string[]>(
+    rest.protocols || ['http', 'https', 'rest', 'rests']
+  );
   const [protocol, setProtocol] = useState<string>(getProtocol(value));
   const [address, setAddress] = useState<string>(getAddress(value));
 
@@ -72,7 +92,7 @@ const URLField: React.FC<IURLFieldProps> = ({ url, value, name, onChange }) => {
         value={protocol}
       />
       <StringField
-        label=":"
+        label="://"
         value={address}
         onChange={(_name, value) => setAddress(value)}
         name="address"

@@ -85,6 +85,8 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
           label={t('MyDirectories')}
           badge={size(projectData.source_directories)}
           flat
+          size="big"
+          icon="FolderAddLine"
           minimal
           transparent
         >
@@ -144,11 +146,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
     );
 
   if (flat) {
-    return (
-      <ReqorePanel flat transparent fluid>
-        {renderSourceDirs()}
-      </ReqorePanel>
-    );
+    return renderSourceDirs();
   }
 
   return (

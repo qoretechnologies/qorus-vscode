@@ -2,7 +2,7 @@ import {
   ReqoreHorizontalSpacer,
   ReqoreMenu,
   ReqoreMenuDivider,
-  ReqoreMenuItem
+  ReqoreMenuItem,
 } from '@qoretechnologies/reqore';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { cloneDeep, omit, size } from 'lodash';
@@ -121,7 +121,6 @@ export const RemoveButton = styled.div`
 `;
 
 export const PanelWrapper = styled.div`
-  margin-top: 10px;
   display: flex;
   flex: 1;
   overflow: hidden;

@@ -8,6 +8,7 @@ import {
   ReqoreTabs,
   ReqoreTabsContent,
   ReqoreTag,
+  ReqoreTagGroup,
   ReqoreTree,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
@@ -199,19 +200,34 @@ export default class ConfigItemsModal extends Component {
           },
         ]}
       >
-        {item && item.description && (
-          <>
-            <ReqoreMessage intent="info" title={t('Description')} size="small">
-              <ReactMarkdown>{item.description}</ReactMarkdown>
+        {item && (
+          <ReqoreMessage
+            title={t('Config item info')}
+            size="small"
+            minimal
+            icon="InformationFill"
+            flat
+          >
+            {item.description && (
+              <>
+                <ReactMarkdown>{item.description}</ReactMarkdown>
+                <ReqoreVerticalSpacer height={10} />
+              </>
+            )}
+
+            <ReqoreTagGroup size="small">
               <ReqoreTag
                 icon="CodeLine"
-                labelKey={t('ConfigItemIsType')}
+                labelKey={t('Type')}
                 label={`${item.can_be_undefined ? '*' : ''}${item.type}`}
               />
-            </ReqoreMessage>
-            <ReqoreVerticalSpacer height={10} />
-          </>
+              {item.parent_class ? <ReqoreTag labelKey="Parent" label={item.parent_class} /> : null}
+              <ReqoreTag size="small" icon="NodeTree" labelKey="level" label={item.level} />
+              <ReqoreTag labelKey="Local" label={item.strictly_local ? 'Yes' : 'No'} size="small" />
+            </ReqoreTagGroup>
+          </ReqoreMessage>
         )}
+
         {isGlobal && (
           <>
             <ReqoreMessage intent="warning">

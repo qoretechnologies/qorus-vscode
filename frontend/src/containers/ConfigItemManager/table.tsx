@@ -1,19 +1,14 @@
 // @flow
 import {
-  ReqoreButton,
-  ReqoreControlGroup,
+  ReqoreCollection,
   ReqoreMessage,
-  ReqorePanel,
-  ReqoreTable,
   ReqoreTag,
+  ReqoreTagGroup,
   ReqoreTree,
   ReqoreVerticalSpacer,
-  useReqore,
 } from '@qoretechnologies/reqore';
 import map from 'lodash/map';
-import reduce from 'lodash/reduce';
-import size from 'lodash/size';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
@@ -22,13 +17,8 @@ import withState from 'recompose/withState';
 import { isNull, isUndefined } from 'util';
 import ContentByType from '../../components/ContentByType';
 //import ConfigItemsModal from './modal';
-import {
-  IReqoreTableColumn,
-  IReqoreTableProps,
-} from '@qoretechnologies/reqore/dist/components/Table';
-import ReactMarkdown from 'react-markdown';
-import styled from 'styled-components';
-import { InitialContext } from '../../context/init';
+import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
+import { size } from 'lodash';
 import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
 import Modal from './modal';
@@ -49,50 +39,76 @@ type ConfigItemsTableProps = {
   disableAdding?: boolean;
 };
 
-const StyledTable: React.FC<IReqoreTableProps> = styled(ReqoreTable)`
-  .reqore-table-body {
-    height: unset !important;
-  }
-`;
+export const zoomToSize = {
+  0: 'tiny',
+  0.5: 'small',
+  1: 'normal',
+  1.5: 'big',
+  2: 'huge',
+};
 
-const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
-  <React.Fragment>
-    <ReqoreControlGroup fluid>
-      <ReqoreButton
-        onClick={props.handleGroupedToggle}
-        icon={props.isGrouped ? 'ListUnordered' : 'Group2Line'}
-        rightIcon={props.isGrouped ? 'ListUnordered' : 'Group2Line'}
-      >
-        {props.isGrouped ? 'Show all config items' : 'Show config items by group'}
-      </ReqoreButton>
-    </ReqoreControlGroup>
-    <ReqoreVerticalSpacer height={10} />
-    {props.isGrouped && size(props.data) ? (
-      map(props.data, (configItemsData, groupName) => (
-        <>
-          <ItemsTable
-            {...props}
-            groupName={groupName}
-            configItemsData={configItemsData}
-            title={groupName}
-          />
-          <ReqoreVerticalSpacer height={10} />
-        </>
-      ))
-    ) : (
-      <ItemsTable {...props} configItemsData={props.configItems.data} />
-    )}
-    {props.modalData && (
-      <Modal
-        onClose={props.handleModalToggle}
-        item={{ ...props.modalData.item }}
-        onSubmit={props.modalData.onSubmit}
-        intrf={props.modalData.intrf}
-        levelType={props.modalData.levelType}
-      />
-    )}
-  </React.Fragment>
-);
+export const zoomToWidth = {
+  0: '200px',
+  0.5: '300px',
+  1: '400px',
+  1.5: '500px',
+  2: '600px',
+};
+
+// This code converts a zoom level to a label.
+export const zoomToLabel = {
+  0: '50%',
+  0.5: '100%',
+  1: '150%',
+  1.5: '200%',
+  2: '250%',
+};
+
+const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => {
+  return (
+    <React.Fragment>
+      {!size(props.isGrouped ? props.data : props.unGroupedData) ? (
+        <ReqoreMessage icon="Search2Line" flat>
+          No local config items found {props.query ? `for query "${props.query}"` : ''}
+        </ReqoreMessage>
+      ) : null}
+      {props.isGrouped && size(props.data)
+        ? map(props.data, (configItemsData, groupName) => (
+            <>
+              <ItemsTable
+                {...props}
+                groupName={groupName}
+                configItemsData={configItemsData}
+                title={groupName}
+                onGroupClick={() => {
+                  props.handleGroupedToggle();
+                }}
+              />
+              <ReqoreVerticalSpacer height={10} />
+            </>
+          ))
+        : null}
+      {!props.isGrouped && size(props.unGroupedData) ? (
+        <ItemsTable
+          {...props}
+          configItemsData={props.unGroupedData}
+          onGroupClick={() => {
+            props.handleGroupedToggle();
+          }}
+        />
+      ) : null}
+      {props.modalData && (
+        <Modal
+          onClose={props.handleModalToggle}
+          item={{ ...props.modalData.item }}
+          onSubmit={props.modalData.onSubmit}
+          intrf={props.modalData.intrf}
+          levelType={props.modalData.levelType}
+        />
+      )}
+    </React.Fragment>
+  );
+};
 
 export const getItemType = (type, value) => {
   let result = type;
@@ -104,7 +120,7 @@ export const getItemType = (type, value) => {
   return result;
 };
 
-export const Value = ({ item, useDefault }) => {
+export const Value = ({ item, useDefault }: any) => {
   const [showValue, setShowValue] = useState(!item.sensitive);
   const [hideTimer, setHideTimer] = useState<NodeJS.Timer>(null);
 
@@ -191,14 +207,15 @@ let ItemsTable: Function = ({
   definitionsOnly,
   disableAdding,
   initialItems,
+  zoom,
+  itemsPerPage,
+  onGroupClick,
+  query,
 }: ConfigItemsTableProps) => {
-  const initContext = useContext(InitialContext);
-  const { isMobileOrTablet } = useReqore();
-
   const isInitialItemValueSame = (item) => {
-    const initialItem = initialItems.find(
-      (inItem) => inItem.name === item.name && inItem.group === item.group
-    );
+    const initialItem = initialItems.find((inItem) => {
+      return inItem.name === item.name && inItem.config_group === item.config_group;
+    });
 
     if (!initialItem) {
       return false;
@@ -207,187 +224,110 @@ let ItemsTable: Function = ({
     return initialItem.value === item.value;
   };
 
-  const columns = () => {
-    let cols: IReqoreTableColumn[] = [
-      {
-        dataId: 'name',
-        header: t('Name'),
-        grow: 2,
-        sortable: true,
-        cellTooltip: (data) => {
-          return (
-            <>
-              <ReqoreMessage intent="info" size="small" title={data.name}>
-                <ReactMarkdown>{data.description}</ReactMarkdown>
-              </ReqoreMessage>
-              <ReqoreVerticalSpacer height={10} />
-              <Value item={data} />
-            </>
-          );
-        },
-      },
-    ];
-
-    if (!groupName) {
-      cols = [
-        ...cols,
-        {
-          dataId: 'config_group',
-          header: t('Group'),
-          sortable: true,
-          cellTooltip(data) {
-            return data.config_group;
-          },
-        },
-      ];
-    }
-
-    cols = [
-      ...cols,
-      {
-        dataId: 'value',
-        header: t('Value'),
-        sortable: true,
-        cellTooltip(data) {
-          return (
-            <>
-              <ReqoreMessage intent="info" size="small" title={data.name}>
-                <ReactMarkdown>{data.description}</ReactMarkdown>
-              </ReqoreMessage>
-              <ReqoreVerticalSpacer height={10} />
-              <Value item={data} />
-            </>
-          );
-        },
-      },
-      {
-        dataId: '_actions',
-        header: t('Actions'),
-        width: 150,
-        align: 'center',
-        content: (item) => (
-          <ReqoreControlGroup stack size="small">
-            <ReqoreButton
-              icon="EditLine"
-              tooltip={t('button.edit-this-value')}
-              disabled={definitionsOnly}
-              onClick={() => {
-                handleModalToggle(
-                  { ...item },
-                  (name, value, parent, isTemplatedString, remove, currentType) => {
-                    onSubmit(name, value, parent, type, isTemplatedString, remove, currentType);
-                    handleModalToggle(null);
-                  },
-                  intrf,
-                  levelType
-                );
-              }}
-            />
-            <ReqoreButton
-              icon="CloseLine"
-              intent={'warning'}
-              tooltip={t('button.remove-this-value')}
-              disabled={
-                definitionsOnly || (item.level ? !item.level.startsWith(levelType || '') : true)
-              }
-              onClick={() => {
-                onSubmit(item.name, null, item.parent_class, type, item.is_templated_string, true);
-              }}
-            />
-            <ReqoreButton
-              icon="SettingsLine"
-              title={t('button.edit-this-config-item')}
-              disabled={disableAdding}
-              onClick={() => {
-                onEditStructureClick(item.name);
-              }}
-            />
-
-            {!item.parent && (
-              <ReqoreButton
-                intent="danger"
-                icon="DeleteBinLine"
-                disabled={disableAdding}
-                onClick={() => {
-                  initContext.confirmAction('ConfirmRemoveConfigItem', () => {
-                    onDeleteStructureClick(item.name);
-                  });
-                }}
-              />
-            )}
-          </ReqoreControlGroup>
-        ),
-      },
-    ];
-
-    if (!isMobileOrTablet) {
-      cols = [
-        ...cols,
-        {
-          dataId: 'stricly_local',
-          header: t('Strictly local'),
-          sortable: true,
-          content: (item) => <>{item.stricly_local ? 'Yes' : 'No'}</>,
-          align: 'center',
-          width: 100,
-        },
-        {
-          dataId: 'level',
-          header: t('Level'),
-          sortable: true,
-          content: ({ level }) => <ReqoreTag size="small" icon="NodeTree" label={level} />,
-          align: 'center',
-          width: 100,
-        },
-        {
-          dataId: 'type',
-          header: t('Type'),
-          sortable: true,
-          width: 100,
-          align: 'center',
-          content: ({ type, can_be_undefined }) => (
-            <ReqoreTag
-              size="small"
-              icon="CodeLine"
-              label={`${can_be_undefined ? '*' : ''}${type}`}
-            />
-          ),
-        },
-      ];
-    }
-
-    return cols;
-  };
-
   return (
     <React.Fragment>
-      <ReqorePanel
-        label={groupName}
-        minimal
-        transparent
-        flat
-        collapsible={groupName}
-        icon={groupName ? 'Settings5Fill' : undefined}
-      >
-        <StyledTable
-          rounded
-          striped
-          sort={{
-            by: 'name',
-            direction: 'asc',
-          }}
-          columns={columns()}
-          data={configItemsData.map((item) => ({
-            ...item,
-            _intent:
-              !item.value && !item.is_set
+      <ReqoreCollection
+        label={groupName || 'All config items'}
+        sortable
+        icon="PriceTagFill"
+        maxItemHeight={250}
+        minColumnWidth={zoomToWidth[zoom]}
+        responsiveActions={false}
+        responsiveTitle
+        inputInTitle={false}
+        inputProps={{
+          fluid: true,
+        }}
+        actions={[
+          {
+            label: groupName ? 'Ungroup items' : 'Group items',
+            icon: groupName ? 'Apps2Line' : 'BubbleChartLine',
+            onClick: () => {
+              onGroupClick();
+            },
+          },
+        ]}
+        paging={
+          itemsPerPage
+            ? {
+                infinite: true,
+                loadMoreLabel: 'Load more...',
+                showLabels: true,
+                itemsPerPage,
+              }
+            : undefined
+        }
+        items={configItemsData.map(
+          (item): IReqoreCollectionItemProps => ({
+            label: item.name,
+            size: zoomToSize[zoom],
+            tooltip: {
+              content: item.description,
+              delay: 300,
+            },
+            intent:
+              !item.value && item.value !== 0 && !item.is_set
                 ? 'danger'
                 : !isInitialItemValueSame(item)
                 ? 'success'
                 : undefined,
-          }))}
-        />
-      </ReqorePanel>
+            onClick: definitionsOnly
+              ? undefined
+              : () => {
+                  handleModalToggle(
+                    { ...item },
+                    (name, value, parent, isTemplatedString, remove, currentType) => {
+                      onSubmit(name, value, parent, type, isTemplatedString, remove, currentType);
+                      handleModalToggle(null);
+                    },
+                    intrf,
+                    levelType
+                  );
+                },
+            actions: [
+              {
+                icon: 'CloseLine',
+                tooltip: 'Clear',
+                intent: 'warning',
+                show: 'hover',
+                disabled:
+                  definitionsOnly || (item.level ? !item.level.startsWith(levelType || '') : true),
+                onClick: () => {
+                  onSubmit(
+                    item.name,
+                    null,
+                    item.parent_class,
+                    type,
+                    item.is_templated_string,
+                    true
+                  );
+                },
+              },
+              {
+                icon: 'EditLine',
+                tooltip: 'Edit',
+                show: 'hover',
+                disabled: definitionsOnly,
+                onClick: () => {
+                  onEditStructureClick(item.name);
+                },
+              },
+            ],
+            content: (
+              <>
+                <Value item={item} />
+                <ReqoreVerticalSpacer height={15} />
+                <ReqoreTagGroup size={zoomToSize[zoom]}>
+                  {item.parent_class ? (
+                    <ReqoreTag labelKey="Parent" icon="CodeBoxFill" label={item.parent_class} />
+                  ) : null}
+                  <ReqoreTag labelKey="Type" label={item.type} icon="CodeLine" />
+                </ReqoreTagGroup>
+              </>
+            ),
+          })
+        )}
+      />
     </React.Fragment>
   );
 };
@@ -429,9 +369,28 @@ export default compose(
       },
   }),
   mapProps(({ configItems, ...rest }) => ({
-    data: reduce(
-      configItems.data,
-      (newItems, item) => {
+    unGroupedData: configItems.data.filter((item) => {
+      if (rest.query) {
+        return (
+          item.name.toLowerCase().includes(rest.query.toLowerCase()) ||
+          item.description.toLowerCase().includes(rest.query.toLowerCase())
+        );
+      }
+
+      return item;
+    }),
+    data: configItems.data
+      .filter((item) => {
+        if (rest.query) {
+          return (
+            item.name.toLowerCase().includes(rest.query.toLowerCase()) ||
+            item.description.toLowerCase().includes(rest.query.toLowerCase())
+          );
+        }
+
+        return item;
+      })
+      .reduce((newItems, item) => {
         // Check if this group exists
         if (!newItems[item.config_group]) {
           newItems[item.config_group] = [];
@@ -439,11 +398,9 @@ export default compose(
         // Push the item
         newItems[item.config_group].push(item);
         return newItems;
-      },
-      {}
-    ),
+      }, {}),
     configItems,
     ...rest,
   })),
-  onlyUpdateForKeys(['configItems', 'showDescription', 'isGrouped', 'modalData'])
+  onlyUpdateForKeys(['configItems', 'showDescription', 'isGrouped', 'modalData', 'query'])
 )(ConfigItemsTable);
