@@ -1,4 +1,4 @@
-import { ReqoreCollection, ReqoreSpinner, useReqoreProperty } from '@qoretechnologies/reqore';
+import { ReqoreCollection, useReqoreProperty } from '@qoretechnologies/reqore';
 import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
 import { capitalize, size } from 'lodash';
 import { useContext, useMemo } from 'react';
@@ -9,6 +9,7 @@ import {
   SelectorColorEffect,
   WarningColorEffect,
 } from '../../components/Field/multiPair';
+import Loader from '../../components/Loader';
 import { Markdown } from '../../components/Markdown';
 import {
   interfaceIcons,
@@ -97,7 +98,7 @@ export const InterfacesViewCollection = ({
   }, [getItemsCount, getDraftsCount, showRemotes, getRemotesCount, qorus_instance]);
 
   if (loading) {
-    return <ReqoreSpinner size="big">Loading server data...</ReqoreSpinner>;
+    return <Loader text="Loading server data..." />;
   }
 
   return (
@@ -114,6 +115,9 @@ export const InterfacesViewCollection = ({
       paging={{
         infinite: true,
         loadMoreLabel: 'Load more...',
+        loadMoreButtonProps: {
+          badge: undefined,
+        },
         showLabels: true,
         itemsPerPage,
       }}

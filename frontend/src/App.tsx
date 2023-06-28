@@ -434,16 +434,20 @@ const App: FunctionComponent<IApp> = ({
                       content={
                         <ReqoreMenu rounded maxHeight="300px">
                           <ReqoreMenuDivider label={'History'} />
-                          {tabHistory.map(({ subtab, tab, name }, index) => (
-                            <ReqoreMenuItem
-                              icon={subtab ? interfaceIcons[subtab] : viewsIcons[tab]}
-                              onClick={() => onHistoryBackClick(index)}
-                              description={name || (tab === 'CreateInterface' ? 'New' : undefined)}
-                            >
-                              {t(tab)}
-                              {subtab ? ` : ${interfaceKindToName[subtab]}` : ''}
-                            </ReqoreMenuItem>
-                          ))}
+                          {[...tabHistory].reverse().map(({ subtab, tab, name }, index: number) =>
+                            index !== 0 ? (
+                              <ReqoreMenuItem
+                                icon={subtab ? interfaceIcons[subtab] : viewsIcons[tab]}
+                                onClick={() => onHistoryBackClick(tabHistory.length - (index + 1))}
+                                description={
+                                  name || (tab === 'CreateInterface' ? 'New' : undefined)
+                                }
+                              >
+                                {t(tab)}
+                                {subtab ? ` : ${interfaceKindToName[subtab]}` : ''}
+                              </ReqoreMenuItem>
+                            ) : null
+                          )}
                         </ReqoreMenu>
                       }
                     >
