@@ -17,6 +17,39 @@ export const StyledPairField = styled.div`
   margin-bottom: 10px;
 `;
 
+export const FancyColorEffect: IReqoreEffect = {
+  gradient: {
+    direction: 'to right bottom',
+    colors: {
+      0: '#12002f:lighten:2',
+      100: '#12002f',
+    },
+    animate: 'hover',
+  },
+};
+
+export const QorusColorEffect: IReqoreEffect = {
+  gradient: {
+    colors: {
+      0: '#6e1977:lighten',
+      100: '#6e1977',
+    },
+    animate: 'hover',
+    animationSpeed: 5,
+  },
+};
+
+export const SynthColorEffect: IReqoreEffect = {
+  gradient: {
+    colors: {
+      0: '#5865f2',
+      100: '#6e1977',
+    },
+    animate: 'always',
+    animationSpeed: 5,
+  },
+};
+
 export const PositiveColorEffect: IReqoreEffect = {
   gradient: {
     direction: 'to right',
@@ -36,6 +69,16 @@ export const WarningColorEffect: IReqoreEffect = {
       100: 'warning:lighten',
     },
     animate: 'always',
+  },
+};
+
+export const PendingColorEffect: IReqoreEffect = {
+  gradient: {
+    direction: 'to right bottom',
+    colors: {
+      0: 'pending:lighten',
+      100: '#160437',
+    },
   },
 };
 
@@ -65,7 +108,7 @@ export const SelectorColorEffect: IReqoreEffect = {
     direction: 'to right bottom',
     colors: {
       0: 'main:lighten',
-      100: 'main',
+      100: 'main:darken',
     },
   },
 };

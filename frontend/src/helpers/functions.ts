@@ -353,7 +353,7 @@ export const callBackendBasic: (
     }, 300000);
     // Watch for the request to complete
     // if the ID matches then resolve
-    addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
+    const listener = addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
       if (data.request_id === uniqueId) {
         if (toastMessage) {
           addNotificationCall?.({
@@ -366,6 +366,7 @@ export const callBackendBasic: (
 
         clearTimeout(timeout);
         timeout = null;
+        listener();
         resolve(data);
       }
     });
@@ -483,7 +484,7 @@ export { functionOrStringExp, getType };
 
 export const deleteDraft = async (
   interfaceKind,
-  fileName,
+  fileName?,
   notify: boolean = false,
   addNotification?: any
 ) => {

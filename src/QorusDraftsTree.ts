@@ -5,6 +5,7 @@ import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleSta
 import { QorusDraftsInstance } from './QorusDrafts';
 import { qorusIcons } from './QorusIcons';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { qorus_webview } from './QorusWebview';
 
 export type QorusDraftsTreeItem = QorusDraftItem | QorusDraftCategory;
 export type QorusDraftTreeItems = QorusDraftsTreeItem[];
@@ -41,6 +42,11 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
   refresh() {
     // @ts-ignore
     this.onTreeDataChanged.fire();
+
+    qorus_webview.postMessage({
+      action: 'get-all-interfaces-complete',
+      data: this.getObjectWithAllInterfaces(),
+    });
   }
 
   getTreeItem(node: QorusDraftsTreeItem): QorusDraftsTreeItem {
@@ -57,23 +63,30 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftsTreeItem> {
 
     const allInterfaces = interfaceFolders.reduce((newInterfaces, folder) => {
       const allDrafts = QorusDraftsInstance.getDraftsForInterface(folder, true);
+      const drafts = QorusDraftsInstance.getDraftsForInterface(folder).map((draft) => ({
+        ...draft,
+        isDraft: true,
+      }));
 
       return {
         ...newInterfaces,
         [folder]: otherFilesNames.includes(folder)
           ? this.code_info.otherFilesDataByType(folder as any)
-          : this.code_info.interfaceDataByType(folder).map((interfaceData) => {
-              const draft = allDrafts.find(
-                (draft) => draft.associatedInterface === getTargetFile(interfaceData.data)
-              );
+          : [
+              ...drafts,
+              ...this.code_info.interfaceDataByType(folder).map((interfaceData) => {
+                const draft = allDrafts.find(
+                  (draft) => draft.associatedInterface === getTargetFile(interfaceData.data)
+                );
 
-              return {
-                ...interfaceData,
-                hasDraft: !!draft,
-                ...(draft || {}),
-                isDraft: false,
-              };
-            }),
+                return {
+                  ...interfaceData,
+                  hasDraft: !!draft,
+                  ...(draft || {}),
+                  isDraft: false,
+                };
+              }),
+            ],
       };
     }, {});
 

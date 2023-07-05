@@ -396,6 +396,7 @@ const Project: FunctionComponent<IProject> = ({
             filterable
             padded={false}
             fill
+            icon="Home3Fill"
             size="big"
             sortable
             inputPlaceholder={(items) => `Start typing to search ${items.length} environments`}

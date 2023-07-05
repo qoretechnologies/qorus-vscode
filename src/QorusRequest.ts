@@ -216,6 +216,7 @@ export class QorusRequest extends QorusLogin {
         action: 'fetch-data-complete',
         id,
         data: typeof response === 'string' ? JSON.parse(response) : response,
+        ok: true,
       });
     };
 
@@ -225,6 +226,7 @@ export class QorusRequest extends QorusLogin {
         action: 'fetch-data-complete',
         id,
         error: error,
+        ok: false,
       });
     };
 

@@ -1,7 +1,0 @@
-# This is a generated file, don't edit!
-type: class
-name: TestClass
-desc: Test
-lang: qore
-version: '1'
-code: TestClass-1.qclass

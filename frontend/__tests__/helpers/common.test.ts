@@ -1,6 +1,11 @@
 import { IField } from '../../src/components/FieldWrapper';
-import { mapFieldsToGroups, maybeSendOnChangeEvent } from '../../src/helpers/common';
+import {
+  getUniqueValuesFromConfigItemsByKey,
+  mapFieldsToGroups,
+  maybeSendOnChangeEvent,
+} from '../../src/helpers/common';
 import { postMessage } from '../../src/hocomponents/withMessageHandler';
+import configItems from '../../src/stories/Data/configItems';
 
 jest.mock('../../src/hocomponents/withMessageHandler', () => ({
   postMessage: jest.fn(),
@@ -114,5 +119,34 @@ describe('mapFieldsToGroups', () => {
       field2: [{ name: 'field2' }],
       field3: [{ name: 'field3' }],
     });
+  });
+});
+
+describe('getUniqueValuesFromConfigItemsByKey', () => {
+  const items = configItems;
+
+  it('should return unique types from config items', () => {
+    const result = getUniqueValuesFromConfigItemsByKey(
+      [...items.global_items, ...items.workflow_items, ...items.items],
+      'type'
+    );
+
+    expect(result).toContain('string');
+    expect(result).toContain('number');
+    expect(result).toContain('boolean');
+    expect(result.length).toBe(3);
+  });
+
+  it('should return unique parents from config items', () => {
+    const result = getUniqueValuesFromConfigItemsByKey(
+      [...items.global_items, ...items.workflow_items, ...items.items],
+      'parent_class'
+    );
+
+    expect(result).toContain('SomeOtherClass');
+    expect(result).toContain('MoreConfigItems');
+    expect(result).toContain('GreatConfigItems');
+    expect(result).toContain('ConfigItems');
+    expect(result.length).toBe(4);
   });
 });

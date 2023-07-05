@@ -2,7 +2,7 @@ import {
   IQorusSidebarItem,
   IQorusSidebarItems,
 } from '@qoretechnologies/reqore/dist/components/Sidebar';
-import { interfaceNameToKind } from './interfaces';
+import { interfaceNameToKind, viewsIcons } from './interfaces';
 
 export const MenuSubItems: Omit<IQorusSidebarItem, 'id'>[] = [
   {
@@ -77,15 +77,26 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
       items: [
         {
           name: 'Environments',
-          icon: 'Home3Fill',
+          activePaths: ['ProjectConfig'],
+          icon: viewsIcons['ProjectConfig'],
           id: 'ProjectConfig',
           props: {
             onClick: () => initialData?.changeTab('ProjectConfig'),
           },
         },
         {
+          name: 'Interfaces, drafts & files',
+          activePaths: ['Interfaces'],
+          icon: viewsIcons['Interfaces'],
+          id: 'Interfaces',
+          props: {
+            onClick: () => initialData?.changeTab('Interfaces'),
+          },
+        },
+        {
           name: 'Source Directories',
-          icon: 'FolderAddLine',
+          activePaths: ['SourceDirs'],
+          icon: viewsIcons['SourceDirs'],
           id: 'SourceDirs',
           props: {
             onClick: () => initialData?.changeTab('SourceDirs'),
@@ -93,32 +104,17 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
         },
         {
           name: 'Release Management',
-          icon: 'CodeBoxLine',
+          activePaths: ['ReleasePackage'],
+          icon: viewsIcons['ReleasePackage'],
           id: 'ReleasePackage',
           props: {
             onClick: () => initialData?.changeTab('ReleasePackage'),
           },
         },
-        {
-          name: 'Interface Management',
-          icon: 'FileCopyLine',
-          id: 'DeleteInterfaces',
-          props: {
-            onClick: () => initialData?.changeTab('DeleteInterfaces'),
-          },
-        },
-        {
-          name: 'Drafts',
-          icon: 'FileList2Line',
-          id: 'Drafts',
-          props: {
-            onClick: () => initialData?.changeTab('Drafts'),
-          },
-        },
       ],
     },
     interfaces: {
-      title: 'Interface Management',
+      title: 'Quickly create new',
       items: MenuSubItems.map((item) => ({
         ...item,
         props: {

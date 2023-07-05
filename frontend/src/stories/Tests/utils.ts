@@ -18,7 +18,7 @@ export function _testsSubmitFSMState(buttonId?: string) {
 
 export function _testsSelectItemFromDropdown(
   canvas,
-  itemLabel: string,
+  itemLabel: string | number,
   dropdownLabel: string = 'PleaseSelect',
   className?: string
 ) {

@@ -1,0 +1,13 @@
+# This is a generated file, don't edit!
+type: class
+name: MoreConfigItems
+desc: asg
+lang: python
+version: '1.0'
+code: MoreConfigItems-1.0.qclass.py
+config-items:
+  - name: CFG
+    default_value:
+        "Test"
+    description: asg
+    config_group: asg

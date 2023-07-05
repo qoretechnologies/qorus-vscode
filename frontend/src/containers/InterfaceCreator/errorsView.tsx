@@ -24,7 +24,6 @@ import { MethodSelector } from './servicesView';
 let hasAllMethodsLoaded: boolean;
 
 export const PanelWrapper = styled.div`
-  margin-top: 10px;
   display: flex;
   flex: 1;
   overflow: hidden;

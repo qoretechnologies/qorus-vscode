@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 4.2.0
+
+#### New features
+
+- New Interfaces list view - view and manage all local, remote interfaces, and drafts in one place
+- New & improved config items view - config items can now be filtered, zooming in and out is now possible, and the view is now more user friendly
+- Improved navigation - Added breadcrumbs to some views, added back button to the topbar that allows you to go back to the previous view
+- Types now support descriptions
+- Minor bug fixes and improvements
+
 ## Version 4.1.0
 
 ! Important ! - Some features of this release require Qorus 6.0.3 or later to be installed on the server.

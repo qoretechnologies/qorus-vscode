@@ -1,4 +1,9 @@
-import { ReqoreButton, ReqorePanel } from '@qoretechnologies/reqore';
+import {
+  ReqoreBreadcrumbs,
+  ReqoreButton,
+  ReqoreControlGroup,
+  ReqorePanel,
+} from '@qoretechnologies/reqore';
 import { IReqorePanelAction } from '@qoretechnologies/reqore/dist/components/Panel';
 import timeago from 'epoch-timeago';
 import { capitalize, forEach, size } from 'lodash';
@@ -12,7 +17,11 @@ import CustomDialog from '../../components/CustomDialog';
 import { DraftsTable } from '../../components/DraftsTable';
 import { NegativeColorEffect, PositiveColorEffect } from '../../components/Field/multiPair';
 import Tutorial from '../../components/Tutorial';
-import { interfaceKindTransform } from '../../constants/interfaces';
+import {
+  interfaceIcons,
+  interfaceKindTransform,
+  interfaceToPlural,
+} from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftsContext } from '../../context/drafts';
 import { GlobalContext } from '../../context/global';
@@ -386,21 +395,6 @@ const Tab: React.FC<ITabProps> = ({
   const getActions = () => {
     const actions: IReqorePanelAction[] = [];
 
-    if (tutorials[type]) {
-      // Add tutorial button
-      actions.push({
-        as: TutorialButton,
-        props: {
-          type,
-          onClick: (elements) =>
-            setTutorialData({
-              isOpen: true,
-              elements,
-            }),
-        },
-      });
-    }
-
     actions.push({
       label: 'Create new',
       icon: 'AddLine',
@@ -457,11 +451,48 @@ const Tab: React.FC<ITabProps> = ({
       });
     }
 
-    return actions;
+    return actions.map((action) => <ReqoreButton {...action} />);
   };
 
   return (
     <>
+      <ReqoreBreadcrumbs
+        size="big"
+        flat
+        style={{ padding: 0, margin: 0, border: 'none' }}
+        rightElement={<ReqoreControlGroup>{getActions()}</ReqoreControlGroup>}
+        items={[
+          {
+            icon: 'Home4Fill',
+            props: {
+              onClick: () => {
+                changeTab('ProjectConfig');
+              },
+            },
+          },
+          {
+            icon: interfaceIcons[type],
+            label: capitalize(interfaceToPlural[type]),
+            props: {
+              onClick: () => {
+                changeTab('Interfaces', type);
+              },
+            },
+          },
+          {
+            icon: isEditing() ? 'Edit2Line' : 'AddCircleFill',
+            label: isEditing() ? name : t('New'),
+            intent: 'info',
+            flat: false,
+            readOnly: true,
+            badge: isSavingDraft
+              ? t('SavingDraft')
+              : isDraftSaved
+              ? `${t('DraftSaved')} ${timeago(Date.now())}`
+              : undefined,
+          },
+        ]}
+      />
       {draftsOpen && (
         <CustomDialog
           isOpen
@@ -484,22 +515,10 @@ const Tab: React.FC<ITabProps> = ({
         </CustomDialog>
       )}
       <ReqorePanel
-        label={
-          isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`
-        }
         fill
         flat
-        responsiveActions={false}
+        padded={false}
         opacity={0}
-        headerSize={2}
-        badge={
-          isSavingDraft
-            ? t('SavingDraft')
-            : isDraftSaved
-            ? `${t('DraftSaved')} ${timeago(Date.now())}`
-            : undefined
-        }
-        actions={getActions()}
         contentStyle={{
           overflow: 'hidden',
           display: 'flex',
