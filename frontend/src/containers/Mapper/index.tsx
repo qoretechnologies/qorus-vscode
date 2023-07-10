@@ -389,35 +389,32 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     });
   };
 
-  const removeRelation: (
-    outputPath: string,
-    usesContext?: boolean,
-    isInputHash?: boolean
-  ) => void = (outputPath, usesContext, isInputHash) => {
-    if (inputsError || outputsError) {
-      return;
-    }
-    // Remove the selected relation
-    // @ts-ignore
-    setRelations((current: any): any =>
-      reduce(
-        current,
-        (newRelations, rel: any, relationOutput): boolean => {
-          if (relationOutput === outputPath) {
-            return {
-              ...newRelations,
-              [relationOutput]: omit(
-                rel,
-                usesContext ? ['context'] : isInputHash ? ['use_input_record'] : ['name']
-              ),
-            };
-          }
-          return { ...newRelations, [relationOutput]: rel };
-        },
-        {}
-      )
-    );
-  };
+  const removeRelation: (outputPath: string, usesContext?: boolean, isInputHash?: boolean) => void =
+    (outputPath, usesContext, isInputHash) => {
+      if (inputsError || outputsError) {
+        return;
+      }
+      // Remove the selected relation
+      // @ts-ignore
+      setRelations((current: any): any =>
+        reduce(
+          current,
+          (newRelations, rel: any, relationOutput): boolean => {
+            if (relationOutput === outputPath) {
+              return {
+                ...newRelations,
+                [relationOutput]: omit(
+                  rel,
+                  usesContext ? ['context'] : isInputHash ? ['use_input_record'] : ['name']
+                ),
+              };
+            }
+            return { ...newRelations, [relationOutput]: rel };
+          },
+          {}
+        )
+      );
+    };
 
   const removeFieldRelations: (path: string, type: string) => void = (path, type) => {
     // Remove the selected relation

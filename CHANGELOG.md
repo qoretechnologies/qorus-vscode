@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.2.1
+
+#### Bug fixes
+
+- Fixed a critical bug where any existing mapper would not load properly
+
 ## Version 4.2.0
 
 #### New features
