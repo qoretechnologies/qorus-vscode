@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.2.1
+
+#### New features
+
+- Fixed a bug reading config items in jobs and services
+
 ## Version 4.2.0
 
 #### New features
