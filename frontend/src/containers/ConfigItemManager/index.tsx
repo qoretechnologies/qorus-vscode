@@ -126,7 +126,9 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
       if (!initialConfigItems.current) {
         initialConfigItems.current = data;
       }
-      const configItemsCount = size([...data.items, ...data.global_items, ...data.workflow_items]);
+      const configItemsCount = data.workflow_items !== undefined
+        ? size([...data.items, ...data.global_items, ...data.workflow_items])
+        : size([...data.items, ...data.global_items]);
 
       if (configItemsCount > 100) {
         // The larger the number of items, the smaller the paging
