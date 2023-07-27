@@ -1,8 +1,14 @@
 # Changelog
 
+## Version 4.2.2
+
+#### Bug fixes
+
+- Fixed a critical bug where many existing mappers using data providers for input and/or output would not load properly
+
 ## Version 4.2.1
 
-#### New features
+#### Bug fixes
 
 - Fixed a bug reading config items in jobs and services
 

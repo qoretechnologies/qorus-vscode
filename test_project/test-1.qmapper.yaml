@@ -1,0 +1,52 @@
+# This is a generated file, don't edit!
+type: mapper
+name: test
+desc: asg
+mappertype: Mapper
+version: '1'
+fields:
+    provider:
+        name: provider
+options:
+    mapper-input:
+        type: datasource
+        name: omq
+        transaction_management: true
+        record_requires_search_options: false
+        path: /external_user_storage
+        supports_read: true
+        supports_update: true
+        supports_create: true
+        supports_delete: true
+        supports_messages: NONE
+        supports_observable: false
+        descriptions:
+            - >-
+                Data provider for database `pgsql:omq@omq%rippy`; use the search API
+                with the `sql` and `args` arguments to execute record-based queries
+            - >-
+                Record-based data provider for db table
+                `public.external_user_storage`; supports create, read/search,
+                update, delete, upsert, and bulk operations
+        custom-fields: {}
+    mapper-output:
+        type: datasource
+        name: omq
+        transaction_management: true
+        record_requires_search_options: false
+        path: /external_user_storage
+        supports_read: true
+        supports_update: true
+        supports_create: true
+        supports_delete: true
+        supports_messages: NONE
+        supports_observable: false
+        descriptions:
+            - >-
+                Data provider for database `pgsql:omq@omq%rippy`; use the search API
+                with the `sql` and `args` arguments to execute record-based queries
+            - >-
+                Record-based data provider for db table
+                `public.external_user_storage`; supports create, read/search,
+                update, delete, upsert, and bulk operations
+        custom-fields: {}
