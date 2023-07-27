@@ -184,7 +184,11 @@ export const getUrlFromProvider: (
 
   // Build the suffix
   const realPath = `${suffix}${finalPath}${
-    hasSubtype || is_api_call || supports_messages || supports_observable || isRecord
+    hasSubtype ||
+    is_api_call ||
+    (supports_messages && supports_messages !== 'NONE') ||
+    supports_observable ||
+    isRecord
       ? ''
       : recordSuffix || ''
   }`;
