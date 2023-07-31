@@ -964,13 +964,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     fieldKey
   ) => {
     // Find this field
-    if (typeof selectedFields != 'undefined') {
-      const field: IField = selectedFields.find((field: IField) => field.name === fieldName);
-      // Check if this field exists & is selected
-      if (field) {
-        // Return the requested field property
-        return fieldKey ? field[fieldKey] : field;
-      }
+    const field: IField = selectedFields?.find((field: IField) => field.name === fieldName);
+    // Check if this field exists & is selected
+    if (field) {
+      // Return the requested field property
+      return fieldKey ? field[fieldKey] : field;
     }
     // Return null
     return null;
