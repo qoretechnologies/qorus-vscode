@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.2.3
+
+#### Bug fixes
+
+- Fixed a critical bug opening services in the IDE that could cause a crash
+
 ## Version 4.2.2
 
 #### Bug fixes

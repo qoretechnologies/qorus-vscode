@@ -195,7 +195,7 @@ export interface IInterfaceCreatorPanel {
   parent?: string;
   fileName?: string;
   fields: IField[];
-  selectedFields: IField[];
+  selectedFields?: IField[];
   setFields: (type: string, fields: IField[] | Function, activeId?: number) => void;
   setSelectedFields: (type: string, fields: IField[] | Function, activeId?: number) => void;
   query?: string;
