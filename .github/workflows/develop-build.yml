@@ -45,6 +45,14 @@ jobs:
           cd frontend
           yarn install
           yarn build
+      - name: Publish to Chromatic
+        id: chromatic_publish
+        uses: chromaui/action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          storybookBaseDir: ./frontend
+          exitZeroOnChanges: true
       - name: Package
         id: package
         run: ./node_modules/.bin/vsce package --no-yarn
