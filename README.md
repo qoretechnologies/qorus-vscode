@@ -14,7 +14,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 
 #### Bug fixes
 
-- Fixed a bug opening connections in the IDE that could cause a crash
+- Fixed a bug opening connections with invalid connection options for the current server that could cause a crash
 
 ## Version 4.2.3
 
