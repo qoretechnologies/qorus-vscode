@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.2.4
+
+#### Bug fixes
+
+- Fixed a bug opening connections in the IDE that could cause a crash
+
 ## Version 4.2.3
 
 #### Bug fixes

@@ -483,9 +483,9 @@ const Options = ({
               main: 'main:lighten',
             },
             intent: getIntent(optionName, type, other.value, other.op),
-            badge: getType(options[optionName].type),
+            badge: getType(options[optionName]?.type),
             tooltip: {
-              ...getGlobalDescriptionTooltip(options[optionName].desc, optionName),
+              ...getGlobalDescriptionTooltip(options[optionName]?.desc, optionName),
               placement: 'top',
             },
             className: 'system-option',
@@ -493,7 +493,7 @@ const Options = ({
               {
                 icon: 'DeleteBinLine',
                 intent: 'danger',
-                show: !options[optionName].required && !readOnly,
+                show: !options[optionName]?.required && !readOnly,
                 onClick: () => {
                   confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
                 },
@@ -554,7 +554,7 @@ const Options = ({
                 <TemplateField
                   {...options[optionName]}
                   component={AutoField}
-                  {...getTypeAndCanBeNull(type, options[optionName].allowed_values, other.op)}
+                  {...getTypeAndCanBeNull(type, options[optionName]?.allowed_values, other.op)}
                   className="system-option"
                   name={optionName}
                   onChange={(optionName, val) => {
@@ -563,7 +563,7 @@ const Options = ({
                         optionName,
                         fixedValue,
                         val,
-                        getTypeAndCanBeNull(type, options[optionName].allowed_values).type
+                        getTypeAndCanBeNull(type, options[optionName]?.allowed_values).type
                       );
                     }
                   }}
@@ -571,9 +571,9 @@ const Options = ({
                   arg_schema={options[optionName]?.arg_schema}
                   noSoft={!!rest?.options}
                   value={other.value}
-                  sensitive={options[optionName].sensitive}
-                  default_value={options[optionName].default_value}
-                  allowed_values={options[optionName].allowed_values}
+                  sensitive={options[optionName]?.sensitive}
+                  default_value={options[optionName]?.default_value}
+                  allowed_values={options[optionName]?.allowed_values}
                   disabled={readOnly}
                   readOnly={readOnly}
                 />
