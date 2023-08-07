@@ -14,7 +14,7 @@ import isArray from 'lodash/isArray';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import useUpdateEffect from 'react-use/lib/useUpdateEffect';
 import { isObject } from 'util';
@@ -425,42 +425,33 @@ const Options = ({
     );
   };
 
-  const fixedValue = useMemo(() => fixOptions(value, options), [value, options]);
-  const {
-    availableOptions,
-    unavailableOptionsCount,
-  }: { availableOptions: IOptions; unavailableOptionsCount: number } = useMemo(() => {
-    let _unavailableOptionsCount = 0;
-    const _availableOptions = reduce(
-      fixedValue,
-      (newValue, option, optionName) => {
-        // Check if this option is in the options schema
-        // do not add it if not
-        if (!options[optionName]) {
-          _unavailableOptionsCount += 1;
-          return newValue;
-        }
+  const fixedValue = fixOptions(value, options);
+  let unavailableOptionsCount = 0;
+  const availableOptions = reduce(
+    fixedValue,
+    (newValue, option, optionName) => {
+      // Check if this option is in the options schema
+      // do not add it if not
+      if (!options[optionName]) {
+        unavailableOptionsCount += 1;
+        return newValue;
+      }
 
-        if (!isObject(option)) {
-          return {
-            ...newValue,
-            [optionName]: {
-              type: getType(options[optionName].type, operators, option.op),
-              value: option,
-            },
-          };
-        }
+      if (!isObject(option)) {
+        return {
+          ...newValue,
+          [optionName]: {
+            type: getType(options[optionName].type, operators, option.op),
+            value: option,
+          },
+        };
+      }
 
-        return { ...newValue, [optionName]: option };
-      },
-      {}
-    );
+      return { ...newValue, [optionName]: option };
+    },
+    {}
+  );
 
-    return {
-      availableOptions: _availableOptions,
-      unavailableOptionsCount: _unavailableOptionsCount,
-    };
-  }, [options, fixedValue]);
   const filteredOptions = reduce(
     options,
     (newOptions, option, name) => {
