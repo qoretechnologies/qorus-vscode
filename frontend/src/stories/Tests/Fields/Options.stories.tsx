@@ -1,6 +1,6 @@
 import { expect } from '@storybook/jest';
 import { Meta, StoryObj } from '@storybook/react';
-import { fireEvent, within } from '@storybook/testing-library';
+import { fireEvent } from '@storybook/testing-library';
 import Options from '../../../components/Field/systemOptions';
 
 const meta = {
@@ -23,8 +23,6 @@ export const NonExistentOptionsFiltered: StoryObj<typeof meta> = {
     },
   },
   play: async ({ canvasElement, ...rest }) => {
-    const canvas = within(canvasElement);
-
     await fireEvent.change(document.querySelectorAll('.system-option .reqore-textarea')[0], {
       target: { value: 'option1a' },
     });
