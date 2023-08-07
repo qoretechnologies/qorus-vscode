@@ -14,7 +14,7 @@ import isArray from 'lodash/isArray';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import useUpdateEffect from 'react-use/lib/useUpdateEffect';
 import { isObject } from 'util';
@@ -425,7 +425,42 @@ const Options = ({
     );
   };
 
-  const fixedValue = fixOptions(value, options);
+  const fixedValue = useMemo(() => fixOptions(value, options), [value, options]);
+  const {
+    availableOptions,
+    unavailableOptionsCount,
+  }: { availableOptions: IOptions; unavailableOptionsCount: number } = useMemo(() => {
+    let _unavailableOptionsCount = 0;
+    const _availableOptions = reduce(
+      fixedValue,
+      (newValue, option, optionName) => {
+        // Check if this option is in the options schema
+        // do not add it if not
+        if (!options[optionName]) {
+          _unavailableOptionsCount += 1;
+          return newValue;
+        }
+
+        if (!isObject(option)) {
+          return {
+            ...newValue,
+            [optionName]: {
+              type: getType(options[optionName].type, operators, option.op),
+              value: option,
+            },
+          };
+        }
+
+        return { ...newValue, [optionName]: option };
+      },
+      {}
+    );
+
+    return {
+      availableOptions: _availableOptions,
+      unavailableOptionsCount: _unavailableOptionsCount,
+    };
+  }, [options, fixedValue]);
   const filteredOptions = reduce(
     options,
     (newOptions, option, name) => {
@@ -471,11 +506,24 @@ const Options = ({
         sortable
         flat={false}
         minimal
+        contentRenderer={(children) => (
+          <>
+            {unavailableOptionsCount ? (
+              <>
+                <ReqoreMessage intent="warning">
+                  {`${unavailableOptionsCount} option(s) hidden because they are not supported on the current instance`}
+                </ReqoreMessage>
+                <ReqoreVerticalSpacer height={10} />
+              </>
+            ) : null}
+            {children}
+          </>
+        )}
         badge={size(fixedValue)}
         intent={isValid === false ? 'danger' : undefined}
         style={{ width: '100%' }}
         items={map(
-          fixedValue,
+          availableOptions,
           ({ type, ...other }, optionName): IReqoreCollectionItemProps => ({
             label: optionName,
             size: 'small',
@@ -483,9 +531,9 @@ const Options = ({
               main: 'main:lighten',
             },
             intent: getIntent(optionName, type, other.value, other.op),
-            badge: getType(options[optionName]?.type),
+            badge: getType(options[optionName].type),
             tooltip: {
-              ...getGlobalDescriptionTooltip(options[optionName]?.desc, optionName),
+              ...getGlobalDescriptionTooltip(options[optionName].desc, optionName),
               placement: 'top',
             },
             className: 'system-option',
@@ -493,7 +541,7 @@ const Options = ({
               {
                 icon: 'DeleteBinLine',
                 intent: 'danger',
-                show: !options[optionName]?.required && !readOnly,
+                show: !options[optionName].required && !readOnly,
                 onClick: () => {
                   confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
                 },
@@ -554,7 +602,7 @@ const Options = ({
                 <TemplateField
                   {...options[optionName]}
                   component={AutoField}
-                  {...getTypeAndCanBeNull(type, options[optionName]?.allowed_values, other.op)}
+                  {...getTypeAndCanBeNull(type, options[optionName].allowed_values, other.op)}
                   className="system-option"
                   name={optionName}
                   onChange={(optionName, val) => {
@@ -563,17 +611,17 @@ const Options = ({
                         optionName,
                         fixedValue,
                         val,
-                        getTypeAndCanBeNull(type, options[optionName]?.allowed_values).type
+                        getTypeAndCanBeNull(type, options[optionName].allowed_values).type
                       );
                     }
                   }}
                   key={optionName}
-                  arg_schema={options[optionName]?.arg_schema}
+                  arg_schema={options[optionName].arg_schema}
                   noSoft={!!rest?.options}
                   value={other.value}
-                  sensitive={options[optionName]?.sensitive}
-                  default_value={options[optionName]?.default_value}
-                  allowed_values={options[optionName]?.allowed_values}
+                  sensitive={options[optionName].sensitive}
+                  default_value={options[optionName].default_value}
+                  allowed_values={options[optionName].allowed_values}
                   disabled={readOnly}
                   readOnly={readOnly}
                 />
