@@ -29,12 +29,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
       - name: Print head git commit message
         id: get_head_commit_message
         run: echo "::set-output name=HEAD_COMMIT_MESSAGE::$(git show -s --format=%s)"
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
-          node-version: 16.16.0
+          node-version: 16.19.0
       - name: Save release version to outputs
         id: save_release_version
         run: echo ::set-output name=version::$(node -pe "require('./package.json').version")
@@ -45,6 +46,14 @@ jobs:
           cd frontend
           yarn install
           yarn build
+      - name: Publish to Chromatic
+        id: chromatic_publish
+        uses: chromaui/action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          storybookBaseDir: ./frontend
+          exitZeroOnChanges: true
       - name: Package
         id: package
         run: ./node_modules/.bin/vsce package --no-yarn

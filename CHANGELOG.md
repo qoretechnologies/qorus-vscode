@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.2.4
+
+#### Bug fixes
+
+- Fixed a bug opening connections with invalid connection options for the current server that could cause a crash
+
 ## Version 4.2.3
 
 #### Bug fixes
