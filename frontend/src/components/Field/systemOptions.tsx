@@ -426,6 +426,32 @@ const Options = ({
   };
 
   const fixedValue = fixOptions(value, options);
+  let unavailableOptionsCount = 0;
+  const availableOptions = reduce(
+    fixedValue,
+    (newValue, option, optionName) => {
+      // Check if this option is in the options schema
+      // do not add it if not
+      if (!options[optionName]) {
+        unavailableOptionsCount += 1;
+        return newValue;
+      }
+
+      if (!isObject(option)) {
+        return {
+          ...newValue,
+          [optionName]: {
+            type: getType(options[optionName].type, operators, option.op),
+            value: option,
+          },
+        };
+      }
+
+      return { ...newValue, [optionName]: option };
+    },
+    {}
+  );
+
   const filteredOptions = reduce(
     options,
     (newOptions, option, name) => {
@@ -471,11 +497,24 @@ const Options = ({
         sortable
         flat={false}
         minimal
+        contentRenderer={(children) => (
+          <>
+            {unavailableOptionsCount ? (
+              <>
+                <ReqoreMessage intent="warning">
+                  {`${unavailableOptionsCount} option(s) hidden because they are not supported on the current instance`}
+                </ReqoreMessage>
+                <ReqoreVerticalSpacer height={10} />
+              </>
+            ) : null}
+            {children}
+          </>
+        )}
         badge={size(fixedValue)}
         intent={isValid === false ? 'danger' : undefined}
         style={{ width: '100%' }}
         items={map(
-          fixedValue,
+          availableOptions,
           ({ type, ...other }, optionName): IReqoreCollectionItemProps => ({
             label: optionName,
             size: 'small',
@@ -568,7 +607,7 @@ const Options = ({
                     }
                   }}
                   key={optionName}
-                  arg_schema={options[optionName]?.arg_schema}
+                  arg_schema={options[optionName].arg_schema}
                   noSoft={!!rest?.options}
                   value={other.value}
                   sensitive={options[optionName].sensitive}
