@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.2.5
+
+#### Bug fixes
+
+- Fixed a bug where the some options were sent to the server without being properly yaml serialized
+
 ## Version 4.2.4
 
 #### Bug fixes

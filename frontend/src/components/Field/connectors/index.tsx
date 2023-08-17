@@ -1,4 +1,5 @@
 import { ReqoreMessage } from '@qoretechnologies/reqore';
+import jsyaml from 'js-yaml';
 import { cloneDeep, isEqual, map, omit, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useState } from 'react';
@@ -154,7 +155,7 @@ export const getUrlFromProvider: (
     // Build the option string for URL
     optionString = `provider_yaml_options={${map(
       options,
-      (value, key) => `${key}=${btoa(value?.value || value || '')}`
+      (value, key) => `${key}=${btoa(jsyaml.dump(value?.value || value || ''))}`
     ).join(',')}}`;
   }
 
@@ -162,7 +163,7 @@ export const getUrlFromProvider: (
     // Build the option string for URL
     optionString += `${optionString ? '&' : ''}provider_yaml_search_options={${map(
       search_options,
-      (value, key) => `${key}=${btoa(value?.value || value || '')}`
+      (value, key) => `${key}=${btoa(jsyaml.dump(value?.value || value || ''))}`
     ).join(',')}}`;
   }
 
