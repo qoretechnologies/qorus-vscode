@@ -5,6 +5,7 @@ import {
   ReqorePanel,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
+import jsyaml from 'js-yaml';
 import { cloneDeep, omit } from 'lodash';
 import map from 'lodash/map';
 import nth from 'lodash/nth';
@@ -303,7 +304,9 @@ const MapperProvider: FC<IProviderProps> = ({
 
     if (size(options)) {
       // Turn the options hash into a query string
-      const str = map(options, (value, key) => `${key}=${btoa(value.value)}`).join(',');
+      const str = map(options, (value, key) => `${key}=${btoa(jsyaml.dump(value.value))}`).join(
+        ','
+      );
       customOptionString = `provider_yaml_options={${str}}`;
     } else {
       customOptionString = 'provider_yaml_options={}';
@@ -311,7 +314,10 @@ const MapperProvider: FC<IProviderProps> = ({
 
     if (size(searchOptions)) {
       // Turn the options hash into a query string
-      const str = map(searchOptions, (value, key) => `${key}=${btoa(value.value)}`).join(',');
+      const str = map(
+        searchOptions,
+        (value, key) => `${key}=${btoa(jsyaml.dump(value.value))}`
+      ).join(',');
       customOptionString += `&provider_yaml_search_options={${str}}`;
     } else {
       customOptionString += `&provider_yaml_search_options={}`;
