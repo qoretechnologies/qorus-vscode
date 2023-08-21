@@ -236,7 +236,8 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
               <SubField
                 title={option}
                 {...schema}
-                desc={`${currentPath}${option} <${schema.type}>`}
+                desc={`${schema.desc}`}
+                descTitle={`${currentPath}${option}`}
                 collapsible
                 nested={level > 0}
                 isValid={

@@ -4,6 +4,8 @@ import {
   ReqoreMessage,
   ReqoreTabs,
   ReqoreTabsContent,
+  ReqoreTree,
+  ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import jsyaml from 'js-yaml';
 import { useContext, useState } from 'react';
@@ -91,7 +93,19 @@ export const ProviderMessageData = ({
           { label: 'Form', icon: 'AlignCenter', id: 'form' },
         ]}
       >
-        <ReqoreTabsContent tabId="text">
+        <ReqoreTabsContent tabId="text" style={{ flexFlow: 'column' }}>
+          <ReqoreTree
+            label="Type information"
+            size="small"
+            flat={false}
+            intent="info"
+            zoomable
+            exportable
+            collapsible
+            isCollapsed
+            data={messageData.arg_schema}
+          />
+          <ReqoreVerticalSpacer height={10} />
           <ReqoreControlGroup fluid fill stack>
             <LongStringField
               value={localValue}

@@ -3052,15 +3052,16 @@
   dependencies:
     lodash "^4.17.15"
 
-"@qoretechnologies/reqore@^0.35.1":
-  version "0.35.1"
-  resolved "https://registry.yarnpkg.com/@qoretechnologies/reqore/-/reqore-0.35.1.tgz#c8e1ceb748c7ed57147166f90fc00f41100698f5"
-  integrity sha512-MyN2NYRfLdAdiRK+fW0+iuuX8in0XXUq9vBiWQ1NT1ZSRpTVea1XxsXnpCwRyLx8tobu4aAWXVPM7rsSg3Qd9Q==
+"@qoretechnologies/reqore@^0.36.6":
+  version "0.36.6"
+  resolved "https://registry.yarnpkg.com/@qoretechnologies/reqore/-/reqore-0.36.6.tgz#b2c253ab53be92f608854d191394997abf6d39e9"
+  integrity sha512-xjuaYx7mEKgx3AezrmVNuuCg3xJwemRKawbOwX7iRADEeRRgPEbex8qFAbpBMbOsno47k9BqZqnedejm3DKYuA==
   dependencies:
     "@popperjs/core" "^2.11.6"
     "@react-spring/web" "^9.6.1"
     classnames "^2.2.6"
     epoch-timeago "^1.1.9"
+    fast-json-stable-stringify "^2.1.0"
     lodash "^4.17.21"
     polished "^4.2.2"
     re-resizable "^6.9.0"
@@ -3075,6 +3076,7 @@
     styled-components "^5.3.6"
     thenby "^1.3.4"
     use-context-selector "^1.4.1"
+    yaml "^2.3.1"
 
 "@react-dnd/asap@^5.0.1":
   version "5.0.2"
@@ -19778,6 +19780,11 @@ yaml@^1.10.0, yaml@^1.10.2, yaml@^1.7.2:
   version "1.10.2"
   resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.2.tgz#2301c5ffbf12b467de8da2333a459e29e7920e4b"
   integrity sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==
+
+yaml@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.3.1.tgz#02fe0975d23cd441242aa7204e09fc28ac2ac33b"
+  integrity sha512-2eHWfjaoXgTBC2jNM1LRef62VQa0umtvRiDSk6HSzW7RvS5YtkabJrwYLLEKWBc8a5U2PTSCs+dJjUTJdlHsWQ==
 
 yamljs@^0.3.0:
   version "0.3.0"
