@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.3.0
+
+#### New features
+
+- Enetring message data in message FSM states can now be done using both a free-form text input and newly a guided form
+
 ## Version 4.2.5
 
 #### Bug fixes
