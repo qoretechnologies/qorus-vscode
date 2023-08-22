@@ -60,6 +60,9 @@ export const validateField: (
   }
   // Check individual types
   switch (type) {
+    case 'bool':
+    case 'boolean':
+      return value === true || value === false || value === undefined;
     case 'binary':
     case 'string':
     case 'mapper':
@@ -197,13 +200,18 @@ export const validateField: (
       );
     case 'hash':
     case 'hash<auto>': {
-      if (field?.arg_schema) {
-        return every(field.arg_schema, (fieldData: IOptionsSchemaArg, argName: string) => {
-          return validateField(fieldData.type as IQorusType, value?.[argName], fieldData);
-        });
-      }
       // Get the parsed yaml
       const parsedValue: any = typeof value === 'object' ? value : maybeParseYaml(value);
+
+      if (field?.arg_schema) {
+        return every(field.arg_schema, (fieldData: IOptionsSchemaArg, argName: string) => {
+          if (parsedValue?.[argName] === undefined) {
+            return fieldData.required === false;
+          }
+
+          return validateField(fieldData.type as IQorusType, parsedValue?.[argName], fieldData);
+        });
+      }
       // If the value is not an object or empty
       if (!parsedValue || !isObject(parsedValue)) {
         return false;

@@ -15,6 +15,38 @@ export const Basic: StoryObj<typeof meta> = {
   },
 };
 
+export const Complex: StoryObj<typeof meta> = {
+  args: {
+    url: '/dataprovider/factories/mqtt/provider?provider_yaml_options={subscription_qos=Mgo=,subscription_topic=JyMnCg==,url=J3RjcDovL2xvY2FsaG9zdDoxODg4MycK}',
+    messageId: 'message',
+  },
+};
+
+export const WithValue: StoryObj<typeof meta> = {
+  args: {
+    url: '/dataprovider/factories/mqtt/provider?provider_yaml_options={subscription_qos=Mgo=,subscription_topic=JyMnCg==,url=J3RjcDovL2xvY2FsaG9zdDoxODg4MycK}',
+    messageId: 'message',
+    value: {
+      topic: 'test',
+      qos: 1,
+      retained: true,
+    },
+  },
+};
+
+export const FreeformWithValue: StoryObj<typeof meta> = {
+  args: {
+    url: '/dataprovider/factories/mqtt/provider?provider_yaml_options={subscription_qos=Mgo=,subscription_topic=JyMnCg==,url=J3RjcDovL2xvY2FsaG9zdDoxODg4MycK}',
+    messageId: 'message',
+    isFreeform: true,
+    value: {
+      topic: 'test',
+      qos: 1,
+      retained: true,
+    },
+  },
+};
+
 export const ReadOnly: StoryObj<typeof meta> = {
   args: {
     readOnly: true,

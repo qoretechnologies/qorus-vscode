@@ -24,6 +24,7 @@ export interface ISubFieldProps extends IReqorePanelProps {
   isValid?: boolean;
   collapsible?: boolean;
   nested?: boolean;
+  descTitle?: string;
 }
 export const DescriptionField = ({ desc }: { desc?: string }) =>
   desc ? (
@@ -43,6 +44,7 @@ export const DescriptionField = ({ desc }: { desc?: string }) =>
 const SubField: React.FC<ISubFieldProps> = ({
   title,
   desc,
+  descTitle,
   children,
   subtle,
   onRemove,
@@ -72,7 +74,7 @@ const SubField: React.FC<ISubFieldProps> = ({
         unMountContentOnCollapse={false}
         actions={[
           ...actions,
-          getFieldDescriptionAction(desc),
+          getFieldDescriptionAction(desc, descTitle),
           {
             icon: 'DeleteBinLine',
             intent: 'danger',
