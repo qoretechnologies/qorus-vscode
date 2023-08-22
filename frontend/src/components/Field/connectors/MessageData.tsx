@@ -104,6 +104,7 @@ export const ProviderMessageData = ({
             collapsible
             isCollapsed
             data={messageData.arg_schema}
+            showActionsWhenCollapsed={false}
           />
           <ReqoreVerticalSpacer height={10} />
           <ReqoreControlGroup fluid fill stack>
