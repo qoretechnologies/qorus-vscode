@@ -1,4 +1,5 @@
 import { ReqoreTextarea } from '@qoretechnologies/reqore';
+import { IReqoreTextareaProps } from '@qoretechnologies/reqore/dist/components/Textarea';
 import { ChangeEvent, FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import { TTranslator } from '../../App';
@@ -10,12 +11,10 @@ import {
   postMessage,
 } from '../../hocomponents/withMessageHandler';
 
-export interface ILongStringField {
+export interface ILongStringField extends Omit<IReqoreTextareaProps, 'onChange'> {
   t?: TTranslator;
-  fill?: boolean;
   postMessage?: TPostMessage;
   addMessageListener?: TMessageListener;
-  placeholder?: string;
   noWrap?: boolean;
   onChange: IFieldChange;
   id?: string;
@@ -34,6 +33,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
   noWrap,
   id,
   disabled,
+  ...rest
 }) => {
   // Fetch data on mount
   useMount(() => {
@@ -59,6 +59,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField> = ({
 
   return (
     <ReqoreTextarea
+      {...rest}
       placeholder={placeholder}
       scaleWithContent
       fluid
