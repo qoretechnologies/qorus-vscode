@@ -27,6 +27,7 @@ export const StateCanBeDraggedAndDropped: StoryFSM = {
     fsm,
   },
   play: async ({ canvasElement, zoomIn, zoomOut, ...rest }) => {
+    const coeficient = zoomIn ? 1.5 : zoomOut ? 0.7 : 1;
     if (zoomIn) {
       await ZoomIn.play({ canvasElement, ...rest });
     } else if (zoomOut) {
@@ -40,7 +41,8 @@ export const StateCanBeDraggedAndDropped: StoryFSM = {
     await sleep(500);
 
     await fireEvent.drop(document.querySelector('#state-2'), {
-      clientX: 500,
+      clientX: 1000 * coeficient,
+      clientY: 150 * coeficient,
     });
 
     await sleep(500);
@@ -50,7 +52,8 @@ export const StateCanBeDraggedAndDropped: StoryFSM = {
     await sleep(500);
 
     await fireEvent.drop(document.querySelector('#state-2'), {
-      clientY: 200,
+      clientY: 700 * coeficient,
+      clientX: 450 * coeficient,
     });
   },
 };
