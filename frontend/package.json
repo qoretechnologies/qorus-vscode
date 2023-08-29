@@ -1,7 +1,7 @@
 {
   "name": "frontend",
-  "version": "4.2.5",
-  "private": true,
+  "version": "4.3.1",
+  "private": false,
   "dependencies": {
     "@andrewhead/python-program-analysis": "^0.4.8",
     "@babel/core": "^7.16.0",

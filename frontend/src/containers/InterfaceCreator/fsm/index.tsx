@@ -11,6 +11,7 @@ import {
   useReqore,
   useReqoreTheme,
 } from '@qoretechnologies/reqore';
+import { IReqoreEffect, StyledEffect } from '@qoretechnologies/reqore/dist/components/Effect';
 import { every, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -226,7 +227,7 @@ export const StyledToolbarWrapper = styled.div`
   overflow: hidden;
 `;
 
-const StyledDiagramWrapper = styled.div`
+const StyledDiagramWrapper = styled(StyledEffect)`
   width: 100%;
   height: 100%;
   position: relative;
@@ -234,10 +235,10 @@ const StyledDiagramWrapper = styled.div`
   overflow: hidden;
 `;
 
-const StyledDiagram = styled.div<{ path: string }>`
+const StyledDiagram = styled(StyledEffect)<{ path: string }>`
   width: ${DIAGRAM_SIZE}px;
   height: ${DIAGRAM_SIZE}px;
-  background: ${({ bgColor }) => `${bgColor} url(${TinyGrid})`};
+  background-image: ${({ bgColor }) => `url(${TinyGrid})`};
 
   display: flex;
   align-items: center;
@@ -425,13 +426,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     Record<string | number, Record<'left' | 'right' | 'top' | 'bottom', number>>
   >({});
 
-  const [, drop] = useDrop({
+  const [{ isOver, canDrop }, drop] = useDrop({
     accept: DROP_ACCEPTS,
     drop: (item: IDraggableItem, monitor) => {
-      if (item.type === TOOLBAR_ITEM_TYPE) {
-        const diagram = document.getElementById('fsm-diagram')!.getBoundingClientRect();
-        let { x, y } = monitor.getClientOffset();
+      const diagram = document.getElementById('fsm-diagram')!.getBoundingClientRect();
+      let { x, y } = monitor.getClientOffset();
 
+      if (item.type === TOOLBAR_ITEM_TYPE) {
         x =
           calculateValueWithZoom(x - diagram.left, zoom) +
           calculateValueWithZoom(currentXPan.current, zoom);
@@ -441,9 +442,20 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
         addNewState(item, x, y);
       } else if (item.type === STATE_ITEM_TYPE) {
-        moveItem(item.id, monitor.getDifferenceFromInitialOffset());
+        x =
+          calculateValueWithZoom(x - diagram.left, zoom) +
+          calculateValueWithZoom(currentXPan.current, zoom);
+        y =
+          calculateValueWithZoom(y - diagram.top, zoom) +
+          calculateValueWithZoom(currentYPan.current, zoom);
+
+        moveItem(item.id, { x, y });
       }
     },
+    collect: (monitor) => ({
+      canDrop: !!monitor.canDrop(),
+      isOver: !!monitor.isOver(),
+    }),
   });
 
   const addNewState = (item: IDraggableItem, x, y, onSuccess?: (stateId: string) => any) => {
@@ -581,8 +593,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     setStates((cur) => {
       const newBoxes = { ...cur };
 
-      newBoxes[id].position.x += calculateValueWithZoom(coords.x, zoom);
-      newBoxes[id].position.y += calculateValueWithZoom(coords.y, zoom);
+      newBoxes[id].position.x = coords.x;
+      newBoxes[id].position.y = coords.y;
 
       updateHistory(newBoxes);
 
@@ -2466,7 +2478,24 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               ) : null}
 
               <div style={{ flex: 1, overflow: 'hidden', minHeight: 100 }}>
-                <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
+                <StyledDiagramWrapper
+                  as="div"
+                  theme={theme}
+                  effect={
+                    canDrop
+                      ? ({
+                          glow: {
+                            color: 'info',
+                            size: isOver ? 15 : 5,
+                            inset: true,
+                            blur: isOver ? 20 : 10,
+                          },
+                        } as IReqoreEffect)
+                      : undefined
+                  }
+                  ref={wrapperRef}
+                  id="fsm-diagram"
+                >
                   <FSMDiagramWrapper
                     wrapperDimensions={wrapperDimensions}
                     setPan={setWrapperPan}
@@ -2483,12 +2512,14 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     }))}
                   >
                     <StyledDiagram
+                      as="div"
                       name="fsm-drop-zone"
                       key={JSON.stringify(wrapperDimensions)}
                       ref={drop}
                       path={image_path}
                       onClick={() => setSelectedState(null)}
                       bgColor={theme.main}
+                      theme={theme}
                       style={{
                         zoom,
                         transformOrigin: 'left top',
