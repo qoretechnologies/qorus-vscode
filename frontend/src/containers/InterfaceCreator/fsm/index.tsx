@@ -461,9 +461,16 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   });
 
   const addNewState = (item: IDraggableItem, x, y, onSuccess?: (stateId: string) => any) => {
-    const ids: number[] = size(states) ? Object.keys(states).map((key) => parseInt(key)) : [0];
+    const parentStateId = parseInt(parentStateName);
+    const ids: number[] = size(states)
+      ? Object.keys(states).map((key) => {
+          return key.indexOf('.')
+            ? parseInt(key.split('.')[key.split('.').length - 1])
+            : parseInt(key);
+        })
+      : [0];
     const maxId = (Math.max(...ids) + 1).toString();
-    const id = parentStateName ? `${parentStateName}.${maxId}` : maxId;
+    const id = parentStateName ? `${parentStateId}.${maxId}` : maxId;
 
     setStates(
       (cur: IFSMStates): IFSMStates => ({

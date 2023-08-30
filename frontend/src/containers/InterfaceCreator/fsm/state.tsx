@@ -602,6 +602,13 @@ const FSMState: React.FC<IFSMStateProps> = ({
             title: t('Actions'),
           },
           {
+            item: 'Make transition',
+            onClick: () => {
+              onDblClick();
+            },
+            icon: 'LinkUnlink' as IReqoreIconName,
+          },
+          {
             item: t('ManageTransitions'),
             onClick: () => {
               onTransitionOrderClick(id);
