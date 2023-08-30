@@ -2497,6 +2497,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     setShowStateIds={setShowStateIds}
                     showStateIds={showStateIds}
                     zoom={zoom}
+                    id={`${parentStateName ? `${parentStateName}-` : ''}fsm-diagram`}
                     zoomIn={zoomIn}
                     zoomOut={zoomOut}
                     items={map(states, (state, id) => ({

@@ -72,6 +72,7 @@ export class ElementPan extends React.Component<
     items?: { y: number; x: number }[];
     t: TTranslator;
     panElementId?: string;
+    id;
   },
   ElementPanState
 > {
@@ -237,7 +238,7 @@ export class ElementPan extends React.Component<
   }
 
   public componentWillUnmount() {
-    document.getElementById('fsm-diagram').removeEventListener('wheel', this.onWheel);
+    document.getElementById(this.props.id).removeEventListener('wheel', this.onWheel);
   }
 
   init = () => {
@@ -253,7 +254,7 @@ export class ElementPan extends React.Component<
       state.scrollY = this.el.scrollTop;
     }
 
-    document.getElementById('fsm-diagram').addEventListener('wheel', this.onWheel);
+    document.getElementById(this.props.id).addEventListener('wheel', this.onWheel);
 
     this.setState(state);
   };
