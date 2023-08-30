@@ -65,3 +65,13 @@ export function _testsSelectItemFromCollection(
     await fireEvent.click(canvas.getByText(itemLabel));
   };
 }
+
+export async function _testsClickState(id) {
+  await fireEvent.mouseDown(document.querySelector(`#${id}`));
+  await fireEvent.mouseUp(document.querySelector(`#${id}`));
+}
+
+export async function _testsClickStateByLabel(canvas, label) {
+  await fireEvent.mouseDown(canvas.getAllByText(label)[0]);
+  await fireEvent.mouseUp(canvas.getAllByText(label)[0]);
+}

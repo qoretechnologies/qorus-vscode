@@ -5,7 +5,7 @@ import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
-import { sleep } from './../utils';
+import { _testsClickState, sleep } from './../utils';
 
 const meta = {
   component: FSMView,
@@ -79,7 +79,7 @@ export const SelectedStateChange: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await fireEvent.click(document.querySelector('#state-3'));
+    await _testsClickState('state-3');
     await waitFor(
       async () => {
         await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
@@ -90,7 +90,7 @@ export const SelectedStateChange: StoryFSM = {
       { timeout: 10000 }
     );
 
-    await fireEvent.click(document.querySelector('#state-1'));
+    await _testsClickState('state-1');
     await waitFor(
       async () => {
         // Make sure the h3 with text `Intent: Close Ticket?` inside .reqore-drawer is visible
@@ -134,12 +134,12 @@ export const StatesCanBeConnected: StoryFSM = {
     await expect(document.querySelectorAll('.fsm-transition').length).toBe(4);
 
     // Fake double click lol
-    await fireEvent.click(document.querySelector('#state-1'));
-    await fireEvent.click(document.querySelector('#state-1'));
+    await _testsClickState('state-1');
+    await _testsClickState('state-1');
 
     await sleep(2000);
 
-    await fireEvent.click(document.querySelector('#state-6'));
+    await _testsClickState('state-6');
 
     await sleep(2000);
 
@@ -158,7 +158,7 @@ export const StatesIsNotRemovedOnCancel: StoryFSM = {
 
     await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
 
-    await fireEvent.click(document.querySelector('#state-1'));
+    await _testsClickState('state-1');
 
     await sleep(1000);
 

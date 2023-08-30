@@ -425,7 +425,7 @@ export const getTransitionByState = (
 /* A function that given an object of states with x and y coordinates
  * returns boolean if any of the states overlap
  */
-export function checkOverlap(states: IFSMStates): boolean {
+export function checkOverlap(states: IFSMStates = {}): boolean {
   const keys = Object.keys(states);
   const length = keys.length;
 

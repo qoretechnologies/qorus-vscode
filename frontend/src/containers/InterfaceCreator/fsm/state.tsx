@@ -558,7 +558,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
             {
               icon: 'Edit2Line' as IReqoreIconName,
               disabled: type === 'block' && !qorus_instance,
-              onClick: () => {
+              onClick: (e) => {
+                e?.stopPropagation();
                 onEditClick?.(id);
               },
               minimal: true,
@@ -568,7 +569,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
             },
             {
               icon: 'DeleteBin4Fill' as IReqoreIconName,
-              onClick: () => {
+              onClick: (e) => {
+                e?.stopPropagation();
                 onDeleteClick?.(id);
               },
               intent: 'danger',

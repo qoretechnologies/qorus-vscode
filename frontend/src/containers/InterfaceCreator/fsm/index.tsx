@@ -274,7 +274,7 @@ const StyledFSMLine = styled.path`
   ${({ deselected }) =>
     deselected &&
     css`
-      opacity: 0.2;
+      opacity: 0.8;
     `}
 
   ${({ selected }) =>
@@ -324,7 +324,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   setFsmReset,
   interfaceContext,
   embedded = false,
-  states,
+  states = {},
   setStates,
   metadata,
   setMetadata,
@@ -429,7 +429,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: DROP_ACCEPTS,
     drop: (item: IDraggableItem, monitor) => {
-      const diagram = document.getElementById('fsm-diagram')!.getBoundingClientRect();
+      const diagram = document
+        .getElementById(`${parentStateName ? `${parentStateName}-` : ''}fsm-diagram`)!
+        .getBoundingClientRect();
       let { x, y } = monitor.getClientOffset();
 
       if (item.type === TOOLBAR_ITEM_TYPE) {
@@ -460,7 +462,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const addNewState = (item: IDraggableItem, x, y, onSuccess?: (stateId: string) => any) => {
     const ids: number[] = size(states) ? Object.keys(states).map((key) => parseInt(key)) : [0];
-    const id = (Math.max(...ids) + 1).toString();
+    const maxId = (Math.max(...ids) + 1).toString();
+    const id = parentStateName ? `${parentStateName}.${maxId}` : maxId;
 
     setStates(
       (cur: IFSMStates): IFSMStates => ({
@@ -472,7 +475,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           },
           isNew: true,
           initial: false,
-          name: getStateName(item, id),
+          name: getStateName(item, maxId),
           desc: '',
           injected: item.injected,
           injectedData: item.injectedData,
@@ -745,6 +748,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     stateId: string | number,
     targetId: string | number
   ): IFSMTransition | null => {
+    if (!states[stateId]) {
+      return null;
+    }
+
     const { transitions } = states[stateId];
 
     return transitions?.find((transition) => transition.state === targetId);
@@ -965,7 +972,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
       return areCompatible;
     },
-    []
+    [states]
   );
 
   const handleStateClick = useCallback(
@@ -1359,6 +1366,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
     const startStateData = getStateBoundingRect(startStateId);
     const endStateData = getStateBoundingRect(endStateId);
+
     const endOfStartState = x1 + startStateData.width;
     const endOfEndState = x2 + endStateData.width;
 
@@ -1730,6 +1738,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         <FSMState
           {...states[state]}
           isStatic
+          position={{
+            x: 0,
+            y: 0,
+          }}
           id={state}
           onUpdate={updateStateData}
           hasTransitionToItself={hasTransitionToItself(state)}
@@ -2470,7 +2482,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       : undefined
                   }
                   ref={wrapperRef}
-                  id="fsm-diagram"
+                  id={`${parentStateName ? `${parentStateName}-` : ''}fsm-diagram`}
                 >
                   <FSMDiagramWrapper
                     wrapperDimensions={wrapperDimensions}
