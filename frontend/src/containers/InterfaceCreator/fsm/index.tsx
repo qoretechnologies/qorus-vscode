@@ -21,7 +21,7 @@ import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
-import React, { Dispatch, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Dispatch, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { XYCoord, useDrop } from 'react-dnd';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
@@ -214,7 +214,7 @@ export interface IFSMStates {
 export const TOOLBAR_ITEM_TYPE = 'toolbar-item';
 export const STATE_ITEM_TYPE = 'state';
 
-const DIAGRAM_SIZE = 4000;
+export const DIAGRAM_SIZE = 4000;
 export const IF_STATE_SIZE = 80;
 export const STATE_WIDTH = 180;
 export const STATE_HEIGHT = 50;
@@ -536,14 +536,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return state.action?.type;
   };
 
-  const getXDiff = (type) => {
-    return STATE_WIDTH / 2;
-  };
-
-  const getYDiff = (type) => {
-    return STATE_HEIGHT / 2;
-  };
-
   const areStatesValid = (states: IFSMStates): boolean => {
     let valid = true;
 
@@ -758,18 +750,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return transitions?.find((transition) => transition.state === targetId);
   };
 
-  const getTransitionsCountForTargetState = (targetId: string): number => {
-    return Object.values(states).reduce((acc, state) => {
-      const { transitions } = state;
-
-      if (transitions) {
-        return transitions.find((transition) => transition.state === targetId) ? acc + 1 : acc;
-      }
-
-      return acc;
-    }, 0);
-  };
-
   // This function gets all the states that do not have any transitions out of them
   const getEndStates = (): IFSMState[] => {
     return filter(states, (state: IFSMState) => {
@@ -783,60 +763,54 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     });
   };
 
-  const getStateDisplayName = (id: string): string => {
-    const state = states[id];
+  const getStateDataForComparison = useCallback(
+    (state: IFSMState, providerType: 'input' | 'output'): ITypeComparatorData | null => {
+      if (state.action) {
+        if (!state.action.value) {
+          return null;
+        }
 
-    return state.name;
-  };
+        const { type, value } = state.action;
 
-  const getStateDataForComparison = (
-    state: IFSMState,
-    providerType: 'input' | 'output'
-  ): ITypeComparatorData | null => {
-    if (state.action) {
-      if (!state.action.value) {
+        const obj = {
+          interfaceName: type === 'connector' ? (value as TFSMClassConnectorAction).class : value,
+          interfaceKind: type,
+          connectorName:
+            type === 'connector' ? (value as TFSMClassConnectorAction).connector : undefined,
+          typeData: state[`${providerType}-type`] || state['input-output-type'],
+        };
+
+        if (!obj.typeData) {
+          delete obj.typeData;
+        }
+
+        // If the state is a variable, we need to get the variable data
+        if (type === 'var-action') {
+          const { var_name, var_type, action_type } = state.action.value as TVariableActionValue;
+          const variableData = getVariable(var_name, var_type, metadata);
+
+          if (variableData?.value) {
+            return {
+              ...obj,
+              interfaceKind: action_type,
+              interfaceName: { ...(value as TVariableActionValue), ...variableData.value },
+            };
+          }
+        }
+
+        return obj;
+      }
+
+      if (!state[`${providerType}-type`] && !state['input-output-type']) {
         return null;
       }
 
-      const { type, value } = state.action;
-
-      const obj = {
-        interfaceName: type === 'connector' ? (value as TFSMClassConnectorAction).class : value,
-        interfaceKind: type,
-        connectorName:
-          type === 'connector' ? (value as TFSMClassConnectorAction).connector : undefined,
+      return {
         typeData: state[`${providerType}-type`] || state['input-output-type'],
       };
-
-      if (!obj.typeData) {
-        delete obj.typeData;
-      }
-
-      // If the state is a variable, we need to get the variable data
-      if (type === 'var-action') {
-        const { var_name, var_type, action_type } = state.action.value as TVariableActionValue;
-        const variableData = getVariable(var_name, var_type, metadata);
-
-        if (variableData?.value) {
-          return {
-            ...obj,
-            interfaceKind: action_type,
-            interfaceName: { ...(value as TVariableActionValue), ...variableData.value },
-          };
-        }
-      }
-
-      return obj;
-    }
-
-    if (!state[`${providerType}-type`] && !state['input-output-type']) {
-      return null;
-    }
-
-    return {
-      typeData: state[`${providerType}-type`] || state['input-output-type'],
-    };
-  };
+    },
+    [metadata]
+  );
 
   const isTypeCompatible = (position: 'input' | 'output') => {
     if (position === 'input' && !inputCompatibility) {
@@ -962,139 +936,148 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     setInputCompatibility(comparison.data);
   };
 
-  const areStatesCompatible = async (
-    stateId: string | number,
-    targetId: string | number,
-    localStates: IFSMStates = states
-  ): Promise<boolean> => {
-    const outputState = localStates[stateId];
-    const inputState = localStates[targetId];
+  const areStatesCompatible = useCallback(
+    async (
+      stateId: string | number,
+      targetId: string | number,
+      localStates: IFSMStates = states
+    ): Promise<boolean> => {
+      const outputState = localStates[stateId];
+      const inputState = localStates[targetId];
 
-    const compatible = await areTypesCompatible(
-      getStateDataForComparison(outputState, 'output'),
-      getStateDataForComparison(inputState, 'input')
-    );
+      const compatible = await areTypesCompatible(
+        getStateDataForComparison(outputState, 'output'),
+        getStateDataForComparison(inputState, 'input')
+      );
 
-    return compatible;
-  };
+      return compatible;
+    },
+    [states, getStateDataForComparison]
+  );
 
-  const isAvailableForTransition = async (stateId: string, targetId: string): Promise<boolean> => {
-    if (getTransitionByState(stateId, targetId)) {
-      return Promise.resolve(false);
-    }
-
-    const areCompatible = await areStatesCompatible(stateId, targetId);
-
-    return areCompatible;
-  };
-
-  const handleStateClick = async (id: string) => {
-    if (selectedState) {
-      // Do nothing if the selected transition already
-      // exists
-      if (getTransitionByState(selectedState, id)) {
-        return;
+  const isAvailableForTransition = useCallback(
+    async (stateId: string, targetId: string): Promise<boolean> => {
+      if (getTransitionByState(stateId, targetId)) {
+        return Promise.resolve(false);
       }
 
-      const selectedStateType = states[selectedState].type;
-      const targetStateType = states[id].type;
+      const areCompatible = await areStatesCompatible(stateId, targetId);
 
-      // Also do nothing is the user is trying to transition FSM to itself or IF to itself
-      if ((targetStateType === 'fsm' || targetStateType === 'if') && selectedState === id) {
-        return;
-      }
+      return areCompatible;
+    },
+    []
+  );
 
-      // Check if the states are compatible
-      const isCompatible = await areStatesCompatible(selectedState, id);
+  const handleStateClick = useCallback(
+    async (id: string) => {
+      if (selectedState) {
+        // Do nothing if the selected transition already
+        // exists
+        if (getTransitionByState(selectedState, id)) {
+          return;
+        }
 
-      if (!isCompatible) {
-        setSelectedState(null);
+        const selectedStateType = states[selectedState].type;
+        const targetStateType = states[id].type;
 
-        const outputType = await getStateProvider(
-          getStateDataForComparison(states[id], 'input'),
-          'input'
-        );
-        const inputType = await getStateProvider(
-          getStateDataForComparison(states[selectedState], 'output'),
-          'output'
-        );
-        setMapper({
-          hasInitialInput: true,
-          hasInitialOutput: true,
-          mapper_options: {
-            'mapper-input': inputType,
-            'mapper-output': outputType,
-          },
+        // Also do nothing is the user is trying to transition FSM to itself or IF to itself
+        if ((targetStateType === 'fsm' || targetStateType === 'if') && selectedState === id) {
+          return;
+        }
+
+        // Check if the states are compatible
+        const isCompatible = await areStatesCompatible(selectedState, id);
+
+        if (!isCompatible) {
+          setSelectedState(null);
+
+          const outputType = await getStateProvider(
+            getStateDataForComparison(states[id], 'input'),
+            'input'
+          );
+          const inputType = await getStateProvider(
+            getStateDataForComparison(states[selectedState], 'output'),
+            'output'
+          );
+          setMapper({
+            hasInitialInput: true,
+            hasInitialOutput: true,
+            mapper_options: {
+              'mapper-input': inputType,
+              'mapper-output': outputType,
+            },
+          });
+
+          addNewState(
+            {
+              name: 'state',
+              type: 'toolbar-item',
+              stateType: 'mapper',
+              injected: true,
+              injectedData: {
+                from: states[selectedState].name,
+                to: states[id].name,
+                name: metadata.name,
+              },
+            },
+            (states[selectedState].position.x + states[id].position.x) / 2,
+            (states[selectedState].position.y + states[id].position.y) / 2,
+            // Add both transition immediately when the state is added
+            // to the diagram
+            (stateId: string) => {
+              setStates((cur) => {
+                const newBoxes = { ...cur };
+
+                newBoxes[selectedState].transitions = [
+                  ...(newBoxes[selectedState].transitions || []),
+                  {
+                    state: stateId.toString(),
+                    language: 'qore',
+                  },
+                ];
+
+                newBoxes[stateId].transitions = [
+                  ...(newBoxes[stateId].transitions || []),
+                  {
+                    state: id.toString(),
+                    language: 'qore',
+                  },
+                ];
+
+                updateHistory(newBoxes);
+
+                return newBoxes;
+              });
+            }
+          );
+
+          return;
+        }
+
+        setStates((cur) => {
+          const newBoxes = { ...cur };
+
+          newBoxes[selectedState].transitions = [
+            ...(newBoxes[selectedState].transitions || []),
+            {
+              state: id.toString(),
+              branch: selectedStateType === 'if' ? 'true' : undefined,
+              language: 'qore',
+            },
+          ];
+
+          updateHistory(newBoxes);
+
+          return newBoxes;
         });
 
-        addNewState(
-          {
-            name: 'state',
-            type: 'toolbar-item',
-            stateType: 'mapper',
-            injected: true,
-            injectedData: {
-              from: states[selectedState].name,
-              to: states[id].name,
-              name: metadata.name,
-            },
-          },
-          (states[selectedState].position.x + states[id].position.x) / 2,
-          (states[selectedState].position.y + states[id].position.y) / 2,
-          // Add both transition immediately when the state is added
-          // to the diagram
-          (stateId: string) => {
-            setStates((cur) => {
-              const newBoxes = { ...cur };
-
-              newBoxes[selectedState].transitions = [
-                ...(newBoxes[selectedState].transitions || []),
-                {
-                  state: stateId.toString(),
-                  language: 'qore',
-                },
-              ];
-
-              newBoxes[stateId].transitions = [
-                ...(newBoxes[stateId].transitions || []),
-                {
-                  state: id.toString(),
-                  language: 'qore',
-                },
-              ];
-
-              updateHistory(newBoxes);
-
-              return newBoxes;
-            });
-          }
-        );
-
-        return;
+        setSelectedState(null);
+      } else {
+        setSelectedState(id);
       }
-
-      setStates((cur) => {
-        const newBoxes = { ...cur };
-
-        newBoxes[selectedState].transitions = [
-          ...(newBoxes[selectedState].transitions || []),
-          {
-            state: id.toString(),
-            branch: selectedStateType === 'if' ? 'true' : undefined,
-            language: 'qore',
-          },
-        ];
-
-        updateHistory(newBoxes);
-
-        return newBoxes;
-      });
-
-      setSelectedState(null);
-    } else {
-      setSelectedState(id);
-    }
-  };
+    },
+    [selectedState, states, metadata, getStateDataForComparison, areStatesCompatible]
+  );
 
   const updateHistory = (data: IFSMStates) => {
     if (currentHistoryPosition.current >= 0) {
@@ -1109,86 +1092,88 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     }
   };
 
-  const fixIncomptibleStates = async (
-    id: string | number,
-    localStates: IFSMStates,
-    onFinish?: () => any
-  ) => {
-    const newStates = { ...localStates };
+  const fixIncomptibleStates = useCallback(
+    async (id: string | number, localStates: IFSMStates, onFinish?: () => any) => {
+      const newStates = { ...localStates };
 
-    for await (const [stateId, state] of Object.entries(newStates)) {
-      if (
-        !state.transitions ||
-        size(state.transitions) === 0 ||
-        !state.transitions.find((transitions) => transitions.state === id)
-      ) {
-        Promise.resolve();
-      } else {
-        // Check if this state is compatible with the modified state
-        const isCompatible = await areStatesCompatible(stateId, id, newStates);
-        // Is compatible no change needed
-        if (!isCompatible) {
-          showTransitionsToaster.current += 1;
-          // Filter out any transitions
-          newStates[stateId].transitions = state.transitions.filter(
-            (transition) => transition.state !== id
-          );
-        }
-      }
-
-      // Set states without action
-      if (!isFSMStateValid(state)) {
-        newStates[stateId].error = true;
-      }
-    }
-
-    if (onFinish) {
-      onFinish();
-    }
-
-    return newStates;
-  };
-
-  const updateStateData = async (id: string | number, data: Partial<IFSMState>) => {
-    let fixedStates: IFSMStates = { ...states };
-
-    fixedStates[id] = {
-      ...fixedStates[id],
-      ...data,
-    };
-
-    // Delete `isNew` from the fixed state
-    delete fixedStates[id].isNew;
-
-    if (data.type !== states[id].type || !isEqual(data.action, states[id].action)) {
-      if (size(fixedStates[id].transitions)) {
-        const newTransitions = [];
-
-        for await (const transition of fixedStates[id].transitions) {
-          const isCompatible = await areStatesCompatible(id, transition.state, fixedStates);
-
-          if (isCompatible) {
-            newTransitions.push(transition);
-          } else {
+      for await (const [stateId, state] of Object.entries(newStates)) {
+        if (
+          !state.transitions ||
+          size(state.transitions) === 0 ||
+          !state.transitions.find((transitions) => transitions.state === id)
+        ) {
+          Promise.resolve();
+        } else {
+          // Check if this state is compatible with the modified state
+          const isCompatible = await areStatesCompatible(stateId, id, newStates);
+          // Is compatible no change needed
+          if (!isCompatible) {
             showTransitionsToaster.current += 1;
+            // Filter out any transitions
+            newStates[stateId].transitions = state.transitions.filter(
+              (transition) => transition.state !== id
+            );
           }
         }
 
-        fixedStates[id].transitions = newTransitions;
+        // Set states without action
+        if (!isFSMStateValid(state)) {
+          newStates[stateId].error = true;
+        }
       }
 
-      // Check if transitions are null and remove them
-      if (size(fixedStates[id].transitions) === 0) {
-        delete fixedStates[id].transitions;
+      if (onFinish) {
+        onFinish();
       }
 
-      fixedStates = await fixIncomptibleStates(id, fixedStates);
-    }
+      return newStates;
+    },
+    []
+  );
 
-    updateHistory(fixedStates);
-    setStates(fixedStates);
-    setEditingState(null);
-  };
+  const updateStateData = useCallback(
+    async (id: string | number, data: Partial<IFSMState>) => {
+      let fixedStates: IFSMStates = { ...states };
+
+      fixedStates[id] = {
+        ...fixedStates[id],
+        ...data,
+      };
+
+      // Delete `isNew` from the fixed state
+      delete fixedStates[id].isNew;
+
+      if (data.type !== states[id].type || !isEqual(data.action, states[id].action)) {
+        if (size(fixedStates[id].transitions)) {
+          const newTransitions = [];
+
+          for await (const transition of fixedStates[id].transitions) {
+            const isCompatible = await areStatesCompatible(id, transition.state, fixedStates);
+
+            if (isCompatible) {
+              newTransitions.push(transition);
+            } else {
+              showTransitionsToaster.current += 1;
+            }
+          }
+
+          fixedStates[id].transitions = newTransitions;
+        }
+
+        // Check if transitions are null and remove them
+        if (size(fixedStates[id].transitions) === 0) {
+          delete fixedStates[id].transitions;
+        }
+
+        fixedStates = await fixIncomptibleStates(id, fixedStates);
+      }
+
+      updateHistory(fixedStates);
+      setStates(fixedStates);
+      setEditingState(null);
+    },
+    [states, areStatesCompatible, fixIncomptibleStates]
+  );
 
   const updateMultipleTransitionData = async (newData: IModifiedTransitions) => {
     let fixedStates: IFSMStates = { ...states };
@@ -1250,32 +1235,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     setEditingState(null);
   };
 
-  const updateTransitionData = async (
-    stateId: number | string,
-    index: number,
-    data: IFSMTransition,
-    remove?: boolean
-  ) => {
-    let transitionsCopy = [...states[stateId].transitions];
-
-    if (remove) {
-      delete transitionsCopy[index];
-    } else {
-      transitionsCopy[index] = {
-        ...transitionsCopy[index],
-        ...data,
-      };
-    }
-
-    transitionsCopy = transitionsCopy.filter((t) => t);
-    transitionsCopy = size(transitionsCopy) === 0 ? null : transitionsCopy;
-
-    await updateStateData(stateId, { transitions: transitionsCopy });
-  };
-
-  const handleStateEditClick = (id: string): void => {
+  const handleStateEditClick = useCallback((id: string): void => {
     setEditingState(id);
-  };
+  }, []);
 
   const handleSubmitClick = async () => {
     const fixedMetadata = { ...metadata };
@@ -1315,46 +1277,60 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     }
   };
 
-  const hasBothWayTransition = (
-    stateId: string,
-    targetId: string
-  ): { stateId: string; index: number } | null => {
-    const transitionIndex = states[targetId].transitions?.findIndex(
-      (transition) => transition.state === stateId
-    );
+  const hasBothWayTransition = useCallback(
+    (stateId: string, targetId: string): { stateId: string; index: number } | null => {
+      const transitionIndex = states[targetId].transitions?.findIndex(
+        (transition) => transition.state === stateId
+      );
 
-    if (transitionIndex && transitionIndex >= 0) {
-      return { stateId: targetId, index: transitionIndex };
-    }
+      if (transitionIndex && transitionIndex >= 0) {
+        return { stateId: targetId, index: transitionIndex };
+      }
 
-    return null;
-  };
+      return null;
+    },
+    [states]
+  );
 
-  const handleToolbarItemDblClick = (name, type, stateType, varType, varName) => {
-    addNewState(
-      {
-        name,
-        type,
-        stateType,
-        varType,
-        varName,
-      },
-      100,
-      size(states) * 100 + 100
-    );
-  };
+  const handleToolbarItemDblClick = useCallback(
+    (name, type, stateType, varType, varName) => {
+      addNewState(
+        {
+          name,
+          type,
+          stateType,
+          varType,
+          varName,
+        },
+        100,
+        size(states) * 100 + 100
+      );
+    },
+    [states]
+  );
 
-  const isTransitionToSelf = (stateId: string, targetId: string): boolean => {
+  const isTransitionToSelf = useCallback((stateId: string, targetId: string): boolean => {
     return stateId === targetId;
-  };
+  }, []);
 
-  const hasTransitionToItself = (stateId: string): boolean => {
-    return !!states[stateId].transitions?.find((transition) =>
-      isTransitionToSelf(stateId, transition.state)
-    );
-  };
+  const hasTransitionToItself = useCallback(
+    (stateId: string): boolean => {
+      return !!states[stateId].transitions?.find((transition) =>
+        isTransitionToSelf(stateId, transition.state)
+      );
+    },
+    [states]
+  );
 
-  const handleStateDeleteClick = (id: string | number, unfilled?: boolean): void => {
+  const handleExecutionOrderClick = useCallback(() => {
+    setEditingInitialOrder(true);
+  }, []);
+
+  const handleTransitionOrderClick = useCallback((id) => {
+    setEditingTransitionOrder(id);
+  }, []);
+
+  const handleStateDeleteClick = useCallback((id: string | number, unfilled?: boolean): void => {
     setStates((current) => {
       const newStates = removeFSMState(current, id, interfaceId, (newStates) => {
         // If this state was deleted because of unfilled data, do not
@@ -1366,7 +1342,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
       return newStates;
     });
-  };
+  }, []);
 
   const getTargetStateLocation = ({
     x1,
@@ -1508,7 +1484,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     }
   };
 
-  const transitions = useMemo(() => {
+  const getTransitions = () => {
     transitionIndexes.current = {};
     statesTransitionIndexes.current = {};
     targetStatesTransitionIndexes.current = {};
@@ -1601,7 +1577,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       },
       []
     ).sort((a, b) => a.order - b.order);
-  }, [states]);
+  };
 
   const reset = () => {
     postMessage(Messages.RESET_CONFIG_ITEMS, {
@@ -1644,10 +1620,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return '';
   };
 
-  const calculateMargin = () => (zoom - 1) * 1000;
   const getIsMetadataHidden = () => {
     return isMetadataHidden;
   };
+
+  const handleActivateStateClick = useCallback((id, data) => setActiveState(id), []);
 
   if (!qorus_instance) {
     return (
@@ -1755,12 +1732,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           isStatic
           id={state}
           onUpdate={updateStateData}
-          onMouseEnter={() => setHoveredState(state)}
-          onMouseLeave={() => setHoveredState(null)}
           hasTransitionToItself={hasTransitionToItself(state)}
           isAvailableForTransition={isAvailableForTransition}
-          onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
-          onExecutionOrderClick={() => setEditingInitialOrder(true)}
+          onTransitionOrderClick={handleTransitionOrderClick}
+          onExecutionOrderClick={handleExecutionOrderClick}
+          getStateDataForComparison={getStateDataForComparison}
           isIsolated={isStateIsolated(state, states)}
         />
         <ReqoreVerticalSpacer height={10} />
@@ -2536,19 +2512,18 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           onUpdate={updateStateData}
                           onEditClick={handleStateEditClick}
                           onDeleteClick={handleStateDeleteClick}
-                          onMouseEnter={() => setHoveredState(id)}
-                          onMouseLeave={() => setHoveredState(null)}
+                          onMouseEnter={setHoveredState}
+                          onMouseLeave={setHoveredState}
                           hasTransitionToItself={hasTransitionToItself(id)}
                           showStateIds={showStateIds}
                           selectedState={selectedState}
                           isAvailableForTransition={isAvailableForTransition}
-                          onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
-                          onExecutionOrderClick={() => setEditingInitialOrder(true)}
+                          onTransitionOrderClick={handleTransitionOrderClick}
+                          onExecutionOrderClick={handleExecutionOrderClick}
                           isIsolated={isStateIsolated(id, states)}
-                          stateInputProvider={getStateDataForComparison(states[id], 'input')}
-                          stateOutputProvider={getStateDataForComparison(states[id], 'output')}
-                          activateState={(id, data) => setActiveState(id)}
-                          zoom={Math.round(zoom * 100)}
+                          getStateDataForComparison={getStateDataForComparison}
+                          activateState={handleActivateStateClick}
+                          zoom={zoom}
                         />
                       ))}
                       <svg
@@ -2614,7 +2589,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                             />
                           </marker>
                         </defs>
-                        {transitions.map(
+                        {getTransitions().map(
                           (
                             {
                               state,

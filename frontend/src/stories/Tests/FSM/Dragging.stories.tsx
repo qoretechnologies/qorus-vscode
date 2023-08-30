@@ -36,25 +36,29 @@ export const StateCanBeDraggedAndDropped: StoryFSM = {
       await SwitchesToBuilder.play({ canvasElement, ...rest });
     }
 
-    await fireEvent.dragStart(document.querySelector('#state-2'));
+    await fireEvent.mouseDown(document.querySelector('#state-2'));
 
     await sleep(500);
 
-    await fireEvent.drop(document.querySelector('#state-2'), {
-      clientX: 1000 * coeficient,
-      clientY: 150 * coeficient,
+    await fireEvent.mouseMove(document.querySelector('#state-2'), {
+      movementX: 500 * coeficient,
+      movementY: 50 * coeficient,
     });
 
-    await sleep(500);
-
-    await fireEvent.dragStart(document.querySelector('#state-7'));
+    await fireEvent.mouseUp(document.querySelector('#state-2'));
 
     await sleep(500);
 
-    await fireEvent.drop(document.querySelector('#state-2'), {
-      clientY: 700 * coeficient,
-      clientX: 450 * coeficient,
+    await fireEvent.mouseDown(document.querySelector('#state-7'));
+
+    await sleep(500);
+
+    await fireEvent.mouseMove(document.querySelector('#state-7'), {
+      movementY: 400 * coeficient,
+      movementX: 50 * coeficient,
     });
+
+    await fireEvent.mouseUp(document.querySelector('#state-2'));
   },
 };
 

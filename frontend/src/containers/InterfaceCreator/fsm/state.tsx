@@ -14,17 +14,18 @@ import {
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import size from 'lodash/size';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useDrag } from 'react-dnd';
-import { getEmptyImage } from 'react-dnd-html5-backend';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
+import { calculateValueWithZoom } from '../../../components/PanElement';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { getStateBoundingRect } from '../../../helpers/diagram';
 import { insertAtIndex } from '../../../helpers/functions';
 import { useGetInputOutputType } from '../../../hooks/useGetInputOutputType';
-import { IFSMState, STATE_ITEM_TYPE, TVariableActionValue } from './';
+import { useWhyDidYouUpdate } from '../../../hooks/useWhyDidYouUpdate';
+import { DIAGRAM_SIZE, IFSMState, TVariableActionValue } from './';
 import { FSMItemIconByType } from './toolbarItem';
 
 export interface IFSMStateProps extends IFSMState {
@@ -50,14 +51,8 @@ export interface IFSMStateProps extends IFSMState {
 export interface IFSMStateStyleProps {
   x: number;
   y: number;
-  selected: boolean;
-  initial: boolean;
-  final: boolean;
-  type: 'mapper' | 'connector' | 'pipeline' | 'fsm' | 'block' | 'if';
-  isAvailableForTransition: boolean;
-  isIsolated: boolean;
-  isIncompatible?: boolean;
-  error?: boolean;
+  selected?: boolean;
+  type?: 'mapper' | 'connector' | 'pipeline' | 'fsm' | 'block' | 'if';
 }
 
 export type TStateTypes = 'interfaces' | 'logic' | 'api' | 'other' | 'variables';
@@ -122,7 +117,10 @@ export const StyledStateTextWrapper = styled.div`
 // IS AVAILABLE FOR TRANSITION
 // IS INCOMPATIBLE
 // ERROR
-const StyledFSMState: React.FC<IReqorePanelProps> = styled(ReqorePanel)`
+const StyledFSMState: React.FC<
+  IReqorePanelProps & { isStatic?: boolean } & IFSMStateStyleProps
+> = styled(ReqorePanel)`
+  transition: none !important;
   ${({ isStatic }) =>
     !isStatic
       ? css`
@@ -249,26 +247,17 @@ const FSMState: React.FC<IFSMStateProps> = ({
   onMouseLeave,
   showStateIds,
   hasTransitionToItself,
-  stateInputProvider,
-  stateOutputProvider,
   activateState,
   error,
   isStatic,
   zoom,
+  getStateDataForComparison,
   ...rest
 }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [_, drag, preview] = useDrag({
-    type: STATE_ITEM_TYPE,
-    item() {
-      setIsDragging(true);
-      return { name: 'state', type: STATE_ITEM_TYPE, id };
-    },
-    end: () => {
-      setIsDragging(false);
-    },
-  });
-
+  const ref = useRef(null);
+  const staticPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const timeSinceMouseDown = useRef<number>(0);
   const [isCompatible, setIsCompatible] = useState<boolean>(undefined);
   const [isLoadingCheck, setIsLoadingCheck] = useState<boolean>(false);
   const clicks = useRef(0);
@@ -276,8 +265,53 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const t = useContext(TextContext);
   const { qorus_instance } = useContext(InitialContext);
   const theme = useReqoreTheme();
-  const { inputType, outputType } = useGetInputOutputType(stateInputProvider, stateOutputProvider);
+  const { inputType, outputType } = useGetInputOutputType(
+    getStateDataForComparison?.({ action, ...rest }, 'input'),
+    getStateDataForComparison?.({ action, ...rest }, 'output')
+  );
   const clicksTimeout = useRef(null);
+
+  useEffect(() => {
+    staticPosition.current.x = position?.x || 0;
+    staticPosition.current.y = position?.y || 0;
+
+    if (ref.current) {
+      ref.current.style.left = `${staticPosition.current.x}px`;
+      ref.current.style.top = `${staticPosition.current.y}px`;
+    }
+  }, [position?.x, position?.y]);
+
+  useWhyDidYouUpdate(`state-${id}`, {
+    position,
+    id,
+    selected,
+    onClick,
+    onDblClick,
+    onEditClick,
+    onDeleteClick,
+    onTransitionOrderClick,
+    name,
+    desc,
+    action,
+    initial,
+    final,
+    type,
+    onUpdate,
+    selectedState,
+    isAvailableForTransition,
+    toggleDragging,
+    onExecutionOrderClick,
+    isIsolated,
+    onMouseEnter,
+    onMouseLeave,
+    showStateIds,
+    hasTransitionToItself,
+    activateState,
+    error,
+    isStatic,
+    zoom,
+    ...rest,
+  });
 
   useEffect(() => {
     (async () => {
@@ -298,10 +332,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
       }
     })();
   }, [selectedState]);
-
-  useEffect(() => {
-    preview(getEmptyImage(), { captureDraggingState: true });
-  }, []);
 
   const handleClick = (e) => {
     e.stopPropagation();
@@ -333,10 +363,80 @@ const FSMState: React.FC<IFSMStateProps> = ({
     return action?.type || type;
   };
 
+  const stateRectData = getStateBoundingRect(id);
+
+  const handleDragMove = (event) => {
+    timeSinceMouseDown.current = 0;
+
+    staticPosition.current.x += calculateValueWithZoom(event.movementX, zoom);
+    staticPosition.current.y += calculateValueWithZoom(event.movementY, zoom);
+
+    if (staticPosition.current.x < 0) {
+      staticPosition.current.x = 0;
+    }
+
+    if (staticPosition.current.y < 0) {
+      staticPosition.current.y = 0;
+    }
+
+    if (staticPosition.current.x > DIAGRAM_SIZE - stateRectData.width) {
+      staticPosition.current.x = DIAGRAM_SIZE - stateRectData.width;
+    }
+
+    if (staticPosition.current.y > DIAGRAM_SIZE - stateRectData.height) {
+      staticPosition.current.y = DIAGRAM_SIZE - stateRectData.height;
+    }
+
+    ref.current.style.left = `${staticPosition.current.x}px`;
+    ref.current.style.top = `${staticPosition.current.y}px`;
+  };
+
+  const handleDragStop = (event) => {
+    onUpdate(id, {
+      position: {
+        x: staticPosition.current.x,
+        y: staticPosition.current.y,
+      },
+    });
+
+    if (Date.now() - timeSinceMouseDown.current < 200) {
+      isLoadingCheck ? undefined : handleClick(event);
+    }
+
+    toggleDragging?.(false);
+
+    timeSinceMouseDown.current = 0;
+
+    window.removeEventListener('mousemove', handleDragMove, true);
+    window.removeEventListener('mouseup', handleDragStop, true);
+  };
+
+  const handleDragStart = (event) => {
+    event.persist();
+    event.stopPropagation();
+    event.preventDefault();
+
+    timeSinceMouseDown.current = Date.now();
+
+    toggleDragging?.(true);
+
+    window.addEventListener('mousemove', handleDragMove, true);
+    window.addEventListener('mouseup', handleDragStop, true);
+  };
+
+  const handleMouseEnter = () => {
+    onMouseEnter?.(id);
+  };
+
+  const handleMouseLeave = () => {
+    onMouseLeave?.(undefined);
+  };
+
   return (
     <StyledFSMState
       id={`state-${id}`}
-      ref={drag}
+      ref={ref}
+      onMouseDown={handleDragStart}
       isStatic={isStatic}
       disabled={isCompatible === false}
       intent={
@@ -348,10 +448,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
           ? 'success'
           : undefined
       }
-      style={{
-        opacity: isDragging ? 0 : undefined,
-      }}
-      //customTheme={{ main: getStateColor(getStateCategory(type)) }}
       contentEffect={
         {
           gradient: {
@@ -369,19 +465,16 @@ const FSMState: React.FC<IFSMStateProps> = ({
         } as IReqoreEffect
       }
       icon={isLoadingCheck ? 'Loader5Fill' : FSMItemIconByType[action?.type || type]}
-      name={`fsm-state-${name}`}
       className="fsm-state"
       responsiveActions={false}
       responsiveTitle={false}
       x={position?.x}
       y={position?.y}
-      onClick={isLoadingCheck ? undefined : handleClick}
       selected={selected}
       size="small"
-      onMouseDown={(e) => e.stopPropagation()}
       iconProps={{ size: '25px', animation: isLoadingCheck ? 'spin' : undefined }}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       minimal
       label={showStateIds ? `[${id}] ${name}` : name}
       actions={[
@@ -410,7 +503,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
               flat: true,
               size: 'small',
               tooltip:
-                inputType && outputType && zoom === 100
+                inputType && outputType && zoom === 1
                   ? {
                       title: name,
                       delay: 200,
@@ -585,4 +678,4 @@ const FSMState: React.FC<IFSMStateProps> = ({
   );
 };
 
-export default FSMState;
+export default memo(FSMState);
