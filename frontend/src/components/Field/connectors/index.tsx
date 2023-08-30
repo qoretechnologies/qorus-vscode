@@ -152,17 +152,45 @@ export const getUrlFromProvider: (
   let optionString = '';
 
   if (size(options)) {
+    const fixedOptions: IOptions = reduce(
+      options,
+      (newOptions, option, optionName) => {
+        if (option.value === undefined) {
+          return newOptions;
+        }
+
+        return {
+          ...newOptions,
+          [optionName]: option,
+        };
+      },
+      {}
+    );
     // Build the option string for URL
     optionString = `provider_yaml_options={${map(
-      options,
+      fixedOptions,
       (value, key) => `${key}=${btoa(jsyaml.dump(value?.value || value || ''))}`
     ).join(',')}}`;
   }
 
   if (includeSearchOptions && size(search_options)) {
+    const fixedSearchOptions: IOptions = reduce(
+      search_options,
+      (newOptions, option, optionName) => {
+        if (option.value === undefined) {
+          return newOptions;
+        }
+
+        return {
+          ...newOptions,
+          [optionName]: option,
+        };
+      },
+      {}
+    );
     // Build the option string for URL
     optionString += `${optionString ? '&' : ''}provider_yaml_search_options={${map(
-      search_options,
+      fixedSearchOptions,
       (value, key) => `${key}=${btoa(jsyaml.dump(value?.value || value || ''))}`
     ).join(',')}}`;
   }

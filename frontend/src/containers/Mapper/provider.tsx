@@ -6,7 +6,7 @@ import {
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import jsyaml from 'js-yaml';
-import { cloneDeep, omit } from 'lodash';
+import { cloneDeep, omit, reduce } from 'lodash';
 import map from 'lodash/map';
 import nth from 'lodash/nth';
 import size from 'lodash/size';
@@ -15,7 +15,7 @@ import CustomDialog from '../../components/CustomDialog';
 import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
-import { IOptionsSchema } from '../../components/Field/systemOptions';
+import { IOptions, IOptionsSchema } from '../../components/Field/systemOptions';
 import Loader from '../../components/Loader';
 import SubField from '../../components/SubField';
 import { TextContext } from '../../context/text';
@@ -302,20 +302,51 @@ const MapperProvider: FC<IProviderProps> = ({
   const buildOptions = () => {
     let customOptionString = '';
 
-    if (size(options)) {
+    const fixedOptions: IOptions = reduce(
+      options,
+      (newOptions, option, optionName) => {
+        if (option.value === undefined) {
+          return newOptions;
+        }
+
+        return {
+          ...newOptions,
+          [optionName]: option,
+        };
+      },
+      {}
+    );
+
+    if (size(fixedOptions)) {
       // Turn the options hash into a query string
-      const str = map(options, (value, key) => `${key}=${btoa(jsyaml.dump(value.value))}`).join(
-        ','
-      );
+      const str = map(
+        fixedOptions,
+        (value, key) => `${key}=${btoa(jsyaml.dump(value.value))}`
+      ).join(',');
       customOptionString = `provider_yaml_options={${str}}`;
     } else {
       customOptionString = 'provider_yaml_options={}';
     }
 
-    if (size(searchOptions)) {
+    const fixedSearchOptions: IOptions = reduce(
+      searchOptions,
+      (newOptions, option, optionName) => {
+        if (option.value === undefined) {
+          return newOptions;
+        }
+
+        return {
+          ...newOptions,
+          [optionName]: option,
+        };
+      },
+      {}
+    );
+
+    if (size(fixedSearchOptions)) {
       // Turn the options hash into a query string
       const str = map(
-        searchOptions,
+        fixedSearchOptions,
         (value, key) => `${key}=${btoa(jsyaml.dump(value.value))}`
       ).join(',');
       customOptionString += `&provider_yaml_search_options={${str}}`;
