@@ -29,6 +29,7 @@ import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled, { css, keyframes } from 'styled-components';
 import Content from '../../../components/Content';
+import { DragSelectArea } from '../../../components/DragSelectArea';
 import Field from '../../../components/Field';
 import Connectors, { IProviderType } from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
@@ -77,6 +78,7 @@ import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
 import withMessageHandler, { postMessage } from '../../../hocomponents/withMessageHandler';
+import { useMoveByDragging } from '../../../hooks/useMoveByDragging';
 import TinyGrid from '../../../images/graphy-dark.png';
 import { CustomDragLayer } from './customDragLayer';
 import FSMDiagramWrapper from './diagramWrapper';
@@ -367,12 +369,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   });
 
   const wrapperRef = useRef(null);
-  const fieldsWrapperRef = useRef(null);
   const showTransitionsToaster = useRef(0);
   const currentXPan = useRef<number>();
   const currentYPan = useRef<number>();
+  const diagramRef = useRef(null);
   const changeHistory = useRef<string[]>([]);
   const currentHistoryPosition = useRef<number>(-1);
+  const stateRefs = useRef<Record<string | number, HTMLDivElement>>({}); // Refs for each state
 
   if (!embedded) {
     states = st;
@@ -382,6 +385,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     setMetadata = setMt;
   }
   const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [selectedStates, setSelectedStates] = useState<string[]>([]);
   const [activeState, setActiveState] = useState<string | number>(undefined);
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [showStateIds, setShowStateIds] = useState<boolean>(false);
@@ -513,6 +517,16 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     setEditingTransitionOrder(undefined);
     setEditingState(id);
   };
+
+  useMoveByDragging(
+    selectedStates,
+    states,
+    stateRefs.current,
+    (data) => {
+      updateMultipleStatePositions(data);
+    },
+    zoom
+  );
 
   const getStateName = (item, id) => {
     if (item.injected) {
@@ -1093,6 +1107,32 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     [selectedState, states, metadata, getStateDataForComparison, areStatesCompatible]
   );
 
+  const handleSelectState = useCallback(
+    (id: string) => {
+      setSelectedStates((cur) => {
+        const result = [...cur];
+
+        if (selectedStates.includes(id)) {
+          result.splice(result.indexOf(id), 1);
+        } else {
+          result.push(id);
+        }
+
+        return result;
+      });
+    },
+    [selectedStates]
+  );
+
+  const handlePassStateRef = useCallback(
+    (id, ref) => {
+      if (ref) {
+        stateRefs.current[id] = ref;
+      }
+    },
+    [stateRefs]
+  );
+
   const updateHistory = (data: IFSMStates) => {
     if (currentHistoryPosition.current >= 0) {
       changeHistory.current.length = currentHistoryPosition.current + 1;
@@ -1145,7 +1185,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     []
   );
 
-  const updateStateData = useCallback(
+  const preUpdateStateData = useCallback(
     async (id: string | number, data: Partial<IFSMState>) => {
       let fixedStates: IFSMStates = { ...states };
 
@@ -1182,11 +1222,36 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         fixedStates = await fixIncomptibleStates(id, fixedStates);
       }
 
+      return fixedStates;
+    },
+    [states, areStatesCompatible, fixIncomptibleStates]
+  );
+
+  const updateStateData = useCallback(
+    async (id: string | number, data: Partial<IFSMState>) => {
+      const fixedStates = await preUpdateStateData(id, data);
+
       updateHistory(fixedStates);
       setStates(fixedStates);
       setEditingState(null);
     },
     [states, areStatesCompatible, fixIncomptibleStates]
+  );
+
+  const updateMultipleStatePositions = useCallback(
+    (data: Record<string, Partial<IFSMState>>) => {
+      const fixedStates: IFSMStates = { ...states };
+
+      forEach(data, (item, id) => {
+        fixedStates[id] = {
+          ...fixedStates[id],
+          ...item,
+        };
+      });
+
+      setStates(fixedStates);
+    },
+    [preUpdateStateData]
   );
 
   const updateMultipleTransitionData = async (newData: IModifiedTransitions) => {
@@ -2491,6 +2556,27 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                   ref={wrapperRef}
                   id={`${parentStateName ? `${parentStateName}-` : ''}fsm-diagram`}
                 >
+                  {wrapperRef.current && (
+                    <DragSelectArea
+                      element={wrapperRef.current}
+                      onFinish={({ startX, startY, endX, endY }) => {
+                        const left = Math.min(startX, endX);
+                        const top = Math.min(startY, endY);
+                        const right = Math.max(startX, endX);
+                        const bottom = Math.max(startY, endY);
+
+                        const selectedStates = filter(
+                          states,
+                          ({ position: { x, y } }) =>
+                            x >= left && x <= right && y >= top && y <= bottom
+                        );
+
+                        setSelectedStates((cur) => {
+                          return [...cur, ...map(selectedStates, (state) => state.id)];
+                        });
+                      }}
+                    />
+                  )}
                   <FSMDiagramWrapper
                     wrapperDimensions={wrapperDimensions}
                     setPan={setWrapperPan}
@@ -2511,9 +2597,18 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       as="div"
                       name="fsm-drop-zone"
                       key={JSON.stringify(wrapperDimensions)}
-                      ref={drop}
+                      ref={(r) => {
+                        drop(r);
+                        diagramRef.current = r;
+                      }}
                       path={image_path}
-                      onClick={() => setSelectedState(null)}
+                      onClick={(e) => {
+                        setSelectedState(null);
+
+                        if (!e.metaKey) {
+                          setSelectedStates([]);
+                        }
+                      }}
                       bgColor={theme.main}
                       theme={theme}
                       style={{
@@ -2529,6 +2624,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           selected={selectedState === id}
                           onDblClick={handleStateClick}
                           onClick={handleStateClick}
+                          onSelect={handleSelectState}
                           onUpdate={updateStateData}
                           onEditClick={handleStateEditClick}
                           onDeleteClick={handleStateDeleteClick}
@@ -2537,6 +2633,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           hasTransitionToItself={hasTransitionToItself(id)}
                           showStateIds={showStateIds}
                           selectedState={selectedState}
+                          isInSelectedList={selectedStates.includes(id)}
                           isAvailableForTransition={isAvailableForTransition}
                           onTransitionOrderClick={handleTransitionOrderClick}
                           onExecutionOrderClick={handleExecutionOrderClick}
@@ -2544,6 +2641,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           getStateDataForComparison={getStateDataForComparison}
                           activateState={handleActivateStateClick}
                           zoom={zoom}
+                          passRef={handlePassStateRef}
                         />
                       ))}
                       <svg

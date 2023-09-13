@@ -108,6 +108,9 @@ export class ElementPan extends React.Component<
   }
 
   public onDragStart(e) {
+    if (e.metaKey) {
+      return;
+    }
     // We want to be able to pan around inside the container even when the
     // mouse is on the outside of the element (as long as the mouse button
     // is still being pressed) - this is why we're attaching to the window

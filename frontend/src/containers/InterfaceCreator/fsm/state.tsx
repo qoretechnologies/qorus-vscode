@@ -36,6 +36,7 @@ export interface IFSMStateProps extends IFSMState {
   onDeleteClick: (id: string) => any;
   onUpdate: (id: string, data: any) => any;
   onTransitionOrderClick: (id: string) => any;
+  onSelect: (id: string) => void;
   startTransitionDrag: (id: string) => any;
   stopTransitionDrag: (id: string) => any;
   selectedState?: number | string;
@@ -46,6 +47,8 @@ export interface IFSMStateProps extends IFSMState {
   category: TStateTypes;
   hasTransitionToItself?: boolean;
   zoom?: number;
+  passRef?: (id: string, ref: any) => void;
+  isInSelectedList: boolean;
 }
 
 export interface IFSMStateStyleProps {
@@ -252,6 +255,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
   isStatic,
   zoom,
   getStateDataForComparison,
+  passRef,
+  onSelect,
+  isInSelectedList,
   ...rest
 }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -288,6 +294,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
     onClick,
     onDblClick,
     onEditClick,
+    passRef,
     onDeleteClick,
     onTransitionOrderClick,
     name,
@@ -435,8 +442,30 @@ const FSMState: React.FC<IFSMStateProps> = ({
   return (
     <StyledFSMState
       id={`state-${id}`}
-      ref={ref}
-      onMouseDown={handleDragStart}
+      ref={(r) => {
+        ref.current = r;
+        passRef?.(id, r);
+      }}
+      onMouseDown={(e) => {
+        e.persist();
+        e.stopPropagation();
+        e.preventDefault();
+        // If the user was holding CMD / CTRL, we don't want to drag the state
+        if (e.metaKey) {
+          onSelect?.(id);
+
+          return;
+        }
+
+        if (isInSelectedList) {
+          return;
+        }
+
+        handleDragStart(e);
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
       isStatic={isStatic}
       disabled={isCompatible === false}
       intent={
@@ -452,13 +481,19 @@ const FSMState: React.FC<IFSMStateProps> = ({
         {
           gradient: {
             ...getStateColor(getStateCategory(action?.type || type)),
-            animate: isCompatible ? 'always' : 'hover',
+            animate: isCompatible || isInSelectedList ? 'always' : 'hover',
           },
           glow: isCompatible
             ? {
                 color: selectedState === id ? 'info' : 'success',
                 size: 5,
                 blur: 10,
+              }
+            : isInSelectedList
+            ? {
+                color: '#ffed91',
+                size: 2,
+                blur: 4,
               }
             : undefined,
           grayscale: selectedState && !isCompatible,
