@@ -1,4 +1,4 @@
-import { forEach, reduce, size } from 'lodash';
+import { find, forEach, reduce, size } from 'lodash';
 import { useEffect, useRef } from 'react';
 import { calculateValueWithZoom } from '../components/PanElement';
 import { DIAGRAM_SIZE, IFSMStates } from '../containers/InterfaceCreator/fsm';
@@ -89,9 +89,15 @@ export const useMoveByDragging = (
   useEffect(() => {
     if (size(selectedStates)) {
       forEach(selectedStates, (id) => {
+        const state = find(states, (_state, key) => key === id);
+
+        if (!state) {
+          return;
+        }
+
         staticPositions.current[id] = {
-          x: states[id].position.x,
-          y: states[id].position.y,
+          x: state.position.x,
+          y: state.position.y,
         };
       });
 
@@ -110,5 +116,5 @@ export const useMoveByDragging = (
         window.removeEventListener('mouseup', handleDragStop, true);
       }
     };
-  }, [selectedStates]);
+  }, [selectedStates, states]);
 };

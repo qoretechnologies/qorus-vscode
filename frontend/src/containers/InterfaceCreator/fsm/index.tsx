@@ -376,6 +376,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const changeHistory = useRef<string[]>([]);
   const currentHistoryPosition = useRef<number>(-1);
   const stateRefs = useRef<Record<string | number, HTMLDivElement>>({}); // Refs for each state
+  const timeSinceDiagramMouseDown = useRef<number>(0);
 
   if (!embedded) {
     states = st;
@@ -2560,19 +2561,41 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     <DragSelectArea
                       element={wrapperRef.current}
                       onFinish={({ startX, startY, endX, endY }) => {
-                        const left = Math.min(startX, endX);
-                        const top = Math.min(startY, endY);
-                        const right = Math.max(startX, endX);
-                        const bottom = Math.max(startY, endY);
-
-                        const selectedStates = filter(
-                          states,
-                          ({ position: { x, y } }) =>
-                            x >= left && x <= right && y >= top && y <= bottom
+                        const left = calculateValueWithZoom(
+                          Math.min(startX, endX) + currentXPan.current,
+                          zoom
+                        );
+                        const top = calculateValueWithZoom(
+                          Math.min(startY, endY) + currentYPan.current,
+                          zoom
+                        );
+                        const right = calculateValueWithZoom(
+                          Math.max(startX, endX) + currentXPan.current,
+                          zoom
+                        );
+                        const bottom = calculateValueWithZoom(
+                          Math.max(startY, endY) + currentYPan.current,
+                          zoom
                         );
 
+                        console.log({ left, top, right, bottom });
+                        console.log(states);
+
+                        const selectedStates = filter(
+                          map(states, (state, id) => ({ ...state, keyId: id })),
+                          ({ position: { x, y }, keyId }) => {
+                            const { width, height } = getStateBoundingRect(keyId);
+
+                            return (
+                              x >= left && x + width <= right && y >= top && y + height <= bottom
+                            );
+                          }
+                        );
+
+                        console.log(selectedStates);
+
                         setSelectedStates((cur) => {
-                          return [...cur, ...map(selectedStates, (state) => state.id)];
+                          return [...cur, ...map(selectedStates, (state) => state.keyId)];
                         });
                       }}
                     />
@@ -2602,11 +2625,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                         diagramRef.current = r;
                       }}
                       path={image_path}
-                      onClick={(e) => {
-                        setSelectedState(null);
-
-                        if (!e.metaKey) {
+                      onMouseDown={() => {
+                        timeSinceDiagramMouseDown.current = Date.now();
+                      }}
+                      onMouseUp={() => {
+                        if (Date.now() - timeSinceDiagramMouseDown.current < 200) {
                           setSelectedStates([]);
+                          timeSinceDiagramMouseDown.current = 0;
                         }
                       }}
                       bgColor={theme.main}
