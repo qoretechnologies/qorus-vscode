@@ -103,12 +103,14 @@ export const DragSelectArea = ({ element, onFinish }) => {
       } else {
         element.style.cursor = 'move';
 
-        onFinish?.({
-          startX: initialMousePosition?.x,
-          startY: initialMousePosition?.y,
-          endX: currentMousePosition?.x,
-          endY: currentMousePosition?.y,
-        });
+        if (initialMousePosition && currentMousePosition) {
+          onFinish?.({
+            startX: initialMousePosition?.x,
+            startY: initialMousePosition?.y,
+            endX: currentMousePosition?.x,
+            endY: currentMousePosition?.y,
+          });
+        }
 
         setInitialMousePosition(undefined);
         setCurrentMousePosition(undefined);

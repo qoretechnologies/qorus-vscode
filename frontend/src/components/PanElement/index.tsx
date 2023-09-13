@@ -265,7 +265,6 @@ export class ElementPan extends React.Component<
   public getContainerStyles(): any {
     let style: any = {
       overflow: 'hidden',
-      cursor: this.props.enableDragging ? 'move' : 'initial',
     };
 
     if (this.props.width) {
