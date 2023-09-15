@@ -320,6 +320,10 @@ export interface IFSMAutoVariable extends Omit<IFSMVariable, 'readOnly'> {
 
 export type TFSMVariables = Record<string, IFSMVariable>;
 export type TFSMAutoVariables = Record<string, IFSMAutoVariable>;
+export interface IFSMSelectedState {
+  fromMouseDown?: boolean;
+}
+export type TFSMSelectedStates = Record<string, IFSMSelectedState>;
 
 export const FSMView: React.FC<IFSMViewProps> = ({
   onSubmitSuccess,
@@ -369,6 +373,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   });
 
   const wrapperRef = useRef(null);
+  const panElementRef = useRef(null);
   const showTransitionsToaster = useRef(0);
   const currentXPan = useRef<number>();
   const currentYPan = useRef<number>();
@@ -385,8 +390,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     metadata = mt;
     setMetadata = setMt;
   }
+
+  const [isMovingStates, setIsMovingStates] = useState<boolean>(false);
   const [selectedState, setSelectedState] = useState<string | null>(null);
-  const [selectedStates, setSelectedStates] = useState<string[]>([]);
+  const [selectedStates, setSelectedStates] = useState<TFSMSelectedStates>({});
   const [activeState, setActiveState] = useState<string | number>(undefined);
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [showStateIds, setShowStateIds] = useState<boolean>(false);
@@ -523,11 +530,21 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     selectedStates,
     states,
     stateRefs.current,
-    (data) => {
+    (data, deselect) => {
       updateMultipleStatePositions(data);
+      setIsMovingStates(false);
+
+      if (deselect) {
+        setSelectedStates({});
+      }
+    },
+    () => {
+      setIsMovingStates(true);
     },
     zoom
   );
+
+  console.log(isMovingStates);
 
   const getStateName = (item, id) => {
     if (item.injected) {
@@ -1109,14 +1126,14 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   );
 
   const handleSelectState = useCallback(
-    (id: string) => {
+    (id: string, fromMouseDown?: boolean) => {
       setSelectedStates((cur) => {
-        const result = [...cur];
+        const result = { ...cur };
 
-        if (selectedStates.includes(id)) {
-          result.splice(result.indexOf(id), 1);
+        if (selectedStates[id]) {
+          delete result[id];
         } else {
-          result.push(id);
+          result[id] = { fromMouseDown };
         }
 
         return result;
@@ -2578,24 +2595,30 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           zoom
                         );
 
-                        console.log({ left, top, right, bottom });
-                        console.log(states);
+                        const selectedStates = reduce(
+                          states,
+                          (newStates, state, id) => {
+                            const {
+                              position: { x, y },
+                            } = state;
+                            const { width, height } = getStateBoundingRect(id);
 
-                        const selectedStates = filter(
-                          map(states, (state, id) => ({ ...state, keyId: id })),
-                          ({ position: { x, y }, keyId }) => {
-                            const { width, height } = getStateBoundingRect(keyId);
+                            if (
+                              x >= left &&
+                              x + width <= right &&
+                              y >= top &&
+                              y + height <= bottom
+                            ) {
+                              return { ...newStates, [id]: { fromMouseDown: false } };
+                            }
 
-                            return (
-                              x >= left && x + width <= right && y >= top && y + height <= bottom
-                            );
-                          }
+                            return newStates;
+                          },
+                          {}
                         );
 
-                        console.log(selectedStates);
-
                         setSelectedStates((cur) => {
-                          return [...cur, ...map(selectedStates, (state) => state.keyId)];
+                          return { ...cur, ...selectedStates };
                         });
                       }}
                     />
@@ -2606,9 +2629,14 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     setShowStateIds={setShowStateIds}
                     showStateIds={showStateIds}
                     zoom={zoom}
-                    id={`${parentStateName ? `${parentStateName}-` : ''}fsm-diagram`}
                     zoomIn={zoomIn}
                     zoomOut={zoomOut}
+                    enableEdgeMovement={isMovingStates}
+                    wrapperSize={{
+                      width: wrapperRef.current?.getBoundingClientRect()?.width || 0,
+                      height: wrapperRef.current?.getBoundingClientRect()?.height || 0,
+                    }}
+                    id={`${parentStateName ? `${parentStateName}-` : ''}fsm-diagram`}
                     items={map(states, (state, id) => ({
                       x: state.position.x,
                       y: state.position.y,
@@ -2630,7 +2658,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       }}
                       onMouseUp={() => {
                         if (Date.now() - timeSinceDiagramMouseDown.current < 200) {
-                          setSelectedStates([]);
+                          setSelectedStates({});
                           timeSinceDiagramMouseDown.current = 0;
                         }
                       }}
@@ -2658,7 +2686,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           hasTransitionToItself={hasTransitionToItself(id)}
                           showStateIds={showStateIds}
                           selectedState={selectedState}
-                          isInSelectedList={selectedStates.includes(id)}
+                          isInSelectedList={selectedStates[id]}
                           isAvailableForTransition={isAvailableForTransition}
                           onTransitionOrderClick={handleTransitionOrderClick}
                           onExecutionOrderClick={handleExecutionOrderClick}

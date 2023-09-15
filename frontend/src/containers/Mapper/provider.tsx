@@ -17,7 +17,6 @@ import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
 import { IOptions, IOptionsSchema } from '../../components/Field/systemOptions';
 import Loader from '../../components/Loader';
-import SubField from '../../components/SubField';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -177,6 +176,7 @@ const MapperProvider: FC<IProviderProps> = ({
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
   const [descriptions, setDescriptions] = useState<string[]>([]);
   const [errorMessage, onError] = useState<string | null>(null);
+  const [warningMessage, setWarning] = useState<string>(undefined);
   const t = useContext(TextContext);
   let realProviders = cloneDeep(providers);
 
@@ -206,7 +206,7 @@ const MapperProvider: FC<IProviderProps> = ({
       }
 
       if (requiresRequest) {
-        return child.up !== false && (child.supports_request || child.children_can_support_apis);
+        return child.supports_request || child.children_can_support_apis;
       }
 
       if (isMessage) {
@@ -232,6 +232,16 @@ const MapperProvider: FC<IProviderProps> = ({
     });
   };
 
+  const handleCallError = (error) => {
+    if (error) {
+      console.log(error);
+      const errorMsg = error.err || error;
+      onError?.(errorMsg);
+    } else {
+      onError?.(null);
+    }
+  };
+
   const handleProviderChange = (provider) => {
     setProvider((current) => {
       // Fetch the url of the provider
@@ -245,11 +255,7 @@ const MapperProvider: FC<IProviderProps> = ({
         // Get the data
         let { data, error } = await fetchData(`${url}`);
 
-        if (error) {
-          onError?.(`${record.error.err}: ${record.error.desc}`);
-        } else {
-          onError?.(null);
-        }
+        handleCallError(error);
 
         // Remove loading
         setIsLoading(false);
@@ -268,6 +274,14 @@ const MapperProvider: FC<IProviderProps> = ({
         }
         // Save the children
         let children = filterChildren(data.children || data);
+
+        if (!size(children)) {
+          setWarning(
+            'There are no further paths to go, please go back and select a different path...'
+          );
+        } else {
+          setWarning(undefined);
+        }
 
         // Add new child
         setChildren([
@@ -404,6 +418,7 @@ const MapperProvider: FC<IProviderProps> = ({
         type: realProviders[provider].type,
         name,
         is_api_call: requiresRequest,
+        up: record?.data?.up !== false,
         can_manage_fields: record?.data?.can_manage_fields,
         transaction_management: record?.data?.transaction_management,
         subtype: value === 'request' || value === 'response' ? value : undefined,
@@ -415,6 +430,11 @@ const MapperProvider: FC<IProviderProps> = ({
           .replace('response', ''),
         options,
         searchOptionsChanged: false,
+        descriptions: [
+          ...(optionProvider?.descriptions || []),
+          ...descriptions,
+          record?.data?.desc,
+        ],
       });
 
       return;
@@ -442,12 +462,8 @@ const MapperProvider: FC<IProviderProps> = ({
 
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
 
-    if (error) {
-      const errMessage = `${error.error.err}: ${error.error.desc}`;
-      onError?.(errMessage);
-    } else {
-      onError?.(null);
-    }
+    handleCallError(error);
+
     // Reset loading
     setIsLoading(false);
 
@@ -492,6 +508,7 @@ const MapperProvider: FC<IProviderProps> = ({
           name,
           is_api_call: requiresRequest,
           can_manage_fields: data?.can_manage_fields,
+          up: data.up !== false,
           transaction_management: data?.transaction_management,
           record_requires_search_options: data?.record_requires_search_options,
           subtype: value === 'request' || value === 'response' ? value : undefined,
@@ -504,6 +521,7 @@ const MapperProvider: FC<IProviderProps> = ({
           options,
           search_options: didApplyOptions ? searchOptions : undefined,
           searchOptionsChanged: false,
+          descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
         });
       } else if (
         data.has_type ||
@@ -547,12 +565,7 @@ const MapperProvider: FC<IProviderProps> = ({
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
 
-          if (record.error) {
-            const errMessage = `${record.error.err}: ${record.error.desc}`;
-            onError?.(errMessage);
-          } else {
-            onError?.(null);
-          }
+          handleCallError(record.error);
 
           // Remove loading
           setIsLoading(false);
@@ -568,6 +581,7 @@ const MapperProvider: FC<IProviderProps> = ({
             supports_request: data.supports_request,
             supports_read: data.supports_read,
             supports_update: data.supports_update,
+            up: data.up !== false,
             supports_create: data.supports_create,
             supports_delete: data.supports_delete,
             supports_messages: data.supports_messages,
@@ -599,6 +613,14 @@ const MapperProvider: FC<IProviderProps> = ({
       // If this provider has children
       if (size(data.children)) {
         const children = filterChildren(data.children);
+
+        if (!size(children)) {
+          setWarning(
+            'There are no further paths to go, please go back and select a different path...'
+          );
+        } else {
+          setWarning(undefined);
+        }
         // Return the updated items and add
         // the new item
         return [
@@ -658,6 +680,7 @@ const MapperProvider: FC<IProviderProps> = ({
           type: realProviders[provider].type,
           can_manage_fields: data.can_manage_fields,
           name,
+          up: data.up !== false,
           supports_read: data.supports_read,
           supports_update: data.supports_update,
           supports_create: data.supports_create,
@@ -711,12 +734,7 @@ const MapperProvider: FC<IProviderProps> = ({
           // Fetch the record
           const record = await fetchData(`${url}/${value}${suffixString}`);
 
-          if (record.error) {
-            const errMessage = `${record.error.err}: ${record.error.desc}`;
-            onError?.(errMessage);
-          } else {
-            onError?.(null);
-          }
+          handleCallError(record.error);
 
           // Remove loading
           setIsLoading(false);
@@ -728,6 +746,7 @@ const MapperProvider: FC<IProviderProps> = ({
             ...optionProvider,
             type: realProviders[provider].type,
             name,
+            up: data.up !== false,
             supports_read: data.supports_read,
             supports_update: data.supports_update,
             supports_create: data.supports_create,
@@ -817,12 +836,24 @@ const MapperProvider: FC<IProviderProps> = ({
             <ReqoreControlGroup fluid={false} key={index}>
               {size(child.values) ? (
                 <SelectField
+                  autoSelect
                   key={`${title}-${index}`}
                   name={`provider-${type ? `${type}-` : ''}${index}`}
                   disabled={isLoading || readOnly}
                   className="provider-selector"
-                  filters={['supports_read', 'supports_request', 'has_record']}
-                  defaultItems={child.values}
+                  filters={['supports_read', 'supports_request', 'has_record', 'up']}
+                  defaultItems={child.values.map((child) => ({
+                    ...child,
+                    intent: child.up === false ? 'danger' : undefined,
+                    badge:
+                      child.up === false
+                        ? {
+                            icon: 'ErrorWarningLine',
+                            label: 'Connection down',
+                            intent: 'danger',
+                          }
+                        : undefined,
+                  }))}
                   onChange={(_name, value) => {
                     // Get the child data
                     const { url, suffix, provider_info } = child.values.find(
@@ -1020,11 +1051,14 @@ const MapperProvider: FC<IProviderProps> = ({
           ) : null}
         </ReqoreControlGroup>
         {errorMessage && (
-          <SubField>
-            <ReqoreMessage title="An error occurred" intent="danger">
-              {errorMessage}
-            </ReqoreMessage>
-          </SubField>
+          <ReqoreMessage title="An error occurred" intent="danger" size="small" margin="top">
+            {errorMessage}
+          </ReqoreMessage>
+        )}
+        {warningMessage && (
+          <ReqoreMessage title="Warning" intent="warning" size="small" margin="top" opaque={false}>
+            {warningMessage}
+          </ReqoreMessage>
         )}
       </ReqorePanel>
     </>

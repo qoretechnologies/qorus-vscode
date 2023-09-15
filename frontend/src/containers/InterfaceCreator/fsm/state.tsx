@@ -13,19 +13,18 @@ import {
 } from '@qoretechnologies/reqore/dist/components/Effect';
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
+import { last } from 'lodash';
 import size from 'lodash/size';
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
-import { calculateValueWithZoom } from '../../../components/PanElement';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { getStateBoundingRect } from '../../../helpers/diagram';
 import { insertAtIndex } from '../../../helpers/functions';
 import { useGetInputOutputType } from '../../../hooks/useGetInputOutputType';
 import { useWhyDidYouUpdate } from '../../../hooks/useWhyDidYouUpdate';
-import { DIAGRAM_SIZE, IFSMState, TVariableActionValue } from './';
+import { IFSMState, TVariableActionValue } from './';
 import { FSMItemIconByType } from './toolbarItem';
 
 export interface IFSMStateProps extends IFSMState {
@@ -36,7 +35,7 @@ export interface IFSMStateProps extends IFSMState {
   onDeleteClick: (id: string) => any;
   onUpdate: (id: string, data: any) => any;
   onTransitionOrderClick: (id: string) => any;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, fromMouseDown?: boolean) => void;
   startTransitionDrag: (id: string) => any;
   stopTransitionDrag: (id: string) => any;
   selectedState?: number | string;
@@ -263,7 +262,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const ref = useRef(null);
   const staticPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const timeSinceMouseDown = useRef<number>(0);
+  const mouseDownTimeout = useRef(undefined);
   const [isCompatible, setIsCompatible] = useState<boolean>(undefined);
   const [isLoadingCheck, setIsLoadingCheck] = useState<boolean>(false);
   const clicks = useRef(0);
@@ -370,65 +369,29 @@ const FSMState: React.FC<IFSMStateProps> = ({
     return action?.type || type;
   };
 
-  const stateRectData = getStateBoundingRect(id);
+  const handleMouseUp = (event) => {
+    clearTimeout(mouseDownTimeout.current);
+    mouseDownTimeout.current = undefined;
 
-  const handleDragMove = (event) => {
-    timeSinceMouseDown.current = 0;
+    ref.current?.removeEventListener('mouseup', handleMouseUp, true);
 
-    staticPosition.current.x += calculateValueWithZoom(event.movementX, zoom);
-    staticPosition.current.y += calculateValueWithZoom(event.movementY, zoom);
-
-    if (staticPosition.current.x < 0) {
-      staticPosition.current.x = 0;
+    if (!isLoadingCheck) {
+      handleClick(event);
     }
-
-    if (staticPosition.current.y < 0) {
-      staticPosition.current.y = 0;
-    }
-
-    if (staticPosition.current.x > DIAGRAM_SIZE - stateRectData.width) {
-      staticPosition.current.x = DIAGRAM_SIZE - stateRectData.width;
-    }
-
-    if (staticPosition.current.y > DIAGRAM_SIZE - stateRectData.height) {
-      staticPosition.current.y = DIAGRAM_SIZE - stateRectData.height;
-    }
-
-    ref.current.style.left = `${staticPosition.current.x}px`;
-    ref.current.style.top = `${staticPosition.current.y}px`;
   };
 
-  const handleDragStop = (event) => {
-    onUpdate(id, {
-      position: {
-        x: staticPosition.current.x,
-        y: staticPosition.current.y,
-      },
-    });
-
-    if (Date.now() - timeSinceMouseDown.current < 200) {
-      isLoadingCheck ? undefined : handleClick(event);
-    }
-
-    toggleDragging?.(false);
-
-    timeSinceMouseDown.current = 0;
-
-    window.removeEventListener('mousemove', handleDragMove, true);
-    window.removeEventListener('mouseup', handleDragStop, true);
-  };
-
-  const handleDragStart = (event) => {
+  const handleMouseDown = (event) => {
     event.persist();
     event.stopPropagation();
     event.preventDefault();
 
-    timeSinceMouseDown.current = Date.now();
+    ref.current?.addEventListener('mouseup', handleMouseUp, true);
 
-    toggleDragging?.(true);
-
-    window.addEventListener('mousemove', handleDragMove, true);
-    window.addEventListener('mouseup', handleDragStop, true);
+    mouseDownTimeout.current = setTimeout(() => {
+      console.log('REMOVING STATE MOUSE UP TO OPEN DETAIL');
+      ref.current?.removeEventListener('mouseup', handleMouseUp, true);
+      onSelect?.(id, true);
+    }, 100);
   };
 
   const handleMouseEnter = () => {
@@ -441,6 +404,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
 
   return (
     <StyledFSMState
+      width={300}
       id={`state-${id}`}
       ref={(r) => {
         ref.current = r;
@@ -461,7 +425,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           return;
         }
 
-        handleDragStart(e);
+        handleMouseDown(e);
       }}
       onClick={(e) => {
         e.stopPropagation();
@@ -493,7 +457,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             ? {
                 color: '#ffed91',
                 size: 2,
-                blur: 4,
+                blur: 20,
               }
             : undefined,
           grayscale: selectedState && !isCompatible,
@@ -600,7 +564,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
               minimal: true,
               flat: true,
               size: 'small',
-              show: !!onEditClick,
+              show: !!onEditClick ? 'hover' : false,
             },
             {
               icon: 'DeleteBin4Fill' as IReqoreIconName,
@@ -612,7 +576,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
               minimal: true,
               flat: true,
               size: 'small',
-              show: !!onDeleteClick,
+              show: !!onDeleteClick ? 'hover' : false,
             },
           ],
         },
@@ -694,7 +658,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           <ReqoreVerticalSpacer height={10} />
         </>
       ) : null}
-      <ReqoreControlGroup size="small" wrap fluid fill vertical>
+      <ReqoreControlGroup size="small" wrap fluid fill vertical stack>
         <ReqoreControlGroup stack fill fluid>
           <ReqoreTag
             wrap
@@ -716,6 +680,17 @@ const FSMState: React.FC<IFSMStateProps> = ({
             />
             <ReqoreTag minimal wrap label={(action.value as TVariableActionValue)?.action_type} />
           </ReqoreControlGroup>
+        ) : null}
+        {action?.value?.descriptions ? (
+          <ReqoreTag
+            icon="InformationLine"
+            size="small"
+            label={last(action?.value?.descriptions)}
+            color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
+            labelEffect={{
+              weight: 'light',
+            }}
+          />
         ) : null}
       </ReqoreControlGroup>
     </StyledFSMState>

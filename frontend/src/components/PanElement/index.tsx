@@ -4,6 +4,7 @@ import React from 'react';
 import shortid from 'shortid';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
+import { Emitter } from '../../hooks/useMoveByDragging';
 import Minimap from './minimap';
 
 const eventListener = require('eventlistener');
@@ -77,6 +78,7 @@ export class ElementPan extends React.Component<
   ElementPanState
 > {
   public el: HTMLDivElement;
+  public interval: any;
 
   constructor(props) {
     super(props);
@@ -97,6 +99,9 @@ export class ElementPan extends React.Component<
       panElementId: shortid.generate(),
     };
     this.onDragMove = this.onDragMove.bind(this);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.handleMouseLeave = this.handleMouseLeave.bind(this);
+    this.addEdgeMovementListeners = this.addEdgeMovementListeners.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onDragStop = this.onDragStop.bind(this);
     this.onWheel = this.onWheel.bind(this);
@@ -162,12 +167,12 @@ export class ElementPan extends React.Component<
   public onDragMove(e) {
     e.preventDefault();
 
-    if (!this.state.dragging) {
-      return;
-    }
-
     let x = typeof e.clientX === 'undefined' ? e.changedTouches[0].clientX : e.clientX,
       y = typeof e.clientY === 'undefined' ? e.changedTouches[0].clientY : e.clientY;
+
+    if (!this.state.dragging) {
+      console.log(x, y);
+    }
 
     // Letting the browser automatically stop on scrollHeight
     // gives weird bugs where some extra pixels are showing.
@@ -244,6 +249,119 @@ export class ElementPan extends React.Component<
     document.getElementById(this.props.id).removeEventListener('wheel', this.onWheel);
   }
 
+  public handleMouseMove(e) {
+    clearInterval(this.interval);
+    this.interval = null;
+
+    const move = () => {
+      const { clientX, clientY } = e;
+      const { width, height, left, top } = document
+        .getElementById(this.props.id)
+        .getBoundingClientRect();
+
+      const x = clientX - left;
+      const y = clientY - top;
+
+      let scroll = false;
+      let scrollLeft = false;
+      let scrollTop = false;
+      let scrollRight = false;
+      let scrollBottom = false;
+
+      let newLeft = this.el.scrollLeft;
+      let newTop = this.el.scrollTop;
+
+      if (width - x <= 50) {
+        scroll = true;
+        scrollRight = true;
+        newLeft += 10;
+      } else {
+        scrollRight = false;
+      }
+
+      if (x <= 50) {
+        scroll = true;
+        scrollLeft = true;
+        newLeft -= 10;
+      } else {
+        scrollLeft = false;
+      }
+
+      if (y <= 50) {
+        scroll = true;
+        scrollTop = true;
+        newTop -= 10;
+      } else {
+        scrollTop = false;
+      }
+
+      if (height - y <= 50) {
+        scroll = true;
+        scrollBottom = true;
+        newTop += 10;
+      } else {
+        scrollBottom = false;
+      }
+
+      if (scroll) {
+        this.el.scrollLeft = newLeft;
+        this.el.scrollTop = newTop;
+
+        this.setState({ scrollX: newLeft, scrollY: newTop });
+        this.props.onPan({ x: newLeft, y: newTop });
+        Emitter.emit('drag-area-move', {
+          scrollLeft,
+          scrollTop,
+          scrollRight,
+          scrollBottom,
+        });
+      }
+    };
+
+    move();
+
+    this.interval = setInterval(() => {
+      move();
+    }, 16);
+  }
+
+  public handleMouseLeave(e) {
+    clearInterval(this.interval);
+    this.interval = null;
+    document.getElementById(this.props.id).removeEventListener('mouseleave', this.handleMouseLeave);
+  }
+
+  public addEdgeMovementListeners() {
+    document.getElementById(this.props.id).removeEventListener('mouseleave', this.handleMouseLeave);
+    document.getElementById(this.props.id).addEventListener('mouseleave', this.handleMouseLeave);
+    document.getElementById(this.props.id).removeEventListener('mousemove', this.handleMouseMove);
+    document.getElementById(this.props.id).addEventListener('mousemove', this.handleMouseMove);
+  }
+
+  public componentDidUpdate(prevProps) {
+    if (
+      prevProps.wrapperSize.width !== this.props.wrapperSize.width ||
+      prevProps.wrapperSize.height !== this.props.wrapperSize.height
+    ) {
+      if (this.props.enableEdgeMovement) {
+        this.addEdgeMovementListeners();
+      }
+    }
+
+    if (prevProps.enableEdgeMovement !== this.props.enableEdgeMovement) {
+      if (this.props.enableEdgeMovement) {
+        this.addEdgeMovementListeners();
+      } else {
+        document
+          .getElementById(this.props.id)
+          .removeEventListener('mouseleave', this.handleMouseLeave);
+        document
+          .getElementById(this.props.id)
+          .removeEventListener('mousemove', this.handleMouseMove);
+      }
+    }
+  }
+
   init = () => {
     let state = {};
 
@@ -287,6 +405,10 @@ export class ElementPan extends React.Component<
       if (this.props.refElem) this.props.refElem(el);
       this.el = el;
       this.setState({ showMinimap: true });
+
+      if (this.props.enableEdgeMovement) {
+        this.addEdgeMovementListeners();
+      }
     }
   }
 

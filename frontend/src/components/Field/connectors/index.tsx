@@ -1,4 +1,9 @@
-import { ReqoreMessage } from '@qoretechnologies/reqore';
+import {
+  ReqoreMessage,
+  ReqoreSpinner,
+  ReqoreTree,
+  useReqoreProperty,
+} from '@qoretechnologies/reqore';
 import jsyaml from 'js-yaml';
 import { cloneDeep, isEqual, map, omit, reduce } from 'lodash';
 import size from 'lodash/size';
@@ -7,13 +12,15 @@ import { useDebounce } from 'react-use';
 import compose from 'recompose/compose';
 import { TTranslator } from '../../../App';
 import Provider, { providers } from '../../../containers/Mapper/provider';
-import { insertUrlPartBeforeQuery } from '../../../helpers/functions';
+import { fetchData, insertUrlPartBeforeQuery } from '../../../helpers/functions';
+import { validateField } from '../../../helpers/validations';
 import withInitialDataConsumer from '../../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../../hocomponents/withTextContext';
 import { TDataProviderFavorites } from '../../../hooks/useGetDataProviderFavorites';
 import SubField from '../../SubField';
 import { ApiCallArgs } from '../apiCallArgs';
 import BooleanField from '../boolean';
+import { SelectorColorEffect } from '../multiPair';
 import Options, { IOptions, IQorusType } from '../systemOptions';
 import { ProviderMessageData } from './MessageData';
 import { ProviderMessageSelector } from './MessageSelector';
@@ -374,6 +381,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [availableOptions, setAvailableOptions] = useState(undefined);
+  const addModal = useReqoreProperty('addModal');
 
   const applyFavorite = (favorite: IProviderType, storedRecord?: any) => {
     setProvider(favorite.type);
@@ -462,34 +470,56 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
       <SubField
         title={title || t('DataProvider')}
         isValid
-        actions={
-          readOnly
-            ? undefined
-            : [
+        actions={[
+          {
+            label: 'Preview Data',
+            icon: 'Dashboard3Line',
+            effect: SelectorColorEffect,
+            disabled: !validateField('api-call', optionProvider, { isVariable }),
+            onClick: async () => {
+              addModal(
                 {
-                  as: DataProviderFavorites,
-                  responsive: false,
-                  props: {
-                    currentProvider: optionProvider,
-                    onFavoriteApply: applyFavorite,
-                    defaultFavorites: favorites,
-                    localOnly: localOnlyFavorites,
-                    requiresRequest,
-                    recordType,
-                    isConfigItem,
-                    isPipeline,
-                    isMessage,
-                    isVariable,
-                    isEvent,
-                    isTransaction,
-                    disableSearchOptions,
-                    record,
-                    setRecord,
-                  },
-                  show: !readOnly,
+                  label: 'Data preview',
+                  children: <ReqoreSpinner centered />,
                 },
-              ]
-        }
+                'preview-data'
+              );
+
+              const data = await fetchData('/dataprovider/callApiFromUi', 'POST', optionProvider);
+
+              addModal(
+                {
+                  label: 'Data preview',
+                  children: <ReqoreTree data={data} />,
+                },
+                'preview-data'
+              );
+            },
+            show: !!requiresRequest,
+          },
+          {
+            as: DataProviderFavorites,
+            responsive: false,
+            props: {
+              currentProvider: optionProvider,
+              onFavoriteApply: applyFavorite,
+              defaultFavorites: favorites,
+              localOnly: localOnlyFavorites,
+              requiresRequest,
+              recordType,
+              isConfigItem,
+              isPipeline,
+              isMessage,
+              isVariable,
+              isEvent,
+              isTransaction,
+              disableSearchOptions,
+              record,
+              setRecord,
+            },
+            show: !readOnly,
+          },
+        ]}
       >
         <Provider
           isConfigItem={isConfigItem}
@@ -615,6 +645,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                 setOptionProvider((cur) => ({
                   ...cur,
                   use_args: val,
+                  args: val ? cur.args : undefined,
                 }));
               }}
             />

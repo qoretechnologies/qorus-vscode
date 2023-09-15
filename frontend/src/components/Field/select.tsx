@@ -10,6 +10,8 @@ import {
 } from '@qoretechnologies/reqore';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import { IReqoreMenuItemProps } from '@qoretechnologies/reqore/dist/components/Menu/item';
+import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
+import { TReqoreIntent } from '@qoretechnologies/reqore/dist/constants/theme';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { capitalize, get, size } from 'lodash';
 import React, { useEffect, useState } from 'react';
@@ -28,7 +30,12 @@ import FieldEnhancer from '../FieldEnhancer';
 import { PositiveColorEffect } from './multiPair';
 
 export interface ISelectField extends IField {
-  defaultItems?: { name: string; desc?: string }[];
+  defaultItems?: {
+    name: string;
+    desc?: string;
+    intent?: TReqoreIntent;
+    badge?: IReqorePanelProps['badge'];
+  }[];
   predicate?: (name: string) => boolean;
   placeholder?: string;
   disabled?: boolean;
@@ -274,7 +281,21 @@ const SelectField: React.FC<ISelectField & IField> = ({
       handleSelectClick(filteredItems[0]);
     }
     // Show readonly string
-    return <ReqoreTag label={value || filteredItems[0].name} />;
+    return (
+      <ReqoreButton
+        label={value || filteredItems[0].name}
+        description={filteredItems[0].desc}
+        readOnly
+        icon={filteredItems[0].desc ? icon : 'ArrowDownSFill'}
+        rightIcon={filteredItems[0].desc ? 'ListUnordered' : undefined}
+        effect={{
+          gradient: {
+            direction: 'to left',
+            colors: value ? 'info' : 'main',
+          },
+        }}
+      />
+    );
   }
 
   /**
@@ -348,6 +369,8 @@ const SelectField: React.FC<ISelectField & IField> = ({
               size: 'small',
               minimal: false,
               selected: item.name === value,
+              intent: item.intent,
+              badge: item.badge,
               tooltip: !!item.desc
                 ? {
                     delay: 800,
@@ -370,6 +393,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
             label: capitalize(filter.replace('_', ' ')),
             badge: items.filter((item) => item[filter]).length,
             active: appliedFilters.includes(filter),
+            effect: appliedFilters.includes(filter) ? PositiveColorEffect : undefined,
             onClick: () => {
               // Add this filter to the applied filters if it's not already there
               if (!appliedFilters.includes(filter)) {
@@ -469,11 +493,8 @@ const SelectField: React.FC<ISelectField & IField> = ({
                 description={getItemDescription(value) || description}
                 effect={{
                   gradient: {
-                    direction: 'to left bottom',
-                    colors: {
-                      0: 'main',
-                      100: 'main:lighten',
-                    },
+                    direction: 'to left',
+                    colors: value ? 'info' : 'main',
                   },
                 }}
               >
