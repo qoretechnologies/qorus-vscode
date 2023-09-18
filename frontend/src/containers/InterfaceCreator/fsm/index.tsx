@@ -544,8 +544,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     zoom
   );
 
-  console.log(isMovingStates);
-
   const getStateName = (item, id) => {
     if (item.injected) {
       return `Map ${item.injectedData.from} to ${item.injectedData.to}`;
@@ -1011,7 +1009,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
       return areCompatible;
     },
-    [states]
+    [areStatesCompatible]
   );
 
   const handleStateClick = useCallback(
@@ -1845,6 +1843,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         <ReqoreTabs
           fill
           fillParent
+          flat={false}
           tabs={[
             { label: 'Configuration', id: 'configuration', icon: 'SettingsLine' },
             { label: 'Types', id: 'info', icon: 'InformationLine', disabled: stateData.isNew },
@@ -2658,7 +2657,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                       }}
                       onMouseUp={() => {
                         if (Date.now() - timeSinceDiagramMouseDown.current < 200) {
-                          setSelectedStates({});
+                          if (size(selectedStates) > 0) {
+                            setSelectedStates({});
+                          }
                           timeSinceDiagramMouseDown.current = 0;
                         }
                       }}
@@ -2684,6 +2685,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           onMouseEnter={setHoveredState}
                           onMouseLeave={setHoveredState}
                           hasTransitionToItself={hasTransitionToItself(id)}
+                          variableDescription={
+                            getVariable(
+                              state.action?.value?.var_name,
+                              state.action?.value?.var_type,
+                              metadata
+                            )?.desc
+                          }
                           showStateIds={showStateIds}
                           selectedState={selectedState}
                           isInSelectedList={selectedStates[id]}

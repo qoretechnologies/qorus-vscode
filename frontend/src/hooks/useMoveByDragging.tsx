@@ -106,7 +106,7 @@ export const useMoveByDragging = (
   };
 
   const handleDragStart = (event) => {
-    if (event.metaKey) {
+    if (event.shiftKey) {
       return;
     }
 

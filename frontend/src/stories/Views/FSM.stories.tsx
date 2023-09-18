@@ -6,7 +6,12 @@ import fsm from '../Data/fsm.json';
 import multipleVariablesFsm from '../Data/multipleVariablesFsm.json';
 import transactionStateFsm from '../Data/transacitonStateFsm.json';
 import { AutoAlign, SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
-import { _testsClickState, _testsClickStateByLabel, sleep } from '../Tests/utils';
+import {
+  _testsClickState,
+  _testsClickStateByLabel,
+  _testsSelectState,
+  sleep,
+} from '../Tests/utils';
 import { StoryMeta } from '../types';
 
 const meta = {
@@ -194,5 +199,54 @@ export const IncompatibleStates: StoryFSM = {
     // Fake double click lol
     await _testsClickState('state-1');
     await _testsClickState('state-1');
+  },
+};
+
+export const SelectedStates: StoryFSM = {
+  args: {
+    fsm,
+  },
+  play: async ({ canvasElement, ...rest }) => {
+    await AutoAlign.play({ canvasElement, ...rest });
+
+    await sleep(500);
+
+    await _testsSelectState('state-1');
+    await _testsSelectState('state-2');
+    await _testsSelectState('state-3');
+  },
+};
+
+export const SelectionBox: StoryFSM = {
+  args: {
+    fsm,
+  },
+  play: async ({ canvasElement, ...rest }) => {
+    await AutoAlign.play({ canvasElement, ...rest });
+
+    await sleep(500);
+
+    await fireEvent.mouseOver(document.querySelector('#fsm-diagram'));
+
+    await fireEvent.keyDown(document, {
+      key: 'Meta',
+      shiftKey: true,
+    });
+
+    await sleep(500);
+
+    await fireEvent.mouseDown(document.querySelector('#fsm-diagram'), {
+      clientX: 400,
+      clientY: 200,
+      shiftKey: true,
+    });
+
+    await sleep(500);
+
+    await fireEvent.mouseMove(document.querySelector('#fsm-diagram'), {
+      clientX: 1000,
+      clientY: 600,
+      shiftKey: true,
+    });
   },
 };

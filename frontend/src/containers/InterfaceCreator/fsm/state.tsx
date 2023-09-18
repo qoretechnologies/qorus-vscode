@@ -25,7 +25,7 @@ import { insertAtIndex } from '../../../helpers/functions';
 import { useGetInputOutputType } from '../../../hooks/useGetInputOutputType';
 import { useWhyDidYouUpdate } from '../../../hooks/useWhyDidYouUpdate';
 import { IFSMState, TVariableActionValue } from './';
-import { FSMItemIconByType } from './toolbarItem';
+import { FSMItemDescByType, FSMItemIconByType } from './toolbarItem';
 
 export interface IFSMStateProps extends IFSMState {
   selected?: boolean;
@@ -128,15 +128,13 @@ const StyledFSMState: React.FC<
       ? css`
           left: ${({ x }) => `${x}px`};
           top: ${({ y }) => `${y}px`};
-          min-width: 250px;
-          max-width: 350px !important;
+          width: 350px;
 
           position: absolute !important;
           z-index: 20;
         `
       : css`
-          min-width: 250px;
-          max-width: 350px !important;
+          width: 350px;
         `}
 `;
 
@@ -257,6 +255,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   passRef,
   onSelect,
   isInSelectedList,
+  variableDescription,
   ...rest
 }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -293,7 +292,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
     onClick,
     onDblClick,
     onEditClick,
-    passRef,
     onDeleteClick,
     onTransitionOrderClick,
     name,
@@ -316,6 +314,11 @@ const FSMState: React.FC<IFSMStateProps> = ({
     error,
     isStatic,
     zoom,
+    getStateDataForComparison,
+    passRef,
+    onSelect,
+    isInSelectedList,
+    variableDescription,
     ...rest,
   });
 
@@ -388,7 +391,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
     ref.current?.addEventListener('mouseup', handleMouseUp, true);
 
     mouseDownTimeout.current = setTimeout(() => {
-      console.log('REMOVING STATE MOUSE UP TO OPEN DETAIL');
       ref.current?.removeEventListener('mouseup', handleMouseUp, true);
       onSelect?.(id, true);
     }, 100);
@@ -401,6 +403,12 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const handleMouseLeave = () => {
     onMouseLeave?.(undefined);
   };
+
+  const stateActionDescription: string =
+    variableDescription ||
+    (action?.value?.descriptions
+      ? last(action?.value?.descriptions)
+      : FSMItemDescByType[action?.type || rest['block-type'] || type]);
 
   return (
     <StyledFSMState
@@ -415,7 +423,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
         e.stopPropagation();
         e.preventDefault();
         // If the user was holding CMD / CTRL, we don't want to drag the state
-        if (e.metaKey) {
+        if (e.shiftKey) {
           onSelect?.(id);
 
           return;
@@ -501,6 +509,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
               minimal: true,
               flat: true,
               size: 'small',
+              show: 'hover',
               tooltip:
                 inputType && outputType && zoom === 1
                   ? {
@@ -564,6 +573,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
               minimal: true,
               flat: true,
               size: 'small',
+              tooltip: 'Edit state',
               show: !!onEditClick ? 'hover' : false,
             },
             {
@@ -576,6 +586,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
               minimal: true,
               flat: true,
               size: 'small',
+              tooltip: 'Delete state',
               show: !!onDeleteClick ? 'hover' : false,
             },
           ],
@@ -681,17 +692,15 @@ const FSMState: React.FC<IFSMStateProps> = ({
             <ReqoreTag minimal wrap label={(action.value as TVariableActionValue)?.action_type} />
           </ReqoreControlGroup>
         ) : null}
-        {action?.value?.descriptions ? (
-          <ReqoreTag
-            icon="InformationLine"
-            size="small"
-            label={last(action?.value?.descriptions)}
-            color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
-            labelEffect={{
-              weight: 'light',
-            }}
-          />
-        ) : null}
+        <ReqoreTag
+          icon="InformationLine"
+          size="small"
+          label={stateActionDescription}
+          color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
+          labelEffect={{
+            weight: 'light',
+          }}
+        />
       </ReqoreControlGroup>
     </StyledFSMState>
   );

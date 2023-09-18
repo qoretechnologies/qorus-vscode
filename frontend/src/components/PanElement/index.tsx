@@ -113,7 +113,7 @@ export class ElementPan extends React.Component<
   }
 
   public onDragStart(e) {
-    if (e.metaKey) {
+    if (e.shiftKey) {
       return;
     }
     // We want to be able to pan around inside the container even when the
@@ -169,10 +169,6 @@ export class ElementPan extends React.Component<
 
     let x = typeof e.clientX === 'undefined' ? e.changedTouches[0].clientX : e.clientX,
       y = typeof e.clientY === 'undefined' ? e.changedTouches[0].clientY : e.clientY;
-
-    if (!this.state.dragging) {
-      console.log(x, y);
-    }
 
     // Letting the browser automatically stop on scrollHeight
     // gives weird bugs where some extra pixels are showing.
@@ -246,6 +242,9 @@ export class ElementPan extends React.Component<
   }
 
   public componentWillUnmount() {
+    clearInterval(this.interval);
+    this.interval = null;
+
     document.getElementById(this.props.id).removeEventListener('wheel', this.onWheel);
   }
 

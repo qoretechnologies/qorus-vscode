@@ -66,12 +66,20 @@ export function _testsSelectItemFromCollection(
   };
 }
 
-export async function _testsClickState(id) {
-  await fireEvent.mouseDown(document.querySelector(`#${id}`));
-  await fireEvent.mouseUp(document.querySelector(`#${id}`));
+export async function _testsSelectState(id) {
+  await _testsClickState(id, { shiftKey: true });
 }
 
-export async function _testsClickStateByLabel(canvas, label) {
-  await fireEvent.mouseDown(canvas.getAllByText(label)[0]);
-  await fireEvent.mouseUp(canvas.getAllByText(label)[0]);
+export async function _testsSelectStateByLabel(canvas, label) {
+  await _testsClickStateByLabel(canvas, label, { shiftKey: true });
+}
+
+export async function _testsClickState(id, options = {}) {
+  await fireEvent.mouseDown(document.querySelector(`#${id}`), options);
+  await fireEvent.mouseUp(document.querySelector(`#${id}`), options);
+}
+
+export async function _testsClickStateByLabel(canvas, label, options = {}) {
+  await fireEvent.mouseDown(canvas.getAllByText(label)[0], options);
+  await fireEvent.mouseUp(canvas.getAllByText(label)[0], options);
 }

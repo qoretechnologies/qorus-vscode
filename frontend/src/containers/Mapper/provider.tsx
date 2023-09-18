@@ -234,7 +234,6 @@ const MapperProvider: FC<IProviderProps> = ({
 
   const handleCallError = (error) => {
     if (error) {
-      console.log(error);
       const errorMsg = error.err || error;
       onError?.(errorMsg);
     } else {

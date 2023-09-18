@@ -342,7 +342,7 @@ export interface IAutoAlignConfig {
 export const getVariable = (
   varName: string,
   varType: 'globalvar' | 'localvar' | 'autovar',
-  metadata: IFSMMetadata
+  metadata: Partial<IFSMMetadata>
 ) => {
   const global = metadata?.globalvar || {};
   const local = metadata?.localvar || {};

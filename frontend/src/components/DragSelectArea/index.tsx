@@ -3,7 +3,6 @@ import { useUnmount, useUpdateEffect } from 'react-use';
 
 export const DragSelectArea = ({ element, onFinish }) => {
   const [isParentActive, setIsParentActive] = useState(false);
-  const [isReadyToSelect, setIsReadyToSelect] = useState(false);
   const [initialMousePosition, setInitialMousePosition] = useState(undefined);
   const [currentMousePosition, setCurrentMousePosition] = useState(undefined);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -18,21 +17,10 @@ export const DragSelectArea = ({ element, onFinish }) => {
     }
   }, [isParentActive, element, initialMousePosition]);
 
-  const handleMaybeStartDragSelect = (e) => {
-    if (e.key === 'Meta') {
-      setIsReadyToSelect(true);
-    }
-  };
-
-  const handleMaybeStopDragSelect = (e) => {
-    if (e.key === 'Meta') {
-      setIsReadyToSelect(false);
-    }
-  };
-
   const handleSelectStop = (event) => {
-    event.stopPropagation();
     event.preventDefault();
+
+    element.style.cursor = 'move';
 
     setIsSelecting(false);
 
@@ -40,15 +28,21 @@ export const DragSelectArea = ({ element, onFinish }) => {
   };
 
   const handleSelectStart = (event) => {
-    event.preventDefault();
+    if (event.shiftKey) {
+      event.preventDefault();
 
-    const { clientX, clientY } = event;
-    const { left, top } = element.getBoundingClientRect();
+      // Set the cursor to crosshair to indicate that we're ready to select
+      // multiple elements.
+      element.style.cursor = 'crosshair';
 
-    setIsSelecting(true);
-    setInitialMousePosition({ x: clientX - left, y: clientY - top });
+      const { clientX, clientY } = event;
+      const { left, top } = element.getBoundingClientRect();
 
-    element.addEventListener('mousemove', handleSelectMove, true);
+      setIsSelecting(true);
+      setInitialMousePosition({ x: clientX - left, y: clientY - top });
+
+      element.addEventListener('mousemove', handleSelectMove, true);
+    }
   };
 
   const handleSelectMove = (event) => {
@@ -72,49 +66,26 @@ export const DragSelectArea = ({ element, onFinish }) => {
   }, [element, isParentActive, initialMousePosition]);
 
   useUpdateEffect(() => {
-    if (isParentActive) {
-      // When user presses Meta key, we want to select multiple elements
-      // by dragging the mouse.
-      document?.addEventListener('keydown', handleMaybeStartDragSelect, true);
-      document?.addEventListener('keyup', handleMaybeStopDragSelect, true);
-    } else {
-      setIsReadyToSelect(false);
+    if (!isSelecting && initialMousePosition && currentMousePosition) {
+      onFinish?.({
+        startX: initialMousePosition?.x,
+        startY: initialMousePosition?.y,
+        endX: currentMousePosition?.x,
+        endY: currentMousePosition?.y,
+      });
 
-      document?.removeEventListener('keydown', handleMaybeStartDragSelect, true);
-      document?.removeEventListener('keyup', handleMaybeStopDragSelect, true);
+      setInitialMousePosition(undefined);
+      setCurrentMousePosition(undefined);
     }
-
-    return () => {
-      setIsReadyToSelect(false);
-
-      document?.removeEventListener('keydown', handleMaybeStartDragSelect, true);
-      document?.removeEventListener('keyup', handleMaybeStopDragSelect, true);
-    };
-  }, [isParentActive, element]);
+  }, [isSelecting, initialMousePosition, currentMousePosition]);
 
   useUpdateEffect(() => {
+    console.log(isParentActive);
     if (element) {
-      if (isReadyToSelect) {
-        // Set the cursor to crosshair to indicate that we're ready to select
-        // multiple elements.
-        element.style.cursor = 'crosshair';
+      if (isParentActive) {
         element.addEventListener('mousedown', handleSelectStart, true);
         element.addEventListener('mouseup', handleSelectStop, true);
       } else {
-        element.style.cursor = 'move';
-
-        if (initialMousePosition && currentMousePosition) {
-          onFinish?.({
-            startX: initialMousePosition?.x,
-            startY: initialMousePosition?.y,
-            endX: currentMousePosition?.x,
-            endY: currentMousePosition?.y,
-          });
-        }
-
-        setInitialMousePosition(undefined);
-        setCurrentMousePosition(undefined);
-
         element.removeEventListener('mousemove', handleSelectMove, true);
         element.removeEventListener('mousedown', handleSelectStart, true);
         element.removeEventListener('mouseup', handleSelectStop, true);
@@ -129,12 +100,9 @@ export const DragSelectArea = ({ element, onFinish }) => {
         element.removeEventListener('mouseup', handleSelectStop, true);
       }
     };
-  }, [isReadyToSelect, element]);
+  }, [isParentActive, element]);
 
   useUnmount(() => {
-    document?.removeEventListener('keydown', handleMaybeStartDragSelect);
-    document?.removeEventListener('keyup', handleMaybeStopDragSelect);
-
     if (element) {
       element.style.cursor = 'initial';
       element.removeEventListener('mousemove', handleSelectMove, true);
