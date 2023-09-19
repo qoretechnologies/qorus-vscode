@@ -2645,7 +2645,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                   >
                     <StyledDiagram
                       as="div"
-                      name="fsm-drop-zone"
+                      id="fsm-states-wrapper"
                       key={JSON.stringify(wrapperDimensions)}
                       ref={(r) => {
                         drop(r);

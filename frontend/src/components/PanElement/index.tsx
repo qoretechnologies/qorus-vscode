@@ -242,9 +242,7 @@ export class ElementPan extends React.Component<
   }
 
   public componentWillUnmount() {
-    clearInterval(this.interval);
-    this.interval = null;
-
+    this.removeEdgeMovementListeners();
     document.getElementById(this.props.id).removeEventListener('wheel', this.onWheel);
   }
 
@@ -270,7 +268,7 @@ export class ElementPan extends React.Component<
       let newLeft = this.el.scrollLeft;
       let newTop = this.el.scrollTop;
 
-      if (width - x <= 50) {
+      if (width - x <= 50 && newLeft !== this.el.scrollWidth - this.el.clientWidth) {
         scroll = true;
         scrollRight = true;
         newLeft += 10;
@@ -278,7 +276,7 @@ export class ElementPan extends React.Component<
         scrollRight = false;
       }
 
-      if (x <= 50) {
+      if (x <= 50 && newLeft !== 0) {
         scroll = true;
         scrollLeft = true;
         newLeft -= 10;
@@ -286,7 +284,7 @@ export class ElementPan extends React.Component<
         scrollLeft = false;
       }
 
-      if (y <= 50) {
+      if (y <= 50 && newTop !== 0) {
         scroll = true;
         scrollTop = true;
         newTop -= 10;
@@ -294,7 +292,7 @@ export class ElementPan extends React.Component<
         scrollTop = false;
       }
 
-      if (height - y <= 50) {
+      if (height - y <= 50 && newTop !== this.el.scrollHeight - this.el.clientHeight) {
         scroll = true;
         scrollBottom = true;
         newTop += 10;
@@ -308,6 +306,7 @@ export class ElementPan extends React.Component<
 
         this.setState({ scrollX: newLeft, scrollY: newTop });
         this.props.onPan({ x: newLeft, y: newTop });
+
         Emitter.emit('drag-area-move', {
           scrollLeft,
           scrollTop,
@@ -337,6 +336,13 @@ export class ElementPan extends React.Component<
     document.getElementById(this.props.id).addEventListener('mousemove', this.handleMouseMove);
   }
 
+  public removeEdgeMovementListeners() {
+    clearInterval(this.interval);
+    this.interval = null;
+    document.getElementById(this.props.id).removeEventListener('mouseleave', this.handleMouseLeave);
+    document.getElementById(this.props.id).removeEventListener('mousemove', this.handleMouseMove);
+  }
+
   public componentDidUpdate(prevProps) {
     if (
       prevProps.wrapperSize.width !== this.props.wrapperSize.width ||
@@ -351,12 +357,7 @@ export class ElementPan extends React.Component<
       if (this.props.enableEdgeMovement) {
         this.addEdgeMovementListeners();
       } else {
-        document
-          .getElementById(this.props.id)
-          .removeEventListener('mouseleave', this.handleMouseLeave);
-        document
-          .getElementById(this.props.id)
-          .removeEventListener('mousemove', this.handleMouseMove);
+        this.removeEdgeMovementListeners();
       }
     }
   }

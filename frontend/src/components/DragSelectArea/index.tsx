@@ -80,7 +80,6 @@ export const DragSelectArea = ({ element, onFinish }) => {
   }, [isSelecting, initialMousePosition, currentMousePosition]);
 
   useUpdateEffect(() => {
-    console.log(isParentActive);
     if (element) {
       if (isParentActive) {
         element.addEventListener('mousedown', handleSelectStart, true);

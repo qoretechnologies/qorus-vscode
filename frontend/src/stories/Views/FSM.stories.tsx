@@ -9,6 +9,7 @@ import { AutoAlign, SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
 import {
   _testsClickState,
   _testsClickStateByLabel,
+  _testsCreateSelectionBox,
   _testsSelectState,
   sleep,
 } from '../Tests/utils';
@@ -226,27 +227,6 @@ export const SelectionBox: StoryFSM = {
 
     await sleep(500);
 
-    await fireEvent.mouseOver(document.querySelector('#fsm-diagram'));
-
-    await fireEvent.keyDown(document, {
-      key: 'Meta',
-      shiftKey: true,
-    });
-
-    await sleep(500);
-
-    await fireEvent.mouseDown(document.querySelector('#fsm-diagram'), {
-      clientX: 400,
-      clientY: 200,
-      shiftKey: true,
-    });
-
-    await sleep(500);
-
-    await fireEvent.mouseMove(document.querySelector('#fsm-diagram'), {
-      clientX: 1000,
-      clientY: 600,
-      shiftKey: true,
-    });
+    await _testsCreateSelectionBox(400, 200, 600, 400);
   },
 };

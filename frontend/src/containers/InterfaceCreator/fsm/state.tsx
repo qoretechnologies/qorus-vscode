@@ -695,6 +695,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
         <ReqoreTag
           icon="InformationLine"
           size="small"
+          wrap
           label={stateActionDescription}
           color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
           labelEffect={{

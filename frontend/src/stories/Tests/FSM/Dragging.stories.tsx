@@ -3,8 +3,8 @@ import { fireEvent } from '@storybook/testing-library';
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { StoryMeta } from '../../types';
-import { sleep } from '../utils';
-import { SwitchesToBuilder, ZoomIn, ZoomOut } from './Basic.stories';
+import { _testsCreateSelectionBox, _testsSelectState, sleep } from '../utils';
+import { AutoAlign, SwitchesToBuilder, ZoomIn, ZoomOut } from './Basic.stories';
 
 const meta = {
   component: FSMView,
@@ -77,5 +77,60 @@ export const StateCanBeDraggedAndDroppedWithZoomOut: StoryFSM = {
   },
   play: async ({ canvasElement, zoomIn, zoomOut, ...rest }) => {
     await StateCanBeDraggedAndDropped.play({ canvasElement, zoomOut: true, ...rest });
+  },
+};
+
+export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
+  args: {
+    fsm,
+  },
+  play: async ({ canvasElement, zoomIn, zoomOut, ...rest }) => {
+    await AutoAlign.play({ canvasElement, ...rest });
+
+    // Select some states
+    await _testsSelectState('state-3');
+
+    await sleep(500);
+
+    await _testsCreateSelectionBox(600, 300, 600, 600, true);
+
+    await sleep(500);
+
+    await fireEvent.mouseDown(document.querySelector('#state-3'));
+
+    await sleep(500);
+
+    for await (const _ of Array(Math.round(window.innerHeight / 10)).keys()) {
+      const { left, top } = document.querySelector('#state-3').getBoundingClientRect();
+
+      if (top > window.innerHeight - 100) {
+        break;
+      }
+
+      await sleep(16.67);
+
+      await fireEvent.mouseMove(document.querySelector('#state-3'), {
+        clientX: left,
+        clientY: top,
+        movementX: 10,
+        movementY: 30,
+      });
+    }
+
+    await sleep(1000);
+
+    await fireEvent.mouseMove(document.querySelector('#state-3'), {
+      movementX: 0,
+      movementY: -300,
+    });
+
+    await sleep(100);
+
+    await fireEvent.mouseUp(document.querySelector('#state-3'));
+
+    await sleep(100);
+
+    await fireEvent.mouseDown(document.querySelector('#fsm-states-wrapper'));
+    await fireEvent.mouseUp(document.querySelector('#fsm-states-wrapper'));
   },
 };

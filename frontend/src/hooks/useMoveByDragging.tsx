@@ -53,6 +53,10 @@ export const useMoveByDragging = (
     const x = event.movementX;
     const y = event.movementY;
 
+    if (!x && !y) {
+      return;
+    }
+
     moveEntities(x, y);
   };
 
@@ -94,7 +98,7 @@ export const useMoveByDragging = (
 
     onUpdate(positionedRefs, true);
 
-    window.removeEventListener('mousemove', handleDragMove, true);
+    window.removeEventListener('mousemove', handleDragMove);
     window.removeEventListener('mouseup', handleSingleDragStop, true);
 
     forEach(refs, (ref, id) => {
@@ -115,7 +119,8 @@ export const useMoveByDragging = (
 
     onStart?.();
 
-    window.addEventListener('mousemove', handleDragMove, true);
+    window.removeEventListener('mousemove', handleDragMove);
+    window.addEventListener('mousemove', handleDragMove);
     window.addEventListener('mouseup', handleDragStop, true);
   };
 
@@ -157,8 +162,10 @@ export const useMoveByDragging = (
         if (selectedStates[id]?.fromMouseDown) {
           onStart?.();
 
-          window.addEventListener('mousemove', handleDragMove, true);
+          window.removeEventListener('mousemove', handleDragMove);
+          window.addEventListener('mousemove', handleDragMove);
           ref.addEventListener('mouseup', handleSingleDragStop, true);
+          window.removeEventListener('mouseup', handleDragStop, true);
           window.addEventListener('mouseup', handleSingleDragStop, true);
         } else {
           ref.addEventListener('mousedown', handleDragStart, true);
@@ -176,9 +183,9 @@ export const useMoveByDragging = (
           ref.removeEventListener('mousedown', handleDragStart, true);
         });
 
-        window.removeEventListener('mousemove', handleDragMove, true);
+        window.removeEventListener('mousemove', handleDragMove);
         window.removeEventListener('mouseup', handleDragStop, true);
       }
     };
-  }, [selectedStates, states]);
+  }, [JSON.stringify(selectedStates), states]);
 };

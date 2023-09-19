@@ -66,6 +66,47 @@ export function _testsSelectItemFromCollection(
   };
 }
 
+export async function _testsCreateSelectionBox(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  confirm?: boolean
+) {
+  await fireEvent.mouseOver(document.querySelector('#fsm-diagram'));
+
+  await fireEvent.keyDown(document, {
+    key: 'Meta',
+    shiftKey: true,
+  });
+
+  await sleep(200);
+
+  await fireEvent.mouseDown(document.querySelector('#fsm-diagram'), {
+    clientX: x,
+    clientY: y,
+    shiftKey: true,
+  });
+
+  await sleep(200);
+
+  await fireEvent.mouseMove(document.querySelector('#fsm-diagram'), {
+    clientX: x + width,
+    clientY: y + height,
+    shiftKey: true,
+  });
+
+  await sleep(1000);
+
+  if (confirm) {
+    await fireEvent.mouseUp(document.querySelector('#fsm-diagram'), {
+      clientX: x + width,
+      clientY: y + height,
+      shiftKey: true,
+    });
+  }
+}
+
 export async function _testsSelectState(id) {
   await _testsClickState(id, { shiftKey: true });
 }

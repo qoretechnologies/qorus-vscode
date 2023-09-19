@@ -5,7 +5,7 @@ import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
-import { _testsClickState, sleep } from './../utils';
+import { _testsClickState, _testsCreateSelectionBox, sleep } from './../utils';
 
 const meta = {
   component: FSMView,
@@ -146,6 +146,17 @@ export const StatesCanBeConnected: StoryFSM = {
     await waitFor(() => expect(document.querySelectorAll('.fsm-transition').length).toBe(5), {
       timeout: 10000,
     });
+  },
+};
+
+export const StatesCanBeSelected: StoryFSM = {
+  args: {
+    fsm,
+  },
+  play: async ({ canvasElement, ...rest }) => {
+    await SwitchesToBuilder.play({ canvasElement, ...rest });
+    await sleep(500);
+    await _testsCreateSelectionBox(300, 100, 800, 800, true);
   },
 };
 

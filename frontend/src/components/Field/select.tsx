@@ -283,6 +283,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
     // Show readonly string
     return (
       <ReqoreButton
+        className={className}
         label={value || filteredItems[0].name}
         description={filteredItems[0].desc}
         readOnly
