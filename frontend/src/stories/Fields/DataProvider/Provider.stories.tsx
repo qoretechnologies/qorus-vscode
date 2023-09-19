@@ -87,6 +87,9 @@ export const Message: StoryObj<typeof meta> = {
       timeout: 10000,
     });
 
+    await fireEvent.click(document.querySelector('.provider-selector'));
+    await fireEvent.click(canvas.getAllByText('wsclient')[0]);
+
     await waitFor(() => expect(document.querySelector('.system-option')).toBeInTheDocument(), {
       timeout: 10000,
     });
