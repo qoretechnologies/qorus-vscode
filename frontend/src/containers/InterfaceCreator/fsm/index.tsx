@@ -1823,22 +1823,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           },
         ]}
       >
-        <FSMState
-          {...states[state]}
-          isStatic
-          position={{
-            x: 0,
-            y: 0,
-          }}
-          id={state}
-          onUpdate={updateStateData}
-          hasTransitionToItself={hasTransitionToItself(state)}
-          isAvailableForTransition={isAvailableForTransition}
-          onTransitionOrderClick={handleTransitionOrderClick}
-          onExecutionOrderClick={handleExecutionOrderClick}
-          getStateDataForComparison={getStateDataForComparison}
-          isIsolated={isStateIsolated(state, states)}
-        />
         <ReqoreVerticalSpacer height={10} />
         <ReqoreTabs
           fill

@@ -267,6 +267,10 @@ const SelectField: React.FC<ISelectField & IField> = ({
     filteredItems = filteredItems.filter((item) => predicate(item.name));
   }
 
+  const getItemDescription = (itemName) => {
+    return items.find((item) => item.name === itemName)?.desc;
+  };
+
   const reqoreItems: IReqoreMenuItemProps[] = filteredItems.map((item) => ({
     label: item.name,
     description: item.desc,
@@ -285,9 +289,21 @@ const SelectField: React.FC<ISelectField & IField> = ({
       <ReqoreButton
         className={className}
         label={value || filteredItems[0].name}
-        description={filteredItems[0].desc}
+        description={
+          !!getItemDescription(value) ? 'Hover to see description' : 'Select from available items'
+        }
+        tooltip={
+          !!getItemDescription(value)
+            ? {
+                delay: 300,
+                content: <ReactMarkdown>{getItemDescription(value)}</ReactMarkdown>,
+                maxWidth: '50vh',
+              }
+            : undefined
+        }
         readOnly
         wrap
+        fixed
         icon={filteredItems[0].desc ? icon : 'ArrowDownSFill'}
         rightIcon={filteredItems[0].desc ? 'ListUnordered' : undefined}
         effect={{
@@ -327,10 +343,6 @@ const SelectField: React.FC<ISelectField & IField> = ({
 
       return isMatch;
     });
-  };
-
-  const getItemDescription = (itemName) => {
-    return items.find((item) => item.name === itemName)?.desc;
   };
 
   return (

@@ -80,6 +80,9 @@ export const SelectedStateChange: StoryFSM = {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
     await _testsClickState('state-3');
+
+    await sleep(1000);
+
     await waitFor(
       async () => {
         await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
@@ -93,6 +96,9 @@ export const SelectedStateChange: StoryFSM = {
     await sleep(1000);
 
     await _testsClickState('state-1');
+
+    await sleep(1000);
+
     await waitFor(
       async () => {
         // Make sure the h3 with text `Intent: Close Ticket?` inside .reqore-drawer is visible
