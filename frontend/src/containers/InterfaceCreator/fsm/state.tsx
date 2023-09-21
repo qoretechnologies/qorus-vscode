@@ -4,7 +4,6 @@ import {
   ReqorePanel,
   ReqoreTag,
   ReqoreVerticalSpacer,
-  useReqoreTheme,
 } from '@qoretechnologies/reqore';
 import {
   IReqoreEffect,
@@ -258,22 +257,21 @@ const FSMState: React.FC<IFSMStateProps> = ({
   variableDescription,
   ...rest
 }) => {
-  const [isDragging, setIsDragging] = useState<boolean>(false);
   const ref = useRef(null);
   const staticPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const mouseDownTimeout = useRef(undefined);
   const [isCompatible, setIsCompatible] = useState<boolean>(undefined);
   const [isLoadingCheck, setIsLoadingCheck] = useState<boolean>(false);
   const clicks = useRef(0);
   const { addMenu } = useContext(ContextMenuContext);
   const t = useContext(TextContext);
   const { qorus_instance } = useContext(InitialContext);
-  const theme = useReqoreTheme();
   const { inputType, outputType } = useGetInputOutputType(
     getStateDataForComparison?.({ action, ...rest }, 'input'),
     getStateDataForComparison?.({ action, ...rest }, 'output')
   );
   const clicksTimeout = useRef(null);
+  const mouseDownPosition = useRef({ x: 0, y: 0 });
+  const timeSinceMouseDown = useRef(0);
 
   useEffect(() => {
     staticPosition.current.x = position?.x || 0;
@@ -373,13 +371,20 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const handleMouseUp = (event) => {
-    clearTimeout(mouseDownTimeout.current);
-    mouseDownTimeout.current = undefined;
-
     ref.current?.removeEventListener('mouseup', handleMouseUp, true);
 
     if (!isLoadingCheck) {
-      handleClick(event);
+      // Check if the user has moved at least 10 pixels in any direction
+      if (
+        (Math.abs(event.clientX - mouseDownPosition.current.x) < 5 ||
+          Math.abs(event.clientY - mouseDownPosition.current.y) < 5) &&
+        Date.now() - timeSinceMouseDown.current < 200
+      ) {
+        mouseDownPosition.current = { x: 0, y: 0 };
+        timeSinceMouseDown.current = 0;
+
+        handleClick(event);
+      }
     }
   };
 
@@ -388,12 +393,13 @@ const FSMState: React.FC<IFSMStateProps> = ({
     event.stopPropagation();
     event.preventDefault();
 
-    ref.current?.addEventListener('mouseup', handleMouseUp, true);
+    onSelect?.(id, true);
 
-    mouseDownTimeout.current = setTimeout(() => {
-      ref.current?.removeEventListener('mouseup', handleMouseUp, true);
-      onSelect?.(id, true);
-    }, 100);
+    mouseDownPosition.current.x = event.clientX;
+    mouseDownPosition.current.y = event.clientY;
+    timeSinceMouseDown.current = Date.now();
+
+    ref.current?.addEventListener('mouseup', handleMouseUp, true);
   };
 
   const handleMouseEnter = () => {
