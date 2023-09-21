@@ -2660,6 +2660,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           if (size(selectedStates) > 0) {
                             setSelectedStates({});
                           }
+
+                          setSelectedState(null);
                           timeSinceDiagramMouseDown.current = 0;
                         }
                       }}

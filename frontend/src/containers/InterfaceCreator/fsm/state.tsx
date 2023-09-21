@@ -373,11 +373,15 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const handleMouseUp = (event) => {
     ref.current?.removeEventListener('mouseup', handleMouseUp, true);
 
+    const startX = mouseDownPosition.current.x || 0;
+    const startY = mouseDownPosition.current.x || 0;
+    const x = event.clientX || 0;
+    const y = event.clientY || 0;
+
     if (!isLoadingCheck) {
       // Check if the user has moved at least 10 pixels in any direction
       if (
-        (Math.abs(event.clientX - mouseDownPosition.current.x) < 5 ||
-          Math.abs(event.clientY - mouseDownPosition.current.y) < 5) &&
+        (Math.abs(x - startX) < 5 || Math.abs(y - startY) < 5) &&
         Date.now() - timeSinceMouseDown.current < 200
       ) {
         mouseDownPosition.current = { x: 0, y: 0 };
@@ -411,10 +415,12 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const stateActionDescription: string =
-    variableDescription ||
-    (action?.value?.descriptions
-      ? last(action?.value?.descriptions)
-      : FSMItemDescByType[action?.type || rest['block-type'] || type]);
+    (
+      variableDescription ||
+      (action?.value?.descriptions
+        ? last(action?.value?.descriptions)
+        : FSMItemDescByType[action?.type || rest['block-type'] || type])
+    ).slice(0, 100) + '...';
 
   return (
     <StyledFSMState
@@ -509,6 +515,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           show: !!hasTransitionToItself,
         },
         {
+          show: isInSelectedList ? false : 'hover',
           group: [
             {
               icon: 'InformationFill',

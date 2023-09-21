@@ -287,6 +287,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
         label={value || filteredItems[0].name}
         description={filteredItems[0].desc}
         readOnly
+        wrap
         icon={filteredItems[0].desc ? icon : 'ArrowDownSFill'}
         rightIcon={filteredItems[0].desc ? 'ListUnordered' : undefined}
         effect={{

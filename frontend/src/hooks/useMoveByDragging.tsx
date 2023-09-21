@@ -157,18 +157,18 @@ export const useMoveByDragging = (
         }
       });
 
-      forEach(refs, (ref, id) => {
+      forEach(selectedStates, (state, id) => {
         // Check if this state already had a mousedown
-        if (selectedStates[id]?.fromMouseDown) {
+        if (state?.fromMouseDown) {
           onStart?.();
 
           window.removeEventListener('mousemove', handleDragMove);
           window.addEventListener('mousemove', handleDragMove);
-          ref.addEventListener('mouseup', handleSingleDragStop, true);
+          refs[id].addEventListener('mouseup', handleSingleDragStop, true);
           window.removeEventListener('mouseup', handleDragStop, true);
           window.addEventListener('mouseup', handleSingleDragStop, true);
         } else {
-          ref.addEventListener('mousedown', handleDragStart, true);
+          refs[id].addEventListener('mousedown', handleDragStart, true);
         }
       });
     } else {
