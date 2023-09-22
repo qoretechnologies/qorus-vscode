@@ -371,10 +371,10 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const handleMouseUp = (event) => {
-    ref.current?.removeEventListener('mouseup', handleMouseUp, true);
+    event.persist();
 
     const startX = mouseDownPosition.current.x || 0;
-    const startY = mouseDownPosition.current.x || 0;
+    const startY = mouseDownPosition.current.y || 0;
     const x = event.clientX || 0;
     const y = event.clientY || 0;
 
@@ -402,8 +402,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
     mouseDownPosition.current.x = event.clientX;
     mouseDownPosition.current.y = event.clientY;
     timeSinceMouseDown.current = Date.now();
-
-    ref.current?.addEventListener('mouseup', handleMouseUp, true);
   };
 
   const handleMouseEnter = () => {
@@ -447,6 +445,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
 
         handleMouseDown(e);
       }}
+      onMouseUp={handleMouseUp}
       onClick={(e) => {
         e.stopPropagation();
       }}

@@ -3,7 +3,7 @@
         "local": [
             {
                 "name": "Rippy2",
-                "url": "https://fwitosz:U2FsdGVkX19264w90SUDe1iMX3FDu6cP3pypiaUekns%3D@hq.qoretechnologies.com:8092/",
+                "url": "https://fwitosz:U2FsdGVkX18TPSxIHj1rXTxhUx%2BoGCjBtuZHNPK98Hk%3D@hq.qoretechnologies.com:8092/",
                 "custom_urls": []
             }
         ],
@@ -12,5 +12,5 @@
     "source_directories": [
         "."
     ],
-    "theme": "vscode"
+    "theme": "light"
 }

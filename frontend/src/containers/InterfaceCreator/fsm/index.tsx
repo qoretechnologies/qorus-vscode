@@ -2680,7 +2680,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           }
                           showStateIds={showStateIds}
                           selectedState={selectedState}
-                          isInSelectedList={selectedStates[id]}
+                          isInSelectedList={!!selectedStates[id]}
                           isAvailableForTransition={isAvailableForTransition}
                           onTransitionOrderClick={handleTransitionOrderClick}
                           onExecutionOrderClick={handleExecutionOrderClick}

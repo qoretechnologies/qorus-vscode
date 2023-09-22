@@ -93,11 +93,11 @@ export const SelectedStateChange: StoryFSM = {
       { timeout: 10000 }
     );
 
-    await sleep(1000);
+    await sleep(500);
 
     await _testsClickState('state-1');
 
-    await sleep(1000);
+    await sleep(500);
 
     await waitFor(
       async () => {
