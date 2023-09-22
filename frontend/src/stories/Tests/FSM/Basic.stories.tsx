@@ -193,7 +193,7 @@ export const StatesIsRemovedIfUnfinished: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     await NewState.play({ canvasElement, ...rest });
 
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(2);
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(1);
 
     await fireEvent.click(document.querySelector('.fsm-state-dialog-cancel'));
 

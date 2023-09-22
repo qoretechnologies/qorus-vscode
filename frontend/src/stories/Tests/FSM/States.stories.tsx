@@ -312,7 +312,8 @@ export const NewTransactionState: StoryFSM = {
     await sleep(1500);
 
     await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
-    await fireEvent.click(canvas.getAllByText('bb_local')[0]);
+    const withinSelectDialog = within(document.querySelector('.q-select-dialog'));
+    await fireEvent.click(withinSelectDialog.getAllByText('bb_local')[0]);
 
     await sleep(1500);
 

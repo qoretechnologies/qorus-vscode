@@ -420,7 +420,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       (action?.value?.descriptions
         ? last(action?.value?.descriptions)
         : FSMItemDescByType[action?.type || rest['block-type'] || type])
-    ).slice(0, 100) + '...';
+    )?.slice(0, 100) || '' + '...';
 
   return (
     <StyledFSMState
