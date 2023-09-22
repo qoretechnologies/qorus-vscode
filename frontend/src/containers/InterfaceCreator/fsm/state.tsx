@@ -370,7 +370,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const handleMouseUp = (event) => {
-    console.log('MOUSE UP ON STATE', id, Date.now());
+    console.log('MOUSE UP ON STATE', id, event.timeStamp);
+    console.log('MOUSE DOWN UP TOOK ', event.timeStamp - timeSinceMouseDown.current);
     event.persist();
 
     const startX = mouseDownPosition.current.x || 0;
@@ -382,7 +383,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       // Check if the user has moved at least 10 pixels in any direction
       if (
         (Math.abs(x - startX) < 5 || Math.abs(y - startY) < 5) &&
-        Date.now() - timeSinceMouseDown.current < 200
+        event.timeStamp - timeSinceMouseDown.current < 200
       ) {
         mouseDownPosition.current = { x: 0, y: 0 };
         timeSinceMouseDown.current = 0;
@@ -393,7 +394,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const handleMouseDown = (event) => {
-    console.log('MOUSE DOWN ON STATE', id, Date.now());
+    console.log('MOUSE DOWN ON STATE', event, id, event.timeStamp);
     event.persist();
     event.stopPropagation();
     event.preventDefault();
@@ -402,16 +403,14 @@ const FSMState: React.FC<IFSMStateProps> = ({
 
     mouseDownPosition.current.x = event.clientX;
     mouseDownPosition.current.y = event.clientY;
-    timeSinceMouseDown.current = Date.now();
+    timeSinceMouseDown.current = event.timeStamp;
   };
 
   const handleMouseEnter = () => {
-    console.log('MOUSE ENTER ON STATE', id, Date.now());
     onMouseEnter?.(id);
   };
 
   const handleMouseLeave = () => {
-    console.log('MOUSE LEAVE ON STATE', id, Date.now());
     onMouseLeave?.(undefined);
   };
 

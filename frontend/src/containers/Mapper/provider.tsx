@@ -442,8 +442,6 @@ const MapperProvider: FC<IProviderProps> = ({
         descriptions: [...descriptions, record?.data?.desc],
       };
 
-      console.log('0');
-
       setOptionProvider(newOptionProvider);
 
       return;
@@ -499,7 +497,6 @@ const MapperProvider: FC<IProviderProps> = ({
       !validateField('system-options', searchOptions)
     ) {
       const name = `${url}/${value}`.split('/')[2];
-      console.log('1');
       // Set the provider option
       newOptionProvider = {
         ...optionProvider,
@@ -600,16 +597,12 @@ const MapperProvider: FC<IProviderProps> = ({
         searchOptionsChanged: false,
       };
 
-      console.log('2');
-
       if (data.has_type || isConfigItem) {
         // Set the record data
         setRecord &&
           setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
         //
       }
-
-      console.log('2 after');
     }
     // If this provider has children
     if (size(data.children)) {
@@ -709,7 +702,6 @@ const MapperProvider: FC<IProviderProps> = ({
         search_options: didApplyOptions ? searchOptions : undefined,
         searchOptionsChanged: false,
       };
-      console.log('3');
       // Set the record data
       setRecord && setRecord(data.fields);
     }
@@ -776,14 +768,11 @@ const MapperProvider: FC<IProviderProps> = ({
         search_options: didApplyOptions ? searchOptions : undefined,
         searchOptionsChanged: false,
       };
-      console.log('4');
       // Set the record data
       setRecord &&
         setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
       //
     }
-
-    console.log(newOptionProvider);
     setOptionProvider(newOptionProvider);
     setChildren(newItems);
   };

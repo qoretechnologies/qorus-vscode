@@ -330,13 +330,10 @@ const buildChildren = (provider: IProviderType) => {
       ...`${path}${provider.subtype ? `/${provider.subtype}` : ``}`
         .replace('/', '')
         .split('/')
-        .map(
-          (item, index: number) =>
-            console.log(item, provider.descriptions) || {
-              value: item,
-              values: [{ name: item, desc: provider.descriptions?.[index + 1] }],
-            }
-        ),
+        .map((item, index: number) => ({
+          value: item,
+          values: [{ name: item, desc: provider.descriptions?.[index + 1] }],
+        })),
     ];
   }
 
