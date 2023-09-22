@@ -22,7 +22,6 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { insertAtIndex } from '../../../helpers/functions';
 import { useGetInputOutputType } from '../../../hooks/useGetInputOutputType';
-import { useWhyDidYouUpdate } from '../../../hooks/useWhyDidYouUpdate';
 import { IFSMState, TVariableActionValue } from './';
 import { FSMItemDescByType, FSMItemIconByType } from './toolbarItem';
 
@@ -283,42 +282,42 @@ const FSMState: React.FC<IFSMStateProps> = ({
     }
   }, [position?.x, position?.y]);
 
-  useWhyDidYouUpdate(`state-${id}`, {
-    position,
-    id,
-    selected,
-    onClick,
-    onDblClick,
-    onEditClick,
-    onDeleteClick,
-    onTransitionOrderClick,
-    name,
-    desc,
-    action,
-    initial,
-    final,
-    type,
-    onUpdate,
-    selectedState,
-    isAvailableForTransition,
-    toggleDragging,
-    onExecutionOrderClick,
-    isIsolated,
-    onMouseEnter,
-    onMouseLeave,
-    showStateIds,
-    hasTransitionToItself,
-    activateState,
-    error,
-    isStatic,
-    zoom,
-    getStateDataForComparison,
-    passRef,
-    onSelect,
-    isInSelectedList,
-    variableDescription,
-    ...rest,
-  });
+  // useWhyDidYouUpdate(`state-${id}`, {
+  //   position,
+  //   id,
+  //   selected,
+  //   onClick,
+  //   onDblClick,
+  //   onEditClick,
+  //   onDeleteClick,
+  //   onTransitionOrderClick,
+  //   name,
+  //   desc,
+  //   action,
+  //   initial,
+  //   final,
+  //   type,
+  //   onUpdate,
+  //   selectedState,
+  //   isAvailableForTransition,
+  //   toggleDragging,
+  //   onExecutionOrderClick,
+  //   isIsolated,
+  //   onMouseEnter,
+  //   onMouseLeave,
+  //   showStateIds,
+  //   hasTransitionToItself,
+  //   activateState,
+  //   error,
+  //   isStatic,
+  //   zoom,
+  //   getStateDataForComparison,
+  //   passRef,
+  //   onSelect,
+  //   isInSelectedList,
+  //   variableDescription,
+  //   ...rest,
+  // });
 
   useEffect(() => {
     (async () => {
@@ -371,6 +370,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const handleMouseUp = (event) => {
+    console.log('MOUSE UP ON STATE', id, Date.now());
     event.persist();
 
     const startX = mouseDownPosition.current.x || 0;
@@ -393,6 +393,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const handleMouseDown = (event) => {
+    console.log('MOUSE DOWN ON STATE', id, Date.now());
     event.persist();
     event.stopPropagation();
     event.preventDefault();
@@ -405,10 +406,12 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const handleMouseEnter = () => {
+    console.log('MOUSE ENTER ON STATE', id, Date.now());
     onMouseEnter?.(id);
   };
 
   const handleMouseLeave = () => {
+    console.log('MOUSE LEAVE ON STATE', id, Date.now());
     onMouseLeave?.(undefined);
   };
 
