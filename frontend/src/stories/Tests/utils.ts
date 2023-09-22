@@ -122,7 +122,7 @@ export async function _testsClickState(id, options = {}) {
 }
 
 export async function _testsClickStateByLabel(canvas, label, options = {}) {
-  await fireEvent.mouseEnter(document.querySelector(`#${id}`), options);
+  await fireEvent.mouseEnter(canvas.getAllByText(label)[0], options);
   await fireEvent.mouseDown(canvas.getAllByText(label)[0], options);
   await fireEvent.mouseUp(canvas.getAllByText(label)[0], options);
 }
