@@ -3,7 +3,6 @@ import {
   ReqoreHorizontalSpacer,
   ReqoreMenu,
   ReqoreMenuDivider,
-  ReqoreMenuItem,
   ReqoreMessage,
   ReqoreTabs,
   ReqoreTabsContent,
@@ -55,6 +54,7 @@ import { TextContext } from '../../../context/text';
 import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
   IStateCorners,
+  alignStates,
   autoAlign,
   checkOverlap,
   getVariable,
@@ -1722,6 +1722,19 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const handleActivateStateClick = useCallback((id, data) => setActiveState(id), []);
 
+  const getStatesFromSelectedStates = useCallback((): IFSMStates => {
+    return reduce(
+      selectedStates,
+      (newStates, _selected, id) => {
+        return {
+          ...newStates,
+          [id]: states[id],
+        };
+      },
+      {}
+    );
+  }, [states, selectedStates]);
+
   if (!qorus_instance) {
     return (
       <ReqoreMessage title={t('NoInstanceTitle')} intent="warning">
@@ -1935,8 +1948,85 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             ? t('CreateFlowDiagram')
             : t('DescribeYourFSM')
         }
+        badge={{
+          tooltip: showStatesList ? 'Hide app catalogue' : 'Show app catalogue',
+          icon: showStatesList ? 'FullscreenLine' : 'SideBarLine',
+          onClick: () => setShowStatesList(!showStatesList),
+          active: showStatesList,
+        }}
         responsiveActions={false}
         actions={[
+          {
+            group: [
+              {
+                icon: 'AlignTop',
+                tooltip: 'Align vertically to top',
+                onClick: () => {
+                  setStates({
+                    ...states,
+                    ...alignStates('vertical', 'top', getStatesFromSelectedStates()),
+                  });
+                },
+              },
+              {
+                icon: 'AlignVertically',
+                tooltip: 'Align vertically to center',
+                onClick: () => {
+                  setStates({
+                    ...states,
+                    ...alignStates('vertical', 'center', getStatesFromSelectedStates()),
+                  });
+                },
+              },
+              {
+                icon: 'AlignBottom',
+                tooltip: 'Align vertically to bottom',
+                onClick: () => {
+                  setStates({
+                    ...states,
+                    ...alignStates('vertical', 'bottom', getStatesFromSelectedStates()),
+                  });
+                },
+              },
+            ],
+            show: !!size(selectedStates),
+          },
+          {
+            group: [
+              {
+                icon: 'AlignLeft',
+
+                tooltip: 'Align horizontally to left',
+                onClick: () => {
+                  setStates({
+                    ...states,
+                    ...alignStates('horizontal', 'top', getStatesFromSelectedStates()),
+                  });
+                },
+              },
+              {
+                icon: 'AlignCenter',
+                tooltip: 'Align horizontally to center',
+                onClick: () => {
+                  setStates({
+                    ...states,
+                    ...alignStates('horizontal', 'center', getStatesFromSelectedStates()),
+                  });
+                },
+              },
+              {
+                icon: 'AlignRight',
+                tooltip: 'Align horizontally to right',
+                onClick: () => {
+                  setStates({
+                    ...states,
+                    ...alignStates('horizontal', 'bottom', getStatesFromSelectedStates()),
+                  });
+                },
+              },
+            ],
+            show: !!size(selectedStates),
+          },
           {
             label: 'Variables',
             icon: 'CodeSLine',
@@ -1950,13 +2040,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             show: isMetadataHidden,
           },
           {
-            label: 'Show states list',
-            icon: 'EyeLine',
-            onClick: () => setShowStatesList(true),
-            show: !showStatesList,
-          },
-          {
-            label: 'Auto align states',
+            tooltip: 'Auto align states',
+            id: 'auto-align-states',
             icon: 'Apps2Line',
             show: isMetadataHidden,
             flat: !checkOverlap(states),
@@ -1978,39 +2063,43 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             },
           },
           {
-            icon: 'PriceTag2Line',
-            label: 'Show state & path IDs',
-            id: 'show-state-ids',
-            active: showStateIds,
-            onClick: () => setShowStateIds(!showStateIds),
-            intent: showStateIds ? 'info' : undefined,
             show: isMetadataHidden,
-          },
-          {
-            fixed: true,
-            group: [
+            icon: 'More2Line',
+            className: 'fsm-more-actions',
+            actions: [
               {
-                icon: 'ZoomOutLine',
-                onClick: () => zoomOut(),
-                tooltip: t('Zoom out'),
-                show: isMetadataHidden,
-                className: `fsm-${parentStateName ? `${parentStateName}-` : ''}zoom-out`,
+                icon: 'ZoomInLine',
+                label: 'Zoom in',
+                onClick: () => zoomIn(),
+                tooltip: t('Zoom in'),
+                className: `fsm-${parentStateName ? `${parentStateName}-` : ''}zoom-in`,
               },
               {
                 icon: 'HistoryLine',
                 onClick: () => setZoom(1),
                 tooltip: t('Reset zoom'),
-                label: `${Math.round(zoom * 100)}%`,
-                show: isMetadataHidden,
+                label: `${Math.round(zoom * 100)}% [Reset]`,
                 intent: zoom > 0.9 && zoom < 1.09 ? undefined : 'info',
                 className: `fsm-${parentStateName ? `${parentStateName}-` : ''}zoom-reset`,
               },
               {
-                icon: 'ZoomInLine',
-                onClick: () => zoomIn(),
-                tooltip: t('Zoom in'),
-                show: isMetadataHidden,
-                className: `fsm-${parentStateName ? `${parentStateName}-` : ''}zoom-in`,
+                icon: 'ZoomOutLine',
+                label: 'Zoom out',
+                onClick: () => zoomOut(),
+                tooltip: t('Zoom out'),
+                className: `fsm-${parentStateName ? `${parentStateName}-` : ''}zoom-out`,
+              },
+              {
+                divider: true,
+                size: 'tiny',
+              },
+              {
+                icon: 'PriceTag2Line',
+                label: 'Show state & path IDs',
+                id: 'show-state-ids',
+                active: showStateIds,
+                onClick: () => setShowStateIds(!showStateIds),
+                intent: showStateIds ? 'info' : undefined,
               },
             ],
           },
@@ -2268,11 +2357,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               {showStatesList ? (
                 <>
                   <ReqoreMenu width="250px">
-                    <ReqoreMenuItem
-                      icon="EyeCloseLine"
-                      label="Hide states list"
-                      onClick={() => setShowStatesList(false)}
-                    />
                     {metadata.globalvar || metadata.localvar || metadata.autovar ? (
                       <>
                         <ReqoreMenuDivider label="Variables" align="left" />

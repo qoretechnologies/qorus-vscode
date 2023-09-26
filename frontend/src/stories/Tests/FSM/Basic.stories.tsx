@@ -65,7 +65,7 @@ export const AutoAlign: StoryFSM = {
       async () => {
         await expect(document.querySelectorAll('#fsm-diagram .reqore-panel').length).toBe(9);
         await sleep(1000);
-        await fireEvent.click(canvas.getAllByText('Auto align states')[0]);
+        await fireEvent.click(document.querySelectorAll('#auto-align-states')[0]);
       },
       { timeout: 5000 }
     );
@@ -213,15 +213,31 @@ export const ZoomIn: StoryFSM = {
 
     await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
 
+    await sleep(1000);
+
+    await fireEvent.click(document.querySelector('.fsm-more-actions'));
+    await sleep(100);
     await fireEvent.click(document.querySelector('.fsm-zoom-in'));
+    await sleep(100);
+
+    await fireEvent.click(document.querySelector('.fsm-more-actions'));
+    await sleep(100);
     await fireEvent.click(document.querySelector('.fsm-zoom-in'));
+    await sleep(100);
+
+    await fireEvent.click(document.querySelector('.fsm-more-actions'));
+    await sleep(100);
     await fireEvent.click(document.querySelector('.fsm-zoom-in'));
-    await sleep(500);
+
+    await sleep(100);
     await fireEvent.wheel(document.querySelector('#fsm-diagram'), { deltaY: -1 });
-    await sleep(500);
+    await sleep(100);
     await fireEvent.wheel(document.querySelector('#fsm-diagram'), { deltaY: -1 });
-    await sleep(500);
-    await expect(canvas.getAllByText('150%')[0]).toBeInTheDocument();
+    await sleep(100);
+
+    await fireEvent.click(document.querySelector('.fsm-more-actions'));
+    await sleep(100);
+    await expect(canvas.getAllByText('150% [Reset]')[0]).toBeInTheDocument();
   },
 };
 
@@ -235,16 +251,26 @@ export const ZoomOut: StoryFSM = {
 
     await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
 
-    await fireEvent.click(document.querySelector('.fsm-zoom-out'));
-    await fireEvent.click(document.querySelector('.fsm-zoom-out'));
-    await fireEvent.click(document.querySelector('.fsm-zoom-out'));
-    await sleep(500);
-    await fireEvent.wheel(document.querySelector('#fsm-diagram'), { deltaY: 1 });
-    await sleep(500);
-    await fireEvent.wheel(document.querySelector('#fsm-diagram'), { deltaY: 1 });
-    await sleep(500);
+    await sleep(1000);
 
-    await expect(canvas.getAllByText('50%')[0]).toBeInTheDocument();
+    await fireEvent.click(document.querySelector('.fsm-more-actions'));
+    await sleep(100);
+    await fireEvent.click(document.querySelector('.fsm-zoom-out'));
+    await fireEvent.click(document.querySelector('.fsm-more-actions'));
+    await sleep(100);
+    await fireEvent.click(document.querySelector('.fsm-zoom-out'));
+    await fireEvent.click(document.querySelector('.fsm-more-actions'));
+    await sleep(100);
+    await fireEvent.click(document.querySelector('.fsm-zoom-out'));
+    await sleep(100);
+    await fireEvent.wheel(document.querySelector('#fsm-diagram'), { deltaY: 1 });
+    await sleep(100);
+    await fireEvent.wheel(document.querySelector('#fsm-diagram'), { deltaY: 1 });
+    await sleep(100);
+
+    await fireEvent.click(document.querySelector('.fsm-more-actions'));
+    await sleep(100);
+    await expect(canvas.getAllByText('50% [Reset]')[0]).toBeInTheDocument();
   },
 };
 
@@ -257,6 +283,9 @@ export const ZoomReset: StoryFSM = {
     await ZoomOut.play({ canvasElement, ...rest });
 
     await fireEvent.click(document.querySelector('.fsm-zoom-reset'));
-    await expect(canvas.getAllByText('100%')[0]).toBeInTheDocument();
+    await sleep(100);
+    await fireEvent.click(document.querySelector('.fsm-more-actions'));
+    await sleep(100);
+    await expect(canvas.getAllByText('100% [Reset]')[0]).toBeInTheDocument();
   },
 };

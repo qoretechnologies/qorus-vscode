@@ -450,6 +450,68 @@ export function checkOverlap(states: IFSMStates = {}): boolean {
   return false; // No overlapping states found
 }
 
+export const alignStates = (
+  axis: 'horizontal' | 'vertical',
+  alignment: 'top' | 'center' | 'bottom',
+  states: IFSMStates
+): IFSMStates => {
+  const axisPoint = axis === 'horizontal' ? 'x' : 'y';
+  // Get the top most and bottom most states
+  const statesArray = Object.values(states);
+  const sortedStates = statesArray.sort((a, b) => a.position[axisPoint] - b.position[axisPoint]);
+  const topMostState = sortedStates[0];
+  const bottomMostState = sortedStates[sortedStates.length - 1];
+  const bottomMostStateHeight = getStateBoundingRect(bottomMostState.key!).height;
+
+  let newPosition;
+
+  if (alignment === 'top') {
+    newPosition = topMostState.position[axisPoint];
+  }
+
+  if (alignment === 'bottom') {
+    newPosition = bottomMostState.position[axisPoint];
+  }
+
+  if (alignment === 'center') {
+    newPosition =
+      topMostState.position[axisPoint] +
+      (bottomMostState.position[axisPoint] +
+        bottomMostStateHeight -
+        topMostState.position[axisPoint]) /
+        2;
+  }
+
+  // Set the middle point as the middle coordinate of all the states
+  return reduce(
+    states,
+    (modifiedStates: IFSMStates, state: IFSMState, stateId: string) => {
+      const { height } = getStateBoundingRect(stateId);
+      let stateSpecificPosition = newPosition;
+
+      if (alignment === 'center') {
+        stateSpecificPosition = newPosition - height / 2;
+      }
+
+      if (alignment === 'bottom') {
+        stateSpecificPosition = newPosition + bottomMostStateHeight - height;
+      }
+
+      return {
+        ...modifiedStates,
+        [stateId]: {
+          ...state,
+          position: {
+            ...state.position,
+            [axisPoint]: stateSpecificPosition,
+          },
+        },
+      };
+    },
+    {}
+  );
+};
+
 export const removeTransitionsWithStateId = (
   states: IFSMStates,
   removedStateId: string | number,

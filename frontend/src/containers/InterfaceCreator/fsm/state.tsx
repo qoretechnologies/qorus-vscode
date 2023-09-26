@@ -370,8 +370,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const handleMouseUp = (event) => {
-    console.log('MOUSE UP ON STATE', id, event.timeStamp);
-    console.log('MOUSE DOWN UP TOOK ', event.timeStamp - timeSinceMouseDown.current);
     event.persist();
 
     const startX = mouseDownPosition.current.x || 0;
@@ -394,7 +392,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const handleMouseDown = (event) => {
-    console.log('MOUSE DOWN ON STATE', event, id, event.timeStamp);
     event.persist();
     event.stopPropagation();
     event.preventDefault();
@@ -497,16 +494,20 @@ const FSMState: React.FC<IFSMStateProps> = ({
       onMouseLeave={handleMouseLeave}
       minimal
       label={showStateIds ? `[${id}] ${name}` : name}
+      badge={
+        !!(initial || isIsolated || final)
+          ? {
+              effect: initial ? PositiveColorEffect : isIsolated ? NegativeColorEffect : undefined,
+              icon: initial ? 'PlayLine' : isIsolated ? 'AlarmWarningLine' : undefined,
+              tooltip: initial
+                ? 'Initial state'
+                : isIsolated
+                ? 'This state is isolated'
+                : undefined,
+            }
+          : undefined
+      }
       actions={[
-        {
-          as: ReqoreTag,
-          props: {
-            effect: initial ? PositiveColorEffect : isIsolated ? NegativeColorEffect : undefined,
-            icon: initial ? 'PlayLine' : isIsolated ? 'AlarmWarningLine' : undefined,
-            tooltip: initial ? 'Initial state' : isIsolated ? 'This state is isolated' : undefined,
-          },
-          show: !!(initial || isIsolated || final),
-        },
         {
           as: ReqoreTag,
           props: {
