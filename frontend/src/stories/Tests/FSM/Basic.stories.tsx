@@ -46,6 +46,10 @@ export const ShowsStateIds: StoryFSM = {
 
     const canvas = within(canvasElement);
 
+    await sleep(1000);
+
+    await fireEvent.click(document.querySelector('.fsm-more-actions'));
+    await sleep(100);
     await fireEvent.click(document.querySelector('#show-state-ids'));
 
     await expect(canvas.getAllByText('[1] Save Intent Info')[0]).toBeInTheDocument();
