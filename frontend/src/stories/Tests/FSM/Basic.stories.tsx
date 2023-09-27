@@ -5,12 +5,8 @@ import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
-import {
-  _testsClickState,
-  _testsCreateSelectionBox,
-  _testsDoubleClickState,
-  sleep,
-} from './../utils';
+import { _testsClickState, _testsDoubleClickState, sleep } from './../utils';
+import { AutoAlign } from './Alignment.stories';
 
 const meta = {
   component: FSMView,
@@ -58,26 +54,6 @@ export const ShowsStateIds: StoryFSM = {
     await fireEvent.click(document.querySelector('#show-state-ids'));
 
     await expect(canvas.getAllByText('[1] Save Intent Info')[0]).toBeInTheDocument();
-  },
-};
-
-export const AutoAlign: StoryFSM = {
-  args: {
-    fsm,
-  },
-  play: async ({ canvasElement, ...rest }) => {
-    await SwitchesToBuilder.play({ canvasElement, ...rest });
-
-    const canvas = within(canvasElement);
-
-    await waitFor(
-      async () => {
-        await expect(document.querySelectorAll('#fsm-diagram .reqore-panel').length).toBe(9);
-        await sleep(1000);
-        await fireEvent.click(document.querySelectorAll('#auto-align-states')[0]);
-      },
-      { timeout: 5000 }
-    );
   },
 };
 
@@ -162,17 +138,6 @@ export const StatesCanBeConnected: StoryFSM = {
     await waitFor(() => expect(document.querySelectorAll('.fsm-transition').length).toBe(5), {
       timeout: 10000,
     });
-  },
-};
-
-export const StatesCanBeSelected: StoryFSM = {
-  args: {
-    fsm,
-  },
-  play: async ({ canvasElement, ...rest }) => {
-    await SwitchesToBuilder.play({ canvasElement, ...rest });
-    await sleep(500);
-    await _testsCreateSelectionBox(300, 100, 800, 800, true);
   },
 };
 

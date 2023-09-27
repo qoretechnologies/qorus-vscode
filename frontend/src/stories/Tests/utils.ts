@@ -107,6 +107,10 @@ export async function _testsCreateSelectionBox(
   }
 }
 
+export async function _testsDeleteState(id) {
+  await fireEvent.click(document.querySelectorAll(`#state-${id} .reqore-button`)[2]);
+}
+
 export async function _testsSelectState(id) {
   await _testsClickState(id, { shiftKey: true });
 }

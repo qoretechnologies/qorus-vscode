@@ -372,6 +372,13 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const handleMouseUp = (event) => {
     event.persist();
 
+    if (event.isPropagationStopped()) {
+      mouseDownPosition.current = { x: 0, y: 0 };
+      timeSinceMouseDown.current = 0;
+
+      return;
+    }
+
     const startX = mouseDownPosition.current.x || 0;
     const startY = mouseDownPosition.current.y || 0;
     const x = event.clientX || 0;

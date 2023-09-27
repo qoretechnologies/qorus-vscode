@@ -1684,6 +1684,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       iface_id: interfaceId,
     });
     setStates(cloneDeep(fsm?.states || {}));
+    setSelectedStates({});
     changeHistory.current = [JSON.stringify(cloneDeep(fsm?.states || {}))];
     currentHistoryPosition.current = 0;
     setMetadata({
@@ -1952,17 +1953,22 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             ? t('CreateFlowDiagram')
             : t('DescribeYourFSM')
         }
-        badge={{
-          tooltip: showStatesList ? 'Hide app catalogue' : 'Show app catalogue',
-          icon: showStatesList ? 'FullscreenLine' : 'SideBarLine',
-          onClick: () => setShowStatesList(!showStatesList),
-        }}
+        badge={
+          isMetadataHidden
+            ? {
+                tooltip: showStatesList ? 'Hide app catalogue' : 'Show app catalogue',
+                icon: showStatesList ? 'FullscreenLine' : 'SideBarLine',
+                onClick: () => setShowStatesList(!showStatesList),
+              }
+            : undefined
+        }
         responsiveActions={false}
         actions={[
           {
             group: [
               {
                 icon: 'AlignTop',
+                className: 'align-top',
                 tooltip: 'Align vertically to top',
                 onClick: () => {
                   setStates({
@@ -1973,6 +1979,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               },
               {
                 icon: 'AlignVertically',
+                className: 'align-center',
                 tooltip: 'Align vertically to center',
                 onClick: () => {
                   setStates({
@@ -1983,6 +1990,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               },
               {
                 icon: 'AlignBottom',
+                className: 'align-bottom',
                 tooltip: 'Align vertically to bottom',
                 onClick: () => {
                   setStates({
@@ -1998,6 +2006,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             group: [
               {
                 icon: 'AlignLeft',
+                className: 'align-left',
 
                 tooltip: 'Align horizontally to left',
                 onClick: () => {
@@ -2009,6 +2018,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               },
               {
                 icon: 'AlignCenter',
+                className: 'align-middle',
                 tooltip: 'Align horizontally to center',
                 onClick: () => {
                   setStates({
@@ -2019,6 +2029,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               },
               {
                 icon: 'AlignRight',
+                className: 'align-right',
                 tooltip: 'Align horizontally to right',
                 onClick: () => {
                   setStates({
@@ -2031,19 +2042,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             show: !!size(selectedStates),
           },
           {
-            label: 'Variables',
-            icon: 'CodeSLine',
-            onClick: () => setShowVariables({ show: true }),
-            intent:
-              size(metadata?.globalvar) || size(metadata?.localvar) || size(metadata?.autovar)
-                ? 'info'
-                : undefined,
-            badge: size(metadata?.globalvar) + size(metadata?.localvar) + size(metadata?.autovar),
-            id: 'fsm-variables',
-            show: isMetadataHidden,
-          },
-          {
-            tooltip: 'Auto align states',
+            tooltip: 'Smart align',
             id: 'auto-align-states',
             icon: 'Apps2Line',
             show: isMetadataHidden,
@@ -2065,6 +2064,19 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               setStates(alignedStates);
             },
           },
+          {
+            label: 'Variables',
+            icon: 'CodeSLine',
+            onClick: () => setShowVariables({ show: true }),
+            intent:
+              size(metadata?.globalvar) || size(metadata?.localvar) || size(metadata?.autovar)
+                ? 'info'
+                : undefined,
+            badge: size(metadata?.globalvar) + size(metadata?.localvar) + size(metadata?.autovar),
+            id: 'fsm-variables',
+            show: isMetadataHidden,
+          },
+
           {
             show: isMetadataHidden,
             icon: 'More2Line',
@@ -2130,6 +2142,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     embedded
                       ? onHideMetadataClick((cur) => !cur)
                       : setIsMetadataHidden((cur) => !cur);
+                    setSelectedStates({});
                   },
                   effect: !areMetadataValid() ? WarningColorEffect : undefined,
                   icon: 'ArrowLeftLine',

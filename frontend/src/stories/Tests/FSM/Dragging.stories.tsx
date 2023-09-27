@@ -4,7 +4,7 @@ import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { StoryMeta } from '../../types';
 import { _testsCreateSelectionBox, _testsSelectState, sleep } from '../utils';
-import { AutoAlign, SwitchesToBuilder, ZoomIn, ZoomOut } from './Basic.stories';
+import { SwitchesToBuilder, ZoomIn, ZoomOut } from './Basic.stories';
 
 const meta = {
   component: FSMView,
@@ -85,14 +85,14 @@ export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
     fsm,
   },
   play: async ({ canvasElement, zoomIn, zoomOut, ...rest }) => {
-    await AutoAlign.play({ canvasElement, ...rest });
+    await SwitchesToBuilder.play({ canvasElement, ...rest });
 
     // Select some states
     await _testsSelectState('state-3');
 
     await sleep(100);
 
-    await _testsCreateSelectionBox(600, 300, 600, 600, true);
+    await _testsCreateSelectionBox(500, 300, 800, 800, true);
 
     await sleep(100);
 

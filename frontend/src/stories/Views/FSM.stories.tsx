@@ -5,7 +5,8 @@ import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
 import multipleVariablesFsm from '../Data/multipleVariablesFsm.json';
 import transactionStateFsm from '../Data/transacitonStateFsm.json';
-import { AutoAlign, SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
+import { AutoAlign } from '../Tests/FSM/Alignment.stories';
+import { SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
 import {
   _testsClickState,
   _testsClickStateByLabel,
@@ -213,8 +214,8 @@ export const SelectedStates: StoryFSM = {
     await sleep(500);
 
     await _testsSelectState('state-1');
-    await _testsSelectState('state-2');
-    await _testsSelectState('state-3');
+    await _testsSelectState('state-7');
+    await _testsSelectState('state-5');
   },
 };
 

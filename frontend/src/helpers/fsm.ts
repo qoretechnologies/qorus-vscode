@@ -498,13 +498,15 @@ export const alignStates = (
   return reduce(
     states,
     (modifiedStates: IFSMStates, state: IFSMState, stateId: string) => {
-      let { height } = getStateBoundingRect(stateId);
+      let { height, width } = getStateBoundingRect(stateId);
       height = calculateValueWithZoom(height, zoom);
+      width = calculateValueWithZoom(width, zoom);
+      const dimension = axis === 'horizontal' ? width : height;
 
       let stateSpecificPosition = newPosition;
 
-      if (alignment === 'center' && axis === 'vertical') {
-        stateSpecificPosition = newPosition - height / 2;
+      if (alignment === 'center') {
+        stateSpecificPosition = newPosition - dimension / 2;
       }
 
       if (alignment === 'bottom' && axis === 'vertical' && height !== bottomMostStateDimension) {
