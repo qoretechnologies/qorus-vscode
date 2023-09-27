@@ -90,15 +90,15 @@ export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
     // Select some states
     await _testsSelectState('state-3');
 
-    await sleep(500);
+    await sleep(100);
 
     await _testsCreateSelectionBox(600, 300, 600, 600, true);
 
-    await sleep(500);
+    await sleep(100);
 
     await fireEvent.mouseDown(document.querySelector('#state-3'));
 
-    await sleep(500);
+    await sleep(200);
 
     for await (const _ of Array(Math.round(window.innerHeight / 10)).keys()) {
       const { left, top } = document.querySelector('#state-3').getBoundingClientRect();
@@ -117,7 +117,7 @@ export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
       });
     }
 
-    await sleep(1000);
+    await sleep(300);
 
     await fireEvent.mouseMove(document.querySelector('#state-3'), {
       movementX: 0,
