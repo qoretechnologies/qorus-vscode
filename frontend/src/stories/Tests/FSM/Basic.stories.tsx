@@ -5,7 +5,12 @@ import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
-import { _testsClickState, _testsCreateSelectionBox, sleep } from './../utils';
+import {
+  _testsClickState,
+  _testsCreateSelectionBox,
+  _testsDoubleClickState,
+  sleep,
+} from './../utils';
 
 const meta = {
   component: FSMView,
@@ -146,8 +151,7 @@ export const StatesCanBeConnected: StoryFSM = {
     await expect(document.querySelectorAll('.fsm-transition').length).toBe(4);
 
     // Fake double click lol
-    await _testsClickState('state-1');
-    await _testsClickState('state-1');
+    await _testsDoubleClickState('state-1');
 
     await sleep(2000);
 

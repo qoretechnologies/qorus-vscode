@@ -115,9 +115,30 @@ export async function _testsSelectStateByLabel(canvas, label) {
   await _testsClickStateByLabel(canvas, label, { shiftKey: true });
 }
 
+export async function _testsDoubleClickState(id, options = {}) {
+  await fireEvent.mouseOver(document.querySelector(`#${id}`), options);
+  await sleep(100);
+  await fireEvent.mouseDown(document.querySelector(`#${id}`), {
+    ...options,
+    timeStamp: 0,
+  });
+  await fireEvent.mouseUp(document.querySelector(`#${id}`), {
+    ...options,
+    timeStamp: 100,
+  });
+  await fireEvent.mouseDown(document.querySelector(`#${id}`), {
+    ...options,
+    timeStamp: 0,
+  });
+  await fireEvent.mouseUp(document.querySelector(`#${id}`), {
+    ...options,
+    timeStamp: 100,
+  });
+}
+
 export async function _testsClickState(id, options = {}) {
   await fireEvent.mouseOver(document.querySelector(`#${id}`), options);
-  await sleep(300);
+  await sleep(100);
   await fireEvent.mouseDown(document.querySelector(`#${id}`), {
     ...options,
     timeStamp: 0,
@@ -130,7 +151,7 @@ export async function _testsClickState(id, options = {}) {
 
 export async function _testsClickStateByLabel(canvas, label, options = {}) {
   await fireEvent.mouseOver(canvas.getAllByText(label)[0], options);
-  await sleep(300);
+  await sleep(100);
   await fireEvent.mouseDown(canvas.getAllByText(label)[0], {
     ...options,
     timeStamp: 0,

@@ -1,4 +1,5 @@
 import { cloneDeep, reduce, size } from 'lodash';
+import { calculateValueWithZoom } from '../components/PanElement';
 import {
   IFSMMetadata,
   IFSMState,
@@ -453,15 +454,28 @@ export function checkOverlap(states: IFSMStates = {}): boolean {
 export const alignStates = (
   axis: 'horizontal' | 'vertical',
   alignment: 'top' | 'center' | 'bottom',
-  states: IFSMStates
+  states: IFSMStates,
+  zoom: number
 ): IFSMStates => {
   const axisPoint = axis === 'horizontal' ? 'x' : 'y';
-  // Get the top most and bottom most states
+  const axisDimension = axis === 'horizontal' ? 'width' : 'height';
   const statesArray = Object.values(states);
-  const sortedStates = statesArray.sort((a, b) => a.position[axisPoint] - b.position[axisPoint]);
+  const sortedStates = statesArray.sort((a, b) => {
+    const aStateRect = getStateBoundingRect(a.key);
+    const bStateRect = getStateBoundingRect(b.key);
+
+    return (
+      a.position[axisPoint] +
+      aStateRect[axisDimension] -
+      (b.position[axisPoint] + bStateRect[axisDimension])
+    );
+  });
   const topMostState = sortedStates[0];
   const bottomMostState = sortedStates[sortedStates.length - 1];
-  const bottomMostStateHeight = getStateBoundingRect(bottomMostState.key!).height;
+  const bottomMostStateDimension = calculateValueWithZoom(
+    getStateBoundingRect(bottomMostState.key!)[axisDimension],
+    zoom
+  );
 
   let newPosition;
 
@@ -475,26 +489,30 @@ export const alignStates = (
 
   if (alignment === 'center') {
     newPosition =
-      topMostState.position[axisPoint] +
-      (bottomMostState.position[axisPoint] +
-        bottomMostStateHeight -
-        topMostState.position[axisPoint]) /
-        2;
+      (topMostState.position[axisPoint] +
+        (bottomMostState.position[axisPoint] + bottomMostStateDimension)) /
+      2;
   }
 
   // Set the middle point as the middle coordinate of all the states
   return reduce(
     states,
     (modifiedStates: IFSMStates, state: IFSMState, stateId: string) => {
-      const { height } = getStateBoundingRect(stateId);
+      let { height } = getStateBoundingRect(stateId);
+      height = calculateValueWithZoom(height, zoom);
+
       let stateSpecificPosition = newPosition;
 
-      if (alignment === 'center') {
+      if (alignment === 'center' && axis === 'vertical') {
         stateSpecificPosition = newPosition - height / 2;
       }
 
-      if (alignment === 'bottom') {
-        stateSpecificPosition = newPosition + bottomMostStateHeight - height;
+      if (alignment === 'bottom' && axis === 'vertical' && height !== bottomMostStateDimension) {
+        if (height > bottomMostStateDimension) {
+          stateSpecificPosition = newPosition - (height - bottomMostStateDimension) / 2;
+        } else {
+          stateSpecificPosition = newPosition + (bottomMostStateDimension - height) / 2;
+        }
       }
 
       return {

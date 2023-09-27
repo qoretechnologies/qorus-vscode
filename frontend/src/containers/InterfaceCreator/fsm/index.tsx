@@ -438,12 +438,16 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     Record<string | number, Record<'left' | 'right' | 'top' | 'bottom', number>>
   >({});
 
+  const getDiagramBoundingRect = (): DOMRect => {
+    return document
+      .getElementById(`${parentStateName ? `${parentStateName}-` : ''}fsm-diagram`)!
+      ?.getBoundingClientRect();
+  };
+
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: DROP_ACCEPTS,
     drop: (item: IDraggableItem, monitor) => {
-      const diagram = document
-        .getElementById(`${parentStateName ? `${parentStateName}-` : ''}fsm-diagram`)!
-        .getBoundingClientRect();
+      const diagram = getDiagramBoundingRect();
       let { x, y } = monitor.getClientOffset();
 
       if (item.type === TOOLBAR_ITEM_TYPE) {
@@ -1952,7 +1956,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           tooltip: showStatesList ? 'Hide app catalogue' : 'Show app catalogue',
           icon: showStatesList ? 'FullscreenLine' : 'SideBarLine',
           onClick: () => setShowStatesList(!showStatesList),
-          active: showStatesList,
         }}
         responsiveActions={false}
         actions={[
@@ -1964,7 +1967,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 onClick: () => {
                   setStates({
                     ...states,
-                    ...alignStates('vertical', 'top', getStatesFromSelectedStates()),
+                    ...alignStates('vertical', 'top', getStatesFromSelectedStates(), zoom),
                   });
                 },
               },
@@ -1974,7 +1977,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 onClick: () => {
                   setStates({
                     ...states,
-                    ...alignStates('vertical', 'center', getStatesFromSelectedStates()),
+                    ...alignStates('vertical', 'center', getStatesFromSelectedStates(), zoom),
                   });
                 },
               },
@@ -1984,7 +1987,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 onClick: () => {
                   setStates({
                     ...states,
-                    ...alignStates('vertical', 'bottom', getStatesFromSelectedStates()),
+                    ...alignStates('vertical', 'bottom', getStatesFromSelectedStates(), zoom),
                   });
                 },
               },
@@ -2000,7 +2003,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 onClick: () => {
                   setStates({
                     ...states,
-                    ...alignStates('horizontal', 'top', getStatesFromSelectedStates()),
+                    ...alignStates('horizontal', 'top', getStatesFromSelectedStates(), zoom),
                   });
                 },
               },
@@ -2010,7 +2013,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 onClick: () => {
                   setStates({
                     ...states,
-                    ...alignStates('horizontal', 'center', getStatesFromSelectedStates()),
+                    ...alignStates('horizontal', 'center', getStatesFromSelectedStates(), zoom),
                   });
                 },
               },
@@ -2020,7 +2023,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 onClick: () => {
                   setStates({
                     ...states,
-                    ...alignStates('horizontal', 'bottom', getStatesFromSelectedStates()),
+                    ...alignStates('horizontal', 'bottom', getStatesFromSelectedStates(), zoom),
                   });
                 },
               },

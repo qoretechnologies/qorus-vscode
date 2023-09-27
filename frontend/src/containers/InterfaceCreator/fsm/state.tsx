@@ -370,6 +370,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   };
 
   const handleMouseUp = (event) => {
+    console.log('FUCKING MOUSE UP', event.timeStamp);
     event.persist();
 
     const startX = mouseDownPosition.current.x || 0;
@@ -377,21 +378,32 @@ const FSMState: React.FC<IFSMStateProps> = ({
     const x = event.clientX || 0;
     const y = event.clientY || 0;
 
+    console.log({
+      startX,
+      startY,
+      x,
+      y,
+      isLoadingCheck,
+    });
+
     if (!isLoadingCheck) {
+      // If the user has moved in ANY direction for more than 10 pixels, DO NOT HANDLE CLICK
       // Check if the user has moved at least 10 pixels in any direction
       if (
-        (Math.abs(x - startX) < 5 || Math.abs(y - startY) < 5) &&
+        Math.abs(x - startX) < 10 &&
+        Math.abs(y - startY) < 10 &&
         event.timeStamp - timeSinceMouseDown.current < 200
       ) {
-        mouseDownPosition.current = { x: 0, y: 0 };
-        timeSinceMouseDown.current = 0;
-
         handleClick(event);
       }
     }
+
+    mouseDownPosition.current = { x: 0, y: 0 };
+    timeSinceMouseDown.current = 0;
   };
 
   const handleMouseDown = (event) => {
+    console.log('FUCKING MOUSE DOWN', event.timeStamp);
     event.persist();
     event.stopPropagation();
     event.preventDefault();
