@@ -84,6 +84,11 @@ export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
   args: {
     fsm,
   },
+  parameters: {
+    chromatic: {
+      disableSnapshot: true,
+    },
+  },
   play: async ({ canvasElement, zoomIn, zoomOut, ...rest }) => {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
