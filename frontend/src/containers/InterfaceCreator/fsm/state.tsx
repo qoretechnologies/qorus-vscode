@@ -46,6 +46,7 @@ export interface IFSMStateProps extends IFSMState {
   zoom?: number;
   passRef?: (id: string, ref: any) => void;
   isInSelectedList: boolean;
+  isBeingDragged?: boolean;
 }
 
 export interface IFSMStateStyleProps {
@@ -254,6 +255,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   onSelect,
   isInSelectedList,
   variableDescription,
+  isBeingDragged,
   ...rest
 }) => {
   const ref = useRef(null);
@@ -480,6 +482,12 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 color: selectedState === id ? 'info' : 'success',
                 size: 5,
                 blur: 10,
+              }
+            : isBeingDragged
+            ? {
+                color: '#000000',
+                size: 0.1,
+                blur: 30,
               }
             : isInSelectedList
             ? {

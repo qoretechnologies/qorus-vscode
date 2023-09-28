@@ -2000,7 +2000,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 },
               },
             ],
-            show: !!size(selectedStates),
+            show: size(selectedStates) > 1,
           },
           {
             group: [
@@ -2039,7 +2039,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 },
               },
             ],
-            show: !!size(selectedStates),
+            show: size(selectedStates) > 1,
           },
           {
             tooltip: 'Smart align',
@@ -2781,6 +2781,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           showStateIds={showStateIds}
                           selectedState={selectedState}
                           isInSelectedList={!!selectedStates[id]}
+                          isBeingDragged={
+                            selectedStates[id] &&
+                            selectedStates[id].fromMouseDown &&
+                            size(selectedStates) === 1
+                          }
                           isAvailableForTransition={isAvailableForTransition}
                           onTransitionOrderClick={handleTransitionOrderClick}
                           onExecutionOrderClick={handleExecutionOrderClick}

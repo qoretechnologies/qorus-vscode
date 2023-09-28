@@ -471,6 +471,10 @@ export const alignStates = (
     );
   });
   const topMostState = sortedStates[0];
+  const topMostStateDimension = calculateValueWithZoom(
+    getStateBoundingRect(topMostState.key!)[axisDimension],
+    zoom
+  );
   const bottomMostState = sortedStates[sortedStates.length - 1];
   const bottomMostStateDimension = calculateValueWithZoom(
     getStateBoundingRect(bottomMostState.key!)[axisDimension],
@@ -490,7 +494,8 @@ export const alignStates = (
   if (alignment === 'center') {
     newPosition =
       (topMostState.position[axisPoint] +
-        (bottomMostState.position[axisPoint] + bottomMostStateDimension)) /
+        topMostStateDimension +
+        bottomMostState.position[axisPoint]) /
       2;
   }
 
@@ -511,9 +516,9 @@ export const alignStates = (
 
       if (alignment === 'bottom' && axis === 'vertical' && height !== bottomMostStateDimension) {
         if (height > bottomMostStateDimension) {
-          stateSpecificPosition = newPosition - (height - bottomMostStateDimension) / 2;
+          stateSpecificPosition = newPosition - (height - bottomMostStateDimension);
         } else {
-          stateSpecificPosition = newPosition + (bottomMostStateDimension - height) / 2;
+          stateSpecificPosition = newPosition + (bottomMostStateDimension - height);
         }
       }
 
