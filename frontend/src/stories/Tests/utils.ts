@@ -107,6 +107,44 @@ export async function _testsCreateSelectionBox(
   }
 }
 
+export async function _testsMoveState(
+  id: string | number,
+  times: number,
+  x: number = 0,
+  y: number = 0,
+  coeficient = 1
+) {
+  await fireEvent.mouseDown(document.querySelector(`#state-${id}`));
+
+  await sleep(100);
+
+  for await (const _ of Array(Math.round(times)).keys()) {
+    const { left, top } = document.querySelector(`#state-${id}`).getBoundingClientRect();
+
+    if (left > window.innerWidth - 100 || top > window.innerHeight - 100) {
+      break;
+    }
+
+    await sleep(16.67);
+
+    await fireEvent.mouseMove(document.querySelector(`#state-${id}`), {
+      clientX: left,
+      clientY: top,
+      movementX: x * coeficient,
+      movementY: y + coeficient,
+    });
+  }
+
+  await sleep(100);
+
+  const { left, top } = document.querySelector(`#state-${id}`).getBoundingClientRect();
+
+  await fireEvent.mouseUp(document.querySelector(`#state-${id}`), {
+    clientX: left,
+    clientY: top,
+  });
+}
+
 export async function _testsDeleteState(id) {
   await fireEvent.click(document.querySelectorAll(`#state-${id} .reqore-button`)[2]);
 }

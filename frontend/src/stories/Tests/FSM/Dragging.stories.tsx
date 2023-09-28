@@ -3,7 +3,7 @@ import { fireEvent } from '@storybook/testing-library';
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { StoryMeta } from '../../types';
-import { _testsCreateSelectionBox, _testsSelectState, sleep } from '../utils';
+import { _testsCreateSelectionBox, _testsMoveState, _testsSelectState, sleep } from '../utils';
 import { SwitchesToBuilder, ZoomIn, ZoomOut } from './Basic.stories';
 
 const meta = {
@@ -36,29 +36,11 @@ export const StateCanBeDraggedAndDropped: StoryFSM = {
       await SwitchesToBuilder.play({ canvasElement, ...rest });
     }
 
-    await fireEvent.mouseDown(document.querySelector('#state-2'));
+    await _testsMoveState(2, window.innerWidth / 10, 30, 0, coeficient);
 
     await sleep(500);
 
-    await fireEvent.mouseMove(document.querySelector('#state-2'), {
-      movementX: 500 * coeficient,
-      movementY: 50 * coeficient,
-    });
-
-    await fireEvent.mouseUp(document.querySelector('#state-2'));
-
-    await sleep(500);
-
-    await fireEvent.mouseDown(document.querySelector('#state-7'));
-
-    await sleep(500);
-
-    await fireEvent.mouseMove(document.querySelector('#state-7'), {
-      movementY: 400 * coeficient,
-      movementX: 50 * coeficient,
-    });
-
-    await fireEvent.mouseUp(document.querySelector('#state-2'));
+    await _testsMoveState(7, window.innerHeight / 10, 0, 30, coeficient);
   },
 };
 
@@ -131,7 +113,10 @@ export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
 
     await sleep(100);
 
-    await fireEvent.mouseUp(document.querySelector('#state-3'));
+    await fireEvent.mouseUp(document.querySelector('#state-3'), {
+      clientX: 500,
+      clientY: 300,
+    });
 
     await sleep(100);
 
