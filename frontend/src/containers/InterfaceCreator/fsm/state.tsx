@@ -437,24 +437,24 @@ const FSMState: React.FC<IFSMStateProps> = ({
         <>
           <ReqoreTag
             size="tiny"
-            label={position.x}
+            label={Math.round(position.x)}
             style={{
               transition: 'none',
               position: 'absolute',
-              left: Math.round(position.x),
-              top: Math.round(position.y),
+              left: position.x,
+              top: position.y,
               zIndex: 100,
               transform: 'translateX(-100%)',
             }}
           />
           <ReqoreTag
             size="tiny"
-            label={position.y}
+            label={Math.round(position.y)}
             style={{
               transition: 'none',
               position: 'absolute',
-              left: Math.round(position.x),
-              top: Math.round(position.y),
+              left: position.x,
+              top: position.y,
               zIndex: 100,
               transform: 'translateY(-100%)',
             }}
