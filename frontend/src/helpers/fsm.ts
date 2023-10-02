@@ -1,5 +1,4 @@
 import { cloneDeep, reduce, size } from 'lodash';
-import { calculateValueWithZoom } from '../components/PanElement';
 import {
   IFSMMetadata,
   IFSMState,
@@ -455,31 +454,40 @@ export const alignStates = (
   axis: 'horizontal' | 'vertical',
   alignment: 'top' | 'center' | 'bottom',
   states: IFSMStates,
-  zoom: number
+  zoom?: number
 ): IFSMStates => {
-  const axisPoint = axis === 'horizontal' ? 'x' : 'y';
-  const axisDimension = axis === 'horizontal' ? 'width' : 'height';
-  const statesArray = Object.values(states);
-  const sortedStates = statesArray.sort((a, b) => {
-    const aStateRect = getStateBoundingRect(a.key);
-    const bStateRect = getStateBoundingRect(b.key);
+  const statesWithDimensions: IFSMStates = reduce(
+    states,
+    (newStates, state, stateId) => {
+      const { height, width } = getStateBoundingRect(stateId);
 
-    return (
-      a.position[axisPoint] +
-      aStateRect[axisDimension] -
-      (b.position[axisPoint] + bStateRect[axisDimension])
-    );
+      return {
+        ...newStates,
+        [stateId]: {
+          ...state,
+          height,
+          width,
+          position: {
+            ...state.position,
+            x1: state.position.x + width,
+            y1: state.position.y + height,
+          },
+        },
+      };
+    },
+    {}
+  );
+
+  const axisPoint = axis === 'horizontal' ? 'x' : 'y';
+  const farAxisPoint = axis === 'horizontal' ? 'x1' : 'y1';
+  const axisDimension = axis === 'horizontal' ? 'width' : 'height';
+  const statesArray = Object.values(statesWithDimensions);
+  const sortedStates = statesArray.sort((a, b) => {
+    return a.position[farAxisPoint] - b.position[farAxisPoint];
   });
   const topMostState = sortedStates[0];
-  const topMostStateDimension = calculateValueWithZoom(
-    getStateBoundingRect(topMostState.key!)[axisDimension],
-    zoom
-  );
+  const topMostStateDimension = topMostState[axisDimension];
   const bottomMostState = sortedStates[sortedStates.length - 1];
-  const bottomMostStateDimension = calculateValueWithZoom(
-    getStateBoundingRect(bottomMostState.key!)[axisDimension],
-    zoom
-  );
 
   let newPosition;
 
@@ -488,7 +496,7 @@ export const alignStates = (
   }
 
   if (alignment === 'bottom') {
-    newPosition = bottomMostState.position[axisPoint];
+    newPosition = bottomMostState.position[farAxisPoint];
   }
 
   if (alignment === 'center') {
@@ -499,13 +507,14 @@ export const alignStates = (
       2;
   }
 
+  console.log({ newPosition });
+
   // Set the middle point as the middle coordinate of all the states
   return reduce(
-    states,
+    statesWithDimensions,
     (modifiedStates: IFSMStates, state: IFSMState, stateId: string) => {
-      let { height, width } = getStateBoundingRect(stateId);
-      height = calculateValueWithZoom(height, zoom);
-      width = calculateValueWithZoom(width, zoom);
+      const height = state.height;
+      const width = state.width;
       const dimension = axis === 'horizontal' ? width : height;
 
       let stateSpecificPosition = newPosition;
@@ -514,12 +523,8 @@ export const alignStates = (
         stateSpecificPosition = newPosition - dimension / 2;
       }
 
-      if (alignment === 'bottom' && axis === 'vertical' && height !== bottomMostStateDimension) {
-        if (height > bottomMostStateDimension) {
-          stateSpecificPosition = newPosition - (height - bottomMostStateDimension);
-        } else {
-          stateSpecificPosition = newPosition + (bottomMostStateDimension - height);
-        }
+      if (alignment === 'bottom') {
+        stateSpecificPosition = newPosition - dimension;
       }
 
       return {

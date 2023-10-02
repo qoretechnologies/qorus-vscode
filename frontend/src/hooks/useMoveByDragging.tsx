@@ -11,11 +11,9 @@ export const useMoveByDragging = (
   selectedStates: TFSMSelectedStates,
   states: IFSMStates,
   refs: Record<string, HTMLDivElement>,
-  onUpdate: (
-    updatedPositions: Record<string, { position: { x: number; y: number } }>,
-    deselect?: boolean
-  ) => void,
+  onUpdate: (updatedPositions: Record<string, { position: { x: number; y: number } }>) => void,
   onStart?: () => void,
+  onFinish?: (deselect?: boolean) => void,
   zoom?: number
 ) => {
   const staticPositions = useRef<Record<string, { x: number; y: number }>>({});
@@ -43,24 +41,8 @@ export const useMoveByDragging = (
       if (staticPositions.current[id].y > DIAGRAM_SIZE - stateRectData.height) {
         staticPositions.current[id].y = DIAGRAM_SIZE - stateRectData.height;
       }
-
-      ref.style.left = `${staticPositions.current[id].x}px`;
-      ref.style.top = `${staticPositions.current[id].y}px`;
     });
-  };
 
-  const handleDragMove = (event) => {
-    const x = event.movementX;
-    const y = event.movementY;
-
-    if (!x && !y) {
-      return;
-    }
-
-    moveEntities(x, y);
-  };
-
-  const handleDragStop = (event) => {
     const positionedRefs = reduce(
       selectedStates,
       (newRefs, _stateData, id) => ({
@@ -76,6 +58,21 @@ export const useMoveByDragging = (
     );
 
     onUpdate(positionedRefs);
+  };
+
+  const handleDragMove = (event) => {
+    const x = event.movementX;
+    const y = event.movementY;
+
+    if (!x && !y) {
+      return;
+    }
+
+    moveEntities(x, y);
+  };
+
+  const handleDragStop = () => {
+    onFinish?.();
 
     window.removeEventListener('mousemove', handleDragMove, true);
     window.removeEventListener('mouseup', handleDragStop, true);
@@ -96,9 +93,10 @@ export const useMoveByDragging = (
       {}
     );
 
-    onUpdate(positionedRefs, true);
+    onUpdate(positionedRefs);
+    onFinish(true);
 
-    window.removeEventListener('mousemove', handleDragMove);
+    window.removeEventListener('mousemove', handleDragMove, true);
     window.removeEventListener('mouseup', handleSingleDragStop, true);
 
     forEach(refs, (ref, id) => {
@@ -119,8 +117,8 @@ export const useMoveByDragging = (
 
     onStart?.();
 
-    window.removeEventListener('mousemove', handleDragMove);
-    window.addEventListener('mousemove', handleDragMove);
+    window.removeEventListener('mousemove', handleDragMove, true);
+    window.addEventListener('mousemove', handleDragMove, true);
     window.addEventListener('mouseup', handleDragStop, true);
   };
 
@@ -162,8 +160,8 @@ export const useMoveByDragging = (
         if (state?.fromMouseDown) {
           onStart?.();
 
-          window.removeEventListener('mousemove', handleDragMove);
-          window.addEventListener('mousemove', handleDragMove);
+          window.removeEventListener('mousemove', handleDragMove, true);
+          window.addEventListener('mousemove', handleDragMove, true);
           refs[id].addEventListener('mouseup', handleSingleDragStop, true);
           window.removeEventListener('mouseup', handleDragStop, true);
           window.addEventListener('mouseup', handleSingleDragStop, true);
@@ -183,9 +181,9 @@ export const useMoveByDragging = (
           ref.removeEventListener('mousedown', handleDragStart, true);
         });
 
-        window.removeEventListener('mousemove', handleDragMove);
+        window.removeEventListener('mousemove', handleDragMove, true);
         window.removeEventListener('mouseup', handleDragStop, true);
       }
     };
-  }, [JSON.stringify(selectedStates), states]);
+  }, [JSON.stringify(selectedStates)]);
 };

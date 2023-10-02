@@ -432,311 +432,345 @@ const FSMState: React.FC<IFSMStateProps> = ({
     )?.slice(0, 100) || '' + '...';
 
   return (
-    <StyledFSMState
-      width={300}
-      id={`state-${id}`}
-      ref={(r) => {
-        ref.current = r;
-        passRef?.(id, r);
-      }}
-      onMouseDown={(e) => {
-        e.persist();
-        e.stopPropagation();
-        e.preventDefault();
-        // If the user was holding CMD / CTRL, we don't want to drag the state
-        if (e.shiftKey) {
-          onSelect?.(id);
-
-          return;
-        }
-
-        if (isInSelectedList) {
-          return;
-        }
-
-        handleMouseDown(e);
-      }}
-      onMouseUp={handleMouseUp}
-      onClick={(e) => {
-        e.stopPropagation();
-      }}
-      isStatic={isStatic}
-      disabled={isCompatible === false}
-      intent={
-        isLoadingCheck
-          ? 'pending'
-          : selectedState === id
-          ? 'info'
-          : isCompatible
-          ? 'success'
-          : undefined
-      }
-      contentEffect={
-        {
-          gradient: {
-            ...getStateColor(getStateCategory(action?.type || type)),
-            animate: isCompatible || isInSelectedList ? 'always' : 'hover',
-          },
-          glow: isCompatible
-            ? {
-                color: selectedState === id ? 'info' : 'success',
-                size: 5,
-                blur: 10,
-              }
-            : isBeingDragged
-            ? {
-                color: '#000000',
-                size: 0.1,
-                blur: 30,
-              }
-            : isInSelectedList
-            ? {
-                color: '#ffed91',
-                size: 2,
-                blur: 20,
-              }
-            : undefined,
-          grayscale: selectedState && !isCompatible,
-        } as IReqoreEffect
-      }
-      icon={isLoadingCheck ? 'Loader5Fill' : FSMItemIconByType[action?.type || type]}
-      className="fsm-state"
-      responsiveActions={false}
-      responsiveTitle={false}
-      x={position?.x}
-      y={position?.y}
-      selected={selected}
-      size="small"
-      iconProps={{ size: '25px', animation: isLoadingCheck ? 'spin' : undefined }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      minimal
-      label={showStateIds ? `[${id}] ${name}` : name}
-      badge={
-        !!(initial || isIsolated || final)
-          ? {
-              effect: initial ? PositiveColorEffect : isIsolated ? NegativeColorEffect : undefined,
-              icon: initial ? 'PlayLine' : isIsolated ? 'AlarmWarningLine' : undefined,
-              tooltip: initial
-                ? 'Initial state'
-                : isIsolated
-                ? 'This state is isolated'
-                : undefined,
-            }
-          : undefined
-      }
-      actions={[
-        {
-          as: ReqoreTag,
-          props: {
-            icon: 'HistoryLine',
-            tooltip: 'This state has a transition to itself',
-          },
-          show: !!hasTransitionToItself,
-        },
-        {
-          show: isInSelectedList ? false : 'hover',
-          group: [
-            {
-              icon: 'InformationFill',
-              minimal: true,
-              flat: true,
-              size: 'small',
-              show: 'hover',
-              tooltip:
-                inputType && outputType && zoom === 1
-                  ? {
-                      title: name,
-                      delay: 200,
-                      icon: 'InformationFill',
-                      content: (
-                        <React.Fragment key={Date.now()}>
-                          {desc || 'This state has no description'}
-                          {size(inputType) ? (
-                            <>
-                              <ReqoreVerticalSpacer height={10} />
-                              <ReqorePanel
-                                label="Input type"
-                                badge={[
-                                  inputType.name,
-                                  { labelKey: 'Fields', label: size(inputType.fields) },
-                                ]}
-                                size="small"
-                              >
-                                {inputType.desc}
-                              </ReqorePanel>
-                            </>
-                          ) : null}
-
-                          {size(outputType) ? (
-                            <>
-                              <ReqoreVerticalSpacer height={5} />
-                              <ReqorePanel
-                                label="Output type"
-                                badge={[
-                                  outputType.name,
-                                  { labelKey: 'Fields', label: size(outputType.fields) },
-                                ]}
-                                size="small"
-                              >
-                                {outputType.desc}
-                              </ReqorePanel>
-                            </>
-                          ) : null}
-                          {size(outputType) || size(inputType) ? (
-                            <>
-                              <ReqoreVerticalSpacer height={5} />
-                              <ReqoreMessage minimal flat intent="info" size="small">
-                                Click the state for even more information
-                              </ReqoreMessage>
-                            </>
-                          ) : null}
-                        </React.Fragment>
-                      ),
-                    }
-                  : 'Loading type information...',
-            },
-            {
-              icon: 'Edit2Line' as IReqoreIconName,
-              disabled: type === 'block' && !qorus_instance,
-              onClick: (e) => {
-                e?.stopPropagation();
-                onEditClick?.(id);
-              },
-              minimal: true,
-              flat: true,
-              size: 'small',
-              tooltip: 'Edit state',
-              show: !!onEditClick ? 'hover' : false,
-            },
-            {
-              icon: 'DeleteBin4Fill' as IReqoreIconName,
-              onClick: (e) => {
-                e?.stopPropagation();
-                onDeleteClick?.(id);
-              },
-              intent: 'danger',
-              minimal: true,
-              flat: true,
-              size: 'small',
-              tooltip: 'Delete state',
-              show: !!onDeleteClick ? 'hover' : false,
-            },
-          ],
-        },
-      ]}
-      onContextMenu={(event) => {
-        event.persist();
-        event.preventDefault();
-
-        let menuData = [
-          {
-            title: name,
-          },
-          {
-            item: t('Initial'),
-            onClick: () => {
-              onUpdate(id, { initial: !initial });
-            },
-            icon: 'PlayLine',
-            rightIcon: initial ? 'small-tick' : undefined,
-          },
-          {
-            title: t('Actions'),
-          },
-          {
-            item: 'Make transition',
-            onClick: () => {
-              onDblClick();
-            },
-            icon: 'LinkUnlink' as IReqoreIconName,
-          },
-          {
-            item: t('ManageTransitions'),
-            onClick: () => {
-              onTransitionOrderClick(id);
-            },
-            icon: 'LinksLine',
-          },
-          {
-            item: t('RemoveAllTransitions'),
-            onClick: () => {
-              onUpdate(id, { transitions: null });
-            },
-            icon: 'CloseLine',
-          },
-          {
-            item: t('Edit'),
-            onClick: () => onEditClick(id),
-            icon: 'EditLine',
-            disabled: type === 'block' && !qorus_instance,
-            intent: 'warning',
-          },
-          {
-            item: t('Delete'),
-            onClick: () => onDeleteClick(id),
-            icon: 'DeleteBinLine',
-            intent: 'danger',
-          },
-        ];
-
-        if (initial) {
-          menuData = insertAtIndex(menuData, 3, {
-            item: t('ManageExecutionOrder'),
-            onClick: () => {
-              onExecutionOrderClick();
-            },
-            icon: 'property',
-          });
-        }
-
-        addMenu({
-          event,
-          data: menuData,
-        });
-      }}
-    >
-      {desc ? (
+    <>
+      {isInSelectedList && (
         <>
-          <ReqoreTextEffect effect={{ textSize: 'small', opacity: 0.8 }}>{desc}</ReqoreTextEffect>
-          <ReqoreVerticalSpacer height={10} />
-        </>
-      ) : null}
-      <ReqoreControlGroup size="small" wrap fluid fill vertical stack>
-        <ReqoreControlGroup stack fill fluid>
           <ReqoreTag
-            wrap
-            fixed
-            color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
-            effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
-            label={getStateTypeLabel()}
+            size="tiny"
+            label={position.x}
+            style={{
+              transition: 'none',
+              position: 'absolute',
+              left: Math.round(position.x),
+              top: Math.round(position.y),
+              zIndex: 100,
+              transform: 'translateX(-100%)',
+            }}
           />
-          <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
-        </ReqoreControlGroup>
-        {action?.type === 'var-action' ? (
+          <ReqoreTag
+            size="tiny"
+            label={position.y}
+            style={{
+              transition: 'none',
+              position: 'absolute',
+              left: Math.round(position.x),
+              top: Math.round(position.y),
+              zIndex: 100,
+              transform: 'translateY(-100%)',
+            }}
+          />
+        </>
+      )}
+      <StyledFSMState
+        width={300}
+        id={`state-${id}`}
+        ref={(r) => {
+          ref.current = r;
+          passRef?.(id, r);
+        }}
+        onMouseDown={(e) => {
+          e.persist();
+          e.stopPropagation();
+          e.preventDefault();
+          // If the user was holding CMD / CTRL, we don't want to drag the state
+          if (e.shiftKey) {
+            onSelect?.(id);
+
+            return;
+          }
+
+          if (isInSelectedList) {
+            return;
+          }
+
+          handleMouseDown(e);
+        }}
+        onMouseUp={handleMouseUp}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        isStatic={isStatic}
+        disabled={isCompatible === false}
+        intent={
+          isLoadingCheck
+            ? 'pending'
+            : selectedState === id
+            ? 'info'
+            : isCompatible
+            ? 'success'
+            : undefined
+        }
+        contentEffect={
+          {
+            gradient: {
+              ...getStateColor(getStateCategory(action?.type || type)),
+              animate: isCompatible || isInSelectedList ? 'always' : 'hover',
+            },
+            glow: isCompatible
+              ? {
+                  color: selectedState === id ? 'info' : 'success',
+                  size: 5,
+                  blur: 10,
+                }
+              : isBeingDragged
+              ? {
+                  color: '#000000',
+                  size: 0.1,
+                  blur: 30,
+                }
+              : isInSelectedList
+              ? {
+                  color: '#ffed91',
+                  size: 2,
+                  blur: 20,
+                }
+              : undefined,
+            grayscale: selectedState && !isCompatible,
+          } as IReqoreEffect
+        }
+        icon={isLoadingCheck ? 'Loader5Fill' : FSMItemIconByType[action?.type || type]}
+        className="fsm-state"
+        responsiveActions={false}
+        responsiveTitle={false}
+        x={position?.x}
+        y={position?.y}
+        selected={selected}
+        size="small"
+        iconProps={{ size: '25px', animation: isLoadingCheck ? 'spin' : undefined }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        minimal
+        label={showStateIds ? `[${id}] ${name}` : name}
+        badge={
+          !!(initial || isIsolated || final)
+            ? {
+                effect: initial
+                  ? PositiveColorEffect
+                  : isIsolated
+                  ? NegativeColorEffect
+                  : undefined,
+                icon: initial ? 'PlayLine' : isIsolated ? 'AlarmWarningLine' : undefined,
+                tooltip: initial
+                  ? 'Initial state'
+                  : isIsolated
+                  ? 'This state is isolated'
+                  : undefined,
+              }
+            : undefined
+        }
+        actions={[
+          {
+            as: ReqoreTag,
+            props: {
+              icon: 'HistoryLine',
+              tooltip: 'This state has a transition to itself',
+            },
+            show: !!hasTransitionToItself,
+          },
+          {
+            show: isInSelectedList ? false : 'hover',
+            group: [
+              {
+                icon: 'InformationFill',
+                minimal: true,
+                flat: true,
+                size: 'small',
+                show: 'hover',
+                tooltip:
+                  inputType && outputType && zoom === 1
+                    ? {
+                        title: name,
+                        delay: 200,
+                        icon: 'InformationFill',
+                        content: (
+                          <React.Fragment key={Date.now()}>
+                            {desc || 'This state has no description'}
+                            {size(inputType) ? (
+                              <>
+                                <ReqoreVerticalSpacer height={10} />
+                                <ReqorePanel
+                                  label="Input type"
+                                  badge={[
+                                    inputType.name,
+                                    { labelKey: 'Fields', label: size(inputType.fields) },
+                                  ]}
+                                  size="small"
+                                >
+                                  {inputType.desc}
+                                </ReqorePanel>
+                              </>
+                            ) : null}
+
+                            {size(outputType) ? (
+                              <>
+                                <ReqoreVerticalSpacer height={5} />
+                                <ReqorePanel
+                                  label="Output type"
+                                  badge={[
+                                    outputType.name,
+                                    { labelKey: 'Fields', label: size(outputType.fields) },
+                                  ]}
+                                  size="small"
+                                >
+                                  {outputType.desc}
+                                </ReqorePanel>
+                              </>
+                            ) : null}
+                            {size(outputType) || size(inputType) ? (
+                              <>
+                                <ReqoreVerticalSpacer height={5} />
+                                <ReqoreMessage minimal flat intent="info" size="small">
+                                  Click the state for even more information
+                                </ReqoreMessage>
+                              </>
+                            ) : null}
+                          </React.Fragment>
+                        ),
+                      }
+                    : 'Loading type information...',
+              },
+              {
+                icon: 'Edit2Line' as IReqoreIconName,
+                disabled: type === 'block' && !qorus_instance,
+                onClick: (e) => {
+                  e?.stopPropagation();
+                  onEditClick?.(id);
+                },
+                minimal: true,
+                flat: true,
+                size: 'small',
+                tooltip: 'Edit state',
+                show: !!onEditClick ? 'hover' : false,
+              },
+              {
+                icon: 'DeleteBin4Fill' as IReqoreIconName,
+                onClick: (e) => {
+                  e?.stopPropagation();
+                  onDeleteClick?.(id);
+                },
+                intent: 'danger',
+                minimal: true,
+                flat: true,
+                size: 'small',
+                tooltip: 'Delete state',
+                show: !!onDeleteClick ? 'hover' : false,
+              },
+            ],
+          },
+        ]}
+        onContextMenu={(event) => {
+          event.persist();
+          event.preventDefault();
+
+          let menuData = [
+            {
+              title: name,
+            },
+            {
+              item: t('Initial'),
+              onClick: () => {
+                onUpdate(id, { initial: !initial });
+              },
+              icon: 'PlayLine',
+              rightIcon: initial ? 'small-tick' : undefined,
+            },
+            {
+              title: t('Actions'),
+            },
+            {
+              item: 'Make transition',
+              onClick: () => {
+                onDblClick();
+              },
+              icon: 'LinkUnlink' as IReqoreIconName,
+            },
+            {
+              item: t('ManageTransitions'),
+              onClick: () => {
+                onTransitionOrderClick(id);
+              },
+              icon: 'LinksLine',
+            },
+            {
+              item: t('RemoveAllTransitions'),
+              onClick: () => {
+                onUpdate(id, { transitions: null });
+              },
+              icon: 'CloseLine',
+            },
+            {
+              item: t('Edit'),
+              onClick: () => onEditClick(id),
+              icon: 'EditLine',
+              disabled: type === 'block' && !qorus_instance,
+              intent: 'warning',
+            },
+            {
+              item: t('Delete'),
+              onClick: () => onDeleteClick(id),
+              icon: 'DeleteBinLine',
+              intent: 'danger',
+            },
+          ];
+
+          if (initial) {
+            menuData = insertAtIndex(menuData, 3, {
+              item: t('ManageExecutionOrder'),
+              onClick: () => {
+                onExecutionOrderClick();
+              },
+              icon: 'property',
+            });
+          }
+
+          addMenu({
+            event,
+            data: menuData,
+          });
+        }}
+      >
+        {desc ? (
+          <>
+            <ReqoreTextEffect effect={{ textSize: 'small', opacity: 0.8 }}>{desc}</ReqoreTextEffect>
+            <ReqoreVerticalSpacer height={10} />
+          </>
+        ) : null}
+        <ReqoreControlGroup size="small" wrap fluid fill vertical stack>
           <ReqoreControlGroup stack fill fluid>
             <ReqoreTag
               wrap
               fixed
               color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
               effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
-              label="Action type"
+              label={getStateTypeLabel()}
             />
-            <ReqoreTag minimal wrap label={(action.value as TVariableActionValue)?.action_type} />
+            <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
           </ReqoreControlGroup>
-        ) : null}
-        <ReqoreTag
-          icon="InformationLine"
-          size="small"
-          wrap
-          label={stateActionDescription}
-          color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
-          labelEffect={{
-            weight: 'light',
-          }}
-        />
-      </ReqoreControlGroup>
-    </StyledFSMState>
+          {action?.type === 'var-action' ? (
+            <ReqoreControlGroup stack fill fluid>
+              <ReqoreTag
+                wrap
+                fixed
+                color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
+                effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
+                label="Action type"
+              />
+              <ReqoreTag minimal wrap label={(action.value as TVariableActionValue)?.action_type} />
+            </ReqoreControlGroup>
+          ) : null}
+          <ReqoreTag
+            icon="InformationLine"
+            size="small"
+            wrap
+            label={stateActionDescription}
+            color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
+            labelEffect={{
+              weight: 'light',
+            }}
+          />
+        </ReqoreControlGroup>
+      </StyledFSMState>
+    </>
   );
 };
 

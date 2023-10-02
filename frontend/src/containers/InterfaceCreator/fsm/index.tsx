@@ -266,7 +266,7 @@ const StyledFSMLine = styled.path`
   cursor: pointer;
   fill: none;
   filter: drop-shadow(0 0 2px #000000);
-  transition: all 0.2s linear;
+  transition: stroke-dashoffset 0.2s linear;
   stroke-dashoffset: 1000;
 
   &:hover {
@@ -496,6 +496,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             x,
             y,
           },
+          key: id,
+          keyId: id,
           isNew: true,
           initial: false,
           name: getStateName(item, maxId),
@@ -534,16 +536,18 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     selectedStates,
     states,
     stateRefs.current,
-    (data, deselect) => {
+    (data) => {
       updateMultipleStatePositions(data);
+    },
+    () => {
+      setIsMovingStates(true);
+    },
+    (deselect) => {
       setIsMovingStates(false);
 
       if (deselect) {
         setSelectedStates({});
       }
-    },
-    () => {
-      setIsMovingStates(true);
     },
     zoom
   );
@@ -1727,7 +1731,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const handleActivateStateClick = useCallback((id, data) => setActiveState(id), []);
 
-  const getStatesFromSelectedStates = useCallback((): IFSMStates => {
+  const getStatesFromSelectedStates = (): IFSMStates => {
     return reduce(
       selectedStates,
       (newStates, _selected, id) => {
@@ -1738,7 +1742,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       },
       {}
     );
-  }, [states, selectedStates]);
+  };
 
   if (!qorus_instance) {
     return (
@@ -1975,6 +1979,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     ...states,
                     ...alignStates('vertical', 'top', getStatesFromSelectedStates(), zoom),
                   });
+                  setSelectedStates({});
                 },
               },
               {
@@ -1986,6 +1991,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     ...states,
                     ...alignStates('vertical', 'center', getStatesFromSelectedStates(), zoom),
                   });
+                  setSelectedStates({});
                 },
               },
               {
@@ -1997,6 +2003,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     ...states,
                     ...alignStates('vertical', 'bottom', getStatesFromSelectedStates(), zoom),
                   });
+                  setSelectedStates({});
                 },
               },
             ],
@@ -2005,19 +2012,25 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           {
             group: [
               {
-                icon: 'AlignLeft',
+                icon: 'AlignTop',
+                leftIconProps: {
+                  rotation: -90,
+                },
                 className: 'align-left',
-
                 tooltip: 'Align horizontally to left',
                 onClick: () => {
                   setStates({
                     ...states,
                     ...alignStates('horizontal', 'top', getStatesFromSelectedStates(), zoom),
                   });
+                  setSelectedStates({});
                 },
               },
               {
-                icon: 'AlignCenter',
+                icon: 'AlignVertically',
+                leftIconProps: {
+                  rotation: -90,
+                },
                 className: 'align-middle',
                 tooltip: 'Align horizontally to center',
                 onClick: () => {
@@ -2025,10 +2038,14 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     ...states,
                     ...alignStates('horizontal', 'center', getStatesFromSelectedStates(), zoom),
                   });
+                  setSelectedStates({});
                 },
               },
               {
-                icon: 'AlignRight',
+                icon: 'AlignTop',
+                leftIconProps: {
+                  rotation: 90,
+                },
                 className: 'align-right',
                 tooltip: 'Align horizontally to right',
                 onClick: () => {
@@ -2036,6 +2053,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     ...states,
                     ...alignStates('horizontal', 'bottom', getStatesFromSelectedStates(), zoom),
                   });
+                  setSelectedStates({});
                 },
               },
             ],
