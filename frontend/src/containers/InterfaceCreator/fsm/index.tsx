@@ -1359,8 +1359,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         no_data_return: !!onSubmitSuccess,
         data: {
           ...fixedMetadata,
-          states: map(states, (state) =>
-            omit(state, ['isNew', 'corners', 'width', 'height', 'key'])
+          states: reduce(
+            states,
+            (newStates, state, id) => ({
+              ...newStates,
+              [id]: omit(state, ['isNew', 'corners', 'width', 'height', 'key']),
+            }),
+            {}
           ),
         },
       },
