@@ -507,8 +507,6 @@ export const alignStates = (
       2;
   }
 
-  console.log({ newPosition });
-
   // Set the middle point as the middle coordinate of all the states
   return reduce(
     statesWithDimensions,
