@@ -1363,7 +1363,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             states,
             (newStates, state, id) => ({
               ...newStates,
-              [id]: omit(state, ['isNew', 'corners', 'width', 'height', 'key']),
+              [id]: omit(state, ['isNew', 'corners', 'width', 'height', 'key', 'keyId']),
             }),
             {}
           ),
