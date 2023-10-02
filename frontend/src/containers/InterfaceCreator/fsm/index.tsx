@@ -11,7 +11,7 @@ import {
   useReqoreTheme,
 } from '@qoretechnologies/reqore';
 import { IReqoreEffect, StyledEffect } from '@qoretechnologies/reqore/dist/components/Effect';
-import { every, some } from 'lodash';
+import { every, omit, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -1359,7 +1359,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         no_data_return: !!onSubmitSuccess,
         data: {
           ...fixedMetadata,
-          states,
+          states: map(states, (state) =>
+            omit(state, ['isNew', 'corners', 'width', 'height', 'key'])
+          ),
         },
       },
       t('Saving FSM...')

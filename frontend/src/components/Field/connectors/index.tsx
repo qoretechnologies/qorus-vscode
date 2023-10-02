@@ -82,6 +82,7 @@ export interface IProviderType extends TProviderTypeSupports, TProviderTypeArgs 
   desc?: string;
   use_args?: boolean;
   args?: any;
+  up?: boolean;
   supports_request?: boolean;
   supports_messages?: 'ASYNC' | 'SYNC' | 'NONE';
   supports_observable?: boolean;
@@ -414,13 +415,20 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 
         const val = { ...optionProvider };
 
+        delete val.up;
+        delete val.optionsChanged;
+        delete val.searchOptionsChanged;
+
         if (val.type !== 'factory') {
-          delete val.optionsChanged;
           delete val.options;
         }
 
-        if (!val.record_requires_search_options) {
-          delete val.searchOptionsChanged;
+        const keys = Object.keys(val);
+
+        for (const key of keys) {
+          if (val[key] === undefined || val[key] === null || val[key] === false) {
+            delete val[key];
+          }
         }
 
         if (isConfigItem) {

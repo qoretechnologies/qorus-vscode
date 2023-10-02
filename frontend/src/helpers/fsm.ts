@@ -1,4 +1,4 @@
-import { cloneDeep, reduce, size } from 'lodash';
+import { cloneDeep, omit, reduce, size } from 'lodash';
 import {
   IFSMMetadata,
   IFSMState,
@@ -528,9 +528,9 @@ export const alignStates = (
       return {
         ...modifiedStates,
         [stateId]: {
-          ...state,
+          ...omit(state, ['height', 'width', 'key', 'corners']),
           position: {
-            ...state.position,
+            ...omit(state.position, ['x1', 'y1']),
             [axisPoint]: stateSpecificPosition,
           },
         },

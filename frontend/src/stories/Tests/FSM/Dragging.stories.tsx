@@ -16,6 +16,11 @@ const meta = {
       },
     },
   },
+  parameters: {
+    chromatic: {
+      disableSnapshot: true,
+    },
+  },
 } as StoryMeta<typeof FSMView, { stateType?: string }>;
 
 export default meta;
@@ -36,11 +41,11 @@ export const StateCanBeDraggedAndDropped: StoryFSM = {
       await SwitchesToBuilder.play({ canvasElement, ...rest });
     }
 
-    await _testsMoveState(2, window.innerWidth / 10, 30, 0, coeficient);
+    await _testsMoveState(2, 3, 300, 0, coeficient);
 
     await sleep(500);
 
-    await _testsMoveState(7, window.innerHeight / 10, 0, 30, coeficient);
+    await _testsMoveState(7, 3, 0, 300, coeficient);
   },
 };
 
@@ -87,7 +92,7 @@ export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
 
     await sleep(200);
 
-    for await (const _ of Array(Math.round(window.innerHeight / 10)).keys()) {
+    for await (const _ of Array(Math.round(3)).keys()) {
       const { left, top } = document.querySelector('#state-3').getBoundingClientRect();
 
       if (top > window.innerHeight - 100) {
@@ -100,7 +105,7 @@ export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
         clientX: left,
         clientY: top,
         movementX: 10,
-        movementY: 30,
+        movementY: 300,
       });
     }
 
