@@ -5,8 +5,15 @@ import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
 import multipleVariablesFsm from '../Data/multipleVariablesFsm.json';
 import transactionStateFsm from '../Data/transacitonStateFsm.json';
-import { AutoAlign, SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
-import { sleep } from '../Tests/utils';
+import { AutoAlign } from '../Tests/FSM/Alignment.stories';
+import { SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
+import {
+  _testsClickState,
+  _testsClickStateByLabel,
+  _testsCreateSelectionBox,
+  _testsSelectState,
+  sleep,
+} from '../Tests/utils';
 import { StoryMeta } from '../types';
 
 const meta = {
@@ -55,7 +62,7 @@ export const SelectedState: StoryFSM = {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     await waitFor(() => document.querySelector('#state-3'));
-    await fireEvent.click(document.querySelector('#state-3'));
+    await _testsClickState('state-3');
   },
 };
 
@@ -67,7 +74,7 @@ export const MultipleDeepVariableStates: StoryFSM = {
     const canvas = within(canvasElement);
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await fireEvent.click(canvas.getByText('State 2'));
+    await _testsClickState('state-2');
 
     await waitFor(
       async () => await expect(document.querySelector('.state-next-button')).toBeDisabled(),
@@ -104,7 +111,8 @@ export const MultipleDeepVariableStates: StoryFSM = {
     await waitFor(async () => await canvas.findAllByText('State 2.State 3'), {
       timeout: 5000,
     });
-    await fireEvent.click(canvas.getAllByText('State 2.State 3')[0]);
+
+    await _testsClickStateByLabel(canvas, 'State 2.State 3');
 
     await waitFor(
       async () => await expect(document.querySelector('.state-next-button')).toBeDisabled(),
@@ -149,7 +157,7 @@ export const TransactionState: StoryFSM = {
     const canvas = within(canvasElement);
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await fireEvent.click(canvas.getByText('State 1'));
+    await _testsClickState('state-1');
 
     await sleep(1500);
 
@@ -191,7 +199,35 @@ export const IncompatibleStates: StoryFSM = {
     await sleep(500);
 
     // Fake double click lol
-    await fireEvent.click(document.querySelector('#state-1'));
-    await fireEvent.click(document.querySelector('#state-1'));
+    await _testsClickState('state-1');
+    await _testsClickState('state-1');
+  },
+};
+
+export const SelectedStates: StoryFSM = {
+  args: {
+    fsm,
+  },
+  play: async ({ canvasElement, ...rest }) => {
+    await AutoAlign.play({ canvasElement, ...rest });
+
+    await sleep(500);
+
+    await _testsSelectState('state-1');
+    await _testsSelectState('state-7');
+    await _testsSelectState('state-5');
+  },
+};
+
+export const SelectionBox: StoryFSM = {
+  args: {
+    fsm,
+  },
+  play: async ({ canvasElement, ...rest }) => {
+    await AutoAlign.play({ canvasElement, ...rest });
+
+    await sleep(500);
+
+    await _testsCreateSelectionBox(400, 200, 600, 400);
   },
 };

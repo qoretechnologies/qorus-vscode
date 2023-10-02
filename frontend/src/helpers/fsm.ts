@@ -1,4 +1,4 @@
-import { cloneDeep, reduce, size } from 'lodash';
+import { cloneDeep, omit, reduce, size } from 'lodash';
 import {
   IFSMMetadata,
   IFSMState,
@@ -342,7 +342,7 @@ export interface IAutoAlignConfig {
 export const getVariable = (
   varName: string,
   varType: 'globalvar' | 'localvar' | 'autovar',
-  metadata: IFSMMetadata
+  metadata: Partial<IFSMMetadata>
 ) => {
   const global = metadata?.globalvar || {};
   const local = metadata?.localvar || {};
@@ -425,7 +425,7 @@ export const getTransitionByState = (
 /* A function that given an object of states with x and y coordinates
  * returns boolean if any of the states overlap
  */
-export function checkOverlap(states: IFSMStates): boolean {
+export function checkOverlap(states: IFSMStates = {}): boolean {
   const keys = Object.keys(states);
   const length = keys.length;
 
@@ -449,6 +449,96 @@ export function checkOverlap(states: IFSMStates): boolean {
 
   return false; // No overlapping states found
 }
+
+export const alignStates = (
+  axis: 'horizontal' | 'vertical',
+  alignment: 'top' | 'center' | 'bottom',
+  states: IFSMStates,
+  zoom?: number
+): IFSMStates => {
+  const statesWithDimensions: IFSMStates = reduce(
+    states,
+    (newStates, state, stateId) => {
+      const { height, width } = getStateBoundingRect(stateId);
+
+      return {
+        ...newStates,
+        [stateId]: {
+          ...state,
+          height,
+          width,
+          position: {
+            ...state.position,
+            x1: state.position.x + width,
+            y1: state.position.y + height,
+          },
+        },
+      };
+    },
+    {}
+  );
+
+  const axisPoint = axis === 'horizontal' ? 'x' : 'y';
+  const farAxisPoint = axis === 'horizontal' ? 'x1' : 'y1';
+  const axisDimension = axis === 'horizontal' ? 'width' : 'height';
+  const statesArray = Object.values(statesWithDimensions);
+  const sortedStates = statesArray.sort((a, b) => {
+    return a.position[farAxisPoint] - b.position[farAxisPoint];
+  });
+  const topMostState = sortedStates[0];
+  const topMostStateDimension = topMostState[axisDimension];
+  const bottomMostState = sortedStates[sortedStates.length - 1];
+
+  let newPosition;
+
+  if (alignment === 'top') {
+    newPosition = topMostState.position[axisPoint];
+  }
+
+  if (alignment === 'bottom') {
+    newPosition = bottomMostState.position[farAxisPoint];
+  }
+
+  if (alignment === 'center') {
+    newPosition =
+      (topMostState.position[axisPoint] +
+        topMostStateDimension +
+        bottomMostState.position[axisPoint]) /
+      2;
+  }
+
+  // Set the middle point as the middle coordinate of all the states
+  return reduce(
+    statesWithDimensions,
+    (modifiedStates: IFSMStates, state: IFSMState, stateId: string) => {
+      const height = state.height;
+      const width = state.width;
+      const dimension = axis === 'horizontal' ? width : height;
+
+      let stateSpecificPosition = newPosition;
+
+      if (alignment === 'center') {
+        stateSpecificPosition = newPosition - dimension / 2;
+      }
+
+      if (alignment === 'bottom') {
+        stateSpecificPosition = newPosition - dimension;
+      }
+
+      return {
+        ...modifiedStates,
+        [stateId]: {
+          ...omit(state, ['height', 'width', 'key', 'corners']),
+          position: {
+            ...omit(state.position, ['x1', 'y1']),
+            [axisPoint]: stateSpecificPosition,
+          },
+        },
+      };
+    },
+    {}
+  );
+};
 
 export const removeTransitionsWithStateId = (
   states: IFSMStates,

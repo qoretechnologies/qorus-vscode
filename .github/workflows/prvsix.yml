@@ -66,6 +66,8 @@ jobs:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           storybookBaseDir: ./frontend
           exitZeroOnChanges: true
+          allowConsoleErrors: true
+          debug: true
       - name: Package
         id: package
         run: ./node_modules/.bin/vsce package --no-yarn

@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.3.1
+
+#### Bug fixes
+
+- Moving FSM states in the Flow Builder now drops the states at the mouse anchor
+
 ## Version 4.3.0
 
 #### New features

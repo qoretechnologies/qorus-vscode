@@ -449,7 +449,7 @@ export const validateField: (
       let parsedData;
       // Parse the yaml
       try {
-        parsedData = jsyaml.safeLoad(value);
+        parsedData = jsyaml.load(value);
       } catch (e) {
         yamlCorrect = false;
       }
@@ -635,7 +635,7 @@ export const maybeParseYaml: (yaml: any) => any = (yaml) => {
   let parsedData;
   // Parse the yaml
   try {
-    parsedData = jsyaml.safeLoad(String(yaml));
+    parsedData = jsyaml.load(String(yaml));
   } catch (e) {
     yamlCorrect = false;
   }

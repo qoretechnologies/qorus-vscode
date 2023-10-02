@@ -457,26 +457,22 @@ const Tab: React.FC<ITabProps> = ({
   return (
     <>
       <ReqoreBreadcrumbs
-        size="big"
+        size="normal"
         flat
         style={{ padding: 0, margin: 0, border: 'none' }}
         rightElement={<ReqoreControlGroup>{getActions()}</ReqoreControlGroup>}
         items={[
           {
             icon: 'Home4Fill',
-            props: {
-              onClick: () => {
-                changeTab('ProjectConfig');
-              },
+            onClick: () => {
+              changeTab('ProjectConfig');
             },
           },
           {
             icon: interfaceIcons[type],
             label: capitalize(interfaceToPlural[type]),
-            props: {
-              onClick: () => {
-                changeTab('Interfaces', type);
-              },
+            onClick: () => {
+              changeTab('Interfaces', type);
             },
           },
           {

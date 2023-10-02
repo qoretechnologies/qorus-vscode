@@ -3052,10 +3052,10 @@
   dependencies:
     lodash "^4.17.15"
 
-"@qoretechnologies/reqore@^0.36.7":
-  version "0.36.7"
-  resolved "https://registry.yarnpkg.com/@qoretechnologies/reqore/-/reqore-0.36.7.tgz#23b0c737920227d4a3a53a940a7bbb7534485b9f"
-  integrity sha512-phaFl8Z8lOtjlSN2ltdSY/P8/xSEGKUlLP6xaMYWU+U9ZHqZE7++v2Ky4qhB3Ge7P9jQKC8SRVvunulzcIVJpA==
+"@qoretechnologies/reqore@^0.37.8":
+  version "0.37.8"
+  resolved "https://registry.yarnpkg.com/@qoretechnologies/reqore/-/reqore-0.37.8.tgz#f3485574411cd566ff9a04e63626f1ce7987bcd1"
+  integrity sha512-LPfv6mmE4yu8MatBnaTTxOx4FIrsDU6D9OEsWrn9/Uou9TY0EAiJP/wOnWwB3hhO4SRPTUgkX/3uLHC5GIH7mA==
   dependencies:
     "@popperjs/core" "^2.11.6"
     "@react-spring/web" "^9.6.1"
@@ -4903,10 +4903,10 @@
   resolved "https://registry.yarnpkg.com/@types/js-cookie/-/js-cookie-2.2.7.tgz#226a9e31680835a6188e887f3988e60c04d3f6a3"
   integrity sha512-aLkWa0C0vO5b4Sr798E26QgOkss68Un0bLjs7u9qxzPT5CG+8DuNTffWES58YzJs3hrVAOs1wonycqEBqNJubA==
 
-"@types/js-yaml@^3.12.5":
-  version "3.12.7"
-  resolved "https://registry.yarnpkg.com/@types/js-yaml/-/js-yaml-3.12.7.tgz#330c5d97a3500e9c903210d6e49f02964af04a0e"
-  integrity sha512-S6+8JAYTE1qdsc9HMVsfY7+SgSuUU/Tp6TYTmITW0PZxiyIMvol3Gy//y69Wkhs0ti4py5qgR3uZH6uz/DNzJQ==
+"@types/js-yaml@^4.0.5":
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/@types/js-yaml/-/js-yaml-4.0.5.tgz#738dd390a6ecc5442f35e7f03fa1431353f7e138"
+  integrity sha512-FhpRzf927MNQdRZP0J5DLIdTXhjLYzeUTmLAu69mnVksLH9CJY3IuSeEgbKUki7GQZm0WqDkGzyxju2EZGD2wA==
 
 "@types/json-schema@*", "@types/json-schema@^7.0.4", "@types/json-schema@^7.0.5", "@types/json-schema@^7.0.8", "@types/json-schema@^7.0.9":
   version "7.0.11"

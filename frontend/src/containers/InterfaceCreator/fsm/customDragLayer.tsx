@@ -40,8 +40,7 @@ export const CustomDragLayer = ({ zoom, states }) => {
         }}
       >
         <FSMState
-          type={item.name === 'block' ? 'block' : item.stateType}
-          {...states[item.id]}
+          type={item?.name === 'block' ? 'block' : item?.stateType}
           id={item.id}
           isStatic
           position={{ x: 0, y: 0 }}

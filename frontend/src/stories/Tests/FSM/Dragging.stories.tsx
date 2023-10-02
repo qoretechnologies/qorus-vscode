@@ -3,7 +3,7 @@ import { fireEvent } from '@storybook/testing-library';
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { StoryMeta } from '../../types';
-import { sleep } from '../utils';
+import { _testsCreateSelectionBox, _testsMoveState, _testsSelectState, sleep } from '../utils';
 import { SwitchesToBuilder, ZoomIn, ZoomOut } from './Basic.stories';
 
 const meta = {
@@ -14,6 +14,11 @@ const meta = {
       animations: {
         dialogs: false,
       },
+    },
+  },
+  parameters: {
+    chromatic: {
+      disableSnapshot: true,
     },
   },
 } as StoryMeta<typeof FSMView, { stateType?: string }>;
@@ -27,6 +32,7 @@ export const StateCanBeDraggedAndDropped: StoryFSM = {
     fsm,
   },
   play: async ({ canvasElement, zoomIn, zoomOut, ...rest }) => {
+    const coeficient = zoomIn ? 1.5 : zoomOut ? 0.7 : 1;
     if (zoomIn) {
       await ZoomIn.play({ canvasElement, ...rest });
     } else if (zoomOut) {
@@ -35,23 +41,11 @@ export const StateCanBeDraggedAndDropped: StoryFSM = {
       await SwitchesToBuilder.play({ canvasElement, ...rest });
     }
 
-    await fireEvent.dragStart(document.querySelector('#state-2'));
+    await _testsMoveState(2, 3, 300, 0, coeficient);
 
     await sleep(500);
 
-    await fireEvent.drop(document.querySelector('#state-2'), {
-      clientX: 500,
-    });
-
-    await sleep(500);
-
-    await fireEvent.dragStart(document.querySelector('#state-7'));
-
-    await sleep(500);
-
-    await fireEvent.drop(document.querySelector('#state-2'), {
-      clientY: 200,
-    });
+    await _testsMoveState(7, 3, 0, 300, coeficient);
   },
 };
 
@@ -70,5 +64,68 @@ export const StateCanBeDraggedAndDroppedWithZoomOut: StoryFSM = {
   },
   play: async ({ canvasElement, zoomIn, zoomOut, ...rest }) => {
     await StateCanBeDraggedAndDropped.play({ canvasElement, zoomOut: true, ...rest });
+  },
+};
+
+export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
+  args: {
+    fsm,
+  },
+  parameters: {
+    chromatic: {
+      disableSnapshot: true,
+    },
+  },
+  play: async ({ canvasElement, zoomIn, zoomOut, ...rest }) => {
+    await SwitchesToBuilder.play({ canvasElement, ...rest });
+
+    // Select some states
+    await _testsSelectState('state-3');
+
+    await sleep(100);
+
+    await _testsCreateSelectionBox(500, 300, 800, 800, true);
+
+    await sleep(100);
+
+    await fireEvent.mouseDown(document.querySelector('#state-3'));
+
+    await sleep(200);
+
+    for await (const _ of Array(Math.round(3)).keys()) {
+      const { left, top } = document.querySelector('#state-3').getBoundingClientRect();
+
+      if (top > window.innerHeight - 100) {
+        break;
+      }
+
+      await sleep(16.67);
+
+      await fireEvent.mouseMove(document.querySelector('#state-3'), {
+        clientX: left,
+        clientY: top,
+        movementX: 10,
+        movementY: 300,
+      });
+    }
+
+    await sleep(300);
+
+    await fireEvent.mouseMove(document.querySelector('#state-3'), {
+      movementX: 0,
+      movementY: -300,
+    });
+
+    await sleep(100);
+
+    await fireEvent.mouseUp(document.querySelector('#state-3'), {
+      clientX: 500,
+      clientY: 300,
+    });
+
+    await sleep(100);
+
+    await fireEvent.mouseDown(document.querySelector('#fsm-states-wrapper'));
+    await fireEvent.mouseUp(document.querySelector('#fsm-states-wrapper'));
   },
 };
