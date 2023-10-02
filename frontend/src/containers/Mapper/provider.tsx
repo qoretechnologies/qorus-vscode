@@ -6,18 +6,18 @@ import {
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import jsyaml from 'js-yaml';
-import { cloneDeep, omit } from 'lodash';
+import { cloneDeep, last, omit, reduce } from 'lodash';
 import map from 'lodash/map';
 import nth from 'lodash/nth';
 import size from 'lodash/size';
 import { FC, useCallback, useContext, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import CustomDialog from '../../components/CustomDialog';
 import { TRecordType } from '../../components/Field/connectors';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
-import { IOptionsSchema } from '../../components/Field/systemOptions';
+import { IOptions, IOptionsSchema } from '../../components/Field/systemOptions';
 import Loader from '../../components/Loader';
-import SubField from '../../components/SubField';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -175,8 +175,8 @@ const MapperProvider: FC<IProviderProps> = ({
   isTransaction,
 }) => {
   const [wildcardDiagram, setWildcardDiagram] = useState(undefined);
-  const [descriptions, setDescriptions] = useState<string[]>([]);
   const [errorMessage, onError] = useState<string | null>(null);
+  const [warningMessage, setWarning] = useState<string>(undefined);
   const t = useContext(TextContext);
   let realProviders = cloneDeep(providers);
 
@@ -206,7 +206,7 @@ const MapperProvider: FC<IProviderProps> = ({
       }
 
       if (requiresRequest) {
-        return child.up !== false && (child.supports_request || child.children_can_support_apis);
+        return child.supports_request || child.children_can_support_apis;
       }
 
       if (isMessage) {
@@ -232,6 +232,15 @@ const MapperProvider: FC<IProviderProps> = ({
     });
   };
 
+  const handleCallError = (error) => {
+    if (error) {
+      const errorMsg = error.err || error;
+      onError?.(errorMsg);
+    } else {
+      onError?.(null);
+    }
+  };
+
   const handleProviderChange = (provider) => {
     setProvider((current) => {
       // Fetch the url of the provider
@@ -245,11 +254,7 @@ const MapperProvider: FC<IProviderProps> = ({
         // Get the data
         let { data, error } = await fetchData(`${url}`);
 
-        if (error) {
-          onError?.(`${record.error.err}: ${record.error.desc}`);
-        } else {
-          onError?.(null);
-        }
+        handleCallError(error);
 
         // Remove loading
         setIsLoading(false);
@@ -268,6 +273,14 @@ const MapperProvider: FC<IProviderProps> = ({
         }
         // Save the children
         let children = filterChildren(data.children || data);
+
+        if (!size(children)) {
+          setWarning(
+            'There are no further paths to go, please go back and select a different path...'
+          );
+        } else {
+          setWarning(undefined);
+        }
 
         // Add new child
         setChildren([
@@ -302,20 +315,51 @@ const MapperProvider: FC<IProviderProps> = ({
   const buildOptions = () => {
     let customOptionString = '';
 
-    if (size(options)) {
+    const fixedOptions: IOptions = reduce(
+      options,
+      (newOptions, option, optionName) => {
+        if (option.value === undefined) {
+          return newOptions;
+        }
+
+        return {
+          ...newOptions,
+          [optionName]: option,
+        };
+      },
+      {}
+    );
+
+    if (size(fixedOptions)) {
       // Turn the options hash into a query string
-      const str = map(options, (value, key) => `${key}=${btoa(jsyaml.dump(value.value))}`).join(
-        ','
-      );
+      const str = map(
+        fixedOptions,
+        (value, key) => `${key}=${btoa(jsyaml.dump(value.value))}`
+      ).join(',');
       customOptionString = `provider_yaml_options={${str}}`;
     } else {
       customOptionString = 'provider_yaml_options={}';
     }
 
-    if (size(searchOptions)) {
+    const fixedSearchOptions: IOptions = reduce(
+      searchOptions,
+      (newOptions, option, optionName) => {
+        if (option.value === undefined) {
+          return newOptions;
+        }
+
+        return {
+          ...newOptions,
+          [optionName]: option,
+        };
+      },
+      {}
+    );
+
+    if (size(fixedSearchOptions)) {
       // Turn the options hash into a query string
       const str = map(
-        searchOptions,
+        fixedSearchOptions,
         (value, key) => `${key}=${btoa(jsyaml.dump(value.value))}`
       ).join(',');
       customOptionString += `&provider_yaml_search_options={${str}}`;
@@ -324,6 +368,14 @@ const MapperProvider: FC<IProviderProps> = ({
     }
 
     return customOptionString;
+  };
+
+  const buildDescriptions = (desc?: string, added?: boolean) => {
+    if (added) {
+      return [...(optionProvider?.descriptions || []), desc];
+    } else {
+      return [...(optionProvider?.descriptions || [])];
+    }
   };
 
   const handleChildFieldChange = async (
@@ -335,7 +387,9 @@ const MapperProvider: FC<IProviderProps> = ({
     supportsOptions?: boolean,
     requiresSearchOptions?: boolean,
     didApplyOptions?: boolean
-  ) => {
+  ): Promise<void> => {
+    let descriptions = buildDescriptions();
+    let newOptionProvider;
     // If this is a factory and it requires options
     // and no required options are filled, do not go further
     // User will have to fill the required options first and
@@ -368,11 +422,12 @@ const MapperProvider: FC<IProviderProps> = ({
       });
       const name = `${url}/${value}`.split('/')[2];
       // Set the provider option
-      setOptionProvider({
+      newOptionProvider = {
         ...optionProvider,
         type: realProviders[provider].type,
         name,
         is_api_call: requiresRequest,
+        up: record?.data?.up !== false,
         can_manage_fields: record?.data?.can_manage_fields,
         transaction_management: record?.data?.transaction_management,
         subtype: value === 'request' || value === 'response' ? value : undefined,
@@ -384,7 +439,10 @@ const MapperProvider: FC<IProviderProps> = ({
           .replace('response', ''),
         options,
         searchOptionsChanged: false,
-      });
+        descriptions: [...descriptions, record?.data?.desc],
+      };
+
+      setOptionProvider(newOptionProvider);
 
       return;
     }
@@ -411,322 +469,312 @@ const MapperProvider: FC<IProviderProps> = ({
 
     const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
 
-    if (error) {
-      const errMessage = `${error.error.err}: ${error.error.desc}`;
-      onError?.(errMessage);
-    } else {
-      onError?.(null);
-    }
+    handleCallError(error);
+
     // Reset loading
     setIsLoading(false);
 
-    /* Setting the state of the descriptions hash. */
-    if (data.desc) {
-      // Add the description to the descriptions hash
-      setDescriptions((current): string[] => {
-        const newData = [...current];
-        newData[itemIndex] = data.desc;
-        return newData;
-      });
-    }
-    // Add new child
-    setChildren((current) => {
-      // Update this item
-      const newItems: any[] = current
-        .map((item, index) => {
-          const newItem = { ...item };
-          // Update the value if the index matches
-          if (index === itemIndex) {
-            newItem.value = value;
-          }
-          // Also check if there are items with
-          // higher index (children) and remove them
-          if (index > itemIndex) {
-            return null;
-          }
-          // Return the item
-          return newItem;
-        })
-        .filter((item) => item);
+    // Update this item
+    const newItems: any[] = nodes
+      .map((item, index) => {
+        const newItem = { ...item };
+        // Update the value if the index matches
+        if (index === itemIndex) {
+          newItem.value = value;
+        }
+        // Also check if there are items with
+        // higher index (children) and remove them
+        if (index > itemIndex) {
+          return null;
+        }
+        // Return the item
+        return newItem;
+      })
+      .filter((item) => item);
 
-      if (
-        (requiresSearchOptions || data?.record_requires_search_options) &&
-        !validateField('system-options', searchOptions)
-      ) {
-        const name = `${url}/${value}`.split('/')[2];
-        // Set the provider option
-        setOptionProvider({
-          ...optionProvider,
-          type: realProviders[provider].type,
-          name,
-          is_api_call: requiresRequest,
-          can_manage_fields: data?.can_manage_fields,
-          transaction_management: data?.transaction_management,
-          record_requires_search_options: data?.record_requires_search_options,
-          subtype: value === 'request' || value === 'response' ? value : undefined,
-          path: `${url}/${value}`
-            .replace(`${name}`, '')
-            .replace(`${realProviders[provider].url}/`, '')
-            .replace(`provider/`, '')
-            .replace('request', '')
-            .replace('response', ''),
-          options,
-          search_options: didApplyOptions ? searchOptions : undefined,
-          searchOptionsChanged: false,
-        });
-      } else if (
-        data.has_type ||
-        isConfigItem ||
-        provider === 'factory' ||
-        (requiresRequest && data.supports_request) ||
-        (isVariable &&
-          (data.supports_read ||
-            data.supports_create ||
-            data.supports_update ||
-            data.supports_delete ||
-            data.supports_messages ||
-            data.transaction_management))
-      ) {
-        (async () => {
-          setIsLoading(true);
+    if (
+      (requiresSearchOptions || data?.record_requires_search_options) &&
+      !validateField('system-options', searchOptions)
+    ) {
+      const name = `${url}/${value}`.split('/')[2];
+      // Set the provider option
+      newOptionProvider = {
+        ...optionProvider,
+        type: realProviders[provider].type,
+        name,
+        is_api_call: requiresRequest,
+        can_manage_fields: data?.can_manage_fields,
+        up: data.up !== false,
+        transaction_management: data?.transaction_management,
+        record_requires_search_options: data?.record_requires_search_options,
+        subtype: value === 'request' || value === 'response' ? value : undefined,
+        path: `${url}/${value}`
+          .replace(`${name}`, '')
+          .replace(`${realProviders[provider].url}/`, '')
+          .replace(`provider/`, '')
+          .replace('request', '')
+          .replace('response', ''),
+        options,
+        search_options: didApplyOptions ? searchOptions : undefined,
+        searchOptionsChanged: false,
+        descriptions: [...descriptions, data?.desc],
+      };
+    } else if (
+      data.has_type ||
+      isConfigItem ||
+      provider === 'factory' ||
+      (requiresRequest && data.supports_request) ||
+      (isVariable &&
+        (data.supports_read ||
+          data.supports_create ||
+          data.supports_update ||
+          data.supports_delete ||
+          data.supports_messages ||
+          data.transaction_management))
+    ) {
+      setIsLoading(true);
 
-          if (type === 'outputs' && data.mapper_keys) {
-            // Save the mapper keys
-            setMapperKeys && setMapperKeys(data.mapper_keys);
-          }
-
-          const newSuffix = suffix;
-          const childDetailsSuffix =
-            data.supports_children || data.has_type === false
-              ? value === 'request' || value === 'response'
-                ? buildOptions()
-                : `action=childDetails&${buildOptions()}`
-              : buildOptions();
-
-          const splitter = `${realProviders[provider].recordSuffix.includes('?') ? '&' : '?'}`;
-          suffixString =
-            customOptionString && customOptionString !== ''
-              ? `${suffix}${
-                  data.has_record ? realProviders[provider].recordSuffix : ''
-                }${splitter}${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
-              : `${newSuffix}${
-                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
-                }${splitter}${childDetailsSuffix}`;
-
-          // Fetch the record
-          const record = await fetchData(`${url}/${value}${suffixString}`);
-
-          if (record.error) {
-            const errMessage = `${record.error.err}: ${record.error.desc}`;
-            onError?.(errMessage);
-          } else {
-            onError?.(null);
-          }
-
-          // Remove loading
-          setIsLoading(false);
-          // Save the name by pulling the 3rd item from the split
-          // url (same for every provider type)
-          const name = `${url}/${value}`.split('/')[2];
-          // Set the provider option
-          setOptionProvider({
-            ...optionProvider,
-            type: realProviders[provider].type,
-            name,
-            is_api_call: requiresRequest,
-            supports_request: data.supports_request,
-            supports_read: data.supports_read,
-            supports_update: data.supports_update,
-            supports_create: data.supports_create,
-            supports_delete: data.supports_delete,
-            supports_messages: data.supports_messages,
-            supports_observable: data.supports_observable,
-            transaction_management: data.transaction_management,
-            record_requires_search_options: data.record_requires_search_options,
-            can_manage_fields: record.data?.can_manage_fields,
-            subtype: value === 'request' || value === 'response' ? value : undefined,
-            descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
-            path: `${url}/${value}`
-              .replace(`${name}`, '')
-              .replace(`${realProviders[provider].url}/`, '')
-              .replace(`provider/`, '')
-              .replace('request', '')
-              .replace('response', ''),
-            options,
-            search_options: didApplyOptions ? searchOptions : undefined,
-            searchOptionsChanged: false,
-          });
-
-          if (data.has_type || isConfigItem) {
-            // Set the record data
-            setRecord &&
-              setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
-            //
-          }
-        })();
+      if (type === 'outputs' && data.mapper_keys) {
+        // Save the mapper keys
+        setMapperKeys && setMapperKeys(data.mapper_keys);
       }
-      // If this provider has children
-      if (size(data.children)) {
-        const children = filterChildren(data.children);
-        // Return the updated items and add
-        // the new item
-        return [
-          ...newItems,
-          {
-            values: children.map((child) => {
-              if (typeof child === 'string') {
-                return {
-                  name: child,
-                  desc: 'No description provided',
-                  url: `${url}/${value}${suffix}`,
-                  suffix: '',
-                };
-              }
 
+      const newSuffix = suffix;
+      const childDetailsSuffix =
+        data.supports_children || data.has_type === false
+          ? value === 'request' || value === 'response'
+            ? buildOptions()
+            : `action=childDetails&${buildOptions()}`
+          : buildOptions();
+
+      const splitter = `${realProviders[provider].recordSuffix.includes('?') ? '&' : '?'}`;
+      suffixString =
+        customOptionString && customOptionString !== ''
+          ? `${suffix}${
+              data.has_record ? realProviders[provider].recordSuffix : ''
+            }${splitter}${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
+          : `${newSuffix}${
+              data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
+            }${splitter}${childDetailsSuffix}`;
+
+      // Fetch the record
+      const record = await fetchData(`${url}/${value}${suffixString}`);
+
+      handleCallError(record.error);
+
+      // Remove loading
+      setIsLoading(false);
+      // Save the name by pulling the 3rd item from the split
+      // url (same for every provider type)
+      const name = `${url}/${value}`.split('/')[2];
+      // Set the provider option
+      newOptionProvider = {
+        ...optionProvider,
+        type: realProviders[provider].type,
+        name,
+        is_api_call: requiresRequest,
+        supports_request: data.supports_request,
+        supports_read: data.supports_read,
+        supports_update: data.supports_update,
+        up: data.up !== false,
+        supports_create: data.supports_create,
+        supports_delete: data.supports_delete,
+        supports_messages: data.supports_messages,
+        supports_observable: data.supports_observable,
+        transaction_management: data.transaction_management,
+        record_requires_search_options: data.record_requires_search_options,
+        can_manage_fields: record.data?.can_manage_fields,
+        subtype: value === 'request' || value === 'response' ? value : undefined,
+        descriptions: [...descriptions, data?.desc],
+        path: `${url}/${value}`
+          .replace(`${name}`, '')
+          .replace(`${realProviders[provider].url}/`, '')
+          .replace(`provider/`, '')
+          .replace('request', '')
+          .replace('response', ''),
+        options,
+        search_options: didApplyOptions ? searchOptions : undefined,
+        searchOptionsChanged: false,
+      };
+
+      if (data.has_type || isConfigItem) {
+        // Set the record data
+        setRecord &&
+          setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
+        //
+      }
+    }
+    // If this provider has children
+    if (size(data.children)) {
+      const children = filterChildren(data.children);
+
+      if (!size(children)) {
+        setWarning(
+          'There are no further paths to go, please go back and select a different path...'
+        );
+      } else {
+        setWarning(undefined);
+      }
+
+      setOptionProvider(newOptionProvider);
+      // Return the updated items and add
+      // the new item
+      setChildren([
+        ...newItems,
+        {
+          values: children.map((child) => {
+            if (typeof child === 'string') {
               return {
-                ...child,
+                name: child,
+                desc: 'No description provided',
                 url: `${url}/${value}${suffix}`,
                 suffix: '',
               };
-            }),
-            value: null,
-          },
-        ];
-      } else if (data.supports_request && !requiresRequest) {
-        // Return the updated items and add
-        // the new item
-        return [
-          ...newItems,
-          {
-            values: [
-              {
-                name: 'request',
-                desc: '',
-                url: `${url}/${value}${suffix}`,
-                suffix: '',
-              },
-              {
-                name: 'response',
-                desc: '',
-                url: `${url}/${value}${suffix}`,
-                suffix: '',
-              },
-            ],
-            value: null,
-          },
-        ];
+            }
+
+            return {
+              ...child,
+              url: `${url}/${value}${suffix}`,
+              suffix: '',
+            };
+          }),
+          value: null,
+        },
+      ]);
+
+      return;
+    } else if (data.supports_request && !requiresRequest) {
+      setOptionProvider(newOptionProvider);
+      // Return the updated items and add
+      // the new item
+      setChildren([
+        ...newItems,
+        {
+          values: [
+            {
+              name: 'request',
+              desc: '',
+              url: `${url}/${value}${suffix}`,
+              suffix: '',
+            },
+            {
+              name: 'response',
+              desc: '',
+              url: `${url}/${value}${suffix}`,
+              suffix: '',
+            },
+          ],
+          value: null,
+        },
+      ]);
+
+      return;
+    }
+
+    if (data.fields) {
+      // Save the name by pulling the 3rd item from the split
+      // url (same for every provider type)
+      const name = `${url}/${value}`.split('/')[2];
+      // Set the provider option
+      newOptionProvider = {
+        ...optionProvider,
+        type: realProviders[provider].type,
+        can_manage_fields: data.can_manage_fields,
+        name,
+        up: data.up !== false,
+        supports_read: data.supports_read,
+        supports_update: data.supports_update,
+        supports_create: data.supports_create,
+        supports_delete: data.supports_delete,
+        supports_messages: data.supports_messages,
+        supports_observable: data.supports_observable,
+        transaction_management: data.transaction_management,
+        record_requires_search_options: data.record_requires_search_options,
+        subtype: value === 'request' || value === 'response' ? value : undefined,
+        descriptions: [...descriptions, data?.desc],
+        path: `${url}/${value}`
+          .replace(`${name}`, '')
+          .replace(`${realProviders[provider].url}/`, '')
+          .replace('provider/', '')
+          .replace('request', '')
+          .replace('response', ''),
+        options,
+        search_options: didApplyOptions ? searchOptions : undefined,
+        searchOptionsChanged: false,
+      };
+      // Set the record data
+      setRecord && setRecord(data.fields);
+    }
+    // Check if there is a record
+    else if (isConfigItem || data.has_record || !realProviders[provider].requiresRecord) {
+      setIsLoading(true);
+      if (type === 'outputs' && data.mapper_keys) {
+        // Save the mapper keys
+        setMapperKeys && setMapperKeys(data.mapper_keys);
       }
 
-      if (data.fields) {
-        // Save the name by pulling the 3rd item from the split
-        // url (same for every provider type)
-        const name = `${url}/${value}`.split('/')[2];
-        // Set the provider option
-        setOptionProvider({
-          ...optionProvider,
-          type: realProviders[provider].type,
-          can_manage_fields: data.can_manage_fields,
-          name,
-          supports_read: data.supports_read,
-          supports_update: data.supports_update,
-          supports_create: data.supports_create,
-          supports_delete: data.supports_delete,
-          supports_messages: data.supports_messages,
-          supports_observable: data.supports_observable,
-          transaction_management: data.transaction_management,
-          record_requires_search_options: data.record_requires_search_options,
-          subtype: value === 'request' || value === 'response' ? value : undefined,
-          descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
-          path: `${url}/${value}`
-            .replace(`${name}`, '')
-            .replace(`${realProviders[provider].url}/`, '')
-            .replace('provider/', '')
-            .replace('request', '')
-            .replace('response', ''),
-          options,
-          search_options: didApplyOptions ? searchOptions : undefined,
-          searchOptionsChanged: false,
-        });
-        // Set the record data
-        setRecord && setRecord(data.fields);
-      }
-      // Check if there is a record
-      else if (isConfigItem || data.has_record || !realProviders[provider].requiresRecord) {
-        (async () => {
-          setIsLoading(true);
-          if (type === 'outputs' && data.mapper_keys) {
-            // Save the mapper keys
-            setMapperKeys && setMapperKeys(data.mapper_keys);
-          }
+      const childDetailsSuffix =
+        data.supports_children || data.has_type === false
+          ? value === 'request' || value === 'response'
+            ? buildOptions()
+            : `?action=childDetails&${buildOptions()}`
+          : buildOptions();
 
-          const childDetailsSuffix =
-            data.supports_children || data.has_type === false
-              ? value === 'request' || value === 'response'
-                ? buildOptions()
-                : `?action=childDetails&${buildOptions()}`
-              : buildOptions();
+      const splitter = `${realProviders[provider].recordSuffix.includes('?') ? '&' : '?'}`;
+      const newSuffix = suffix;
+      suffixString =
+        customOptionString && customOptionString !== ''
+          ? `${suffix}${
+              data.has_record ? realProviders[provider].recordSuffix : ''
+            }${splitter}${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
+          : `${newSuffix}${
+              data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
+            }${splitter}${childDetailsSuffix}`;
 
-          const splitter = `${realProviders[provider].recordSuffix.includes('?') ? '&' : '?'}`;
-          const newSuffix = suffix;
-          suffixString =
-            customOptionString && customOptionString !== ''
-              ? `${suffix}${
-                  data.has_record ? realProviders[provider].recordSuffix : ''
-                }${splitter}${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
-              : `${newSuffix}${
-                  data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
-                }${splitter}${childDetailsSuffix}`;
+      // Fetch the record
+      const record = await fetchData(`${url}/${value}${suffixString}`);
 
-          // Fetch the record
-          const record = await fetchData(`${url}/${value}${suffixString}`);
+      handleCallError(record.error);
 
-          if (record.error) {
-            const errMessage = `${record.error.err}: ${record.error.desc}`;
-            onError?.(errMessage);
-          } else {
-            onError?.(null);
-          }
-
-          // Remove loading
-          setIsLoading(false);
-          // Save the name by pulling the 3rd item from the split
-          // url (same for every provider type)
-          const name = `${url}/${value}`.split('/')[2];
-          // Set the provider option
-          setOptionProvider({
-            ...optionProvider,
-            type: realProviders[provider].type,
-            name,
-            supports_read: data.supports_read,
-            supports_update: data.supports_update,
-            supports_create: data.supports_create,
-            supports_delete: data.supports_delete,
-            can_manage_fields: record.data.can_manage_fields,
-            supports_messages: data.supports_messages,
-            supports_observable: data.supports_observable,
-            transaction_management: data.transaction_management,
-            record_requires_search_options: data.record_requires_search_options,
-            subtype: value === 'request' || value === 'response' ? value : undefined,
-            descriptions: [...(optionProvider?.descriptions || []), ...descriptions, data.desc],
-            path: `${url}/${value}`
-              .replace(`${name}`, '')
-              .replace(`${realProviders[provider].url}/`, '')
-              .replace('provider/', '')
-              .replace('request', '')
-              .replace('response', ''),
-            options,
-            search_options: didApplyOptions ? searchOptions : undefined,
-            searchOptionsChanged: false,
-          });
-          // Set the record data
-          setRecord &&
-            setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
-          //
-        })();
-      }
-
-      return [...newItems];
-    });
+      // Remove loading
+      setIsLoading(false);
+      // Save the name by pulling the 3rd item from the split
+      // url (same for every provider type)
+      const name = `${url}/${value}`.split('/')[2];
+      // Set the provider option
+      newOptionProvider = {
+        ...optionProvider,
+        type: realProviders[provider].type,
+        name,
+        up: data.up !== false,
+        supports_read: data.supports_read,
+        supports_update: data.supports_update,
+        supports_create: data.supports_create,
+        supports_delete: data.supports_delete,
+        can_manage_fields: record.data.can_manage_fields,
+        supports_messages: data.supports_messages,
+        supports_observable: data.supports_observable,
+        transaction_management: data.transaction_management,
+        record_requires_search_options: data.record_requires_search_options,
+        subtype: value === 'request' || value === 'response' ? value : undefined,
+        descriptions: [...descriptions, data?.desc],
+        path: `${url}/${value}`
+          .replace(`${name}`, '')
+          .replace(`${realProviders[provider].url}/`, '')
+          .replace('provider/', '')
+          .replace('request', '')
+          .replace('response', ''),
+        options,
+        search_options: didApplyOptions ? searchOptions : undefined,
+        searchOptionsChanged: false,
+      };
+      // Set the record data
+      setRecord &&
+        setRecord(!realProviders[provider].requiresRecord ? record.data.fields : record.data);
+      //
+    }
+    setOptionProvider(newOptionProvider);
+    setChildren(newItems);
   };
 
   const getDefaultItems = useCallback(
@@ -736,6 +784,8 @@ const MapperProvider: FC<IProviderProps> = ({
       ),
     []
   );
+
+  const description = last(nodes)?.values?.[0]?.desc;
 
   return (
     <>
@@ -786,12 +836,24 @@ const MapperProvider: FC<IProviderProps> = ({
             <ReqoreControlGroup fluid={false} key={index}>
               {size(child.values) ? (
                 <SelectField
+                  autoSelect
                   key={`${title}-${index}`}
                   name={`provider-${type ? `${type}-` : ''}${index}`}
                   disabled={isLoading || readOnly}
                   className="provider-selector"
-                  filters={['supports_read', 'supports_request', 'has_record']}
-                  defaultItems={child.values}
+                  filters={['supports_read', 'supports_request', 'has_record', 'up']}
+                  defaultItems={child.values.map((child) => ({
+                    ...child,
+                    intent: child.up === false ? 'danger' : undefined,
+                    badge:
+                      child.up === false
+                        ? {
+                            icon: 'ErrorWarningLine',
+                            label: 'Connection down',
+                            intent: 'danger',
+                          }
+                        : undefined,
+                  }))}
                   onChange={(_name, value) => {
                     // Get the child data
                     const { url, suffix, provider_info } = child.values.find(
@@ -988,12 +1050,20 @@ const MapperProvider: FC<IProviderProps> = ({
             />
           ) : null}
         </ReqoreControlGroup>
+        {description ? (
+          <ReqoreMessage intent="info" opaque={false} size="small" margin="top">
+            <ReactMarkdown>{description}</ReactMarkdown>
+          </ReqoreMessage>
+        ) : null}
         {errorMessage && (
-          <SubField>
-            <ReqoreMessage title="An error occurred" intent="danger">
-              {errorMessage}
-            </ReqoreMessage>
-          </SubField>
+          <ReqoreMessage title="An error occurred" intent="danger" size="small" margin="top">
+            {errorMessage}
+          </ReqoreMessage>
+        )}
+        {warningMessage && (
+          <ReqoreMessage title="Warning" intent="warning" size="small" margin="top" opaque={false}>
+            {warningMessage}
+          </ReqoreMessage>
         )}
       </ReqorePanel>
     </>

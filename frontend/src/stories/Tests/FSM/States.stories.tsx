@@ -6,6 +6,7 @@ import FSMView from '../../../containers/InterfaceCreator/fsm';
 import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
 import {
+  _testsClickState,
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
   _testsSubmitFSMState,
@@ -69,7 +70,7 @@ export const NewStateFromVariable: StoryFSM = {
 
     await sleep(2500);
 
-    await fireEvent.click(document.querySelector(`#state-1`));
+    await _testsClickState('state-1');
 
     await sleep(1500);
 
@@ -225,7 +226,7 @@ export const NewWhileState: StoryFSM = {
     await waitFor(() => expect(canvas.getByText(`${blockType} block (1)`)).toBeInTheDocument());
 
     // State can be opened and viewed
-    await fireEvent.click(document.querySelector(`#state-1`));
+    await _testsClickState('state-1');
     await waitFor(async () => await fireEvent.click(document.querySelector('.state-next-button')));
     await waitFor(async () => {
       await expect(document.querySelectorAll('.reqore-drawer').length).toBe(1);
@@ -311,7 +312,8 @@ export const NewTransactionState: StoryFSM = {
     await sleep(1500);
 
     await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
-    await fireEvent.click(canvas.getAllByText('bb_local')[0]);
+    const withinSelectDialog = within(document.querySelector('.q-select-dialog'));
+    await fireEvent.click(withinSelectDialog.getAllByText('bb_local')[0]);
 
     await sleep(1500);
 
@@ -356,7 +358,7 @@ export const NewTransactionState: StoryFSM = {
     await expect(size(document.querySelectorAll('.reqore-drawer'))).toBe(0);
     await waitFor(() => expect(canvas.getByText('transaction block (1)')).toBeInTheDocument());
 
-    await fireEvent.click(document.querySelector(`#state-1`));
+    await _testsClickState('state-1');
 
     await sleep(2000);
 
@@ -452,7 +454,7 @@ export const NewApiCallState: StoryFSM = {
     });
 
     // Check that state data were saved
-    await fireEvent.click(document.querySelector('#state-1'));
+    await _testsClickState('state-1');
     await waitFor(() => canvas.findByDisplayValue('logging some stuff'), { timeout: 10000 });
     await expect(document.querySelector('.system-option textarea')).toHaveValue(
       'logging some stuff'
@@ -528,7 +530,7 @@ export const NewMessageState: StoryFSM = {
     await waitFor(() => canvas.findByText('factory/wsclient'), { timeout: 10000 });
 
     // Check that state data were saved
-    await fireEvent.click(document.querySelector('#state-1'));
+    await _testsClickState('state-1');
     await waitFor(() => canvas.findByDisplayValue('Hello World'), { timeout: 10000 });
     await expect(document.querySelector('.provider-message-data textarea')).toHaveValue(
       'Hello World'
@@ -599,7 +601,7 @@ export const NewSingleSearchState: StoryFSM = {
     await waitFor(() => canvas.findByText('datasource/omq/audit_event_codes'));
 
     // Check that state data were saved
-    await fireEvent.click(document.querySelector('#state-1'));
+    await _testsClickState('state-1');
     await waitFor(
       async () => {
         await expect(document.querySelector('.system-option .reqore-input')).toHaveValue(12);
@@ -676,7 +678,7 @@ export const NewUpdateState: StoryFSM = {
     await waitFor(() => canvas.findByText('datasource/omq/audit_event_codes'));
 
     // Check that state data were saved
-    await fireEvent.click(document.querySelector('#state-1'));
+    await _testsClickState('state-1');
     await waitFor(
       async () => {
         await expect(document.querySelector('.system-option .reqore-textarea')).toHaveValue(
@@ -753,7 +755,7 @@ export const NewCreateFromFormState: StoryFSM = {
     await waitFor(() => canvas.findByText('datasource/omq/audit_event_codes'));
 
     // Check that state data were saved
-    await fireEvent.click(document.querySelector('#state-1'));
+    await _testsClickState('state-1');
     await waitFor(
       async () => {
         await expect(document.querySelector('.system-option .reqore-textarea')).toHaveValue(
@@ -829,7 +831,7 @@ export const NewCreateFromTextState: StoryFSM = {
     await waitFor(() => canvas.findByText('datasource/omq/audit_event_codes'));
 
     // Check that state data were saved
-    await fireEvent.click(document.querySelector('#state-1'));
+    await _testsClickState('state-1');
     await waitFor(
       async () => {
         await expect(document.querySelectorAll('.reqore-textarea')[1]).toHaveDisplayValue(

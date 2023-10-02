@@ -93,6 +93,7 @@ export const Message: StoryObj<typeof meta> = {
     await waitFor(() => expect(document.querySelector('.system-option')).toBeInTheDocument(), {
       timeout: 10000,
     });
+
     await fireEvent.change(document.querySelector('.system-option textarea'), {
       target: {
         value: 'wss://sandbox:sandbox@sandbox.qoretechnologies.com/apievents',

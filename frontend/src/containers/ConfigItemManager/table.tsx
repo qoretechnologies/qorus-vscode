@@ -183,6 +183,12 @@ export const Value = ({ item, useDefault }: any) => {
       : item.type;
 
   if (type === 'hash' || type === 'list') {
+    const parsedValue = maybeParseYaml(value);
+
+    if (!parsedValue) {
+      return <span> null </span>;
+    }
+
     return <ReqoreTree showControls={false} data={maybeParseYaml(yamlValue)} />;
   }
 

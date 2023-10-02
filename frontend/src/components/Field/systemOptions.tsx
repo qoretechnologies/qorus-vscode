@@ -413,7 +413,11 @@ const Options = ({
   }
 
   if (!options || !size(options)) {
-    return <ReqoreMessage intent="warning">{t('NoOptionsAvailable')}</ReqoreMessage>;
+    return (
+      <ReqoreMessage intent="warning" opaque={false}>
+        {t('NoOptionsAvailable')}
+      </ReqoreMessage>
+    );
   }
 
   const addSelectedOption = (optionName: string) => {

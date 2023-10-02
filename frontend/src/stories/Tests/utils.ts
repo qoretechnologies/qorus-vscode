@@ -65,3 +65,141 @@ export function _testsSelectItemFromCollection(
     await fireEvent.click(canvas.getByText(itemLabel));
   };
 }
+
+export async function _testsCreateSelectionBox(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  confirm?: boolean
+) {
+  await fireEvent.mouseOver(document.querySelector('#fsm-diagram'));
+
+  await fireEvent.keyDown(document, {
+    key: 'Meta',
+    shiftKey: true,
+  });
+
+  await sleep(200);
+
+  await fireEvent.mouseDown(document.querySelector('#fsm-diagram'), {
+    clientX: x,
+    clientY: y,
+    shiftKey: true,
+  });
+
+  await sleep(200);
+
+  await fireEvent.mouseMove(document.querySelector('#fsm-diagram'), {
+    clientX: x + width,
+    clientY: y + height,
+    shiftKey: true,
+  });
+
+  await sleep(1000);
+
+  if (confirm) {
+    await fireEvent.mouseUp(document.querySelector('#fsm-diagram'), {
+      clientX: x + width,
+      clientY: y + height,
+      shiftKey: true,
+    });
+  }
+}
+
+export async function _testsMoveState(
+  id: string | number,
+  times: number,
+  x: number = 0,
+  y: number = 0,
+  coeficient = 1
+) {
+  await fireEvent.mouseDown(document.querySelector(`#state-${id}`));
+
+  await sleep(100);
+
+  for await (const _ of Array(Math.round(times)).keys()) {
+    const { left, top } = document.querySelector(`#state-${id}`).getBoundingClientRect();
+
+    if (left > window.innerWidth - 100 || top > window.innerHeight - 100) {
+      break;
+    }
+
+    await sleep(16.67);
+
+    await fireEvent.mouseMove(document.querySelector(`#state-${id}`), {
+      clientX: left,
+      clientY: top,
+      movementX: x * coeficient,
+      movementY: y + coeficient,
+    });
+  }
+
+  await sleep(100);
+
+  const { left, top } = document.querySelector(`#state-${id}`).getBoundingClientRect();
+
+  await fireEvent.mouseUp(document.querySelector(`#state-${id}`), {
+    clientX: left,
+    clientY: top,
+  });
+}
+
+export async function _testsDeleteState(id) {
+  await fireEvent.click(document.querySelectorAll(`#state-${id} .reqore-button`)[2]);
+}
+
+export async function _testsSelectState(id) {
+  await _testsClickState(id, { shiftKey: true });
+}
+
+export async function _testsSelectStateByLabel(canvas, label) {
+  await _testsClickStateByLabel(canvas, label, { shiftKey: true });
+}
+
+export async function _testsDoubleClickState(id, options = {}) {
+  await fireEvent.mouseOver(document.querySelector(`#${id}`), options);
+  await sleep(100);
+  await fireEvent.mouseDown(document.querySelector(`#${id}`), {
+    ...options,
+    timeStamp: 0,
+  });
+  await fireEvent.mouseUp(document.querySelector(`#${id}`), {
+    ...options,
+    timeStamp: 100,
+  });
+  await fireEvent.mouseDown(document.querySelector(`#${id}`), {
+    ...options,
+    timeStamp: 0,
+  });
+  await fireEvent.mouseUp(document.querySelector(`#${id}`), {
+    ...options,
+    timeStamp: 100,
+  });
+}
+
+export async function _testsClickState(id, options = {}) {
+  await fireEvent.mouseOver(document.querySelector(`#${id}`), options);
+  await sleep(100);
+  await fireEvent.mouseDown(document.querySelector(`#${id}`), {
+    ...options,
+    timeStamp: 0,
+  });
+  await fireEvent.mouseUp(document.querySelector(`#${id}`), {
+    ...options,
+    timeStamp: 100,
+  });
+}
+
+export async function _testsClickStateByLabel(canvas, label, options = {}) {
+  await fireEvent.mouseOver(canvas.getAllByText(label)[0], options);
+  await sleep(100);
+  await fireEvent.mouseDown(canvas.getAllByText(label)[0], {
+    ...options,
+    timeStamp: 0,
+  });
+  await fireEvent.mouseUp(canvas.getAllByText(label)[0], {
+    ...options,
+    timeStamp: 100,
+  });
+}

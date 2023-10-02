@@ -85,7 +85,7 @@ test('renders <SelectField /> with 1 item, auto selects it', () => {
 
   expect(document.querySelectorAll('.reqore-control-group').length).toBe(0);
   expect(document.querySelectorAll('.reqore-dropdown').length).toBe(0);
-  expect(document.querySelector('.reqore-tag')).toBeTruthy();
+  expect(document.querySelector('.reqore-button')).toBeTruthy();
   expect(onChange).toBeCalledWith('test', 'Single item');
 });
 

@@ -33,7 +33,6 @@ const StyledMinimapView = styled.div<{ height: number; width: number; zoom: numb
   &:hover,
   &:active,
   &:focus {
-    cursor: move;
     box-shadow: inset 1px 1px 0 0 #277fba, inset -1px -1px 0 0 #277fba,
       inset 1px 1px 6px -1px #277fba, inset -1px -1px 6px -1px #277fba;
   }
