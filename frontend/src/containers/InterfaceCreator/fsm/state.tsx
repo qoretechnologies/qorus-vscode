@@ -4,6 +4,7 @@ import {
   ReqorePanel,
   ReqoreTag,
   ReqoreVerticalSpacer,
+  useReqoreProperty,
 } from '@qoretechnologies/reqore';
 import {
   IReqoreEffect,
@@ -258,6 +259,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   isBeingDragged,
   ...rest
 }) => {
+  const confirmAction = useReqoreProperty('confirmAction');
   const ref = useRef(null);
   const staticPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isCompatible, setIsCompatible] = useState<boolean>(undefined);
@@ -644,9 +646,16 @@ const FSMState: React.FC<IFSMStateProps> = ({
               },
               {
                 icon: 'DeleteBin4Fill' as IReqoreIconName,
-                onClick: (e) => {
+                onMouseDown: (e) => {
                   e?.stopPropagation();
-                  onDeleteClick?.(id);
+                  confirmAction({
+                    title: 'Delete state',
+                    description: `Are you sure you want to delete state ${name}?`,
+                    intent: 'danger',
+                    onConfirm: () => {
+                      onDeleteClick?.(id);
+                    },
+                  });
                 },
                 intent: 'danger',
                 minimal: true,

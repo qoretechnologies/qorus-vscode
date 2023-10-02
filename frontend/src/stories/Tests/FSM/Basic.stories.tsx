@@ -1,6 +1,6 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
-import { fireEvent, waitFor, within } from '@storybook/testing-library';
+import { fireEvent, screen, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { NewState } from '../../Views/FSM.stories';
@@ -108,7 +108,11 @@ export const StateIsDeleted: StoryFSM = {
     await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
     await expect(document.querySelectorAll('.fsm-transition').length).toBe(7);
 
-    await fireEvent.click(document.querySelectorAll('#state-3 .reqore-button')[2]);
+    await fireEvent.mouseDown(document.querySelectorAll('#state-3 .reqore-button')[2]);
+
+    await sleep(500);
+
+    await fireEvent.click(screen.getAllByText('Confirm')[0]);
 
     await expect(document.querySelectorAll('.fsm-state').length).toBe(7);
     await expect(document.querySelectorAll('.fsm-transition').length).toBe(4);
