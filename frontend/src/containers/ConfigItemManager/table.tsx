@@ -68,8 +68,9 @@ const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => {
   return (
     <React.Fragment>
       {!size(props.isGrouped ? props.data : props.unGroupedData) ? (
-        <ReqoreMessage icon="Search2Line" flat>
-          No local config items found {props.query ? `for query "${props.query}"` : ''}
+        <ReqoreMessage icon='Search2Line' flat>
+          No local config items found{' '}
+          {props.query ? `for query "${props.query}"` : ''}
         </ReqoreMessage>
       ) : null}
       {props.isGrouped && size(props.data)
@@ -135,7 +136,9 @@ export const Value = ({ item, useDefault }: any) => {
   }, [hideTimer]);
 
   const value = useDefault ? item.default_value : item.value;
-  const yamlValue = useDefault ? item.yamlData.default_value : item.yamlData.value;
+  const yamlValue = useDefault
+    ? item.yamlData.default_value
+    : item.yamlData.value;
 
   if (!showValue) {
     return (
@@ -220,7 +223,9 @@ let ItemsTable: Function = ({
 }: ConfigItemsTableProps) => {
   const isInitialItemValueSame = (item) => {
     const initialItem = initialItems.find((inItem) => {
-      return inItem.name === item.name && inItem.config_group === item.config_group;
+      return (
+        inItem.name === item.name && inItem.config_group === item.config_group
+      );
     });
 
     if (!initialItem) {
@@ -235,7 +240,7 @@ let ItemsTable: Function = ({
       <ReqoreCollection
         label={groupName || 'All config items'}
         sortable
-        icon="PriceTagFill"
+        icon='PriceTagFill'
         maxItemHeight={250}
         minColumnWidth={zoomToWidth[zoom]}
         responsiveActions={false}
@@ -282,8 +287,23 @@ let ItemsTable: Function = ({
               : () => {
                   handleModalToggle(
                     { ...item },
-                    (name, value, parent, isTemplatedString, remove, currentType) => {
-                      onSubmit(name, value, parent, type, isTemplatedString, remove, currentType);
+                    (
+                      name,
+                      value,
+                      parent,
+                      isTemplatedString,
+                      remove,
+                      currentType
+                    ) => {
+                      onSubmit(
+                        name,
+                        value,
+                        parent,
+                        type,
+                        isTemplatedString,
+                        remove,
+                        currentType
+                      );
                       handleModalToggle(null);
                     },
                     intrf,
@@ -297,7 +317,8 @@ let ItemsTable: Function = ({
                 intent: 'warning',
                 show: 'hover',
                 disabled:
-                  definitionsOnly || (item.level ? !item.level.startsWith(levelType || '') : true),
+                  definitionsOnly ||
+                  (item.level ? !item.level.startsWith(levelType || '') : true),
                 onClick: () => {
                   onSubmit(
                     item.name,
@@ -311,10 +332,19 @@ let ItemsTable: Function = ({
               },
               {
                 icon: 'EditLine',
-                tooltip: 'Edit',
+                tooltip: 'Edit config item structure',
                 show: 'hover',
                 onClick: () => {
                   onEditStructureClick(item.name);
+                },
+              },
+              {
+                icon: 'EditLine',
+                tooltip: 'Delete config item',
+                show: 'hover',
+                intent: 'danger',
+                onClick: () => {
+                  onDeleteStructureClick(item.name);
                 },
               },
             ],
@@ -324,9 +354,17 @@ let ItemsTable: Function = ({
                 <ReqoreVerticalSpacer height={15} />
                 <ReqoreTagGroup size={zoomToSize[zoom]}>
                   {item.parent_class ? (
-                    <ReqoreTag labelKey="Parent" icon="CodeBoxFill" label={item.parent_class} />
+                    <ReqoreTag
+                      labelKey='Parent'
+                      icon='CodeBoxFill'
+                      label={item.parent_class}
+                    />
                   ) : null}
-                  <ReqoreTag labelKey="Type" label={item.type} icon="CodeLine" />
+                  <ReqoreTag
+                    labelKey='Type'
+                    label={item.type}
+                    icon='CodeLine'
+                  />
                 </ReqoreTagGroup>
               </>
             ),
@@ -407,5 +445,11 @@ export default compose(
     configItems,
     ...rest,
   })),
-  onlyUpdateForKeys(['configItems', 'showDescription', 'isGrouped', 'modalData', 'query'])
+  onlyUpdateForKeys([
+    'configItems',
+    'showDescription',
+    'isGrouped',
+    'modalData',
+    'query',
+  ])
 )(ConfigItemsTable);
