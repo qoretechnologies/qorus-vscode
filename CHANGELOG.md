@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.3.2
+
+#### Bug fixes
+
+- Fixed a bug where duplicated config items would be shown in the WebView & saved in YAML
+
 ## Version 4.3.1
 
 #### Bug fixes

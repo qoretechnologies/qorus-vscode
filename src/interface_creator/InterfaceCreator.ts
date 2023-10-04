@@ -6,6 +6,7 @@ import { t } from 'ttag';
 import { Position } from 'vscode';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
+import { QorusProjectInterfaceInfo } from '../QorusProjectInterfaceInfo';
 import { qorus_webview } from '../QorusWebview';
 import * as globals from '../global_config_item_values';
 import { isLangClientAvailable } from '../qore_vscode';
@@ -615,7 +616,7 @@ export abstract class InterfaceCreator {
   ): string => {
     let result: string = `${indent.repeat(indent_level)}config-items:\n`;
 
-    items = items.filter(
+    items = [...items].filter(
       (item) =>
         !item.parent ||
         InterfaceCreator.checkParentConfigItem(
@@ -625,6 +626,9 @@ export abstract class InterfaceCreator {
           code_info
         )
     );
+
+    // Issue #1218: remove duplicate config items
+    items = QorusProjectInterfaceInfo.removeDuplicateConfigItems(items);
 
     for (const item of [...items]) {
       result += `${indent.repeat(indent_level)}${list_indent}name: ${item.name}\n`;
