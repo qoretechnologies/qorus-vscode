@@ -313,7 +313,6 @@ let ItemsTable: Function = ({
                 icon: 'EditLine',
                 tooltip: 'Edit',
                 show: 'hover',
-                disabled: definitionsOnly,
                 onClick: () => {
                   onEditStructureClick(item.name);
                 },
