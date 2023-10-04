@@ -341,7 +341,7 @@ let ItemsTable: Function = ({
               {
                 icon: 'DeleteBinLine',
                 tooltip: 'Delete config item',
-                show: 'hover',
+                show: item.parent_class ? false : 'hover',
                 intent: 'danger',
                 onClick: () => {
                   onDeleteStructureClick(item.name);
