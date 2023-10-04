@@ -1,6 +1,7 @@
 import {
   ReqoreDrawer,
   ReqoreHorizontalSpacer,
+  ReqoreInput,
   ReqoreMenu,
   ReqoreMenuDivider,
   ReqoreMessage,
@@ -2398,6 +2399,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               {showStatesList ? (
                 <>
                   <ReqoreMenu width="250px">
+                    <ReqoreInput />
                     {metadata.globalvar || metadata.localvar || metadata.autovar ? (
                       <>
                         <ReqoreMenuDivider label="Variables" align="left" />

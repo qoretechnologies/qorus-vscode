@@ -1,0 +1,332 @@
+[
+  {
+    "name": "Google Drive",
+    "display_name": "Google Drive",
+    "desc": "Google Drive is a file storage and synchronization service developed by Google.",
+    "short_desc": "File storage and synchronization service",
+    "scheme": "googledrive",
+    "oauth2_auth_code": true,
+    "logo": "https://www.gstatic.com/images/branding/product/1x/drive_48dp.png",
+    "logo_file_name": "drive.png",
+    "logo_mime_type": "image/png",
+    "oauth2_client": {
+      "oauth2_client_id": "myclientid",
+      "oauth2_client_secret": "myclientsecret",
+      "url_type": "auto",
+      "oauth2_auth_url": "https://accounts.google.com/o/oauth2/auth",
+      "oauth2_token_url": "https://accounts.google.com/o/oauth2/token",
+      "required_options": ["option1", "option2"]
+    },
+    "actions": [
+      {
+        "app": "Google Drive",
+        "action": "CreateFile",
+        "subtype": "Document",
+        "path": "/files",
+        "path_vars": {
+          "folderId": "The ID of the parent folder",
+          "uploadType": "The type of upload request"
+        },
+        "short_desc": "Create a new file",
+        "desc": "Create a new file with the specified metadata and content.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      },
+      {
+        "app": "Google Drive",
+        "action": "GetFile",
+        "subtype": "Document",
+        "path": "/files/{fileId}",
+        "path_vars": {
+          "fileId": "The ID of the file"
+        },
+        "short_desc": "Get a file",
+        "desc": "Gets a file's metadata or content by ID.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      }
+    ]
+  },
+  {
+    "name": "YouTube",
+    "display_name": "YouTube",
+    "desc": "YouTube is an American online video-sharing platform headquartered in San Bruno, California.",
+    "short_desc": "Online video-sharing platform",
+    "scheme": "youtube",
+    "oauth2_auth_code": true,
+    "logo": "https://www.youtube.com/s/desktop/2f8e2e1c/img/favicon_144.png",
+    "logo_file_name": "youtube.svg",
+    "logo_mime_type": "image/svg+xml",
+    "oauth2_client": {
+      "oauth2_client_id": "myclientid",
+      "oauth2_client_secret": "myclientsecret",
+      "url_type": "auto",
+      "oauth2_auth_url": "https://accounts.google.com/o/oauth2/auth",
+      "oauth2_token_url": "https://accounts.google.com/o/oauth2/token",
+      "required_options": ["option1", "option2"]
+    },
+    "actions": [
+      {
+        "app": "YouTube",
+        "action": "SearchVideos",
+        "subtype": "Video",
+        "path": "/search",
+        "path_vars": {
+          "q": "The search query",
+          "type": "The type of resource to search for"
+        },
+        "short_desc": "Search for videos",
+        "desc": "Returns a collection of search results that match the query parameters specified in the API request.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      },
+      {
+        "app": "YouTube",
+        "action": "GetVideo",
+        "subtype": "Video",
+        "path": "/videos",
+        "path_vars": {
+          "id": "The ID of the video"
+        },
+        "short_desc": "Get a video",
+        "desc": "Returns a video resource.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      },
+      {
+        "app": "YouTube",
+        "action": "GetChannel",
+        "subtype": "Channel",
+        "path": "/channels",
+        "path_vars": {
+          "id": "The ID of the channel"
+        },
+        "short_desc": "Get a channel",
+        "desc": "Returns a channel resource.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      }
+    ]
+  },
+  {
+    "name": "Twitter",
+    "display_name": "Twitter",
+    "desc": "Twitter is an American microblogging and social networking service on which users post and interact with messages known as tweets.",
+    "short_desc": "Microblogging and social networking service",
+    "scheme": "twitter",
+    "oauth2_auth_code": true,
+    "logo": "https://abs.twimg.com/responsive-web/client-web/icon-ios.b1fc7275.png",
+    "logo_file_name": "twitter.png",
+    "logo_mime_type": "image/png",
+    "oauth2_client": {
+      "oauth2_client_id": "myclientid",
+      "oauth2_client_secret": "myclientsecret",
+      "url_type": "auto",
+      "oauth2_auth_url": "https://api.twitter.com/oauth2/token",
+      "oauth2_token_url": "https://api.twitter.com/oauth2/token",
+      "required_options": ["option1", "option2"]
+    },
+    "actions": [
+      {
+        "app": "Twitter",
+        "action": "SearchTweets",
+        "subtype": "Tweet",
+        "path": "/search/tweets.json",
+        "path_vars": {
+          "q": "The search query",
+          "count": "The number of tweets to return"
+        },
+        "short_desc": "Search for tweets",
+        "desc": "Returns a collection of relevant Tweets matching a specified query.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      },
+      {
+        "app": "Twitter",
+        "action": "GetTweet",
+        "subtype": "Tweet",
+        "path": "/statuses/show.json",
+        "path_vars": {
+          "id": "The ID of the tweet"
+        },
+        "short_desc": "Get a tweet",
+        "desc": "Returns a single Tweet, specified by the id parameter.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      }
+    ]
+  },
+  {
+    "name": "GitHub",
+    "display_name": "GitHub",
+    "desc": "GitHub is a web-based hosting service for version control using git.",
+    "short_desc": "Web-based hosting service for version control",
+    "scheme": "github",
+    "oauth2_auth_code": true,
+    "logo": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+    "logo_file_name": "github.png",
+    "logo_mime_type": "image/png",
+    "oauth2_client": {
+      "oauth2_client_id": "myclientid",
+      "oauth2_client_secret": "myclientsecret",
+      "url_type": "auto",
+      "oauth2_auth_url": "https://github.com/login/oauth/authorize",
+      "oauth2_token_url": "https://github.com/login/oauth/access_token",
+      "required_options": ["option1", "option2"]
+    },
+    "actions": [
+      {
+        "app": "GitHub",
+        "action": "CreateRepository",
+        "subtype": "Repository",
+        "path": "/user/repos",
+        "path_vars": {
+          "name": "The name of the repository",
+          "description": "The description of the repository"
+        },
+        "short_desc": "Create a new repository",
+        "desc": "Creates a new repository for the authenticated user.",
+        "action_code": 201,
+        "action_code_str": "CREATED",
+        "action_val": "message"
+      },
+      {
+        "app": "GitHub",
+        "action": "GetRepository",
+        "subtype": "Repository",
+        "path": "/repos/{owner}/{repo}",
+        "path_vars": {
+          "owner": "The name of the repository owner",
+          "repo": "The name of the repository"
+        },
+        "short_desc": "Get a repository",
+        "desc": "Gets a repository by the specified owner and repository name.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      },
+      {
+        "app": "GitHub",
+        "action": "ListIssues",
+        "subtype": "Issue",
+        "path": "/repos/{owner}/{repo}/issues",
+        "path_vars": {
+          "owner": "The name of the repository owner",
+          "repo": "The name of the repository"
+        },
+        "short_desc": "List issues",
+        "desc": "Lists the issues for the specified repository.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      }
+    ]
+  },
+  {
+    "name": "Slack",
+    "display_name": "Slack",
+    "desc": "Slack is a proprietary business communication platform developed by Slack Technologies.",
+    "short_desc": "Business communication platform",
+    "scheme": "slack",
+    "oauth2_auth_code": true,
+    "logo": "https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png",
+    "logo_file_name": "slack.png",
+    "logo_mime_type": "image/png",
+    "oauth2_client": {
+      "oauth2_client_id": "myclientid",
+      "oauth2_client_secret": "myclientsecret",
+      "url_type": "auto",
+      "oauth2_auth_url": "https://slack.com/oauth/authorize",
+      "oauth2_token_url": "https://slack.com/api/oauth.access",
+      "required_options": ["option1", "option2"]
+    },
+    "actions": [
+      {
+        "app": "Slack",
+        "action": "SendMessage",
+        "subtype": "Message",
+        "path": "/chat.postMessage",
+        "path_vars": {
+          "channel": "The ID of the channel",
+          "text": "The message text"
+        },
+        "short_desc": "Send a message",
+        "desc": "Sends a message to a channel.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      },
+      {
+        "app": "Slack",
+        "action": "GetChannelInfo",
+        "subtype": "Channel",
+        "path": "/conversations.info",
+        "path_vars": {
+          "channel": "The ID of the channel"
+        },
+        "short_desc": "Get channel info",
+        "desc": "Retrieves information about a conversation.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      }
+    ]
+  },
+  {
+    "name": "Trello",
+    "display_name": "Trello",
+    "desc": "Trello is a web-based Kanban-style list-making application developed by Atlassian.",
+    "short_desc": "Kanban-style list-making application",
+    "scheme": "trello",
+    "oauth2_auth_code": true,
+    "logo": "https://d2k1ftgv7pobq7.cloudfront.net/meta/u/res/images/brand-assets/Logos/Logos/svg/trello-logo-blue.svg",
+    "logo_file_name": "trello.svg",
+    "logo_mime_type": "image/svg+xml",
+    "oauth2_client": {
+      "oauth2_client_id": "myclientid",
+      "oauth2_client_secret": "myclientsecret",
+      "url_type": "auto",
+      "oauth2_auth_url": "https://trello.com/1/authorize",
+      "oauth2_token_url": "https://trello.com/1/token",
+      "required_options": ["option1", "option2"]
+    },
+    "actions": [
+      {
+        "app": "Trello",
+        "action": "CreateCard",
+        "subtype": "Card",
+        "path": "/1/cards",
+        "path_vars": {
+          "name": "The name of the card",
+          "idList": "The ID of the list to add the card to"
+        },
+        "short_desc": "Create a new card",
+        "desc": "Creates a new card on the specified list.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      },
+      {
+        "app": "Trello",
+        "action": "GetBoard",
+        "subtype": "Board",
+        "path": "/1/boards/{id}",
+        "path_vars": {
+          "id": "The ID of the board"
+        },
+        "short_desc": "Get a board",
+        "desc": "Gets a board by the specified ID.",
+        "action_code": 200,
+        "action_code_str": "OK",
+        "action_val": "message"
+      }
+    ]
+  }
+]

@@ -5,6 +5,7 @@ module.exports = {
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
     '@storybook/addon-mdx-gfm',
+    '@chromaui/addon-visual-tests',
   ],
   framework: {
     name: '@storybook/react-webpack5',
@@ -19,10 +20,10 @@ module.exports = {
     NODE_ENV: 'storybook',
     BROWSER: 'chrome',
   }),
-  // refs: {
-  //   reqore: {
-  //     title: 'ReQore',
-  //     url: 'https://reqore.qoretechnologies.com/',
-  //   },
-  // },
+  refs: {
+    reqore: {
+      title: 'ReQore',
+      url: 'https://reqore.qoretechnologies.com/',
+    },
+  },
 };
