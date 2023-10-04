@@ -339,7 +339,7 @@ let ItemsTable: Function = ({
                 },
               },
               {
-                icon: 'EditLine',
+                icon: 'DeleteBinLine',
                 tooltip: 'Delete config item',
                 show: 'hover',
                 intent: 'danger',
