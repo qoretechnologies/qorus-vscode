@@ -55,9 +55,9 @@ export const configItemFields = (params) => {
     },
     {
       name: 'strictly_local',
-      mandatory: true,
+      mandatory: false,
       type: 'boolean',
-      default_value: true,
+      default_value: false,
       compact: true,
       group: 'info',
     },
