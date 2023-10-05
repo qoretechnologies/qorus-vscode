@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.3.4
+
+#### Bug fixes
+
+- Default value for `strictly_local` flag on config items was changed to `false`
+
 ## Version 4.3.3
 
 #### Bug fixes
