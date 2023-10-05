@@ -860,6 +860,18 @@ export class QorusProjectInterfaceInfo {
     this.code_info.waitForPending(['yaml'], 500).then(() => this.getConfigItemsImpl(params));
   };
 
+  public static removeDuplicateConfigItems(items) {
+    return items.reduce((newItems, item) => {
+      const itemIndex = newItems.findIndex((existingItem) => existingItem.name === item.name);
+
+      if (itemIndex === -1) {
+        return [...newItems, item];
+      } else {
+        return newItems;
+      }
+    }, []);
+  }
+
   private getConfigItemsImpl = ({
     'base-class-name': base_class_name,
     classes,
@@ -1110,9 +1122,15 @@ export class QorusProjectInterfaceInfo {
         )
     );
 
+    // #issue #1218
+    // remove config items with the same name
+    local_items = QorusProjectInterfaceInfo.removeDuplicateConfigItems(local_items);
+    global_items = QorusProjectInterfaceInfo.removeDuplicateConfigItems(global_items);
+
     let message: any;
     if (iface_kind === 'workflow') {
-      const workflow_items = local_items.map((item) => checkValueLevel({ ...item }, 'workflow'));
+      let workflow_items = local_items.map((item) => checkValueLevel({ ...item }, 'workflow'));
+      workflow_items = QorusProjectInterfaceInfo.removeDuplicateConfigItems(workflow_items);
 
       message = {
         action: 'return-config-items',
