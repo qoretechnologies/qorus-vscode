@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 4.3.4
+
+#### Bug fixes
+
+- Default value for `strictly_local` flag on config items was changed to `false`
+
+## Version 4.3.3
+
+#### Bug fixes
+
+- Fixed a bug where a config item edit structure button was incorrectly disabled
+- Added delete config item button
+
 ## Version 4.3.2
 
 #### Bug fixes
