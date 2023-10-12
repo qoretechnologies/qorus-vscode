@@ -1,6 +1,5 @@
 import {
   ReqoreControlGroup,
-  ReqoreHorizontalSpacer,
   ReqoreMessage,
   ReqorePanel,
   ReqoreTag,
@@ -14,6 +13,7 @@ import { IReqoreTooltip } from '@qoretechnologies/reqore/dist/types/global';
 import size from 'lodash/size';
 import { useContext } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useMeasure } from 'react-use';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { InitialContext } from '../../context/init';
@@ -38,6 +38,7 @@ export interface IFieldWrapper {
   children: React.ReactNode;
   collapsible?: boolean;
   compact?: boolean;
+  inGroup?: boolean;
 }
 
 export const getGlobalDescriptionTooltip = (desc?: string, title?: string): IReqoreTooltip => ({
@@ -74,9 +75,12 @@ export const FieldWrapper = ({
   onResetClick,
   isSet,
   disabled,
+  inGroup,
 }: IFieldWrapper) => {
   const initContext = useContext(InitialContext);
   const t = useContext(TextContext);
+
+  const [ref, { width }] = useMeasure();
 
   const removeButtonProps = {
     icon: 'DeleteBinLine',
@@ -95,14 +99,14 @@ export const FieldWrapper = ({
 
   if (compact) {
     return (
-      <ReqorePanel size="small" flat padded={false}>
-        <ReqoreControlGroup fluid verticalAlign="flex-start">
+      <ReqorePanel size="small" flat padded={false} ref={ref}>
+        <ReqoreControlGroup fluid verticalAlign="flex-start" vertical={width < 400 || !inGroup}>
           {label || removable ? (
             <>
               <ReqoreTag
-                fixed
-                width="150px"
+                width={width < 400 || !inGroup ? undefined : '150px'}
                 wrap
+                fluid
                 label={label}
                 minimal
                 intent={isValid ? undefined : 'danger'}
@@ -114,7 +118,6 @@ export const FieldWrapper = ({
                   },
                 ]}
               />
-              <ReqoreHorizontalSpacer width={5} />
             </>
           ) : null}
 

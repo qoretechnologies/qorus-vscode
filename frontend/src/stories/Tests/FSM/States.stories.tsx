@@ -1,11 +1,13 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-library';
-import { size } from 'lodash';
+import { size, upperFirst } from 'lodash';
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
 import {
+  _testsAddNewState,
+  _testsAddNewVariableState,
   _testsClickState,
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
@@ -40,7 +42,7 @@ export const NewStateFromVariable: StoryFSM = {
     const canvas = within(canvasElement);
     await NewVariableState.play({ canvasElement, ...rest });
 
-    await fireEvent.dblClick(document.querySelector(`#var-actiontestVariable`));
+    await fireEvent.click(canvas.getByText(`testVariable`, { selector: 'h4' }));
     await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());
     expect(document.querySelector('#state-1')).toBeInTheDocument();
 
@@ -204,7 +206,8 @@ export const NewWhileState: StoryFSM = {
     await expect(document.querySelector('.state-submit-button')).toBeDisabled();
 
     // Add new mapper state to the block
-    await fireEvent.dblClick(document.querySelector(`#state1mapper`));
+    await _testsAddNewState('mapper', canvas, `${upperFirst(blockType)}`);
+
     await waitFor(() => expect(document.querySelectorAll('.reqore-drawer').length).toBe(2));
 
     await sleep(1000);
@@ -213,10 +216,10 @@ export const NewWhileState: StoryFSM = {
     await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
-    await waitFor(_testsSubmitFSMState('state-state1State1-submit-button'), { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState('state-mapper-submit-button'), { timeout: 5000 });
     await waitFor(async () => {
       await expect(document.querySelectorAll('.reqore-drawer').length).toBe(1);
-      await expect(canvas.getByText('State 1.State 1')).toBeInTheDocument();
+      await expect(canvas.getByText('Mapper')).toBeInTheDocument();
       await expect(canvas.getByText('Test Mapper 1')).toBeInTheDocument();
     });
 
@@ -230,7 +233,7 @@ export const NewWhileState: StoryFSM = {
     await waitFor(async () => await fireEvent.click(document.querySelector('.state-next-button')));
     await waitFor(async () => {
       await expect(document.querySelectorAll('.reqore-drawer').length).toBe(1);
-      await expect(canvas.getByText('State 1.State 1')).toBeInTheDocument();
+      await expect(canvas.getByText('Mapper')).toBeInTheDocument();
       await expect(canvas.getByText('Test Mapper 1')).toBeInTheDocument();
     });
   },
@@ -329,17 +332,7 @@ export const NewTransactionState: StoryFSM = {
 
     await fireEvent.click(document.querySelector('.state-next-button'));
 
-    await waitFor(
-      async () => {
-        // The submit button needs to be disabled
-        await expect(document.querySelector('#state1var-actiontrans')).toBeInTheDocument();
-      },
-      {
-        timeout: 10000,
-      }
-    );
-
-    await fireEvent.dblClick(document.querySelector(`#state1var-actiontrans`));
+    await _testsAddNewVariableState('trans', canvas, 'Transaction');
 
     await sleep(500);
     await _testsSelectItemFromDropdown(canvas, 'transaction')();
@@ -347,14 +340,14 @@ export const NewTransactionState: StoryFSM = {
     await _testsSelectItemFromCollection(canvas, 'begin-transaction')();
     await sleep(1500);
 
-    await waitFor(_testsSubmitFSMState('state-state1State1-submit-button'), { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState('state-trans-submit-button'), { timeout: 5000 });
     await expect(document.querySelectorAll('.reqore-drawer').length).toBe(1);
 
     await sleep(1500);
 
-    await waitFor(() => expect(canvas.getByText('State 1.State 1')).toBeInTheDocument());
+    await waitFor(() => expect(canvas.getByText('trans', { selector: 'h4' })).toBeInTheDocument());
 
-    await waitFor(_testsSubmitFSMState('state-state1-submit-button'), { timeout: 5000 });
+    await waitFor(_testsSubmitFSMState('state-transaction-submit-button'), { timeout: 5000 });
     await expect(size(document.querySelectorAll('.reqore-drawer'))).toBe(0);
     await waitFor(() => expect(canvas.getByText('transaction block (1)')).toBeInTheDocument());
 

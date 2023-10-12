@@ -58,6 +58,7 @@ export class ElementPan extends React.Component<
     onPanStart?: (e?: ElementPanState) => void;
     onPan?: (coords?: { x: number; y: number }) => void;
     onPanStop?: (coords?: { x: number; y: number }) => void;
+    onDoubleClick: (e?: any) => void;
     enableDragging?: boolean;
     startX?: number;
     startY?: number;
@@ -423,6 +424,7 @@ export class ElementPan extends React.Component<
         style={this.getContainerStyles()}
         onTouchStart={this.props.enableDragging ? this.onDragStart : undefined}
         onMouseDown={this.props.enableDragging ? this.onDragStart : undefined}
+        onDoubleClick={this.props.onDoubleClick}
         id={`panElement${panElementId}`}
         bgColor={this.props.bgColor}
       >

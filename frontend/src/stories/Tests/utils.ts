@@ -1,5 +1,43 @@
 import { expect } from '@storybook/jest';
-import { fireEvent, waitFor } from '@storybook/testing-library';
+import { fireEvent, screen, userEvent, waitFor } from '@storybook/testing-library';
+
+const stateCategory = {
+  mapper: 'Interfaces',
+  pipeline: 'Interfaces',
+  connector: 'Interfaces',
+  fsm: 'Logic',
+  while: 'Logic',
+  for: 'Logic',
+  if: 'Logic',
+  foreach: 'Logic',
+  transaction: 'Logic',
+  apicall: 'API',
+  'send-message': 'API',
+  'search-single': 'Data',
+  search: 'Data',
+  create: 'Data',
+  update: 'Data',
+  delete: 'Data',
+};
+
+const stateLabel = {
+  mapper: 'Mapper',
+  pipeline: 'Pipeline',
+  connector: 'Class Connector',
+  fsm: 'Flow',
+  while: 'While',
+  for: 'For',
+  if: 'If',
+  foreach: 'Foreach',
+  transaction: 'Transaction',
+  apicall: 'Call API',
+  'send-message': 'Send Message',
+  'search-single': 'Single Search',
+  search: 'Search',
+  create: 'Create',
+  update: 'Update',
+  delete: 'Delete',
+};
 
 export const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -14,6 +52,56 @@ export function _testsSubmitFSMState(buttonId?: string) {
       document.querySelector(buttonId ? `#${buttonId}` : '.state-submit-button')
     );
   };
+}
+
+export async function _testsOpenAppCatalogue(wrapperId?: string) {
+  const wrapper = document.querySelector(
+    `#${wrapperId ? `${wrapperId}-` : ''}fsm-diagram .element-pan`
+  );
+
+  await fireEvent.dblClick(wrapper, {
+    clientX: wrapper.getBoundingClientRect().left + 100,
+    clientY: wrapper.getBoundingClientRect().top + 100,
+  });
+
+  await waitFor(() => expect(document.querySelector('.fsm-app-selector')).toBeInTheDocument(), {
+    timeout: 10000,
+  });
+}
+
+export async function _testsCloseAppCatalogue() {
+  await fireEvent.click(document.querySelector('.fsm-app-selector .reqore-drawer-close-button'));
+}
+
+export async function _testsManageVariableFromCatalogue(variableName: string) {
+  await userEvent.click(
+    screen.getByText(variableName).closest('.reqore-panel-title').querySelector('.manage-variable')
+  );
+}
+
+export async function _testsSelectAppOrAction(canvas, appOrAction: string) {
+  await waitFor(() => canvas.getByText(appOrAction, { selector: 'h4' }), { timeout: 10000 });
+  await fireEvent.click(canvas.getByText(appOrAction, { selector: 'h4' }));
+}
+
+export async function _testsAddNewState(
+  stateType: keyof typeof stateCategory,
+  canvas,
+  wrapperId?: string
+) {
+  await _testsOpenAppCatalogue(wrapperId);
+
+  const category = stateCategory[stateType];
+  const label = stateLabel[stateType];
+
+  await _testsSelectAppOrAction(canvas, category);
+  await _testsSelectAppOrAction(canvas, label);
+}
+
+export async function _testsAddNewVariableState(variableName: string, canvas, wrapperId?: string) {
+  await _testsOpenAppCatalogue(wrapperId);
+  await _testsSelectAppOrAction(canvas, 'Variables');
+  await _testsSelectAppOrAction(canvas, variableName);
 }
 
 export function _testsSelectItemFromDropdown(

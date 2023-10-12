@@ -5,7 +5,12 @@ import FSMView from '../../../containers/InterfaceCreator/fsm';
 import VariablesFSM from '../../Data/variablesFsm.json';
 import { StoryMeta } from '../../types';
 import { NewVariable } from '../Variables.stories';
-import { sleep } from '../utils';
+import {
+  _testsCloseAppCatalogue,
+  _testsOpenAppCatalogue,
+  _testsSelectAppOrAction,
+  sleep,
+} from '../utils';
 import { SwitchesToBuilder } from './Basic.stories';
 
 const meta = {
@@ -31,18 +36,25 @@ type StoryFSM = StoryObj<typeof meta>;
 
 export const NewVariableState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await fireEvent.click(document.querySelector('#fsm-variables'));
+    await _testsOpenAppCatalogue();
+
+    await waitFor(() => canvas.getByText('Variables', { selector: 'h4' }), { timeout: 10000 });
+    await fireEvent.click(canvas.getAllByText('Manage', { selector: 'span' })[0]);
 
     // @ts-ignore
     await NewVariable.play({ canvasElement, ...rest });
 
     await sleep(100);
 
+    await fireEvent.click(canvas.getAllByText('Variables', { selector: 'h4' })[0]);
+
     await waitFor(
       async () => {
-        await expect(document.querySelector(`#var-actiontestVariable`)).toBeInTheDocument();
+        await expect(canvas.getByText('testVariable', { selector: 'h4' })).toBeInTheDocument();
       },
       {
         timeout: 5000,
@@ -56,20 +68,29 @@ export const EditVariable: StoryFSM = {
     fsm: VariablesFSM,
   },
   play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
     await sleep(1000);
 
-    await userEvent.click(document.querySelectorAll('.reqore-menu-item-right-icon')[0]);
-    await fireEvent.change(document.querySelectorAll('.reqore-input')[0], {
+    // Open app catalogue
+    await _testsOpenAppCatalogue();
+    // Select variables
+    await _testsSelectAppOrAction(canvas, 'Variables');
+
+    await userEvent.click(document.querySelectorAll('.manage-variable')[0]);
+
+    await fireEvent.change(document.querySelectorAll('.variables-form .reqore-input')[0], {
       target: { value: 'FirstVariableChanged' },
     });
 
     await fireEvent.click(document.querySelector('#save-variable'));
     await fireEvent.click(document.querySelector('#submit-variables'));
 
-    expect(document.getElementById('state-2')).toBeInTheDocument();
-    expect(document.querySelectorAll('.fsm-state').length).toBe(1);
+    await _testsCloseAppCatalogue();
+
+    await expect(document.getElementById('state-2')).toBeInTheDocument();
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(1);
   },
 };
 
@@ -83,7 +104,13 @@ export const DeleteVariable: StoryFSM = {
 
     await sleep(1000);
 
-    await userEvent.click(document.querySelectorAll('.reqore-menu-item-right-icon')[1]);
+    // Open app catalogue
+    await _testsOpenAppCatalogue();
+    // Select variables
+    await _testsSelectAppOrAction(canvas, 'Variables');
+
+    await userEvent.click(document.querySelectorAll('.manage-variable')[1]);
+
     await userEvent.click(
       document.querySelectorAll('.reqore-modal .reqore-menu-item-right-icon')[1]
     );
@@ -91,8 +118,10 @@ export const DeleteVariable: StoryFSM = {
 
     await fireEvent.click(document.querySelector('#submit-variables'));
 
-    expect(document.getElementById('state-1')).toBeInTheDocument();
-    expect(document.getElementById('state-3')).toBeInTheDocument();
-    expect(document.querySelectorAll('.fsm-state').length).toBe(2);
+    await _testsCloseAppCatalogue();
+
+    await expect(document.getElementById('state-1')).toBeInTheDocument();
+    await expect(document.getElementById('state-3')).toBeInTheDocument();
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(2);
   },
 };

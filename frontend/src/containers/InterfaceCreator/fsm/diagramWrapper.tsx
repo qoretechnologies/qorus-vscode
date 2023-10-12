@@ -12,6 +12,7 @@ export interface IFSMDiagramWrapperProps {
   zoomOut: () => void;
   setShowStateIds: (show: boolean) => void;
   showStateIds: boolean;
+  onDoubleClick: (e?: any) => void;
 }
 
 const FSMDiagramWrapper: React.FC<IFSMDiagramWrapperProps> = ({

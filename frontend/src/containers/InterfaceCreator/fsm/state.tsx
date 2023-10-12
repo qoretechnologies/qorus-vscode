@@ -57,49 +57,25 @@ export interface IFSMStateStyleProps {
   type?: 'mapper' | 'connector' | 'pipeline' | 'fsm' | 'block' | 'if';
 }
 
-export type TStateTypes = 'interfaces' | 'logic' | 'api' | 'other' | 'variables';
+export type TStateTypes = 'interfaces' | 'logic' | 'api' | 'other' | 'variables' | 'action';
 
 export const getCategoryColor = (category: TStateTypes): TReqoreHexColor => {
   switch (category) {
-    case 'interfaces':
-      return '#e8970b';
-    case 'logic':
-      return '#3b3b3b';
-    case 'api':
-      return '#1914b0';
-    case 'variables':
-      return '#14b06f';
+    case 'action':
+      return '#0e041a';
     default:
       return '#950ea1';
   }
 };
 
 export const getStateColor = (stateType: TStateTypes): IReqoreEffect['gradient'] => {
-  let color;
-  switch (stateType) {
-    case 'interfaces':
-      color = '#e8970b';
-      break;
-    case 'logic':
-      color = '#0e041a';
-      break;
-    case 'api':
-      color = '#1914b0';
-      break;
-    case 'variables':
-      color = '#14b06f';
-      break;
-    default:
-      color = '#950ea1';
-      break;
-  }
-
   return {
     colors: {
-      0: 'main',
-      100: color,
+      50: 'main',
+      200: stateType !== 'action' ? '#6f1977' : 'info:lighten:2',
     },
     animate: 'hover',
+    animationSpeed: 1,
     direction: 'to right bottom',
   };
 };
@@ -111,18 +87,15 @@ export const StyledStateTextWrapper = styled.div`
   flex-flow: column;
 `;
 
-// IS ISOLATED
-// SELECTED
-// INITIAL
-// FINAL
-// TYPE
-// IS AVAILABLE FOR TRANSITION
-// IS INCOMPATIBLE
-// ERROR
 const StyledFSMState: React.FC<
   IReqorePanelProps & { isStatic?: boolean } & IFSMStateStyleProps
 > = styled(ReqorePanel)`
   transition: none !important;
+
+  .reqore-panel-title {
+    padding-bottom: 0;
+  }
+
   ${({ isStatic }) =>
     !isStatic
       ? css`
@@ -165,15 +138,17 @@ export const getStateCategory = (type: string): TStateTypes => {
     return 'interfaces';
   }
 
-  if (type === 'fsm') {
+  if (type === 'fsm' || type === 'flow') {
     return 'logic';
   }
 
-  if (type === 'block') {
-    return 'logic';
-  }
-
-  if (type === 'if') {
+  if (
+    type === 'block' ||
+    type === 'if' ||
+    type === 'while' ||
+    type === 'for' ||
+    type === 'foreach'
+  ) {
     return 'logic';
   }
 
@@ -183,6 +158,10 @@ export const getStateCategory = (type: string): TStateTypes => {
 
   if (type === 'apicall' || type === 'send-message') {
     return 'api';
+  }
+
+  if (type === 'action') {
+    return 'action';
   }
 
   return 'other';
@@ -205,6 +184,10 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
 
   if (!action || !action.type || !action.value) {
     return '';
+  }
+
+  if (action.type === 'action') {
+    return action.value.app.display_name;
   }
 
   if (action.type === 'var-action') {
@@ -370,6 +353,10 @@ const FSMState: React.FC<IFSMStateProps> = ({
       return 'variable';
     }
 
+    if (action?.type === 'action') {
+      return 'app';
+    }
+
     return action?.type || type;
   };
 
@@ -428,6 +415,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const stateActionDescription: string =
     (
       variableDescription ||
+      (action?.value?.app ? action?.value?.app?.short_desc : undefined) ||
       (action?.value?.descriptions
         ? last(action?.value?.descriptions)
         : FSMItemDescByType[action?.type || rest['block-type'] || type])
@@ -491,6 +479,10 @@ const FSMState: React.FC<IFSMStateProps> = ({
         onClick={(e) => {
           e.stopPropagation();
         }}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+        }}
+        flat={false}
         isStatic={isStatic}
         disabled={isCompatible === false}
         intent={
@@ -531,6 +523,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           } as IReqoreEffect
         }
         icon={isLoadingCheck ? 'Loader5Fill' : FSMItemIconByType[action?.type || type]}
+        iconImage={action?.value?.app?.logo}
         className="fsm-state"
         responsiveActions={false}
         responsiveTitle={false}
@@ -749,7 +742,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
             <ReqoreTag
               wrap
               fixed
-              color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
+              width="100px"
+              color={`main:darken`}
               effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
               label={getStateTypeLabel()}
             />
@@ -760,7 +754,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
               <ReqoreTag
                 wrap
                 fixed
-                color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
+                width="100px"
+                color={`main:darken`}
                 effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
                 label="Action type"
               />
@@ -771,8 +766,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
             icon="InformationLine"
             size="small"
             wrap
+            minimal
             label={stateActionDescription}
-            color={`${getCategoryColor(getStateCategory(action?.type || type))}:darken:2`}
             labelEffect={{
               weight: 'light',
             }}

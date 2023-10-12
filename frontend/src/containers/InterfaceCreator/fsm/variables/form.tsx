@@ -6,6 +6,7 @@ import Field from '../../../../components/Field';
 import Auto from '../../../../components/Field/auto';
 import { PositiveColorEffect } from '../../../../components/Field/multiPair';
 import Select from '../../../../components/Field/select';
+import FieldGroup from '../../../../components/FieldGroup';
 import { FieldWrapper } from '../../../../components/FieldWrapper';
 import { validateField } from '../../../../helpers/validations';
 
@@ -59,6 +60,7 @@ export const VariableForm = ({
       flat
       padded={false}
       minimal
+      className='variables-form'
       transparent
       bottomActions={[
         {
@@ -81,20 +83,49 @@ export const VariableForm = ({
         },
       ]}
     >
-      <FieldWrapper
-        label="Name"
-        desc="The name of the variable"
-        compact
-        isValid={isNameValid(data.name)}
-      >
-        <Field
-          type="string"
-          value={data?.name}
-          name="name"
-          onChange={handleDataChange}
-          disabled={data?.readOnly}
-        />
-      </FieldWrapper>
+      <FieldGroup flat padded={false}>
+        <FieldWrapper
+          label="Name"
+          desc="The name of the variable"
+          compact
+          isValid={isNameValid(data.name)}
+        >
+          <Field
+            type="string"
+            value={data?.name}
+            name="name"
+            onChange={handleDataChange}
+            disabled={data?.readOnly}
+          />
+        </FieldWrapper>
+        <FieldWrapper
+          label="Type"
+          desc="The type of the variable"
+          compact
+          isValid={validateField('string', data.type)}
+        >
+          <Select
+            disabled={data?.readOnly}
+            defaultItems={[
+              { name: 'data-provider' },
+              { name: 'bool' },
+              { name: 'date' },
+              { name: 'string' },
+              { name: 'binary' },
+              { name: 'float' },
+              { name: 'list' },
+              { name: 'hash' },
+              { name: 'int' },
+            ]}
+            value={data?.type}
+            name="type"
+            onChange={(name, value) => {
+              handleDataChange('value', undefined);
+              handleDataChange(name, value);
+            }}
+          />
+        </FieldWrapper>
+      </FieldGroup>
       <ReqoreVerticalSpacer height={10} />
       <FieldWrapper label="Description" desc="The description of the variable" compact isValid>
         <Field
@@ -104,34 +135,6 @@ export const VariableForm = ({
           name="desc"
           onChange={handleDataChange}
           disabled={data?.readOnly}
-        />
-      </FieldWrapper>
-      <ReqoreVerticalSpacer height={10} />
-      <FieldWrapper
-        label="Type"
-        desc="The type of the variable"
-        compact
-        isValid={validateField('string', data.type)}
-      >
-        <Select
-          disabled={data?.readOnly}
-          defaultItems={[
-            { name: 'data-provider' },
-            { name: 'bool' },
-            { name: 'date' },
-            { name: 'string' },
-            { name: 'binary' },
-            { name: 'float' },
-            { name: 'list' },
-            { name: 'hash' },
-            { name: 'int' },
-          ]}
-          value={data?.type}
-          name="type"
-          onChange={(name, value) => {
-            handleDataChange('value', undefined);
-            handleDataChange(name, value);
-          }}
         />
       </FieldWrapper>
       <ReqoreVerticalSpacer height={10} />

@@ -8,6 +8,7 @@ import transactionStateFsm from '../Data/transacitonStateFsm.json';
 import { AutoAlign } from '../Tests/FSM/Alignment.stories';
 import { SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
 import {
+  _testsAddNewState,
   _testsClickState,
   _testsClickStateByLabel,
   _testsCreateSelectionBox,
@@ -38,13 +39,31 @@ export const Existing: StoryFSM = {
   },
 };
 
-export const NewState: StoryFSM = {
+export const CatalogueOpen: StoryFSM = {
+  args: {
+    fsm: multipleVariablesFsm,
+  },
   play: async ({ canvasElement, stateType, ...rest }) => {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await fireEvent.dblClick(document.querySelector(`#${stateType || 'mapper'}`));
-    await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());
-    expect(document.querySelector('#state-1')).toBeInTheDocument();
+    await sleep(1000);
+
+    await fireEvent.dblClick(document.querySelector(`#fsm-diagram .element-pan`));
+    await waitFor(() => expect(document.querySelector('.fsm-app-selector')).toBeInTheDocument(), {
+      timeout: 10000,
+    });
+  },
+};
+
+export const NewState: StoryFSM = {
+  play: async ({ canvasElement, stateType = 'mapper', ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await SwitchesToBuilder.play({ canvasElement, ...rest });
+
+    await _testsAddNewState(stateType, canvas);
+
+    await expect(document.querySelector('#state-1')).toBeInTheDocument();
   },
 };
 

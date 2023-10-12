@@ -38,10 +38,10 @@ export const NewVariable: StoryFSM = {
     await fireEvent.click(document.querySelector('#create-new-variable'));
     await expect(document.querySelector('#save-variable')).toBeDisabled();
 
-    await fireEvent.change(document.querySelectorAll('.reqore-input')[0], {
+    await fireEvent.change(document.querySelectorAll('.variables-form .reqore-input')[0], {
       target: { value: 'testVariable' },
     });
-    await fireEvent.change(document.querySelectorAll('.reqore-textarea')[0], {
+    await fireEvent.change(document.querySelectorAll('.variables-form .reqore-textarea')[0], {
       target: { value: 'This is a test description' },
     });
 

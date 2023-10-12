@@ -1,0 +1,222 @@
+[
+  {
+    "name": "QorusInterfaceObjects",
+    "display_name": "Interfaces",
+    "short_desc": "Qorus interface objects",
+    "desc": "Integration objects in Qorus, such as mappers, pipelines, and class connectors",
+    "scheme": "x",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/QorusInterfaceObjects/qorus-builtin-integration.svg",
+    "logo_file_name": "qorus-builtin-integration.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": true,
+    "actions": [
+      {
+        "app": "QorusInterfaceObjects",
+        "action": "mapper",
+        "path": "/",
+        "display_name": "Mapper",
+        "short_desc": "Apply a mapper",
+        "desc": "Apply a Qorus mapper to perform data transformations",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusInterfaceObjects",
+        "action": "pipeline",
+        "path": "/",
+        "display_name": "Pipeline",
+        "short_desc": "Run a data pipeline on input data",
+        "desc": "Run a Qorus data pipeline to process input data according to the pipeline definition",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusInterfaceObjects",
+        "action": "connector",
+        "path": "/",
+        "display_name": "Class Connector",
+        "short_desc": "Apply a class connector",
+        "desc": "Apply a class connector",
+        "action_code": 2,
+        "action_code_str": "API"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "QorusLogicObjects",
+    "display_name": "Logic",
+    "short_desc": "Qorus logic operations",
+    "desc": "Logic objects in Qorus to control the logical flow",
+    "scheme": "x",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/QorusLogicObjects/qorus-builtin-logic.svg",
+    "logo_file_name": "qorus-builtin-logic.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": true,
+    "actions": [
+      {
+        "app": "QorusLogicObjects",
+        "action": "fsm",
+        "path": "/",
+        "display_name": "Flow",
+        "short_desc": "Execute a flow",
+        "desc": "Execute a flow for logical branching",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusLogicObjects",
+        "action": "while",
+        "path": "/",
+        "display_name": "While",
+        "short_desc": "While loop",
+        "desc": "Execute one or more actions while a condition is true",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusLogicObjects",
+        "action": "for",
+        "path": "/",
+        "display_name": "For",
+        "short_desc": "For loop",
+        "desc": "Execute one or more actions in a for loop",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusLogicObjects",
+        "action": "foreach",
+        "path": "/",
+        "display_name": "Foreach",
+        "short_desc": "Foreach loop",
+        "desc": "Execute one or more actions for each element in a list",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusLogicObjects",
+        "action": "if",
+        "path": "/",
+        "display_name": "If",
+        "short_desc": "Execute an if statement",
+        "desc": "Execute an if statement for logical branching",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusLogicObjects",
+        "action": "transaction",
+        "path": "/",
+        "display_name": "Transaction",
+        "short_desc": "Execute a set of actions in a transaction",
+        "desc": "Execute a set of actions in a transaction; the transaction is automatically committed if the actions execute without any error, and it is automatically rolled back if an uncaught exception is raised",
+        "action_code": 2,
+        "action_code_str": "API"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "QorusApiObjects",
+    "display_name": "API",
+    "short_desc": "Qorus API operations",
+    "desc": "Logic objects in Qorus to execute a call or send a message",
+    "scheme": "x",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/QorusApiObjects/qorus-builtin-api.svg",
+    "logo_file_name": "qorus-builtin-api.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": true,
+    "actions": [
+      {
+        "app": "QorusApiObjects",
+        "action": "apicall",
+        "path": "/",
+        "display_name": "Call API",
+        "short_desc": "Call an API and return the result",
+        "desc": "Call and API and return the reult",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusApiObjects",
+        "action": "send-message",
+        "path": "/",
+        "display_name": "Send Message",
+        "short_desc": "Send a message",
+        "desc": "Send or broadcast a message",
+        "action_code": 2,
+        "action_code_str": "API"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "QorusDataObjects",
+    "display_name": "Data",
+    "short_desc": "Qorus data operations",
+    "desc": "Data operations in Qorus to work with record-based or record-like data sources",
+    "scheme": "x",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/QorusDataObjects/qorus-builtin-data.svg",
+    "logo_file_name": "qorus-builtin-data.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": true,
+    "actions": [
+      {
+        "app": "QorusDataObjects",
+        "action": "search-single",
+        "path": "/",
+        "display_name": "Single Search",
+        "short_desc": "Search for a single record",
+        "desc": "Search for a single record using search criteria.  If the search criteria return more than one record, an error will be raised",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusDataObjects",
+        "action": "search",
+        "path": "/",
+        "display_name": "Search",
+        "short_desc": "Search for all matching records",
+        "desc": "Search for all records matching the given search criteria",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusDataObjects",
+        "action": "update",
+        "path": "/",
+        "display_name": "Update",
+        "short_desc": "Update all matching records",
+        "desc": "Update all records matching the given search criteria",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusDataObjects",
+        "action": "create",
+        "path": "/",
+        "display_name": "Create",
+        "short_desc": "Create one or more records",
+        "desc": "Create one or more records",
+        "action_code": 2,
+        "action_code_str": "API"
+      },
+      {
+        "app": "QorusDataObjects",
+        "action": "delete",
+        "path": "/",
+        "display_name": "Delete",
+        "short_desc": "Delete matching records",
+        "desc": "Update all records matching the given search criteria",
+        "action_code": 2,
+        "action_code_str": "API"
+      }
+    ],
+    "connections": null
+  }
+]

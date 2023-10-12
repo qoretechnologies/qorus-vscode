@@ -1,3 +1,4 @@
+import { reduce } from 'lodash';
 import { useEffect } from 'react';
 import { useAsyncRetry } from 'react-use';
 import { IProviderType } from '../components/Field/connectors';
@@ -18,7 +19,17 @@ export const useFetchAutoVarContext = (provider?: IProviderType, type: string = 
       console.error(data.error);
     }
 
-    return data.data;
+    return reduce(
+      data.data,
+      (newAutoVarContext, variable, variableName) => ({
+        ...newAutoVarContext,
+        [variableName]: {
+          ...variable,
+          name: variableName,
+        },
+      }),
+      {}
+    );
   }, []);
 
   useEffect(() => {

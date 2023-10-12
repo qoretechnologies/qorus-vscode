@@ -3351,10 +3351,10 @@
   dependencies:
     lodash "^4.17.15"
 
-"@qoretechnologies/reqore@^0.37.8":
-  version "0.37.8"
-  resolved "https://registry.yarnpkg.com/@qoretechnologies/reqore/-/reqore-0.37.8.tgz#f3485574411cd566ff9a04e63626f1ce7987bcd1"
-  integrity sha512-LPfv6mmE4yu8MatBnaTTxOx4FIrsDU6D9OEsWrn9/Uou9TY0EAiJP/wOnWwB3hhO4SRPTUgkX/3uLHC5GIH7mA==
+"@qoretechnologies/reqore@^0.37.9":
+  version "0.37.9"
+  resolved "https://registry.yarnpkg.com/@qoretechnologies/reqore/-/reqore-0.37.9.tgz#0ec7944d4afc68bfc1338b30d68f4b56cfaa425f"
+  integrity sha512-j/dxf4kMLwtGNJGkvOKGzRyRiK8YxRoN1EtNJp3R4hLnouZohQHXVlgI4M8Mkw7sBL9F6CVEcuh8JdfhwLX++g==
   dependencies:
     "@popperjs/core" "^2.11.6"
     "@react-spring/web" "^9.6.1"

@@ -1,5 +1,6 @@
 import { ReqoreColumns } from '@qoretechnologies/reqore';
 import { IReqorePanelProps, ReqorePanel } from '@qoretechnologies/reqore/dist/components/Panel';
+import React from 'react';
 
 const FieldGroup = ({ children, isValid, ...rest }: IReqorePanelProps & { isValid?: boolean }) => (
   <ReqorePanel
@@ -10,8 +11,10 @@ const FieldGroup = ({ children, isValid, ...rest }: IReqorePanelProps & { isVali
     {...rest}
     intent={isValid === false ? 'danger' : rest.intent}
   >
-    <ReqoreColumns columnsGap="10px" minColumnWidth="450px">
-      {children}
+    <ReqoreColumns columnsGap="10px" minColumnWidth="250px">
+      {React.Children.map(children, (child) =>
+        React.isValidElement(child) ? React.cloneElement(child as any, { inGroup: true }) : child
+      )}
     </ReqoreColumns>
   </ReqorePanel>
 );

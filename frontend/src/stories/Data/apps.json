@@ -21,6 +21,7 @@
       {
         "app": "Google Drive",
         "action": "CreateFile",
+        "display_name": "Create File",
         "subtype": "Document",
         "path": "/files",
         "path_vars": {
@@ -35,6 +36,7 @@
       },
       {
         "app": "Google Drive",
+        "display_name": "Get File",
         "action": "GetFile",
         "subtype": "Document",
         "path": "/files/{fileId}",
@@ -56,7 +58,7 @@
     "short_desc": "Online video-sharing platform",
     "scheme": "youtube",
     "oauth2_auth_code": true,
-    "logo": "https://www.youtube.com/s/desktop/2f8e2e1c/img/favicon_144.png",
+    "icon": "YoutubeFill",
     "logo_file_name": "youtube.svg",
     "logo_mime_type": "image/svg+xml",
     "oauth2_client": {
@@ -70,6 +72,7 @@
     "actions": [
       {
         "app": "YouTube",
+        "display_name": "Search Videos",
         "action": "SearchVideos",
         "subtype": "Video",
         "path": "/search",
@@ -86,6 +89,7 @@
       {
         "app": "YouTube",
         "action": "GetVideo",
+        "display_name": "Get Video",
         "subtype": "Video",
         "path": "/videos",
         "path_vars": {
@@ -100,6 +104,7 @@
       {
         "app": "YouTube",
         "action": "GetChannel",
+        "display_name": "Get Channel",
         "subtype": "Channel",
         "path": "/channels",
         "path_vars": {
@@ -134,6 +139,7 @@
     "actions": [
       {
         "app": "Twitter",
+        "display_name": "Search Tweets",
         "action": "SearchTweets",
         "subtype": "Tweet",
         "path": "/search/tweets.json",
@@ -150,6 +156,7 @@
       {
         "app": "Twitter",
         "action": "GetTweet",
+        "display_name": "Get Tweet",
         "subtype": "Tweet",
         "path": "/statuses/show.json",
         "path_vars": {
@@ -185,6 +192,7 @@
       {
         "app": "GitHub",
         "action": "CreateRepository",
+        "display_name": "Create Repository",
         "subtype": "Repository",
         "path": "/user/repos",
         "path_vars": {
@@ -200,6 +208,7 @@
       {
         "app": "GitHub",
         "action": "GetRepository",
+        "display_name": "Get Repository",
         "subtype": "Repository",
         "path": "/repos/{owner}/{repo}",
         "path_vars": {
@@ -215,6 +224,7 @@
       {
         "app": "GitHub",
         "action": "ListIssues",
+        "display_name": "List Issues",
         "subtype": "Issue",
         "path": "/repos/{owner}/{repo}/issues",
         "path_vars": {
@@ -251,6 +261,7 @@
       {
         "app": "Slack",
         "action": "SendMessage",
+        "display_name": "Send Message",
         "subtype": "Message",
         "path": "/chat.postMessage",
         "path_vars": {
@@ -266,6 +277,7 @@
       {
         "app": "Slack",
         "action": "GetChannelInfo",
+        "display_name": "Get Channel Info",
         "subtype": "Channel",
         "path": "/conversations.info",
         "path_vars": {
@@ -286,7 +298,7 @@
     "short_desc": "Kanban-style list-making application",
     "scheme": "trello",
     "oauth2_auth_code": true,
-    "logo": "https://d2k1ftgv7pobq7.cloudfront.net/meta/u/res/images/brand-assets/Logos/Logos/svg/trello-logo-blue.svg",
+    "icon": "TrelloLine",
     "logo_file_name": "trello.svg",
     "logo_mime_type": "image/svg+xml",
     "oauth2_client": {
@@ -301,6 +313,7 @@
       {
         "app": "Trello",
         "action": "CreateCard",
+        "display_name": "Create Card",
         "subtype": "Card",
         "path": "/1/cards",
         "path_vars": {
@@ -316,6 +329,7 @@
       {
         "app": "Trello",
         "action": "GetBoard",
+        "display_name": "Get Board",
         "subtype": "Board",
         "path": "/1/boards/{id}",
         "path_vars": {

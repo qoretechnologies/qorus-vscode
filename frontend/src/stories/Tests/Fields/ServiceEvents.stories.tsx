@@ -6,6 +6,7 @@ import serviceEvents from '../../Data/serviceEvents.json';
 import { Event } from '../../Fields/DataProvider/Provider.stories';
 import { SwitchesToBuilder } from '../FSM/Basic.stories';
 import {
+  _testsAddNewVariableState,
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
   _testsSubmitFSMState,
@@ -111,7 +112,8 @@ export const CreateFSMStateFromEventVariable: StoryObj<typeof meta> = {
     // @ts-expect-error
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await fireEvent.dblClick(document.querySelector(`#var-actionevent_provider`));
+    await _testsAddNewVariableState('event_provider', canvas);
+
     await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());
     await expect(document.querySelector('#state-1')).toBeInTheDocument();
 

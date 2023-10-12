@@ -494,7 +494,7 @@ const Options = ({
       ) : null}
       <ReqoreCollection
         label="Options"
-        minColumnWidth="400px"
+        minColumnWidth="100px"
         responsiveTitle={false}
         headerSize={4}
         filterable

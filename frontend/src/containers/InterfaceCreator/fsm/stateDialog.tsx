@@ -56,6 +56,13 @@ export interface IFSMStateDialogProps {
 }
 
 export enum StateTypes {
+  if = 'if',
+  fsm = 'fsm',
+  while = 'while',
+  for = 'for',
+  transaction = 'transaction',
+  foreach = 'foreach',
+  action = 'action',
   connector = 'connector',
   mapper = 'mapper',
   pipeline = 'pipeline',
