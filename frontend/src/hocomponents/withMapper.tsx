@@ -7,7 +7,7 @@ import { Messages } from '../constants/messages';
 import { formatFields } from '../containers/InterfaceCreator/typeView';
 import { providers } from '../containers/Mapper/provider';
 import { MapperContext } from '../context/mapper';
-import { callBackendBasic } from '../helpers/functions';
+import { callBackendBasic, insertUrlPartBeforeQuery } from '../helpers/functions';
 import { fixRelations, flattenFields } from '../helpers/mapper';
 import withFieldsConsumer from './withFieldsConsumer';
 import withInitialDataConsumer from './withInitialDataConsumer';
@@ -167,7 +167,16 @@ export default () =>
         // If the provider is an api call, we need to add /request or /response at the end
         const url = prov.is_api_call ? (fieldType === 'input' ? '/response' : '/request') : '';
 
-        return `${getRealUrlFromProvider(prov)}${url}`;
+        return insertUrlPartBeforeQuery(
+          `${getRealUrlFromProvider(
+            prov,
+            undefined,
+            undefined,
+            undefined,
+            fieldType === 'output'
+          )}${fieldType === 'output' ? '&soft=true' : ''}`,
+          url
+        );
       };
 
       const getProviderUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {

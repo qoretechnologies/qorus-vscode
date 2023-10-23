@@ -466,8 +466,11 @@ const MapperProvider: FC<IProviderProps> = ({
           : `?action=childDetails&${buildOptions()}`
         : newSuffix;
     // Fetch the data
+    const splitter = `${suffixString.includes('?') ? '&' : '?'}`;
 
-    const { data = {}, error } = await fetchData(`${url}/${value}${suffixString}`);
+    const { data = {}, error } = await fetchData(
+      `${url}/${value}${suffixString}${type === 'outputs' ? `${splitter}soft=true` : ''}`
+    );
 
     handleCallError(error);
 
@@ -552,13 +555,15 @@ const MapperProvider: FC<IProviderProps> = ({
         customOptionString && customOptionString !== ''
           ? `${suffix}${
               data.has_record ? realProviders[provider].recordSuffix : ''
-            }${splitter}${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
+            }${splitter}${customOptionString}`
           : `${newSuffix}${
               data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
             }${splitter}${childDetailsSuffix}`;
 
       // Fetch the record
-      const record = await fetchData(`${url}/${value}${suffixString}`);
+      const record = await fetchData(
+        `${url}/${value}${suffixString}${type === 'outputs' ? `${splitter}soft=true` : ''}`
+      );
 
       handleCallError(record.error);
 
@@ -726,13 +731,15 @@ const MapperProvider: FC<IProviderProps> = ({
         customOptionString && customOptionString !== ''
           ? `${suffix}${
               data.has_record ? realProviders[provider].recordSuffix : ''
-            }${splitter}${customOptionString}${type === 'outputs' ? '&soft=true' : ''}`
+            }${splitter}${customOptionString}`
           : `${newSuffix}${
               data.has_record || data.has_type ? realProviders[provider].recordSuffix : ''
             }${splitter}${childDetailsSuffix}`;
 
       // Fetch the record
-      const record = await fetchData(`${url}/${value}${suffixString}`);
+      const record = await fetchData(
+        `${url}/${value}${suffixString}${type === 'outputs' ? `${splitter}soft=true` : ''}`
+      );
 
       handleCallError(record.error);
 
