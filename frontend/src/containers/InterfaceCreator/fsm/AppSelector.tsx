@@ -1,7 +1,6 @@
-import { ReqoreColumn, ReqoreColumns, ReqoreSpinner } from '@qoretechnologies/reqore';
+import { ReqoreColumn, ReqoreColumns } from '@qoretechnologies/reqore';
 import { map } from 'lodash';
 import { useCallback, useMemo } from 'react';
-import { useAsyncRetry } from 'react-use';
 import { TFSMVariables } from '.';
 import {
   AppCatalogue,
@@ -9,13 +8,14 @@ import {
   IAppAction,
   IAppCatalogueProps,
 } from '../../../components/AppCatalogue';
+import { useGetAppActionData } from '../../../hooks/useGetAppActionData';
 import { useQorusStorage } from '../../../hooks/useQorusStorage';
 import { TAction } from './stateDialog';
 
 export interface IAppSelectorProps {
   onActionSelect: IAppCatalogueProps['onActionSelect'];
   fetchData: any;
-  includeEventActions?: boolean;
+  type?: 'action' | 'event';
   variables?: TFSMVariables;
   showVariables?: (data: {
     show?: boolean;
@@ -30,16 +30,14 @@ export const filterApps = (
   apps: IApp[],
   filter: string,
   filterValue: any,
-  includeEventActions: boolean
+  type: 'action' | 'event'
 ) => {
   return apps?.filter((app) => {
     if (app[filter] === filterValue) {
-      if (includeEventActions) {
-        return true;
-      }
-
       // Check if this app has other actions than event actions
-      return app.actions?.some((action) => action.action_code_str !== 'EVENT');
+      return app.actions?.some((action) =>
+        type === 'event' ? action.action_code_str === 'EVENT' : action.action_code_str !== 'EVENT'
+      );
     }
 
     return false;
@@ -48,26 +46,26 @@ export const filterApps = (
 
 export const AppSelector = ({
   onActionSelect,
-  fetchData,
-  includeEventActions,
+  type,
   variables = {},
   showVariables,
 }: IAppSelectorProps) => {
-  const { value, loading } = useAsyncRetry<IApp[]>(async () => {
-    const apps = await fetchData('dataprovider/apps');
-
-    return apps.data;
-  }, []);
+  const value = useGetAppActionData();
   const favorites = useQorusStorage<string[]>('vscode.appCatalogueFavorites', []);
 
   const apps = useMemo(() => {
     if (!value) return [];
-    return filterApps(value, 'builtin', false, includeEventActions);
+    return filterApps(value, 'builtin', false, type);
   }, [value]);
 
   const builtInApps = useMemo(() => {
     if (!value) return [];
-    let apps = filterApps(value, 'builtin', true, includeEventActions);
+
+    let apps = filterApps(value, 'builtin', true, type);
+
+    if (type === 'event') {
+      return apps;
+    }
 
     // Need to add variables to built in apps
     apps = [
@@ -137,10 +135,6 @@ export const AppSelector = ({
     [favorites]
   );
 
-  if (loading) {
-    return <ReqoreSpinner centered>Loading apps...</ReqoreSpinner>;
-  }
-
   return (
     <ReqoreColumns columnsGap="30px">
       <ReqoreColumn style={{ gridColumn: '1 / span 2' }}>
@@ -151,6 +145,7 @@ export const AppSelector = ({
           label="Applications"
           favorites={favorites.value}
           onFavoriteClick={handleFavoriteClick}
+          type={type}
         />
       </ReqoreColumn>
       <ReqoreColumn>
@@ -165,6 +160,7 @@ export const AppSelector = ({
           label="Built in modules"
           onFavoriteClick={handleFavoriteClick}
           favorites={favorites.value}
+          type={type}
         />
       </ReqoreColumn>
     </ReqoreColumns>

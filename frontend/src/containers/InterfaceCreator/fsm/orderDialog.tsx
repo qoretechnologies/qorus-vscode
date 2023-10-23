@@ -36,7 +36,7 @@ export interface IOrderDialogProps {
   onDeleteClick: (index) => void;
   isDisabled?: boolean;
   onResetClick: () => any;
-  onSubmitClick: () => any;
+  onSubmitClick?: () => any;
   title?: string;
   metadata?: (data: IFSMState | IFSMTransition) => JSX.Element;
 }
@@ -76,6 +76,7 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
           tooltip: t('SubmitTooltip'),
           disabled: isDisabled,
           position: 'right',
+          show: !!onSubmitClick,
         },
       ]}
     >

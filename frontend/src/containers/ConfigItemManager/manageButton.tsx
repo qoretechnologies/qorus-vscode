@@ -1,4 +1,5 @@
 import { ReqoreButton } from '@qoretechnologies/reqore';
+import { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
 import size from 'lodash/size';
 import { FunctionComponent, memo, useContext, useState } from 'react';
 import { useMount } from 'react-use';
@@ -6,8 +7,8 @@ import { Messages } from '../../constants/messages';
 import { TextContext } from '../../context/text';
 import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
 
-export interface IManageConfigButton {
-  disabled: boolean;
+export interface IManageConfigButton extends IReqoreButtonProps {
+  disabled?: boolean;
   onClick: () => void;
   type?: string;
   fetchCall?: (ifaceId?: string) => void;
@@ -20,7 +21,7 @@ export interface IManageConfigButton {
     id: string;
     class_name?: string;
   };
-  processor_data: any;
+  processor_data?: any;
 }
 
 const ManageConfigButton: FunctionComponent<IManageConfigButton> = memo(
@@ -66,6 +67,7 @@ const ManageConfigButton: FunctionComponent<IManageConfigButton> = memo(
         icon={'SettingsLine'}
         onClick={onClick}
         tooltip={t('ManageConfigItems')}
+        {...rest}
       >
         {isLoading ? 'Loading...' : t('ManageConfigItems')}
       </ReqoreButton>

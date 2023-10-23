@@ -7,7 +7,7 @@ import uniq from 'lodash/uniq';
 import React, { useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import styled from 'styled-components';
-import { IFSMStates, IFSMTransition } from '.';
+import { IFSMState, IFSMStates, IFSMTransition } from '.';
 import CustomDialog from '../../../components/CustomDialog';
 import { SaveColorEffect } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
@@ -59,7 +59,9 @@ export const getConditionType: (condition: any) => TTransitionCondition = (condi
     ? 'connector'
     : 'custom';
 
-export const isConditionValid: (transitionData: IFSMTransition) => boolean = (transitionData) => {
+export const isConditionValid: (transitionData: IFSMTransition | IFSMState) => boolean = (
+  transitionData
+) => {
   const condition = getConditionType(transitionData.condition);
 
   if (condition === 'connector') {

@@ -5,7 +5,12 @@ import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
-import { _testsClickState, _testsDoubleClickState, sleep } from './../utils';
+import {
+  _testsClickState,
+  _testsDoubleClickState,
+  _testsSelectItemFromCollection,
+  sleep,
+} from './../utils';
 import { AutoAlign } from './Alignment.stories';
 
 const meta = {
@@ -70,8 +75,8 @@ export const SelectedStateChange: StoryFSM = {
 
     await waitFor(
       async () => {
-        await expect(document.querySelector('.reqore-drawer')).toBeInTheDocument();
-        await expect(document.querySelector('.reqore-drawer h3').textContent).toBe(
+        await expect(document.querySelector('.fsm-state-detail')).toBeInTheDocument();
+        await expect(document.querySelector('.fsm-state-detail h3').textContent).toBe(
           'Intent: Close Ticket?'
         );
       },
@@ -87,7 +92,7 @@ export const SelectedStateChange: StoryFSM = {
     await waitFor(
       async () => {
         // Make sure the h3 with text `Intent: Close Ticket?` inside .reqore-drawer is visible
-        await expect(document.querySelector('.reqore-drawer h3').textContent).toBe(
+        await expect(document.querySelector('.fsm-state-detail h3').textContent).toBe(
           'Save Intent Info'
         );
       },
@@ -108,7 +113,7 @@ export const StateIsDeleted: StoryFSM = {
     await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
     await expect(document.querySelectorAll('.fsm-transition').length).toBe(7);
 
-    await fireEvent.mouseDown(document.querySelectorAll('#state-3 .reqore-button')[2]);
+    await fireEvent.mouseDown(document.querySelectorAll('#state-3 .reqore-button')[1]);
 
     await sleep(500);
 
@@ -145,7 +150,7 @@ export const StatesCanBeConnected: StoryFSM = {
   },
 };
 
-export const StatesIsNotRemovedOnCancel: StoryFSM = {
+export const StatesIsNotRemovedOnClose: StoryFSM = {
   args: {
     fsm,
   },
@@ -158,7 +163,7 @@ export const StatesIsNotRemovedOnCancel: StoryFSM = {
 
     await sleep(1000);
 
-    await fireEvent.click(document.querySelector('.fsm-state-dialog-cancel'));
+    await fireEvent.click(document.querySelector('.fsm-state-detail .reqore-button'));
 
     await sleep(200);
 
@@ -166,17 +171,39 @@ export const StatesIsNotRemovedOnCancel: StoryFSM = {
   },
 };
 
-export const StatesIsRemovedIfUnfinished: StoryFSM = {
+export const WarningIfClosingUnsavedState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest });
+
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(1);
+
+    await sleep(500);
+
+    await _testsSelectItemFromCollection(canvas, 'Test Mapper 1', 'Select or create a Mapper')();
+
+    await sleep(500);
+
+    await fireEvent.click(document.querySelector('.fsm-state-detail .reqore-button'));
+
+    await sleep(200);
+
+    await expect(canvas.getByText('Unsaved changes')).toBeInTheDocument();
+  },
+};
+
+export const StatesIsNotRemovedIfUnfinished: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     await NewState.play({ canvasElement, ...rest });
 
     await expect(document.querySelectorAll('.fsm-state').length).toBe(1);
 
-    await fireEvent.click(document.querySelector('.fsm-state-dialog-cancel'));
+    await fireEvent.click(document.querySelector('.fsm-state-detail .reqore-button'));
 
     await sleep(200);
 
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(0);
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(1);
   },
 };
 

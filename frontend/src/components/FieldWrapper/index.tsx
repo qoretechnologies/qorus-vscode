@@ -99,7 +99,16 @@ export const FieldWrapper = ({
 
   if (compact) {
     return (
-      <ReqorePanel size="small" flat padded={false} ref={ref}>
+      <ReqorePanel
+        size="small"
+        flat
+        padded={false}
+        ref={ref}
+        contentStyle={{
+          display: 'flex',
+          flexFlow: 'column',
+        }}
+      >
         <ReqoreControlGroup fluid verticalAlign="flex-start" vertical={width < 400 || !inGroup}>
           {label || removable ? (
             <>
@@ -132,10 +141,15 @@ export const FieldWrapper = ({
       label={label}
       minimal
       size="small"
+      responsiveTitle={false}
       collapsible={collapsible}
       icon="PriceTagLine"
       intent={isValid ? undefined : 'danger'}
       badge={type}
+      contentStyle={{
+        display: 'flex',
+        flexFlow: 'column',
+      }}
       unMountContentOnCollapse={false}
       actions={[
         getFieldDescriptionAction(desc),

@@ -9,6 +9,7 @@ import {
   ReqoreTag,
 } from '@qoretechnologies/reqore';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
+import { IReqoreControlGroupProps } from '@qoretechnologies/reqore/dist/components/ControlGroup';
 import { IReqoreMenuItemProps } from '@qoretechnologies/reqore/dist/components/Menu/item';
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { TReqoreIntent } from '@qoretechnologies/reqore/dist/constants/theme';
@@ -110,7 +111,7 @@ export const StyledDialogSelectItem = styled.div`
   }
 `;
 
-const SelectField: React.FC<ISelectField & IField> = ({
+const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = ({
   get_message,
   return_message,
   name,
@@ -287,6 +288,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
     // Show readonly string
     return (
       <ReqoreButton
+        fluid
         className={className}
         label={value || filteredItems[0].name}
         description={
@@ -312,6 +314,7 @@ const SelectField: React.FC<ISelectField & IField> = ({
             colors: value ? 'info' : 'main',
           },
         }}
+        {...rest}
       />
     );
   }
@@ -545,5 +548,5 @@ const SelectField: React.FC<ISelectField & IField> = ({
 };
 
 export default compose(withTextContext(), withMessageHandler())(SelectField) as React.FC<
-  ISelectField & IField
+  ISelectField & IField & Omit<IReqoreControlGroupProps, 'onChange' | 'children'>
 >;

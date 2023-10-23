@@ -12,6 +12,7 @@ import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { IProviderType, maybeBuildOptionProvider } from '../components/Field/connectors';
 import {
   IOptions,
+  IOptionsSchema,
   IOptionsSchemaArg,
   IQorusType,
   TOption,
@@ -524,27 +525,59 @@ export const validateField: (
     case 'pipeline-options':
     case 'mapper-options':
     case 'system-options': {
-      const isValid = (val) => {
-        if (!val || size(val) === 0) {
-          if (canBeNull) {
-            return true;
-          }
+      const getIsValid = (options: IOptions, optionSchema?: IOptionsSchema) => {
+        let isValid = true;
 
-          return false;
+        if (!options || size(options) === 0) {
+          if (!canBeNull) {
+            isValid = false;
+          }
         }
 
-        return every(val, (optionData) =>
-          typeof optionData !== 'object'
-            ? validateField(getTypeFromValue(optionData), optionData)
-            : validateField(optionData.type, optionData.value)
-        );
+        // Check if all required options have any value
+        if (optionSchema) {
+          isValid = every(optionSchema, (optionData, option) => {
+            if (
+              optionData.required &&
+              (!options[option] || !options[option]?.value === undefined)
+            ) {
+              return false;
+            }
+
+            return isValid;
+          });
+        }
+
+        isValid = every(options, (optionData, option) => {
+          let isOptionValid = true;
+
+          if (
+            optionSchema?.[option]?.depends_on &&
+            !hasAllDependenciesFullfilled(optionSchema[option].depends_on, options, optionSchema)
+          ) {
+            isOptionValid = false;
+          }
+
+          isOptionValid =
+            typeof optionData !== 'object'
+              ? validateField(getTypeFromValue(optionData), optionData)
+              : validateField(optionData.type, optionData.value);
+
+          if (!isOptionValid) {
+            return false;
+          }
+
+          return isValid;
+        });
+
+        return isValid;
       };
 
       if (isArray(value)) {
-        return value.every(isValid);
+        return value.every((val) => getIsValid(val, field?.optionSchema));
       }
 
-      return isValid(value);
+      return getIsValid(value, field?.optionSchema);
     }
     case 'system-options-with-operators': {
       const isValid = (val: IOptions) => {
@@ -700,4 +733,21 @@ export const getTypeFromValue = (value: any) => {
   }
 
   return 'none';
+};
+
+export const hasAllDependenciesFullfilled = (
+  dependencies: string[],
+  options: IOptions,
+  optionsSchema?: IOptionsSchema
+): boolean => {
+  if (size(dependencies) === 0) {
+    return true;
+  }
+
+  return dependencies.every((dependency) => {
+    return validateField(options[dependency].type, options[dependency].value, {
+      ...optionsSchema,
+      optionsSchema,
+    });
+  });
 };

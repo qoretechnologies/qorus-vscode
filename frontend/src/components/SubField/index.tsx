@@ -1,11 +1,12 @@
 import { setupPreviews } from '@previewjs/plugin-react/setup';
 import { ReqoreMessage, ReqorePanel, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
+import { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { noop } from 'lodash';
-import React from 'react';
+import React, { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
-import { getFieldDescriptionAction } from '../FieldWrapper';
+import { getGlobalDescriptionTooltip } from '../FieldWrapper';
 
 const StyledDescriptionField = styled(ReqoreMessage)`
   p:last-child {
@@ -54,6 +55,22 @@ const SubField: React.FC<ISubFieldProps> = ({
   actions = [],
   ...rest
 }) => {
+  const badge = useMemo(() => {
+    let _badge: IReqoreButtonProps['badge'] = [];
+
+    if (detail) {
+      _badge.push(detail);
+    }
+
+    if (desc) {
+      _badge.push({
+        icon: 'QuestionMark',
+        tooltip: getGlobalDescriptionTooltip(desc, descTitle || title),
+      });
+    }
+
+    return _badge;
+  }, [detail, desc]);
   return (
     <>
       <ReqorePanel
@@ -68,13 +85,14 @@ const SubField: React.FC<ISubFieldProps> = ({
         }
         intent={isValid === false ? 'danger' : undefined}
         label={title}
-        badge={detail}
+        badge={badge}
         icon={subtle ? undefined : title || detail ? 'SettingsLine' : undefined}
         collapsible={collapsible}
         unMountContentOnCollapse={false}
+        responsiveTitle={false}
         actions={[
           ...actions,
-          getFieldDescriptionAction(desc, descTitle),
+
           {
             icon: 'DeleteBinLine',
             intent: 'danger',

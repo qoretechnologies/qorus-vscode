@@ -65,6 +65,7 @@ export interface ITemplateFieldProps {
   component: React.FC<any>;
   [key: string]: any;
   templateContext?: 1 | 2 | 4 | 7 | 8 | 15;
+  allowTemplates?: boolean;
 }
 
 export const TemplateField = ({
@@ -73,6 +74,7 @@ export const TemplateField = ({
   onChange,
   component: Comp,
   templateContext = 15,
+  allowTemplates = true,
   ...rest
 }: ITemplateFieldProps) => {
   const [isTemplate, setIsTemplate] = useState<boolean>(isValueTemplate(value));
@@ -98,6 +100,10 @@ export const TemplateField = ({
 
   const t = useContext(TextContext);
 
+  if (!allowTemplates) {
+    return <Comp value={value} onChange={onChange} name={name} {...rest} />;
+  }
+
   if (rest.disabled) {
     if (isTemplate) {
       return (
@@ -118,7 +124,7 @@ export const TemplateField = ({
       size="small"
       flat
       padded={false}
-      tabsPadding="vertical"
+      tabsPadding="top"
       tabs={[
         {
           id: 'custom',
@@ -133,6 +139,7 @@ export const TemplateField = ({
           icon: 'ExchangeDollarLine',
           minimal: true,
           flat: false,
+          fixed: true,
         },
       ]}
       onTabChange={(newTabId: string): void => {

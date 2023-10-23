@@ -1,23 +1,13 @@
 import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
-import { camelCase, forEach, map, reduce } from 'lodash';
-import find from 'lodash/find';
+import { forEach, omit, reduce } from 'lodash';
 import size from 'lodash/size';
 import React, { useCallback, useContext, useState } from 'react';
-import { useUnmount, useUpdateEffect } from 'react-use';
-import shortid from 'shortid';
+import { useUpdateEffect } from 'react-use';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
-import BooleanField from '../../../components/Field/boolean';
 import Connectors, { IProviderType } from '../../../components/Field/connectors';
-import LongStringField from '../../../components/Field/longString';
-import {
-  PositiveColorEffect,
-  SaveColorEffect,
-  WarningColorEffect,
-} from '../../../components/Field/multiPair';
 import RadioField from '../../../components/Field/radioField';
 import { default as Select, default as SelectField } from '../../../components/Field/select';
-import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
 import FieldGroup from '../../../components/FieldGroup';
 import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
@@ -30,16 +20,19 @@ import { validateField } from '../../../helpers/validations';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
 import { useFetchAutoVarContext } from '../../../hooks/useFetchAutoVarContext';
 import ConfigItemManager from '../../ConfigItemManager';
-import ManageConfigItemsButton from '../../ConfigItemManager/manageButton';
+import ManageConfigButton from '../../ConfigItemManager/manageButton';
 import FSMView, {
   IFSMMetadata,
   IFSMState,
   IFSMStates,
+  TAppAndAction,
   TFSMVariables,
   TVariableActionValue,
 } from './';
+import { QodexActionExec } from './ActionExec';
+import { QodexAppActionOptions } from './AppActionOptions';
 import ConnectorSelector from './connectorSelector';
-import { ConditionField, isConditionValid } from './transitionDialog';
+import { ConditionField } from './transitionDialog';
 
 export interface IFSMStateDialogProps {
   onClose: () => any;
@@ -53,6 +46,16 @@ export interface IFSMStateDialogProps {
   postMessage: TPostMessage;
   disableInitial?: boolean;
   metadata?: IFSMMetadata;
+  blockLogicType?: 'fsm' | 'custom';
+  setBlockLogicType?: (type: 'fsm' | 'custom') => void;
+  isMetadatHidden?: boolean;
+  setIsMetadataHidden?: (value: boolean) => void;
+  isLoading?: boolean;
+  actionType?: TAction;
+  setActionType?: (type: TAction) => void;
+  isCustomBlockSecondPage: boolean;
+  isNameValid: boolean;
+  isActionValid: boolean;
 }
 
 export enum StateTypes {
@@ -80,29 +83,34 @@ export enum StateTypes {
 export type TAction = keyof typeof StateTypes;
 
 const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
-  onClose,
   data,
   id,
   onSubmit,
   otherStates,
-  deleteState,
   fsmName,
   target_dir,
   interfaceId,
   postMessage,
   disableInitial,
   metadata,
+  blockLogicType,
+  setBlockLogicType,
+  actionType,
+  setActionType,
+  isNameValid,
+  isCustomBlockSecondPage,
+  isActionValid,
+  isMetadatHidden,
+  setIsMetadataHidden,
 }) => {
   const [newData, setNewData] = useState<IFSMState>(data);
-  const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
-  const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>(
-    data.fsm ? 'fsm' : 'custom'
-  );
-  const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
-  const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const t = useContext(TextContext);
-  const { confirmAction, qorus_instance } = useContext(InitialContext);
+  const { qorus_instance } = useContext(InitialContext);
+  const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
+
+  useUpdateEffect(() => {
+    onSubmit(id, omit(newData, ['transitions']));
+  }, [newData]);
 
   useUpdateEffect(() => {
     if (newData.action?.value?.['class']) {
@@ -130,21 +138,12 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     'transaction-block'
   );
 
-  useUnmount(() => {
-    if (data.isNew) {
-      // If the name is empty and the original name was empty
-      // delete this state
-      if (!isDataValid()) {
-        deleteState(id, true);
-      }
-      // If the user closed an existing state with invalid data
-      // set the data to original data
-    } else if (!isDataValid) {
-      onSubmit(id, data);
-    }
-  });
-
   const handleDataUpdate = (name: string, value: any) => {
+    if (typeof value === 'undefined') {
+      setNewData((cur) => omit(cur, [name]));
+      return;
+    }
+
     if (name === 'metadata') {
       // Remove the readonly global variables
       const globalvar = reduce<TFSMVariables, TFSMVariables>(
@@ -173,7 +172,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
     setNewData((cur) => ({
       ...cur,
-      [name]: value === 'none' ? null : value,
+      [name]: value === 'none' ? undefined : value,
     }));
 
     if (name === 'initial') {
@@ -195,93 +194,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       handleDataUpdate('id', undefined);
       handleDataUpdate('initial', false);
       setActionType('none');
-    }
-  };
-
-  const isNameValid: (name: string) => boolean = (name) =>
-    validateField('string', name) &&
-    !find(otherStates, (state: IFSMState): boolean => state.name === name);
-
-  const isBlockConfigValid = () => {
-    return (
-      size(newData['block-config']) === 0 ||
-      validateField('system-options', newData['block-config'])
-    );
-  };
-  const isDataValid: () => boolean = () => {
-    if (autoVars.loading || (newData['block-type'] === 'transaction' && !size(autoVars.value))) {
-      return false;
-    }
-
-    if (newData.type === 'block') {
-      return (
-        isNameValid(newData.name) &&
-        isBlockConfigValid() &&
-        (blockLogicType === 'custom'
-          ? size(newData.states) !== 0
-          : validateField('string', newData.fsm))
-      );
-    }
-
-    if (newData.type === 'if') {
-      return (
-        isNameValid(newData.name) &&
-        isConditionValid(newData) &&
-        (!newData['input-output-type'] ||
-          validateField('type-selector', newData['input-output-type']))
-      );
-    }
-
-    return (
-      isNameValid(newData.name) &&
-      isActionValid() &&
-      (!newData['input-type'] || validateField('type-selector', newData['input-type'])) &&
-      (!newData['output-type'] || validateField('type-selector', newData['output-type']))
-    );
-  };
-
-  const isActionValid: () => boolean = () => {
-    switch (actionType) {
-      case 'mapper': {
-        return !!newData?.action?.value;
-      }
-      case 'pipeline': {
-        return !!newData?.action?.value;
-      }
-      case 'connector': {
-        return !!newData?.action?.value?.['class'] && !!newData?.action?.value?.connector;
-      }
-      case 'apicall': {
-        return validateField('api-call', newData?.action?.value);
-      }
-      case 'send-message': {
-        return validateField('send-message', newData?.action?.value);
-      }
-      case 'search':
-      case 'delete':
-      case 'update':
-      case 'create':
-      case 'search-single': {
-        return validateField(actionType, newData?.action?.value);
-      }
-      case 'var-action': {
-        const currentValue = newData?.action?.value as TVariableActionValue;
-        // We need to get the value from the variable
-        const variableData: { value: IProviderType } = getVariable(
-          currentValue?.var_name,
-          currentValue?.var_type,
-          metadata
-        );
-
-        if (!variableData) {
-          return false;
-        }
-
-        return validateField('var-action', newData?.action?.value, { variableData });
-      }
-      default: {
-        return true;
-      }
     }
   };
 
@@ -445,6 +357,33 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           </>
         );
       }
+      case 'action': {
+        const actionValue = newData.action?.value as TAppAndAction;
+
+        return (
+          <>
+            <QodexAppActionOptions
+              appName={actionValue?.app}
+              actionName={actionValue?.action}
+              value={actionValue?.options}
+              onChange={(name, value) => {
+                handleDataUpdate('action', {
+                  type: 'action',
+                  value: {
+                    ...actionValue,
+                    [name]: value,
+                  },
+                });
+              }}
+            />
+            <QodexActionExec
+              appName={actionValue?.app}
+              actionName={actionValue?.action}
+              options={actionValue?.options}
+            />
+          </>
+        );
+      }
       case 'mapper': {
         return (
           <SelectField
@@ -564,14 +503,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     }
   };
 
-  const isCustomBlockFirstPage = () => {
-    return !isMetadataHidden && newData.type === 'block' && blockLogicType === 'custom';
-  };
-
-  const isCustomBlockSecondPage = () => {
-    return isMetadataHidden && newData.type === 'block' && blockLogicType === 'custom';
-  };
-
   const buildVariables = useCallback(() => {
     // We need to combine the variables from the metadata with the current
     // variables, but the variables from metadata need to be readonly
@@ -643,203 +574,33 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
   return (
     <>
-      <Content
-        fill
-        padded={false}
-        minimal
-        transparent
-        bottomActions={[
-          {
-            label: t('Cancel'),
-            icon: 'CloseLine',
-            onClick: () => {
-              onClose();
-
-              if (newData.isNew) {
-                deleteState(id, true);
-              }
-            },
-            show: !isMetadataHidden,
-            className: 'fsm-state-dialog-cancel',
-            responsive: false,
-          },
-          {
-            label: t('Back'),
-            onClick: () => {
-              setIsMetadataHidden(false);
-            },
-            icon: 'ArrowLeftLine',
-            show: isMetadataHidden,
-          },
-          {
-            label: t('Reset'),
-            icon: 'HistoryLine',
-            onClick: () => {
-              confirmAction(
-                'ResetFieldsConfirm',
-                () => {
-                  postMessage(Messages.RESET_CONFIG_ITEMS, {
-                    iface_id: interfaceId,
-                    state_id: newData.id,
-                  });
-                  setActionType(data?.action?.type);
-                  setNewData(data);
-                },
-                'Reset',
-                'warning'
-              );
-            },
-          },
-          {
-            as: ManageConfigItemsButton,
-            props: {
-              type: 'fsm',
-              onClick: () => setShowConfigItemsManager(true),
-              state_data: {
-                id: newData.id,
-                class_name: newData.action?.value?.['class'],
-              },
-              iface_id: interfaceId,
-            },
-            show: !!newData.action?.value?.['class'],
-          },
-          {
-            label: isCustomBlockFirstPage() ? t('Next') : t('Submit'),
-            disabled: isCustomBlockFirstPage()
-              ? !isBlockConfigValid()
-              : !isDataValid() || isLoading,
-            className: isCustomBlockFirstPage() ? 'state-next-button' : 'state-submit-button',
-            id: `state-${camelCase(newData?.name)}-submit-button`,
-            icon: 'CheckLine',
-            effect: isLoading
-              ? WarningColorEffect
-              : isCustomBlockFirstPage()
-              ? PositiveColorEffect
-              : SaveColorEffect,
-            position: 'right',
-            responsive: false,
-            onClick: () => {
-              if (!isCustomBlockFirstPage()) {
-                setIsLoading(true);
-
-                postMessage('submit-fsm-state', {
-                  iface_id: interfaceId,
-                  state_id: newData.id,
-                });
-
-                const modifiedData = { ...newData };
-
-                if (blockLogicType === 'custom') {
-                  modifiedData.fsm = undefined;
-                } else {
-                  modifiedData.states = undefined;
-                }
-
-                if (modifiedData.execution_order === null) {
-                  delete modifiedData.execution_order;
-                }
-
-                if (modifiedData.type === 'block' && !modifiedData['block-type']) {
-                  modifiedData['block-type'] = 'for';
-                }
-
-                if (modifiedData.type === 'if' && !modifiedData['input-output-type']) {
-                  delete modifiedData['input-output-type'];
-                }
-
-                if (!size(modifiedData['block-config'])) {
-                  delete modifiedData['block-config'];
-                }
-
-                modifiedData.globalvar = reduce<TFSMVariables, TFSMVariables>(
-                  modifiedData.globalvar,
-                  (newGlobal, val, key): TFSMVariables => {
-                    if (!val.readOnly) {
-                      return {
-                        ...newGlobal,
-                        [key]: val,
-                      };
-                    }
-
-                    return newGlobal;
-                  },
-                  {}
-                );
-
-                if (!size(modifiedData.globalvar)) {
-                  delete modifiedData.globalvar;
-                }
-
-                if (size(autoVars.value)) {
-                  modifiedData.autovar = autoVars.value;
-                }
-
-                onSubmit(id, modifiedData);
-              } else {
-                setIsMetadataHidden(true);
-              }
-            },
-          },
-        ]}
-      >
+      <Content fill padded={false} flat transparent minimal={false}>
         <ContentWrapper
           style={{
-            display: isCustomBlockSecondPage() ? 'none' : undefined,
+            display: isCustomBlockSecondPage ? 'none' : undefined,
           }}
         >
-          <FieldGroup label={t('Info')} isValid={isNameValid(newData.name)}>
-            <FieldWrapper label={t('Name')} isValid={isNameValid(newData.name)} compact>
-              {newData.type === 'fsm' ? (
-                <SelectField
-                  get_message={{
-                    action: 'creator-get-objects',
-                    object_type: 'fsm',
-                  }}
-                  return_message={{
-                    action: 'creator-return-objects',
-                    object_type: 'fsm',
-                    return_value: 'objects',
-                  }}
-                  reference={{ iface_kind: 'fsm' }}
-                  predicate={(name) => fsmName !== name}
-                  onChange={handleDataUpdate}
-                  value={newData?.name}
-                  name="name"
-                />
-              ) : (
-                <String name="name" onChange={handleDataUpdate} value={newData.name} />
-              )}
-            </FieldWrapper>
-            <FieldWrapper label={t('Description')} isValid compact>
-              <LongStringField
-                name="desc"
-                onChange={handleDataUpdate}
-                value={newData.desc}
-                id="state-description-field"
-              />
-            </FieldWrapper>
-            <FieldWrapper label={t('Type')} isValid compact>
+          {newData.type === 'fsm' && (
+            <FieldWrapper label={t('Name')} isValid={isNameValid} compact>
               <SelectField
-                defaultItems={
-                  qorus_instance
-                    ? [{ name: 'state' }, { name: 'fsm' }, { name: 'block' }]
-                    : [{ name: 'state' }, { name: 'fsm' }]
-                }
-                disabled={newData.injected}
+                get_message={{
+                  action: 'creator-get-objects',
+                  object_type: 'fsm',
+                }}
+                return_message={{
+                  action: 'creator-return-objects',
+                  object_type: 'fsm',
+                  return_value: 'objects',
+                }}
+                reference={{ iface_kind: 'fsm' }}
+                predicate={(name) => fsmName !== name}
                 onChange={handleDataUpdate}
-                value={newData.type}
-                name="type"
+                value={newData?.name}
+                name="name"
               />
             </FieldWrapper>
-            <FieldWrapper label={t('Initial')} isValid compact>
-              <BooleanField
-                disabled={disableInitial}
-                name="initial"
-                onChange={handleDataUpdate}
-                value={newData.initial}
-              />
-            </FieldWrapper>
-          </FieldGroup>
+          )}
+
           {newData.type === 'block' && (
             <>
               <FieldGroup label="Block configuration">
@@ -901,52 +662,32 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               />
             </FieldWrapper>
           ) : null}
-          {newData.type === 'state' && (
+          {newData.type === 'state' ? (
             <>
-              {data.action.type !== 'var-action' ? (
-                <FieldWrapper
-                  label={t('Action')}
-                  isValid={isActionValid()}
-                  type={t('Optional')}
-                  collapsible={false}
-                >
-                  <SelectField
-                    defaultItems={map(StateTypes, (stateType) =>
-                      stateType !== 'none'
-                        ? {
-                            name: stateType,
-                            desc: t(`field-desc-state-${stateType}`),
-                          }
-                        : null
-                    ).filter((stateType) => stateType)}
-                    fluid
-                    onChange={(_name, value) => {
-                      handleDataUpdate(
-                        'action',
-                        value === data?.action?.type ? data?.action : null
-                      );
-                      handleDataUpdate('id', data.id || shortid.generate());
-                      setActionType(value);
-                    }}
-                    value={actionType}
-                    placeholder={t('field-placeholder-action')}
-                    disabled={newData.injected}
-                    name="action"
-                  />
-                </FieldWrapper>
-              ) : null}
-              {}
               {actionType && actionType !== 'none' ? (
-                <FieldWrapper
-                  isValid={isActionValid()}
-                  label={t('ActionValue')}
-                  collapsible={false}
-                >
+                <FieldWrapper collapsible={false} compact>
                   {renderActionField()}
+                  {newData.action?.value?.class && isActionValid ? (
+                    <>
+                      <ReqoreVerticalSpacer height={10} />
+                      <ManageConfigButton
+                        fluid
+                        {...{
+                          type: 'fsm',
+                          onClick: () => setShowConfigItemsManager(true),
+                          state_data: {
+                            id: newData.id,
+                            class_name: newData.action?.value?.['class'],
+                          },
+                          iface_id: interfaceId,
+                        }}
+                      />
+                    </>
+                  ) : null}
                 </FieldWrapper>
               ) : null}
             </>
-          )}
+          ) : null}
           {newData.type === 'block' && newData['block-type'] !== 'transaction' ? (
             <FieldGroup label="Types">
               <FieldWrapper label={t('InputType')} isValid type={t('Optional')}>
@@ -981,7 +722,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             </FieldGroup>
           )}
         </ContentWrapper>
-        {isCustomBlockSecondPage() ? (
+        {isCustomBlockSecondPage ? (
           <FSMView
             embedded
             states={newData.states}
@@ -997,6 +738,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             onStatesChange={(states) => {
               handleDataUpdate('states', states);
             }}
+            onHideMetadataClick={setIsMetadataHidden}
             metadata={buildVariables()}
             setMetadata={(data) => {
               if (typeof data === 'function') {
@@ -1029,4 +771,4 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   );
 };
 
-export default withMessageHandler()(FSMStateDialog);
+export default withMessageHandler()(FSMStateDialog) as React.FC<IFSMStateDialogProps>;

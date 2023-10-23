@@ -54,10 +54,13 @@ export function _testsSubmitFSMState(buttonId?: string) {
   };
 }
 
+export async function _testsCloseStateDetail() {
+  await fireEvent.click(document.querySelector('.fsm-state-detail .reqore-button'));
+}
+
 export async function _testsOpenAppCatalogue(wrapperId?: string) {
-  const wrapper = document.querySelector(
-    `#${wrapperId ? `${wrapperId}-` : ''}fsm-diagram .element-pan`
-  );
+  const fullWrapperId = `${wrapperId ? `${wrapperId}-` : ''}fsm-diagram`;
+  const wrapper = document.getElementById(fullWrapperId).querySelector('.element-pan');
 
   await fireEvent.dblClick(wrapper, {
     clientX: wrapper.getBoundingClientRect().left + 100,

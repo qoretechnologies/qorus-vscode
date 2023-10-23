@@ -1,6 +1,6 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
-import { fireEvent, userEvent, waitFor, within } from '@storybook/testing-library';
+import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
 import multipleVariablesFsm from '../Data/multipleVariablesFsm.json';
@@ -12,6 +12,8 @@ import {
   _testsClickState,
   _testsClickStateByLabel,
   _testsCreateSelectionBox,
+  _testsOpenAppCatalogue,
+  _testsSelectAppOrAction,
   _testsSelectState,
   sleep,
 } from '../Tests/utils';
@@ -195,10 +197,11 @@ export const ReadonlyVariablesInState: StoryFSM = {
     fsm: multipleVariablesFsm,
   },
   play: async ({ canvasElement, stateType, ...rest }) => {
+    const canvas = within(canvasElement);
     await MultipleDeepVariableStates.play({ canvasElement, ...rest });
-
-    await userEvent.click(document.querySelectorAll('.reqore-menu-item-right-icon')[6]);
-    await userEvent.click(document.querySelectorAll('.variable-list .reqore-menu-item')[1]);
+    await sleep(1000);
+    await _testsOpenAppCatalogue('State-2.State-3');
+    await _testsSelectAppOrAction(canvas, 'Variables');
   },
 };
 

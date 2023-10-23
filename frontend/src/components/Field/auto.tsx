@@ -184,6 +184,25 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
       currentType = currentType.slice(0, pos);
     }
 
+    if (rest.allowed_values && currentType !== 'enum') {
+      return (
+        <SelectField
+          defaultItems={rest.allowed_values.map(({ value, name, desc }) => ({
+            name: name || value,
+            desc,
+          }))}
+          value={value}
+          autoSelect
+          name={name}
+          onChange={(name, value) => onChange(name, value)}
+          type={currentType}
+          fluid
+          fixed={false}
+          style={{ width: '100%' }}
+        />
+      );
+    }
+
     // Render the field based on the type
     switch (currentType) {
       case 'string':

@@ -7,6 +7,7 @@ import { size } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 import { IFSMVariable } from '../../containers/InterfaceCreator/fsm';
 import { TAction } from '../../containers/InterfaceCreator/fsm/stateDialog';
+import { IOptionsSchema } from '../Field/systemOptions';
 
 export interface IAppAction {
   app: string; //the application name
@@ -27,6 +28,10 @@ export interface IAppAction {
   varName?: IFSMVariable['name'];
   varReadOnly?: IFSMVariable['readOnly'];
   actions?: (action: IAppAction) => IReqoreCollectionItemProps['actions'];
+  options_url?: string;
+  exec_options_url?: string;
+  exec_url?: string;
+  options?: IOptionsSchema;
 }
 
 export interface IApp {
@@ -61,7 +66,7 @@ export interface IAppCatalogueProps extends IReqoreCollectionProps {
   image?: string;
   favorites?: string[];
   onFavoriteClick?: (app: string) => void;
-  includeEventActions?: boolean;
+  type?: 'action' | 'event';
 }
 
 export const AppCatalogue = ({
@@ -73,7 +78,7 @@ export const AppCatalogue = ({
   defaultQuery = '',
   favorites = [],
   onFavoriteClick,
-  includeEventActions,
+  type,
   sortable = true,
 }: IAppCatalogueProps) => {
   const [selectedAppName, setSelectedAppName] = useState<string>(undefined);
@@ -121,14 +126,12 @@ export const AppCatalogue = ({
   const getFilteredActions = useCallback(
     (actions: IAppAction[]) => {
       return actions.filter((action) => {
-        if (includeEventActions) {
-          return true;
-        }
-
-        return action.action_code_str !== 'EVENT';
+        return type !== 'event'
+          ? action.action_code_str !== 'EVENT'
+          : action.action_code_str === 'EVENT';
       });
     },
-    [includeEventActions]
+    [type]
   );
 
   if (selectedApp) {

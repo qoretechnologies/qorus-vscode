@@ -503,7 +503,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                 'preview-data'
               );
             },
-            show: !!requiresRequest,
+            show: false,
           },
           {
             as: DataProviderFavorites,

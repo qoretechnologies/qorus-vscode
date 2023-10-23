@@ -171,6 +171,124 @@ test('validateField should return true if the value is a type of string and is n
   expect(validateField('system-options', 'Qorus test string')).toEqual(true);
 });
 
+describe.only('Options', () => {
+  test('should return false if any required options are missing', () => {
+    expect(
+      validateField(
+        'options',
+        {
+          option1: {
+            type: 'string',
+            value: 'test',
+          },
+        },
+        {
+          optionSchema: {
+            option1: {
+              required: true,
+            },
+            option3: {
+              required: true,
+            },
+          },
+        }
+      )
+    ).toEqual(false);
+  });
+
+  test('should return true if all required options are filled', () => {
+    expect(
+      validateField(
+        'options',
+        {
+          option1: {
+            type: 'string',
+            value: 'test',
+          },
+          option3: {
+            type: 'string',
+            value: 'test',
+          },
+        },
+        {
+          optionSchema: {
+            option1: {
+              required: true,
+            },
+            option3: {
+              required: true,
+            },
+          },
+        }
+      )
+    ).toEqual(true);
+  });
+
+  test('should return false if any depend_on dependencies are incorrect', () => {
+    expect(
+      validateField(
+        'options',
+        {
+          option1: {
+            type: 'string',
+            value: 'test',
+          },
+          option2: {
+            type: 'string',
+            value: undefined,
+          },
+          option3: {
+            type: 'string',
+            value: 'test 2',
+          },
+        },
+        {
+          optionSchema: {
+            option2: {
+              depends_on: ['option1'],
+            },
+            option3: {
+              depends_on: ['option2'],
+            },
+          },
+        }
+      )
+    ).toEqual(false);
+  });
+
+  test('should return true if all depend_on dependencies are correct', () => {
+    expect(
+      validateField(
+        'options',
+        {
+          option1: {
+            type: 'string',
+            value: 'test',
+          },
+          option2: {
+            type: 'string',
+            value: 'test 3',
+          },
+          option3: {
+            type: 'string',
+            value: 'test 2',
+          },
+        },
+        {
+          optionSchema: {
+            option2: {
+              depends_on: ['option1'],
+            },
+            option3: {
+              depends_on: ['option2'],
+            },
+          },
+        }
+      )
+    ).toEqual(true);
+  });
+});
+
 test('validateField should return true if the value contains valid required fields for fsm-list', () => {
   expect(validateField('fsm-list', [{ name: 'Qorus test string' }])).toEqual(true);
 });

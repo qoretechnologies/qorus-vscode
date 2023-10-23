@@ -113,7 +113,7 @@ export const RecordQueryArgs = ({
     return (
       <ReqoreTabs
         activeTab={isFreeform ? 'text' : 'form'}
-        tabsPadding="vertical"
+        tabsPadding="top"
         padded={false}
         tabs={[
           { label: 'Text', icon: 'Text', id: 'text' },

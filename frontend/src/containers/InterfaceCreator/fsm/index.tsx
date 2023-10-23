@@ -1,15 +1,15 @@
 import {
-  ReqoreDrawer,
+  ReqoreControlGroup,
+  ReqoreH1,
   ReqoreMessage,
   ReqoreModal,
-  ReqoreTabs,
-  ReqoreTabsContent,
+  ReqoreP,
   ReqoreVerticalSpacer,
   useReqore,
   useReqoreTheme,
 } from '@qoretechnologies/reqore';
-import { IReqoreEffect, StyledEffect } from '@qoretechnologies/reqore/dist/components/Effect';
-import { every, omit, some } from 'lodash';
+import { ReqoreTextEffect, StyledEffect } from '@qoretechnologies/reqore/dist/components/Effect';
+import { drop, every, omit, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
@@ -19,34 +19,31 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { Dispatch, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { XYCoord, useDrop } from 'react-dnd';
-import { useDebounce, useUpdateEffect } from 'react-use';
+import { useAsyncRetry, useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled, { css, keyframes } from 'styled-components';
-import { IApp } from '../../../App';
-import { IAppAction } from '../../../components/AppCatalogue';
+import { IApp } from '../../../components/AppCatalogue';
 import Content from '../../../components/Content';
 import { DragSelectArea } from '../../../components/DragSelectArea';
 import Field from '../../../components/Field';
 import Connectors, { IProviderType } from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
 import {
-  NegativeColorEffect,
   PositiveColorEffect,
   SaveColorEffect,
   WarningColorEffect,
 } from '../../../components/Field/multiPair';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
-import { IQorusType } from '../../../components/Field/systemOptions';
+import { IOptions, IQorusType } from '../../../components/Field/systemOptions';
 import FieldGroup from '../../../components/FieldGroup';
 import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
-import { InputOutputType } from '../../../components/InputOutputType';
 import Loader from '../../../components/Loader';
 import { calculateValueWithZoom } from '../../../components/PanElement';
 import { Messages } from '../../../constants/messages';
+import { AppsContext } from '../../../context/apps';
 import { DraftsContext, IDraftData } from '../../../context/drafts';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
@@ -58,6 +55,7 @@ import {
   autoAlign,
   checkOverlap,
   getVariable,
+  isStateValid,
   removeAllStatesWithVariable,
   removeFSMState,
 } from '../../../helpers/fsm';
@@ -81,19 +79,19 @@ import withMessageHandler, { postMessage } from '../../../hocomponents/withMessa
 import { useMoveByDragging } from '../../../hooks/useMoveByDragging';
 import TinyGrid from '../../../images/graphy-dark.png';
 import { AppSelector } from './AppSelector';
-import { CustomDragLayer } from './customDragLayer';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMInitialOrderDialog from './initialOrderDialog';
 import FSMState from './state';
-import FSMStateDialog, { TAction } from './stateDialog';
+import { FSMStateDetail } from './stateDetail';
+import { TAction } from './stateDialog';
 import FSMTransitionDialog, { IModifiedTransitions } from './transitionDialog';
-import FSMTransitionOrderDialog from './transitionOrderDialog';
 import { FSMVariables } from './variables';
 
 export interface IFSMViewProps {
   onSubmitSuccess?: (data: any) => any;
   setFsmReset?: (func?: any) => void;
   embedded?: boolean;
+  isQodex?: boolean;
   defaultStates?: IFSMStates;
   parentStateName?: string;
   defaultInterfaceId?: string;
@@ -102,7 +100,7 @@ export interface IFSMViewProps {
   fsm?: any;
   metadata?: Partial<IFSMMetadata>;
   setMetadata?: Dispatch<React.SetStateAction<any>>;
-  onHideMetadataClick?: () => void;
+  onHideMetadataClick?: (hidden: boolean) => void;
   isExternalMetadataHidden?: boolean;
   interfaceContext?: {
     target_dir?: string;
@@ -125,6 +123,7 @@ export interface IDraggableItem {
   injected?: boolean;
   injectedData?: any;
   actionData?: any;
+  initial?: boolean;
 }
 
 export interface IFSMTransition {
@@ -169,7 +168,7 @@ export type TVariableActionValue = {
 } & Partial<IProviderType>;
 
 export type TFSMClassConnectorAction = { class: string; connector: string; prefix?: string };
-
+export type TAppAndAction = { app: string; action: string; options: IOptions };
 export interface IFSMState {
   key?: string;
   corners?: IStateCorners;
@@ -188,7 +187,7 @@ export interface IFSMState {
       | TFSMClassConnectorAction
       | IProviderType
       | TVariableActionValue
-      | { app: IApp; action: IAppAction };
+      | TAppAndAction;
   };
   'input-type'?: any;
   'output-type'?: any;
@@ -349,6 +348,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   isExternalMetadataHidden,
   defaultInterfaceId,
   setMapper,
+  isQodex,
   ...rest
 }) => {
   const t = useContext(TextContext);
@@ -366,14 +366,14 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   parentStateName = parentStateName?.replace(/ /g, '-');
 
   const fsm = rest?.fsm || init?.fsm;
-  const { addNotification, addModal, removeModal } = useReqore();
+  const { addNotification } = useReqore();
   const { resetAllInterfaceData }: any = useContext(GlobalContext);
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
   const [interfaceId, setInterfaceId] = useState(null);
   const [st, setSt] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
   const [mt, setMt] = useState<IFSMMetadata>({
     target_dir: fsm?.target_dir || interfaceContext?.target_dir || null,
-    name: fsm?.name || null,
+    name: fsm?.name || 'Untitled Qodex',
     desc: fsm?.desc || null,
     groups: fsm?.groups || [],
     'input-type': fsm?.['input-type'] || interfaceContext?.inputType || null,
@@ -384,7 +384,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   });
 
   const wrapperRef = useRef(null);
-  const panElementRef = useRef(null);
   const showTransitionsToaster = useRef(0);
   const currentXPan = useRef<number>();
   const currentYPan = useRef<number>();
@@ -408,7 +407,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const [activeState, setActiveState] = useState<string | number>(undefined);
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [showStateIds, setShowStateIds] = useState<boolean>(false);
-  const [showStatesList, setShowStatesList] = useState<boolean>(true);
   const [showVariables, setShowVariables] = useState<{
     show?: boolean;
     selected?: {
@@ -435,8 +433,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     width: 0,
     height: 0,
   });
-  const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(embedded);
+  const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(embedded || isQodex);
   const [addingNewStateAt, setIsAddingNewStateAt] = useState<{ x: number; y: number }>(undefined);
+  const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
   const [zoom, setZoom] = useState<number>(1);
   const theme = useReqoreTheme();
 
@@ -449,6 +448,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const transitionIndexes = useRef<
     Record<string | number, Record<'left' | 'right' | 'top' | 'bottom', number>>
   >({});
+
+  const apps = useAsyncRetry<IApp[]>(async () => {
+    const apps = await fetchData('dataprovider/apps');
+
+    return apps.data;
+  }, []);
 
   const getDiagramBoundingRect = (): DOMRect => {
     return document
@@ -468,38 +473,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
     return { x: newX, y: newY };
   };
-
-  const [{ isOver, canDrop }, drop] = useDrop({
-    accept: DROP_ACCEPTS,
-    drop: (item: IDraggableItem, monitor) => {
-      const diagram = getDiagramBoundingRect();
-      let { x, y } = monitor.getClientOffset();
-
-      if (item.type === TOOLBAR_ITEM_TYPE) {
-        x =
-          calculateValueWithZoom(x - diagram.left, zoom) +
-          calculateValueWithZoom(currentXPan.current, zoom);
-        y =
-          calculateValueWithZoom(y - diagram.top, zoom) +
-          calculateValueWithZoom(currentYPan.current, zoom);
-
-        addNewState(item, x, y);
-      } else if (item.type === STATE_ITEM_TYPE) {
-        x =
-          calculateValueWithZoom(x - diagram.left, zoom) +
-          calculateValueWithZoom(currentXPan.current, zoom);
-        y =
-          calculateValueWithZoom(y - diagram.top, zoom) +
-          calculateValueWithZoom(currentYPan.current, zoom);
-
-        moveItem(item.id, { x, y });
-      }
-    },
-    collect: (monitor) => ({
-      canDrop: !!monitor.canDrop(),
-      isOver: !!monitor.isOver(),
-    }),
-  });
 
   const addNewState = (item: IDraggableItem, x, y, onSuccess?: (stateId: string) => any) => {
     const parentStateId = parseInt(parentStateName) || 0;
@@ -524,7 +497,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           key: id,
           keyId: id,
           isNew: true,
-          initial: false,
+          initial: item.initial,
           name: getStateName(item, maxId),
           desc: item.desc,
           injected: item.injected,
@@ -618,7 +591,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     let valid = true;
 
     forEach(states, (state) => {
-      if (!isFSMStateValid(state)) {
+      if (!isStateValid(state, metadata)) {
         valid = false;
       }
     });
@@ -657,19 +630,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       ...cur,
       [name]: value,
     }));
-  };
-
-  const moveItem: (id: number, coords: XYCoord) => void = (id, coords) => {
-    setStates((cur) => {
-      const newBoxes = { ...cur };
-
-      newBoxes[id].position.x = coords.x;
-      newBoxes[id].position.y = coords.y;
-
-      updateHistory(newBoxes);
-
-      return newBoxes;
-    });
   };
 
   const applyDraft = () => {
@@ -716,6 +676,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       applyDraft();
     } else {
       setInterfaceId(defaultInterfaceId);
+    }
+
+    if (isQodex) {
+      setIsAddingNewStateAt({ x: 0, y: 0 });
     }
   });
 
@@ -764,7 +728,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   );
 
   useEffect(() => {
-    if (qorus_instance && isReady && isMetadataHidden) {
+    if (qorus_instance && isReady && !apps.loading && isMetadataHidden) {
       if (embedded || fsm) {
         let newStates = embedded ? states : cloneDeep(fsm?.states || {});
 
@@ -792,7 +756,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
       setWrapperDimensions({ width, height });
     }
-  }, [qorus_instance, isReady, isMetadataHidden]);
+  }, [qorus_instance, isReady, isMetadataHidden, apps.loading]);
 
   useEffect(() => {
     if (states && onStatesChange) {
@@ -1287,7 +1251,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
       updateHistory(fixedStates);
       setStates(fixedStates);
-      setEditingState(null);
     },
     [states, areStatesCompatible, fixIncomptibleStates]
   );
@@ -1776,30 +1739,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     );
   };
 
-  if (!qorus_instance) {
-    return (
-      <ReqoreMessage title={t('NoInstanceTitle')} intent="warning">
-        {t('NoInstance')}
-      </ReqoreMessage>
-    );
-  }
-
-  if (!isReady) {
-    return (
-      <ReqoreMessage title={t('Loading')} intent="pending">
-        {t('Loading FSM...')}
-      </ReqoreMessage>
-    );
-  }
-
-  if (showTransitionsToaster.current) {
-    addNotification({
-      content: `${showTransitionsToaster.current} ${t('IncompatibleTransitionsRemoved')}`,
-      intent: 'warning',
-    });
-    showTransitionsToaster.current = 0;
-  }
-
   function calculateTextRotation(side: any) {
     switch (side) {
       case 'top':
@@ -1832,6 +1771,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const renderAppCatalogue = () => {
     if (addingNewStateAt) {
+      const isFirstTriggerState = size(states) === 0 && isQodex;
       const variables = reduce(
         {
           ...(metadata.globalvar || {}),
@@ -1845,13 +1785,24 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         {}
       );
 
-      console.log(variables);
-
       return (
         <ReqoreModal
           isOpen
-          label="Add new action"
-          onClose={() => setIsAddingNewStateAt(undefined)}
+          minimal
+          customTheme={{ main: 'main:darken' }}
+          contentEffect={{
+            gradient: {
+              colors: {
+                0: 'main:lighten',
+                100: 'main',
+              },
+              shape: 'circle',
+              direction: 'to bottom',
+            },
+          }}
+          blur={5}
+          label={isFirstTriggerState ? undefined : 'Add new action'}
+          onClose={isFirstTriggerState ? undefined : () => setIsAddingNewStateAt(undefined)}
           width="90vw"
           height="90vh"
           className="fsm-app-selector"
@@ -1859,7 +1810,38 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             userSelect: 'none',
           }}
         >
+          {isFirstTriggerState && (
+            <>
+              <ReqoreVerticalSpacer height={25} />
+              <ReqoreControlGroup horizontalAlign="center" fluid size="huge" vertical>
+                <ReqoreH1 effect={{ textSize: '40px' }}>
+                  What would you like to{' '}
+                  <ReqoreTextEffect
+                    effect={{
+                      gradient: {
+                        colors: {
+                          0: '#0099ff',
+                          50: '#d400ff',
+                          100: '#6a00ff',
+                        },
+                        animationSpeed: 5,
+                        animate: 'always',
+                      },
+                    }}
+                  >
+                    automate
+                  </ReqoreTextEffect>
+                </ReqoreH1>
+                <ReqoreVerticalSpacer height={7} />
+                <ReqoreP size="normal" effect={{ brightness: 75 }}>
+                  React to changes in your favorite application or run an action on schedule
+                </ReqoreP>
+              </ReqoreControlGroup>
+              <ReqoreVerticalSpacer height={35} />
+            </>
+          )}
           <AppSelector
+            type={isFirstTriggerState ? 'event' : 'action'}
             variables={variables}
             showVariables={setShowVariables}
             onActionSelect={(action, app) => {
@@ -1895,18 +1877,19 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                   desc: action.short_desc,
                   type: 'state',
                   stateType: action.type,
+                  initial: isFirstTriggerState,
                   actionData:
                     action.type === 'action'
                       ? {
-                          app,
-                          action,
+                          app: app.name,
+                          action: action.action,
                         }
                       : undefined,
                   varName: action.varName,
                   varType: action.varType,
                 },
-                x,
-                y
+                isFirstTriggerState ? DIAGRAM_SIZE / 2 - 350 / 2 : x,
+                isFirstTriggerState ? 50 : y
               );
 
               setIsAddingNewStateAt(undefined);
@@ -1923,121 +1906,64 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const renderStateDetail = () => {
     const state = activeState || editingState || editingTransitionOrder;
 
-    if (!state || !states[state]) {
+    if (!getIsMetadataHidden() || !state || !states[state]) {
       return null;
     }
 
     const stateData = states[state];
 
     return (
-      <ReqoreDrawer
-        position="right"
-        isOpen
-        label={stateData.name}
-        hidable
-        flat={false}
-        responsiveTitle={false}
-        floating
-        hasBackdrop={false}
+      <FSMStateDetail
+        key={state}
+        id={state}
         onClose={() => {
           setActiveState(undefined);
           setEditingState(undefined);
+          setSelectedState(undefined);
           setEditingTransitionOrder(undefined);
         }}
-        contentStyle={{
-          display: 'flex',
-          flexFlow: 'column',
-          overflow: 'hidden',
+        interfaceId={interfaceId}
+        data={stateData}
+        metadata={metadata}
+        onSubmit={(data) => {
+          console.log(data);
+          updateStateData(state, data);
         }}
-        size={states[state].type === 'block' ? '80vw' : '40vw'}
-        minSize="600px"
-        actions={[
-          {
-            label: t('Delete state'),
-            effect: NegativeColorEffect,
-            icon: 'DeleteBinLine',
-            onClick: () => {
-              handleStateDeleteClick(state);
-            },
-          },
-        ]}
-      >
-        <ReqoreVerticalSpacer height={10} />
-        <ReqoreTabs
-          fill
-          fillParent
-          flat={false}
-          tabs={[
-            { label: 'Configuration', id: 'configuration', icon: 'SettingsLine' },
-            { label: 'Types', id: 'info', icon: 'InformationLine', disabled: stateData.isNew },
-            {
-              label: 'Transitions',
-              id: 'transitions',
-              icon: 'LinksLine',
-              badge: size(stateData.transitions),
-              disabled: stateData.isNew,
-            },
-          ]}
-          activeTab={editingTransitionOrder ? 'transitions' : 'configuration'}
-          tabsPadding="vertical"
-          padded={false}
-          activeTabIntent="info"
-          style={{ overflow: 'hidden' }}
-        >
-          <ReqoreTabsContent tabId="info">
-            <InputOutputType
-              inputProvider={getStateDataForComparison(states[state], 'input')}
-              outputProvider={getStateDataForComparison(states[state], 'output')}
-            />
-          </ReqoreTabsContent>
-
-          <ReqoreTabsContent tabId="configuration">
-            <FSMStateDialog
-              key={state}
-              fsmName={metadata.name}
-              target_dir={metadata.target_dir}
-              metadata={metadata}
-              onSubmit={(id, data) => {
-                updateStateData(id, data);
-                setActiveState(undefined);
-                setEditingState(undefined);
-                setEditingTransitionOrder(undefined);
-              }}
-              onClose={() => {
-                setSelectedState(null);
-                setActiveState(undefined);
-                setEditingState(null);
-              }}
-              data={states[state]}
-              id={state}
-              deleteState={handleStateDeleteClick}
-              interfaceId={interfaceId}
-              otherStates={reduce(
-                states,
-                (newStates, localState, id) =>
-                  id === state ? { ...newStates } : { ...newStates, [id]: localState },
-                {}
-              )}
-            />
-          </ReqoreTabsContent>
-          <ReqoreTabsContent tabId="transitions">
-            <FSMTransitionOrderDialog
-              transitions={states[state].transitions}
-              id={state}
-              onClose={() => setEditingTransitionOrder(null)}
-              getStateData={(id) => states[id]}
-              onSubmit={updateStateData}
-              states={states}
-            />
-          </ReqoreTabsContent>
-        </ReqoreTabs>
-      </ReqoreDrawer>
+        onDelete={(unfilled?: boolean) => handleStateDeleteClick(state, unfilled)}
+        states={states}
+        activeTab={editingTransitionOrder ? 'transitions' : 'configuration'}
+        inputProvider={getStateDataForComparison(states[state], 'input')}
+        outputProvider={getStateDataForComparison(states[state], 'output')}
+      />
     );
   };
 
+  if (!qorus_instance) {
+    return (
+      <ReqoreMessage title={t('NoInstanceTitle')} intent="warning">
+        {t('NoInstance')}
+      </ReqoreMessage>
+    );
+  }
+
+  if (!isReady || apps.loading) {
+    return (
+      <ReqoreMessage title={t('Loading')} intent="pending">
+        {t('Loading FSM...')}
+      </ReqoreMessage>
+    );
+  }
+
+  if (showTransitionsToaster.current) {
+    addNotification({
+      content: `${showTransitionsToaster.current} ${t('IncompatibleTransitionsRemoved')}`,
+      intent: 'warning',
+    });
+    showTransitionsToaster.current = 0;
+  }
+
   return (
-    <>
-      <CustomDragLayer zoom={zoom} states={states} />
+    <AppsContext.Provider value={apps.value}>
       {!compatibilityChecked && (
         <StyledCompatibilityLoader>
           <Loader text={t('CheckingCompatibility')} />
@@ -2064,17 +1990,28 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         />
       )}
 
-      {renderStateDetail()}
-
       {renderAppCatalogue()}
 
       <Content
-        title={
-          embedded
-            ? undefined
-            : getIsMetadataHidden()
-            ? t('CreateFlowDiagram')
-            : t('DescribeYourFSM')
+        label={metadata.name}
+        onLabelEdit={(name) => setMetadata({ ...metadata, name })}
+        contentStyle={{ display: 'flex' }}
+        padded={!embedded}
+        transparent={embedded}
+        badge={
+          !isQodex && getIsMetadataHidden()
+            ? {
+                label: t('Back'),
+                onClick: () => {
+                  embedded
+                    ? onHideMetadataClick((cur) => !cur)
+                    : setIsMetadataHidden((cur) => !cur);
+                  setSelectedStates({});
+                },
+                effect: !areMetadataValid() ? WarningColorEffect : undefined,
+                icon: 'ArrowLeftLine',
+              }
+            : undefined
         }
         responsiveActions={false}
         actions={[
@@ -2231,62 +2168,40 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 onClick: () => setShowStateIds(!showStateIds),
                 intent: showStateIds ? 'info' : undefined,
               },
+              {
+                label: t('Reset'),
+                icon: 'HistoryLine',
+                onClick: () => {
+                  confirmAction(
+                    'ResetFieldsConfirm',
+                    () => {
+                      reset();
+                    },
+                    'Reset',
+                    'warning'
+                  );
+                },
+              },
             ],
           },
+          {
+            label: !areMetadataValid() || !isFSMValid() ? 'Fix to publish' : t('Publish'),
+            onClick: handleSubmitClick,
+            disabled: !areMetadataValid() || !isFSMValid(),
+            icon: !areMetadataValid() || !isFSMValid() ? 'ErrorWarningLine' : 'CheckLine',
+            effect: !areMetadataValid() || !isFSMValid() ? WarningColorEffect : SaveColorEffect,
+            show: !embedded && (isQodex || getIsMetadataHidden()),
+          },
+          {
+            label: t('Go to flow builder'),
+            onClick: () => {
+              embedded ? onHideMetadataClick((cur) => !cur) : setIsMetadataHidden((cur) => !cur);
+            },
+            icon: 'ArrowRightLine',
+            effect: PositiveColorEffect,
+            show: !embedded && !isQodex && !getIsMetadataHidden(),
+          },
         ]}
-        bottomActions={
-          !embedded
-            ? [
-                {
-                  label: t('Reset'),
-                  icon: 'HistoryLine',
-                  onClick: () => {
-                    confirmAction(
-                      'ResetFieldsConfirm',
-                      () => {
-                        reset();
-                      },
-                      'Reset',
-                      'warning'
-                    );
-                  },
-                },
-                {
-                  label: t('Back'),
-                  onClick: () => {
-                    embedded
-                      ? onHideMetadataClick((cur) => !cur)
-                      : setIsMetadataHidden((cur) => !cur);
-                    setSelectedStates({});
-                  },
-                  effect: !areMetadataValid() ? WarningColorEffect : undefined,
-                  icon: 'ArrowLeftLine',
-                  show: getIsMetadataHidden(),
-                },
-                {
-                  label: !areMetadataValid() ? 'Page 1 needs attention' : t('Submit'),
-                  onClick: handleSubmitClick,
-                  disabled: !isFSMValid(),
-                  icon: !areMetadataValid() ? 'ErrorWarningLine' : 'CheckLine',
-                  effect: !areMetadataValid() ? NegativeColorEffect : SaveColorEffect,
-                  position: 'right',
-                  show: getIsMetadataHidden(),
-                },
-                {
-                  label: t('Go to flow builder'),
-                  onClick: () => {
-                    embedded
-                      ? onHideMetadataClick((cur) => !cur)
-                      : setIsMetadataHidden((cur) => !cur);
-                  },
-                  icon: 'ArrowRightLine',
-                  effect: PositiveColorEffect,
-                  position: 'right',
-                  show: !getIsMetadataHidden(),
-                },
-              ]
-            : undefined
-        }
       >
         <ContentWrapper
           style={{
@@ -2489,18 +2404,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 <StyledDiagramWrapper
                   as="div"
                   theme={theme}
-                  effect={
-                    canDrop
-                      ? ({
-                          glow: {
-                            color: 'info',
-                            size: isOver ? 15 : 5,
-                            inset: true,
-                            blur: isOver ? 20 : 10,
-                          },
-                        } as IReqoreEffect)
-                      : undefined
-                  }
                   ref={wrapperRef}
                   id={`${parentStateName ? `${parentStateName}-` : ''}fsm-diagram`}
                 >
@@ -2563,6 +2466,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     zoomIn={zoomIn}
                     zoomOut={zoomOut}
                     enableEdgeMovement={isMovingStates}
+                    defaultX={
+                      isQodex
+                        ? DIAGRAM_SIZE / 2 - wrapperRef.current?.getBoundingClientRect()?.width / 2
+                        : 0
+                    }
                     wrapperSize={{
                       width: wrapperRef.current?.getBoundingClientRect()?.width || 0,
                       height: wrapperRef.current?.getBoundingClientRect()?.height || 0,
@@ -2642,6 +2550,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           activateState={handleActivateStateClick}
                           zoom={zoom}
                           passRef={handlePassStateRef}
+                          isValid={isStateValid(state, metadata)}
                         />
                       ))}
                       <svg
@@ -2801,8 +2710,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             </div>
           </>
         )}
+        {renderStateDetail()}
       </Content>
-    </>
+    </AppsContext.Provider>
   );
 };
 

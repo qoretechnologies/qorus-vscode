@@ -2,6 +2,7 @@ import { ReqoreIcon } from '@qoretechnologies/reqore';
 import capitalize from 'lodash/capitalize';
 import cloneDeep from 'lodash/cloneDeep';
 import React, { useContext, useState } from 'react';
+import { useUpdateEffect } from 'react-use';
 import { IFSMState, IFSMStates, IFSMTransition } from '.';
 import { TextContext } from '../../../context/text';
 import OrderDialog from './orderDialog';
@@ -11,10 +12,9 @@ import FSMTransitionDialog, { getConditionType, isConditionValid } from './trans
 export interface IFSMTransitionOrderDialogProps {
   id: string;
   transitions: IFSMTransition[];
-  onClose: any;
+  onClose?: any;
   getStateData: (id: string) => IFSMState;
   onSubmit: (id: string, data: IFSMState) => any;
-  onEditClick: (id: string, index: number) => any;
   states: IFSMStates;
 }
 
@@ -24,7 +24,6 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
   onClose,
   getStateData,
   onSubmit,
-  onEditClick,
   states,
 }) => {
   const [newTransitions, setNewTransitions] = useState<IFSMTransition[]>(
@@ -32,6 +31,10 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
   );
   const [editingTransition, setEditingTransition] = useState<number | null>(null);
   const t = useContext(TextContext);
+
+  useUpdateEffect(() => {
+    onSubmit(id, { transitions: newTransitions });
+  }, [newTransitions, id]);
 
   const changeOrder = (from: number, to: number): void => {
     setNewTransitions((cur) => {
@@ -121,7 +124,6 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
   return (
     <>
       <OrderDialog
-        onClose={onClose}
         data={newTransitions}
         title={t('TransitionToState')}
         metadata={renderMetadata}
@@ -132,10 +134,6 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
         onResetClick={() => {
           setNewTransitions(cloneDeep(transitions));
           setEditingTransition(null);
-        }}
-        onSubmitClick={() => {
-          onSubmit(id, { transitions: newTransitions });
-          onClose();
         }}
         isDisabled={!isDataValid()}
       />

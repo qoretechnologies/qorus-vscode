@@ -4,10 +4,13 @@ import {
   ReqoreCollection,
   ReqoreControlGroup,
   ReqoreMessage,
+  ReqorePanel,
+  ReqoreSpinner,
   ReqoreTag,
   ReqoreTagGroup,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
+import { IReqoreCollectionProps } from '@qoretechnologies/reqore/dist/components/Collection';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import { cloneDeep, findKey, forEach, last } from 'lodash';
 import isArray from 'lodash/isArray';
@@ -21,7 +24,7 @@ import { isObject } from 'util';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { insertAtIndex } from '../../helpers/functions';
-import { validateField } from '../../helpers/validations';
+import { hasAllDependenciesFullfilled, validateField } from '../../helpers/validations';
 import { getGlobalDescriptionTooltip } from '../FieldWrapper';
 import AutoField from './auto';
 import { NegativeColorEffect, PositiveColorEffect } from './multiPair';
@@ -132,6 +135,7 @@ export interface IOptionsSchemaArg {
   sensitive?: boolean;
   desc?: string;
   arg_schema?: IOptionsSchema;
+  depends_on?: string[];
 }
 
 export interface IOptionsSchema {
@@ -150,7 +154,7 @@ export interface IOperatorsSchema {
   [operatorName: string]: IOperator;
 }
 
-export interface IOptionsProps {
+export interface IOptionsProps extends Omit<IReqoreCollectionProps, 'onChange'> {
   name: string;
   url?: string;
   customUrl?: string;
@@ -164,6 +168,7 @@ export interface IOptionsProps {
   onOptionsLoaded?: (options: IOptionsSchema) => void;
   recordRequiresSearchOptions?: boolean;
   readOnly?: boolean;
+  allowTemplates?: boolean;
 }
 
 export const getTypeAndCanBeNull = (
@@ -180,7 +185,7 @@ export const getTypeAndCanBeNull = (
     canBeNull = true;
   }
 
-  realType = realType === 'string' && allowed_values ? 'select-string' : realType;
+  realType = realType === 'string' && allowed_values ? 'string' : realType;
 
   return {
     type: realType,
@@ -203,6 +208,7 @@ const Options = ({
   onOptionsLoaded,
   recordRequiresSearchOptions,
   readOnly,
+  allowTemplates = true,
   ...rest
 }: IOptionsProps) => {
   const t: any = useContext(TextContext);
@@ -409,7 +415,28 @@ const Options = ({
   }
 
   if ((operatorsUrl && !operators) || (!rest.options && !options)) {
-    return <p>{t('LoadingOptions')}</p>;
+    return (
+      <ReqorePanel fill flat transparent>
+        <ReqoreSpinner
+          iconColor="info"
+          type={3}
+          centered
+          size="big"
+          iconProps={{
+            image:
+              'https://hq.qoretechnologies.com:8092/api/public/apps/QorusApiObjects/qorus-builtin-api.svg',
+          }}
+          labelEffect={{
+            uppercase: true,
+            spaced: 4,
+            textSize: 'small',
+            weight: 'bold',
+          }}
+        >
+          {t('LoadingOptions')}
+        </ReqoreSpinner>
+      </ReqorePanel>
+    );
   }
 
   if (!options || !size(options)) {
@@ -431,7 +458,7 @@ const Options = ({
 
   const fixedValue = fixOptions(value, options);
   let unavailableOptionsCount = 0;
-  const availableOptions = reduce(
+  const availableOptions: IOptions = reduce(
     fixedValue,
     (newValue, option, optionName) => {
       // Check if this option is in the options schema
@@ -494,7 +521,7 @@ const Options = ({
       ) : null}
       <ReqoreCollection
         label="Options"
-        minColumnWidth="100px"
+        minColumnWidth="250px"
         responsiveTitle={false}
         headerSize={4}
         filterable
@@ -517,11 +544,11 @@ const Options = ({
         badge={size(fixedValue)}
         intent={isValid === false ? 'danger' : undefined}
         style={{ width: '100%' }}
+        defaultZoom={0.5}
         items={map(
           availableOptions,
           ({ type, ...other }, optionName): IReqoreCollectionItemProps => ({
             label: optionName,
-            size: 'small',
             customTheme: {
               main: 'main:lighten',
             },
@@ -596,6 +623,7 @@ const Options = ({
                 ) : null}
                 <TemplateField
                   {...options[optionName]}
+                  allowTemplates={allowTemplates}
                   component={AutoField}
                   {...getTypeAndCanBeNull(type, options[optionName].allowed_values, other.op)}
                   className="system-option"
@@ -617,7 +645,14 @@ const Options = ({
                   sensitive={options[optionName].sensitive}
                   default_value={options[optionName].default_value}
                   allowed_values={options[optionName].allowed_values}
-                  disabled={readOnly}
+                  disabled={
+                    readOnly ||
+                    !hasAllDependenciesFullfilled(
+                      options[optionName].depends_on,
+                      availableOptions,
+                      options
+                    )
+                  }
                   readOnly={readOnly}
                 />
                 {operators && size(operators) && size(other.op) ? (
@@ -644,6 +679,7 @@ const Options = ({
             ),
           })
         )}
+        {...rest}
       />
 
       {size(filteredOptions) >= 1 && !readOnly ? (

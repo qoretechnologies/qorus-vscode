@@ -1,6 +1,5 @@
 import {
   ReqoreControlGroup,
-  ReqoreMessage,
   ReqorePanel,
   ReqoreTag,
   ReqoreVerticalSpacer,
@@ -15,15 +14,17 @@ import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Pane
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
 import { last } from 'lodash';
 import size from 'lodash/size';
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
+import { IApp } from '../../../components/AppCatalogue';
 import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { insertAtIndex } from '../../../helpers/functions';
+import { useGetAppActionData } from '../../../hooks/useGetAppActionData';
 import { useGetInputOutputType } from '../../../hooks/useGetInputOutputType';
-import { IFSMState, TVariableActionValue } from './';
+import { IFSMState, TAppAndAction, TVariableActionValue } from './';
 import { FSMItemDescByType, FSMItemIconByType } from './toolbarItem';
 
 export interface IFSMStateProps extends IFSMState {
@@ -48,6 +49,7 @@ export interface IFSMStateProps extends IFSMState {
   passRef?: (id: string, ref: any) => void;
   isInSelectedList: boolean;
   isBeingDragged?: boolean;
+  isValid?: boolean;
 }
 
 export interface IFSMStateStyleProps {
@@ -68,12 +70,16 @@ export const getCategoryColor = (category: TStateTypes): TReqoreHexColor => {
   }
 };
 
-export const getStateColor = (stateType: TStateTypes): IReqoreEffect['gradient'] => {
+export const getStateColor = (
+  stateType: TStateTypes,
+  isInitial?: boolean
+): IReqoreEffect['gradient'] => {
   return {
     colors: {
       50: 'main',
-      200: stateType !== 'action' ? '#6f1977' : 'info:lighten:2',
+      200: isInitial ? 'success' : stateType !== 'action' ? '#6f1977' : 'info:lighten:2',
     },
+    borderColor: isInitial ? 'success' : stateType !== 'action' ? '#6f1977' : 'info:lighten:2',
     animate: 'hover',
     animationSpeed: 1,
     direction: 'to right bottom',
@@ -167,7 +173,7 @@ export const getStateCategory = (type: string): TStateTypes => {
   return 'other';
 };
 
-export const getStateType = ({ type, action, ...rest }: IFSMState) => {
+export const getStateType = ({ type, action, ...rest }: IFSMState, app?: IApp) => {
   if (type === 'block') {
     return `${rest['block-type'] || 'for'} block (${size(rest.states)})`;
   }
@@ -187,7 +193,7 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
   }
 
   if (action.type === 'action') {
-    return action.value.app.display_name;
+    return app.display_name;
   }
 
   if (action.type === 'var-action') {
@@ -202,7 +208,7 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
     return `${action.value.type}/${action.value.name}${action.value.path}`;
   }
 
-  return action.value;
+  return action.value as string;
 };
 
 const FSMState: React.FC<IFSMStateProps> = ({
@@ -240,6 +246,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   isInSelectedList,
   variableDescription,
   isBeingDragged,
+  isValid,
   ...rest
 }) => {
   const confirmAction = useReqoreProperty('confirmAction');
@@ -258,6 +265,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const clicksTimeout = useRef(null);
   const mouseDownPosition = useRef({ x: 0, y: 0 });
   const timeSinceMouseDown = useRef(0);
+  const app = useGetAppActionData((action?.value as TAppAndAction)?.app || null);
 
   useEffect(() => {
     staticPosition.current.x = position?.x || 0;
@@ -415,11 +423,18 @@ const FSMState: React.FC<IFSMStateProps> = ({
   const stateActionDescription: string =
     (
       variableDescription ||
-      (action?.value?.app ? action?.value?.app?.short_desc : undefined) ||
+      (app ? app?.short_desc : undefined) ||
       (action?.value?.descriptions
         ? last(action?.value?.descriptions)
         : FSMItemDescByType[action?.type || rest['block-type'] || type])
     )?.slice(0, 100) || '' + '...';
+
+  const stateColor = useMemo(
+    () => getStateColor(getStateCategory(action?.type || type), initial),
+    [action, type, initial]
+  );
+
+  console.log(isValid);
 
   return (
     <>
@@ -485,19 +500,11 @@ const FSMState: React.FC<IFSMStateProps> = ({
         flat={false}
         isStatic={isStatic}
         disabled={isCompatible === false}
-        intent={
-          isLoadingCheck
-            ? 'pending'
-            : selectedState === id
-            ? 'info'
-            : isCompatible
-            ? 'success'
-            : undefined
-        }
         contentEffect={
           {
             gradient: {
-              ...getStateColor(getStateCategory(action?.type || type)),
+              ...stateColor,
+              borderColor: !isValid ? 'danger' : stateColor.borderColor,
               animate: isCompatible || isInSelectedList ? 'always' : 'hover',
             },
             glow: isCompatible
@@ -523,7 +530,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           } as IReqoreEffect
         }
         icon={isLoadingCheck ? 'Loader5Fill' : FSMItemIconByType[action?.type || type]}
-        iconImage={action?.value?.app?.logo}
+        iconImage={app?.logo}
         className="fsm-state"
         responsiveActions={false}
         responsiveTitle={false}
@@ -531,7 +538,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
         y={position?.y}
         selected={selected}
         size="small"
-        iconProps={{ size: '25px', animation: isLoadingCheck ? 'spin' : undefined }}
+        iconProps={{ size: '25px', animation: isLoadingCheck ? 'spin' : undefined, rounded: true }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         minimal
@@ -544,12 +551,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
                   : isIsolated
                   ? NegativeColorEffect
                   : undefined,
-                icon: initial ? 'PlayLine' : isIsolated ? 'AlarmWarningLine' : undefined,
-                tooltip: initial
-                  ? 'Initial state'
-                  : isIsolated
-                  ? 'This state is isolated'
-                  : undefined,
+                icon: initial ? 'PlayLine' : isIsolated ? 'ErrorWarningFill' : undefined,
+                tooltip: !isValid ? 'This state is invalid and needs to be fixed' : undefined,
               }
             : undefined
         }
@@ -566,65 +569,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
             show: isInSelectedList ? false : 'hover',
             group: [
               {
-                icon: 'InformationFill',
-                minimal: true,
-                flat: true,
-                size: 'small',
-                show: 'hover',
-                tooltip:
-                  inputType && outputType && zoom === 1
-                    ? {
-                        title: name,
-                        delay: 200,
-                        icon: 'InformationFill',
-                        content: (
-                          <React.Fragment key={Date.now()}>
-                            {desc || 'This state has no description'}
-                            {size(inputType) ? (
-                              <>
-                                <ReqoreVerticalSpacer height={10} />
-                                <ReqorePanel
-                                  label="Input type"
-                                  badge={[
-                                    inputType.name,
-                                    { labelKey: 'Fields', label: size(inputType.fields) },
-                                  ]}
-                                  size="small"
-                                >
-                                  {inputType.desc}
-                                </ReqorePanel>
-                              </>
-                            ) : null}
-
-                            {size(outputType) ? (
-                              <>
-                                <ReqoreVerticalSpacer height={5} />
-                                <ReqorePanel
-                                  label="Output type"
-                                  badge={[
-                                    outputType.name,
-                                    { labelKey: 'Fields', label: size(outputType.fields) },
-                                  ]}
-                                  size="small"
-                                >
-                                  {outputType.desc}
-                                </ReqorePanel>
-                              </>
-                            ) : null}
-                            {size(outputType) || size(inputType) ? (
-                              <>
-                                <ReqoreVerticalSpacer height={5} />
-                                <ReqoreMessage minimal flat intent="info" size="small">
-                                  Click the state for even more information
-                                </ReqoreMessage>
-                              </>
-                            ) : null}
-                          </React.Fragment>
-                        ),
-                      }
-                    : 'Loading type information...',
-              },
-              {
                 icon: 'Edit2Line' as IReqoreIconName,
                 disabled: type === 'block' && !qorus_instance,
                 onClick: (e) => {
@@ -634,7 +578,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 minimal: true,
                 flat: true,
                 size: 'small',
-                tooltip: 'Edit state',
+                tooltip: 'Edit action',
                 show: !!onEditClick ? 'hover' : false,
               },
               {
@@ -642,7 +586,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 onMouseDown: (e) => {
                   e?.stopPropagation();
                   confirmAction({
-                    title: 'Delete state',
+                    title: 'Delete action',
                     description: `Are you sure you want to delete state ${name}?`,
                     intent: 'danger',
                     onConfirm: () => {
@@ -747,7 +691,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
               effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
               label={getStateTypeLabel()}
             />
-            <ReqoreTag minimal wrap label={getStateType({ type, action, ...rest })} />
+            <ReqoreTag minimal wrap label={getStateType({ type, action, id, ...rest }, app)} />
           </ReqoreControlGroup>
           {action?.type === 'var-action' ? (
             <ReqoreControlGroup stack fill fluid>

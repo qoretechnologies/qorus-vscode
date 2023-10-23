@@ -1,13 +1,18 @@
 import { cloneDeep, omit, reduce, size } from 'lodash';
+import { IProviderType } from '../components/Field/connectors';
 import {
   IFSMMetadata,
   IFSMState,
   IFSMStates,
   IFSMTransition,
+  TFSMClassConnectorAction,
   TVariableActionValue,
 } from '../containers/InterfaceCreator/fsm';
+import { TAction } from '../containers/InterfaceCreator/fsm/stateDialog';
+import { isConditionValid } from '../containers/InterfaceCreator/fsm/transitionDialog';
 import { postMessage } from '../hocomponents/withMessageHandler';
 import { getStateBoundingRect } from './diagram';
+import { validateField } from './validations';
 
 export const autoAlign = (states: IFSMStates, config?: IAutoAlignConfig) => {
   let _margin = 50;
@@ -561,6 +566,92 @@ export const removeTransitionsWithStateId = (
   }
 
   return newState;
+};
+
+export const isFSMNameValid: (name: string) => boolean = (name) => validateField('string', name);
+
+export const isFSMBlockConfigValid = (data: IFSMState): boolean => {
+  return size(data['block-config']) === 0 || validateField('system-options', data['block-config']);
+};
+
+export const isFSMActionValid = (
+  state: IFSMState,
+  actionType: TAction,
+  metadata: Partial<IFSMMetadata>
+): boolean => {
+  switch (actionType) {
+    case 'mapper': {
+      return !!state?.action?.value;
+    }
+    case 'pipeline': {
+      return !!state?.action?.value;
+    }
+    case 'connector': {
+      return (
+        !!(state?.action?.value as TFSMClassConnectorAction)?.class &&
+        !!(state?.action?.value as TFSMClassConnectorAction)?.connector
+      );
+    }
+    case 'apicall': {
+      return validateField('api-call', state?.action?.value);
+    }
+    case 'send-message': {
+      return validateField('send-message', state?.action?.value);
+    }
+    case 'search':
+    case 'delete':
+    case 'update':
+    case 'create':
+    case 'search-single': {
+      return validateField(actionType, state?.action?.value);
+    }
+    case 'var-action': {
+      const currentValue = state?.action?.value as TVariableActionValue;
+      // We need to get the value from the variable
+      const variableData: { value: IProviderType } = getVariable(
+        currentValue?.var_name,
+        currentValue?.var_type,
+        metadata
+      );
+
+      if (!variableData) {
+        return false;
+      }
+
+      return validateField('var-action', state?.action?.value, { variableData });
+    }
+    default: {
+      return true;
+    }
+  }
+};
+
+export const isStateValid = (state: IFSMState, metadata: Partial<IFSMMetadata>): boolean => {
+  const blockLogicType = state.type === 'fsm' ? 'fsm' : 'custom';
+  const actionType: TAction = state.action?.type || 'none';
+
+  if (state.type === 'block') {
+    return (
+      isFSMNameValid(state.name) &&
+      isFSMBlockConfigValid(state) &&
+      (blockLogicType === 'custom' ? size(state.states) !== 0 : validateField('string', state.fsm))
+    );
+  }
+
+  if (state.type === 'if') {
+    return (
+      isFSMNameValid(state.name) &&
+      isConditionValid(state) &&
+      (!state['input-output-type'] || validateField('type-selector', state['input-output-type']))
+    );
+  }
+
+  return (
+    isFSMNameValid(state.name) &&
+    isFSMActionValid(state, actionType, metadata) &&
+    (!state['input-type'] || validateField('type-selector', state['input-type'])) &&
+    (!state['output-type'] || validateField('type-selector', state['output-type']))
+  );
 };
 
 export const removeFSMState = (
