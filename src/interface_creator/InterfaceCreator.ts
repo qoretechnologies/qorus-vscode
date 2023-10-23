@@ -967,7 +967,7 @@ export abstract class InterfaceCreator {
             for (let item of value) {
               result +=
                 `${indent}${item[key_name_2]}:\n` +
-                `${indent}${indent}value: ${item[value_name_2]}\n` +
+                `${indent}${indent}value: "${item[value_name_2]}"\n` +
                 `${indent}${indent}enabled: true\n`;
             }
             break;
