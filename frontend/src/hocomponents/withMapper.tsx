@@ -168,13 +168,9 @@ export default () =>
         const url = prov.is_api_call ? (fieldType === 'input' ? '/response' : '/request') : '';
 
         return insertUrlPartBeforeQuery(
-          `${getRealUrlFromProvider(
-            prov,
-            undefined,
-            undefined,
-            undefined,
-            fieldType === 'output'
-          )}${fieldType === 'output' ? '&soft=true' : ''}`,
+          `${getRealUrlFromProvider(prov, undefined, undefined, undefined)}${
+            fieldType === 'output' ? '&soft=true' : ''
+          }`,
           url
         );
       };

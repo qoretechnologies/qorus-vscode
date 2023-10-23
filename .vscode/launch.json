@@ -10,7 +10,7 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": ["--inspect-port=0"],
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}", "--inspect-port=0"],
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "preLaunchTask": "npm: watch",
       "localRoot": "../${workspaceFolder}/qorus/",
