@@ -145,8 +145,15 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
             }
           }}
           isFormValid={isFormValid('mapper', interfaceIndex)}
-          methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
-          context={selectedFields.mapper.find((field: IField) => field.name === 'context')?.value}
+          methods={
+            selectedFields.mapper[interfaceIndex].find(
+              (field: IField) => field.name === 'functions'
+            )?.value
+          }
+          context={
+            selectedFields.mapper[interfaceIndex].find((field: IField) => field.name === 'context')
+              ?.value
+          }
           isEditing={isEditing || !!mapper}
           onSubmitSuccess={onSubmitSuccess}
           interfaceIndex={interfaceIndex}
