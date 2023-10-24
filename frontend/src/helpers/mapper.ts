@@ -1,5 +1,34 @@
 import { findIndex, omit, reduce, size } from 'lodash';
 
+export const sortFields = (fields: Record<string, any>): Record<string, any> => {
+  let newFields: Record<string, any> = {};
+  // Check if every field has a `order` property
+  const hasOrder = Object.values(fields).every((field) => field.order !== undefined);
+  // If not
+  if (!hasOrder) {
+    // Add the incremental order property to every field
+    newFields = reduce(
+      fields,
+      (newFields, field, name) => ({
+        ...newFields,
+        [name]: {
+          ...field,
+          order: size(newFields),
+        },
+      }),
+      {}
+    );
+  }
+
+  // sort the object by `order` property
+  return Object.keys(newFields)
+    .sort((a, b) => newFields[a].order - newFields[b].order)
+    .reduce((obj, key) => {
+      obj[key] = newFields[key];
+      return obj;
+    }, {});
+};
+
 // This functions flattens the fields, by taking all the
 // deep fields from `type` and adds them right after their
 // respective parent field
@@ -81,7 +110,6 @@ export const hasStaticDataField = (context: string) =>
 export const getStaticDataFieldname = (context: string) => {
   return context.match(/\{([^}]+)\}/)?.[1];
 };
-
 
 export const rebuildOptions = (options) => {
   return options

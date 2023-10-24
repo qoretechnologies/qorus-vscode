@@ -317,6 +317,7 @@ export default class ConfigItemsModal extends Component {
                   default_value={this.state.origValue}
                   t={t}
                   type="auto"
+                  isConfigItem
                   noSoft
                   defaultType={item.type}
                   defaultInternalType={item.value_true_type || item.type}

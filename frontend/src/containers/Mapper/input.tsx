@@ -1,4 +1,4 @@
-import { useReqoreTheme } from '@qoretechnologies/reqore';
+import { ReqoreButton, useReqoreTheme } from '@qoretechnologies/reqore';
 import { IReqoreEffect } from '@qoretechnologies/reqore/dist/components/Effect';
 import { FC } from 'react';
 import { useDrag } from 'react-dnd';
@@ -22,6 +22,10 @@ export interface IMapperInputProps {
   usesContext?: boolean;
   isWholeInput?: boolean;
   hasError?: boolean;
+  order: number;
+  onSortClick?: (up?: boolean) => void;
+  isTypeView?: boolean;
+  isLastInOrder?: boolean;
 }
 
 const StyledDragHandle = styled.div`
@@ -47,6 +51,10 @@ const MapperInput: FC<IMapperInputProps> = ({
   isWholeInput,
   description,
   hasError,
+  order,
+  isTypeView,
+  isLastInOrder,
+  onSortClick,
 }) => {
   const [{ opacity }, dragRef] = useDrag({
     type: 'input',
@@ -63,6 +71,7 @@ const MapperInput: FC<IMapperInputProps> = ({
       fill
       isMapperChild={isMapperChild}
       isInputHash={isWholeInput}
+      isTypeView={isTypeView}
       level={level}
       childrenCount={lastChildIndex}
       fluid
@@ -71,7 +80,7 @@ const MapperInput: FC<IMapperInputProps> = ({
       theme={theme}
     >
       <StyledMapperField
-        maxWidth="300px"
+        maxWidth={onSortClick ? '600px' : '300px'}
         icon={hasRelation ? 'CheckLine' : hasAvailableOutput ? 'DragMoveLine' : 'ForbidLine'}
         rightIcon={
           hasRelation ? 'ArrowRightFill' : hasAvailableOutput ? 'DragMoveLine' : 'ForbidLine'
@@ -106,6 +115,24 @@ const MapperInput: FC<IMapperInputProps> = ({
       >
         {typeof name === 'string' ? name.replace(/\\./g, '.') : name}
       </StyledMapperField>
+      {onSortClick ? (
+        <>
+          <ReqoreButton
+            icon="ArrowUpSLine"
+            onClick={() => onSortClick(true)}
+            fixed
+            disabled={order === 0}
+            tooltip="Move up"
+          />
+          <ReqoreButton
+            icon="ArrowDownSLine"
+            onClick={() => onSortClick(false)}
+            fixed
+            disabled={isLastInOrder}
+            tooltip="Move down"
+          />
+        </>
+      ) : null}
     </StyledMapperFieldWrapper>
   );
 };
