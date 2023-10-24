@@ -104,7 +104,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
         leftIconColor={`${hasRelation ? 'success' : hasData ? 'info' : undefined}:lighten:2`}
         effect={
           !hasRelation
-            ? hasData
+            ? highlight
               ? ({
                   gradient: {
                     colors: {
@@ -112,13 +112,14 @@ const MapperOutput: FC<IMapperOutputProps> = ({
                       50: 'main',
                       0: 'info:darken',
                     },
+                    direction: 'to left',
                   },
                 } as IReqoreEffect)
               : undefined
             : ({
                 gradient: {
                   colors: {
-                    130: 'main:lighten',
+                    130: highlight ? 'info' : 'main:lighten',
                     50: 'main',
                     0: 'success:darken',
                   },

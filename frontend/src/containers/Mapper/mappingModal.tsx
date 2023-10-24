@@ -30,7 +30,8 @@ export interface IMapperFieldModalProps {
   mapperKeys: any;
   output: any;
   inputs: any[];
-  selectedFields: any;
+  interfaceIndex: number;
+  selectedFields: Record<string, any[][]>;
 }
 
 const types = {};
@@ -51,6 +52,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
   output,
   inputs,
   selectedFields,
+  interfaceIndex,
 }) => {
   const [relation, setRelation] = useState(relationData || {});
 
@@ -185,10 +187,16 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         isDisabled = true;
       }
     }
+
     // Code field is disabled if user did not add
     // any mapper code
     if (name === 'code') {
-      if (!size(selectedFields.mapper.find((field: IField) => field.name === 'codes')?.value)) {
+      if (
+        !size(
+          selectedFields.mapper[interfaceIndex].find((field: IField) => field.name === 'codes')
+            ?.value
+        )
+      ) {
         isDisabled = true;
       }
     }
@@ -316,7 +324,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                 isValid={getIsFieldValid(key, value)}
                 compact
               >
-                <ReqoreMessage size="small" intent="info">
+                <ReqoreMessage size="small" intent="info" opaque={false}>
                   {mapperKeys[key].desc}
                 </ReqoreMessage>
                 {getKeyType(key, mapperKeys, output) === 'mapper-code' ? (
@@ -324,6 +332,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                     onChange={handleChange}
                     defaultCode={value && value.split('::')[0]}
                     defaultMethod={value && value.split('::')[1]}
+                    interfaceIndex={interfaceIndex}
                   />
                 ) : getKeyType(key, mapperKeys, output) === 'option_hash' ? (
                   <OptionHashField

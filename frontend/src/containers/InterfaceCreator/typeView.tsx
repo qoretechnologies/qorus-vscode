@@ -36,11 +36,14 @@ export const formatFields = (fields) => {
     fields,
     (formattedFields, field, fieldName) => {
       const name = fieldName.replace(/(?<!\\)\./g, '\\.');
+      // Add the current order key or the maximum of this field set
+      const order = field?.order || size(formattedFields);
 
       return {
         ...formattedFields,
         [name]: {
           ...field,
+          order,
           name,
           type: {
             ...field?.type,
@@ -51,6 +54,26 @@ export const formatFields = (fields) => {
     },
     {}
   );
+
+  return newFields;
+};
+
+export const sortFields = (fields): Record<string, any> => {
+  const newFields = Object.keys(fields)
+    .sort((a, b) => fields[a].order - fields[b].order)
+    .reduce((obj, key) => {
+      obj[key] = fields[key];
+      return {
+        ...obj,
+        [key]: {
+          ...fields[key],
+          type: {
+            ...fields[key]?.type,
+            fields: sortFields(fields[key]?.type?.fields || {}),
+          },
+        },
+      };
+    }, {});
 
   return newFields;
 };
@@ -215,7 +238,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
       // Add new object
       obj.type.fields[data.name] = data;
       // Return new data
-      return result;
+      return sortFields(result);
     });
   };
 
@@ -240,7 +263,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
       // Always remove the original object
       unset(result, newPathList);
       if (remove) {
-        return result;
+        return sortFields(result);
       }
       // Build the updated path
       const oldFields: string[] = path.split(/(?<!\\)\./g);
@@ -266,7 +289,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
         path: oldFields.join('.'),
       });
       // Return new data
-      return result;
+      return sortFields(result);
     });
   };
 
@@ -484,23 +507,56 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
         }}
       >
         <StyledMapperWrapper
-          style={{ justifyContent: 'center', paddingTop: '10px', width: '300px' }}
+          style={{ justifyContent: 'center', paddingTop: '10px', width: '600px' }}
         >
-          <StyledFieldsWrapper vertical>
+          <StyledFieldsWrapper vertical width="600px">
             {size(flattenedFields) !== 0
               ? map(flattenedFields, (input, index) => (
                   <MapperInput
-                    key={input.path}
+                    key={`${input.order}${input.level}${input.path}`}
                     name={input.name}
                     types={input.type.types_returned}
                     {...input}
                     field={input}
+                    isTypeView
                     id={index + 1}
                     lastChildIndex={getLastChildIndex(input, flattenedFields) - index}
                     onClick={() => {
                       setSelectedField(input);
                     }}
+                    isLastInOrder={
+                      size(
+                        flattenedFields.find((field) => field.path === input.parentPath)?.type
+                          ?.fields
+                      ) ===
+                      input.order + 1
+                    }
                     hasAvailableOutput={true}
+                    onSortClick={(up?: boolean) => {
+                      let newOrder = up ? input.order - 1 : input.order + 1;
+
+                      newOrder = newOrder < 0 ? 0 : newOrder;
+
+                      editField(input.path, {
+                        ...input,
+                        order: newOrder,
+                      });
+                      // Find the previous field based on order
+                      const previousField = flattenedFields.find(
+                        (field) =>
+                          field.order === newOrder &&
+                          field.level === input.level &&
+                          field.parent === input.parent
+                      );
+                      // If the previous field exists
+                      if (previousField) {
+                        // Edit the previous field to have the current order
+                        editField(previousField.path, {
+                          ...previousField,
+                          order: input.order,
+                        });
+                      }
+                    }}
                   />
                 ))
               : null}

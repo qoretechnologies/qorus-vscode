@@ -1,3 +1,4 @@
+import { formatFields, sortFields } from '../../src/containers/InterfaceCreator/typeView';
 import {
   filterInternalData,
   fixRelations,
@@ -60,6 +61,250 @@ test('flattenFields should arrange fields with deps', () => {
   expect(flattenedFields).toEqual(result);
 });
 
+test('sortFields should order fields', () => {
+  const fields = {
+    field1: {
+      name: 'field1',
+      type: {
+        fields: {
+          fieldDeep1: {
+            name: 'fieldDeep1',
+            order: 0,
+            input: 'child-1',
+            type: {
+              fields: {
+                fieldDeep2: {
+                  name: 'fieldDeep2',
+                  order: 1,
+                  type: {
+                    fields: {
+                      fieldDeep3: {
+                        name: 'fieldDeep3',
+                        order: 1,
+                        type: { fields: {} },
+                      },
+                      fieldDeep4: {
+                        name: 'fieldDeep4',
+                        order: 3,
+                        type: { fields: {} },
+                      },
+                      fieldDeep5: {
+                        name: 'fieldDeep5',
+                        order: 2,
+                        type: { fields: {} },
+                      },
+                      fieldDeep6: {
+                        name: 'fieldDeep6',
+                        order: 0,
+                        type: { fields: {} },
+                      },
+                    },
+                  },
+                  desc: 'Field deep 2 description',
+                },
+                fieldDeep7: {
+                  name: 'fieldDeep7',
+                  order: 0,
+                  type: { fields: {} },
+                },
+              },
+            },
+          },
+        },
+      },
+      desc: 'Field 1 description',
+      order: 0,
+    },
+    field2: {
+      name: 'field2',
+      desc: 'Field 2 description',
+      order: 2,
+      type: { fields: {} },
+    },
+    field3: {
+      name: 'field3',
+      desc: 'Field 3 description',
+      order: 1,
+      type: { fields: {} },
+    },
+  };
+
+  const sortedFields = sortFields(fields);
+
+  expect(sortedFields).toEqual({
+    field1: {
+      name: 'field1',
+      type: {
+        fields: {
+          fieldDeep1: {
+            name: 'fieldDeep1',
+            order: 0,
+            input: 'child-1',
+            type: {
+              fields: {
+                fieldDeep7: {
+                  name: 'fieldDeep7',
+                  order: 0,
+                  type: { fields: {} },
+                },
+                fieldDeep2: {
+                  name: 'fieldDeep2',
+                  order: 1,
+                  type: {
+                    fields: {
+                      fieldDeep6: {
+                        name: 'fieldDeep6',
+                        order: 0,
+                        type: { fields: {} },
+                      },
+                      fieldDeep3: {
+                        name: 'fieldDeep3',
+                        order: 1,
+                        type: { fields: {} },
+                      },
+                      fieldDeep5: {
+                        name: 'fieldDeep5',
+                        order: 2,
+                        type: { fields: {} },
+                      },
+                      fieldDeep4: {
+                        name: 'fieldDeep4',
+                        order: 3,
+                        type: { fields: {} },
+                      },
+                    },
+                  },
+                  desc: 'Field deep 2 description',
+                },
+              },
+            },
+          },
+        },
+      },
+      desc: 'Field 1 description',
+      order: 0,
+    },
+    field3: {
+      name: 'field3',
+      desc: 'Field 3 description',
+      order: 1,
+      type: { fields: {} },
+    },
+    field2: {
+      name: 'field2',
+      desc: 'Field 2 description',
+      order: 2,
+      type: { fields: {} },
+    },
+  });
+});
+
+test('formatFields should add order key if not present', () => {
+  const fields = {
+    field1: {
+      type: {
+        fields: {
+          fieldDeep1: {
+            input: 'child-1',
+            type: {
+              fields: {
+                fieldDeep2: {
+                  type: {
+                    fields: {
+                      fieldDeep3: {},
+                      fieldDeep4: {},
+                      fieldDeep5: {},
+                      fieldDeep6: {},
+                    },
+                  },
+                  desc: 'Field deep 2 description',
+                },
+                fieldDeep7: {},
+              },
+            },
+          },
+        },
+      },
+      desc: 'Field 1 description',
+    },
+    field2: {
+      desc: 'Field 2 description',
+    },
+    field3: {
+      desc: 'Field 3 description',
+    },
+  };
+
+  const sortedFields = formatFields(fields);
+
+  expect(sortedFields).toEqual({
+    field1: {
+      name: 'field1',
+      type: {
+        fields: {
+          fieldDeep1: {
+            name: 'fieldDeep1',
+            order: 0,
+            input: 'child-1',
+            type: {
+              fields: {
+                fieldDeep2: {
+                  name: 'fieldDeep2',
+                  order: 0,
+                  type: {
+                    fields: {
+                      fieldDeep3: {
+                        name: 'fieldDeep3',
+                        order: 0,
+                        type: { fields: {} },
+                      },
+                      fieldDeep4: {
+                        name: 'fieldDeep4',
+                        order: 1,
+                        type: { fields: {} },
+                      },
+                      fieldDeep5: {
+                        name: 'fieldDeep5',
+                        order: 2,
+                        type: { fields: {} },
+                      },
+                      fieldDeep6: {
+                        name: 'fieldDeep6',
+                        order: 3,
+                        type: { fields: {} },
+                      },
+                    },
+                  },
+                  desc: 'Field deep 2 description',
+                },
+                fieldDeep7: {
+                  name: 'fieldDeep7',
+                  order: 1,
+                  type: { fields: {} },
+                },
+              },
+            },
+          },
+        },
+      },
+      desc: 'Field 1 description',
+      order: 0,
+    },
+    field2: {
+      name: 'field2',
+      desc: 'Field 2 description',
+      order: 1,
+      type: { fields: {} },
+    },
+    field3: {
+      name: 'field3',
+      desc: 'Field 3 description',
+      order: 2,
+      type: { fields: {} },
+    },
+  });
+});
+
 test('getLastChildIndex should return the last child from the fields array', () => {
   const field = getLastChildIndex(fields[0], fields);
   expect(field).toEqual(-1);
@@ -101,7 +346,7 @@ test('fixRelations should return the relations object', () => {
 
 test('unEscapeMapperName should return the name of the mapper', () => {
   const result = 'foo.bar';
-  const name = 'foo\.bar';
+  const name = 'foo.bar';
   const field = unEscapeMapperName(name);
   expect(field).toEqual(result);
 });

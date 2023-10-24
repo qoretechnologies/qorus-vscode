@@ -88,7 +88,9 @@ const Field = ({ type, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
       {type === 'file-string' && <FileField {...rest} type={type} />}
       {type === 'date' && <DateField {...rest} type={type} />}
       {type === 'cron' && <Cron {...rest} type={type} />}
-      {type === 'auto' && <AutoField {...rest} type={type} />}
+      {type === 'auto' && (
+        <AutoField {...rest} type={type} isConfigItem={interfaceKind === 'config-item'} />
+      )}
       {type === 'array-auto' && <ArrayAutoField {...rest} type={type} />}
       {['number', 'float'].includes(type) && <NumberField {...rest} type={type} />}
       {type === 'class-array' && <ClassArrayField {...rest} type={type} />}

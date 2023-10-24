@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 4.3.5
+
+#### Bug fixes
+
+- Fixed a bug where value-maps values were not properly quoted in YAML
+
+## Version 4.3.4
+
+#### Bug fixes
+
+- Default value for `strictly_local` flag on config items was changed to `false`
+
 ## Version 4.3.3
 
 #### Bug fixes

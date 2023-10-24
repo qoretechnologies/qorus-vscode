@@ -188,6 +188,12 @@ export const ApiCall: StoryObj<typeof meta> = {
   },
 };
 
+export const ConfigItem: StoryObj<typeof meta> = {
+  args: {
+    isConfigItem: true,
+  },
+};
+
 export const ExistingData: StoryObj<typeof meta> = {
   args: {
     value: {

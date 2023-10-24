@@ -8,7 +8,7 @@ import {
 } from '@qoretechnologies/reqore';
 import { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreControlGroupProps } from '@qoretechnologies/reqore/dist/components/ControlGroup';
-import { find } from 'lodash';
+import { cloneDeep, find } from 'lodash';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
@@ -77,8 +77,10 @@ export const StyledMapperWrapper = styled.div`
   margin: 0 auto;
 `;
 
-export const StyledFieldsWrapper: React.FC<IReqoreControlGroupProps> = styled(ReqoreControlGroup)`
-  width: 300px !important;
+export const StyledFieldsWrapper: React.FC<IReqoreControlGroupProps & { width?: string }> = styled(
+  ReqoreControlGroup
+)`
+  width: ${({ width }) => width || '300px'} !important;
 `;
 
 const StyledConnectionsWrapper = styled.div`
@@ -89,8 +91,12 @@ const StyledConnectionsWrapper = styled.div`
 
 export const StyledMapperFieldWrapper = styled(ReqoreControlGroup)`
   transition: all 0.2s ease-in-out;
-  width: ${({ isMapperChild, level }) =>
-    isMapperChild ? `${300 - level * 15}px` : '300px'} !important;
+  width: ${({ isMapperChild, level, isTypeView }) =>
+    isMapperChild
+      ? `${isTypeView ? 600 : 300 - level * 15}px`
+      : isTypeView
+      ? '600px'
+      : '300px'} !important;
   position: relative;
 
   ${({ input, isMapperChild, level }) =>
@@ -149,32 +155,6 @@ export const StyledMapperFieldWrapper = styled(ReqoreControlGroup)`
 `;
 
 export const StyledMapperField: React.FC<IReqoreButtonProps> = styled(ReqoreButton)``;
-
-const StyledInfoMessage = styled.p`
-  text-align: center;
-  color: #a9a9a9;
-`;
-
-const StyledUrlMessage = styled.p`
-  text-align: center;
-  height: 30px;
-  line-height: 30px;
-  text-overflow: ellipsis;
-  color: #a9a9a9;
-  font-size: 12px;
-  font-weight: 300;
-  word-break: keep-all;
-  white-space: nowrap;
-  overflow: hidden;
-  margin: 0;
-`;
-
-const StyledFieldHeader = styled.h3`
-  margin: 0;
-  padding: 0;
-  margin-bottom: 10px;
-  text-align: center;
-`;
 
 const StyledLine = styled.line`
   stroke-width: 1px;
@@ -616,6 +596,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
       inputs: flattenedInputs,
       mapperKeys,
       output,
+      interfaceIndex,
       onSubmit: (relation) => {
         setRelations((current) => {
           const result = { ...current };
@@ -791,6 +772,18 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         outputPath === path &&
         ('name' in relation || ('context' in relation && relation.context.startsWith('$static:')))
     );
+  };
+
+  const shouldHighlight = (path) => {
+    if (!relations[path]) {
+      return false;
+    }
+
+    const newRelations = cloneDeep(relations[path]);
+
+    delete newRelations.name;
+
+    return !!size(newRelations);
   };
 
   return (
@@ -1212,7 +1205,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                       name={output.name}
                       hasRelation={hasOutputRelation(output.path)}
                       hasData={!isAvailableForDrop(output.path)}
-                      highlight={!!size(relations[output.path])}
+                      highlight={shouldHighlight(output.path)}
                       {...output}
                       field={output}
                       onDrop={handleDrop}
