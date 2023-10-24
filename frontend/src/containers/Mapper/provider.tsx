@@ -132,6 +132,7 @@ export const configItemFactory = {
   desckey: 'desc',
   recordSuffix: '',
   requiresRecord: false,
+  withDetails: true,
   suffixRequiresOptions: true,
   type: 'factory',
   desc: 'Data provider factories for creating data providers from options',
@@ -234,7 +235,7 @@ const MapperProvider: FC<IProviderProps> = ({
 
   const handleCallError = (error) => {
     if (error) {
-      const errorMsg = error.err || error;
+      const errorMsg = error?.error?.desc || error.err || error;
       onError?.(errorMsg);
     } else {
       onError?.(null);
@@ -426,7 +427,7 @@ const MapperProvider: FC<IProviderProps> = ({
         ...optionProvider,
         type: realProviders[provider].type,
         name,
-        is_api_call: requiresRequest,
+        is_api_call: requiresRequest && !isConfigItem,
         up: record?.data?.up !== false,
         can_manage_fields: record?.data?.can_manage_fields,
         transaction_management: record?.data?.transaction_management,
@@ -792,7 +793,16 @@ const MapperProvider: FC<IProviderProps> = ({
     []
   );
 
-  const description = last(nodes)?.values?.[0]?.desc;
+  const getDescription = () => {
+    if (last(nodes)?.value) {
+      return last(nodes)?.values?.find((val) => val.name === last(nodes)?.value)?.desc;
+    }
+
+    // Return the same as above only from the second to last item
+    return nth(nodes, -2)?.values?.find((val) => val.name === nth(nodes, -2)?.value)?.desc;
+  };
+
+  const description = getDescription();
 
   return (
     <>
@@ -843,7 +853,7 @@ const MapperProvider: FC<IProviderProps> = ({
             <ReqoreControlGroup fluid={false} key={index}>
               {size(child.values) ? (
                 <SelectField
-                  autoSelect
+                  autoSelect={!isConfigItem}
                   key={`${title}-${index}`}
                   name={`provider-${type ? `${type}-` : ''}${index}`}
                   disabled={isLoading || readOnly}

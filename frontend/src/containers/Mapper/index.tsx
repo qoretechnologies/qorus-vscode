@@ -8,7 +8,7 @@ import {
 } from '@qoretechnologies/reqore';
 import { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreControlGroupProps } from '@qoretechnologies/reqore/dist/components/ControlGroup';
-import { find } from 'lodash';
+import { cloneDeep, find } from 'lodash';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
@@ -774,6 +774,18 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     );
   };
 
+  const shouldHighlight = (path) => {
+    if (!relations[path]) {
+      return false;
+    }
+
+    const newRelations = cloneDeep(relations[path]);
+
+    delete newRelations.name;
+
+    return !!size(newRelations);
+  };
+
   return (
     <>
       {selectedField && (
@@ -1193,7 +1205,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                       name={output.name}
                       hasRelation={hasOutputRelation(output.path)}
                       hasData={!isAvailableForDrop(output.path)}
-                      highlight={!!size(relations[output.path])}
+                      highlight={shouldHighlight(output.path)}
                       {...output}
                       field={output}
                       onDrop={handleDrop}
