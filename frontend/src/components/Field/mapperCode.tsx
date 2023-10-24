@@ -19,6 +19,7 @@ export interface IMapperCodeFieldProps {
   addMessageListener: TMessageListener;
   postMessage: TPostMessage;
   selectedFields: any;
+  interfaceIndex: number;
 }
 
 const MapperCodeField: FunctionComponent<IMapperCodeFieldProps> = ({
@@ -28,6 +29,7 @@ const MapperCodeField: FunctionComponent<IMapperCodeFieldProps> = ({
   addMessageListener,
   postMessage,
   selectedFields,
+  interfaceIndex,
 }) => {
   const [methods, setMethods] = useState<any[]>(null);
   const [method, setMethod] = useState<string>(defaultMethod);
@@ -59,12 +61,16 @@ const MapperCodeField: FunctionComponent<IMapperCodeFieldProps> = ({
   };
 
   return (
-    <ReqoreControlGroup>
+    <ReqoreControlGroup fill>
       <SelectField
         name="code"
+        fill
         value={defaultCode}
         onChange={(_name, value) => onCodeChange(value)}
-        defaultItems={selectedFields.mapper.find((field: IField) => field.name === 'codes')?.value}
+        defaultItems={
+          selectedFields.mapper[interfaceIndex].find((field: IField) => field.name === 'codes')
+            ?.value
+        }
       />
       {size(methods) !== 0 && (
         <SelectField

@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.3.5
+
+#### Bug fixes
+
+- Fixed a bug where value-maps values were not properly quoted in YAML
+
 ## Version 4.3.4
 
 #### Bug fixes

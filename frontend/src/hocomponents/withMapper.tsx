@@ -7,7 +7,7 @@ import { Messages } from '../constants/messages';
 import { formatFields } from '../containers/InterfaceCreator/typeView';
 import { providers } from '../containers/Mapper/provider';
 import { MapperContext } from '../context/mapper';
-import { callBackendBasic } from '../helpers/functions';
+import { callBackendBasic, insertUrlPartBeforeQuery } from '../helpers/functions';
 import { fixRelations, flattenFields } from '../helpers/mapper';
 import withFieldsConsumer from './withFieldsConsumer';
 import withInitialDataConsumer from './withInitialDataConsumer';
@@ -166,8 +166,14 @@ export default () =>
 
         // If the provider is an api call, we need to add /request or /response at the end
         const url = prov.is_api_call ? (fieldType === 'input' ? '/response' : '/request') : '';
+        const providerUrl = getRealUrlFromProvider(prov, undefined, undefined, undefined);
 
-        return `${getRealUrlFromProvider(prov)}${url}`;
+        return insertUrlPartBeforeQuery(
+          `${providerUrl}${
+            fieldType === 'output' ? `${providerUrl.includes('?') ? '&' : '?'}soft=true` : ''
+          }`,
+          url
+        );
       };
 
       const getProviderUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {
@@ -299,7 +305,7 @@ export default () =>
         // Save the url as a record, to be accessible
         setOutputRecord(outputUrl);
         // Fetch the input and output fields
-        const outputs = await props.fetchData(`${outputUrl}?soft=true`);
+        const outputs = await props.fetchData(`${outputUrl}`);
         // If one of the connections is down
         if (outputs.error) {
           console.error(outputs);
