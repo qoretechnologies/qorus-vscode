@@ -54,6 +54,7 @@ import {
   alignStates,
   autoAlign,
   checkOverlap,
+  getStatesConnectedtoState,
   getVariable,
   isStateValid,
   removeAllStatesWithVariable,
@@ -169,10 +170,16 @@ export type TVariableActionValue = {
 
 export type TFSMClassConnectorAction = { class: string; connector: string; prefix?: string };
 export type TAppAndAction = { app: string; action: string; options: IOptions };
+export type TFSMStateAction = {
+  type: TAction;
+  value?: string | TFSMClassConnectorAction | IProviderType | TVariableActionValue | TAppAndAction;
+};
+
 export interface IFSMState {
   key?: string;
   corners?: IStateCorners;
   isNew?: boolean;
+  isValid?: boolean;
   position?: {
     x?: number;
     y?: number;
@@ -180,15 +187,7 @@ export interface IFSMState {
   transitions?: IFSMTransition[];
   'error-transitions'?: IFSMTransition[];
   initial?: boolean;
-  action?: {
-    type: TAction;
-    value?:
-      | string
-      | TFSMClassConnectorAction
-      | IProviderType
-      | TVariableActionValue
-      | TAppAndAction;
-  };
+  action?: TFSMStateAction;
   'input-type'?: any;
   'output-type'?: any;
   'block-type'?: 'while' | 'for' | 'foreach' | 'transaction';
@@ -497,6 +496,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           key: id,
           keyId: id,
           isNew: true,
+          isValid: false,
           initial: item.initial,
           name: getStateName(item, maxId),
           desc: item.desc,
@@ -1003,6 +1003,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const isAvailableForTransition = useCallback(
     async (stateId: string, targetId: string): Promise<boolean> => {
+      // If the target state is an App, we only allow one connection
+      if (states[targetId].action.type === 'action') {
+        return size(getStatesConnectedtoState(targetId, states)) === 0;
+      }
+
       if (getTransitionByState(stateId, targetId)) {
         return Promise.resolve(false);
       }
@@ -1242,7 +1247,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
       return fixedStates;
     },
-    [states, areStatesCompatible, fixIncomptibleStates]
+    [states, areStatesCompatible, fixIncomptibleStates, metadata]
   );
 
   const updateStateData = useCallback(
@@ -1926,7 +1931,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         data={stateData}
         metadata={metadata}
         onSubmit={(data) => {
-          console.log(data);
           updateStateData(state, data);
         }}
         onDelete={(unfilled?: boolean) => handleStateDeleteClick(state, unfilled)}
@@ -2550,7 +2554,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           activateState={handleActivateStateClick}
                           zoom={zoom}
                           passRef={handlePassStateRef}
-                          isValid={isStateValid(state, metadata)}
+                          isValid={
+                            'isValid' in state ? state.isValid : isStateValid(state, metadata)
+                          }
                         />
                       ))}
                       <svg

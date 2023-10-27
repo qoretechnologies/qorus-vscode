@@ -1,4 +1,5 @@
-import { cloneDeep, omit, reduce, size } from 'lodash';
+import { cloneDeep, forEach, omit, reduce, size } from 'lodash';
+import { IApp, IAppAction } from '../components/AppCatalogue';
 import { IProviderType } from '../components/Field/connectors';
 import {
   IFSMMetadata,
@@ -8,6 +9,7 @@ import {
   TFSMClassConnectorAction,
   TVariableActionValue,
 } from '../containers/InterfaceCreator/fsm';
+import { TQodexStatesForTemplates } from '../containers/InterfaceCreator/fsm/AppActionOptions';
 import { TAction } from '../containers/InterfaceCreator/fsm/stateDialog';
 import { isConditionValid } from '../containers/InterfaceCreator/fsm/transitionDialog';
 import { postMessage } from '../hocomponents/withMessageHandler';
@@ -577,7 +579,7 @@ export const isFSMBlockConfigValid = (data: IFSMState): boolean => {
 export const isFSMActionValid = (
   state: IFSMState,
   actionType: TAction,
-  metadata: Partial<IFSMMetadata>
+  metadata?: Partial<IFSMMetadata>
 ): boolean => {
   switch (actionType) {
     case 'mapper': {
@@ -606,6 +608,10 @@ export const isFSMActionValid = (
       return validateField(actionType, state?.action?.value);
     }
     case 'var-action': {
+      if (!metadata) {
+        return false;
+      }
+
       const currentValue = state?.action?.value as TVariableActionValue;
       // We need to get the value from the variable
       const variableData: { value: IProviderType } = getVariable(
@@ -620,13 +626,20 @@ export const isFSMActionValid = (
 
       return validateField('var-action', state?.action?.value, { variableData });
     }
+    case 'action': {
+      return (
+        validateField('string', state.action.value.app) &&
+        validateField('string', state.action.value.action) &&
+        validateField('options', state.action.value.options)
+      );
+    }
     default: {
       return true;
     }
   }
 };
 
-export const isStateValid = (state: IFSMState, metadata: Partial<IFSMMetadata>): boolean => {
+export const isStateValid = (state: IFSMState, metadata?: Partial<IFSMMetadata>): boolean => {
   const blockLogicType = state.type === 'fsm' ? 'fsm' : 'custom';
   const actionType: TAction = state.action?.type || 'none';
 
@@ -686,4 +699,69 @@ export const removeFSMState = (
   onFinish?.(newStates);
 
   return newStates;
+};
+
+export const getRecursiveStatesConnectedtoState = (
+  id: string | number,
+  states: IFSMStates
+): IFSMStates => {
+  let connectedStates: IFSMStates = {};
+
+  forEach(states, (state, stateId) => {
+    const transition = getTransitionByState(states, stateId, id);
+
+    if (transition) {
+      connectedStates = {
+        ...connectedStates,
+        [stateId]: state,
+        ...getRecursiveStatesConnectedtoState(stateId, states),
+      };
+    }
+  });
+
+  return connectedStates;
+};
+
+export const getStatesConnectedtoState = (id: string | number, states: IFSMStates): IFSMStates => {
+  const connectedStates: IFSMStates = {};
+
+  forEach(states, (state, stateId) => {
+    const transition = getTransitionByState(states, stateId, id);
+
+    if (transition) {
+      connectedStates[stateId] = state;
+    }
+  });
+
+  return connectedStates;
+};
+
+export const getStatesForTemplates = (
+  id: string | number,
+  states: IFSMStates
+): TQodexStatesForTemplates => {
+  const connectedStates = getRecursiveStatesConnectedtoState(id, states);
+
+  return reduce(
+    connectedStates,
+    (newStates, state, stateId): TQodexStatesForTemplates => ({
+      ...newStates,
+      [stateId]: {
+        ...state.action,
+        isValid: state.isValid,
+      },
+    }),
+    {}
+  );
+};
+
+export const getAppAndAction = (
+  apps: IApp[],
+  appName: string,
+  actionName?: string
+): { app: IApp; action: IAppAction } => {
+  const app = apps.find((a) => a.name === appName);
+  const action = app.actions.find((a) => a.action === actionName);
+
+  return { app, action };
 };

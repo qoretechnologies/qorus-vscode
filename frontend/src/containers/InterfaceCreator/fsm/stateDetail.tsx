@@ -79,7 +79,6 @@ export const FSMStateDetail = memo(
     );
 
     useUpdateEffect(() => {
-      console.log(data, dataToSubmit);
       if (!isEqual(data, dataToSubmit)) {
         setHasSaved(false);
       }
@@ -132,8 +131,9 @@ export const FSMStateDetail = memo(
           enable: {
             left: true,
           },
+          minWidth: 500,
           defaultSize: {
-            width: dataToSubmit.type === 'block' ? '100%' : '400px',
+            width: dataToSubmit.type === 'block' ? '100%' : '500px',
             height: '100%',
           },
         }}
@@ -188,12 +188,14 @@ export const FSMStateDetail = memo(
               if (!isCustomBlockFirstPage()) {
                 setIsLoading(true);
 
-                postMessage('submit-fsm-state', {
+                postMessage?.('submit-fsm-state', {
                   iface_id: interfaceId,
                   state_id: dataToSubmit.id,
                 });
 
-                const modifiedData = { ...dataToSubmit };
+                const modifiedData: IFSMState = { ...dataToSubmit };
+
+                modifiedData.isValid = true;
 
                 if (blockLogicType === 'custom') {
                   modifiedData.fsm = undefined;
@@ -301,7 +303,6 @@ export const FSMStateDetail = memo(
               setIsMetadataHidden={setIsMetadataHidden}
               isLoading={isLoading}
               onSubmit={(_id, data) => {
-                console.log(data);
                 updateSubmitData(data);
               }}
               data={dataToSubmit}

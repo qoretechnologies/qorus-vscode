@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { IApp, IAppAction } from '../components/AppCatalogue';
 import { AppsContext } from '../context/apps';
+import { getAppAndAction } from '../helpers/fsm';
 
 export function useGetAppActionData(): IApp[];
 export function useGetAppActionData(app: string): IApp;
@@ -17,11 +18,8 @@ export function useGetAppActionData(
   }
 
   if (!action) {
-    return appsContext.find((a) => a.name === app);
+    return getAppAndAction(appsContext, app)?.app;
   }
 
-  const appData = appsContext.find((a) => a.name === app);
-  const actionData = appData.actions.find((a) => a.action === action);
-
-  return { app: appData, action: actionData };
+  return getAppAndAction(appsContext, app, action);
 }

@@ -525,7 +525,7 @@ export const validateField: (
     case 'pipeline-options':
     case 'mapper-options':
     case 'system-options': {
-      const getIsValid = (options: IOptions, optionSchema?: IOptionsSchema) => {
+      const getIsValid = (options?: IOptions, optionSchema?: IOptionsSchema) => {
         let isValid = true;
 
         if (!options || size(options) === 0) {
@@ -539,13 +539,19 @@ export const validateField: (
           isValid = every(optionSchema, (optionData, option) => {
             if (
               optionData.required &&
-              (!options[option] || !options[option]?.value === undefined)
+              (!options?.[option] || !options?.[option]?.value === undefined)
             ) {
+              console.log('YEP', option, 'IS FUCKED!!!!');
               return false;
             }
 
             return isValid;
           });
+
+          if (!isValid) {
+            // Return the isValid variable
+            return isValid;
+          }
         }
 
         isValid = every(options, (optionData, option) => {
@@ -745,9 +751,11 @@ export const hasAllDependenciesFullfilled = (
   }
 
   return dependencies.every((dependency) => {
-    return validateField(options[dependency].type, options[dependency].value, {
-      ...optionsSchema,
-      optionsSchema,
-    });
+    return options[dependency]
+      ? validateField(options[dependency].type, options[dependency].value, {
+          ...optionsSchema,
+          optionsSchema,
+        })
+      : true;
   });
 };

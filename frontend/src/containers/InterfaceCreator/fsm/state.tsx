@@ -434,8 +434,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
     [action, type, initial]
   );
 
-  console.log(isValid);
-
   return (
     <>
       {isInSelectedList && (

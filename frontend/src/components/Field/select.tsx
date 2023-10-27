@@ -29,14 +29,21 @@ import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
 import { PositiveColorEffect } from './multiPair';
+import { IOptionsSchemaArg } from './systemOptions';
+
+export interface ISelectFieldItem {
+  name?: string;
+  display_name?: string;
+  short_desc?: string;
+  disabled?: boolean;
+  desc?: string;
+  intent?: TReqoreIntent;
+  badge?: IReqorePanelProps['badge'];
+  messages?: IOptionsSchemaArg['messages'];
+}
 
 export interface ISelectField extends IField {
-  defaultItems?: {
-    name: string;
-    desc?: string;
-    intent?: TReqoreIntent;
-    badge?: IReqorePanelProps['badge'];
-  }[];
+  defaultItems?: ISelectFieldItem[];
   predicate?: (name: string) => boolean;
   placeholder?: string;
   disabled?: boolean;
@@ -138,7 +145,7 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
   className,
   ...rest
 }) => {
-  const [items, setItems] = useState<{ name: string; desc?: string }[]>(defaultItems || []);
+  const [items, setItems] = useState<ISelectFieldItem[]>(defaultItems || []);
   const [query, setQuery] = useState<string>('');
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [isSelectDialogOpen, setSelectDialogOpen] = useState<boolean>(false);
@@ -261,26 +268,36 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
     }
   };
 
-  let filteredItems: any[] = items;
+  let filteredItems: ISelectFieldItem[] = items;
 
   // If we should run the items thru predicate
   if (predicate) {
     filteredItems = filteredItems.filter((item) => predicate(item.name));
   }
 
+  const getItemShortDescription = (itemName: string, defaultDesc: string = '') => {
+    const item = items.find((item) => item.name === itemName);
+
+    return item?.short_desc || (item?.desc ? 'Hover to see description' : defaultDesc);
+  };
+
   const getItemDescription = (itemName) => {
-    return items.find((item) => item.name === itemName)?.desc;
+    const item = items.find((item) => item.name === itemName);
+
+    return item?.desc || item?.short_desc;
   };
 
   const reqoreItems: IReqoreMenuItemProps[] = filteredItems.map((item) => ({
     label: item.name,
-    description: item.desc,
+    description: getItemDescription(item.name),
     value: item.name,
     selected: item.name === value,
+    intent: item.intent,
+    disabled: item.disabled,
     onClick: () => handleSelectClick(item),
   }));
 
-  if (autoSelect && filteredItems.length === 1) {
+  if (autoSelect && filteredItems.length === 1 && !filteredItems[0].disabled) {
     // Automaticaly select the first item
     if (filteredItems[0].name !== value) {
       handleSelectClick(filteredItems[0]);
@@ -291,9 +308,7 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
         fluid
         className={className}
         label={value || filteredItems[0].name}
-        description={
-          !!getItemDescription(value) ? 'Hover to see description' : 'Select from available items'
-        }
+        description={getItemShortDescription(value)}
         tooltip={
           !!getItemDescription(value)
             ? {
@@ -304,7 +319,6 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
             : undefined
         }
         readOnly
-        wrap
         fixed
         icon={filteredItems[0].desc ? icon : 'ArrowDownSFill'}
         rightIcon={filteredItems[0].desc ? 'ListUnordered' : undefined}
@@ -324,15 +338,19 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
    * @param data - The data that we're going to be checking.
    * @returns A boolean value.
    */
-  const hasItemsWithDesc = (data) => {
-    return data.some((item) => item.desc);
+  const hasItemsWithDesc = (data: ISelectFieldItem[]) => {
+    return data.some((item) => item.desc || item.short_desc);
+  };
+
+  const hasItemsWithError = (data: ISelectFieldItem[]) => {
+    return data.some((item) => item.messages?.find((message) => message.intent === 'danger'));
   };
 
   if (!reference && (!filteredItems || filteredItems.length === 0)) {
     return <ReqoreMessage intent="muted">{t('NoDataAvailable')}</ReqoreMessage>;
   }
 
-  const filterItems = (items) => {
+  const filterItems = (items: ISelectFieldItem[]): ISelectFieldItem[] => {
     return items.filter((item: any) => {
       let isMatch = true;
 
@@ -380,8 +398,24 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
           }}
           items={filterItems(filteredItems).map(
             (item): IReqoreCollectionItemProps => ({
-              label: item.name,
-              content: <ReactMarkdown>{item.desc}</ReactMarkdown>,
+              label: item.display_name || item.name,
+              content: (
+                <>
+                  {(item.messages || []).map(({ intent, title, content }, index) => (
+                    <ReqoreMessage
+                      intent={intent}
+                      title={title}
+                      key={title || index}
+                      size="small"
+                      margin="bottom"
+                      opaque={false}
+                    >
+                      {content}
+                    </ReqoreMessage>
+                  ))}
+                  <ReactMarkdown>{getItemDescription(item.name)}</ReactMarkdown>
+                </>
+              ),
               flat: false,
               size: 'small',
               minimal: false,
@@ -391,19 +425,18 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
               tooltip: !!item.desc
                 ? {
                     delay: 800,
-                    content: <ReactMarkdown>{item.desc}</ReactMarkdown>,
+                    content: <ReactMarkdown>{getItemDescription(item.name)}</ReactMarkdown>,
                     maxWidth: '70vw',
                   }
                 : undefined,
               headerEffect: { color: '#ffffff' },
-              contentEffect:
-                item.name === value
-                  ? { gradient: { colors: 'main' } }
-                  : { color: 'muted:lighten:2' },
-              onClick: () => {
-                handleSelectClick(item);
-                setSelectDialogOpen(false);
-              },
+              contentEffect: item.name === value ? { gradient: { colors: 'main' } } : undefined,
+              onClick: !item.disabled
+                ? () => {
+                    handleSelectClick(item);
+                    setSelectDialogOpen(false);
+                  }
+                : undefined,
             })
           )}
           actions={filters?.map((filter) => ({
@@ -444,15 +477,10 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
               <ReqoreButton
                 fluid
                 key={value}
-                wrap
-                icon={icon}
+                icon={icon || (hasItemsWithError(items) ? 'ErrorWarningLine' : undefined)}
                 rightIcon="ListUnordered"
                 onClick={() => setSelectDialogOpen(true)}
-                description={
-                  !!getItemDescription(value)
-                    ? 'Hover to see description'
-                    : 'Select from available items'
-                }
+                description={getItemShortDescription(value, 'Select from available values')}
                 tooltip={
                   !!getItemDescription(value)
                     ? {
@@ -465,8 +493,15 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
                 disabled={disabled}
                 effect={{
                   gradient: {
-                    direction: 'to left',
-                    colors: value ? 'info' : 'main',
+                    direction: 'to right',
+                    colors: hasItemsWithError(items)
+                      ? {
+                          0: value ? 'info' : 'main',
+                          100: 'danger:darken',
+                        }
+                      : value
+                      ? 'info'
+                      : 'main',
                   },
                 }}
                 className={className}
@@ -480,6 +515,8 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
                     key={item.name}
                     label={item.name}
                     className={className}
+                    disabled={item.disabled}
+                    intent={item.intent}
                     onClick={() => {
                       handleSelectClick(item);
                       setSelectDialogOpen(false);
@@ -507,7 +544,7 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
                 inputProps={{
                   className: 'q-select-input',
                 }}
-                description={getItemDescription(value) || description}
+                description={getItemShortDescription(value) || description}
                 effect={{
                   gradient: {
                     direction: 'to left',

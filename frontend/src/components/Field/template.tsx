@@ -82,14 +82,17 @@ export const TemplateField = ({
   const [templateValue, setTemplateValue] = useState<string | null>(getTemplateValue(value));
 
   const templates = useAsyncRetry(async () => {
-    const serverTemplates = await fetchData(`/system/templates?filter=${templateContext}`);
+    if (allowTemplates) {
+      const serverTemplates = await fetchData(`/system/templates?filter=${templateContext}`);
 
-    if (serverTemplates.ok) {
-      return serverTemplates.data;
+      if (serverTemplates.ok) {
+        return serverTemplates.data;
+      }
+
+      return null;
     }
-
     return null;
-  }, []);
+  }, [allowTemplates]);
 
   // When template key or template value change run the onChange function
   useUpdateEffect(() => {

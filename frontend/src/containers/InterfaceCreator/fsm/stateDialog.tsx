@@ -1,7 +1,7 @@
 import { ReqoreMessage, ReqoreVerticalSpacer } from '@qoretechnologies/reqore';
 import { forEach, omit, reduce } from 'lodash';
 import size from 'lodash/size';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
@@ -14,7 +14,7 @@ import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import { Messages } from '../../../constants/messages';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { getVariable, removeFSMState } from '../../../helpers/fsm';
+import { getStatesForTemplates, getVariable, removeFSMState } from '../../../helpers/fsm';
 import { getMaxExecutionOrderFromStates } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
@@ -197,6 +197,25 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     }
   };
 
+  const handleAppActionFieldChange = useCallback(
+    (name, value) => {
+      const actionValue = newData.action?.value as TAppAndAction;
+
+      handleDataUpdate('action', {
+        type: 'action',
+        value: {
+          ...actionValue,
+          [name]: value,
+        },
+      });
+    },
+    [newData.action?.value]
+  );
+
+  const statesForTemplates = useMemo(() => {
+    return getStatesForTemplates(newData.keyId, otherStates);
+  }, [newData.keyId, JSON.stringify(otherStates)]);
+
   const renderActionField = () => {
     switch (actionType) {
       case 'var-action': {
@@ -359,22 +378,14 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       }
       case 'action': {
         const actionValue = newData.action?.value as TAppAndAction;
-
         return (
           <>
             <QodexAppActionOptions
               appName={actionValue?.app}
               actionName={actionValue?.action}
+              connectedStates={statesForTemplates}
               value={actionValue?.options}
-              onChange={(name, value) => {
-                handleDataUpdate('action', {
-                  type: 'action',
-                  value: {
-                    ...actionValue,
-                    [name]: value,
-                  },
-                });
-              }}
+              onChange={handleAppActionFieldChange}
             />
             <QodexActionExec
               appName={actionValue?.app}

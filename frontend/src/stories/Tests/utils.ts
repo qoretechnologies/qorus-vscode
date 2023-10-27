@@ -58,13 +58,13 @@ export async function _testsCloseStateDetail() {
   await fireEvent.click(document.querySelector('.fsm-state-detail .reqore-button'));
 }
 
-export async function _testsOpenAppCatalogue(wrapperId?: string) {
+export async function _testsOpenAppCatalogue(wrapperId?: string, x: number = 100, y: number = 100) {
   const fullWrapperId = `${wrapperId ? `${wrapperId}-` : ''}fsm-diagram`;
   const wrapper = document.getElementById(fullWrapperId).querySelector('.element-pan');
 
   await fireEvent.dblClick(wrapper, {
-    clientX: wrapper.getBoundingClientRect().left + 100,
-    clientY: wrapper.getBoundingClientRect().top + 100,
+    clientX: wrapper.getBoundingClientRect().left + x,
+    clientY: wrapper.getBoundingClientRect().top + y,
   });
 
   await waitFor(() => expect(document.querySelector('.fsm-app-selector')).toBeInTheDocument(), {

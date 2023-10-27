@@ -1,10 +1,17 @@
-import { ReqoreButton, ReqoreControlGroup, ReqoreModal } from '@qoretechnologies/reqore';
-import { useState } from 'react';
-import { PositiveColorEffect, SaveColorEffect } from '../../../components/Field/multiPair';
-import Options, { IOptions, IOptionsSchema } from '../../../components/Field/systemOptions';
+import {
+  ReqoreIcon,
+  ReqoreP,
+  ReqorePanel,
+  ReqoreSpinner,
+  ReqoreTree,
+} from '@qoretechnologies/reqore';
+import { size } from 'lodash';
+import { useCallback, useEffect, useState } from 'react';
+import { IOptions } from '../../../components/Field/systemOptions';
 import { fetchData } from '../../../helpers/functions';
+import { validateField } from '../../../helpers/validations';
+import { useFetchActionOptions } from '../../../hooks/useFetchActionOptions';
 import { useGetAppActionData } from '../../../hooks/useGetAppActionData';
-import { QodexAppActionOptions } from './AppActionOptions';
 
 export interface IQodexActionExecProps {
   appName: string;
@@ -13,85 +20,120 @@ export interface IQodexActionExecProps {
 }
 
 export const QodexActionExec = ({ appName, actionName, options }: IQodexActionExecProps) => {
-  const { app, action } = useGetAppActionData(appName, actionName);
-  const [defaultOptions, setDefaultOptions] = useState<IOptions>(options);
-  const [execOptions, setExecOptions] = useState<IOptionsSchema>(undefined);
-  const [execOptionsValue, setExecOptionsValue] = useState<IOptions>(undefined);
+  const { action } = useGetAppActionData(appName, actionName);
+  const [response, setResponse] = useState<any>(undefined);
+  const [loadingResponse, setLoading] = useState<boolean>(false);
+  const { loading, data, load } = useFetchActionOptions({
+    action,
+    options,
+    onStart: () => {
+      setResponse(undefined);
+    },
+  });
 
-  const handleClick = async () => {
-    const optionsUrl = action.exec_options_url.split('latest/')[1];
+  const executeAction = async () => {
+    setLoading(true);
 
-    const response = await fetchData(`${optionsUrl}?context=ui`, 'PUT', {
-      options,
-    });
-
-    console.log(response);
-
-    if (response.ok) {
-      setExecOptions(response.data);
-    }
-  };
-
-  const handleSubmitClick = async () => {
     const optionsUrl = action.exec_url.split('latest/')[1];
 
-    const response = await fetchData(`${optionsUrl}?context=ui`, 'POST', {
-      options: {
-        ...defaultOptions,
-        ...execOptionsValue,
-      },
-    });
+    const response = await fetchData(
+      `${optionsUrl}?context=ui${action.action_code_str === 'EVENT' ? '&generate=true' : ''}`,
+      'POST',
+      {
+        options,
+      }
+    );
 
-    console.log(response);
+    if (response.ok) {
+      setResponse(response.data);
+    }
+
+    setLoading(false);
   };
 
-  console.log(execOptionsValue);
+  const areOptionsValid = useCallback(() => {
+    return size(data) && validateField('options', options, { optionSchema: data });
+  }, [data, options]);
+
+  useEffect(() => {
+    load();
+  }, [JSON.stringify(options)]);
+
+  useEffect(() => {
+    // Only execute action automatically if it's an event
+    if (areOptionsValid() && action.action_code_str === 'EVENT') {
+      executeAction();
+    }
+  }, [data]);
 
   return (
     <>
-      {execOptions && (
-        <ReqoreModal
-          isOpen
-          label={`Test action: ${action.display_name}`}
-          bottomActions={[
-            {
-              label: 'Test',
-              effect: SaveColorEffect,
-              onClick: handleSubmitClick,
+      <ReqorePanel
+        size="small"
+        fill
+        label={action.action_code_str !== 'EVENT' ? 'Test Action' : `Event example`}
+        collapsible
+        minimal
+        responsiveActions={false}
+        responsiveTitle={false}
+        actions={[
+          {
+            icon: 'RefreshLine',
+            onClick: executeAction,
+            readOnly: response && loadingResponse,
+            disabled: !areOptionsValid(),
+            tooltip: 'Refresh data',
+            intent: response && loadingResponse ? 'pending' : undefined,
+            leftIconProps: {
+              animation: response && loadingResponse ? 'spin' : undefined,
             },
-          ]}
-        >
-          <QodexAppActionOptions
-            value={defaultOptions}
-            onChange={(_name, value) => setDefaultOptions(value)}
-            appName={appName}
-            actionName={actionName}
-          />
-          <Options
-            flat
-            zoomable
-            label={undefined}
-            badge={undefined}
-            allowTemplates={false}
-            options={execOptions}
-            value={execOptionsValue}
-            onChange={(_name, value) => {
-              setExecOptionsValue((cur) => ({ ...cur, ...value }));
-            }}
-            name="options"
-          />
-        </ReqoreModal>
-      )}
-      <ReqoreControlGroup fluid>
-        <ReqoreButton
-          label="Test action"
-          textAlign="center"
-          effect={PositiveColorEffect}
-          icon="PlayLine"
-          rightIcon="PlayLine"
-          onClick={handleClick}
-        />
-      </ReqoreControlGroup>
+            show: !!response && action.action_code_str === 'EVENT',
+          },
+          {
+            icon: 'PlayLine',
+            onClick: executeAction,
+            readOnly: response && loadingResponse,
+            disabled: !areOptionsValid(),
+            tooltip: 'Test action',
+            intent: response && loadingResponse ? 'pending' : undefined,
+            leftIconProps: {
+              animation: response && loadingResponse ? 'spin' : undefined,
+            },
+            show: action.action_code_str !== 'EVENT',
+          },
+        ]}
+      >
+        {!areOptionsValid() && (
+          <>
+            <ReqoreIcon icon="InformationLine" size="small" intent="pending" margin="right" />
+            {action.action_code_str === 'EVENT' ? (
+              <ReqoreP>Fill all required fields to see automatically generated event data</ReqoreP>
+            ) : (
+              <ReqoreP>
+                Fill all required fields and press the <ReqoreIcon icon="PlayLine" size="small" />{' '}
+                button to test your action
+              </ReqoreP>
+            )}
+          </>
+        )}
+        {areOptionsValid() && !response ? (
+          <>
+            {loadingResponse || loading ? (
+              <>
+                <ReqoreSpinner size="small" type={3} iconColor="pending">
+                  Working...
+                </ReqoreSpinner>
+              </>
+            ) : (
+              <ReqoreP>
+                <ReqoreIcon icon="InformationLine" size="small" intent="info" margin="right" />
+                Press the <ReqoreIcon icon="PlayLine" size="small" /> button to test your action
+              </ReqoreP>
+            )}
+          </>
+        ) : null}
+        {response && <ReqoreTree size="small" data={response} />}
+      </ReqorePanel>
     </>
   );
 };

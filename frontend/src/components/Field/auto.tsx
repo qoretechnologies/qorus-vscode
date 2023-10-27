@@ -1,6 +1,6 @@
 import { ReqoreButton, ReqoreMessage } from '@qoretechnologies/reqore';
 import { get, map, set } from 'lodash';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import { IField } from '../../components/FieldWrapper';
 import {
@@ -21,7 +21,7 @@ import LongStringField from './longString';
 import NumberField from './number';
 import OptionHashField from './optionHash';
 import RadioField from './radioField';
-import SelectField from './select';
+import SelectField, { ISelectFieldItem } from './select';
 import StringField from './string';
 import { IOptionsSchema, IQorusType } from './systemOptions';
 
@@ -33,13 +33,13 @@ export interface IAutoFieldProps extends IField {
   defaultType?: IQorusType;
   defaultInternalType?: IQorusType;
   noSoft?: boolean;
-  allowed_values?: { name: string; desc?: string }[];
+  allowed_values?: ISelectFieldItem[];
   isConfigItem?: boolean;
   isVariable?: boolean;
   disableSearchOptions?: boolean;
 }
 
-const AutoField: FunctionComponent<IAutoFieldProps> = ({
+function AutoField<T = any>({
   name,
   onChange,
   value,
@@ -58,7 +58,7 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
   isConfigItem,
   isVariable,
   ...rest
-}) => {
+}: IAutoFieldProps & T) {
   const [currentType, setType] = useState<IQorusType>(defaultInternalType || null);
   const [currentInternalType, setInternalType] = useState<IQorusType>(defaultInternalType || 'any');
   const [isSetToNull, setIsSetToNull] = useState<boolean>(false);
@@ -187,9 +187,9 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
     if (rest.allowed_values && currentType !== 'enum') {
       return (
         <SelectField
-          defaultItems={rest.allowed_values.map(({ value, name, desc }) => ({
+          defaultItems={rest.allowed_values.map(({ value, name, ...rest }) => ({
             name: name || value,
-            desc,
+            ...rest,
           }))}
           value={value}
           autoSelect
@@ -507,6 +507,6 @@ const AutoField: FunctionComponent<IAutoFieldProps> = ({
       )}
     </div>
   );
-};
+}
 
 export default withTextContext()(AutoField) as React.FC<IAutoFieldProps>;

@@ -4,20 +4,25 @@ import {
   ReqoreCollection,
   ReqoreControlGroup,
   ReqoreMessage,
+  ReqoreP,
   ReqorePanel,
   ReqoreSpinner,
   ReqoreTag,
   ReqoreTagGroup,
   ReqoreVerticalSpacer,
+  useReqoreProperty,
 } from '@qoretechnologies/reqore';
 import { IReqoreCollectionProps } from '@qoretechnologies/reqore/dist/components/Collection';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
+import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
+import { IReqoreTextareaProps } from '@qoretechnologies/reqore/dist/components/Textarea';
+import { TReqoreIntent } from '@qoretechnologies/reqore/dist/constants/theme';
 import { cloneDeep, findKey, forEach, last } from 'lodash';
 import isArray from 'lodash/isArray';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import useUpdateEffect from 'react-use/lib/useUpdateEffect';
 import { isObject } from 'util';
@@ -28,10 +33,11 @@ import { hasAllDependenciesFullfilled, validateField } from '../../helpers/valid
 import { getGlobalDescriptionTooltip } from '../FieldWrapper';
 import AutoField from './auto';
 import { NegativeColorEffect, PositiveColorEffect } from './multiPair';
-import SelectField from './select';
+import { OptionFieldMessages } from './optionFieldMessages';
+import SelectField, { ISelectFieldItem } from './select';
 import { TemplateField } from './template';
 
-const getType = (
+export const getType = (
   type: IQorusType | IQorusType[],
   operators?: IOperatorsSchema,
   operator?: TOperatorValue
@@ -66,10 +72,10 @@ export const fixOptions = (
 
   // Add missing required options to the fixedValue
   forEach(options, (option, name) => {
-    if (option.required && !fixedValue[name]) {
+    if (option.preselected || (option.required && !fixedValue[name])) {
       fixedValue[name] = {
         type: getType(option.type, operators, fixedValue[name]?.op),
-        value: option.default_value,
+        value: fixedValue[name]?.value || option.default_value,
       };
     }
   });
@@ -127,15 +133,34 @@ export type IOptions =
     }
   | undefined;
 
+export interface IOptionFieldMessage {
+  title?: string;
+  content: string;
+  intent?: TReqoreIntent;
+}
+
 export interface IOptionsSchemaArg {
   type: IQorusType | IQorusType[];
   default_value?: any;
   required?: boolean;
+  preselected?: boolean;
   allowed_values?: any[];
   sensitive?: boolean;
   desc?: string;
   arg_schema?: IOptionsSchema;
+
   depends_on?: string[];
+  has_dependents?: boolean;
+
+  display_name?: string;
+  short_desc?: string;
+  sort?: number;
+
+  disabled?: boolean;
+  intent?: TReqoreIntent;
+  metadata?: Record<string, any>;
+
+  messages?: IOptionFieldMessage[];
 }
 
 export interface IOptionsSchema {
@@ -161,6 +186,12 @@ export interface IOptionsProps extends Omit<IReqoreCollectionProps, 'onChange'> 
   value?: IOptions;
   options?: IOptionsSchema;
   onChange: (name: string, value?: IOptions) => void;
+  onDependableOptionChange?: (
+    name: string,
+    value: TOption,
+    options: IOptions,
+    schema: IOptionsSchema
+  ) => void;
   placeholder?: string;
   operatorsUrl?: string;
   noValueString?: string;
@@ -169,6 +200,7 @@ export interface IOptionsProps extends Omit<IReqoreCollectionProps, 'onChange'> 
   recordRequiresSearchOptions?: boolean;
   readOnly?: boolean;
   allowTemplates?: boolean;
+  stringTemplates?: IReqoreTextareaProps['templates'];
 }
 
 export const getTypeAndCanBeNull = (
@@ -199,6 +231,7 @@ const Options = ({
   name,
   value,
   onChange,
+  onDependableOptionChange,
   url,
   customUrl,
   placeholder,
@@ -214,7 +247,8 @@ const Options = ({
   const t: any = useContext(TextContext);
   const [options, setOptions] = useState<IOptionsSchema | undefined>(rest?.options || undefined);
   const [operators, setOperators] = useState<IOperatorsSchema | undefined>(undefined);
-  const { fetchData, confirmAction, qorus_instance }: any = useContext(InitialContext);
+  const { fetchData, qorus_instance }: any = useContext(InitialContext);
+  const confirmAction = useReqoreProperty('confirmAction');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(rest.options ? false : true);
 
@@ -397,10 +431,99 @@ const Options = ({
   };
 
   const removeSelectedOption = (optionName: string) => {
-    delete value?.[optionName];
+    const newValue = cloneDeep(value);
 
-    onChange(name, value);
+    delete newValue?.[optionName];
+
+    onChange(name, newValue);
   };
+
+  const addSelectedOption = (optionName: string) => {
+    handleValueChange(
+      optionName,
+      value,
+      options[optionName].default_value,
+      getTypeAndCanBeNull(options[optionName].type, options[optionName].allowed_values).type
+    );
+  };
+
+  const fixedValue: IOptions = fixOptions(value, options);
+
+  let unavailableOptionsCount = 0;
+  const availableOptions: IOptions = Object.keys(fixedValue)
+    .sort((a, b) => {
+      const aSort = options[a]?.sort || 0;
+      const bSort = options[b]?.sort || 0;
+
+      return aSort - bSort;
+    })
+    .reduce((newValue, optionName) => {
+      const option = fixedValue[optionName];
+      // Check if this option is in the options schema
+      // do not add it if not
+      if (!options?.[optionName]) {
+        unavailableOptionsCount += 1;
+        return newValue;
+      }
+
+      if (!isObject(option)) {
+        return {
+          ...newValue,
+          [optionName]: {
+            type: getType(options[optionName].type, operators, option.op),
+            value: option,
+          },
+        };
+      }
+
+      return { ...newValue, [optionName]: option };
+    }, {});
+
+  const filteredOptions: IOptionsSchema = reduce(
+    options,
+    (newOptions, option, name) => {
+      if (fixedValue && fixedValue[name]) {
+        return newOptions;
+      }
+
+      return { ...newOptions, [name]: option };
+    },
+    {}
+  );
+
+  const isOptionValid = (optionName: string, type: IQorusType, value: any) => {
+    return validateField(getType(type), value, {
+      has_to_have_value: true,
+      ...options[optionName],
+    });
+  };
+
+  const getIntent = (name, type, value, op): TReqoreIntent => {
+    const intent =
+      isOptionValid(name, type, value) && (operatorsUrl ? !!op : true)
+        ? undefined
+        : recordRequiresSearchOptions
+        ? 'info'
+        : 'danger';
+
+    return intent || options[name].intent;
+  };
+
+  const buildBadges = useCallback((option: IOptionsSchemaArg): IReqorePanelProps['badge'] => {
+    const badges: IReqorePanelProps['badge'] = [getType(option.type)];
+
+    if (option.has_dependents) {
+      badges.push({
+        icon: 'LinkUnlink',
+        intent: 'info',
+        tooltip: t(
+          'Other options depend on this option, changing it may result in configuration changes.'
+        ),
+      });
+    }
+
+    return badges;
+  }, []);
 
   if (!qorus_instance) {
     return <ReqoreMessage intent="warning">{t('OptionsQorusInstanceRequired')}</ReqoreMessage>;
@@ -447,68 +570,6 @@ const Options = ({
     );
   }
 
-  const addSelectedOption = (optionName: string) => {
-    handleValueChange(
-      optionName,
-      value,
-      options[optionName].default_value,
-      getTypeAndCanBeNull(options[optionName].type, options[optionName].allowed_values).type
-    );
-  };
-
-  const fixedValue = fixOptions(value, options);
-  let unavailableOptionsCount = 0;
-  const availableOptions: IOptions = reduce(
-    fixedValue,
-    (newValue, option, optionName) => {
-      // Check if this option is in the options schema
-      // do not add it if not
-      if (!options[optionName]) {
-        unavailableOptionsCount += 1;
-        return newValue;
-      }
-
-      if (!isObject(option)) {
-        return {
-          ...newValue,
-          [optionName]: {
-            type: getType(options[optionName].type, operators, option.op),
-            value: option,
-          },
-        };
-      }
-
-      return { ...newValue, [optionName]: option };
-    },
-    {}
-  );
-
-  const filteredOptions = reduce(
-    options,
-    (newOptions, option, name) => {
-      if (fixedValue && fixedValue[name]) {
-        return newOptions;
-      }
-
-      return { ...newOptions, [name]: option };
-    },
-    {}
-  );
-
-  const getIntent = (name, type, value, op) => {
-    const intent =
-      validateField(getType(type), value, {
-        has_to_have_value: true,
-        ...options[name],
-      }) && (operatorsUrl ? !!op : true)
-        ? undefined
-        : recordRequiresSearchOptions
-        ? 'info'
-        : 'danger';
-
-    return intent;
-  };
-
   return (
     <>
       {recordRequiresSearchOptions && !readOnly ? (
@@ -521,7 +582,7 @@ const Options = ({
       ) : null}
       <ReqoreCollection
         label="Options"
-        minColumnWidth="250px"
+        minColumnWidth="450px"
         responsiveTitle={false}
         headerSize={4}
         filterable
@@ -532,7 +593,7 @@ const Options = ({
           <>
             {unavailableOptionsCount ? (
               <>
-                <ReqoreMessage intent="warning">
+                <ReqoreMessage intent="warning" opaque={false}>
                   {`${unavailableOptionsCount} option(s) hidden because they are not supported on the current instance`}
                 </ReqoreMessage>
                 <ReqoreVerticalSpacer height={10} />
@@ -548,12 +609,14 @@ const Options = ({
         items={map(
           availableOptions,
           ({ type, ...other }, optionName): IReqoreCollectionItemProps => ({
-            label: optionName,
+            label: options[optionName]?.display_name || optionName,
             customTheme: {
               main: 'main:lighten',
             },
+            icon: !isOptionValid(optionName, type, other.value) ? 'SpamFill' : undefined,
+            transparent: false,
             intent: getIntent(optionName, type, other.value, other.op),
-            badge: getType(options[optionName].type),
+            badge: buildBadges(options[optionName]),
             tooltip: {
               ...getGlobalDescriptionTooltip(options[optionName].desc, optionName),
               placement: 'top',
@@ -563,14 +626,38 @@ const Options = ({
               {
                 icon: 'DeleteBinLine',
                 intent: 'danger',
-                show: !options[optionName].required && !readOnly,
+                show:
+                  !options[optionName].preselected && !options[optionName].required && !readOnly,
                 onClick: () => {
-                  confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
+                  confirmAction({
+                    title: 'RemoveSelectedOption',
+                    onConfirm: () => {
+                      removeSelectedOption(optionName);
+                    },
+                  });
                 },
               },
             ],
             content: (
               <>
+                {options[optionName].short_desc ? (
+                  <>
+                    <ReqoreP>{options[optionName].short_desc}</ReqoreP>
+                    <ReqoreVerticalSpacer height={8} />
+                  </>
+                ) : null}
+                {(options[optionName].messages || []).map(({ intent, title, content }, index) => (
+                  <ReqoreMessage
+                    intent={intent}
+                    title={title}
+                    key={title || index}
+                    opaque={false}
+                    size="small"
+                    margin="bottom"
+                  >
+                    {content}
+                  </ReqoreMessage>
+                ))}
                 {operators && size(operators) ? (
                   <>
                     <ReqoreControlGroup fill wrap className="operators">
@@ -624,18 +711,27 @@ const Options = ({
                 <TemplateField
                   {...options[optionName]}
                   allowTemplates={allowTemplates}
+                  templates={rest?.stringTemplates}
                   component={AutoField}
                   {...getTypeAndCanBeNull(type, options[optionName].allowed_values, other.op)}
                   className="system-option"
                   name={optionName}
                   onChange={(optionName, val) => {
-                    if (val !== undefined) {
+                    if (val !== undefined && val !== other.value) {
                       handleValueChange(
                         optionName,
                         fixedValue,
                         val,
                         getTypeAndCanBeNull(type, options[optionName].allowed_values).type
                       );
+                    }
+
+                    if (
+                      options[optionName].has_dependents &&
+                      val !== undefined &&
+                      val !== other.value
+                    ) {
+                      onDependableOptionChange?.(optionName, val, availableOptions, options);
                     }
                   }}
                   key={optionName}
@@ -646,6 +742,7 @@ const Options = ({
                   default_value={options[optionName].default_value}
                   allowed_values={options[optionName].allowed_values}
                   disabled={
+                    options[optionName].disabled ||
                     readOnly ||
                     !hasAllDependenciesFullfilled(
                       options[optionName].depends_on,
@@ -654,6 +751,12 @@ const Options = ({
                     )
                   }
                   readOnly={readOnly}
+                />
+                <OptionFieldMessages
+                  schema={options}
+                  allOptions={availableOptions}
+                  name={optionName}
+                  option={{ type, ...other }}
                 />
                 {operators && size(operators) && size(other.op) ? (
                   <>
@@ -687,10 +790,17 @@ const Options = ({
           <ReqoreVerticalSpacer height={10} />
           <SelectField
             name="options"
-            defaultItems={Object.keys(filteredOptions).map((option) => ({
-              name: option,
-              desc: options[option].desc,
-            }))}
+            defaultItems={Object.keys(filteredOptions).map(
+              (option): ISelectFieldItem => ({
+                name: option,
+                desc: options[option].desc,
+                short_desc: options[option].short_desc,
+                disabled: options[option].disabled,
+                display_name: options[option].display_name,
+                intent: options[option].intent,
+                messages: options[option].messages,
+              })
+            )}
             fill
             onChange={(_name, value) => addSelectedOption(value)}
             placeholder={`${t(placeholder || 'AddNewOption')} (${size(filteredOptions)})`}
