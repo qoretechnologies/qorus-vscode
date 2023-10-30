@@ -79,7 +79,7 @@ export const getStateColor = (
       50: 'main',
       200: isInitial ? 'success' : stateType !== 'action' ? '#6f1977' : 'info:lighten:2',
     },
-    borderColor: isInitial ? 'success' : stateType !== 'action' ? '#6f1977' : 'info:lighten:2',
+    borderColor: isInitial ? 'success:darken' : stateType !== 'action' ? '#6f1977:darken' : 'info',
     animate: 'hover',
     animationSpeed: 1,
     direction: 'to right bottom',
@@ -685,11 +685,15 @@ const FSMState: React.FC<IFSMStateProps> = ({
               wrap
               fixed
               width="100px"
-              color={`main:darken`}
+              color={stateColor.borderColor}
               effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
               label={getStateTypeLabel()}
             />
-            <ReqoreTag minimal wrap label={getStateType({ type, action, id, ...rest }, app)} />
+            <ReqoreTag
+              wrap
+              color={stateColor.borderColor}
+              label={getStateType({ type, action, id, ...rest }, app)}
+            />
           </ReqoreControlGroup>
           {action?.type === 'var-action' ? (
             <ReqoreControlGroup stack fill fluid>
@@ -697,18 +701,22 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 wrap
                 fixed
                 width="100px"
-                color={`main:darken`}
+                color={stateColor.borderColor}
                 effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
                 label="Action type"
               />
-              <ReqoreTag minimal wrap label={(action.value as TVariableActionValue)?.action_type} />
+              <ReqoreTag
+                wrap
+                label={(action.value as TVariableActionValue)?.action_type}
+                color={stateColor.borderColor}
+              />
             </ReqoreControlGroup>
           ) : null}
           <ReqoreTag
             icon="InformationLine"
             size="small"
             wrap
-            minimal
+            color={stateColor.borderColor}
             label={stateActionDescription}
             labelEffect={{
               weight: 'light',

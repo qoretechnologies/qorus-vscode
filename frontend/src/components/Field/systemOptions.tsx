@@ -787,7 +787,7 @@ const Options = ({
 
       {size(filteredOptions) >= 1 && !readOnly ? (
         <>
-          <ReqoreVerticalSpacer height={10} />
+          {rest.flat ? null : <ReqoreVerticalSpacer height={10} />}
           <SelectField
             name="options"
             defaultItems={Object.keys(filteredOptions).map(

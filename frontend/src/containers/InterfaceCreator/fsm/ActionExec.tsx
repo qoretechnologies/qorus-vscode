@@ -3,6 +3,7 @@ import {
   ReqoreP,
   ReqorePanel,
   ReqoreSpinner,
+  ReqoreTag,
   ReqoreTree,
 } from '@qoretechnologies/reqore';
 import { size } from 'lodash';
@@ -94,6 +95,7 @@ export const QodexActionExec = ({ appName, actionName, options }: IQodexActionEx
             onClick: executeAction,
             readOnly: response && loadingResponse,
             disabled: !areOptionsValid(),
+            label: 'Run',
             tooltip: 'Test action',
             intent: response && loadingResponse ? 'pending' : undefined,
             leftIconProps: {
@@ -110,8 +112,8 @@ export const QodexActionExec = ({ appName, actionName, options }: IQodexActionEx
               <ReqoreP>Fill all required fields to see automatically generated event data</ReqoreP>
             ) : (
               <ReqoreP>
-                Fill all required fields and press the <ReqoreIcon icon="PlayLine" size="small" />{' '}
-                button to test your action
+                Fill all required fields and press the{' '}
+                <ReqoreTag icon="PlayLine" size="small" label="Run" /> button to test your action
               </ReqoreP>
             )}
           </>

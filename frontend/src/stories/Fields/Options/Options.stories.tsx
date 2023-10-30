@@ -224,14 +224,3 @@ export const NonExistentOptionsFiltered: StoryObj<typeof meta> = {
     });
   },
 };
-
-export const OptionIsDependentOnAnotherOption: StoryObj<typeof meta> = {
-  args: {
-    options: {
-      option1: { type: 'string', required: true },
-      option2: { type: 'string', required: true, depends_on: ['option1'], default_value: 'test' },
-      option3: { type: 'string', required: true, depends_on: ['option1', 'option2'] },
-      option4: { type: 'string', required: true, depends_on: ['option2'] },
-    },
-  },
-};

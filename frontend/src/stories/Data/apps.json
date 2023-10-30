@@ -1,346 +1,3340 @@
 [
   {
-    "name": "Google Drive",
-    "display_name": "Google Drive",
-    "desc": "Google Drive is a file storage and synchronization service developed by Google.",
-    "short_desc": "File storage and synchronization service",
-    "scheme": "googledrive",
-    "oauth2_auth_code": true,
-    "logo": "https://www.gstatic.com/images/branding/product/1x/drive_48dp.png",
-    "logo_file_name": "drive.png",
-    "logo_mime_type": "image/png",
-    "oauth2_client": {
-      "oauth2_client_id": "myclientid",
-      "oauth2_client_secret": "myclientsecret",
-      "url_type": "auto",
-      "oauth2_auth_url": "https://accounts.google.com/o/oauth2/auth",
-      "oauth2_token_url": "https://accounts.google.com/o/oauth2/token",
-      "required_options": ["option1", "option2"]
-    },
+    "name": "Csv",
+    "display_name": "CSV Files",
+    "short_desc": "Read and write CSV file data",
+    "desc": "Read and write CSV file data",
+    "scheme": "file",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/Csv/generic-csv-logo.svg",
+    "logo_file_name": "generic-csv-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
     "actions": [
       {
-        "app": "Google Drive",
-        "action": "CreateFile",
+        "app": "Csv",
+        "action": "read",
+        "subtype": "csvread",
+        "path": "/",
+        "display_name": "Read CSV Data",
+        "short_desc": "Read CSV file data from the local filesystem",
+        "desc": "Read CSV file data from the local filesystem",
+        "action_code": 4,
+        "action_code_str": "FIND",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to CSV Files",
+            "short_desc": "Connection to CSV Files",
+            "desc": "The connection to the CSV Files server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "fs-regression",
+                "desc": "Connection to \"CSV Files\""
+              },
+              {
+                "value": "fs-example-csv",
+                "desc": "Connection to \"CSV Files\""
+              },
+              {
+                "value": "fs-regression-win",
+                "desc": "Connection to \"CSV Files\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "CONNECTION-ERROR: connection \"fs-regression-win\" (type \"file\" url \"file:///C:/temp\") points to non-existent, inaccessible, or read-only directory \"/C:/temp\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Csv/actions/read/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Csv/actions/read/exec"
+      },
+      {
+        "app": "Csv",
+        "action": "write",
+        "subtype": "csvwrite",
+        "path": "/",
+        "display_name": "Write CSV Data",
+        "short_desc": "Write CSV file data to the local filesystem",
+        "desc": "Write CSV file data to the local filesystem",
+        "action_code": 6,
+        "action_code_str": "CREATE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to CSV Files",
+            "short_desc": "Connection to CSV Files",
+            "desc": "The connection to the CSV Files server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "fs-regression",
+                "desc": "Connection to \"CSV Files\""
+              },
+              {
+                "value": "fs-example-csv",
+                "desc": "Connection to \"CSV Files\""
+              },
+              {
+                "value": "fs-regression-win",
+                "desc": "Connection to \"CSV Files\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "CONNECTION-ERROR: connection \"fs-regression-win\" (type \"file\" url \"file:///C:/temp\") points to non-existent, inaccessible, or read-only directory \"/C:/temp\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Csv/actions/write/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Csv/actions/write/exec"
+      }
+    ],
+    "connections": ["fs-regression", "fs-example-csv", "fs-regression-win"]
+  },
+  {
+    "name": "WebSockets",
+    "display_name": "WebSocket Messaging",
+    "short_desc": "Send and receive WebSocket messages",
+    "desc": "Send and receive WebSocket messages",
+    "scheme": "ws",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/WebSockets/generic-websockets-logo.svg",
+    "logo_file_name": "generic-websockets-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
+    "actions": [
+      {
+        "app": "WebSockets",
+        "action": "msg-received",
+        "path": "/",
+        "display_name": "WebSocket Message Received",
+        "short_desc": "A WebSocket message is received",
+        "desc": "Receive a WebSocket message from a WebSocket server; react to a WebSocket message",
+        "action_code": 1,
+        "action_val": "ws-data-event",
+        "action_code_str": "EVENT",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to WebSocket Messaging",
+            "short_desc": "Connection to WebSocket Messaging",
+            "desc": "The connection to the WebSocket Messaging server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/WebSockets/actions/msg-received/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/WebSockets/actions/msg-received/exec"
+      },
+      {
+        "app": "WebSockets",
+        "action": "send-msg-data",
+        "path": "/",
+        "display_name": "Send WebSocket Message",
+        "short_desc": "Send a WebSocket data message",
+        "desc": "Send a WebSocket data message to a WebSocket server; the message is serialized for sending",
+        "action_code": 3,
+        "action_val": "data",
+        "action_code_str": "MESSAGE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to WebSocket Messaging",
+            "short_desc": "Connection to WebSocket Messaging",
+            "desc": "The connection to the WebSocket Messaging server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/WebSockets/actions/send-msg-data/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/WebSockets/actions/send-msg-data/exec"
+      },
+      {
+        "app": "WebSockets",
+        "action": "send-msg-raw",
+        "path": "/",
+        "display_name": "Send Raw WebSocket Message",
+        "short_desc": "Send a raw WebSocket message",
+        "desc": "Send a raw WebSocket message to a WebSocket server",
+        "action_code": 3,
+        "action_val": "raw",
+        "action_code_str": "MESSAGE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to WebSocket Messaging",
+            "short_desc": "Connection to WebSocket Messaging",
+            "desc": "The connection to the WebSocket Messaging server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/WebSockets/actions/send-msg-raw/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/WebSockets/actions/send-msg-raw/exec"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "SMTP",
+    "display_name": "SMTP Server",
+    "short_desc": "Generic SMTP server for sending emails",
+    "desc": "Generic SMTP server for sending emails",
+    "scheme": "smtp",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/SMTP/generic-smtp-logo.svg",
+    "logo_file_name": "generic-smtp-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
+    "actions": [
+      {
+        "app": "SMTP",
+        "action": "send-email",
+        "path": "/send-email",
+        "display_name": "Send an Email With SMTP",
+        "short_desc": "Send an email through a generic SMTP server",
+        "desc": "Send an email through a generic SMTP server",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to SMTP Server",
+            "short_desc": "Connection to SMTP Server",
+            "desc": "The connection to the SMTP Server server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/SMTP/actions/send-email/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/SMTP/actions/send-email/exec"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "Dynamics",
+    "display_name": "Microsoft Dynamics 365",
+    "short_desc": "Microsoft Dynamics 365® enterprise application",
+    "desc": "Microsoft Dynamics 365 access enables Qorus to easily access and manipulate data in Microsoft Dynamics 365 application instances. Microsoft, Microsoft 365, and Microsoft Dynamics 365 are trademarks of the Microsoft group of companies",
+    "scheme": "dynamics",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/Dynamics/Dynamics365_scalable.svg",
+    "logo_file_name": "Dynamics365_scalable.svg",
+    "logo_mime_type": "image/svg+xml",
+    "oauth2_client": {
+      "oauth2_client_id": "b4865eea-0d21-4d89-ba6a-3470d912b96c",
+      "oauth2_client_secret": "xR38Q~xVC0LB~m01jX5e-VRM6nm5ZrBSKqSEYckx",
+      "url_type": "required",
+      "oauth2_auth_url": null,
+      "oauth2_token_url": null,
+      "required_options": ["tenant"]
+    },
+    "builtin": false,
+    "actions": [
+      {
+        "app": "Dynamics",
+        "action": "create-record",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Dynamics table",
+            "desc": "The name of the Dynamics table, ex: `account`",
+            "example_value": "account"
+          }
+        },
+        "display_name": "Create Record",
+        "short_desc": "Create a record in a Dynamics table",
+        "desc": "Create a record in a Dynamics table using the Dynamics REST API",
+        "action_code": 6,
+        "action_code_str": "CREATE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Microsoft Dynamics 365",
+            "short_desc": "Connection to Microsoft Dynamics 365",
+            "desc": "The connection to the Microsoft Dynamics 365 server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Dynamics table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Dynamics/actions/create-record/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Dynamics/actions/create-record/exec"
+      },
+      {
+        "app": "Dynamics",
+        "action": "find-single-record",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Dynamics table",
+            "desc": "The name of the Dynamics table, ex: `account`",
+            "example_value": "account"
+          }
+        },
+        "display_name": "Find Single Record",
+        "short_desc": "Find a specific record in Dynamics",
+        "desc": "Find a specific record in a Dynamics table using the Dynamics REST API",
+        "action_code": 5,
+        "action_code_str": "FIND_SINGLE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Microsoft Dynamics 365",
+            "short_desc": "Connection to Microsoft Dynamics 365",
+            "desc": "The connection to the Microsoft Dynamics 365 server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Dynamics table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Dynamics/actions/find-single-record/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Dynamics/actions/find-single-record/exec"
+      },
+      {
+        "app": "Dynamics",
+        "action": "find-records",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Dynamics table",
+            "desc": "The name of the Dynamics table, ex: `account`",
+            "example_value": "account"
+          }
+        },
+        "display_name": "Find Records",
+        "short_desc": "Find records in Dynamics",
+        "desc": "Find records in a Dynamics table using the Dynamics REST API",
+        "action_code": 4,
+        "action_code_str": "FIND",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Microsoft Dynamics 365",
+            "short_desc": "Connection to Microsoft Dynamics 365",
+            "desc": "The connection to the Microsoft Dynamics 365 server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Dynamics table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Dynamics/actions/find-records/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Dynamics/actions/find-records/exec"
+      },
+      {
+        "app": "Dynamics",
+        "action": "update-records",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Dynamics table",
+            "desc": "The name of the Dynamics table, ex: `account`",
+            "example_value": "account"
+          }
+        },
+        "display_name": "Update Records",
+        "short_desc": "Update records in Dynamics",
+        "desc": "Update records in a Dynamics table using the Dynamics REST API",
+        "action_code": 8,
+        "action_code_str": "UPDATE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Microsoft Dynamics 365",
+            "short_desc": "Connection to Microsoft Dynamics 365",
+            "desc": "The connection to the Microsoft Dynamics 365 server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Dynamics table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Dynamics/actions/update-records/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Dynamics/actions/update-records/exec"
+      },
+      {
+        "app": "Dynamics",
+        "action": "delete-records",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Dynamics table",
+            "desc": "The name of the Dynamics table, ex: `account`",
+            "example_value": "account"
+          }
+        },
+        "display_name": "Delete Records",
+        "short_desc": "Delete records in Dynamics",
+        "desc": "Delete records in a Dynamics table using the Dynamics REST API",
+        "action_code": 9,
+        "action_code_str": "DELETE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Microsoft Dynamics 365",
+            "short_desc": "Connection to Microsoft Dynamics 365",
+            "desc": "The connection to the Microsoft Dynamics 365 server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Dynamics table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Dynamics/actions/delete-records/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Dynamics/actions/delete-records/exec"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "Discord",
+    "display_name": "Discord",
+    "short_desc": "Discord messaging services",
+    "desc": "Discord messaging services",
+    "scheme": "discord",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/Discord/discord-mark-blue.svg",
+    "logo_file_name": "discord-mark-blue.svg",
+    "logo_mime_type": "image/svg+xml",
+    "oauth2_client": {
+      "oauth2_client_id": "1161280174222999664",
+      "oauth2_client_secret": "I6JkZMxacXJcljF6qCZYzg99wTQqUNFe",
+      "url_type": "auto",
+      "oauth2_auth_url": null,
+      "oauth2_token_url": null,
+      "required_options": null
+    },
+    "builtin": false,
+    "actions": [
+      {
+        "app": "Discord",
+        "action": "user-info",
+        "path": "/user-info",
+        "display_name": "Get User Info",
+        "short_desc": "Get info about the current user",
+        "desc": "Get info about the current user",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Discord",
+            "short_desc": "Connection to Discord",
+            "desc": "The connection to the Discord server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "discord",
+                "desc": "Connection to \"Discord\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Discord/actions/user-info/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Discord/actions/user-info/exec"
+      },
+      {
+        "app": "Discord",
+        "action": "guild-info",
+        "path": "/guilds-by-name/{guild}/get",
+        "path_vars": {
+          "guild": {
+            "display_name": "Server Name",
+            "short_desc": "The name of the Discord server",
+            "desc": "The name of the Discord server (also called a \"guild\")",
+            "example_value": "My Server"
+          }
+        },
+        "display_name": "Get Server Info",
+        "short_desc": "Get info about a Discord server accessible to the user",
+        "desc": "Get info about a Discord server accessible to the user",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Discord",
+            "short_desc": "Connection to Discord",
+            "desc": "The connection to the Discord server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "discord",
+                "desc": "Connection to \"Discord\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "guild": {
+            "type": "string",
+            "required": true,
+            "display_name": "Server Name",
+            "short_desc": "The name of the Discord server",
+            "desc": "The \"guild\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Discord/actions/guild-info/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Discord/actions/guild-info/exec"
+      },
+      {
+        "app": "Discord",
+        "action": "watch-guild-messages",
+        "path": "/guilds-by-name/{guild}/watch",
+        "path_vars": {
+          "guild": {
+            "display_name": "Server",
+            "short_desc": "The server (guild) to watch for new messages in",
+            "desc": "The server (guild) to watch for new messages in",
+            "example_value": "My Server"
+          }
+        },
+        "display_name": "New Discord Messages on Server",
+        "short_desc": "React to new messages in all channels in a Discord server",
+        "desc": "React to messages in all channels in a Discord server",
+        "action_code": 1,
+        "action_val": "MESSAGE_CREATE",
+        "action_code_str": "EVENT",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Discord",
+            "short_desc": "Connection to Discord",
+            "desc": "The connection to the Discord server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "discord",
+                "desc": "Connection to \"Discord\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "guild": {
+            "type": "string",
+            "required": true,
+            "display_name": "Server",
+            "short_desc": "The server (guild) to watch for new messages in",
+            "desc": "The \"guild\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Discord/actions/watch-guild-messages/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Discord/actions/watch-guild-messages/exec"
+      },
+      {
+        "app": "Discord",
+        "action": "watch-channel-messages",
+        "path": "/guilds-by-name/{guild}/channels/{channel}/watch",
+        "path_vars": {
+          "guild": {
+            "display_name": "Server",
+            "short_desc": "The server (guild) to watch for new messages in",
+            "desc": "The server (guild) to watch for new messages in",
+            "example_value": "My Server"
+          },
+          "channel": {
+            "display_name": "Channel",
+            "short_desc": "The channel in a server (guild) to watch for new messages in",
+            "desc": "The channel in a server (guild) to watch for new messages in",
+            "example_value": "My Channel"
+          }
+        },
+        "display_name": "New Discord Messages in Channel",
+        "short_desc": "React to new messages in a specific channel in a Discord server",
+        "desc": "React to new messages in a specific channel in a Discord server",
+        "action_code": 1,
+        "action_val": "MESSAGE_CREATE",
+        "action_code_str": "EVENT",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Discord",
+            "short_desc": "Connection to Discord",
+            "desc": "The connection to the Discord server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "discord",
+                "desc": "Connection to \"Discord\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "guild": {
+            "type": "string",
+            "required": true,
+            "has_dependents": true,
+            "display_name": "Server",
+            "short_desc": "The server (guild) to watch for new messages in",
+            "desc": "The \"guild\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          },
+          "channel": {
+            "type": "string",
+            "required": true,
+            "display_name": "Channel",
+            "short_desc": "The channel in a server (guild) to watch for new messages in",
+            "desc": "The \"channel\" value to use",
+            "depends_on": ["qorus_app_connection", "guild"],
+            "sort": 3
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Discord/actions/watch-channel-messages/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Discord/actions/watch-channel-messages/exec"
+      },
+      {
+        "app": "Discord",
+        "action": "send-message",
+        "path": "/guilds-by-name/{guild}/channels/{channel}/send-message",
+        "path_vars": {
+          "guild": {
+            "display_name": "Server",
+            "short_desc": "The server (guild) to watch for new messages in",
+            "desc": "The server (guild) to watch for new messages in",
+            "example_value": "My Server"
+          },
+          "channel": {
+            "display_name": "Channel",
+            "short_desc": "The channel in a server (guild) to watch for new messages in",
+            "desc": "The channel in a server (guild) to watch for new messages in",
+            "example_value": "My Channel"
+          }
+        },
+        "display_name": "Send Discord Message",
+        "short_desc": "Send a message to a Discord channel",
+        "desc": "Send a message to a Discord channel",
+        "action_code": 2,
+        "convenience_options": {
+          "content": {
+            "type": "string",
+            "display_name": "Message Content",
+            "short_desc": "Message contents (up to 2000 characters)",
+            "desc": "Message contents (up to 2000 characters)",
+            "preselected": true,
+            "sort": 4
+          }
+        },
+        "advanced_options": {
+          "nonce": {
+            "type": "string",
+            "display_name": "Nonce",
+            "short_desc": "Can be used to verify a message was sent",
+            "desc": "Can be used to verify a message was sent (up to 25 characters). Value will appear in the `Message Create` event.",
+            "sort": 5
+          },
+          "tts": {
+            "type": "bool",
+            "display_name": "Text-To-Speech?",
+            "short_desc": "True if this is a Text-To-Speech message",
+            "desc": "`true` if this is a Text-To-Speech message",
+            "sort": 6
+          },
+          "sticker_ids": {
+            "type": "list<string>",
+            "display_name": "Stickers",
+            "short_desc": "IDs of up to 3 stickers in the server to send in the message",
+            "desc": "IDs of up to 3 stickers in the server to send in the message",
+            "sort": 7
+          },
+          "suppress_notifications": {
+            "type": "bool",
+            "display_name": "Suppress Notification",
+            "short_desc": "Suppress notifications related to this message",
+            "desc": "Suppress notifications related to this message",
+            "sort": 8
+          },
+          "supress_embeds": {
+            "type": "bool",
+            "display_name": "Suppress Embeds",
+            "short_desc": "Suppress embeds in this message",
+            "desc": "Suppress embeds in this message",
+            "sort": 9
+          }
+        },
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Discord",
+            "short_desc": "Connection to Discord",
+            "desc": "The connection to the Discord server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "discord",
+                "desc": "Connection to \"Discord\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "guild": {
+            "type": "string",
+            "required": true,
+            "has_dependents": true,
+            "display_name": "Server",
+            "short_desc": "The server (guild) to watch for new messages in",
+            "desc": "The \"guild\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          },
+          "channel": {
+            "type": "string",
+            "required": true,
+            "display_name": "Channel",
+            "short_desc": "The channel in a server (guild) to watch for new messages in",
+            "desc": "The \"channel\" value to use",
+            "depends_on": ["qorus_app_connection", "guild"],
+            "sort": 3
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Discord/actions/send-message/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Discord/actions/send-message/exec"
+      }
+    ],
+    "connections": ["discord"]
+  },
+  {
+    "name": "ElasticSearch",
+    "display_name": "ElasticSearch Server",
+    "short_desc": "ElasticSearch server",
+    "desc": "ElasticSearch server",
+    "scheme": "esrest",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/ElasticSearch/elasticsearch-logo.svg",
+    "logo_file_name": "elasticsearch-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
+    "actions": [
+      {
+        "app": "ElasticSearch",
+        "action": "search-index",
+        "path": "/index/search",
+        "display_name": "Search Index",
+        "short_desc": "Search for data in an ElasticSearch index",
+        "desc": "Search for data in an ElasticSearch index",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ElasticSearch Server",
+            "short_desc": "Connection to ElasticSearch Server",
+            "desc": "The connection to the ElasticSearch Server server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ElasticSearch/actions/search-index/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ElasticSearch/actions/search-index/exec"
+      },
+      {
+        "app": "ElasticSearch",
+        "action": "create-document",
+        "path": "/document/create",
+        "display_name": "Add Document",
+        "short_desc": "Add a document to ElasticSearch",
+        "desc": "Add a document to / ingest data in ElasticSearch",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ElasticSearch Server",
+            "short_desc": "Connection to ElasticSearch Server",
+            "desc": "The connection to the ElasticSearch Server server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ElasticSearch/actions/create-document/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ElasticSearch/actions/create-document/exec"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "EmpathicBuilding",
+    "display_name": "Haltian Empathic Building",
+    "short_desc": "Haltian Empathic Building server",
+    "desc": "Haltian Empathic Building server",
+    "scheme": "ebrest",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/EmpathicBuilding/empathicbuilding-logo.svg",
+    "logo_file_name": "empathicbuilding-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
+    "actions": [
+      {
+        "app": "EmpathicBuilding",
+        "action": "create-measurements",
+        "path": "/measurements/create",
+        "display_name": "Create Measurements",
+        "short_desc": "Post measurements to an EmpathicBuilding instance",
+        "desc": "Post measurements to an EmpathicBuilding instance",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Haltian Empathic Building",
+            "short_desc": "Connection to Haltian Empathic Building",
+            "desc": "The connection to the Haltian Empathic Building server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/EmpathicBuilding/actions/create-measurements/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/EmpathicBuilding/actions/create-measurements/exec"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "Filesystem",
+    "display_name": "Local Filesystem",
+    "short_desc": "Access to the local filesystem",
+    "desc": "Access to the local filesystem",
+    "scheme": "filesystem",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/Filesystem/generic-filesystem-logo.svg",
+    "logo_file_name": "generic-filesystem-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
+    "actions": [
+      {
+        "app": "Filesystem",
+        "action": "copy",
+        "path": "/copy",
+        "display_name": "Copy File",
+        "short_desc": "Copy a file on the local filesystem",
+        "desc": "Copy a file on the local filesystem",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Local Filesystem",
+            "short_desc": "Connection to Local Filesystem",
+            "desc": "The connection to the Local Filesystem server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/copy/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/copy/exec"
+      },
+      {
+        "app": "Filesystem",
+        "action": "create",
+        "path": "/create",
         "display_name": "Create File",
-        "subtype": "Document",
-        "path": "/files",
-        "path_vars": {
-          "folderId": "The ID of the parent folder",
-          "uploadType": "The type of upload request"
+        "short_desc": "Create a file on the local filesystem",
+        "desc": "Create a file on the local filesystem",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Local Filesystem",
+            "short_desc": "Connection to Local Filesystem",
+            "desc": "The connection to the Local Filesystem server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
         },
-        "short_desc": "Create a new file",
-        "desc": "Create a new file with the specified metadata and content.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/create/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/create/exec"
       },
       {
-        "app": "Google Drive",
+        "app": "Filesystem",
+        "action": "delete",
+        "path": "/delete",
+        "display_name": "Delete File",
+        "short_desc": "Delete a file on the local filesystem",
+        "desc": "Delete a file on the local filesystem",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Local Filesystem",
+            "short_desc": "Connection to Local Filesystem",
+            "desc": "The connection to the Local Filesystem server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/delete/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/delete/exec"
+      },
+      {
+        "app": "Filesystem",
+        "action": "get",
+        "path": "/get",
         "display_name": "Get File",
-        "action": "GetFile",
-        "subtype": "Document",
-        "path": "/files/{fileId}",
-        "path_vars": {
-          "fileId": "The ID of the file"
+        "short_desc": "Get a file on the local filesystem",
+        "desc": "Get a file on the local filesystem",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Local Filesystem",
+            "short_desc": "Connection to Local Filesystem",
+            "desc": "The connection to the Local Filesystem server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
         },
-        "short_desc": "Get a file",
-        "desc": "Gets a file's metadata or content by ID.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/get/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/get/exec"
+      },
+      {
+        "app": "Filesystem",
+        "action": "list",
+        "path": "/list",
+        "display_name": "List Files",
+        "short_desc": "List files and subdirectories in a folder on the local filesystem",
+        "desc": "List files and subdirectories in a folder on the local filesystem",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Local Filesystem",
+            "short_desc": "Connection to Local Filesystem",
+            "desc": "The connection to the Local Filesystem server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/list/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/list/exec"
+      },
+      {
+        "app": "Filesystem",
+        "action": "mkdir",
+        "path": "/mkdir",
+        "display_name": "Create Directory",
+        "short_desc": "Create a directory on the local filesystem",
+        "desc": "Create a directory on the local filesystem",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Local Filesystem",
+            "short_desc": "Connection to Local Filesystem",
+            "desc": "The connection to the Local Filesystem server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/mkdir/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/mkdir/exec"
+      },
+      {
+        "app": "Filesystem",
+        "action": "move",
+        "path": "/move",
+        "display_name": "Move File",
+        "short_desc": "Move a file or directory on the local filesystem",
+        "desc": "Move a file or directory on the local filesystem",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Local Filesystem",
+            "short_desc": "Connection to Local Filesystem",
+            "desc": "The connection to the Local Filesystem server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/move/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/move/exec"
+      },
+      {
+        "app": "Filesystem",
+        "action": "stat",
+        "path": "/stat",
+        "display_name": "Get Info",
+        "short_desc": "Get details about a file or directory on the local filesystem",
+        "desc": "Get details about a file or directory on the local filesystem",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Local Filesystem",
+            "short_desc": "Connection to Local Filesystem",
+            "desc": "The connection to the Local Filesystem server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/stat/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/stat/exec"
+      },
+      {
+        "app": "Filesystem",
+        "action": "file-received",
+        "subtype": "filepoller",
+        "path": "/",
+        "display_name": "New File Created",
+        "short_desc": "A file is created in a local directory",
+        "desc": "React to files created in a local directory",
+        "action_code": 1,
+        "action_val": "file-event",
+        "action_code_str": "EVENT",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Local Filesystem",
+            "short_desc": "Connection to Local Filesystem",
+            "desc": "The connection to the Local Filesystem server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/file-received/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Filesystem/actions/file-received/exec"
       }
-    ]
+    ],
+    "connections": null
   },
   {
-    "name": "YouTube",
-    "display_name": "YouTube",
-    "desc": "YouTube is an American online video-sharing platform headquartered in San Bruno, California.",
-    "short_desc": "Online video-sharing platform",
-    "scheme": "youtube",
-    "oauth2_auth_code": true,
-    "icon": "YoutubeFill",
-    "logo_file_name": "youtube.svg",
+    "name": "FixedLength",
+    "display_name": "Fixed-Length Files",
+    "short_desc": "Read and write fixed-length file data",
+    "desc": "Read and write fixed-length file data",
+    "scheme": "file",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/FixedLength/generic-fixedlength-logo.svg",
+    "logo_file_name": "generic-fixedlength-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
+    "actions": [
+      {
+        "app": "FixedLength",
+        "action": "read",
+        "subtype": "fixedlengthread",
+        "path": "/",
+        "display_name": "Read Fixed-Length Data",
+        "short_desc": "Read fixed-length file data from the local filesystem",
+        "desc": "Read fixed-length file data from the local filesystem",
+        "action_code": 4,
+        "action_code_str": "FIND",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Fixed-Length Files",
+            "short_desc": "Connection to Fixed-Length Files",
+            "desc": "The connection to the Fixed-Length Files server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "fs-regression",
+                "desc": "Connection to \"Fixed-Length Files\""
+              },
+              {
+                "value": "fs-example-csv",
+                "desc": "Connection to \"Fixed-Length Files\""
+              },
+              {
+                "value": "fs-regression-win",
+                "desc": "Connection to \"Fixed-Length Files\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "CONNECTION-ERROR: connection \"fs-regression-win\" (type \"file\" url \"file:///C:/temp\") points to non-existent, inaccessible, or read-only directory \"/C:/temp\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/FixedLength/actions/read/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/FixedLength/actions/read/exec"
+      },
+      {
+        "app": "FixedLength",
+        "action": "write",
+        "subtype": "fixedlengthwrite",
+        "path": "/",
+        "display_name": "Write Fixed-Length Data",
+        "short_desc": "Write fixed-length file data to the local filesystem",
+        "desc": "Write fixed-length file data to the local filesystem",
+        "action_code": 6,
+        "action_code_str": "CREATE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Fixed-Length Files",
+            "short_desc": "Connection to Fixed-Length Files",
+            "desc": "The connection to the Fixed-Length Files server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "fs-regression",
+                "desc": "Connection to \"Fixed-Length Files\""
+              },
+              {
+                "value": "fs-example-csv",
+                "desc": "Connection to \"Fixed-Length Files\""
+              },
+              {
+                "value": "fs-regression-win",
+                "desc": "Connection to \"Fixed-Length Files\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "CONNECTION-ERROR: connection \"fs-regression-win\" (type \"file\" url \"file:///C:/temp\") points to non-existent, inaccessible, or read-only directory \"/C:/temp\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/FixedLength/actions/write/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/FixedLength/actions/write/exec"
+      }
+    ],
+    "connections": ["fs-regression", "fs-example-csv", "fs-regression-win"]
+  },
+  {
+    "name": "FTP",
+    "display_name": "FTP Server",
+    "short_desc": "Generic FTP server for exchanging files with FTP and FTPS",
+    "desc": "Generic FTP server for exchanging files with FTP and FTPS",
+    "scheme": "ftp",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/FTP/generic-ftp-logo.svg",
+    "logo_file_name": "generic-ftp-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
+    "actions": [
+      {
+        "app": "FTP",
+        "action": "get-file",
+        "path": "/get-file",
+        "display_name": "Retrieve File With FTP",
+        "short_desc": "Get a file from an FTP server",
+        "desc": "Retrieve a file from an FTP server",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to FTP Server",
+            "short_desc": "Connection to FTP Server",
+            "desc": "The connection to the FTP Server server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/FTP/actions/get-file/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/FTP/actions/get-file/exec"
+      },
+      {
+        "app": "FTP",
+        "action": "send-file",
+        "path": "/create-file",
+        "display_name": "Send File With FTP",
+        "short_desc": "Sends a file to an FTP server",
+        "desc": "Sends a file to an FTP server",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to FTP Server",
+            "short_desc": "Connection to FTP Server",
+            "desc": "The connection to the FTP Server server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/FTP/actions/send-file/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/FTP/actions/send-file/exec"
+      },
+      {
+        "app": "FTP",
+        "action": "ftp-file-event",
+        "subtype": "ftppoller",
+        "path": "/",
+        "display_name": "FTP File Received",
+        "short_desc": "A file is uploaded to an FTP server",
+        "desc": "React to files uploaded to an FTP server",
+        "action_code": 1,
+        "action_val": "ftp-file-event",
+        "action_code_str": "EVENT",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to FTP Server",
+            "short_desc": "Connection to FTP Server",
+            "desc": "The connection to the FTP Server server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/FTP/actions/ftp-file-event/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/FTP/actions/ftp-file-event/exec"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "GoogleCalendar",
+    "display_name": "Google Calendar",
+    "short_desc": "Google calendar services",
+    "desc": "Google calendar services",
+    "scheme": "gcal",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/GoogleCalendar/google-calendar-logo.svg",
+    "logo_file_name": "google-calendar-logo.svg",
     "logo_mime_type": "image/svg+xml",
     "oauth2_client": {
-      "oauth2_client_id": "myclientid",
-      "oauth2_client_secret": "myclientsecret",
+      "oauth2_client_id": "1007814644021-funaickqu1eatb6qkf2q45ic9ko6b2im.apps.googleusercontent.com",
+      "oauth2_client_secret": "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",
       "url_type": "auto",
-      "oauth2_auth_url": "https://accounts.google.com/o/oauth2/auth",
-      "oauth2_token_url": "https://accounts.google.com/o/oauth2/token",
-      "required_options": ["option1", "option2"]
+      "oauth2_auth_url": null,
+      "oauth2_token_url": null,
+      "required_options": null
     },
+    "builtin": false,
     "actions": [
       {
-        "app": "YouTube",
-        "display_name": "Search Videos",
-        "action": "SearchVideos",
-        "subtype": "Video",
-        "path": "/search",
+        "app": "GoogleCalendar",
+        "action": "quick-add-event",
+        "path": "/calendar/calendars/{calendar}/events/quickAdd",
         "path_vars": {
-          "q": "The search query",
-          "type": "The type of resource to search for"
+          "calendar": {
+            "display_name": "Calendar",
+            "short_desc": "The calendar to add the event to",
+            "desc": "The calendar to add the event to",
+            "example_value": "primary"
+          }
         },
-        "short_desc": "Search for videos",
-        "desc": "Returns a collection of search results that match the query parameters specified in the API request.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
+        "display_name": "Add Event From Text",
+        "short_desc": "Quickly add an event to a calendar from text",
+        "desc": "Quickly add an event to a calendar from text; ex: 'Lunch at the Burger Bar from 12:30-13:30 tomorrow'",
+        "action_code": 2,
+        "convenience_options": {
+          "text": {
+            "type": "string",
+            "display_name": "Event Text",
+            "short_desc": "The text describing the event to be created",
+            "desc": "The text describing the event to be created; ex: `Appointment at Somewhere on June 3rd 10am-10:25am`",
+            "preselected": true,
+            "sort": 3
+          }
+        },
+        "advanced_options": {
+          "sendUpdates": {
+            "type": "string",
+            "display_name": "Send Updates",
+            "short_desc": "Guests who should receive notifications about the event update",
+            "desc": "Guests who should receive notifications about the event update (for example, title changes, etc.).\nAcceptable values are:\n- `all`: Notifications are sent to all guests\n- `externalOnly`: Notifications are sent to non-Google Calendar guests only\n- `none`: No notifications are sent. For calendar migration tasks, consider using the `Events.import` method instead",
+            "allowed_values": [
+              {
+                "value": {
+                  "value": "all",
+                  "desc": "Notifications are sent to all guests"
+                },
+                "desc": "no description provided"
+              },
+              {
+                "value": {
+                  "value": "externalOnly",
+                  "desc": "Notifications are sent to non-Google Calendar guests only"
+                },
+                "desc": "no description provided"
+              },
+              {
+                "value": {
+                  "value": "none",
+                  "desc": "No notifications are sent. For calendar migration tasks, consider using the `Events.import` method instead"
+                },
+                "desc": "no description provided"
+              }
+            ],
+            "sort": 4
+          }
+        },
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Google Calendar",
+            "short_desc": "Connection to Google Calendar",
+            "desc": "The connection to the Google Calendar server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "google-calendar",
+                "desc": "Connection to \"Google Calendar\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                },
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "REST-PING-ERROR: \"HTTP/1.1 401 Unauthorized\" returned from \"GET /calendar/v3/users/me/calendarList?maxResults=1 HTTP/1.1\"; response body: \"{\n  \\\"error\\\": {\n    \\\"code\\\": 401,\n    \\\"message\\\": \\\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\\\",\n    \\\"errors\\\": [\n      {\n        \\\"message\\\": \\\"Invalid Credentials\\\",\n        \\\"domain\\\": \\\"global\\\",\n        \\\"reason\\\": \\\"authError\\\",\n        \\\"location\\\": \\\"Authorization\\\",\n        \\\"locationType\\\": \\\"header\\\"\n      }\n    ],\n    \\\"status\\\": \\\"UNAUTHENTICATED\\\"\n  }\n}\n\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "calendar": {
+            "type": "string",
+            "required": true,
+            "display_name": "Calendar",
+            "short_desc": "The calendar to add the event to",
+            "desc": "The \"calendar\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/quick-add-event/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/quick-add-event/exec"
       },
       {
-        "app": "YouTube",
-        "action": "GetVideo",
-        "display_name": "Get Video",
-        "subtype": "Video",
-        "path": "/videos",
+        "app": "GoogleCalendar",
+        "action": "create-event",
+        "path": "/calendar/calendars/{calendar}/events/insert",
         "path_vars": {
-          "id": "The ID of the video"
+          "calendar": {
+            "display_name": "Calendar",
+            "short_desc": "The calendar to add the event to",
+            "desc": "The calendar to add the event to",
+            "example_value": "primary"
+          }
         },
-        "short_desc": "Get a video",
-        "desc": "Returns a video resource.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
+        "display_name": "Create Event",
+        "short_desc": "Create an event in a calendar",
+        "desc": "Create an event in a calendar",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Google Calendar",
+            "short_desc": "Connection to Google Calendar",
+            "desc": "The connection to the Google Calendar server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "google-calendar",
+                "desc": "Connection to \"Google Calendar\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                },
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "REST-PING-ERROR: \"HTTP/1.1 401 Unauthorized\" returned from \"GET /calendar/v3/users/me/calendarList?maxResults=1 HTTP/1.1\"; response body: \"{\n  \\\"error\\\": {\n    \\\"code\\\": 401,\n    \\\"message\\\": \\\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\\\",\n    \\\"errors\\\": [\n      {\n        \\\"message\\\": \\\"Invalid Credentials\\\",\n        \\\"domain\\\": \\\"global\\\",\n        \\\"reason\\\": \\\"authError\\\",\n        \\\"location\\\": \\\"Authorization\\\",\n        \\\"locationType\\\": \\\"header\\\"\n      }\n    ],\n    \\\"status\\\": \\\"UNAUTHENTICATED\\\"\n  }\n}\n\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "calendar": {
+            "type": "string",
+            "required": true,
+            "display_name": "Calendar",
+            "short_desc": "The calendar to add the event to",
+            "desc": "The \"calendar\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/create-event/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/create-event/exec"
       },
       {
-        "app": "YouTube",
-        "action": "GetChannel",
-        "display_name": "Get Channel",
-        "subtype": "Channel",
-        "path": "/channels",
+        "app": "GoogleCalendar",
+        "action": "update-event",
+        "path": "/calendar/calendars/{calendar}/events/update",
         "path_vars": {
-          "id": "The ID of the channel"
+          "calendar": {
+            "display_name": "Calendar",
+            "short_desc": "The calendar to add the event to",
+            "desc": "The calendar to add the event to",
+            "example_value": "primary"
+          }
         },
-        "short_desc": "Get a channel",
-        "desc": "Returns a channel resource.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
+        "display_name": "Update Event",
+        "short_desc": "Update an event in a calendar",
+        "desc": "Update an event in a calendar",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Google Calendar",
+            "short_desc": "Connection to Google Calendar",
+            "desc": "The connection to the Google Calendar server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "google-calendar",
+                "desc": "Connection to \"Google Calendar\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                },
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "REST-PING-ERROR: \"HTTP/1.1 401 Unauthorized\" returned from \"GET /calendar/v3/users/me/calendarList?maxResults=1 HTTP/1.1\"; response body: \"{\n  \\\"error\\\": {\n    \\\"code\\\": 401,\n    \\\"message\\\": \\\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\\\",\n    \\\"errors\\\": [\n      {\n        \\\"message\\\": \\\"Invalid Credentials\\\",\n        \\\"domain\\\": \\\"global\\\",\n        \\\"reason\\\": \\\"authError\\\",\n        \\\"location\\\": \\\"Authorization\\\",\n        \\\"locationType\\\": \\\"header\\\"\n      }\n    ],\n    \\\"status\\\": \\\"UNAUTHENTICATED\\\"\n  }\n}\n\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "calendar": {
+            "type": "string",
+            "required": true,
+            "display_name": "Calendar",
+            "short_desc": "The calendar to add the event to",
+            "desc": "The \"calendar\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/update-event/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/update-event/exec"
+      },
+      {
+        "app": "GoogleCalendar",
+        "action": "delete-event",
+        "path": "/calendar/calendars/{calendar}/events/delete",
+        "path_vars": {
+          "calendar": {
+            "display_name": "Calendar",
+            "short_desc": "The calendar to add the event to",
+            "desc": "The calendar to add the event to",
+            "example_value": "primary"
+          }
+        },
+        "display_name": "Delete Event",
+        "short_desc": "Delete an event from a calendar",
+        "desc": "Delete an event from a calendar",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Google Calendar",
+            "short_desc": "Connection to Google Calendar",
+            "desc": "The connection to the Google Calendar server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "google-calendar",
+                "desc": "Connection to \"Google Calendar\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                },
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "REST-PING-ERROR: \"HTTP/1.1 401 Unauthorized\" returned from \"GET /calendar/v3/users/me/calendarList?maxResults=1 HTTP/1.1\"; response body: \"{\n  \\\"error\\\": {\n    \\\"code\\\": 401,\n    \\\"message\\\": \\\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\\\",\n    \\\"errors\\\": [\n      {\n        \\\"message\\\": \\\"Invalid Credentials\\\",\n        \\\"domain\\\": \\\"global\\\",\n        \\\"reason\\\": \\\"authError\\\",\n        \\\"location\\\": \\\"Authorization\\\",\n        \\\"locationType\\\": \\\"header\\\"\n      }\n    ],\n    \\\"status\\\": \\\"UNAUTHENTICATED\\\"\n  }\n}\n\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "calendar": {
+            "type": "string",
+            "required": true,
+            "display_name": "Calendar",
+            "short_desc": "The calendar to add the event to",
+            "desc": "The \"calendar\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/delete-event/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/delete-event/exec"
+      },
+      {
+        "app": "GoogleCalendar",
+        "action": "watch-event-new",
+        "path": "/calendar/calendars/{calendar}/watch",
+        "path_vars": {
+          "calendar": {
+            "display_name": "Calendar",
+            "short_desc": "The calendar to watch for changes in",
+            "desc": "The calendar to watch for changes in",
+            "example_value": "primary"
+          }
+        },
+        "display_name": "New Google calendar event",
+        "short_desc": "React to new events in a Google calendar",
+        "desc": "React when events are created in a specific Google calendar",
+        "action_code": 1,
+        "action_val": "gcal-event-created",
+        "action_code_str": "EVENT",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Google Calendar",
+            "short_desc": "Connection to Google Calendar",
+            "desc": "The connection to the Google Calendar server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "google-calendar",
+                "desc": "Connection to \"Google Calendar\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                },
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "REST-PING-ERROR: \"HTTP/1.1 401 Unauthorized\" returned from \"GET /calendar/v3/users/me/calendarList?maxResults=1 HTTP/1.1\"; response body: \"{\n  \\\"error\\\": {\n    \\\"code\\\": 401,\n    \\\"message\\\": \\\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\\\",\n    \\\"errors\\\": [\n      {\n        \\\"message\\\": \\\"Invalid Credentials\\\",\n        \\\"domain\\\": \\\"global\\\",\n        \\\"reason\\\": \\\"authError\\\",\n        \\\"location\\\": \\\"Authorization\\\",\n        \\\"locationType\\\": \\\"header\\\"\n      }\n    ],\n    \\\"status\\\": \\\"UNAUTHENTICATED\\\"\n  }\n}\n\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "calendar": {
+            "type": "string",
+            "required": true,
+            "display_name": "Calendar",
+            "short_desc": "The calendar to watch for changes in",
+            "desc": "The \"calendar\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/watch-event-new/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/watch-event-new/exec"
+      },
+      {
+        "app": "GoogleCalendar",
+        "action": "watch-event-change",
+        "path": "/calendar/calendars/{calendar}/watch",
+        "path_vars": {
+          "calendar": {
+            "display_name": "Calendar",
+            "short_desc": "The calendar to watch for changes in",
+            "desc": "The calendar to watch for changes in",
+            "example_value": "primary"
+          }
+        },
+        "display_name": "Google calendar event changed",
+        "short_desc": "React to updated events in a Google calendar",
+        "desc": "React when existing events are updated in a specific Google calendar",
+        "action_code": 1,
+        "action_val": "gcal-event-updated",
+        "action_code_str": "EVENT",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Google Calendar",
+            "short_desc": "Connection to Google Calendar",
+            "desc": "The connection to the Google Calendar server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "google-calendar",
+                "desc": "Connection to \"Google Calendar\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                },
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "REST-PING-ERROR: \"HTTP/1.1 401 Unauthorized\" returned from \"GET /calendar/v3/users/me/calendarList?maxResults=1 HTTP/1.1\"; response body: \"{\n  \\\"error\\\": {\n    \\\"code\\\": 401,\n    \\\"message\\\": \\\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\\\",\n    \\\"errors\\\": [\n      {\n        \\\"message\\\": \\\"Invalid Credentials\\\",\n        \\\"domain\\\": \\\"global\\\",\n        \\\"reason\\\": \\\"authError\\\",\n        \\\"location\\\": \\\"Authorization\\\",\n        \\\"locationType\\\": \\\"header\\\"\n      }\n    ],\n    \\\"status\\\": \\\"UNAUTHENTICATED\\\"\n  }\n}\n\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "calendar": {
+            "type": "string",
+            "required": true,
+            "display_name": "Calendar",
+            "short_desc": "The calendar to watch for changes in",
+            "desc": "The \"calendar\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/watch-event-change/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/watch-event-change/exec"
+      },
+      {
+        "app": "GoogleCalendar",
+        "action": "watch-event-delete",
+        "path": "/calendar/calendars/{calendar}/watch",
+        "path_vars": {
+          "calendar": {
+            "display_name": "Calendar",
+            "short_desc": "The calendar to watch for changes in",
+            "desc": "The calendar to watch for changes in",
+            "example_value": "primary"
+          }
+        },
+        "display_name": "Google calendar event deleted",
+        "short_desc": "React to deleted events in a Google calendar",
+        "desc": "React when events are deleted in a specific Google calendar",
+        "action_code": 1,
+        "action_val": "gcal-event-deleted",
+        "action_code_str": "EVENT",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Google Calendar",
+            "short_desc": "Connection to Google Calendar",
+            "desc": "The connection to the Google Calendar server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "google-calendar",
+                "desc": "Connection to \"Google Calendar\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                },
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "REST-PING-ERROR: \"HTTP/1.1 401 Unauthorized\" returned from \"GET /calendar/v3/users/me/calendarList?maxResults=1 HTTP/1.1\"; response body: \"{\n  \\\"error\\\": {\n    \\\"code\\\": 401,\n    \\\"message\\\": \\\"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\\\",\n    \\\"errors\\\": [\n      {\n        \\\"message\\\": \\\"Invalid Credentials\\\",\n        \\\"domain\\\": \\\"global\\\",\n        \\\"reason\\\": \\\"authError\\\",\n        \\\"location\\\": \\\"Authorization\\\",\n        \\\"locationType\\\": \\\"header\\\"\n      }\n    ],\n    \\\"status\\\": \\\"UNAUTHENTICATED\\\"\n  }\n}\n\"",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "calendar": {
+            "type": "string",
+            "required": true,
+            "display_name": "Calendar",
+            "short_desc": "The calendar to watch for changes in",
+            "desc": "The \"calendar\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/watch-event-delete/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GoogleCalendar/actions/watch-event-delete/exec"
       }
-    ]
+    ],
+    "connections": ["google-calendar"]
   },
   {
-    "name": "Twitter",
-    "display_name": "Twitter",
-    "desc": "Twitter is an American microblogging and social networking service on which users post and interact with messages known as tweets.",
-    "short_desc": "Microblogging and social networking service",
-    "scheme": "twitter",
-    "oauth2_auth_code": true,
-    "logo": "https://abs.twimg.com/responsive-web/client-web/icon-ios.b1fc7275.png",
-    "logo_file_name": "twitter.png",
-    "logo_mime_type": "image/png",
-    "oauth2_client": {
-      "oauth2_client_id": "myclientid",
-      "oauth2_client_secret": "myclientsecret",
-      "url_type": "auto",
-      "oauth2_auth_url": "https://api.twitter.com/oauth2/token",
-      "oauth2_token_url": "https://api.twitter.com/oauth2/token",
-      "required_options": ["option1", "option2"]
-    },
+    "name": "MQTT",
+    "display_name": "MQTT Server",
+    "short_desc": "MQTT server for fast and efficient messaging",
+    "desc": "MQTT server for fast and efficient messaging",
+    "scheme": "mqtt",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/MQTT/generic-mqtt-logo.svg",
+    "logo_file_name": "generic-mqtt-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
     "actions": [
       {
-        "app": "Twitter",
-        "display_name": "Search Tweets",
-        "action": "SearchTweets",
-        "subtype": "Tweet",
-        "path": "/search/tweets.json",
-        "path_vars": {
-          "q": "The search query",
-          "count": "The number of tweets to return"
+        "app": "MQTT",
+        "action": "mqtt-msg-received",
+        "path": "/",
+        "display_name": "MQTT Message Received",
+        "short_desc": "An MQTT message is received",
+        "desc": "An MQTT message is received; react to an MQTT message",
+        "action_code": 1,
+        "action_code_str": "EVENT",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to MQTT Server",
+            "short_desc": "Connection to MQTT Server",
+            "desc": "The connection to the MQTT Server server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
         },
-        "short_desc": "Search for tweets",
-        "desc": "Returns a collection of relevant Tweets matching a specified query.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
-      },
-      {
-        "app": "Twitter",
-        "action": "GetTweet",
-        "display_name": "Get Tweet",
-        "subtype": "Tweet",
-        "path": "/statuses/show.json",
-        "path_vars": {
-          "id": "The ID of the tweet"
-        },
-        "short_desc": "Get a tweet",
-        "desc": "Returns a single Tweet, specified by the id parameter.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/MQTT/actions/mqtt-msg-received/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/MQTT/actions/mqtt-msg-received/exec"
       }
-    ]
+    ],
+    "connections": null
   },
   {
-    "name": "GitHub",
-    "display_name": "GitHub",
-    "desc": "GitHub is a web-based hosting service for version control using git.",
-    "short_desc": "Web-based hosting service for version control",
-    "scheme": "github",
-    "oauth2_auth_code": true,
-    "logo": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
-    "logo_file_name": "github.png",
-    "logo_mime_type": "image/png",
-    "oauth2_client": {
-      "oauth2_client_id": "myclientid",
-      "oauth2_client_secret": "myclientsecret",
-      "url_type": "auto",
-      "oauth2_auth_url": "https://github.com/login/oauth/authorize",
-      "oauth2_token_url": "https://github.com/login/oauth/access_token",
-      "required_options": ["option1", "option2"]
-    },
+    "name": "GenericRest",
+    "display_name": "REST Server",
+    "short_desc": "Generic REST server",
+    "desc": "Generic REST server",
+    "scheme": "rest",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/GenericRest/generic-rest-logo.svg",
+    "logo_file_name": "generic-rest-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
     "actions": [
       {
-        "app": "GitHub",
-        "action": "CreateRepository",
-        "display_name": "Create Repository",
-        "subtype": "Repository",
-        "path": "/user/repos",
-        "path_vars": {
-          "name": "The name of the repository",
-          "description": "The description of the repository"
+        "app": "GenericRest",
+        "action": "call",
+        "path": "/call",
+        "display_name": "Call REST API / Webhook",
+        "short_desc": "Make a call to a REST server or webhook",
+        "desc": "Make a call to a REST server or a webhook and return the response",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to REST Server",
+            "short_desc": "Connection to REST Server",
+            "desc": "The connection to the REST Server server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "rest-example",
+                "desc": "Connection to \"REST Server\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-CONNECT-ERROR: error in connect() (target: localhost:15011): Connection refused",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "nuxeo-api",
+                "desc": "Connection to \"REST Server\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-CONNECT-ERROR: error in connect() (target: localhost:9080): Connection refused",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "sort": 1
+          }
         },
-        "short_desc": "Create a new repository",
-        "desc": "Creates a new repository for the authenticated user.",
-        "action_code": 201,
-        "action_code_str": "CREATED",
-        "action_val": "message"
-      },
-      {
-        "app": "GitHub",
-        "action": "GetRepository",
-        "display_name": "Get Repository",
-        "subtype": "Repository",
-        "path": "/repos/{owner}/{repo}",
-        "path_vars": {
-          "owner": "The name of the repository owner",
-          "repo": "The name of the repository"
-        },
-        "short_desc": "Get a repository",
-        "desc": "Gets a repository by the specified owner and repository name.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
-      },
-      {
-        "app": "GitHub",
-        "action": "ListIssues",
-        "display_name": "List Issues",
-        "subtype": "Issue",
-        "path": "/repos/{owner}/{repo}/issues",
-        "path_vars": {
-          "owner": "The name of the repository owner",
-          "repo": "The name of the repository"
-        },
-        "short_desc": "List issues",
-        "desc": "Lists the issues for the specified repository.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GenericRest/actions/call/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/GenericRest/actions/call/exec"
       }
-    ]
+    ],
+    "connections": ["rest-example", "nuxeo-api"]
   },
   {
-    "name": "Slack",
-    "display_name": "Slack",
-    "desc": "Slack is a proprietary business communication platform developed by Slack Technologies.",
-    "short_desc": "Business communication platform",
-    "scheme": "slack",
+    "name": "Salesforce",
+    "display_name": "Salesforce",
+    "short_desc": "Salesforce® cloud CRM; Salesforce is a trademark of Salesforce, Inc.",
+    "desc": "Salesforce® cloud CRM; Salesforce is a trademark of Salesforce, Inc.",
+    "scheme": "sfrests",
     "oauth2_auth_code": true,
-    "logo": "https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png",
-    "logo_file_name": "slack.png",
-    "logo_mime_type": "image/png",
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/Salesforce/salesforce-logo.svg",
+    "logo_file_name": "salesforce-logo.svg",
+    "logo_mime_type": "image/svg+xml",
     "oauth2_client": {
-      "oauth2_client_id": "myclientid",
-      "oauth2_client_secret": "myclientsecret",
-      "url_type": "auto",
-      "oauth2_auth_url": "https://slack.com/oauth/authorize",
-      "oauth2_token_url": "https://slack.com/api/oauth.access",
-      "required_options": ["option1", "option2"]
+      "oauth2_client_id": "3MVG9Ve.2wqUVx_ZZLVqAnNNUPtJ24F5E8kNtN7xzPJR4tkOqTC0am5KoA6Ow7Kjtuhxpn91X1q304IhDRJHO",
+      "oauth2_client_secret": "292DD4088A78F667442658FD4CCFFAC3DD8FAF942409412E5EF808683BD25694",
+      "url_type": "required",
+      "oauth2_auth_url": null,
+      "oauth2_token_url": null,
+      "required_options": null
     },
+    "builtin": false,
     "actions": [
       {
-        "app": "Slack",
-        "action": "SendMessage",
+        "app": "Salesforce",
+        "action": "create",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The name of the Salesforce table (also called an \"sobject\"), ex: `Account`",
+            "example_value": "Account"
+          }
+        },
+        "display_name": "Create Record",
+        "short_desc": "Create a record in Salesforce",
+        "desc": "Create a record in Salesforce using Salesforce's REST API",
+        "action_code": 6,
+        "action_code_str": "CREATE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Salesforce",
+            "short_desc": "Connection to Salesforce",
+            "desc": "The connection to the Salesforce server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "sfrest-dev-instance",
+                "desc": "Connection to \"Salesforce\"",
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "sfrests-demo",
+                "desc": "Connection to \"Salesforce\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/create/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/create/exec"
+      },
+      {
+        "app": "Salesforce",
+        "action": "find_single",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The name of the Salesforce table (also called an \"sobject\"), ex: `Account`",
+            "example_value": "Account"
+          }
+        },
+        "display_name": "Find Single Record",
+        "short_desc": "Find a single record in Salesforce",
+        "desc": "Find a single record in Salesforce using Salesforce's REST API",
+        "action_code": 5,
+        "action_code_str": "FIND_SINGLE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Salesforce",
+            "short_desc": "Connection to Salesforce",
+            "desc": "The connection to the Salesforce server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "sfrest-dev-instance",
+                "desc": "Connection to \"Salesforce\"",
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "sfrests-demo",
+                "desc": "Connection to \"Salesforce\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/find_single/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/find_single/exec"
+      },
+      {
+        "app": "Salesforce",
+        "action": "find",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The name of the Salesforce table (also called an \"sobject\"), ex: `Account`",
+            "example_value": "Account"
+          }
+        },
+        "display_name": "Find Matching Records",
+        "short_desc": "Find records in Salesforce",
+        "desc": "Find records in Salesforce using Salesforce's REST API",
+        "action_code": 4,
+        "action_code_str": "FIND",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Salesforce",
+            "short_desc": "Connection to Salesforce",
+            "desc": "The connection to the Salesforce server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "sfrest-dev-instance",
+                "desc": "Connection to \"Salesforce\"",
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "sfrests-demo",
+                "desc": "Connection to \"Salesforce\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/find/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/find/exec"
+      },
+      {
+        "app": "Salesforce",
+        "action": "update",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The name of the Salesforce table (also called an \"sobject\"), ex: `Account`",
+            "example_value": "Account"
+          }
+        },
+        "display_name": "Update Records",
+        "short_desc": "Update records in Salesforce",
+        "desc": "Update records in Salesforce using Salesforce's REST API",
+        "action_code": 8,
+        "action_code_str": "UPDATE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Salesforce",
+            "short_desc": "Connection to Salesforce",
+            "desc": "The connection to the Salesforce server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "sfrest-dev-instance",
+                "desc": "Connection to \"Salesforce\"",
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "sfrests-demo",
+                "desc": "Connection to \"Salesforce\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/update/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/update/exec"
+      },
+      {
+        "app": "Salesforce",
+        "action": "upsert",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The name of the Salesforce table (also called an \"sobject\"), ex: `Account`",
+            "example_value": "Account"
+          }
+        },
+        "display_name": "Upsert Records",
+        "short_desc": "Upsert records in Salesforce",
+        "desc": "Upsert records in Salesforce using Salesforce's REST API",
+        "action_code": 7,
+        "action_code_str": "UPSERT",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Salesforce",
+            "short_desc": "Connection to Salesforce",
+            "desc": "The connection to the Salesforce server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "sfrest-dev-instance",
+                "desc": "Connection to \"Salesforce\"",
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "sfrests-demo",
+                "desc": "Connection to \"Salesforce\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/upsert/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/upsert/exec"
+      },
+      {
+        "app": "Salesforce",
+        "action": "delete",
+        "path": "/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The name of the Salesforce table (also called an \"sobject\"), ex: `Account`",
+            "example_value": "Account"
+          }
+        },
+        "display_name": "Delete Records",
+        "short_desc": "Delete records in Salesforce",
+        "desc": "Delete records in Salesforce using Salesforce's REST API",
+        "action_code": 9,
+        "action_code_str": "DELETE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Salesforce",
+            "short_desc": "Connection to Salesforce",
+            "desc": "The connection to the Salesforce server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "sfrest-dev-instance",
+                "desc": "Connection to \"Salesforce\"",
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "sfrests-demo",
+                "desc": "Connection to \"Salesforce\"",
+                "metadata": {
+                  "oauth2-auth-code": true
+                }
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the Salesforce table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/delete/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/Salesforce/actions/delete/exec"
+      }
+    ],
+    "connections": ["sfrest-dev-instance", "sfrests-demo"]
+  },
+  {
+    "name": "ServiceNow",
+    "display_name": "ServiceNow",
+    "short_desc": "ServiceNow® cloud APIs; ServiceNow is a trademark of ServiceNow, Inc.",
+    "desc": "ServiceNow® cloud APIs; ServiceNow is a trademark of ServiceNow, Inc.",
+    "scheme": "snrests",
+    "oauth2_auth_code": true,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/ServiceNow/SN.svg",
+    "logo_file_name": "SN.svg",
+    "logo_mime_type": "image/svg+xml",
+    "oauth2_client": {
+      "oauth2_client_id": "2689a5294c383110be63174e409391f3",
+      "oauth2_client_secret": "JfSu$|Vn:1",
+      "url_type": "required",
+      "oauth2_auth_url": null,
+      "oauth2_token_url": null,
+      "required_options": null
+    },
+    "builtin": false,
+    "actions": [
+      {
+        "app": "ServiceNow",
+        "action": "create-incident",
+        "path": "/tables/incident",
+        "display_name": "Create Incident",
+        "short_desc": "Create an incident in ServiceNow",
+        "desc": "Create an incident in ServiceNow by creating a record in the `incident` table using ServiceNow's REST API",
+        "action_code": 6,
+        "action_code_str": "CREATE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ServiceNow",
+            "short_desc": "Connection to ServiceNow",
+            "desc": "The connection to the ServiceNow server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "snrests-demo",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "snrests-demo1",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/create-incident/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/create-incident/exec"
+      },
+      {
+        "app": "ServiceNow",
+        "action": "find-single-incident",
+        "path": "/tables/incident",
+        "display_name": "Find Single Incident",
+        "short_desc": "Find a specific incident in ServiceNow",
+        "desc": "Find a specific record in the `incident` table using ServiceNow's REST API",
+        "action_code": 5,
+        "action_code_str": "FIND_SINGLE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ServiceNow",
+            "short_desc": "Connection to ServiceNow",
+            "desc": "The connection to the ServiceNow server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "snrests-demo",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "snrests-demo1",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/find-single-incident/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/find-single-incident/exec"
+      },
+      {
+        "app": "ServiceNow",
+        "action": "find-incidents",
+        "path": "/tables/incident",
+        "display_name": "Find Matching Incidents",
+        "short_desc": "Find incident records in ServiceNow",
+        "desc": "Find records in the `incident` table using ServiceNow's REST API",
+        "action_code": 4,
+        "action_code_str": "FIND",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ServiceNow",
+            "short_desc": "Connection to ServiceNow",
+            "desc": "The connection to the ServiceNow server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "snrests-demo",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "snrests-demo1",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/find-incidents/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/find-incidents/exec"
+      },
+      {
+        "app": "ServiceNow",
+        "action": "update-incidents",
+        "path": "/tables/incident",
+        "display_name": "Update Incidents",
+        "short_desc": "Update incident records in ServiceNow",
+        "desc": "Update records in the `incident` table using ServiceNow's REST API",
+        "action_code": 8,
+        "action_code_str": "UPDATE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ServiceNow",
+            "short_desc": "Connection to ServiceNow",
+            "desc": "The connection to the ServiceNow server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "snrests-demo",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "snrests-demo1",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/update-incidents/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/update-incidents/exec"
+      },
+      {
+        "app": "ServiceNow",
+        "action": "delete-incidents",
+        "path": "/tables/incident",
+        "display_name": "Delete Incidents",
+        "short_desc": "Delete incident records in ServiceNow",
+        "desc": "Delete records in the `incident` table using ServiceNow's REST API",
+        "action_code": 9,
+        "action_code_str": "DELETE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ServiceNow",
+            "short_desc": "Connection to ServiceNow",
+            "desc": "The connection to the ServiceNow server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "snrests-demo",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "snrests-demo1",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/delete-incidents/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/delete-incidents/exec"
+      },
+      {
+        "app": "ServiceNow",
+        "action": "create-record",
+        "path": "/tables/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the ServiceNow table",
+            "desc": "The name of the ServiceNow table, ex: `incident`",
+            "example_value": "incident"
+          }
+        },
+        "display_name": "Create Record",
+        "short_desc": "Create a record in a ServiceNow table",
+        "desc": "Create a record in a ServiceNow table using ServiceNow's REST API",
+        "action_code": 6,
+        "action_code_str": "CREATE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ServiceNow",
+            "short_desc": "Connection to ServiceNow",
+            "desc": "The connection to the ServiceNow server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "snrests-demo",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "snrests-demo1",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the ServiceNow table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/create-record/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/create-record/exec"
+      },
+      {
+        "app": "ServiceNow",
+        "action": "find-single-record",
+        "path": "/tables/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the ServiceNow table",
+            "desc": "The name of the ServiceNow table, ex: `incident`",
+            "example_value": "incident"
+          }
+        },
+        "display_name": "Find Single Record",
+        "short_desc": "Find a specific record in ServiceNow",
+        "desc": "Find a specific record in a ServiceNow table using ServiceNow's REST API",
+        "action_code": 5,
+        "action_code_str": "FIND_SINGLE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ServiceNow",
+            "short_desc": "Connection to ServiceNow",
+            "desc": "The connection to the ServiceNow server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "snrests-demo",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "snrests-demo1",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the ServiceNow table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/find-single-record/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/find-single-record/exec"
+      },
+      {
+        "app": "ServiceNow",
+        "action": "find-records",
+        "path": "/tables/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the ServiceNow table",
+            "desc": "The name of the ServiceNow table, ex: `incident`",
+            "example_value": "incident"
+          }
+        },
+        "display_name": "Find Records",
+        "short_desc": "Find records in ServiceNow",
+        "desc": "Find records in a ServiceNow table using ServiceNow's REST API",
+        "action_code": 4,
+        "action_code_str": "FIND",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ServiceNow",
+            "short_desc": "Connection to ServiceNow",
+            "desc": "The connection to the ServiceNow server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "snrests-demo",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "snrests-demo1",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the ServiceNow table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/find-records/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/find-records/exec"
+      },
+      {
+        "app": "ServiceNow",
+        "action": "update-records",
+        "path": "/tables/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the ServiceNow table",
+            "desc": "The name of the ServiceNow table, ex: `incident`",
+            "example_value": "incident"
+          }
+        },
+        "display_name": "Update Records",
+        "short_desc": "Update records in ServiceNow",
+        "desc": "Update records in a ServiceNow table using ServiceNow's REST API",
+        "action_code": 8,
+        "action_code_str": "UPDATE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ServiceNow",
+            "short_desc": "Connection to ServiceNow",
+            "desc": "The connection to the ServiceNow server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "snrests-demo",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "snrests-demo1",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the ServiceNow table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/update-records/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/update-records/exec"
+      },
+      {
+        "app": "ServiceNow",
+        "action": "delete-records",
+        "path": "/tables/{table}",
+        "path_vars": {
+          "table": {
+            "display_name": "Table",
+            "short_desc": "The name of the ServiceNow table",
+            "desc": "The name of the ServiceNow table, ex: `incident`",
+            "example_value": "incident"
+          }
+        },
+        "display_name": "Delete Records",
+        "short_desc": "Delete records in ServiceNow",
+        "desc": "Delete records in a ServiceNow table using ServiceNow's REST API",
+        "action_code": 9,
+        "action_code_str": "DELETE",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to ServiceNow",
+            "short_desc": "Connection to ServiceNow",
+            "desc": "The connection to the ServiceNow server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "snrests-demo",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              },
+              {
+                "value": "snrests-demo1",
+                "desc": "Connection to \"ServiceNow\"",
+                "messages": [
+                  {
+                    "title": "Connection Error",
+                    "content": "SOCKET-SSL-ERROR: error in Socket::read(): SSL_read(): error:0A000126:SSL routines::unexpected eof while reading",
+                    "intent": "danger"
+                  }
+                ],
+                "intent": "danger",
+                "disabled": true
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "table": {
+            "type": "string",
+            "required": true,
+            "display_name": "Table",
+            "short_desc": "The name of the ServiceNow table",
+            "desc": "The \"table\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/delete-records/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/ServiceNow/actions/delete-records/exec"
+      }
+    ],
+    "connections": ["snrests-demo", "snrests-demo1"]
+  },
+  {
+    "name": "SOAP",
+    "display_name": "SOAP Server",
+    "short_desc": "SOAP server for SOAP API calls",
+    "desc": "SOAP server for SOAP API calls",
+    "scheme": "soap",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/SOAP/generic-soap-logo.svg",
+    "logo_file_name": "generic-soap-logo.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": false,
+    "actions": [
+      {
+        "app": "SOAP",
+        "action": "call-soap-api",
+        "path": "/{api}",
+        "path_vars": {
+          "api": {
+            "display_name": "API",
+            "short_desc": "The SOAP operation to call",
+            "desc": "The SOAP operation to call"
+          }
+        },
+        "display_name": "Call SOAP API",
+        "short_desc": "Call a SOAP API",
+        "desc": "Call a SOAP API",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to SOAP Server",
+            "short_desc": "Connection to SOAP Server",
+            "desc": "The connection to the SOAP Server server supporting the action",
+            "required": true,
+            "allowed_values": [
+              {
+                "value": "soap-wincash-dbod",
+                "desc": "Connection to \"SOAP Server\""
+              }
+            ],
+            "has_dependents": true,
+            "sort": 1
+          },
+          "api": {
+            "type": "string",
+            "required": true,
+            "display_name": "API",
+            "short_desc": "The SOAP operation to call",
+            "desc": "The \"api\" value to use",
+            "depends_on": ["qorus_app_connection"],
+            "sort": 2
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/SOAP/actions/call-soap-api/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/SOAP/actions/call-soap-api/exec"
+      }
+    ],
+    "connections": ["soap-wincash-dbod"]
+  },
+  {
+    "name": "QorusInterfaceObjects",
+    "display_name": "Interfaces",
+    "short_desc": "Qorus interface objects",
+    "desc": "Integration objects in Qorus, such as mappers, pipelines, and class connectors",
+    "scheme": "x",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/QorusInterfaceObjects/qorus-builtin-integration.svg",
+    "logo_file_name": "qorus-builtin-integration.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": true,
+    "actions": [
+      {
+        "app": "QorusInterfaceObjects",
+        "action": "mapper",
+        "path": "/",
+        "display_name": "Mapper",
+        "short_desc": "Apply a mapper",
+        "desc": "Apply a Qorus mapper to perform data transformations",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Interfaces",
+            "short_desc": "Connection to Interfaces",
+            "desc": "The connection to the Interfaces server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusInterfaceObjects/actions/mapper/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusInterfaceObjects/actions/mapper/exec"
+      },
+      {
+        "app": "QorusInterfaceObjects",
+        "action": "pipeline",
+        "path": "/",
+        "display_name": "Pipeline",
+        "short_desc": "Run a data pipeline on input data",
+        "desc": "Run a Qorus data pipeline to process input data according to the pipeline definition",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Interfaces",
+            "short_desc": "Connection to Interfaces",
+            "desc": "The connection to the Interfaces server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusInterfaceObjects/actions/pipeline/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusInterfaceObjects/actions/pipeline/exec"
+      },
+      {
+        "app": "QorusInterfaceObjects",
+        "action": "connector",
+        "path": "/",
+        "display_name": "Class Connector",
+        "short_desc": "Apply a class connector",
+        "desc": "Apply a class connector",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Interfaces",
+            "short_desc": "Connection to Interfaces",
+            "desc": "The connection to the Interfaces server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusInterfaceObjects/actions/connector/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusInterfaceObjects/actions/connector/exec"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "QorusLogicObjects",
+    "display_name": "Logic",
+    "short_desc": "Qorus logic operations",
+    "desc": "Logic objects in Qorus to control the logical flow",
+    "scheme": "x",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/QorusLogicObjects/qorus-builtin-logic.svg",
+    "logo_file_name": "qorus-builtin-logic.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": true,
+    "actions": [
+      {
+        "app": "QorusLogicObjects",
+        "action": "fsm",
+        "path": "/",
+        "display_name": "Flow",
+        "short_desc": "Execute a flow",
+        "desc": "Execute a flow for logical branching",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Logic",
+            "short_desc": "Connection to Logic",
+            "desc": "The connection to the Logic server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/fsm/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/fsm/exec"
+      },
+      {
+        "app": "QorusLogicObjects",
+        "action": "while",
+        "path": "/",
+        "display_name": "While",
+        "short_desc": "While loop",
+        "desc": "Execute one or more actions while a condition is true",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Logic",
+            "short_desc": "Connection to Logic",
+            "desc": "The connection to the Logic server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/while/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/while/exec"
+      },
+      {
+        "app": "QorusLogicObjects",
+        "action": "for",
+        "path": "/",
+        "display_name": "For",
+        "short_desc": "For loop",
+        "desc": "Execute one or more actions in a for loop",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Logic",
+            "short_desc": "Connection to Logic",
+            "desc": "The connection to the Logic server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/for/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/for/exec"
+      },
+      {
+        "app": "QorusLogicObjects",
+        "action": "foreach",
+        "path": "/",
+        "display_name": "Foreach",
+        "short_desc": "Foreach loop",
+        "desc": "Execute one or more actions for each element in a list",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Logic",
+            "short_desc": "Connection to Logic",
+            "desc": "The connection to the Logic server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/foreach/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/foreach/exec"
+      },
+      {
+        "app": "QorusLogicObjects",
+        "action": "if",
+        "path": "/",
+        "display_name": "If",
+        "short_desc": "Execute an if statement",
+        "desc": "Execute an if statement for logical branching",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Logic",
+            "short_desc": "Connection to Logic",
+            "desc": "The connection to the Logic server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/if/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/if/exec"
+      },
+      {
+        "app": "QorusLogicObjects",
+        "action": "transaction",
+        "path": "/",
+        "display_name": "Transaction",
+        "short_desc": "Execute a set of actions in a transaction",
+        "desc": "Execute a set of actions in a transaction; the transaction is automatically committed if the actions execute without any error, and it is automatically rolled back if an uncaught exception is raised",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Logic",
+            "short_desc": "Connection to Logic",
+            "desc": "The connection to the Logic server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/transaction/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusLogicObjects/actions/transaction/exec"
+      }
+    ],
+    "connections": null
+  },
+  {
+    "name": "QorusApiObjects",
+    "display_name": "API",
+    "short_desc": "Qorus API operations",
+    "desc": "Logic objects in Qorus to execute a call or send a message",
+    "scheme": "x",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/QorusApiObjects/qorus-builtin-api.svg",
+    "logo_file_name": "qorus-builtin-api.svg",
+    "logo_mime_type": "image/svg+xml",
+    "builtin": true,
+    "actions": [
+      {
+        "app": "QorusApiObjects",
+        "action": "apicall",
+        "path": "/",
+        "display_name": "Call API",
+        "short_desc": "Call an API and return the result",
+        "desc": "Call and API and return the reult",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to API",
+            "short_desc": "Connection to API",
+            "desc": "The connection to the API server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusApiObjects/actions/apicall/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusApiObjects/actions/apicall/exec"
+      },
+      {
+        "app": "QorusApiObjects",
+        "action": "send-message",
+        "path": "/",
         "display_name": "Send Message",
-        "subtype": "Message",
-        "path": "/chat.postMessage",
-        "path_vars": {
-          "channel": "The ID of the channel",
-          "text": "The message text"
-        },
         "short_desc": "Send a message",
-        "desc": "Sends a message to a channel.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
-      },
-      {
-        "app": "Slack",
-        "action": "GetChannelInfo",
-        "display_name": "Get Channel Info",
-        "subtype": "Channel",
-        "path": "/conversations.info",
-        "path_vars": {
-          "channel": "The ID of the channel"
+        "desc": "Send or broadcast a message",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to API",
+            "short_desc": "Connection to API",
+            "desc": "The connection to the API server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
         },
-        "short_desc": "Get channel info",
-        "desc": "Retrieves information about a conversation.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusApiObjects/actions/send-message/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusApiObjects/actions/send-message/exec"
       }
-    ]
+    ],
+    "connections": null
   },
   {
-    "name": "Trello",
-    "display_name": "Trello",
-    "desc": "Trello is a web-based Kanban-style list-making application developed by Atlassian.",
-    "short_desc": "Kanban-style list-making application",
-    "scheme": "trello",
-    "oauth2_auth_code": true,
-    "icon": "TrelloLine",
-    "logo_file_name": "trello.svg",
+    "name": "QorusDataObjects",
+    "display_name": "Data",
+    "short_desc": "Qorus data operations",
+    "desc": "Data operations in Qorus to work with record-based or record-like data sources",
+    "scheme": "x",
+    "oauth2_auth_code": false,
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/QorusDataObjects/qorus-builtin-data.svg",
+    "logo_file_name": "qorus-builtin-data.svg",
     "logo_mime_type": "image/svg+xml",
-    "oauth2_client": {
-      "oauth2_client_id": "myclientid",
-      "oauth2_client_secret": "myclientsecret",
-      "url_type": "auto",
-      "oauth2_auth_url": "https://trello.com/1/authorize",
-      "oauth2_token_url": "https://trello.com/1/token",
-      "required_options": ["option1", "option2"]
-    },
+    "builtin": true,
     "actions": [
       {
-        "app": "Trello",
-        "action": "CreateCard",
-        "display_name": "Create Card",
-        "subtype": "Card",
-        "path": "/1/cards",
-        "path_vars": {
-          "name": "The name of the card",
-          "idList": "The ID of the list to add the card to"
+        "app": "QorusDataObjects",
+        "action": "search-single",
+        "path": "/",
+        "display_name": "Single Search",
+        "short_desc": "Search for a single record",
+        "desc": "Search for a single record using search criteria.  If the search criteria return more than one record, an error will be raised",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Data",
+            "short_desc": "Connection to Data",
+            "desc": "The connection to the Data server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
         },
-        "short_desc": "Create a new card",
-        "desc": "Creates a new card on the specified list.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusDataObjects/actions/search-single/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusDataObjects/actions/search-single/exec"
       },
       {
-        "app": "Trello",
-        "action": "GetBoard",
-        "display_name": "Get Board",
-        "subtype": "Board",
-        "path": "/1/boards/{id}",
-        "path_vars": {
-          "id": "The ID of the board"
+        "app": "QorusDataObjects",
+        "action": "search",
+        "path": "/",
+        "display_name": "Search",
+        "short_desc": "Search for all matching records",
+        "desc": "Search for all records matching the given search criteria",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Data",
+            "short_desc": "Connection to Data",
+            "desc": "The connection to the Data server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
         },
-        "short_desc": "Get a board",
-        "desc": "Gets a board by the specified ID.",
-        "action_code": 200,
-        "action_code_str": "OK",
-        "action_val": "message"
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusDataObjects/actions/search/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusDataObjects/actions/search/exec"
+      },
+      {
+        "app": "QorusDataObjects",
+        "action": "update",
+        "path": "/",
+        "display_name": "Update",
+        "short_desc": "Update all matching records",
+        "desc": "Update all records matching the given search criteria",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Data",
+            "short_desc": "Connection to Data",
+            "desc": "The connection to the Data server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusDataObjects/actions/update/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusDataObjects/actions/update/exec"
+      },
+      {
+        "app": "QorusDataObjects",
+        "action": "create",
+        "path": "/",
+        "display_name": "Create",
+        "short_desc": "Create one or more records",
+        "desc": "Create one or more records",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Data",
+            "short_desc": "Connection to Data",
+            "desc": "The connection to the Data server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusDataObjects/actions/create/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusDataObjects/actions/create/exec"
+      },
+      {
+        "app": "QorusDataObjects",
+        "action": "delete",
+        "path": "/",
+        "display_name": "Delete",
+        "short_desc": "Delete matching records",
+        "desc": "Update all records matching the given search criteria",
+        "action_code": 2,
+        "action_code_str": "API",
+        "options": {
+          "qorus_app_connection": {
+            "type": "connection",
+            "display_name": "Connection to Data",
+            "short_desc": "Connection to Data",
+            "desc": "The connection to the Data server supporting the action",
+            "required": true,
+            "allowed_values": null,
+            "sort": 1
+          }
+        },
+        "options_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusDataObjects/actions/delete/getOptions",
+        "exec_url": "https://hq.qoretechnologies.com:8092/api/latest/dataprovider/apps/QorusDataObjects/actions/delete/exec"
       }
-    ]
+    ],
+    "connections": null
   }
 ]

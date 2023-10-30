@@ -1,15 +1,15 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { waitFor, within } from '@storybook/testing-library';
-import { Qodex } from '../../containers/InterfaceCreator/qodex';
+import { Qodex } from '../../../containers/InterfaceCreator/qodex';
 import {
   _testsClickState,
   _testsDoubleClickState,
   _testsOpenAppCatalogue,
   _testsSelectAppOrAction,
   sleep,
-} from '../Tests/utils';
-import { StoryMeta } from '../types';
+} from '../../Tests/utils';
+import { StoryMeta } from '../../types';
 
 const meta = {
   component: Qodex,

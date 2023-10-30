@@ -212,6 +212,7 @@ export const QodexAppActionOptions = memo(
         <Options
           flat
           zoomable
+          padded={false}
           label={undefined}
           badge={undefined}
           allowTemplates={false}

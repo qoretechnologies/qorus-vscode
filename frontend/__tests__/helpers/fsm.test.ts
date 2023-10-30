@@ -1,6 +1,13 @@
 import { cloneDeep, size } from 'lodash';
+import { IApp } from '../../src/components/AppCatalogue';
 import { IFSMStates } from '../../src/containers/InterfaceCreator/fsm';
-import { IGrid, autoAlign, checkOverlap, removeAllStatesWithVariable } from '../../src/helpers/fsm';
+import {
+  IGrid,
+  autoAlign,
+  checkOverlap,
+  getAppAndAction,
+  removeAllStatesWithVariable,
+} from '../../src/helpers/fsm';
 import OndewoFSM from '../../src/stories/Data/fsm.json';
 import multipleVariableStates from '../../src/stories/Data/multipleVariablesFsm.json';
 import multipleStatesInMultipleRows from './json/fsmMultipleStatesInMultipleRows.json';
@@ -193,4 +200,79 @@ test.skip('it should return true if 2 states are overlapping', () => {
   overlapping = checkOverlap(nonOverlappingStates);
 
   expect(overlapping).toBe(false);
+});
+
+describe('getAppAndAction', () => {
+  let apps: IApp[];
+
+  beforeEach(() => {
+    apps = [
+      {
+        name: 'app1',
+        display_name: 'App 1',
+        short_desc: 'Description of App 1',
+        actions: [
+          {
+            app: 'app1',
+            action: 'action1',
+            display_name: 'Action 1',
+            short_desc: 'Description of Action 1',
+          },
+          {
+            app: 'app1',
+            action: 'action2',
+            display_name: 'Action 2',
+            short_desc: 'Description of Action 2',
+          },
+        ],
+      },
+      {
+        name: 'app2',
+        display_name: 'App 2',
+        short_desc: 'Description of App 2',
+        actions: [
+          {
+            app: 'app2',
+            action: 'action3',
+            display_name: 'Action 3',
+            short_desc: 'Description of Action 3',
+          },
+          {
+            app: 'app2',
+            action: 'action4',
+            display_name: 'Action 4',
+            short_desc: 'Description of Action 4',
+          },
+        ],
+      },
+    ];
+  });
+
+  it('should return the correct app and action when both are specified', () => {
+    const result = getAppAndAction(apps, 'app1', 'action1');
+    expect(result.app.name).toEqual('app1');
+    expect(result.action.action).toEqual('action1');
+  });
+
+  it('should return the correct app when only the app name is specified', () => {
+    const result = getAppAndAction(apps, 'app2');
+    expect(result.app.name).toEqual('app2');
+  });
+
+  it('should return undefined for the action when only the app name is specified', () => {
+    const result = getAppAndAction(apps, 'app2');
+    expect(result.action).toBeUndefined();
+  });
+
+  it('should return undefined for both the app and action when the app name is not found', () => {
+    const result = getAppAndAction(apps, 'app3', 'action1');
+    expect(result.app).toBeUndefined();
+    expect(result.action).toBeUndefined();
+  });
+
+  it('should return undefined for the action when the action name is not found', () => {
+    const result = getAppAndAction(apps, 'app1', 'action3');
+    expect(result.app.name).toEqual('app1');
+    expect(result.action).toBeUndefined();
+  });
 });
