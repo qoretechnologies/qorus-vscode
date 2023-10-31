@@ -17,7 +17,7 @@ import size from 'lodash/size';
 import React, { memo, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { IApp } from '../../../components/AppCatalogue';
-import { NegativeColorEffect, PositiveColorEffect } from '../../../components/Field/multiPair';
+import { NegativeColorEffect, SaveColorEffect } from '../../../components/Field/multiPair';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
@@ -502,7 +502,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           {
             gradient: {
               ...stateColor,
-              borderColor: !isValid ? 'danger' : stateColor.borderColor,
+              borderColor: !isValid ? 'danger' : `${stateColor.borderColor}:lighten`,
               animate: isCompatible || isInSelectedList ? 'always' : 'hover',
             },
             glow: isCompatible
@@ -544,11 +544,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
         badge={
           !!(initial || isIsolated || final)
             ? {
-                effect: initial
-                  ? PositiveColorEffect
-                  : isIsolated
-                  ? NegativeColorEffect
-                  : undefined,
+                effect: initial ? SaveColorEffect : isIsolated ? NegativeColorEffect : undefined,
                 icon: initial ? 'PlayLine' : isIsolated ? 'ErrorWarningFill' : undefined,
                 tooltip: !isValid ? 'This state is invalid and needs to be fixed' : undefined,
               }

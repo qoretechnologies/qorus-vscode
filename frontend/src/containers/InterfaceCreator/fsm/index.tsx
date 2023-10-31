@@ -24,6 +24,7 @@ import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled, { css, keyframes } from 'styled-components';
+import { password, username } from '../../../common/vscode';
 import { IApp } from '../../../components/AppCatalogue';
 import Content from '../../../components/Content';
 import { DragSelectArea } from '../../../components/DragSelectArea';
@@ -77,6 +78,7 @@ import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
 import withMessageHandler, { postMessage } from '../../../hocomponents/withMessageHandler';
+import { useInternalWebSocket } from '../../../hooks/useInternalWebSocket';
 import { useMoveByDragging } from '../../../hooks/useMoveByDragging';
 import TinyGrid from '../../../images/graphy-dark.png';
 import { AppSelector } from './AppSelector';
@@ -549,6 +551,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     },
     zoom
   );
+
+  const webSocketData = useInternalWebSocket(
+    `wss://hq.qoretechnologies.com:8092/creator?username=${username}&password=${password}`
+  );
+
+  console.log('webSocketData', webSocketData);
 
   const getStateName = (item, id) => {
     // If the state is an FSM user has to select it as the name of the state

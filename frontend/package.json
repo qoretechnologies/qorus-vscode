@@ -84,6 +84,7 @@
     "react-refresh": "^0.11.0",
     "react-scrollbar": "^0.5.6",
     "react-use": "^15.3.4",
+    "react-use-websocket": "^4.5.0",
     "recompose": "^0.30.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",

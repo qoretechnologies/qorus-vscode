@@ -184,6 +184,28 @@ function AutoField<T = any>({
       currentType = currentType.slice(0, pos);
     }
 
+    // if (currentType === 'connection') {
+    //   return (
+    //     <>
+    //       <ReqoreButton
+    //         label="Authorize connection"
+    //         onClick={() => {
+    //           const openedWindow = window.open(
+    //             'http://127.0.0.1:6006/',
+    //             '_blank',
+    //             'width=500,height=500'
+    //           );
+    //           // Watch for the window to change its location
+    //           const interval = setInterval(() => {
+    //             console.log(openedWindow);
+    //           }, 1000);
+    //         }}
+    //       />
+    //       <a href="https://google.com">Go to google</a>
+    //     </>
+    //   );
+    // }
+
     if (rest.allowed_values && currentType !== 'enum') {
       return (
         <SelectField
