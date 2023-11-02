@@ -3,14 +3,16 @@ import { IReqoreDropdownProps } from '@qoretechnologies/reqore/dist/components/D
 import { IReqoreTextareaProps } from '@qoretechnologies/reqore/dist/components/Textarea';
 import { map, reduce, size } from 'lodash';
 import { memo, useCallback, useEffect, useState } from 'react';
-import { useDebounce } from 'react-use';
+import { useDebounce, useUpdateEffect } from 'react-use';
 import { TFSMStateAction } from '.';
+import { password, username } from '../../../common/vscode';
 import { IApp, IAppAction } from '../../../components/AppCatalogue';
 import Options, { IOptions, IOptionsSchema } from '../../../components/Field/systemOptions';
 import { getAppAndAction } from '../../../helpers/fsm';
 import { fetchData } from '../../../helpers/functions';
 import { useFetchActionOptions } from '../../../hooks/useFetchActionOptions';
 import { useGetAppActionData } from '../../../hooks/useGetAppActionData';
+import { useInternalWebSocket } from '../../../hooks/useInternalWebSocket';
 import { useWhyDidYouUpdate } from '../../../hooks/useWhyDidYouUpdate';
 
 export interface IQodexAppActionOptionsProps {
@@ -64,7 +66,7 @@ export const QodexAppActionOptions = memo(
       [value]
     );
 
-    useEffect(() => {
+    useUpdateEffect(() => {
       setValue(outsideValue);
     }, [JSON.stringify(outsideValue)]);
 
@@ -121,7 +123,30 @@ export const QodexAppActionOptions = memo(
       },
     });
 
+    const webSocket = useInternalWebSocket(
+      `wss://hq.qoretechnologies.com:8092/creator?username=${username}&password=${password}`,
+      {
+        onMessage: (message) => {
+          const data = JSON.parse(message.data);
+
+          if (data.event === 'SUBSCRIPTION-EVENT' && data.info?.event_id === 'CONNECTION_UPDATED') {
+            load();
+          }
+          console.log(message);
+        },
+        onOpen: () => {
+          webSocket?.sendMessage(
+            JSON.stringify({ event: 'SUBSCRIBE', args: { matchEvent: 'CONNECTION_UPDATED' } })
+          );
+        },
+      }
+    );
+
     const fetchTemplates = useCallback(async () => {
+      if (!size(connectedStates)) {
+        return;
+      }
+
       setLoadingTemplates(true);
 
       // Set the initial templates
@@ -153,7 +178,7 @@ export const QodexAppActionOptions = memo(
 
         setTemplates(buildTemplates(data));
       }
-    }, [connectedStates]);
+    }, [JSON.stringify(connectedStates)]);
 
     const handleDependableOptionChange = useCallback((name, value, options) => {
       load({
@@ -216,7 +241,6 @@ export const QodexAppActionOptions = memo(
           label={undefined}
           badge={undefined}
           allowTemplates={false}
-          key={JSON.stringify(options)}
           options={options}
           value={value}
           onDependableOptionChange={handleDependableOptionChange}

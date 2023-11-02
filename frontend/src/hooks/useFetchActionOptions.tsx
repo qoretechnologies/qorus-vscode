@@ -1,5 +1,4 @@
-import { useCallback, useState } from 'react';
-import { useMount } from 'react-use';
+import { useCallback, useEffect, useState } from 'react';
 import { IAppAction } from '../components/AppCatalogue';
 import { IOptions, IOptionsSchema } from '../components/Field/systemOptions';
 import { fetchData } from '../helpers/functions';
@@ -24,6 +23,7 @@ export const useFetchActionOptions = ({
 
   const load = useCallback(
     async (customValue?: IOptions) => {
+      console.log('-----> LOADING', customValue);
       onStart?.();
       setLoading(true);
 
@@ -48,14 +48,15 @@ export const useFetchActionOptions = ({
         return result;
       }
     },
-    [action, options]
+    [action.options_url, JSON.stringify(options)]
   );
 
-  useMount(() => {
+  useEffect(() => {
     if (loadOnMount) {
+      console.log('-----> LOADING ON MOUNT');
       load();
     }
-  });
+  }, []);
 
   return {
     loading,

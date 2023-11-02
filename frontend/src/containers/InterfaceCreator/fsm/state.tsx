@@ -98,10 +98,6 @@ const StyledFSMState: React.FC<
 > = styled(ReqorePanel)`
   transition: none !important;
 
-  .reqore-panel-title {
-    padding-bottom: 0;
-  }
-
   ${({ isStatic }) =>
     !isStatic
       ? css`

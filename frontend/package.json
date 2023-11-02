@@ -97,7 +97,7 @@
     "shortid": "^2.2.15",
     "source-map-loader": "^3.0.0",
     "style-loader": "^3.3.1",
-    "styled-components": "^4.2.0",
+    "styled-components": "5.3.6",
     "stylis": "^3.5.4",
     "swagger-object-validator": "^1.1.7",
     "tailwindcss": "^3.0.2",

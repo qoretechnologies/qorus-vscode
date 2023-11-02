@@ -1,6 +1,7 @@
 import { ReqoreButton, ReqoreMessage } from '@qoretechnologies/reqore';
 import { get, map, set } from 'lodash';
 import { useEffect, useState } from 'react';
+import { useUnmount } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import { IField } from '../../components/FieldWrapper';
 import {
@@ -10,6 +11,7 @@ import {
   validateField,
 } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
+import { ConnectionManagement } from '../ConnectionManagement';
 import SubField from '../SubField';
 import BooleanField from './boolean';
 import ByteSizeField from './byteSize';
@@ -91,6 +93,10 @@ function AutoField<T = any>({
       getValueOrDefaultValue(value, default_value, _canBeNull(internalType)),
       internalType
     );
+  });
+
+  useUnmount(() => {
+    console.log('Unmounting auto field', name);
   });
 
   useEffect(() => {
@@ -527,6 +533,15 @@ function AutoField<T = any>({
           {isSetToNull ? 'Unset null' : 'Set as null'}
         </ReqoreButton>
       )}
+      {type === 'connection' ? (
+        <ConnectionManagement
+          selectedConnection={value}
+          onChange={(value) => handleChange(name, value)}
+          allowedValues={rest.allowed_values}
+          // TODO: Change this to dynamic URL
+          redirectUri="https://hq.qoretechnologies.com:8092/grant"
+        />
+      ) : null}
     </div>
   );
 }

@@ -321,6 +321,10 @@ const Options = ({
   }, [url, qorus_instance, customUrl]);
 
   useUpdateEffect(() => {
+    setOptions(rest.options);
+  }, [rest.options]);
+
+  useUpdateEffect(() => {
     if (operatorsUrl && qorus_instance) {
       (async () => {
         setOperators(undefined);
@@ -375,14 +379,33 @@ const Options = ({
       }
     }
 
-    onChange(name, {
+    const updatedValue: IOptions = {
       ...currentValue,
       [optionName]: {
         ...currentValue[optionName],
         type,
         value: val,
       },
-    });
+    };
+
+    // Check if this option has dependents and if the value has changed
+    // If it has, call the onDependableOptionChange function
+    if (
+      options[optionName].has_dependents &&
+      val !== undefined &&
+      val !== currentValue[optionName]?.value
+    ) {
+      onDependableOptionChange?.(optionName, val, availableOptions, options);
+
+      // We also need to remove the value from all dependants
+      forEach(options, (option, name) => {
+        if (option.depends_on?.includes(optionName)) {
+          updatedValue[name].value = undefined;
+        }
+      });
+    }
+
+    onChange(name, updatedValue);
   };
 
   const handleOperatorChange = (
@@ -510,7 +533,7 @@ const Options = ({
   };
 
   const buildBadges = useCallback((option: IOptionsSchemaArg): IReqorePanelProps['badge'] => {
-    const badges: IReqorePanelProps['badge'] = [getType(option.type)];
+    const badges: IReqorePanelProps['badge'] = [];
 
     if (option.has_dependents) {
       badges.push({
@@ -724,14 +747,6 @@ const Options = ({
                         val,
                         getTypeAndCanBeNull(type, options[optionName].allowed_values).type
                       );
-                    }
-
-                    if (
-                      options[optionName].has_dependents &&
-                      val !== undefined &&
-                      val !== other.value
-                    ) {
-                      onDependableOptionChange?.(optionName, val, availableOptions, options);
                     }
                   }}
                   key={optionName}

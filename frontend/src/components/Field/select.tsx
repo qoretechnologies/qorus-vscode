@@ -33,6 +33,7 @@ import { IOptionsSchemaArg } from './systemOptions';
 
 export interface ISelectFieldItem {
   name?: string;
+  value?: string;
   display_name?: string;
   short_desc?: string;
   disabled?: boolean;
@@ -40,6 +41,11 @@ export interface ISelectFieldItem {
   intent?: TReqoreIntent;
   badge?: IReqorePanelProps['badge'];
   messages?: IOptionsSchemaArg['messages'];
+  metadata?: {
+    [key: string]: any;
+    needs_auth?: boolean;
+    oauth2_auth_code?: boolean;
+  };
 }
 
 export interface ISelectField extends IField {
@@ -297,6 +303,22 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
     onClick: () => handleSelectClick(item),
   }));
 
+  /**
+   * It returns true if any of the items in the data array have a desc property
+   * @param data - The data that we're going to be checking.
+   * @returns A boolean value.
+   */
+  const hasItemsWithDesc = (data: ISelectFieldItem[]) => {
+    return data.some((item) => item.desc || item.short_desc);
+  };
+
+  const hasItemsWithError = (data: ISelectFieldItem[]) => {
+    return data.some(
+      (item) =>
+        item.messages?.find((message) => message.intent === 'danger') || item.metadata?.needs_auth
+    );
+  };
+
   if (autoSelect && filteredItems.length === 1 && !filteredItems[0].disabled) {
     // Automaticaly select the first item
     if (filteredItems[0].name !== value) {
@@ -320,31 +342,28 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
         }
         readOnly
         fixed
-        icon={filteredItems[0].desc ? icon : 'ArrowDownSFill'}
+        icon={
+          filteredItems[0].desc
+            ? icon || (hasItemsWithError(items) ? 'ErrorWarningLine' : undefined)
+            : 'ArrowDownSFill'
+        }
         rightIcon={filteredItems[0].desc ? 'ListUnordered' : undefined}
         effect={{
           gradient: {
-            direction: 'to left',
-            colors: value ? 'info' : 'main',
+            colors: hasItemsWithError(items)
+              ? {
+                  0: value ? 'info' : 'main',
+                  100: 'danger:darken',
+                }
+              : value
+              ? 'info'
+              : 'main',
           },
         }}
         {...rest}
       />
     );
   }
-
-  /**
-   * It returns true if any of the items in the data array have a desc property
-   * @param data - The data that we're going to be checking.
-   * @returns A boolean value.
-   */
-  const hasItemsWithDesc = (data: ISelectFieldItem[]) => {
-    return data.some((item) => item.desc || item.short_desc);
-  };
-
-  const hasItemsWithError = (data: ISelectFieldItem[]) => {
-    return data.some((item) => item.messages?.find((message) => message.intent === 'danger'));
-  };
 
   if (!reference && (!filteredItems || filteredItems.length === 0)) {
     return <ReqoreMessage intent="muted">{t('NoDataAvailable')}</ReqoreMessage>;

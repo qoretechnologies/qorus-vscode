@@ -94,6 +94,18 @@ export const TemplateField = ({
     return null;
   }, [allowTemplates]);
 
+  useUpdateEffect(() => {
+    if (isValueTemplate(value)) {
+      setIsTemplate(true);
+      setTemplateKey(getTemplateKey(value));
+      setTemplateValue(getTemplateValue(value));
+    } else {
+      setIsTemplate(false);
+      setTemplateKey(null);
+      setTemplateValue(null);
+    }
+  }, [value]);
+
   // When template key or template value change run the onChange function
   useUpdateEffect(() => {
     if (templateKey && templateValue) {

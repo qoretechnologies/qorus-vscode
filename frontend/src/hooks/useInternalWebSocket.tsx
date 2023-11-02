@@ -1,6 +1,6 @@
-import useWebSocket from 'react-use-websocket';
+import useWebSocket, { Options } from 'react-use-websocket';
 
-export const useInternalWebSocket = (url: string) => {
+export const useInternalWebSocket = (url: string, options?: Options) => {
   // If this environment supports websockets
   if (window.WebSocket) {
     return {
@@ -9,9 +9,7 @@ export const useInternalWebSocket = (url: string) => {
         {
           share: true,
           heartbeat: true,
-          onError: (e) => {
-            console.log('Error', e);
-          },
+          ...options,
         },
         true
       ),
@@ -19,5 +17,5 @@ export const useInternalWebSocket = (url: string) => {
     };
   }
 
-  return { isWebSocketSupported: false };
+  return undefined;
 };

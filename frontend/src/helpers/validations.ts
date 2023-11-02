@@ -10,6 +10,7 @@ import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { TApiManagerEndpoint } from '../components/Field/apiManager';
 import { IProviderType, maybeBuildOptionProvider } from '../components/Field/connectors';
+import { ISelectFieldItem } from '../components/Field/select';
 import {
   IOptions,
   IOptionsSchema,
@@ -64,13 +65,34 @@ export const validateField: (
     case 'bool':
     case 'boolean':
       return value === true || value === false || value === undefined;
+    case 'connection': {
+      if (!value) {
+        return false;
+      }
+
+      if (field?.allowed_values) {
+        const allowedValue: ISelectFieldItem = field.allowed_values.find(
+          (val) => val.value === value || val.name === value
+        );
+
+        if (!allowedValue) {
+          return false;
+        }
+
+        if (allowedValue.disabled || allowedValue.metadata?.needs_auth) {
+          return false;
+        }
+      }
+
+      return validateField('string', value, field);
+    }
     case 'binary':
     case 'string':
     case 'mapper':
     case 'workflow':
     case 'service':
     case 'job':
-    case 'connection':
+
     case 'softstring':
     case 'select-string':
     case 'file-string':
@@ -541,7 +563,6 @@ export const validateField: (
               optionData.required &&
               (!options?.[option] || !options?.[option]?.value === undefined)
             ) {
-              console.log('YEP', option, 'IS FUCKED!!!!');
               return false;
             }
 
@@ -753,7 +774,7 @@ export const hasAllDependenciesFullfilled = (
   return dependencies.every((dependency) => {
     return options[dependency]
       ? validateField(options[dependency].type, options[dependency].value, {
-          ...optionsSchema,
+          ...optionsSchema[dependency],
           optionsSchema,
         })
       : true;

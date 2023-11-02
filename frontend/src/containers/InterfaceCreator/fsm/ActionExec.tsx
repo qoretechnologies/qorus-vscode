@@ -7,12 +7,13 @@ import {
   ReqoreTree,
 } from '@qoretechnologies/reqore';
 import { size } from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { IOptions } from '../../../components/Field/systemOptions';
 import { fetchData } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import { useFetchActionOptions } from '../../../hooks/useFetchActionOptions';
 import { useGetAppActionData } from '../../../hooks/useGetAppActionData';
+import { useWhyDidYouUpdate } from '../../../hooks/useWhyDidYouUpdate';
 
 export interface IQodexActionExecProps {
   appName: string;
@@ -20,7 +21,7 @@ export interface IQodexActionExecProps {
   options?: IOptions;
 }
 
-export const QodexActionExec = ({ appName, actionName, options }: IQodexActionExecProps) => {
+export const QodexActionExec = memo(({ appName, actionName, options }: IQodexActionExecProps) => {
   const { action } = useGetAppActionData(appName, actionName);
   const [response, setResponse] = useState<any>(undefined);
   const [loadingResponse, setLoading] = useState<boolean>(false);
@@ -30,6 +31,16 @@ export const QodexActionExec = ({ appName, actionName, options }: IQodexActionEx
     onStart: () => {
       setResponse(undefined);
     },
+  });
+
+  useWhyDidYouUpdate('QodexActionExec', {
+    appName,
+    actionName,
+    options,
+    response,
+    loadingResponse,
+    loading,
+    data,
   });
 
   const executeAction = async () => {
@@ -65,7 +76,7 @@ export const QodexActionExec = ({ appName, actionName, options }: IQodexActionEx
     if (areOptionsValid() && action.action_code_str === 'EVENT') {
       executeAction();
     }
-  }, [data]);
+  }, [JSON.stringify(data)]);
 
   return (
     <>
@@ -138,4 +149,4 @@ export const QodexActionExec = ({ appName, actionName, options }: IQodexActionEx
       </ReqorePanel>
     </>
   );
-};
+});
