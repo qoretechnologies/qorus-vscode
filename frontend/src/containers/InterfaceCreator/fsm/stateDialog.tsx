@@ -378,6 +378,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       }
       case 'action': {
         const actionValue = newData.action?.value as TAppAndAction;
+
         return (
           <>
             <QodexAppActionOptions

@@ -1,6 +1,7 @@
 import { cloneDeep, forEach, omit, reduce, size } from 'lodash';
 import { IApp, IAppAction } from '../components/AppCatalogue';
 import { IProviderType } from '../components/Field/connectors';
+import { IOptionsSchema } from '../components/Field/systemOptions';
 import {
   IFSMMetadata,
   IFSMState,
@@ -579,7 +580,8 @@ export const isFSMBlockConfigValid = (data: IFSMState): boolean => {
 export const isFSMActionValid = (
   state: IFSMState,
   actionType: TAction,
-  metadata?: Partial<IFSMMetadata>
+  metadata?: Partial<IFSMMetadata>,
+  optionsSchema?: IOptionsSchema
 ): boolean => {
   switch (actionType) {
     case 'mapper': {
@@ -630,7 +632,7 @@ export const isFSMActionValid = (
       return (
         validateField('string', state.action.value.app) &&
         validateField('string', state.action.value.action) &&
-        validateField('options', state.action.value.options)
+        validateField('options', state.action.value.options, { optionSchema: optionsSchema })
       );
     }
     default: {
@@ -639,7 +641,11 @@ export const isFSMActionValid = (
   }
 };
 
-export const isStateValid = (state: IFSMState, metadata?: Partial<IFSMMetadata>): boolean => {
+export const isStateValid = (
+  state: IFSMState,
+  metadata?: Partial<IFSMMetadata>,
+  optionsSchema?: IOptionsSchema
+): boolean => {
   const blockLogicType = state.type === 'fsm' ? 'fsm' : 'custom';
   const actionType: TAction = state.action?.type || 'none';
 
@@ -661,7 +667,7 @@ export const isStateValid = (state: IFSMState, metadata?: Partial<IFSMMetadata>)
 
   return (
     isFSMNameValid(state.name) &&
-    isFSMActionValid(state, actionType, metadata) &&
+    isFSMActionValid(state, actionType, metadata, optionsSchema) &&
     (!state['input-type'] || validateField('type-selector', state['input-type'])) &&
     (!state['output-type'] || validateField('type-selector', state['output-type']))
   );
@@ -728,7 +734,7 @@ export const getStatesConnectedtoState = (id: string | number, states: IFSMState
   forEach(states, (state, stateId) => {
     const transition = getTransitionByState(states, stateId, id);
 
-    if (transition) {
+    if (transition && !transition.fake) {
       connectedStates[stateId] = state;
     }
   });

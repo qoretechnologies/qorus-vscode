@@ -70,10 +70,7 @@ const preview: Preview = {
   },
   decorators: [
     (Story, context) => (
-      <ReqoreUIProvider
-        options={{ ...context.args.reqoreOptions }}
-        theme={{ intents: { success: '#3a5912' } }}
-      >
+      <ReqoreUIProvider options={{ ...context.args.reqoreOptions }}>
         <StorybookWrapper context={context} Story={Story} />
       </ReqoreUIProvider>
     ),

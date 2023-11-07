@@ -32,8 +32,6 @@ export interface IAppAction {
   exec_options_url?: string;
   exec_url?: string;
   options?: IOptionsSchema;
-  convenience_options?: IOptionsSchema;
-  advanced_options?: IOptionsSchema;
 }
 
 export interface IApp {

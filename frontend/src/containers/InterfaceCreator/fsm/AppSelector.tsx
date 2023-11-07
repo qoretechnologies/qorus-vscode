@@ -152,10 +152,19 @@ export const AppSelector = ({
         <AppCatalogue
           icon="AppsLine"
           sortable={false}
-          image="https://hq.qoretechnologies.com:8092/api/public/apps/QorusApiObjects/qorus-builtin-api.svg"
+          image="https://hq.qoretechnologies.com:8092/api/public/apps/QorusBuiltinApi/qorus-builtin-api.svg"
           apps={builtInApps}
           onActionSelect={(action, app) =>
-            onActionSelect({ ...action, type: action.action as TAction }, app)
+            onActionSelect(
+              {
+                ...action,
+                type:
+                  action.action === 'schedule' || action.action === 'on-demand'
+                    ? 'action'
+                    : (action.action as TAction),
+              },
+              app
+            )
           }
           label="Built in modules"
           onFavoriteClick={handleFavoriteClick}

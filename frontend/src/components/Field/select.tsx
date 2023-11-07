@@ -282,7 +282,7 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
   }
 
   const getItemShortDescription = (itemName: string, defaultDesc: string = '') => {
-    const item = items.find((item) => item.name === itemName);
+    const item = items.find((item) => item.name === itemName || item.value === itemName);
 
     return item?.short_desc || (item?.desc ? 'Hover to see description' : defaultDesc);
   };
@@ -312,10 +312,51 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
     return data.some((item) => item.desc || item.short_desc);
   };
 
+  const hasError = (data: ISelectFieldItem[], value: string) => {
+    if (!value) {
+      return hasItemsWithError(data);
+    }
+
+    const item = data.find((item) => item.name === value);
+
+    return (
+      item?.intent === 'danger' || !!item?.messages?.find((message) => message.intent === 'danger')
+    );
+  };
+
+  const hasWarning = (data: ISelectFieldItem[], value: string) => {
+    if (!value) {
+      return hasItemsWithWarning(data);
+    }
+
+    const item = data.find((item) => item.name === value);
+
+    return (
+      item?.intent === 'warning' ||
+      !!item?.messages?.find((message) => message.intent === 'warning') ||
+      item?.metadata?.needs_auth
+    );
+  };
+
   const hasItemsWithError = (data: ISelectFieldItem[]) => {
     return data.some(
       (item) =>
-        item.messages?.find((message) => message.intent === 'danger') || item.metadata?.needs_auth
+        item.intent === 'danger' || item.messages?.find((message) => message.intent === 'danger')
+    );
+  };
+
+  const hasItemsWithWarning = (data: ISelectFieldItem[]) => {
+    return data.some(
+      (item) =>
+        item.intent === 'warning' ||
+        item.messages?.find((message) => message.intent === 'warning') ||
+        item.metadata?.needs_auth
+    );
+  };
+
+  const getLabel = (items: ISelectFieldItem[], value: string) => {
+    return (
+      items?.find((item) => item.name === value || item.value === value)?.display_name || value
     );
   };
 
@@ -344,20 +385,23 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
         fixed
         icon={
           filteredItems[0].desc
-            ? icon || (hasItemsWithError(items) ? 'ErrorWarningLine' : undefined)
+            ? icon ||
+              (hasError(items, value || filteredItems[0].name) ? 'ErrorWarningLine' : undefined)
             : 'ArrowDownSFill'
         }
         rightIcon={filteredItems[0].desc ? 'ListUnordered' : undefined}
         effect={{
           gradient: {
-            colors: hasItemsWithError(items)
-              ? {
-                  0: value ? 'info' : 'main',
-                  100: 'danger:darken',
-                }
-              : value
-              ? 'info'
-              : 'main',
+            colors: {
+              0: value ? 'info' : 'main',
+              100: hasError(items, value || filteredItems[0].name)
+                ? 'danger:darken'
+                : hasWarning(items, value || filteredItems[0].name)
+                ? 'warning'
+                : value
+                ? 'info'
+                : 'main',
+            },
           },
         }}
         {...rest}
@@ -496,43 +540,36 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
               <ReqoreButton
                 fluid
                 key={value}
-                icon={icon || (hasItemsWithError(items) ? 'ErrorWarningLine' : undefined)}
+                icon={icon || (hasError(items, value) ? 'ErrorWarningLine' : undefined)}
                 rightIcon="ListUnordered"
                 onClick={() => setSelectDialogOpen(true)}
                 description={getItemShortDescription(value, 'Select from available values')}
-                tooltip={
-                  !!getItemDescription(value)
-                    ? {
-                        delay: 300,
-                        content: <ReactMarkdown>{getItemDescription(value)}</ReactMarkdown>,
-                        maxWidth: '50vh',
-                      }
-                    : undefined
-                }
                 disabled={disabled}
                 effect={{
                   gradient: {
                     direction: 'to right',
-                    colors: hasItemsWithError(items)
-                      ? {
-                          0: value ? 'info' : 'main',
-                          100: 'danger:darken',
-                        }
-                      : value
-                      ? 'info'
-                      : 'main',
+                    colors: {
+                      0: value ? 'info' : 'main',
+                      100: hasError(items, value)
+                        ? 'danger:darken'
+                        : hasWarning(items, value)
+                        ? 'warning'
+                        : value
+                        ? 'info'
+                        : 'main',
+                    },
                   },
                 }}
                 className={className}
               >
-                {value ? value : placeholder || t('PleaseSelect')}
+                {value ? getLabel(items, value) : placeholder || t('PleaseSelect')}
               </ReqoreButton>
             ) : asMenu ? (
               <ReqoreMenu>
                 {filteredItems.map((item) => (
                   <ReqoreMenuItem
                     key={item.name}
-                    label={item.name}
+                    label={item.display_name || item.name}
                     className={className}
                     disabled={item.disabled}
                     intent={item.intent}
@@ -571,7 +608,7 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
                   },
                 }}
               >
-                {value ? value : placeholder || t('PleaseSelect')}
+                {value ? getLabel(items, value) : placeholder || t('PleaseSelect')}
               </ReqoreDropdown>
             )}
 

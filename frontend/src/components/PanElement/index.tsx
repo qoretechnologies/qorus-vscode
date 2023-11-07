@@ -376,6 +376,10 @@ export class ElementPan extends React.Component<
       state.scrollY = this.el.scrollTop;
     }
 
+    if (this.props.onPan) {
+      this.props.onPan({ x: this.el.scrollLeft, y: this.el.scrollTop });
+    }
+
     document.getElementById(this.props.id).addEventListener('wheel', this.onWheel);
 
     this.setState(state);

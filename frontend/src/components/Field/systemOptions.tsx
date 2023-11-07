@@ -62,6 +62,10 @@ export const fixOperatorValue = (operator: TOperatorValue): (string | null | und
   return isArray(operator) ? operator : [operator];
 };
 
+export const hasRequiredOptions = (options: IOptionsSchema = {}) => {
+  return !!findKey(options, (option) => option.required);
+};
+
 /* "Fix options to be an object with the correct type." */
 export const fixOptions = (
   value: IOptions = {},
@@ -72,10 +76,10 @@ export const fixOptions = (
 
   // Add missing required options to the fixedValue
   forEach(options, (option, name) => {
-    if (option.preselected || (option.required && !fixedValue[name])) {
+    if (option.preselected || option.value || (option.required && !fixedValue[name])) {
       fixedValue[name] = {
         type: getType(option.type, operators, fixedValue[name]?.op),
-        value: fixedValue[name]?.value || option.default_value,
+        value: fixedValue[name]?.value || option.value || option.default_value,
       };
     }
   });
@@ -141,6 +145,7 @@ export interface IOptionFieldMessage {
 
 export interface IOptionsSchemaArg {
   type: IQorusType | IQorusType[];
+  value?: any;
   default_value?: any;
   required?: boolean;
   preselected?: boolean;
@@ -148,6 +153,9 @@ export interface IOptionsSchemaArg {
   sensitive?: boolean;
   desc?: string;
   arg_schema?: IOptionsSchema;
+
+  app?: string;
+  action?: string;
 
   depends_on?: string[];
   has_dependents?: boolean;
@@ -515,6 +523,11 @@ const Options = ({
   );
 
   const isOptionValid = (optionName: string, type: IQorusType, value: any) => {
+    // If the option is not required and undefined it's valid :)
+    if (!options[optionName].required && (value === undefined || value === '')) {
+      return true;
+    }
+
     return validateField(getType(type), value, {
       has_to_have_value: true,
       ...options[optionName],
@@ -534,6 +547,16 @@ const Options = ({
 
   const buildBadges = useCallback((option: IOptionsSchemaArg): IReqorePanelProps['badge'] => {
     const badges: IReqorePanelProps['badge'] = [];
+
+    if (option.required) {
+      badges.push({
+        icon: 'Asterisk',
+        leftIconProps: {
+          size: 'tiny',
+        },
+        tooltip: t('This option is required'),
+      });
+    }
 
     if (option.has_dependents) {
       badges.push({
@@ -570,7 +593,7 @@ const Options = ({
           size="big"
           iconProps={{
             image:
-              'https://hq.qoretechnologies.com:8092/api/public/apps/QorusApiObjects/qorus-builtin-api.svg',
+              'https://hq.qoretechnologies.com:8092/api/public/apps/QorusBuiltinApi/qorus-builtin-api.svg',
           }}
           labelEffect={{
             uppercase: true,

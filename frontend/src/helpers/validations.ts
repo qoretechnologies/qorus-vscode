@@ -30,7 +30,7 @@ const cron = require('cron-validator');
 export const validateField: (
   type: string | IQorusType,
   value?: any,
-  field?: IField & any,
+  field?: IField & { optionSchema?: IOptionsSchema } & Record<string, any>,
   canBeNull?: boolean
 ) => boolean = (type, value, field, canBeNull) => {
   if (!type) {
@@ -552,7 +552,7 @@ export const validateField: (
 
         if (!options || size(options) === 0) {
           if (!canBeNull) {
-            isValid = false;
+            return false;
           }
         }
 
@@ -576,25 +576,24 @@ export const validateField: (
         }
 
         isValid = every(options, (optionData, option) => {
-          let isOptionValid = true;
-
           if (
             optionSchema?.[option]?.depends_on &&
             !hasAllDependenciesFullfilled(optionSchema[option].depends_on, options, optionSchema)
           ) {
-            isOptionValid = false;
-          }
-
-          isOptionValid =
-            typeof optionData !== 'object'
-              ? validateField(getTypeFromValue(optionData), optionData)
-              : validateField(optionData.type, optionData.value);
-
-          if (!isOptionValid) {
             return false;
           }
 
-          return isValid;
+          if (
+            optionSchema?.[option]?.preselected &&
+            !optionSchema?.[option]?.required &&
+            !optionData.value
+          ) {
+            return true;
+          }
+
+          return typeof optionData !== 'object'
+            ? validateField(getTypeFromValue(optionData), optionData)
+            : validateField(optionData.type, optionData.value);
         });
 
         return isValid;
@@ -775,7 +774,7 @@ export const hasAllDependenciesFullfilled = (
     return options[dependency]
       ? validateField(options[dependency].type, options[dependency].value, {
           ...optionsSchema[dependency],
-          optionsSchema,
+          optionSchema: optionsSchema,
         })
       : true;
   });

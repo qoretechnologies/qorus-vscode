@@ -177,6 +177,59 @@ export const WithValue: StoryObj<typeof SelectField> = {
   },
 };
 
+export const WithValueAndErrors: StoryObj<typeof SelectField> = {
+  args: {
+    value: 'Item 2',
+    defaultItems: [
+      {
+        name: 'Item 1',
+        desc: 'This is item 1',
+        intent: 'danger',
+      },
+      {
+        name: 'Item 2',
+        desc: 'This is item 1',
+      },
+    ],
+  },
+};
+
+export const WithValueAndErrorsSelected: StoryObj<typeof SelectField> = {
+  args: {
+    value: 'Item 1',
+    defaultItems: [
+      {
+        name: 'Item 1',
+        desc: 'This is item 1',
+        intent: 'danger',
+      },
+      {
+        name: 'Item 2',
+        desc: 'This is item 1',
+      },
+    ],
+  },
+};
+
+export const WithValueAndWarningsSelected: StoryObj<typeof SelectField> = {
+  args: {
+    value: 'Item 1',
+    defaultItems: [
+      {
+        name: 'Item 1',
+        desc: 'This is item 1',
+        metadata: {
+          needs_auth: true,
+        },
+      },
+      {
+        name: 'Item 2',
+        desc: 'This is item 1',
+      },
+    ],
+  },
+};
+
 export const AutoSelect: StoryObj<typeof SelectField> = {
   render: (props) => {
     const [value, setValue] = useState(undefined);

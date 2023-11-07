@@ -6,11 +6,12 @@ import {
   useReqoreProperty,
 } from '@qoretechnologies/reqore';
 import { camelCase, isEqual, reduce, size } from 'lodash';
-import { memo, useContext, useState } from 'react';
+import { memo, useContext, useMemo, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
 import { IFSMMetadata, IFSMState, IFSMStates, TAppAndAction, TFSMVariables } from '.';
 import {
   NegativeColorEffect,
+  PendingColorEffect,
   PositiveColorEffect,
   SaveColorEffect,
   WarningColorEffect,
@@ -24,6 +25,7 @@ import {
   isStateValid,
 } from '../../../helpers/fsm';
 import { postMessage } from '../../../hocomponents/withMessageHandler';
+import { useFetchActionOptions } from '../../../hooks/useFetchActionOptions';
 import { useFetchAutoVarContext } from '../../../hooks/useFetchAutoVarContext';
 import { useGetAppActionData } from '../../../hooks/useGetAppActionData';
 import { EditableMessage } from './LabelEditor';
@@ -63,15 +65,28 @@ export const FSMStateDetail = memo(
     const confirmAction = useReqoreProperty('confirmAction');
     const [dataToSubmit, setDataToSubmit] = useState<IFSMState>(data);
     const [hasSaved, setHasSaved] = useState<boolean>(true);
-    const app = useGetAppActionData((dataToSubmit?.action?.value as TAppAndAction)?.app || null);
-
+    const { app, action } = useGetAppActionData(
+      (dataToSubmit?.action?.value as TAppAndAction)?.app,
+      (dataToSubmit?.action?.value as TAppAndAction)?.action
+    );
     const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>(
       data.fsm ? 'fsm' : 'custom'
     );
     const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
 
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isSubmitLoading, setIsLoading] = useState<boolean>(false);
+
+    console.log(action, dataToSubmit, data);
+
+    const {
+      load,
+      loading,
+      data: optionsSchema,
+    } = useFetchActionOptions({
+      action,
+      options: (dataToSubmit?.action?.value as TAppAndAction)?.options,
+    });
 
     const autoVars = useFetchAutoVarContext(
       dataToSubmit['block-config']?.['data-provider']?.value,
@@ -80,6 +95,7 @@ export const FSMStateDetail = memo(
 
     useUpdateEffect(() => {
       if (!isEqual(data, dataToSubmit)) {
+        load();
         setHasSaved(false);
       }
     }, [dataToSubmit]);
@@ -110,7 +126,9 @@ export const FSMStateDetail = memo(
       return isMetadataHidden && dataToSubmit.type === 'block' && blockLogicType === 'custom';
     };
 
-    const isDataValid = () => {
+    const isLoading = isSubmitLoading || autoVars.loading || loading;
+
+    const isDataValid = useMemo(() => {
       if (
         autoVars.loading ||
         (dataToSubmit['block-type'] === 'transaction' && !size(autoVars.value))
@@ -118,8 +136,12 @@ export const FSMStateDetail = memo(
         return false;
       }
 
-      return isStateValid(dataToSubmit, metadata);
-    };
+      if (isLoading) {
+        return false;
+      }
+
+      return isStateValid(dataToSubmit, metadata, optionsSchema);
+    }, [autoVars.loading, JSON.stringify(dataToSubmit), JSON.stringify(optionsSchema), isLoading]);
 
     return (
       <ReqorePanel
@@ -162,25 +184,31 @@ export const FSMStateDetail = memo(
             onClick: onDelete,
           },
           {
-            label: isCustomBlockFirstPage()
+            label: isLoading
+              ? 'Loading...'
+              : isCustomBlockFirstPage()
               ? t('Next')
               : hasSaved
               ? undefined
-              : !isDataValid()
+              : !isDataValid
               ? 'Fix to save'
               : t('Save action'),
             disabled: isCustomBlockFirstPage()
               ? !isFSMBlockConfigValid(dataToSubmit)
-              : !isDataValid() || isLoading,
+              : !isDataValid || isLoading,
             className: isCustomBlockFirstPage() ? 'state-next-button' : 'state-submit-button',
             id: `state-${camelCase(dataToSubmit?.name)}-submit-button`,
-            icon: !isDataValid() ? 'ErrorWarningLine' : 'CheckLine',
-            effect:
-              isLoading || !isDataValid()
-                ? WarningColorEffect
-                : isCustomBlockFirstPage()
-                ? PositiveColorEffect
-                : SaveColorEffect,
+            icon: isLoading ? 'Loader5Line' : !isDataValid ? 'ErrorWarningLine' : 'CheckLine',
+            leftIconProps: {
+              animation: isLoading ? 'spin' : undefined,
+            },
+            effect: isLoading
+              ? PendingColorEffect
+              : !isDataValid
+              ? WarningColorEffect
+              : isCustomBlockFirstPage()
+              ? PositiveColorEffect
+              : SaveColorEffect,
             show: isCustomBlockFirstPage() || !hasSaved,
             position: 'right',
             responsive: false,

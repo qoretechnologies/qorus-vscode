@@ -18,12 +18,11 @@ export const useFetchActionOptions = ({
   onSuccess,
   loadOnMount,
 }: IUseFetchActionOptionsConfig) => {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(action ? true : false);
   const [data, setData] = useState<IOptionsSchema>(undefined);
 
   const load = useCallback(
     async (customValue?: IOptions) => {
-      console.log('-----> LOADING', customValue);
       onStart?.();
       setLoading(true);
 
@@ -35,11 +34,7 @@ export const useFetchActionOptions = ({
 
       if (response.ok) {
         const { data } = response;
-        const result = {
-          ...data.options,
-          ...(data.convenience_options || {}),
-          ...(data.advanced_options || {}),
-        };
+        const result = data.options;
 
         onSuccess?.(result);
         setData(result);
@@ -48,12 +43,11 @@ export const useFetchActionOptions = ({
         return result;
       }
     },
-    [action.options_url, JSON.stringify(options)]
+    [action?.options_url, JSON.stringify(options)]
   );
 
   useEffect(() => {
     if (loadOnMount) {
-      console.log('-----> LOADING ON MOUNT');
       load();
     }
   }, []);

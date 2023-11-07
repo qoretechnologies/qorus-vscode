@@ -8,6 +8,7 @@ import {
 import {
   IReqoreEffect,
   ReqoreTextEffect,
+  TReqoreEffectColor,
   TReqoreHexColor,
 } from '@qoretechnologies/reqore/dist/components/Effect';
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
@@ -31,7 +32,6 @@ export interface IFSMStateProps extends IFSMState {
   selected?: boolean;
   onDblClick: (id: string) => any;
   onClick: (id: string) => any;
-  onEditClick: (id: string) => any;
   onDeleteClick: (id: string) => any;
   onUpdate: (id: string, data: any) => any;
   onTransitionOrderClick: (id: string) => any;
@@ -50,6 +50,7 @@ export interface IFSMStateProps extends IFSMState {
   isInSelectedList: boolean;
   isBeingDragged?: boolean;
   isValid?: boolean;
+  isActive?: boolean;
 }
 
 export interface IFSMStateStyleProps {
@@ -74,13 +75,22 @@ export const getStateColor = (
   stateType: TStateTypes,
   isInitial?: boolean
 ): IReqoreEffect['gradient'] => {
+  const color: TReqoreEffectColor = isInitial
+    ? 'success'
+    : stateType !== 'action'
+    ? '#6f1977'
+    : 'info';
   return {
     colors: {
-      50: 'main',
-      200: isInitial ? 'success' : stateType !== 'action' ? '#6f1977' : 'info:lighten:2',
+      0: `${color}:darken:2`,
+      50: `${color}:darken`,
+      100: `${color}:lighten`,
     },
-    borderColor: isInitial ? 'success:darken' : stateType !== 'action' ? '#6f1977:darken' : 'info',
-    animate: 'hover',
+    borderColor: isInitial
+      ? 'success:lighten:2'
+      : stateType !== 'action'
+      ? '#6f1977:lighten:2'
+      : 'info',
     animationSpeed: 1,
     direction: 'to right bottom',
   };
@@ -213,7 +223,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
   selected,
   onClick,
   onDblClick,
-  onEditClick,
   onDeleteClick,
   onTransitionOrderClick,
   name,
@@ -243,6 +252,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   variableDescription,
   isBeingDragged,
   isValid,
+  isActive,
   ...rest
 }) => {
   const confirmAction = useReqoreProperty('confirmAction');
@@ -498,16 +508,10 @@ const FSMState: React.FC<IFSMStateProps> = ({
           {
             gradient: {
               ...stateColor,
-              borderColor: !isValid ? 'danger' : `${stateColor.borderColor}:lighten`,
-              animate: isCompatible || isInSelectedList ? 'always' : 'hover',
+              borderColor: !isValid ? 'danger' : `${stateColor.borderColor}`,
+              animate: isActive ? 'always' : 'never',
             },
-            glow: isCompatible
-              ? {
-                  color: selectedState === id ? 'info' : 'success',
-                  size: 5,
-                  blur: 10,
-                }
-              : isBeingDragged
+            glow: isBeingDragged
               ? {
                   color: '#000000',
                   size: 0.1,
@@ -558,19 +562,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
           {
             show: isInSelectedList ? false : 'hover',
             group: [
-              {
-                icon: 'Edit2Line' as IReqoreIconName,
-                disabled: type === 'block' && !qorus_instance,
-                onClick: (e) => {
-                  e?.stopPropagation();
-                  onEditClick?.(id);
-                },
-                minimal: true,
-                flat: true,
-                size: 'small',
-                tooltip: 'Edit action',
-                show: !!onEditClick ? 'hover' : false,
-              },
               {
                 icon: 'DeleteBin4Fill' as IReqoreIconName,
                 onMouseDown: (e) => {
@@ -636,7 +627,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
             },
             {
               item: t('Edit'),
-              onClick: () => onEditClick(id),
               icon: 'EditLine',
               disabled: type === 'block' && !qorus_instance,
               intent: 'warning',
@@ -677,15 +667,11 @@ const FSMState: React.FC<IFSMStateProps> = ({
               wrap
               fixed
               width="100px"
-              color={stateColor.borderColor}
+              minimal
               effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
               label={getStateTypeLabel()}
             />
-            <ReqoreTag
-              wrap
-              color={stateColor.borderColor}
-              label={getStateType({ type, action, id, ...rest }, app)}
-            />
+            <ReqoreTag wrap minimal label={getStateType({ type, action, id, ...rest }, app)} />
           </ReqoreControlGroup>
           {action?.type === 'var-action' ? (
             <ReqoreControlGroup stack fill fluid>
@@ -693,22 +679,18 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 wrap
                 fixed
                 width="100px"
-                color={stateColor.borderColor}
+                minimal
                 effect={{ weight: 'thick', uppercase: true, textSize: 'tiny' }}
                 label="Action type"
               />
-              <ReqoreTag
-                wrap
-                label={(action.value as TVariableActionValue)?.action_type}
-                color={stateColor.borderColor}
-              />
+              <ReqoreTag wrap label={(action.value as TVariableActionValue)?.action_type} minimal />
             </ReqoreControlGroup>
           ) : null}
           <ReqoreTag
             icon="InformationLine"
             size="small"
             wrap
-            color={stateColor.borderColor}
+            minimal
             label={stateActionDescription}
             labelEffect={{
               weight: 'light',

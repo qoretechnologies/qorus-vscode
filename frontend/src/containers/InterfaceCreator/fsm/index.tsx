@@ -133,7 +133,8 @@ export interface IFSMTransition {
   condition?: {
     type: string;
   };
-  language: string;
+  language?: string;
+  fake?: boolean;
   errors?: string[];
   branch?: 'true' | 'false';
 }
@@ -180,6 +181,7 @@ export interface IFSMState {
   corners?: IStateCorners;
   isNew?: boolean;
   isValid?: boolean;
+  is_event_trigger?: boolean;
   position?: {
     x?: number;
     y?: number;
@@ -286,13 +288,14 @@ const StyledFSMLine = styled.path`
       opacity: 0.8;
     `}
 
-  ${({ selected }) =>
-    selected &&
-    css`
-      opacity: 1;
-      stroke-dasharray: 7;
-      animation: ${StyledFSMLineAnimation} 10s linear infinite;
-    `}
+  ${({ selected, fake }) =>
+    selected || fake
+      ? css`
+          opacity: ${fake ? 0.5 : 1};
+          stroke-dasharray: 7;
+          animation: ${StyledFSMLineAnimation} ${fake ? 20 : 10}s linear infinite;
+        `
+      : undefined}
 `;
 
 const StyledLineText = styled.text`
@@ -422,7 +425,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     { [key: string]: boolean } | undefined
   >(undefined);
   const [isReady, setIsReady] = useState<boolean>(embedded || false);
-  const [editingState, setEditingState] = useState<string | null>(null);
   const [editingTransition, setEditingTransition] = useState<
     { stateId: number; index: number }[] | null
   >([]);
@@ -524,10 +526,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
     onSuccess?.(id);
 
-    setActiveState(undefined);
-    setEditingState(undefined);
+    setActiveState(id);
     setEditingTransitionOrder(undefined);
-    setEditingState(id);
   };
 
   useMoveByDragging(
@@ -764,6 +764,23 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     }
   }, [states]);
 
+  useEffect(() => {
+    if (!selectedState) {
+      // Remove fake transitions
+      setStates((cur) => {
+        const newStates = cloneDeep(cur);
+
+        forEach(newStates, (state) => {
+          state.transitions = filter(state.transitions, (transition) => {
+            return !transition.fake;
+          });
+        });
+
+        return newStates;
+      });
+    }
+  }, [selectedState]);
+
   useDebounce(
     () => {
       if (metadata?.['input-type']) {
@@ -793,7 +810,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
     const { transitions } = states[stateId];
 
-    return transitions?.find((transition) => transition.state === targetId);
+    return transitions?.find((transition) => transition.state === targetId && !transition.fake);
   };
 
   // This function gets all the states that do not have any transitions out of them
@@ -1001,10 +1018,41 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     [states, getStateDataForComparison]
   );
 
+  const createFakeTransitionsForState = useCallback(
+    async (stateId) => {
+      const newStates: IFSMStates = cloneDeep(states);
+      // For every state, check if it is available for transition
+      for await (const [id, state] of Object.entries(newStates)) {
+        if (id === stateId) {
+          continue;
+        }
+
+        const isAvailable = await isAvailableForTransition(stateId, id);
+
+        console.log({ isAvailable });
+
+        if (!isAvailable) {
+          continue;
+        }
+
+        newStates[stateId].transitions = [
+          ...(newStates[stateId].transitions || []),
+          {
+            state: id.toString(),
+            fake: true,
+          },
+        ];
+      }
+
+      setStates(newStates);
+    },
+    [states]
+  );
+
   const isAvailableForTransition = useCallback(
     async (stateId: string, targetId: string): Promise<boolean> => {
       // If the target state is an App, we only allow one connection
-      if (states[targetId].action.type === 'action') {
+      if (states[targetId].action?.type === 'action') {
         return size(getStatesConnectedtoState(targetId, states)) === 0;
       }
 
@@ -1124,6 +1172,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
         setSelectedState(null);
       } else {
+        createFakeTransitionsForState(id);
         setSelectedState(id);
       }
     },
@@ -1333,12 +1382,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
     updateHistory(fixedStates);
     setStates(fixedStates);
-    setEditingState(null);
   };
-
-  const handleStateEditClick = useCallback((id: string): void => {
-    setEditingState(id);
-  }, []);
 
   const handleSubmitClick = async () => {
     const fixedMetadata = { ...metadata };
@@ -1615,6 +1659,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               y2: states[transition.state].position.y,
               order: !!transition.errors ? 0 : 1,
               branch: transition.branch,
+              fake: transition.fake,
             };
 
             // Get the transition line path and the locaiton of the target state
@@ -1701,7 +1746,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     });
   };
 
-  const getTransitionColor = (isError, branch) => {
+  const getTransitionColor = (isError, branch, fake) => {
+    if (fake) {
+      return '#2bb8fe';
+    }
+
     if (isError || branch === 'false') {
       return '#d38d8d';
     }
@@ -1713,7 +1762,11 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return '#d7d7d7';
   };
 
-  const getTransitionEndMarker = (isError, branch) => {
+  const getTransitionEndMarker = (isError, branch, fake?: boolean) => {
+    if (fake) {
+      return 'fake';
+    }
+
     if (isError) {
       return 'error';
     }
@@ -1729,7 +1782,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     return isMetadataHidden;
   };
 
-  const handleActivateStateClick = useCallback((id, data) => setActiveState(id), []);
+  const handleActivateStateClick = useCallback((id) => setActiveState(id), []);
 
   const getStatesFromSelectedStates = (): IFSMStates => {
     return reduce(
@@ -1909,7 +1962,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const renderStateDetail = () => {
-    const state = activeState || editingState || editingTransitionOrder;
+    const state = activeState || editingTransitionOrder;
 
     if (!getIsMetadataHidden() || !state || !states[state]) {
       return null;
@@ -1923,7 +1976,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         id={state}
         onClose={() => {
           setActiveState(undefined);
-          setEditingState(undefined);
           setSelectedState(undefined);
           setEditingTransitionOrder(undefined);
         }}
@@ -2526,7 +2578,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           onClick={handleStateClick}
                           onSelect={handleSelectState}
                           onUpdate={updateStateData}
-                          onEditClick={handleStateEditClick}
                           onDeleteClick={handleStateDeleteClick}
                           onMouseEnter={setHoveredState}
                           onMouseLeave={setHoveredState}
@@ -2546,6 +2597,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                             selectedStates[id].fromMouseDown &&
                             size(selectedStates) === 1
                           }
+                          isActive={activeState === id}
                           isAvailableForTransition={isAvailableForTransition}
                           onTransitionOrderClick={handleTransitionOrderClick}
                           onExecutionOrderClick={handleExecutionOrderClick}
@@ -2621,11 +2673,26 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                               fill={getTransitionColor(null, 'false')}
                             />
                           </marker>
+                          <marker
+                            id="arrowheadfake"
+                            markerUnits="userSpaceOnUse"
+                            markerWidth="30"
+                            markerHeight="30"
+                            refX="20"
+                            refY="10"
+                            orient="auto"
+                          >
+                            <path
+                              d="M2,2 L2,20 L20,10 L2,2"
+                              fill={getTransitionColor(undefined, undefined, true)}
+                            />
+                          </marker>
                         </defs>
                         {getTransitions().map(
                           (
                             {
                               state,
+                              fake,
                               targetState,
                               isError,
                               branch,
@@ -2663,11 +2730,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                                     isError ? '-error' : branch ? `-${branch}` : ''
                                   }`}
                                   id={`fsm-transition-${index}`}
-                                  stroke={getTransitionColor(isError, branch)}
+                                  stroke={getTransitionColor(isError, branch, fake)}
                                   strokeWidth={1}
                                   markerEnd={`url(#arrowhead${getTransitionEndMarker(
                                     isError,
-                                    branch
+                                    branch,
+                                    fake
                                   )})`}
                                   d={getTransitionPath(
                                     { side, endSide, ...rest, state, targetState },
@@ -2684,6 +2752,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                                   )}
                                   deselected={hoveredState && hoveredState !== state}
                                   selected={hoveredState === state}
+                                  fake={fake}
                                 />
                                 {showStateIds && (
                                   <StyledLineText

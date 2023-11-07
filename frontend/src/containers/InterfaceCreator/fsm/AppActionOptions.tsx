@@ -41,11 +41,7 @@ export const QodexAppActionOptions = memo(
   }: IQodexAppActionOptionsProps) => {
     const apps = useGetAppActionData();
     const { action } = useGetAppActionData(appName, actionName);
-    const [options, setOptions] = useState<IOptionsSchema>({
-      ...action.options,
-      ...(action.convenience_options || {}),
-      ...(action.advanced_options || {}),
-    });
+    const [options, setOptions] = useState<IOptionsSchema>(action?.options);
     const [loadingTemplates, setLoadingTemplates] = useState<boolean>(true);
     const [templates, setTemplates] = useState<IReqoreTextareaProps['templates']>();
     const [value, setValue] = useState<IOptions>(outsideValue);
@@ -127,12 +123,15 @@ export const QodexAppActionOptions = memo(
       `wss://hq.qoretechnologies.com:8092/creator?username=${username}&password=${password}`,
       {
         onMessage: (message) => {
+          if (message.data === 'pong') {
+            return;
+          }
+
           const data = JSON.parse(message.data);
 
           if (data.event === 'SUBSCRIPTION-EVENT' && data.info?.event_id === 'CONNECTION_UPDATED') {
             load();
           }
-          console.log(message);
         },
         onOpen: () => {
           webSocket?.sendMessage(
@@ -221,7 +220,7 @@ export const QodexAppActionOptions = memo(
               size="big"
               iconProps={{
                 image:
-                  'https://hq.qoretechnologies.com:8092/api/public/apps/QorusApiObjects/qorus-builtin-api.svg',
+                  'https://hq.qoretechnologies.com:8092/api/public/apps/QorusBuiltinApi/qorus-builtin-api.svg',
               }}
               labelEffect={{
                 uppercase: true,

@@ -1,7 +1,6 @@
 import { ReqoreButton, ReqoreMessage } from '@qoretechnologies/reqore';
 import { get, map, set } from 'lodash';
 import { useEffect, useState } from 'react';
-import { useUnmount } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import { IField } from '../../components/FieldWrapper';
 import {
@@ -35,7 +34,11 @@ export interface IAutoFieldProps extends IField {
   defaultType?: IQorusType;
   defaultInternalType?: IQorusType;
   noSoft?: boolean;
+
   allowed_values?: ISelectFieldItem[];
+  app?: string;
+  action?: string;
+
   isConfigItem?: boolean;
   isVariable?: boolean;
   disableSearchOptions?: boolean;
@@ -93,10 +96,6 @@ function AutoField<T = any>({
       getValueOrDefaultValue(value, default_value, _canBeNull(internalType)),
       internalType
     );
-  });
-
-  useUnmount(() => {
-    console.log('Unmounting auto field', name);
   });
 
   useEffect(() => {
@@ -189,28 +188,6 @@ function AutoField<T = any>({
       // Get the type from start to the position of the `<`
       currentType = currentType.slice(0, pos);
     }
-
-    // if (currentType === 'connection') {
-    //   return (
-    //     <>
-    //       <ReqoreButton
-    //         label="Authorize connection"
-    //         onClick={() => {
-    //           const openedWindow = window.open(
-    //             'http://127.0.0.1:6006/',
-    //             '_blank',
-    //             'width=500,height=500'
-    //           );
-    //           // Watch for the window to change its location
-    //           const interval = setInterval(() => {
-    //             console.log(openedWindow);
-    //           }, 1000);
-    //         }}
-    //       />
-    //       <a href="https://google.com">Go to google</a>
-    //     </>
-    //   );
-    // }
 
     if (rest.allowed_values && currentType !== 'enum') {
       return (
@@ -540,6 +517,8 @@ function AutoField<T = any>({
           allowedValues={rest.allowed_values}
           // TODO: Change this to dynamic URL
           redirectUri="https://hq.qoretechnologies.com:8092/grant"
+          app={rest.app}
+          action={rest.action}
         />
       ) : null}
     </div>

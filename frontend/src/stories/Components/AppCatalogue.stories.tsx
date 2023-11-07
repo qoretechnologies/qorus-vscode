@@ -28,7 +28,7 @@ export const Builtin: StoryObj<typeof meta> = {
     apps: typedBuiltInApps,
     icon: 'AppsLine',
     image:
-      'https://hq.qoretechnologies.com:8092/api/public/apps/QorusApiObjects/qorus-builtin-api.svg',
+      'https://hq.qoretechnologies.com:8092/api/public/apps/QorusBuiltinApi/qorus-builtin-api.svg',
     label: 'Built in modules',
   },
 };
