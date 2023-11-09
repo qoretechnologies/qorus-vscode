@@ -425,9 +425,10 @@ export const getTransitionByState = (
   stateId: string | number,
   targetId: string | number
 ): IFSMTransition | null => {
+  console.log({ states }, stateId, targetId);
   const { transitions } = states[stateId];
 
-  return transitions?.find((transition) => transition.state === targetId);
+  return transitions?.find((transition) => transition.state === targetId && !transition.fake);
 };
 
 /* A function that given an object of states with x and y coordinates
@@ -628,7 +629,7 @@ export const isFSMActionValid = (
 
       return validateField('var-action', state?.action?.value, { variableData });
     }
-    case 'action': {
+    case 'appaction': {
       return (
         validateField('string', state.action.value.app) &&
         validateField('string', state.action.value.action) &&
@@ -716,6 +717,8 @@ export const getRecursiveStatesConnectedtoState = (
   forEach(states, (state, stateId) => {
     const transition = getTransitionByState(states, stateId, id);
 
+    console.log({ transition });
+
     if (transition) {
       connectedStates = {
         ...connectedStates,
@@ -733,6 +736,8 @@ export const getStatesConnectedtoState = (id: string | number, states: IFSMState
 
   forEach(states, (state, stateId) => {
     const transition = getTransitionByState(states, stateId, id);
+
+    console.log({ transition });
 
     if (transition && !transition.fake) {
       connectedStates[stateId] = state;
@@ -766,6 +771,10 @@ export const getAppAndAction = (
   appName: string,
   actionName?: string
 ): { app: IApp; action: IAppAction } => {
+  if (!apps || !size(apps)) {
+    return { app: undefined, action: undefined };
+  }
+
   const app = apps.find((a) => a.name === appName);
   const action = app.actions.find((a) => a.action === actionName);
 

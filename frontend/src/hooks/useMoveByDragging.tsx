@@ -17,11 +17,11 @@ export const useMoveByDragging = (
   zoom?: number
 ) => {
   const staticPositions = useRef<Record<string, { x: number; y: number }>>({});
+  const movedFor = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const moveEntities = (x: number, y: number) => {
-    forEach(selectedStates, (stateData, id) => {
+    forEach(selectedStates, (_stateData, id) => {
       const stateRectData = getStateBoundingRect(id);
-      const ref = refs[id];
 
       staticPositions.current[id].x += calculateValueWithZoom(x, zoom);
       staticPositions.current[id].y += calculateValueWithZoom(y, zoom);
@@ -61,8 +61,8 @@ export const useMoveByDragging = (
   };
 
   const handleDragMove = (event) => {
-    const x = event.movementX;
-    const y = event.movementY;
+    let x = event.movementX;
+    let y = event.movementY;
 
     if (!x && !y) {
       return;
@@ -73,6 +73,8 @@ export const useMoveByDragging = (
 
   const handleDragStop = () => {
     onFinish?.();
+
+    movedFor.current = { x: 0, y: 0 };
 
     window.removeEventListener('mousemove', handleDragMove, true);
     window.removeEventListener('mouseup', handleDragStop, true);
@@ -92,6 +94,8 @@ export const useMoveByDragging = (
       }),
       {}
     );
+
+    movedFor.current = { x: 0, y: 0 };
 
     onUpdate(positionedRefs);
     onFinish(true);
@@ -117,6 +121,8 @@ export const useMoveByDragging = (
 
     onStart?.();
 
+    movedFor.current = { x: 0, y: 0 };
+
     window.removeEventListener('mousemove', handleDragMove, true);
     window.addEventListener('mousemove', handleDragMove, true);
     window.addEventListener('mouseup', handleDragStop, true);
@@ -124,7 +130,7 @@ export const useMoveByDragging = (
 
   useEffect(() => {
     if (size(selectedStates)) {
-      forEach(selectedStates, (stateData, id) => {
+      forEach(selectedStates, (_stateData, id) => {
         const state = find(states, (_state, key) => key === id);
 
         if (!state) {
@@ -177,7 +183,7 @@ export const useMoveByDragging = (
       if (size(selectedStates)) {
         Emitter.removeAllListeners('drag-area-move');
 
-        forEach(refs, (ref, id) => {
+        forEach(refs, (ref) => {
           ref.removeEventListener('mousedown', handleDragStart, true);
         });
 

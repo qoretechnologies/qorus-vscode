@@ -172,7 +172,7 @@ export const getStateCategory = (type: string): TStateTypes => {
     return 'api';
   }
 
-  if (type === 'action') {
+  if (type === 'appaction') {
     return 'action';
   }
 
@@ -198,7 +198,7 @@ export const getStateType = ({ type, action, ...rest }: IFSMState, app?: IApp) =
     return '';
   }
 
-  if (action.type === 'action') {
+  if (action.type === 'appaction') {
     return app.display_name;
   }
 
@@ -367,7 +367,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
       return 'variable';
     }
 
-    if (action?.type === 'action') {
+    if (action?.type === 'appaction') {
       return 'app';
     }
 

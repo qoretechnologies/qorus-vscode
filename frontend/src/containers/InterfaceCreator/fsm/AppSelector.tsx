@@ -141,7 +141,7 @@ export const AppSelector = ({
         <AppCatalogue
           apps={apps}
           icon="Apps2Line"
-          onActionSelect={(action, app) => onActionSelect({ ...action, type: 'action' }, app)}
+          onActionSelect={(action, app) => onActionSelect({ ...action, type: 'appaction' }, app)}
           label="Applications"
           favorites={favorites.value}
           onFavoriteClick={handleFavoriteClick}
@@ -160,7 +160,7 @@ export const AppSelector = ({
                 ...action,
                 type:
                   action.action === 'schedule' || action.action === 'on-demand'
-                    ? 'action'
+                    ? 'appaction'
                     : (action.action as TAction),
               },
               app

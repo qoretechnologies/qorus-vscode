@@ -98,8 +98,10 @@ export const QodexAppActionOptions = memo(
                 leftIconProps: {
                   image: app.logo,
                 },
-                items: map(items[stateId], ({ display_name, value }) => ({
+                items: map(items[stateId], ({ display_name, value, example_value, name }) => ({
                   label: display_name,
+                  description: `Example value: ${example_value}`,
+                  badge: name,
                   value,
                 })),
               };
@@ -142,6 +144,8 @@ export const QodexAppActionOptions = memo(
     );
 
     const fetchTemplates = useCallback(async () => {
+      console.log(connectedStates);
+
       if (!size(connectedStates)) {
         return;
       }

@@ -80,6 +80,7 @@ import withMessageHandler, { postMessage } from '../../../hocomponents/withMessa
 import { useMoveByDragging } from '../../../hooks/useMoveByDragging';
 import TinyGrid from '../../../images/graphy-dark.png';
 import { AppSelector } from './AppSelector';
+import { QodexTestRunModal } from './TestRunModal';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMInitialOrderDialog from './initialOrderDialog';
 import FSMState from './state';
@@ -101,7 +102,7 @@ export interface IFSMViewProps {
   fsm?: any;
   metadata?: Partial<IFSMMetadata>;
   setMetadata?: Dispatch<React.SetStateAction<any>>;
-  onHideMetadataClick?: (hidden: boolean) => void;
+  onHideMetadataClick?: () => void;
   isExternalMetadataHidden?: boolean;
   interfaceContext?: {
     target_dir?: string;
@@ -368,7 +369,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   parentStateName = parentStateName?.replace(/ /g, '-');
 
   const fsm = rest?.fsm || init?.fsm;
-  const { addNotification } = useReqore();
+  const { addNotification, addModal } = useReqore();
   const { resetAllInterfaceData }: any = useContext(GlobalContext);
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
   const [interfaceId, setInterfaceId] = useState(null);
@@ -500,6 +501,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           isNew: true,
           isValid: false,
           initial: item.initial,
+          is_event_trigger: item.initial && isQodex,
           name: getStateName(item, maxId),
           desc: item.desc,
           injected: item.injected,
@@ -591,7 +593,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     let valid = true;
 
     forEach(states, (state) => {
-      if (!isStateValid(state, metadata)) {
+      if (state.isValid === false) {
         valid = false;
       }
     });
@@ -600,6 +602,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   };
 
   const areMetadataValid = (): boolean => {
+    if (isQodex) {
+      return validateField('string', metadata.name);
+    }
+
     if (metadata['input-type'] && !validateField('type-selector', metadata['input-type'])) {
       return false;
     }
@@ -678,7 +684,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       setInterfaceId(defaultInterfaceId);
     }
 
-    if (isQodex) {
+    if (isQodex && !size(states)) {
       setIsAddingNewStateAt({ x: 0, y: 0 });
     }
   });
@@ -876,6 +882,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   );
 
   const isTypeCompatible = (position: 'input' | 'output') => {
+    if (isQodex) {
+      return true;
+    }
+
     if (position === 'input' && !inputCompatibility) {
       return true;
     }
@@ -1052,7 +1062,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const isAvailableForTransition = useCallback(
     async (stateId: string, targetId: string): Promise<boolean> => {
       // If the target state is an App, we only allow one connection
-      if (states[targetId].action?.type === 'action') {
+      if (states[targetId].action?.type === 'appaction') {
         return size(getStatesConnectedtoState(targetId, states)) === 0;
       }
 
@@ -1384,11 +1394,48 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     setStates(fixedStates);
   };
 
-  const handleSubmitClick = async () => {
+  const handleSubmitClick = async (testRun?: boolean) => {
     const fixedMetadata = { ...metadata };
 
     if (size(metadata.groups) === 0) {
       delete fixedMetadata.groups;
+    }
+
+    const data = {
+      ...fixedMetadata,
+      desc: metadata.desc || 'No description',
+      states: reduce(
+        states,
+        (newStates, state, id) => ({
+          ...newStates,
+          [id]: omit(state, ['isNew', 'corners', 'width', 'height', 'key', 'keyId', 'isValid']),
+        }),
+        {}
+      ),
+    };
+
+    if (testRun) {
+      delete data.target_dir;
+      delete data['input-type'];
+      delete data['output-type'];
+
+      addModal({
+        minimal: true,
+        icon: 'PlayLine',
+        blur: 3,
+        label: `Test run of ${metadata.name}`,
+        children: (
+          <QodexTestRunModal
+            apps={apps.value}
+            data={{
+              type: 'fsm',
+              ...data,
+            }}
+          />
+        ),
+      });
+
+      return;
     }
 
     const result = await callBackend(
@@ -1399,17 +1446,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         iface_id: interfaceId,
         orig_data: fsm,
         no_data_return: !!onSubmitSuccess,
-        data: {
-          ...fixedMetadata,
-          states: reduce(
-            states,
-            (newStates, state, id) => ({
-              ...newStates,
-              [id]: omit(state, ['isNew', 'corners', 'width', 'height', 'key', 'keyId']),
-            }),
-            {}
-          ),
-        },
+        data,
       },
       t('Saving FSM...')
     );
@@ -1746,7 +1783,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     });
   };
 
-  const getTransitionColor = (isError, branch, fake) => {
+  const getTransitionColor = (isError, branch, fake?: boolean) => {
     if (fake) {
       return '#2bb8fe';
     }
@@ -1937,7 +1974,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                   stateType: action.type,
                   initial: isFirstTriggerState,
                   actionData:
-                    action.type === 'action'
+                    action.type === 'appaction'
                       ? {
                           app: app.name,
                           action: action.action,
@@ -2239,6 +2276,14 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 },
               },
             ],
+          },
+          {
+            label: 'Test run',
+            onClick: () => handleSubmitClick(true),
+            disabled: !isFSMValid(),
+            icon: 'PlayLine',
+            effect: PositiveColorEffect,
+            show: isQodex,
           },
           {
             label: !areMetadataValid() || !isFSMValid() ? 'Fix to publish' : t('Publish'),

@@ -65,7 +65,7 @@ export enum StateTypes {
   for = 'for',
   transaction = 'transaction',
   foreach = 'foreach',
-  action = 'action',
+  appaction = 'appaction',
   connector = 'connector',
   mapper = 'mapper',
   pipeline = 'pipeline',
@@ -202,7 +202,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
       const actionValue = newData.action?.value as TAppAndAction;
 
       handleDataUpdate('action', {
-        type: 'action',
+        type: 'appaction',
         value: {
           ...actionValue,
           [name]: value,
@@ -213,7 +213,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   );
 
   const statesForTemplates = useMemo(() => {
-    return getStatesForTemplates(newData.keyId, otherStates);
+    return getStatesForTemplates(id || newData.keyId, otherStates);
   }, [newData.keyId, JSON.stringify(otherStates)]);
 
   const renderActionField = () => {
@@ -376,7 +376,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
           </>
         );
       }
-      case 'action': {
+      case 'appaction': {
         const actionValue = newData.action?.value as TAppAndAction;
 
         return (

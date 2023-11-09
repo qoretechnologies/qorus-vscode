@@ -2,6 +2,7 @@ import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { waitFor, within } from '@storybook/testing-library';
 import { Qodex } from '../../../containers/InterfaceCreator/qodex';
+import qodex from '../../Data/qodex.json';
 import {
   _testsClickState,
   _testsDoubleClickState,
@@ -28,6 +29,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const New: Story = {};
+export const Existing: Story = {
+  args: {
+    fsm: qodex,
+  },
+};
 export const InitialEvent: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

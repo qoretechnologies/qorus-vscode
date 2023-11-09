@@ -200,7 +200,7 @@ export const FSMStateDetail = memo(
             id: `state-${camelCase(dataToSubmit?.name)}-submit-button`,
             icon: isLoading ? 'Loader5Line' : !isDataValid ? 'ErrorWarningLine' : 'CheckLine',
             leftIconProps: {
-              animation: isLoading ? 'spin' : undefined,
+              animation: isLoading ? 'spin' : isDataValid ? 'heartbeat' : undefined,
             },
             effect: isLoading
               ? PendingColorEffect

@@ -1,0 +1,121 @@
+{
+  "type": "fsm",
+  "name": "Untitled Qodex",
+  "desc": "No description",
+  "states": {
+    "1": {
+      "position": {
+        "x": 1825,
+        "y": 50
+      },
+      "initial": true,
+      "is_event_trigger": true,
+      "name": "Schedule",
+      "desc": "Trigger actions on a specific schedule",
+      "type": "state",
+      "id": "2P3rREB1l",
+      "action": {
+        "type": "appaction",
+        "value": {
+          "app": "QorusTriggers",
+          "action": "schedule",
+          "options": {
+            "minute": {
+              "type": "string",
+              "value": "*/20"
+            },
+            "hour": {
+              "type": "string",
+              "value": "*"
+            },
+            "day": {
+              "type": "string",
+              "value": "*"
+            },
+            "month": {
+              "type": "string",
+              "value": "*"
+            },
+            "wday": {
+              "type": "string",
+              "value": "*"
+            }
+          }
+        }
+      },
+      "transitions": [
+        {
+          "state": "3",
+          "language": "qore"
+        }
+      ]
+    },
+    "2": {
+      "position": {
+        "x": 1814.75,
+        "y": 557.5
+      },
+      "initial": false,
+      "name": "Send Discord Message",
+      "desc": "Send a message to a Discord channel",
+      "type": "state",
+      "id": "1qSA-sVVn",
+      "action": {
+        "type": "appaction",
+        "value": {
+          "app": "Discord",
+          "action": "send-message",
+          "options": {
+            "qorus_app_connection": {
+              "type": "connection",
+              "value": "discord"
+            },
+            "guild": {
+              "type": "string",
+              "value": "Qore Technologies"
+            },
+            "channel": {
+              "type": "string",
+              "value": "api"
+            },
+            "content": {
+              "type": "string",
+              "value": "This Qodex was ran at $data:{1.trigger_time} by $data:{3.discriminator}"
+            }
+          }
+        }
+      }
+    },
+    "3": {
+      "position": {
+        "x": 1800,
+        "y": 324.375
+      },
+      "initial": false,
+      "is_event_trigger": false,
+      "name": "Get User Info",
+      "desc": "Get info about the current user",
+      "type": "state",
+      "id": "ZO2l-u06b",
+      "action": {
+        "type": "appaction",
+        "value": {
+          "app": "Discord",
+          "action": "user-info",
+          "options": {
+            "qorus_app_connection": {
+              "type": "connection",
+              "value": "discord"
+            }
+          }
+        }
+      },
+      "transitions": [
+        {
+          "state": "2",
+          "language": "qore"
+        }
+      ]
+    }
+  }
+}

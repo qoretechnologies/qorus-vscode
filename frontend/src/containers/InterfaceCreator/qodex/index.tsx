@@ -1,5 +1,5 @@
-import { FSMView } from '../fsm';
+import { FSMView, IFSMViewProps } from '../fsm';
 
-export const Qodex = () => {
-  return <FSMView isQodex />;
+export const Qodex = (props: IFSMViewProps) => {
+  return <FSMView {...props} isQodex />;
 };
