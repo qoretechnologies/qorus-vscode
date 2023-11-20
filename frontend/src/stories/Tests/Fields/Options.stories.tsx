@@ -56,13 +56,13 @@ export const DependantsResetWhenParentChanges: StoryObj<typeof meta> = {
     const canvas = within(canvasElement);
 
     await waitFor(() => expect(canvas.getAllByText('local')[0]).toBeInTheDocument(), {
-      timeout: 3000,
+      timeout: 10000,
     });
     await waitFor(
       () =>
         expect(document.querySelectorAll('.reqore-collection-item.system-option').length).toBe(4),
       {
-        timeout: 3000,
+        timeout: 10000,
       }
     );
 

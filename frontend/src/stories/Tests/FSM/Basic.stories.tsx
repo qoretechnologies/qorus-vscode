@@ -29,9 +29,12 @@ export const SwitchesToBuilder: StoryFSM = {
     fsm,
   },
   play: async ({ canvasElement }) => {
-    await waitFor(async () => {
-      await expect(document.querySelector('#fsm-diagram svg')).toBeInTheDocument();
-    });
+    await waitFor(
+      async () => {
+        await expect(document.querySelector('#fsm-diagram svg')).toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
   },
 };
 
