@@ -52,7 +52,7 @@ export const NewVariable: StoryFSM = {
     await waitFor(
       async () => {
         await fireEvent.click(document.querySelector('.provider-selector'));
-        await fireEvent.click(canvas.getAllByText('omquser')[0]);
+        await fireEvent.click(canvas.getAllByText('Omquser')[0]);
       },
       {
         timeout: 15000,

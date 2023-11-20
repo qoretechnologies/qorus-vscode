@@ -153,7 +153,7 @@ export const DisabledItemsWithIntentAndDescriptions: StoryObj<typeof SelectField
     await fireEvent.click(document.querySelector('.reqore-button')!);
 
     await expect(document.querySelector('.reqore-modal')).toBeInTheDocument();
-    await expect(document.querySelectorAll('.reqore-collection-item').length).toBe(2);
+    await expect(document.querySelectorAll('.reqore-collection-item').length).toBe(5);
   },
 };
 

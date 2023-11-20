@@ -177,6 +177,7 @@ export const field = {
       return_value: 'directories',
     },
     on_change: 'target-dir-changed',
+    mandatory: false,
   }),
   targetFile: {
     name: 'target_file',

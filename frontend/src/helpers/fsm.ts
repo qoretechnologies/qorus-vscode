@@ -1,4 +1,4 @@
-import { cloneDeep, forEach, omit, reduce, size } from 'lodash';
+import { cloneDeep, every, forEach, omit, reduce, size } from 'lodash';
 import { IApp, IAppAction } from '../components/AppCatalogue';
 import { IProviderType } from '../components/Field/connectors';
 import { IOptionsSchema } from '../components/Field/systemOptions';
@@ -425,7 +425,6 @@ export const getTransitionByState = (
   stateId: string | number,
   targetId: string | number
 ): IFSMTransition | null => {
-  console.log({ states }, stateId, targetId);
   const { transitions } = states[stateId];
 
   return transitions?.find((transition) => transition.state === targetId && !transition.fake);
@@ -633,7 +632,7 @@ export const isFSMActionValid = (
       return (
         validateField('string', state.action.value.app) &&
         validateField('string', state.action.value.action) &&
-        validateField('options', state.action.value.options, { optionSchema: optionsSchema })
+        validateField('options', state.action.value.options, { optionSchema: optionsSchema }, true)
       );
     }
     default: {
@@ -654,7 +653,9 @@ export const isStateValid = (
     return (
       isFSMNameValid(state.name) &&
       isFSMBlockConfigValid(state) &&
-      (blockLogicType === 'custom' ? size(state.states) !== 0 : validateField('string', state.fsm))
+      (blockLogicType === 'custom'
+        ? size(state.states) !== 0 && every(state.states, (data) => data.isValid)
+        : validateField('string', state.fsm))
     );
   }
 
@@ -717,8 +718,6 @@ export const getRecursiveStatesConnectedtoState = (
   forEach(states, (state, stateId) => {
     const transition = getTransitionByState(states, stateId, id);
 
-    console.log({ transition });
-
     if (transition) {
       connectedStates = {
         ...connectedStates,
@@ -736,8 +735,6 @@ export const getStatesConnectedtoState = (id: string | number, states: IFSMState
 
   forEach(states, (state, stateId) => {
     const transition = getTransitionByState(states, stateId, id);
-
-    console.log({ transition });
 
     if (transition && !transition.fake) {
       connectedStates[stateId] = state;
@@ -776,7 +773,7 @@ export const getAppAndAction = (
   }
 
   const app = apps.find((a) => a.name === appName);
-  const action = app.actions.find((a) => a.action === actionName);
+  const action = app?.actions.find((a) => a.action === actionName);
 
   return { app, action };
 };

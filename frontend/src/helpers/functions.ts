@@ -95,23 +95,17 @@ export const isStateIsolated = (
   states: IFSMStates,
   checkedStates: string[] = []
 ): boolean => {
-  if (states[stateKey].initial) {
+  if (states[stateKey].is_event_trigger) {
     return false;
   }
 
   let isIsolated = true;
 
   forEach(states, (stateData, keyId) => {
-    if (isIsolated) {
-      if (
-        stateData.transitions &&
-        stateData.transitions.find((transition: IFSMTransition) => transition.state === stateKey)
-      ) {
-        // If the state already exists in the list, do not check it again
-        if (!checkedStates.includes(keyId)) {
-          isIsolated = isStateIsolated(keyId, states, [...checkedStates, stateKey]);
-        }
-      }
+    if (
+      stateData.transitions?.find((transition: IFSMTransition) => transition.state === stateKey)
+    ) {
+      isIsolated = false;
     }
   });
 

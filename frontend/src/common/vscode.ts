@@ -1,5 +1,8 @@
+import { Messages } from '../constants/messages';
 import configItems from '../stories/Data/configItems';
+import directories from '../stories/Data/directories.json';
 import items from '../stories/Data/interfaces.json';
+import projectConfig from '../stories/Data/projectConfig.json';
 import { sleep } from '../stories/Tests/utils';
 
 export const username = 'IDETestUser';
@@ -13,6 +16,14 @@ export const vscode =
           let messageData: any;
 
           switch (data.action) {
+            case Messages.CONFIG_GET_DATA: {
+              messageData = {
+                action: Messages.CONFIG_RETURN_DATA,
+                data: projectConfig,
+              };
+
+              break;
+            }
             case 'fetch-data': {
               const { url, method, body, id } = data;
 
@@ -45,6 +56,30 @@ export const vscode =
                 data: items,
                 request_id: data.request_id,
               };
+              break;
+            }
+            case 'creator-get-directories': {
+              messageData = {
+                action: 'creator-return-directories',
+                object_type: data.object_type,
+              };
+
+              switch (data.object_type) {
+                case 'all_dirs': {
+                  messageData = {
+                    action: 'return-all-directories',
+                    object_type: data.object_type,
+                    directories,
+                  };
+
+                  break;
+                }
+                case 'target_dir': {
+                  messageData.directories = directories;
+                  break;
+                }
+              }
+
               break;
             }
             case 'creator-get-objects': {

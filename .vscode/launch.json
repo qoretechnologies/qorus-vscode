@@ -14,6 +14,7 @@
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "preLaunchTask": "npm: watch",
       "localRoot": "../${workspaceFolder}/qorus/",
+      "env": {},
       "debugWebviews": true,
       "sourceMaps": true,
       "trace": true

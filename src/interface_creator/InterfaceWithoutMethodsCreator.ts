@@ -77,6 +77,12 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
         return;
     }
 
+    // Set the target_dir automatically if it hasn't been set by the user
+    // This is new change in 5.0 - the target_dir is set automatically
+    if (!data.target_dir) {
+      data.target_dir = this.code_info.dir_tree[0]?.abs_path;
+    }
+
     this.had_code = iface_kind === 'workflow' ? !!orig_data?.['class-name'] : this.has_code;
 
     this.setPaths(data, orig_data, suffix, iface_kind, recreate, iface_id, edit_type);

@@ -23,6 +23,10 @@ export const useFetchActionOptions = ({
 
   const load = useCallback(
     async (customValue?: IOptions) => {
+      if (!action) {
+        return Promise.resolve(undefined);
+      }
+
       onStart?.();
       setLoading(true);
 

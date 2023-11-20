@@ -1,5 +1,5 @@
 import { StoryObj } from '@storybook/react';
-import { fireEvent, within } from '@storybook/testing-library';
+import { fireEvent } from '@storybook/testing-library';
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { StoryMeta } from '../../types';
@@ -44,19 +44,5 @@ export const SelectionIsRemovedOnClick: StoryFSM = {
 
     await fireEvent.mouseDown(document.querySelector('#fsm-states-wrapper'));
     await fireEvent.mouseUp(document.querySelector('#fsm-states-wrapper'));
-  },
-};
-
-export const SelectionIsRemovedWhenGoingBack: StoryFSM = {
-  args: {
-    fsm,
-  },
-  play: async ({ canvasElement, ...rest }) => {
-    const canvas = within(canvasElement);
-    await StatesCanBeSelected.play({ canvasElement, ...rest });
-
-    await sleep(100);
-
-    await fireEvent.click(canvas.getAllByText('Back')[0]);
   },
 };

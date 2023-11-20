@@ -1,15 +1,15 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
-import { IApp } from '../../../components/AppCatalogue';
-import { QodexActionExec } from '../../../containers/InterfaceCreator/fsm/ActionExec';
-import { AppsContext } from '../../../context/apps';
-import apps from '../../Data/apps.json';
-import { StoryMeta } from '../../types';
+import { IApp } from '../../components/AppCatalogue';
+import { QodexActionExec } from '../../containers/InterfaceCreator/fsm/ActionExec';
+import { AppsContext } from '../../context/apps';
+import apps from '../Data/apps.json';
+import { StoryMeta } from '../types';
 
 const meta = {
   component: QodexActionExec,
-  title: 'Views/Qodex/Action execution',
+  title: 'Views/FSM/Action execution',
   args: {
     reqoreOptions: {
       animations: {

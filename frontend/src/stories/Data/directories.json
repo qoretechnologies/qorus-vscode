@@ -1,0 +1,745 @@
+[
+  {
+    "abs_path": "/workspace/building-blocks/ExcelDataProvider",
+    "rel_path": "ExcelDataProvider",
+    "basename": "ExcelDataProvider",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/ExcelDataProvider/building-blocks",
+        "rel_path": "ExcelDataProvider/building-blocks",
+        "basename": "building-blocks",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/ExcelDataProvider/building-blocks/excel",
+            "rel_path": "ExcelDataProvider/building-blocks/excel",
+            "basename": "excel",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/ExcelDataProvider/building-blocks/excel/jar",
+                "rel_path": "ExcelDataProvider/building-blocks/excel/jar",
+                "basename": "jar",
+                "dirs": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/ExcelDataProvider/java",
+        "rel_path": "ExcelDataProvider/java",
+        "basename": "java",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/ExcelDataProvider/java/org",
+            "rel_path": "ExcelDataProvider/java/org",
+            "basename": "org",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/ExcelDataProvider/java/org/qore",
+                "rel_path": "ExcelDataProvider/java/org/qore",
+                "basename": "qore",
+                "dirs": [
+                  {
+                    "abs_path": "/workspace/building-blocks/ExcelDataProvider/java/org/qore/dataprovider",
+                    "rel_path": "ExcelDataProvider/java/org/qore/dataprovider",
+                    "basename": "dataprovider",
+                    "dirs": [
+                      {
+                        "abs_path": "/workspace/building-blocks/ExcelDataProvider/java/org/qore/dataprovider/excel",
+                        "rel_path": "ExcelDataProvider/java/org/qore/dataprovider/excel",
+                        "basename": "excel",
+                        "dirs": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/ExcelDataProvider/qlib",
+        "rel_path": "ExcelDataProvider/qlib",
+        "basename": "qlib",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/ExcelDataProvider/qlib/ExcelDataProvider",
+            "rel_path": "ExcelDataProvider/qlib/ExcelDataProvider",
+            "basename": "ExcelDataProvider",
+            "dirs": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abs_path": "/workspace/building-blocks/examples",
+    "rel_path": "examples",
+    "basename": "examples",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/examples/HelloWorld",
+        "rel_path": "examples/HelloWorld",
+        "basename": "HelloWorld",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/examples/create-customer-service",
+        "rel_path": "examples/create-customer-service",
+        "basename": "create-customer-service",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/examples/csv-sftp-to-db-import",
+        "rel_path": "examples/csv-sftp-to-db-import",
+        "basename": "csv-sftp-to-db-import",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/examples/csv-sftp-to-db-import/example-files",
+            "rel_path": "examples/csv-sftp-to-db-import/example-files",
+            "basename": "example-files",
+            "dirs": []
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/examples/mqtt-paho",
+        "rel_path": "examples/mqtt-paho",
+        "basename": "mqtt-paho",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/examples/ondewo",
+        "rel_path": "examples/ondewo",
+        "basename": "ondewo",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/examples/service",
+        "rel_path": "examples/service",
+        "basename": "service",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/examples/service/http",
+            "rel_path": "examples/service/http",
+            "basename": "http",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/examples/service/http/websockets",
+                "rel_path": "examples/service/http/websockets",
+                "basename": "websockets",
+                "dirs": [
+                  {
+                    "abs_path": "/workspace/building-blocks/examples/service/http/websockets/public",
+                    "rel_path": "examples/service/http/websockets/public",
+                    "basename": "public",
+                    "dirs": [
+                      {
+                        "abs_path": "/workspace/building-blocks/examples/service/http/websockets/public/css",
+                        "rel_path": "examples/service/http/websockets/public/css",
+                        "basename": "css",
+                        "dirs": []
+                      },
+                      {
+                        "abs_path": "/workspace/building-blocks/examples/service/http/websockets/public/images",
+                        "rel_path": "examples/service/http/websockets/public/images",
+                        "basename": "images",
+                        "dirs": []
+                      },
+                      {
+                        "abs_path": "/workspace/building-blocks/examples/service/http/websockets/public/js",
+                        "rel_path": "examples/service/http/websockets/public/js",
+                        "basename": "js",
+                        "dirs": []
+                      }
+                    ]
+                  },
+                  {
+                    "abs_path": "/workspace/building-blocks/examples/service/http/websockets/saved_model",
+                    "rel_path": "examples/service/http/websockets/saved_model",
+                    "basename": "saved_model",
+                    "dirs": [
+                      {
+                        "abs_path": "/workspace/building-blocks/examples/service/http/websockets/saved_model/variables",
+                        "rel_path": "examples/service/http/websockets/saved_model/variables",
+                        "basename": "variables",
+                        "dirs": []
+                      }
+                    ]
+                  },
+                  {
+                    "abs_path": "/workspace/building-blocks/examples/service/http/websockets/views",
+                    "rel_path": "examples/service/http/websockets/views",
+                    "basename": "views",
+                    "dirs": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abs_path": "/workspace/building-blocks/generic",
+    "rel_path": "generic",
+    "basename": "generic",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/generic/bbm_javaconfig_1_0_class",
+        "rel_path": "generic/bbm_javaconfig_1_0_class",
+        "basename": "bbm_javaconfig_1_0_class",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/generic/dataprovider",
+        "rel_path": "generic/dataprovider",
+        "basename": "dataprovider",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/generic/db",
+        "rel_path": "generic/db",
+        "basename": "db",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/generic/ftp",
+        "rel_path": "generic/ftp",
+        "basename": "ftp",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/generic/ftp/qoretechnologies",
+            "rel_path": "generic/ftp/qoretechnologies",
+            "basename": "qoretechnologies",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/generic/ftp/qoretechnologies/building-blocks",
+                "rel_path": "generic/ftp/qoretechnologies/building-blocks",
+                "basename": "building-blocks",
+                "dirs": [
+                  {
+                    "abs_path": "/workspace/building-blocks/generic/ftp/qoretechnologies/building-blocks/ftp",
+                    "rel_path": "generic/ftp/qoretechnologies/building-blocks/ftp",
+                    "basename": "ftp",
+                    "dirs": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/generic/lib",
+        "rel_path": "generic/lib",
+        "basename": "lib",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/generic/qoretechnologies",
+        "rel_path": "generic/qoretechnologies",
+        "basename": "qoretechnologies",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/generic/qoretechnologies/building-blocks",
+            "rel_path": "generic/qoretechnologies/building-blocks",
+            "basename": "building-blocks",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/generic/qoretechnologies/building-blocks/bind-subworkflow",
+                "rel_path": "generic/qoretechnologies/building-blocks/bind-subworkflow",
+                "basename": "bind-subworkflow",
+                "dirs": []
+              },
+              {
+                "abs_path": "/workspace/building-blocks/generic/qoretechnologies/building-blocks/dataserialization",
+                "rel_path": "generic/qoretechnologies/building-blocks/dataserialization",
+                "basename": "dataserialization",
+                "dirs": []
+              },
+              {
+                "abs_path": "/workspace/building-blocks/generic/qoretechnologies/building-blocks/log",
+                "rel_path": "generic/qoretechnologies/building-blocks/log",
+                "basename": "log",
+                "dirs": []
+              },
+              {
+                "abs_path": "/workspace/building-blocks/generic/qoretechnologies/building-blocks/service-method-caller",
+                "rel_path": "generic/qoretechnologies/building-blocks/service-method-caller",
+                "basename": "service-method-caller",
+                "dirs": []
+              },
+              {
+                "abs_path": "/workspace/building-blocks/generic/qoretechnologies/building-blocks/text-analysis",
+                "rel_path": "generic/qoretechnologies/building-blocks/text-analysis",
+                "basename": "text-analysis",
+                "dirs": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/generic/rest",
+        "rel_path": "generic/rest",
+        "basename": "rest",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/generic/sftp",
+        "rel_path": "generic/sftp",
+        "basename": "sftp",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/generic/sftp/qoretechnologies",
+            "rel_path": "generic/sftp/qoretechnologies",
+            "basename": "qoretechnologies",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/generic/sftp/qoretechnologies/building-blocks",
+                "rel_path": "generic/sftp/qoretechnologies/building-blocks",
+                "basename": "building-blocks",
+                "dirs": [
+                  {
+                    "abs_path": "/workspace/building-blocks/generic/sftp/qoretechnologies/building-blocks/sftp",
+                    "rel_path": "generic/sftp/qoretechnologies/building-blocks/sftp",
+                    "basename": "sftp",
+                    "dirs": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abs_path": "/workspace/building-blocks/job",
+    "rel_path": "job",
+    "basename": "job",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/job/ftp",
+        "rel_path": "job/ftp",
+        "basename": "ftp",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/job/sftp",
+        "rel_path": "job/sftp",
+        "basename": "sftp",
+        "dirs": []
+      }
+    ]
+  },
+  {
+    "abs_path": "/workspace/building-blocks/kafka",
+    "rel_path": "kafka",
+    "basename": "kafka",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/kafka/bbm_kafkaconsumer_1_0_class",
+        "rel_path": "kafka/bbm_kafkaconsumer_1_0_class",
+        "basename": "bbm_kafkaconsumer_1_0_class",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/kafka/bbm_kafkaproducer_1_0_class",
+        "rel_path": "kafka/bbm_kafkaproducer_1_0_class",
+        "basename": "bbm_kafkaproducer_1_0_class",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/kafka/jar",
+        "rel_path": "kafka/jar",
+        "basename": "jar",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/kafka/qoretechnologies",
+        "rel_path": "kafka/qoretechnologies",
+        "basename": "qoretechnologies",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/kafka/qoretechnologies/building-blocks",
+            "rel_path": "kafka/qoretechnologies/building-blocks",
+            "basename": "building-blocks",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/kafka/qoretechnologies/building-blocks/kafka",
+                "rel_path": "kafka/qoretechnologies/building-blocks/kafka",
+                "basename": "kafka",
+                "dirs": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/kafka/testtest_asg_service",
+        "rel_path": "kafka/testtest_asg_service",
+        "basename": "testtest_asg_service",
+        "dirs": []
+      }
+    ]
+  },
+  {
+    "abs_path": "/workspace/building-blocks/mqtt-paho",
+    "rel_path": "mqtt-paho",
+    "basename": "mqtt-paho",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/mqtt-paho/MqttPahoClientConnection",
+        "rel_path": "mqtt-paho/MqttPahoClientConnection",
+        "basename": "MqttPahoClientConnection",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/mqtt-paho/bbm_mqttpahoclient_1_0_class",
+        "rel_path": "mqtt-paho/bbm_mqttpahoclient_1_0_class",
+        "basename": "bbm_mqttpahoclient_1_0_class",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/mqtt-paho/jar",
+        "rel_path": "mqtt-paho/jar",
+        "basename": "jar",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/mqtt-paho/qoretechnologies",
+        "rel_path": "mqtt-paho/qoretechnologies",
+        "basename": "qoretechnologies",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/mqtt-paho/qoretechnologies/building-blocks",
+            "rel_path": "mqtt-paho/qoretechnologies/building-blocks",
+            "basename": "building-blocks",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/mqtt-paho/qoretechnologies/building-blocks/mqtt-paho",
+                "rel_path": "mqtt-paho/qoretechnologies/building-blocks/mqtt-paho",
+                "basename": "mqtt-paho",
+                "dirs": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abs_path": "/workspace/building-blocks/ondewo",
+    "rel_path": "ondewo",
+    "basename": "ondewo",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/ondewo/OndewoNluClientConnection",
+        "rel_path": "ondewo/OndewoNluClientConnection",
+        "basename": "OndewoNluClientConnection",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/ondewo/OndewoVtsiClientConnection",
+        "rel_path": "ondewo/OndewoVtsiClientConnection",
+        "basename": "OndewoVtsiClientConnection",
+        "dirs": []
+      }
+    ]
+  },
+  {
+    "abs_path": "/workspace/building-blocks/service",
+    "rel_path": "service",
+    "basename": "service",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/service/fsevent",
+        "rel_path": "service/fsevent",
+        "basename": "fsevent",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/service/http",
+        "rel_path": "service/http",
+        "basename": "http",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/service/http/rest",
+            "rel_path": "service/http/rest",
+            "basename": "rest",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/service/http/rest/aws",
+                "rel_path": "service/http/rest/aws",
+                "basename": "aws",
+                "dirs": [
+                  {
+                    "abs_path": "/workspace/building-blocks/service/http/rest/aws/qoretechnologies",
+                    "rel_path": "service/http/rest/aws/qoretechnologies",
+                    "basename": "qoretechnologies",
+                    "dirs": [
+                      {
+                        "abs_path": "/workspace/building-blocks/service/http/rest/aws/qoretechnologies/building-blocks",
+                        "rel_path": "service/http/rest/aws/qoretechnologies/building-blocks",
+                        "basename": "building-blocks",
+                        "dirs": [
+                          {
+                            "abs_path": "/workspace/building-blocks/service/http/rest/aws/qoretechnologies/building-blocks/aws",
+                            "rel_path": "service/http/rest/aws/qoretechnologies/building-blocks/aws",
+                            "basename": "aws",
+                            "dirs": [
+                              {
+                                "abs_path": "/workspace/building-blocks/service/http/rest/aws/qoretechnologies/building-blocks/aws/sns",
+                                "rel_path": "service/http/rest/aws/qoretechnologies/building-blocks/aws/sns",
+                                "basename": "sns",
+                                "dirs": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "abs_path": "/workspace/building-blocks/service/http/websockets",
+            "rel_path": "service/http/websockets",
+            "basename": "websockets",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/service/http/websockets/qoretechnologies",
+                "rel_path": "service/http/websockets/qoretechnologies",
+                "basename": "qoretechnologies",
+                "dirs": [
+                  {
+                    "abs_path": "/workspace/building-blocks/service/http/websockets/qoretechnologies/building-blocks",
+                    "rel_path": "service/http/websockets/qoretechnologies/building-blocks",
+                    "basename": "building-blocks",
+                    "dirs": [
+                      {
+                        "abs_path": "/workspace/building-blocks/service/http/websockets/qoretechnologies/building-blocks/websockets",
+                        "rel_path": "service/http/websockets/qoretechnologies/building-blocks/websockets",
+                        "basename": "websockets",
+                        "dirs": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "abs_path": "/workspace/building-blocks/service/http/wsgi",
+            "rel_path": "service/http/wsgi",
+            "basename": "wsgi",
+            "dirs": []
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/service/salesforce",
+        "rel_path": "service/salesforce",
+        "basename": "salesforce",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/service/salesforce/jar",
+            "rel_path": "service/salesforce/jar",
+            "basename": "jar",
+            "dirs": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abs_path": "/workspace/building-blocks/snmp",
+    "rel_path": "snmp",
+    "basename": "snmp",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/snmp/bbm_snmpcommonbase_1_0_class",
+        "rel_path": "snmp/bbm_snmpcommonbase_1_0_class",
+        "basename": "bbm_snmpcommonbase_1_0_class",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/snmp/bbm_snmpservicetrapeventsource_1_0_class",
+        "rel_path": "snmp/bbm_snmpservicetrapeventsource_1_0_class",
+        "basename": "bbm_snmpservicetrapeventsource_1_0_class",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/snmp/jar",
+        "rel_path": "snmp/jar",
+        "basename": "jar",
+        "dirs": []
+      }
+    ]
+  },
+  {
+    "abs_path": "/workspace/building-blocks/step",
+    "rel_path": "step",
+    "basename": "step",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/step/dataprovider",
+        "rel_path": "step/dataprovider",
+        "basename": "dataprovider",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/step/db",
+        "rel_path": "step/db",
+        "basename": "db",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/step/rest",
+        "rel_path": "step/rest",
+        "basename": "rest",
+        "dirs": []
+      }
+    ]
+  },
+  {
+    "abs_path": "/workspace/building-blocks/test",
+    "rel_path": "test",
+    "basename": "test",
+    "dirs": [
+      {
+        "abs_path": "/workspace/building-blocks/test/csv",
+        "rel_path": "test/csv",
+        "basename": "csv",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/test/docker",
+        "rel_path": "test/docker",
+        "basename": "docker",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/test/excel",
+        "rel_path": "test/excel",
+        "basename": "excel",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/test/generic",
+        "rel_path": "test/generic",
+        "basename": "generic",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/test/generic/rest",
+            "rel_path": "test/generic/rest",
+            "basename": "rest",
+            "dirs": []
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/test/groups",
+        "rel_path": "test/groups",
+        "basename": "groups",
+        "dirs": []
+      },
+      {
+        "abs_path": "/workspace/building-blocks/test/job",
+        "rel_path": "test/job",
+        "basename": "job",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/test/job/ftp",
+            "rel_path": "test/job/ftp",
+            "basename": "ftp",
+            "dirs": []
+          },
+          {
+            "abs_path": "/workspace/building-blocks/test/job/sftp",
+            "rel_path": "test/job/sftp",
+            "basename": "sftp",
+            "dirs": []
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/test/kafka",
+        "rel_path": "test/kafka",
+        "basename": "kafka",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/test/kafka/BBM_KafkaProducerTest-1.0-service",
+            "rel_path": "test/kafka/BBM_KafkaProducerTest-1.0-service",
+            "basename": "BBM_KafkaProducerTest-1.0-service",
+            "dirs": []
+          },
+          {
+            "abs_path": "/workspace/building-blocks/test/kafka/bbm_kafkaconsumertest_1_0_service",
+            "rel_path": "test/kafka/bbm_kafkaconsumertest_1_0_service",
+            "basename": "bbm_kafkaconsumertest_1_0_service",
+            "dirs": []
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/test/service",
+        "rel_path": "test/service",
+        "basename": "service",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/test/service/fsevent",
+            "rel_path": "test/service/fsevent",
+            "basename": "fsevent",
+            "dirs": []
+          },
+          {
+            "abs_path": "/workspace/building-blocks/test/service/http",
+            "rel_path": "test/service/http",
+            "basename": "http",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/test/service/http/rest",
+                "rel_path": "test/service/http/rest",
+                "basename": "rest",
+                "dirs": []
+              },
+              {
+                "abs_path": "/workspace/building-blocks/test/service/http/websockets",
+                "rel_path": "test/service/http/websockets",
+                "basename": "websockets",
+                "dirs": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "abs_path": "/workspace/building-blocks/test/step",
+        "rel_path": "test/step",
+        "basename": "step",
+        "dirs": [
+          {
+            "abs_path": "/workspace/building-blocks/test/step/db",
+            "rel_path": "test/step/db",
+            "basename": "db",
+            "dirs": [
+              {
+                "abs_path": "/workspace/building-blocks/test/step/db/remote2local",
+                "rel_path": "test/step/db/remote2local",
+                "basename": "remote2local",
+                "dirs": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

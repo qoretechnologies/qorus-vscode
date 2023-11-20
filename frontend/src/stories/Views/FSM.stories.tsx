@@ -3,7 +3,9 @@ import { StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../containers/InterfaceCreator/fsm';
 import fsm from '../Data/fsm.json';
+import fsmWithoutInitialState from '../Data/fsmWithoutInitialState.json';
 import multipleVariablesFsm from '../Data/multipleVariablesFsm.json';
+import qodex from '../Data/qodex.json';
 import transactionStateFsm from '../Data/transacitonStateFsm.json';
 import { AutoAlign } from '../Tests/FSM/Alignment.stories';
 import { SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
@@ -37,7 +39,18 @@ type StoryFSM = StoryObj<typeof meta>;
 export const New: StoryFSM = {};
 export const Existing: StoryFSM = {
   args: {
+    fsm: qodex,
+  },
+};
+export const ExistingFSMWithInitialState: StoryFSM = {
+  args: {
     fsm,
+  },
+};
+
+export const ExistingFSMWithoutInitialState: StoryFSM = {
+  args: {
+    fsm: fsmWithoutInitialState,
   },
 };
 
@@ -58,14 +71,22 @@ export const CatalogueOpen: StoryFSM = {
 };
 
 export const NewState: StoryFSM = {
-  play: async ({ canvasElement, stateType = 'mapper', ...rest }) => {
+  play: async ({ canvasElement, stateType = 'trigger', ...rest }) => {
     const canvas = within(canvasElement);
 
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await _testsAddNewState(stateType, canvas);
+    if (stateType !== 'trigger') {
+      await _testsAddNewState('trigger', canvas, undefined, 50, 50);
+    }
 
-    await expect(document.querySelector('#state-1')).toBeInTheDocument();
+    await _testsAddNewState(stateType, canvas, undefined, 50, stateType === 'trigger' ? 50 : 250);
+
+    await expect(document.querySelector('#state-0')).toBeInTheDocument();
+
+    if (stateType !== 'trigger') {
+      await expect(document.querySelector('#state-1')).toBeInTheDocument();
+    }
   },
 };
 
@@ -73,15 +94,8 @@ export const SelectedState: StoryFSM = {
   args: {
     fsm,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await waitFor(() => canvas.getAllByText('Go to flow builder')[0]);
-    await fireEvent.click(canvas.getAllByText('Go to flow builder')[0]);
-
-    // Wait for some time to allow the canvas to render
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
+  play: async ({ canvasElement, ...rest }) => {
+    await SwitchesToBuilder.play({ canvasElement, ...rest });
     await waitFor(() => document.querySelector('#state-3'));
     await _testsClickState('state-3');
   },
@@ -166,7 +180,13 @@ export const MultipleDeepVariableStates: StoryFSM = {
     });
 
     await fireEvent.click(canvas.getAllByText('Next')[0]);
-    await expect(canvas.getAllByText('State 2.State 3.State 6')[0]).toBeInTheDocument();
+
+    await waitFor(
+      async () => expect(canvas.getAllByText('State 2.State 3.State 6')[0]).toBeInTheDocument(),
+      {
+        timeout: 5000,
+      }
+    );
   },
 };
 

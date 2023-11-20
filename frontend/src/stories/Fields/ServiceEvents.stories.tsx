@@ -5,9 +5,11 @@ import { IServiceEventList, ServiceEventListField } from '../../components/Field
 import serviceEvents from '../Data/serviceEvents.json';
 import { SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
 import {
+  _testsAddNewState,
   _testsManageVariableFromCatalogue,
   _testsOpenAppCatalogue,
   _testsSelectAppOrAction,
+  sleep,
 } from '../Tests/utils';
 
 const meta = {
@@ -47,8 +49,13 @@ export const EventVariablesInFSM: StoryObj<typeof meta> = {
     // @ts-expect-error
     await SwitchesToBuilder.play(playData);
 
+    await _testsAddNewState('trigger', canvas);
+
     await _testsOpenAppCatalogue();
     await _testsSelectAppOrAction(canvas, 'Variables');
+
+    await sleep(500);
+
     await _testsManageVariableFromCatalogue('event_provider');
   },
   args: {

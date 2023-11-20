@@ -19,7 +19,7 @@ export interface IAppAction {
   short_desc: string; //the action's short description in plain text
   desc?: string; //the action's long description with markdown formatting
   action_code?: number; //the action's code
-  action_code_str?: 'EVENT' | 'API' | 'SEND_MESSAGE' | 'VARIABLE';
+  action_code_str?: 'EVENT' | 'API' | 'SEND_MESSAGE' | 'VARIABLE' | 'FIND';
   action_val?: string; //the action value: message or event type)
   logo?: string; //a link to the logo data that will be served directly
   icon?: IReqoreIconName;

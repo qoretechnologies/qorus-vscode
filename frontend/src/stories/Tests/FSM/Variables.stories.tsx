@@ -6,6 +6,7 @@ import VariablesFSM from '../../Data/variablesFsm.json';
 import { StoryMeta } from '../../types';
 import { NewVariable } from '../Variables.stories';
 import {
+  _testsAddNewState,
   _testsCloseAppCatalogue,
   _testsOpenAppCatalogue,
   _testsSelectAppOrAction,
@@ -39,6 +40,8 @@ export const NewVariableState: StoryFSM = {
     const canvas = within(canvasElement);
 
     await SwitchesToBuilder.play({ canvasElement, ...rest });
+
+    await _testsAddNewState('trigger', canvas);
 
     await _testsOpenAppCatalogue();
 
@@ -90,7 +93,7 @@ export const EditVariable: StoryFSM = {
     await _testsCloseAppCatalogue();
 
     await expect(document.getElementById('state-2')).toBeInTheDocument();
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(1);
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(2);
   },
 };
 
@@ -122,6 +125,6 @@ export const DeleteVariable: StoryFSM = {
 
     await expect(document.getElementById('state-1')).toBeInTheDocument();
     await expect(document.getElementById('state-3')).toBeInTheDocument();
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(2);
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(3);
   },
 };

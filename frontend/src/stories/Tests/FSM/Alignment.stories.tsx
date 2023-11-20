@@ -5,7 +5,7 @@ import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { SelectedStates } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
-import { _testsDeleteState, sleep } from '../utils';
+import { sleep } from '../utils';
 import { SwitchesToBuilder } from './Basic.stories';
 
 const meta = {
@@ -51,11 +51,6 @@ export const VerticalTop: StoryFSM = {
   },
   play: async ({ canvasElement, ...rest }) => {
     await SelectedStates.play({ canvasElement, ...rest });
-    await _testsDeleteState(2);
-    await _testsDeleteState(3);
-    await _testsDeleteState(4);
-    await _testsDeleteState(6);
-    await _testsDeleteState(8);
     await fireEvent.click(document.querySelector('.align-top'));
   },
 };
@@ -66,11 +61,6 @@ export const VerticalCenter: StoryFSM = {
   },
   play: async ({ canvasElement, ...rest }) => {
     await SelectedStates.play({ canvasElement, ...rest });
-    await _testsDeleteState(2);
-    await _testsDeleteState(3);
-    await _testsDeleteState(4);
-    await _testsDeleteState(6);
-    await _testsDeleteState(8);
     await fireEvent.click(document.querySelector('.align-center'));
   },
 };
@@ -81,11 +71,6 @@ export const VerticalBottom: StoryFSM = {
   },
   play: async ({ canvasElement, ...rest }) => {
     await SelectedStates.play({ canvasElement, ...rest });
-    await _testsDeleteState(2);
-    await _testsDeleteState(3);
-    await _testsDeleteState(4);
-    await _testsDeleteState(6);
-    await _testsDeleteState(8);
     await fireEvent.click(document.querySelector('.align-bottom'));
   },
 };
@@ -96,11 +81,6 @@ export const HorizontalLeft: StoryFSM = {
   },
   play: async ({ canvasElement, ...rest }) => {
     await SelectedStates.play({ canvasElement, ...rest });
-    await _testsDeleteState(2);
-    await _testsDeleteState(3);
-    await _testsDeleteState(4);
-    await _testsDeleteState(6);
-    await _testsDeleteState(8);
     await fireEvent.click(document.querySelector('.align-left'));
   },
 };
@@ -111,11 +91,6 @@ export const HorizontalMiddle: StoryFSM = {
   },
   play: async ({ canvasElement, ...rest }) => {
     await SelectedStates.play({ canvasElement, ...rest });
-    await _testsDeleteState(2);
-    await _testsDeleteState(3);
-    await _testsDeleteState(4);
-    await _testsDeleteState(6);
-    await _testsDeleteState(8);
     await fireEvent.click(document.querySelector('.align-middle'));
   },
 };
@@ -126,11 +101,6 @@ export const HorizontalRight: StoryFSM = {
   },
   play: async ({ canvasElement, ...rest }) => {
     await SelectedStates.play({ canvasElement, ...rest });
-    await _testsDeleteState(2);
-    await _testsDeleteState(3);
-    await _testsDeleteState(4);
-    await _testsDeleteState(6);
-    await _testsDeleteState(8);
     await fireEvent.click(document.querySelector('.align-right'));
   },
 };

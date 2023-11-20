@@ -78,6 +78,10 @@ export const QodexActionExec = memo(({ appName, actionName, options }: IQodexAct
     }
   }, [JSON.stringify(data)]);
 
+  if (!loading && !size(data)) {
+    return null;
+  }
+
   return (
     <>
       <ReqorePanel

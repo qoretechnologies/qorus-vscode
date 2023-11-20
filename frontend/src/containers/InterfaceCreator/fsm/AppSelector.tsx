@@ -84,7 +84,7 @@ export const AppSelector = ({
             },
           ];
         },
-        logo: 'https://hq.qoretechnologies.com:8092/api/public/apps/QorusDataObjects/qorus-builtin-data.svg',
+        logo: 'https://hq.qoretechnologies.com:8092/api/public/apps/Qorus/qorus-logo.svg',
         actions: map(
           variables,
           (variable, id): IAppAction => ({
@@ -95,7 +95,7 @@ export const AppSelector = ({
             short_desc: variable.desc || 'Action from a variable',
             action_code: 2,
             desc: variable.desc || 'Action from a variable',
-            logo: 'https://hq.qoretechnologies.com:8092/api/public/apps/QorusDataObjects/qorus-builtin-data.svg',
+            logo: 'https://hq.qoretechnologies.com:8092/api/public/apps/Qorus/qorus-logo.svg',
             varName: variable.name,
             varType: variable.variableType,
             varReadOnly: variable.readOnly,
@@ -152,7 +152,7 @@ export const AppSelector = ({
         <AppCatalogue
           icon="AppsLine"
           sortable={false}
-          image="https://hq.qoretechnologies.com:8092/api/public/apps/QorusBuiltinApi/qorus-builtin-api.svg"
+          image="https://hq.qoretechnologies.com:8092/api/public/apps/Qorus/qorus-logo.svg"
           apps={builtInApps}
           onActionSelect={(action, app) =>
             onActionSelect(

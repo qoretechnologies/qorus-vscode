@@ -7,7 +7,7 @@ import {
 } from '@qoretechnologies/reqore';
 import { camelCase, isEqual, reduce, size } from 'lodash';
 import { memo, useContext, useMemo, useState } from 'react';
-import { useUpdateEffect } from 'react-use';
+import { useUnmount, useUpdateEffect } from 'react-use';
 import { IFSMMetadata, IFSMState, IFSMStates, TAppAndAction, TFSMVariables } from '.';
 import {
   NegativeColorEffect,
@@ -37,7 +37,7 @@ export interface IFSMStateDetailProps {
   id: string | number;
   interfaceId: string;
   data: IFSMState;
-  metadata: IFSMMetadata;
+  metadata: Partial<IFSMMetadata>;
   states: IFSMStates;
   inputProvider?: any;
   outputProvider?: any;
@@ -45,6 +45,7 @@ export interface IFSMStateDetailProps {
   onClose: () => void;
   onSubmit: (data: Partial<IFSMState>) => void;
   onDelete: (unfilled?: boolean) => void;
+  onSavedStatusChanged?: (hasSaved: boolean) => void;
 }
 
 export const FSMStateDetail = memo(
@@ -53,6 +54,7 @@ export const FSMStateDetail = memo(
     onClose,
     onSubmit,
     onDelete,
+    onSavedStatusChanged,
     activeTab,
     inputProvider,
     outputProvider,
@@ -77,8 +79,6 @@ export const FSMStateDetail = memo(
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
     const [isSubmitLoading, setIsLoading] = useState<boolean>(false);
 
-    console.log(action, dataToSubmit, data);
-
     const {
       load,
       loading,
@@ -99,6 +99,14 @@ export const FSMStateDetail = memo(
         setHasSaved(false);
       }
     }, [dataToSubmit]);
+
+    useUpdateEffect(() => {
+      onSavedStatusChanged?.(hasSaved);
+    }, [hasSaved]);
+
+    useUnmount(() => {
+      onSavedStatusChanged?.(true);
+    });
 
     const handleClose = () => {
       if (hasSaved) {
@@ -155,7 +163,7 @@ export const FSMStateDetail = memo(
           },
           minWidth: 500,
           defaultSize: {
-            width: dataToSubmit.type === 'block' ? '100%' : '500px',
+            width: dataToSubmit.type === 'block' ? '85%' : '500px',
             height: '100%',
           },
         }}
@@ -180,6 +188,7 @@ export const FSMStateDetail = memo(
           {
             tooltip: t('Delete state'),
             effect: NegativeColorEffect,
+            className: 'state-delete-button',
             icon: 'DeleteBinLine',
             onClick: onDelete,
           },
@@ -192,7 +201,7 @@ export const FSMStateDetail = memo(
               ? undefined
               : !isDataValid
               ? 'Fix to save'
-              : t('Save action'),
+              : t(`Save action`),
             disabled: isCustomBlockFirstPage()
               ? !isFSMBlockConfigValid(dataToSubmit)
               : !isDataValid || isLoading,

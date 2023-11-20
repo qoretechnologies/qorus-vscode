@@ -630,19 +630,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     ]}
                   />
                 </FieldWrapper>
-                <FieldWrapper label={t('field-label-block-type')} isValid compact>
-                  <RadioField
-                    name="block-type"
-                    onChange={handleDataUpdate}
-                    value={newData?.['block-type'] || 'for'}
-                    items={[
-                      { value: 'for' },
-                      { value: 'foreach' },
-                      { value: 'while' },
-                      { value: 'transaction' },
-                    ]}
-                  />
-                </FieldWrapper>
               </FieldGroup>
               <FieldWrapper label={t('field-label-block-config')} isValid compact>
                 <Options

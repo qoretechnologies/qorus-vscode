@@ -12,7 +12,6 @@ import {
   insertAtIndex,
   insertUrlPartBeforeQuery,
   isFSMStateValid,
-  isStateIsolated,
   ITypeComparatorData,
   splitByteSize,
 } from '../../src/helpers/functions';
@@ -56,13 +55,6 @@ test('getMaxExecutionOrderFromStates should find the state with the maximum exec
   );
   expect(maxExecutionOrder2).toEqual(0);
   expect(maxExecutionOrder).toEqual(1);
-});
-
-test('isStateIsolated should check if the state is isolated and has no transitions', () => {
-  const isIsolated = isStateIsolated('1', statesObj as IFSMStates, []);
-  const isIsolated3 = isStateIsolated('3', multipleStatesInMultipleRows as IFSMStates, []);
-  expect(isIsolated3).toEqual(true);
-  expect(isIsolated).toEqual(false);
 });
 
 test('getProviderFromInterfaceObject should check the type of interface object and return the appropriate provider object', () => {

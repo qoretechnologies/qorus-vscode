@@ -1,0 +1,31 @@
+{
+  "qorus_instances": [
+    {
+      "id": 0,
+      "name": "local",
+      "qoruses": [
+        {
+          "id": 0,
+          "name": "Local Qorus instance",
+          "url": "https://fwitosz:fwitosz42@hq.qoretechnologies.com:8092/",
+          "safe_url": "https://fwitosz@hq.qoretechnologies.com:8092/",
+          "urls": []
+        }
+      ]
+    }
+  ],
+  "source_directories": [
+    "ExcelDataProvider",
+    "examples",
+    "generic",
+    "job",
+    "kafka",
+    "mqtt-paho",
+    "ondewo",
+    "service",
+    "snmp",
+    "step",
+    "test"
+  ],
+  "theme": "vscode"
+}

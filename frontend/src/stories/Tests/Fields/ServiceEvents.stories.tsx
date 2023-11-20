@@ -6,6 +6,7 @@ import serviceEvents from '../../Data/serviceEvents.json';
 import { Event } from '../../Fields/DataProvider/Provider.stories';
 import { SwitchesToBuilder } from '../FSM/Basic.stories';
 import {
+  _testsAddNewState,
   _testsAddNewVariableState,
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
@@ -112,6 +113,7 @@ export const CreateFSMStateFromEventVariable: StoryObj<typeof meta> = {
     // @ts-expect-error
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
+    await _testsAddNewState('trigger', canvas);
     await _testsAddNewVariableState('event_provider', canvas);
 
     await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());
@@ -155,6 +157,8 @@ export const CreateFSMStateFromEventVariable: StoryObj<typeof meta> = {
 
     //Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 10000 });
-    await waitFor(() => canvas.findByText('send-message'), { timeout: 10000 });
+    await waitFor(() => expect(canvas.getAllByText('send-message').length).toBe(4), {
+      timeout: 10000,
+    });
   },
 };

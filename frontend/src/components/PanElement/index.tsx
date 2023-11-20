@@ -306,7 +306,7 @@ export class ElementPan extends React.Component<
         this.el.scrollTop = newTop;
 
         this.setState({ scrollX: newLeft, scrollY: newTop });
-        this.props.onPan({ x: newLeft, y: newTop });
+        this.props.onPan?.({ x: newLeft, y: newTop });
 
         Emitter.emit('drag-area-move', {
           scrollLeft,
@@ -344,39 +344,7 @@ export class ElementPan extends React.Component<
     document.getElementById(this.props.id).removeEventListener('mousemove', this.handleMouseMove);
   }
 
-  public componentDidUpdate(prevProps) {
-    if (prevProps.zoom !== this.props.zoom) {
-      const leftPrevSize = calculateValueWithZoom(this.props.wrapperSize.width, prevProps.zoom);
-      const leftNewSize = calculateValueWithZoom(this.props.wrapperSize.width, this.props.zoom);
-
-      console.log(
-        prevProps.zoom,
-        this.props.zoom,
-        leftPrevSize,
-        leftNewSize,
-        (leftPrevSize - leftNewSize) / 2,
-        calculateValueWithZoom((leftPrevSize - leftNewSize) / 2, this.props.zoom)
-      );
-
-      if (this.props.zoom > prevProps.zoom) {
-        this.el.scrollLeft =
-          this.el.scrollLeft * (this.props.zoom / prevProps.zoom) +
-          (leftPrevSize - leftNewSize) / 2;
-        this.el.scrollTop = this.el.scrollTop * (this.props.zoom / prevProps.zoom);
-      } else {
-        this.el.scrollLeft =
-          this.el.scrollLeft / (prevProps.zoom / this.props.zoom) +
-          (leftNewSize - leftPrevSize) / 2;
-        this.el.scrollTop = this.el.scrollTop / (prevProps.zoom / this.props.zoom);
-      }
-
-      if (this.props.onPan) {
-        this.props.onPan({ x: this.el.scrollLeft, y: this.el.scrollTop });
-      }
-
-      this.setState({ scrollX: this.el.scrollLeft, scrollY: this.el.scrollTop });
-    }
-
+  public componentDidUpdate(prevProps, prevState) {
     if (
       prevProps.wrapperSize.width !== this.props.wrapperSize.width ||
       prevProps.wrapperSize.height !== this.props.wrapperSize.height

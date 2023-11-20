@@ -51,9 +51,9 @@ export class QorusProjectCodeInfo {
   private document_symbols_edit_info: QorusProjectEditInfo;
 
   private info_update_pending: any = {};
-  private file_tree: any[] = [];
-  private dir_tree: any[] = [];
-  private all_dir_tree: any = {};
+  public file_tree: any[] = [];
+  public dir_tree: any[] = [];
+  public all_dir_tree: any = {};
   private modules: string[] = [];
   public otherFiles: {
     path?: string;

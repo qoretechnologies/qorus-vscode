@@ -1,16 +1,11 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
-import { fireEvent, screen, waitFor, within } from '@storybook/testing-library';
+import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
-import {
-  _testsClickState,
-  _testsDoubleClickState,
-  _testsSelectItemFromCollection,
-  sleep,
-} from './../utils';
+import { _testsClickState, _testsDeleteState, _testsDoubleClickState, sleep } from './../utils';
 import { AutoAlign } from './Alignment.stories';
 
 const meta = {
@@ -34,10 +29,7 @@ export const SwitchesToBuilder: StoryFSM = {
     fsm,
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
     await waitFor(async () => {
-      await fireEvent.click(canvas.getAllByText('Go to flow builder')[0]);
       await expect(document.querySelector('#fsm-diagram svg')).toBeInTheDocument();
     });
   },
@@ -57,7 +49,7 @@ export const ShowsStateIds: StoryFSM = {
     await fireEvent.click(document.querySelector('.fsm-more-actions'));
     await sleep(100);
     await fireEvent.click(document.querySelector('#show-state-ids'));
-
+    await sleep(100);
     await expect(canvas.getAllByText('[1] Save Intent Info')[0]).toBeInTheDocument();
   },
 };
@@ -110,17 +102,13 @@ export const StateIsDeleted: StoryFSM = {
 
     await sleep(1500);
 
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(9);
+    await expect(document.querySelectorAll('.fsm-transition').length).toBe(8);
+
+    await _testsDeleteState(3);
+
     await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
-    await expect(document.querySelectorAll('.fsm-transition').length).toBe(7);
-
-    await fireEvent.mouseDown(document.querySelectorAll('#state-3 .reqore-button')[1]);
-
-    await sleep(500);
-
-    await fireEvent.click(screen.getAllByText('Confirm')[0]);
-
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(7);
-    await expect(document.querySelectorAll('.fsm-transition').length).toBe(4);
+    await expect(document.querySelectorAll('.fsm-transition').length).toBe(5);
   },
 };
 
@@ -133,7 +121,7 @@ export const StatesCanBeConnected: StoryFSM = {
 
     await sleep(200);
 
-    await expect(document.querySelectorAll('.fsm-transition').length).toBe(4);
+    await expect(document.querySelectorAll('.fsm-transition').length).toBe(5);
 
     // Fake double click lol
     await _testsDoubleClickState('state-1');
@@ -144,7 +132,7 @@ export const StatesCanBeConnected: StoryFSM = {
 
     await sleep(2000);
 
-    await waitFor(() => expect(document.querySelectorAll('.fsm-transition').length).toBe(5), {
+    await waitFor(() => expect(document.querySelectorAll('.fsm-transition').length).toBe(6), {
       timeout: 10000,
     });
   },
@@ -167,7 +155,7 @@ export const StatesIsNotRemovedOnClose: StoryFSM = {
 
     await sleep(200);
 
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(9);
   },
 };
 
@@ -181,10 +169,6 @@ export const WarningIfClosingUnsavedState: StoryFSM = {
 
     await sleep(500);
 
-    await _testsSelectItemFromCollection(canvas, 'Test Mapper 1', 'Select or create a Mapper')();
-
-    await sleep(500);
-
     await fireEvent.click(document.querySelector('.fsm-state-detail .reqore-button'));
 
     await sleep(200);
@@ -193,7 +177,7 @@ export const WarningIfClosingUnsavedState: StoryFSM = {
   },
 };
 
-export const StatesIsNotRemovedIfUnfinished: StoryFSM = {
+export const StateIsNotRemovedIfUnfinished: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     await NewState.play({ canvasElement, ...rest });
 

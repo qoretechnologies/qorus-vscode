@@ -229,6 +229,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   desc,
   action,
   initial,
+  is_event_trigger,
   final,
   type,
   onUpdate,
@@ -436,8 +437,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
     )?.slice(0, 100) || '' + '...';
 
   const stateColor = useMemo(
-    () => getStateColor(getStateCategory(action?.type || type), initial),
-    [action, type, initial]
+    () => getStateColor(getStateCategory(action?.type || type), is_event_trigger),
+    [action, type, is_event_trigger]
   );
 
   return (
@@ -542,10 +543,14 @@ const FSMState: React.FC<IFSMStateProps> = ({
         minimal
         label={showStateIds ? `[${id}] ${name}` : name}
         badge={
-          !!(initial || isIsolated || final)
+          !!(is_event_trigger || isIsolated || final)
             ? {
-                effect: initial ? SaveColorEffect : isIsolated ? NegativeColorEffect : undefined,
-                icon: initial ? 'PlayLine' : isIsolated ? 'ErrorWarningFill' : undefined,
+                effect: is_event_trigger
+                  ? SaveColorEffect
+                  : isIsolated
+                  ? NegativeColorEffect
+                  : undefined,
+                icon: is_event_trigger ? 'PlayLine' : isIsolated ? 'ErrorWarningFill' : undefined,
                 tooltip: !isValid ? 'This state is invalid and needs to be fixed' : undefined,
               }
             : undefined
@@ -566,14 +571,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 icon: 'DeleteBin4Fill' as IReqoreIconName,
                 onMouseDown: (e) => {
                   e?.stopPropagation();
-                  confirmAction({
-                    title: 'Delete action',
-                    description: `Are you sure you want to delete state ${name}?`,
-                    intent: 'danger',
-                    onConfirm: () => {
-                      onDeleteClick?.(id);
-                    },
-                  });
+                  onDeleteClick?.(id);
                 },
                 intent: 'danger',
                 minimal: true,
@@ -592,14 +590,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
           let menuData = [
             {
               title: name,
-            },
-            {
-              item: t('Initial'),
-              onClick: () => {
-                onUpdate(id, { initial: !initial });
-              },
-              icon: 'PlayLine',
-              rightIcon: initial ? 'small-tick' : undefined,
             },
             {
               title: t('Actions'),
@@ -639,7 +629,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             },
           ];
 
-          if (initial) {
+          if (is_event_trigger) {
             menuData = insertAtIndex(menuData, 3, {
               item: t('ManageExecutionOrder'),
               onClick: () => {

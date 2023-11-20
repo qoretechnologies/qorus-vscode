@@ -144,8 +144,6 @@ export const QodexAppActionOptions = memo(
     );
 
     const fetchTemplates = useCallback(async () => {
-      console.log(connectedStates);
-
       if (!size(connectedStates)) {
         return;
       }

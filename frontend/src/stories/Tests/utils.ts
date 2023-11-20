@@ -18,6 +18,8 @@ const stateCategory = {
   create: 'Data',
   update: 'Data',
   delete: 'Data',
+  trigger: 'Action Triggers',
+  schedule: 'Action Triggers',
 };
 
 const stateLabel = {
@@ -37,6 +39,8 @@ const stateLabel = {
   create: 'Create',
   update: 'Update',
   delete: 'Delete',
+  trigger: 'On-Demand',
+  schedule: 'Schedule',
 };
 
 export const sleep = (ms: number) => {
@@ -60,6 +64,11 @@ export async function _testsCloseStateDetail() {
 
 export async function _testsOpenAppCatalogue(wrapperId?: string, x: number = 100, y: number = 100) {
   const fullWrapperId = `${wrapperId ? `${wrapperId}-` : ''}fsm-diagram`;
+
+  await waitFor(() => expect(document.getElementById(fullWrapperId)).toBeInTheDocument(), {
+    timeout: 10000,
+  });
+
   const wrapper = document.getElementById(fullWrapperId).querySelector('.element-pan');
 
   await fireEvent.dblClick(wrapper, {
@@ -90,9 +99,11 @@ export async function _testsSelectAppOrAction(canvas, appOrAction: string) {
 export async function _testsAddNewState(
   stateType: keyof typeof stateCategory,
   canvas,
-  wrapperId?: string
+  wrapperId?: string,
+  x?: number,
+  y?: number
 ) {
-  await _testsOpenAppCatalogue(wrapperId);
+  await _testsOpenAppCatalogue(wrapperId, x, y);
 
   const category = stateCategory[stateType];
   const label = stateLabel[stateType];
@@ -237,7 +248,14 @@ export async function _testsMoveState(
 }
 
 export async function _testsDeleteState(id) {
-  await fireEvent.click(document.querySelectorAll(`#state-${id} .reqore-button`)[2]);
+  await _testsClickState(`state-${id}`);
+  await waitFor(() => expect(document.querySelector('.state-delete-button')).toBeInTheDocument(), {
+    timeout: 5000,
+  });
+  await fireEvent.click(document.querySelector('.state-delete-button'));
+  await sleep(200);
+  await fireEvent.click(screen.getAllByText('Confirm')[0]);
+  await sleep(200);
 }
 
 export async function _testsSelectState(id) {

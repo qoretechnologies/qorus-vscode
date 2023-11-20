@@ -161,7 +161,7 @@ export const ApiCall: StoryObj<typeof meta> = {
     await sleep(1500);
 
     await fireEvent.click(document.querySelectorAll('.provider-selector')[1]);
-    await fireEvent.click(canvas.getAllByText('util')[0]);
+    await fireEvent.click(canvas.getAllByText('Util')[0]);
 
     await waitFor(() => expect(document.querySelectorAll('.provider-selector').length).toBe(3), {
       timeout: 10000,
@@ -170,7 +170,7 @@ export const ApiCall: StoryObj<typeof meta> = {
     await sleep(1500);
 
     await fireEvent.click(document.querySelectorAll('.provider-selector')[2]);
-    await fireEvent.click(canvas.getAllByText('log-message')[0]);
+    await fireEvent.click(canvas.getAllByText('Log Message')[0]);
 
     await sleep(2500);
 

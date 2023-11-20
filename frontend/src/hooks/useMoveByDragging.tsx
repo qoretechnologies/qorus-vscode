@@ -68,6 +68,9 @@ export const useMoveByDragging = (
       return;
     }
 
+    movedFor.current.x += x;
+    movedFor.current.y += y;
+
     moveEntities(x, y);
   };
 
