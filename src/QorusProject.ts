@@ -53,17 +53,12 @@ export class QorusProject {
 
   isInSourceDirs = (fs_path: string): boolean => {
     let file_data: any = {};
-
-    if (process.env.QORUS_CAPTIVE_URL) {
-        file_data = QorusProject.getCaptiveData();
-    } else {
-        try {
-            const file_content = fs.readFileSync(this.config_file);
-        file_data = JSON.parse(file_content.toString());
-        } catch (error) {
-            //msg.error(JSON.stringify(error, null, 4));
-        return false;
-        }
+    try {
+      const file_content = fs.readFileSync(this.config_file);
+      file_data = JSON.parse(file_content.toString());
+    } catch (error) {
+      //            msg.error(JSON.stringify(error, null, 4));
+      return false;
     }
 
     const dir = path.dirname(fs_path);
@@ -83,13 +78,8 @@ export class QorusProject {
     }
 
     try {
-      var file_data;
-      if (process.env.QORUS_CAPTIVE_URL) {
-        file_data = QorusProject.getCaptiveData();
-      } else {
-        const file_content = fs.readFileSync(this.config_file);
-        file_data = JSON.parse(file_content.toString());
-      }
+      const file_content = fs.readFileSync(this.config_file);
+      const file_data = JSON.parse(file_content.toString());
 
       let any_dir_change: boolean = false;
       let fixed_dirs: any = {};
@@ -333,29 +323,8 @@ export class QorusProject {
     });
   }
 
-  public static getCaptiveData(): object {
-    return {
-      qorus_instances: {
-        Host: [
-          {
-            name: "Host Instance",
-            url: process.env.QORUS_CAPTIVE_URL,
-            token: process.env.QORUS_AUTH_TOKEN,
-            custom_urls: [],
-          },
-        ],
-      },
-      source_directories: [
-        '.',
-      ],
-      theme: 'vscode',
-    };
-  }
-
   public static file2data(file_data?: any): any {
-    if (process.env.QORUS_CAPTIVE_URL) {
-        file_data = this.getCaptiveData();
-    } else if (!file_data) {
+    if (!file_data) {
       return {
         qorus_instances: [],
         source_directories: [],
@@ -365,7 +334,6 @@ export class QorusProject {
 
     let qorus_instances: any[] = [];
     let i: number = 0;
-
     for (let env_name in file_data.qorus_instances) {
       const env_id = i++;
       qorus_instances.push({
@@ -381,7 +349,6 @@ export class QorusProject {
           name: qorus.name,
           url: modifyUrl(qorus.url, 'decrypt-pwd'),
           safe_url: modifyUrl(qorus.url, 'remove-pwd'),
-          token: qorus.token,
           version: qorus.version,
           urls: [],
         });

@@ -8,12 +8,12 @@ import * as msg from './qorus_message';
 import { isVersion3, modifyUrl } from './qorus_utils';
 
 class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
+
     private data: any;
     private qorus_instances: any = {};
 
     private setQorusInstances() {
         if (!Object.keys(this.data || {}).length) {
-            console.trace();
             msg.error(t`QorusProjectNotSet`);
             return;
         }
@@ -48,9 +48,7 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
     }
 
     reset(data: any) {
-        //console.log(`QorusInstanceTree.reset() data: ${JSON.stringify(data)}`);
         this.data = data;
-
         this.setQorusInstances();
         this.refresh();
     }
@@ -126,7 +124,8 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
 
         if (auth.isLoggedIn(instance.url)) {
             this.contextValue += ':loggedIn';
-        } else {
+        }
+        else {
             switch (auth.authNeeded(instance.url)) {
                 case AuthNeeded.Yes: this.contextValue += ':loggedOut'; break;
                 case AuthNeeded.No:  this.contextValue += ':noAuth';    break;
@@ -147,10 +146,6 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
             title: t`SetActiveInstance`,
             arguments: [instance.url]
         };
-
-        if (process.env.QORUS_CAPTIVE_URL == instance.url) {
-            auth.setActiveInstance(this);
-        }
     }
 
     getChildren(_data: any): QorusTreeNode[] {
@@ -172,10 +167,6 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
 
     getUrl(): string {
         return this.instance.url || '';
-    }
-
-    getToken(): string {
-        return this.instance.token || '';
     }
 }
 

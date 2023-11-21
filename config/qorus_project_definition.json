@@ -34,9 +34,6 @@
         "version": {
           "type": "string"
         },
-        "token": {
-          "type": "string"
-        },
         "custom_urls": {
           "type": "array",
           "items": {
