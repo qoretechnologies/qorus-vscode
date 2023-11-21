@@ -35,25 +35,6 @@ export class QorusLogin extends QorusAuth {
             return;
         }
 
-        if (qorus_instance.token) {
-            this.addToken(url, qorus_instance.token, set_active);
-            instance_tree.refresh();
-
-            qorus_webview.postMessage({
-                action: 'close-login',
-                qorus_instance: set_active ? qorus_instance : null,
-            });
-
-            qorus_webview.setPreviousInitialDataIfCreateInterface();
-
-            const code_info = projects.currentProjectCodeInfo();
-            code_info && code_info.setCurrentQorusData();
-
-            this.startConnectionCheck();
-
-            return;
-        }
-
         const { username, password } = urlParse(url);
 
         this.current_login_params = {
@@ -234,13 +215,7 @@ export class QorusLogin extends QorusAuth {
 
     setActiveInstance(tree_item: string | vscode.TreeItem) {
         if (typeof tree_item !== 'string') {
-            const url: string = (<QorusTreeInstanceNode>tree_item).getUrl();
-            const token: string = (<QorusTreeInstanceNode>tree_item).getToken();
-            console.log(`URL ${url} has token: ${token}`);
-            if (token) {
-                this.addToken(url, token);
-            }
-            this.setActiveInstance(url);
+            this.setActiveInstance((<QorusTreeInstanceNode>tree_item).getUrl());
             return;
         }
 
@@ -300,9 +275,6 @@ export class QorusLogin extends QorusAuth {
         let token: string | undefined = undefined;
         if (this.authNeeded() != AuthNeeded.No) {
             token = this.getToken();
-            if (!token) {
-                token = active_instance.token;
-            }
             if (!token) {
                 msg.error(t`UnauthorizedOperationAtUrl ${this.active_url}`);
                 return { ok: false };
