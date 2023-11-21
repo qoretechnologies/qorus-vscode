@@ -15,8 +15,7 @@ import { modifyUrl } from './qorus_utils';
 export const config_filename = 'qorusproject.json';
 export const is_hosted_instance: boolean = !!process.env.QORUS_CAPTIVE_URL;
 export const hosted_instance_url: string = process.env.QORUS_CAPTIVE_URL;
-export const hosted_instance_token: string =
-  'd6198f89-f8ac-4779-9a44-893022aeb355' || process.env.QORUS_AUTH_TOKEN;
+export const hosted_instance_token: string = process.env.QORUS_AUTH_TOKEN;
 
 export class QorusProject {
   private project_folder: string;
