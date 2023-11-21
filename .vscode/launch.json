@@ -14,7 +14,23 @@
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "preLaunchTask": "npm: watch",
       "localRoot": "../${workspaceFolder}/qorus/",
-      "env": {},
+      "debugWebviews": true,
+      "sourceMaps": true,
+      "trace": true
+    },
+    {
+      "name": "Hosted Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}", "--inspect-port=0"],
+      "outFiles": ["${workspaceFolder}/out/**/*.js"],
+      "preLaunchTask": "npm: watch",
+      "localRoot": "../${workspaceFolder}/qorus/",
+      "env": {
+        "QORUS_CAPTIVE_URL": "https://hq.qoretechnologies.com:8092/",
+        "QORUS_AUTH_TOKEN": "abcdefgh"
+      },
       "debugWebviews": true,
       "sourceMaps": true,
       "trace": true

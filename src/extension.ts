@@ -2,8 +2,9 @@ import * as child_process from 'child_process';
 import * as path from 'path';
 import { t } from 'ttag';
 import * as vscode from 'vscode';
+
 import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
-import { isLangClientAvailable } from './qore_vscode';
+
 import { deployer } from './QorusDeploy';
 import { QorusDraftsInstance } from './QorusDrafts';
 import { getTargetFile } from './QorusDraftsTree';
@@ -13,7 +14,7 @@ import { interface_tree } from './QorusInterfaceTree';
 import { QorusJavaCodeLensProvider } from './QorusJavaCodeLensProvider';
 import { QorusJavaHoverProvider } from './QorusJavaHoverProvider';
 import { qorus_locale } from './QorusLocale';
-import { config_filename, projects } from './QorusProject';
+import { config_filename, is_hosted_instance, projects } from './QorusProject';
 import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import { QorusPythonCodeLensProvider } from './QorusPythonCodeLensProvider';
 import { QorusPythonHoverProvider } from './QorusPythonHoverProvider';
@@ -22,6 +23,7 @@ import { QorusQoreHoverProvider } from './QorusQoreHoverProvider';
 import { qorus_request } from './QorusRequest';
 import { tester } from './QorusTest';
 import { qorus_webview } from './QorusWebview';
+import { isLangClientAvailable } from './qore_vscode';
 import { registerQorusExplorerCommands } from './qorus_explorer_commands';
 import { installQorusJavaApiSources } from './qorus_java_utils';
 import * as msg from './qorus_message';
@@ -244,8 +246,15 @@ export async function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.window.createTreeView('qorusInstances', { treeDataProvider: instance_tree });
-  context.subscriptions.push(disposable);
+  // We do not want to show the instances view when running in VS Code Server
+  if (!is_hosted_instance) {
+    disposable = vscode.window.createTreeView('qorusInstances', {
+      treeDataProvider: instance_tree,
+    });
+    context.subscriptions.push(disposable);
+    // Show the instances view, as it is hidden by default
+    vscode.commands.executeCommand('setContext', 'qorus.showInstances', true);
+  }
 
   interface_tree.setExtensionPath(context.extensionPath);
 
@@ -347,6 +356,10 @@ export async function activate(context: vscode.ExtensionContext) {
     null,
     context.subscriptions
   );
+
+  if (is_hosted_instance) {
+    qorus_request.activateOnHostedInstance();
+  }
 }
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {

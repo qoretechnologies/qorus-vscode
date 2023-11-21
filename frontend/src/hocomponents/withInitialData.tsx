@@ -20,6 +20,7 @@ const pastTexts: { [id: string]: { isTranslated: boolean; text: string } } = {};
 export default () =>
   (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
+      const [isReady, setIsReady] = useState(false);
       const [initialData, setInitialData] = useState<any>({
         tab: 'ProjectConfig',
         sidebarOpen: false,
@@ -144,7 +145,7 @@ export default () =>
           );
 
           if (!data?.tab) {
-            data.tab = 'ProjectConfig';
+            data.tab = data.is_hosted_instance ? 'Interfaces' : 'ProjectConfig';
           }
 
           if (data?.draftData) {
@@ -161,6 +162,8 @@ export default () =>
               changeTab(data.tab, data.subtab);
             }
           });
+
+          setIsReady(true);
         });
 
         const interfaceDataListener = addMessageListener(
@@ -184,7 +187,7 @@ export default () =>
         };
       });
 
-      if (!texts || !t) {
+      if (!texts || !t || !isReady) {
         return <Loader text="Loading translations..." />;
       }
 

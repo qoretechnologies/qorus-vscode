@@ -9,7 +9,7 @@ import { QorusDraftsInstance } from './QorusDrafts';
 import { drafts_tree } from './QorusDraftsTree';
 import { instance_tree } from './QorusInstanceTree';
 import { qorus_locale } from './QorusLocale';
-import { QorusProject, config_filename, projects } from './QorusProject';
+import { QorusProject, config_filename, is_hosted_instance, projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { releaser } from './QorusRelease';
 import { qorus_request } from './QorusRequest';
@@ -78,6 +78,7 @@ class QorusWebview {
           theme: data.theme,
           image_path: `${scheme}://${authority}${path}`,
           qorus_instance: qorus_request.activeQorusInstance(),
+          is_hosted_instance,
           is_qore_installed: await isLangClientAvailable(),
           ...this.initial_data,
         },

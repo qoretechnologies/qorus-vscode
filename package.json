@@ -87,7 +87,8 @@
         },
         {
           "id": "qorusInstances",
-          "name": "Instances"
+          "name": "Instances",
+          "when": "qorus.showInstances"
         }
       ]
     },

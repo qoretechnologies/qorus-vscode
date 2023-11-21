@@ -13,6 +13,10 @@ import { project_template } from './qorus_project_template';
 import { modifyUrl } from './qorus_utils';
 
 export const config_filename = 'qorusproject.json';
+export const is_hosted_instance: boolean = !!process.env.QORUS_CAPTIVE_URL;
+export const hosted_instance_url: string = process.env.QORUS_CAPTIVE_URL;
+export const hosted_instance_token: string =
+  'd6198f89-f8ac-4779-9a44-893022aeb355' || process.env.QORUS_AUTH_TOKEN;
 
 export class QorusProject {
   private project_folder: string;
@@ -43,9 +47,32 @@ export class QorusProject {
   get folder(): string {
     return this.project_folder;
   }
-
   configFileExists(): boolean {
+    if (is_hosted_instance) {
+      return true;
+    }
+
     return fs.existsSync(this.config_file);
+  }
+
+  readConfigFile(): string {
+    if (is_hosted_instance) {
+      return JSON.stringify({
+        qorus_instances: {
+          Host: [
+            {
+              name: 'Host Instance',
+              url: process.env.QORUS_CAPTIVE_URL,
+              custom_urls: [],
+            },
+          ],
+        },
+        source_directories: ['.'],
+        theme: 'vscode',
+      });
+    }
+
+    return fs.readFileSync(this.config_file)?.toString();
   }
 
   relativeDirPath = (dir) =>
@@ -54,8 +81,8 @@ export class QorusProject {
   isInSourceDirs = (fs_path: string): boolean => {
     let file_data: any = {};
     try {
-      const file_content = fs.readFileSync(this.config_file);
-      file_data = JSON.parse(file_content.toString());
+      const file_content = this.readConfigFile();
+      file_data = JSON.parse(file_content);
     } catch (error) {
       //            msg.error(JSON.stringify(error, null, 4));
       return false;
@@ -78,8 +105,8 @@ export class QorusProject {
     }
 
     try {
-      const file_content = fs.readFileSync(this.config_file);
-      const file_data = JSON.parse(file_content.toString());
+      const file_content = this.readConfigFile();
+      const file_data = JSON.parse(file_content);
 
       let any_dir_change: boolean = false;
       let fixed_dirs: any = {};
@@ -175,7 +202,7 @@ export class QorusProject {
         fs.mkdirSync(full_dir, { recursive: true, mode: 0o755 });
       } catch (e) {
         msg.error(t`FailedCreateDir ${full_dir}`);
-        msg.log(e);
+        msg.log(e as any);
         postMessage(false, t`FailedCreateDir ${full_dir}`);
         return;
       }
@@ -287,7 +314,7 @@ export class QorusProject {
         fs.mkdirSync(dir, { recursive: true, mode: 0o755 });
       } catch (e) {
         msg.error(t`FailedCreateDir ${dir}`);
-        msg.log(e);
+        msg.log(e as any);
         return undefined;
       }
     }
