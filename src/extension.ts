@@ -70,7 +70,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   disposable = vscode.commands.registerCommand(
     'qorus.loginAndSetActiveInstance',
-    (tree_item: vscode.TreeItem) => qorus_request.setActiveInstance(tree_item)
+    (tree_item: string | vscode.TreeItem) => qorus_request.setActiveInstance(tree_item)
   );
   context.subscriptions.push(disposable);
 
@@ -347,6 +347,15 @@ export async function activate(context: vscode.ExtensionContext) {
     null,
     context.subscriptions
   );
+
+  /*
+  if (process.env.QORUS_CAPTIVE_URL) {
+    vscode.commands.executeCommand('qorus.openWebview');
+    vscode.commands.executeCommand('qorus.loginAndSetActiveInstance',
+        process.env.QORUS_CAPTIVE_URL
+    );
+  }
+  */
 }
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
