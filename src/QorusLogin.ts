@@ -282,6 +282,9 @@ export class QorusLogin extends QorusAuth {
     }
 
     const active_instance = instance_tree.getQorusInstance(this.active_url);
+
+    console.log({ active_instance, active_url: this.active_url });
+
     if (!active_instance) {
       msg.error(t`UnableGetActiveQorusInstanceData`);
       return { ok: false };
@@ -295,6 +298,8 @@ export class QorusLogin extends QorusAuth {
         return { ok: false };
       }
     }
+
+    console.log('ACTIVE QORUS INSTANCE AND TOKEN', { active_instance, token });
 
     return { ok: true, active_instance, token };
   }

@@ -356,10 +356,6 @@ export async function activate(context: vscode.ExtensionContext) {
     null,
     context.subscriptions
   );
-
-  if (is_hosted_instance) {
-    qorus_request.activateOnHostedInstance();
-  }
 }
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
