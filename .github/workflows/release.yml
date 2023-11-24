@@ -49,6 +49,9 @@ jobs:
         run: ./node_modules/.bin/vsce publish
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - name: Publish to Open VSX
+        id: publish_open_vsx
+        run: NODE_OPTIONS=--openssl-legacy-provider npx ovsx publish -p ${{ secrets.OPENVSX_PAT }}
       - name: Create a release
         id: release
         uses: actions/create-release@v1

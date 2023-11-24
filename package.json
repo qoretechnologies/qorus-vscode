@@ -2,7 +2,7 @@
   "name": "qorus-vscode",
   "displayName": "Qorus Developer Tools",
   "description": "Qorus Integration Engine developer tools",
-  "version": "4.3.5",
+  "version": "4.3.6",
   "publisher": "qoretechnologies",
   "author": {
     "name": "Qore Technologies",
@@ -47,7 +47,7 @@
     "engine"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
   "main": "out/extension.js",
   "contributes": {
