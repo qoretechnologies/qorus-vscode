@@ -56,7 +56,7 @@ jobs:
           exitZeroOnChanges: true
       - name: Package
         id: package
-        run: ./node_modules/.bin/vsce package --no-yarn
+        run: NODE_OPTIONS=--openssl-legacy-provider ./node_modules/.bin/vsce package --no-yarn
       - uses: actions/upload-artifact@v3
         with:
           name: IDE v${{ steps.save_release_version.outputs.version }} develop
