@@ -46,7 +46,7 @@ jobs:
           yarn install
       - name: Publish
         id: publish
-        run: ./node_modules/.bin/vsce publish
+        run: NODE_OPTIONS=--openssl-legacy-provider ./node_modules/.bin/vsce publish
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
       - name: Publish to Open VSX
