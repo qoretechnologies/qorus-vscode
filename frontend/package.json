@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "4.3.5",
+  "version": "4.3.8",
   "private": false,
   "dependencies": {
     "@andrewhead/python-program-analysis": "^0.4.8",
@@ -128,17 +128,10 @@
     "install-playwright": "npx playwright install --with-deps"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "extends": ["react-app", "react-app/jest"]
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -146,19 +139,10 @@
     ]
   },
   "jest": {
-    "roots": [
-      "<rootDir>/__tests__"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.d.ts"
-    ],
-    "setupFiles": [
-      "react-app-polyfill/jsdom"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/__tests__/setup.js"
-    ],
+    "roots": ["<rootDir>/__tests__"],
+    "collectCoverageFrom": ["src/**/*.{js,jsx,ts,tsx}", "!src/**/*.d.ts"],
+    "setupFiles": ["react-app-polyfill/jsdom"],
+    "setupFilesAfterEnv": ["<rootDir>/__tests__/setup.js"],
     "testMatch": [
       "<rootDir>/__tests__/**/*.{spec,test}.{js,jsx,ts,tsx}",
       "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
@@ -203,9 +187,7 @@
     "testTimeout": 60000
   },
   "babel": {
-    "presets": [
-      "react-app"
-    ]
+    "presets": ["react-app"]
   },
   "devDependencies": {
     "@storybook/addon-actions": "^7.0.0-beta.59",
