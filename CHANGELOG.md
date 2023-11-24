@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 4.3.6
+
+- Qorus Developer Tools is now available on Open VSX extension market https://open-vsx.org/extension/qoretechnologies/qorus-vscode
+
 ## Version 4.3.5
 
 #### Bug fixes
