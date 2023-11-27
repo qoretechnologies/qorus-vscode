@@ -72,18 +72,9 @@ export const MenuSubItems: Omit<IQorusSidebarItem, 'id'>[] = [
 ];
 
 export const buildMenu = (initialData?: any): IQorusSidebarItems => {
-  return {
+  const menu = {
     menu: {
       items: [
-        {
-          name: 'Environments',
-          activePaths: ['ProjectConfig'],
-          icon: viewsIcons['ProjectConfig'],
-          id: 'ProjectConfig',
-          props: {
-            onClick: () => initialData?.changeTab('ProjectConfig'),
-          },
-        },
         {
           name: 'Interfaces, drafts & files',
           activePaths: ['Interfaces'],
@@ -91,15 +82,6 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
           id: 'Interfaces',
           props: {
             onClick: () => initialData?.changeTab('Interfaces'),
-          },
-        },
-        {
-          name: 'Source Directories',
-          activePaths: ['SourceDirs'],
-          icon: viewsIcons['SourceDirs'],
-          id: 'SourceDirs',
-          props: {
-            onClick: () => initialData?.changeTab('SourceDirs'),
           },
         },
         {
@@ -128,4 +110,27 @@ export const buildMenu = (initialData?: any): IQorusSidebarItems => {
       })),
     },
   };
+
+  if (!initialData.is_hosted_instance) {
+    menu.menu.items.unshift({
+      name: 'Environments',
+      activePaths: ['ProjectConfig'],
+      icon: viewsIcons['ProjectConfig'],
+      id: 'ProjectConfig',
+      props: {
+        onClick: () => initialData?.changeTab('ProjectConfig'),
+      },
+    });
+    menu.menu.items.unshift({
+      name: 'Source Directories',
+      activePaths: ['SourceDirs'],
+      icon: viewsIcons['SourceDirs'],
+      id: 'SourceDirs',
+      props: {
+        onClick: () => initialData?.changeTab('SourceDirs'),
+      },
+    });
+  }
+
+  return menu;
 };

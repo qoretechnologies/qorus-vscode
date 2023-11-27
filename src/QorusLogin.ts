@@ -20,18 +20,30 @@ export class QorusLogin extends QorusAuth {
   private active_instance_ping_interval_id: any;
 
   activateOnHostedInstance() {
-    this.addToken(hosted_instance_url, hosted_instance_token, true);
+    vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        cancellable: false,
+        title: 'Setting up your environment...',
+      },
+      async () => {
+        console.log({
+          hosted_instance_token,
+          hosted_instance_url,
+        });
 
-    msg.info(t`LoginSuccessful`);
+        this.addToken(hosted_instance_url, hosted_instance_token, true);
 
-    projects.currentProjectCodeInfo()?.setCurrentQorusData();
+        projects.currentProjectCodeInfo()?.setCurrentQorusData();
 
-    this.startConnectionCheck();
+        this.startConnectionCheck();
 
-    instance_tree.refresh();
+        instance_tree.refresh();
 
-    // Open the webview
-    qorus_webview.open();
+        // Open the webview
+        qorus_webview.open();
+      }
+    );
   }
 
   login(tree_item: string | vscode.TreeItem, set_active: boolean = true) {
@@ -283,8 +295,6 @@ export class QorusLogin extends QorusAuth {
 
     const active_instance = instance_tree.getQorusInstance(this.active_url);
 
-    console.log({ active_instance, active_url: this.active_url });
-
     if (!active_instance) {
       msg.error(t`UnableGetActiveQorusInstanceData`);
       return { ok: false };
@@ -298,8 +308,6 @@ export class QorusLogin extends QorusAuth {
         return { ok: false };
       }
     }
-
-    console.log('ACTIVE QORUS INSTANCE AND TOKEN', { active_instance, token });
 
     return { ok: true, active_instance, token };
   }

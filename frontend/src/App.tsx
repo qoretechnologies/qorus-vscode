@@ -104,6 +104,7 @@ const App: FunctionComponent<IApp> = ({
   setDraftData,
   setStepsFromDraft,
   setFieldsFromDraft,
+  is_hosted_instance,
   ...rest
 }) => {
   const [openedDialogs, setOpenedDialogs] = useState<{ id: string; onClose: () => void }[]>([]);
@@ -471,17 +472,19 @@ const App: FunctionComponent<IApp> = ({
                       <ReqoreIcon icon="RefreshLine" size="20px" />
                     </ReqorePopover>
                     <ReqoreNavbarDivider />
-                    <ReqorePopover
-                      isReqoreComponent
-                      component={ReqoreNavbarItem}
-                      componentProps={{
-                        interactive: true,
-                        onClick: () => setIsDirsDialogOpen(true),
-                      }}
-                      content={'Manage source directories'}
-                    >
-                      <ReqoreIcon icon="FolderAddLine" size="20px" />
-                    </ReqorePopover>
+                    {!is_hosted_instance && (
+                      <ReqorePopover
+                        isReqoreComponent
+                        component={ReqoreNavbarItem}
+                        componentProps={{
+                          interactive: true,
+                          onClick: () => setIsDirsDialogOpen(true),
+                        }}
+                        content={'Manage source directories'}
+                      >
+                        <ReqoreIcon icon="FolderAddLine" size="20px" />
+                      </ReqorePopover>
+                    )}
                     <ReqorePopover
                       component={ReqoreNavbarItem}
                       componentProps={{ interactive: true }}

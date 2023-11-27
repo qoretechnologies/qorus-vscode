@@ -161,6 +161,7 @@ class QorusWebview {
             retainContextWhenHidden: true,
             enableCommandUris: true,
             enableFindWidget: true,
+
             localResourceRoots: [vscode.Uri.file(path.join(web_path))],
           }
         );
@@ -316,6 +317,11 @@ class QorusWebview {
               break;
             case 'release-save-package':
               releaser.savePackage();
+              break;
+
+            case 'open-window':
+              // Open new browser window
+              vscode.env.openExternal(vscode.Uri.parse(message.url));
               break;
             case 'creator-get-fields':
               creator

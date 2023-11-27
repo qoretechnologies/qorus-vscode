@@ -131,6 +131,7 @@ export default () =>
 
       useEffect(() => {
         const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
+          console.log(data);
           props.setTheme(data.theme);
 
           flushSync(() => setInitialData({}));
@@ -436,7 +437,10 @@ export default () =>
       };
 
       const changeDraft = (draftData) => {
-        setInitialData({});
+        setInitialData({
+          is_hosted_instance: initialData.is_hosted_instance,
+          qorus_instance: initialData.qorus_instance,
+        });
         setDraftData(draftData);
       };
 

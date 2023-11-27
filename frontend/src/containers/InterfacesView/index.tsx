@@ -79,10 +79,10 @@ export interface IDraftData {
 export interface IQorusInterfacesViewProps {}
 
 export const InterfacesView = () => {
-  const { qorus_instance, subtab, changeTab } = useContext(InitialContext);
+  const { qorus_instance, subtab, changeTab, is_hosted_instance } = useContext(InitialContext);
   const [items, setItems] = useState<Record<string, IQorusInterface[]>>(null);
   const [type, setType] = useState(subtab || 'class');
-  const [showRemotes, setShowRemotes] = useState(false);
+  const [showRemotes, setShowRemotes] = useState(is_hosted_instance);
   const addNotification = useReqoreProperty('addNotification');
   const [zoom, setZoom] = useState(0.5);
 
@@ -162,7 +162,7 @@ export const InterfacesView = () => {
           disabled: !qorus_instance,
           onClick: () => setShowRemotes(!showRemotes),
           effect: QorusColorEffect,
-          show: !isCurrentTypeOther,
+          show: !isCurrentTypeOther && !is_hosted_instance,
           className: 'interfaces-toggle-remotes',
         },
         {
