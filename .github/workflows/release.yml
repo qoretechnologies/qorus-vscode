@@ -34,7 +34,7 @@ jobs:
         run: echo "::set-output name=HEAD_COMMIT_MESSAGE::$(git show -s --format=%s)"
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.19.0
+          node-version: 18.18.0
       - name: Save release version to outputs
         id: save_release_version
         run: echo ::set-output name=version::$(node -pe "require('./package.json').version")
@@ -46,9 +46,12 @@ jobs:
           yarn install
       - name: Publish
         id: publish
-        run: ./node_modules/.bin/vsce publish
+        run: NODE_OPTIONS=--openssl-legacy-provider ./node_modules/.bin/vsce publish
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - name: Publish to Open VSX
+        id: publish_open_vsx
+        run: NODE_OPTIONS=--openssl-legacy-provider npx ovsx publish -p ${{ secrets.OPENVSX_PAT }}
       - name: Create a release
         id: release
         uses: actions/create-release@v1

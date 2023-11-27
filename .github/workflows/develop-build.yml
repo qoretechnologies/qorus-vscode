@@ -35,7 +35,7 @@ jobs:
         run: echo "::set-output name=HEAD_COMMIT_MESSAGE::$(git show -s --format=%s)"
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.19.0
+          node-version: 18.18.0
       - name: Save release version to outputs
         id: save_release_version
         run: echo ::set-output name=version::$(node -pe "require('./package.json').version")
@@ -56,7 +56,7 @@ jobs:
           exitZeroOnChanges: true
       - name: Package
         id: package
-        run: ./node_modules/.bin/vsce package --no-yarn
+        run: NODE_OPTIONS=--openssl-legacy-provider ./node_modules/.bin/vsce package --no-yarn
       - uses: actions/upload-artifact@v3
         with:
           name: IDE v${{ steps.save_release_version.outputs.version }} develop
