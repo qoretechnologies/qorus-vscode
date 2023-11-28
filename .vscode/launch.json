@@ -29,7 +29,7 @@
       "localRoot": "../${workspaceFolder}/qorus/",
       "env": {
         "QORUS_CAPTIVE_URL": "https://hq.qoretechnologies.com:8092/",
-        "QORUS_AUTH_TOKEN": "abcdefgh"
+        "QORUS_AUTH_TOKEN": "11032f6d-ad68-4e55-93d8-3b3439288b0d"
       },
       "debugWebviews": true,
       "sourceMaps": true,

@@ -53,6 +53,7 @@ import { LoginContainer } from './login/Login';
 import ProjectConfig from './project_config/ProjectConfig';
 import SourceDirectories from './project_config/sourceDirs';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
+import { Dashboard } from './views/dashboard';
 const md5 = require('md5');
 
 const GlobalStyle = createGlobalStyle`
@@ -539,6 +540,7 @@ const App: FunctionComponent<IApp> = ({
                     onClose={() => setIsDirsDialogOpen(false)}
                   />
                   <>
+                    {tab == 'Dashboard' && <Dashboard />}
                     {tab == 'Login' && <LoginContainer />}
                     {tab == 'Loading' && <Loader text={t('Loading')} />}
                     {tab == 'ProjectConfig' && <ProjectConfig />}

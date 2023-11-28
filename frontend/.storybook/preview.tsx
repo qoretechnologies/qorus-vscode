@@ -61,7 +61,9 @@ const preview: Preview = {
     },
   },
   args: {
-    qorus_instance: true,
+    qorus_instance: {
+      url: 'https://hq.qoretechnologies.com:8092',
+    },
     reqoreOptions: {
       animations: {
         dialogs: false,

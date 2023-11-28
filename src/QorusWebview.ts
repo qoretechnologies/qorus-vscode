@@ -487,6 +487,16 @@ class QorusWebview {
                 },
               });
               break;
+            case 'get-latest-draft':
+              this.panel.webview.postMessage({
+                action: 'get-latest-draft-complete',
+                request_id: message.request_id,
+                ok: true,
+                data: {
+                  draft: QorusDraftsInstance.getLatestDraft(),
+                },
+              });
+              break;
             case 'get-drafts':
               this.panel.webview.postMessage({
                 action: 'get-drafts-complete',

@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
+import { InitialContext } from '../context/init';
 import { fetchData } from '../helpers/functions';
 import { postMessage } from '../hocomponents/withMessageHandler';
 
@@ -11,21 +12,25 @@ export const useAuthorizeOAuth2App = ({
   redirectUri,
   onWindowOpen,
 }: IUseAuthorizeOAuth2AppProps) => {
+  const { qorus_instance } = useContext(InitialContext);
   const handleAuthorizeClick = useCallback(
     async (connectionName, needsAuthentication) => {
       if (!connectionName || !needsAuthentication) {
         return undefined;
       }
 
-      const data = await fetchData(`/connections/${connectionName}/oauth2AuthRequestUri`, 'PUT', {
-        redirect_uri: redirectUri || window.location.href,
-      });
+      const data = await fetchData(
+        `/connections/${connectionName}/oauth2AuthRequestUri?qorus_url=${qorus_instance.url}`,
+        'PUT',
+        {
+          redirect_uri: redirectUri || window.location.href,
+        }
+      );
 
       if (data.ok) {
         postMessage?.('open-window', {
           url: data.data,
         });
-        //window.open(data.data, '_blank', 'noopener noreferrer width=700,height=1000');
         onWindowOpen?.();
         return data.data;
       }

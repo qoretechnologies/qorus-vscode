@@ -117,6 +117,13 @@ class QorusDrafts {
     }
   }
 
+  public getLatestDraft() {
+    const folders = this.getDraftsFolders();
+    const drafts = folders.map((folder) => this.getDraftsForInterface(folder)).flat();
+
+    return sortBy(drafts, (draft) => draft.date).reverse()[0];
+  }
+
   public getDraftsCountForInterface(interfaceKind: string): number {
     return size(this.getDraftsForInterface(interfaceKind));
   }

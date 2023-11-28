@@ -51,6 +51,7 @@ export const Messages = {
   SAVE_DRAFT: 'save-draft',
   GET_DRAFTS: 'get-drafts',
   GET_DRAFT: 'get-draft',
+  GET_LATEST_DRAFT: 'get-latest-draft',
   GET_ALL_DRAFTS_WITH_COUNT: 'get-all-drafts',
   DELETE_DRAFT: 'delete-draft',
   GET_FILE_CONTENT: 'get-file-contents',

@@ -58,6 +58,14 @@ export const vscode =
               };
               break;
             }
+            case 'get-latest-draft': {
+              messageData = {
+                action: 'get-latest-draft-complete',
+                data: {},
+                request_id: data.request_id,
+              };
+              break;
+            }
             case 'creator-get-directories': {
               messageData = {
                 action: 'creator-return-directories',

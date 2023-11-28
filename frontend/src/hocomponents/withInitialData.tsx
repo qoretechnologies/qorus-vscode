@@ -146,7 +146,7 @@ export default () =>
           );
 
           if (!data?.tab) {
-            data.tab = data.is_hosted_instance ? 'Interfaces' : 'ProjectConfig';
+            data.tab = data.is_hosted_instance ? 'Dashboard' : 'ProjectConfig';
           }
 
           if (data?.draftData) {
