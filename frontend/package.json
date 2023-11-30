@@ -9,7 +9,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@previewjs/plugin-react": "^3.1.2",
     "@qoretechnologies/python-parser": "^0.4.10",
-    "@qoretechnologies/reqore": "^0.38.2",
+    "@qoretechnologies/reqore": "^0.38.3",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
@@ -129,10 +129,17 @@
     "install-playwright": "npx playwright install --with-deps"
   },
   "eslintConfig": {
-    "extends": ["react-app", "react-app/jest"]
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -140,10 +147,19 @@
     ]
   },
   "jest": {
-    "roots": ["<rootDir>/__tests__"],
-    "collectCoverageFrom": ["src/**/*.{js,jsx,ts,tsx}", "!src/**/*.d.ts"],
-    "setupFiles": ["react-app-polyfill/jsdom"],
-    "setupFilesAfterEnv": ["<rootDir>/__tests__/setup.js"],
+    "roots": [
+      "<rootDir>/__tests__"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.d.ts"
+    ],
+    "setupFiles": [
+      "react-app-polyfill/jsdom"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/__tests__/setup.js"
+    ],
     "testMatch": [
       "<rootDir>/__tests__/**/*.{spec,test}.{js,jsx,ts,tsx}",
       "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
@@ -188,7 +204,9 @@
     "testTimeout": 60000
   },
   "babel": {
-    "presets": ["react-app"]
+    "presets": [
+      "react-app"
+    ]
   },
   "devDependencies": {
     "@chromaui/addon-visual-tests": "^0.0.98",

@@ -595,9 +595,17 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const areStatesValid = (states: IFSMStates): boolean => {
     let valid = true;
 
-    forEach(states, (state) => {
+    forEach(states, (state, id) => {
       if (state.isValid === false) {
         valid = false;
+        // stop the loop
+        return;
+      }
+
+      if (isStateIsolated(id, states)) {
+        valid = false;
+
+        return;
       }
     });
 
@@ -2340,10 +2348,30 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           {
             label: !areMetadataValid() || !isFSMValid() ? 'Fix to publish' : t('Publish'),
             onClick: handleSubmitClick,
-            disabled: !areMetadataValid() || !isFSMValid(),
+            readOnly: !areMetadataValid() || !isFSMValid(),
             icon: !areMetadataValid() || !isFSMValid() ? 'ErrorWarningLine' : 'CheckLine',
             effect: !areMetadataValid() || !isFSMValid() ? WarningColorEffect : SaveColorEffect,
             show: !embedded,
+            tooltip: isFSMValid()
+              ? undefined
+              : {
+                  content: (
+                    <>
+                      {!areMetadataValid() && (
+                        <ReqoreMessage intent="danger" margin="bottom" opaque={false}>
+                          Metadata is not valid, please make sure the name of your Qodex is valid
+                          and that input & output types are compatible
+                        </ReqoreMessage>
+                      )}
+                      {!areStatesValid(states) && (
+                        <ReqoreMessage intent="danger" margin="bottom" opaque={false}>
+                          States are not valid, please make sure that all states are connected and
+                          the trigger state is present
+                        </ReqoreMessage>
+                      )}
+                    </>
+                  ),
+                },
           },
         ]}
       >

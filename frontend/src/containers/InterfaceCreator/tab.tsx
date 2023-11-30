@@ -263,7 +263,8 @@ const Tab: React.FC<ITabProps> = ({
   };
   const [recreateDialog, setRecreateDialog] = useState<any>(null);
   const [draftsOpen, setDraftsOpen] = useState<boolean>(false);
-  const { changeTab, isSavingDraft, lastDraft }: any = useContext(InitialContext);
+  const { changeTab, isSavingDraft, lastDraft, is_hosted_instance }: any =
+    useContext(InitialContext);
   const { methods, setMethods, setMethodsCount }: any = useContext(MethodsContext);
   const { maybeApplyDraft, addDraft } = useContext<IDraftsContext>(DraftsContext);
   const [draftsCount, setDraftsCount] = useState<number>(0);
@@ -465,7 +466,7 @@ const Tab: React.FC<ITabProps> = ({
           {
             icon: 'Home4Fill',
             onClick: () => {
-              changeTab('ProjectConfig');
+              changeTab(is_hosted_instance ? 'Dashboard' : 'ProjectConfig');
             },
           },
           {

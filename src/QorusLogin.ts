@@ -27,11 +27,6 @@ export class QorusLogin extends QorusAuth {
         title: 'Setting up your environment...',
       },
       async () => {
-        console.log({
-          hosted_instance_token,
-          hosted_instance_url,
-        });
-
         this.addToken(hosted_instance_url, hosted_instance_token, true);
 
         projects.currentProjectCodeInfo()?.setCurrentQorusData();

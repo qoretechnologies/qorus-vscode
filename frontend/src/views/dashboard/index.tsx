@@ -1,6 +1,8 @@
 import {
   ReqoreColumns,
   ReqoreH1,
+  ReqoreH3,
+  ReqoreInput,
   ReqorePanel,
   ReqoreSpinner,
   ReqoreTag,
@@ -22,8 +24,6 @@ export const Dashboard = () => {
 
   const interfaces = useAsyncRetry(async () => {
     const data = await callBackendBasic(Messages.GET_ALL_INTERFACES, undefined);
-
-    console.log(data.data);
 
     return data?.data;
   }, []);
@@ -60,8 +60,8 @@ export const Dashboard = () => {
             alignItems: 'center',
           }}
         >
-          <ReqoreH1>
-            Create New{' '}
+          <ReqoreH1 effect={{ textAlign: 'center' }}>
+            Create New <br />
             <ReqoreTextEffect
               effect={{
                 gradient: {
@@ -73,6 +73,7 @@ export const Dashboard = () => {
                   animationSpeed: 5,
                   animate: 'always',
                 },
+                textSize: '40px',
               }}
             >
               Automation
@@ -80,27 +81,20 @@ export const Dashboard = () => {
           </ReqoreH1>
         </ReqorePanel>
         <ReqoreColumns columnsGap="10px" minColumnWidth="100%">
-          <ReqorePanel
-            customTheme={theme}
-            minimal
-            icon="Edit2Line"
-            contentEffect={{
+          <ReqoreInput
+            size="big"
+            placeholder="Search away..."
+            effect={{
               gradient: {
-                direction: 'to right bottom',
                 colors: {
-                  100: 'main',
-
-                  0: '#3e2d04',
+                  0: '#443306',
+                  100: '#000000',
                 },
-                animate: 'hover',
-                animationSpeed: 5,
+                borderColor: 'warning',
               },
+              textSize: '20px',
             }}
-            label="Open latest draft"
-          >
-            {capitalize(draft.value.interfaceKind)} "{draft.value.name}" created{' '}
-            <ReqoreTimeAgo time={draft.value.date} />
-          </ReqorePanel>
+          />
           <ReqoreColumns columnsGap="10px" minColumnWidth="150px">
             <ReqoreColumns
               columnsGap="10px"
@@ -141,8 +135,14 @@ export const Dashboard = () => {
                 Browse All <br />{' '}
                 <ReqoreTag
                   asBadge
-                  label={reduce(interfaces, (count, ifaceList) => count + ifaceList.length, 0)}
-                />
+                  color="#9705d1"
+                  size="small"
+                  label={reduce(
+                    interfaces.value,
+                    (count, ifaceList) => count + ifaceList.length,
+                    0
+                  ).toString()}
+                />{' '}
                 Objects
               </ReqoreTextEffect>
             </ReqorePanel>
@@ -150,8 +150,46 @@ export const Dashboard = () => {
         </ReqoreColumns>
       </ReqoreColumns>
       <ReqoreColumns columnsGap="10px">
-        <ReqorePanel customTheme={theme}>Row 2 Column 1</ReqorePanel>
-        <ReqorePanel customTheme={theme}>Row 2 Column 2</ReqorePanel>
+        {draft.value && (
+          <ReqorePanel
+            customTheme={theme}
+            minimal
+            icon="Edit2Line"
+            contentEffect={{
+              gradient: {
+                direction: 'to right bottom',
+                colors: {
+                  100: 'main',
+
+                  0: '#3e2d04',
+                },
+                animate: 'hover',
+                animationSpeed: 5,
+              },
+            }}
+            label="Open latest draft"
+          >
+            {capitalize(draft.value.interfaceKind)} "{draft.value.name}" created{' '}
+            <ReqoreTimeAgo time={draft.value.date} />
+          </ReqorePanel>
+        )}
+        <ReqorePanel
+          customTheme={theme}
+          contentEffect={{
+            gradient: {
+              direction: 'to left',
+              colors: {
+                100: 'main',
+
+                0: '#042d3e',
+              },
+              animate: 'hover',
+              animationSpeed: 5,
+            },
+          }}
+        >
+          <ReqoreH3>Create A Release</ReqoreH3>
+        </ReqorePanel>
       </ReqoreColumns>
     </ReqoreColumns>
   );

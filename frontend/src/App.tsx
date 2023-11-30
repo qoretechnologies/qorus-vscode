@@ -1,29 +1,30 @@
 import {
-  ReqoreContent,
-  ReqoreHeader,
-  ReqoreIcon,
   ReqoreMenu,
   ReqoreMenuDivider,
   ReqoreMenuItem,
-  ReqoreNavbarDivider,
-  ReqoreNavbarGroup,
-  ReqoreNavbarItem,
-  ReqorePopover,
-  ReqoreTag,
+  ReqorePanel,
   useReqore,
 } from '@qoretechnologies/reqore';
+import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import last from 'lodash/last';
 import size from 'lodash/size';
-import { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
 import { createGlobalStyle } from 'styled-components';
+import packageJson from '../package.json';
 import { DraftsView } from './DraftsView';
 import ContextMenu from './components/ContextMenu';
 import Loader from './components/Loader';
-import Menu from './components/Menu';
-import { interfaceIcons, interfaceKindToName, viewsIcons } from './constants/interfaces';
+import QorusBase64Image from './components/QorusBase64Image';
+import {
+  interfaceIcons,
+  interfaceKindToName,
+  interfaceNameToKind,
+  viewsIcons,
+} from './constants/interfaces';
+import { MenuSubItems } from './constants/menu';
 import { Messages } from './constants/messages';
 import InterfaceCreator from './containers/InterfaceCreator';
 import { InterfacesView } from './containers/InterfacesView';
@@ -355,6 +356,31 @@ const App: FunctionComponent<IApp> = ({
     });
   };
 
+  const badges: IReqorePanelProps['badge'] = useMemo(() => {
+    let badge: IReqorePanelProps['badge'] = [];
+
+    badge.push({
+      icon: 'ComputerLine',
+      effect: qorus_instance ? { gradient: { colors: '#7e2d90' }, weight: 'bold' } : undefined,
+      tooltip: is_hosted_instance
+        ? 'Connected locally'
+        : qorus_instance
+        ? qorus_instance.name
+        : 'Not connected',
+    });
+
+    if (!is_qore_installed) {
+      badge.push({
+        icon: 'SpamLine',
+        intent: 'danger',
+        tooltip: 'Qore language is not installed',
+        effect: { gradient: { colors: '#ac1728' }, weight: 'bold' },
+      });
+    }
+
+    return badge;
+  }, []);
+
   if (!t) {
     return <Loader text="Loading app..." />;
   }
@@ -385,150 +411,168 @@ const App: FunctionComponent<IApp> = ({
           <DialogsContext.Provider value={{ addDialog, removeDialog }}>
             {contextMenu && <ContextMenu {...contextMenu} onClick={() => setContextMenu(null)} />}
             <TextContext.Provider value={t}>
-              {tab !== 'Login' && <Menu />}
-              <ReqoreContent style={{ overflow: 'hidden', display: 'flex', flexFlow: 'column' }}>
-                <ReqoreHeader>
-                  <ReqoreNavbarGroup position="left">
-                    <ReqoreNavbarItem>
-                      <ReqoreTag
-                        size="small"
-                        icon="Folder3Line"
-                        labelKey={t('Project')}
-                        label={project_folder}
-                      />
-                    </ReqoreNavbarItem>
-                    <ReqoreNavbarItem>
-                      <ReqoreTag
-                        size="small"
-                        icon="ServerLine"
-                        labelKey={t('ActiveQorusInstance')}
-                        label={qorus_instance ? qorus_instance.name : t('N/A')}
-                        effect={
-                          qorus_instance
-                            ? { gradient: { colors: '#7e2d90' }, weight: 'bold' }
-                            : undefined
-                        }
-                      />
-                    </ReqoreNavbarItem>
-                    {!is_qore_installed && (
-                      <ReqoreNavbarItem>
-                        <ReqoreTag
-                          size="small"
-                          icon="ErrorWarningLine"
-                          labelKey="qore"
-                          label="missing"
-                          effect={{ gradient: { colors: '#ac1728' }, weight: 'bold' }}
-                        />
-                      </ReqoreNavbarItem>
-                    )}
-                  </ReqoreNavbarGroup>
-                  <ReqoreNavbarGroup position="right">
-                    <ReqorePopover
-                      component={ReqoreNavbarItem}
-                      componentProps={{
-                        interactive: true,
+              {/*tab !== 'Login' && <Menu />*/}
+              <ReqorePanel
+                fluid
+                fill
+                flat
+                rounded={false}
+                iconImage={QorusBase64Image}
+                iconProps={{ size: '27px', style: { height: 'auto' } }}
+                contentStyle={{ overflow: 'hidden', display: 'flex', flexFlow: 'column' }}
+                label="Qorus IDE"
+                badge={badges}
+                headerEffect={{
+                  glow: {
+                    color: '#7e2d90',
+                    blur: 0.5,
+                    size: 0.5,
+                  },
+                }}
+                actions={[
+                  {
+                    fixed: true,
+                    group: [
+                      {
                         onClick: () => onHistoryBackClick(),
                         disabled: size(tabHistory) <= 1,
-                      }}
-                      handler="hoverStay"
-                      isReqoreComponent
-                      noWrapper
-                      content={
-                        <ReqoreMenu rounded maxHeight="300px">
-                          <ReqoreMenuDivider label={'History'} />
-                          {[...tabHistory].reverse().map(({ subtab, tab, name }, index: number) =>
-                            index !== 0 ? (
-                              <ReqoreMenuItem
-                                icon={subtab ? interfaceIcons[subtab] : viewsIcons[tab]}
-                                onClick={() => onHistoryBackClick(tabHistory.length - (index + 1))}
-                                description={
-                                  name || (tab === 'CreateInterface' ? 'New' : undefined)
-                                }
-                              >
-                                {t(tab)}
-                                {subtab ? ` : ${interfaceKindToName[subtab]}` : ''}
-                              </ReqoreMenuItem>
-                            ) : null
-                          )}
-                        </ReqoreMenu>
-                      }
-                    >
-                      <ReqoreIcon icon="ArrowLeftSLine" size="huge" />
-                    </ReqorePopover>
-                    <ReqorePopover
-                      component={ReqoreNavbarItem}
-                      componentProps={{
-                        interactive: true,
-                        as: 'a',
-                        href: 'command:workbench.action.webview.reloadWebviewAction',
+                        icon: 'ArrowLeftSLine',
+
+                        tooltip: {
+                          noWrapper: true,
+                          noArrow: true,
+                          handler: 'hoverStay',
+                          content: (
+                            <ReqoreMenu rounded maxHeight="300px">
+                              <ReqoreMenuDivider label={'History'} />
+                              {[...tabHistory]
+                                .reverse()
+                                .map(({ subtab, tab, name }, index: number) =>
+                                  index !== 0 ? (
+                                    <ReqoreMenuItem
+                                      icon={subtab ? interfaceIcons[subtab] : viewsIcons[tab]}
+                                      onClick={() =>
+                                        onHistoryBackClick(tabHistory.length - (index + 1))
+                                      }
+                                      description={
+                                        name || (tab === 'CreateInterface' ? 'New' : undefined)
+                                      }
+                                    >
+                                      {t(tab)}
+                                      {subtab ? ` : ${interfaceKindToName[subtab]}` : ''}
+                                    </ReqoreMenuItem>
+                                  ) : null
+                                )}
+                            </ReqoreMenu>
+                          ),
+                        },
+                      },
+                      {
+                        icon: 'RefreshLine',
                         onClick: () =>
                           addNotification({
                             content: t('ReloadingWebview'),
-                            intent: 'warning',
+                            intent: 'pending',
                             icon: 'RefreshLine',
                           }),
-                      }}
-                      content={'Reload webview'}
-                    >
-                      <ReqoreIcon icon="RefreshLine" size="20px" />
-                    </ReqorePopover>
-                    <ReqoreNavbarDivider />
-                    {!is_hosted_instance && (
-                      <ReqorePopover
-                        isReqoreComponent
-                        component={ReqoreNavbarItem}
-                        componentProps={{
-                          interactive: true,
-                          onClick: () => setIsDirsDialogOpen(true),
-                        }}
-                        content={'Manage source directories'}
-                      >
-                        <ReqoreIcon icon="FolderAddLine" size="20px" />
-                      </ReqorePopover>
-                    )}
-                    <ReqorePopover
-                      component={ReqoreNavbarItem}
-                      componentProps={{ interactive: true }}
-                      handler="click"
-                      isReqoreComponent
-                      noWrapper
-                      content={
-                        <ReqoreMenu rounded>
-                          <ReqoreMenuDivider label={'Change theme'} />
-                          <ReqoreMenuItem
-                            icon="SunFill"
-                            onClick={() => changeTheme('light')}
-                            selected={theme === 'light'}
-                            rightIcon={theme === 'light' ? 'CheckLine' : undefined}
-                          >
-                            Light theme
-                          </ReqoreMenuItem>
-                          <ReqoreMenuItem
-                            icon="MoonFill"
-                            onClick={() => changeTheme('dark')}
-                            selected={theme === 'dark'}
-                            rightIcon={theme === 'dark' ? 'CheckLine' : undefined}
-                          >
-                            Dark theme
-                          </ReqoreMenuItem>
-                          <ReqoreMenuItem
-                            icon="CodeBoxLine"
-                            onClick={() => changeTheme('vscode')}
-                            selected={theme === 'vscode'}
-                            rightIcon={theme === 'vscode' ? 'CheckLine' : undefined}
-                          >
-                            Follow VSCode theme
-                          </ReqoreMenuItem>
-                        </ReqoreMenu>
-                      }
-                    >
-                      <ReqoreIcon icon="PaletteLine" size="20px" tooltip="Change theme" />
-                    </ReqorePopover>
-                  </ReqoreNavbarGroup>
-                </ReqoreHeader>
+                        tooltip: 'Reload webview',
+                      },
+                    ],
+                  },
+                  {
+                    fixed: true,
+                    group: [
+                      {
+                        icon: viewsIcons['Interfaces'],
+                        onClick: () => changeTab('Interfaces'),
+                        tooltip: {
+                          handler: 'hoverStay',
+                          noWrapper: true,
+                          content: (
+                            <ReqoreMenu rounded width="250px">
+                              <ReqoreMenuDivider label={t('Objects')} />
+                              {MenuSubItems.map((item) => (
+                                <ReqoreMenuItem
+                                  label={item.name}
+                                  icon={item.icon}
+                                  onClick={() =>
+                                    changeTab('Interfaces', interfaceNameToKind[item.name])
+                                  }
+                                  rightIcon="AddCircleLine"
+                                  rightIconColor="info"
+                                  rightIconProps={{
+                                    intent: 'info',
+                                  }}
+                                  onRightIconClick={() =>
+                                    changeTab('CreateInterface', interfaceNameToKind[item.name])
+                                  }
+                                />
+                              ))}
+                            </ReqoreMenu>
+                          ),
+                        },
+                      },
+                      {
+                        icon: viewsIcons['ReleasePackage'],
+                        onClick: () => changeTab('ReleasePackage'),
+                      },
+                    ],
+                  },
+                  {
+                    icon: 'FolderAddLine',
+                    onClick: () => setIsDirsDialogOpen(true),
+                    tooltip: 'Manage source directories',
+                    show: !is_hosted_instance,
+                  },
+                  {
+                    icon: 'MoreLine',
+                    actions: [
+                      {
+                        divider: true,
+                        label: 'Theme',
+                      },
+                      {
+                        icon: 'SunFill',
+                        onClick: () => changeTheme('light'),
+                        selected: theme === 'light',
+                        rightIcon: theme === 'light' ? 'CheckLine' : undefined,
+                        label: 'Light Theme',
+                      },
+                      {
+                        icon: 'MoonFill',
+                        onClick: () => changeTheme('dark'),
+                        selected: theme === 'dark',
+                        rightIcon: theme === 'dark' ? 'CheckLine' : undefined,
+                        label: 'Dark Theme',
+                      },
+                      {
+                        icon: 'CodeBoxLine',
+                        onClick: () => changeTheme('vscode'),
+                        selected: theme === 'vscode',
+                        rightIcon: theme === 'vscode' ? 'CheckLine' : undefined,
+                        label: 'Follow VSCode Theme',
+                      },
+                      {
+                        divider: true,
+                        label: 'Info',
+                      },
+                      {
+                        label: `Version: v${packageJson.version} ${
+                          process.env.NODE_ENV === 'development' ? '_dev' : ''
+                        }`,
+                        readOnly: true,
+                      },
+                      {
+                        label: `Project: ${project_folder}`,
+                        readOnly: true,
+                      },
+                    ],
+                  },
+                ]}
+              >
                 <div
                   style={{
-                    margin: '0 10px',
+                    margin: '0',
                     overflow: 'auto',
                     display: 'flex',
                     flex: 1,
@@ -552,7 +596,7 @@ const App: FunctionComponent<IApp> = ({
                     {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
                   </>
                 </div>
-              </ReqoreContent>
+              </ReqorePanel>
             </TextContext.Provider>
           </DialogsContext.Provider>
         </ContextMenuContext.Provider>

@@ -777,3 +777,21 @@ export const getAppAndAction = (
 
   return { app, action };
 };
+
+export const getBuiltInAppAndAction = (
+  apps: IApp[],
+  type: Omit<TAction, 'appaction'>
+): { app: IApp; action: IAppAction } => {
+  if (!apps || !size(apps)) {
+    return { app: undefined, action: undefined };
+  }
+
+  // Get all the built in apps
+  const builtInApps = apps.filter((a) => a.builtin);
+  // Get the built in app that has the action
+  const app = builtInApps.find((a) => a.actions.find((action) => action.action === type));
+  // Get the action
+  const action = app?.actions.find((a) => a.action === type);
+
+  return { app, action };
+};

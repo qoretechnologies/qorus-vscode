@@ -51,10 +51,11 @@ export const interfaceToPlural = {
 };
 
 export const viewsIcons: Record<string, IReqoreIconName> = {
+  Dashboard: 'Dashboard2Line',
   ProjectConfig: 'Home3Fill',
   Interfaces: 'FileList2Line',
   SourceDirs: 'FolderAddLine',
-  ReleasePackage: 'CodeBoxLine',
+  ReleasePackage: 'GitRepositoryLine',
 };
 
 export const interfaceIcons: Record<string, IReqoreIconName> = {

@@ -153,6 +153,7 @@ export interface IOptionsSchemaArg {
   sensitive?: boolean;
   desc?: string;
   arg_schema?: IOptionsSchema;
+  disallow_template?: boolean;
 
   app?: string;
   action?: string;
@@ -756,7 +757,7 @@ const Options = ({
                 ) : null}
                 <TemplateField
                   {...options[optionName]}
-                  allowTemplates={allowTemplates}
+                  allowTemplates={allowTemplates && !options[optionName].disallow_template}
                   templates={rest?.stringTemplates}
                   component={AutoField}
                   {...getTypeAndCanBeNull(type, options[optionName].allowed_values, other.op)}

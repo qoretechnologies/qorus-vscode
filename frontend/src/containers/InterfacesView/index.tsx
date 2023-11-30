@@ -195,7 +195,6 @@ export const InterfacesView = () => {
           <ReqoreMenuItem
             icon={interfaceIcons[iface]}
             flat={type !== iface}
-            wrap
             effect={
               type === iface
                 ? {

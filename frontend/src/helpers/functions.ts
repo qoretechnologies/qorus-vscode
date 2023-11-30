@@ -103,7 +103,9 @@ export const isStateIsolated = (
 
   forEach(states, (stateData, keyId) => {
     if (
-      stateData.transitions?.find((transition: IFSMTransition) => transition.state === stateKey)
+      stateData.transitions?.find(
+        (transition: IFSMTransition) => transition.state === stateKey && !transition.fake
+      )
     ) {
       isIsolated = false;
     }
@@ -148,6 +150,10 @@ export const getStateProvider = async (
   providerType: 'input' | 'output'
 ) => {
   if (!data) {
+    return Promise.resolve(null);
+  }
+
+  if (data.interfaceKind === 'appaction') {
     return Promise.resolve(null);
   }
 

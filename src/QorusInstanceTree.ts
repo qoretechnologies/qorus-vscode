@@ -19,8 +19,6 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
     }
     this.qorus_instances = {};
 
-    console.log('SETTING QORUS INSTANCES', this.data);
-
     for (let env_name in this.data) {
       for (let instance of this.data[env_name]) {
         instance.url = modifyUrl(instance.url, 'decrypt-pwd');
@@ -30,8 +28,6 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
   }
 
   getQorusInstance(url: string): any {
-    console.log('GETTING QORUS INSTANCES', url, this.qorus_instances);
-
     return this.qorus_instances[url];
   }
 

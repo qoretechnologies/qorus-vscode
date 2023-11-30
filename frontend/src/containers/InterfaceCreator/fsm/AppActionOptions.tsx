@@ -1,5 +1,6 @@
 import { ReqorePanel, ReqoreSpinner } from '@qoretechnologies/reqore';
 import { IReqoreDropdownProps } from '@qoretechnologies/reqore/dist/components/Dropdown';
+import { IReqoreDropdownItem } from '@qoretechnologies/reqore/dist/components/Dropdown/list';
 import { IReqoreTextareaProps } from '@qoretechnologies/reqore/dist/components/Textarea';
 import { map, reduce, size } from 'lodash';
 import { memo, useCallback, useEffect, useState } from 'react';
@@ -8,7 +9,7 @@ import { TFSMStateAction } from '.';
 import { password, username } from '../../../common/vscode';
 import { IApp, IAppAction } from '../../../components/AppCatalogue';
 import Options, { IOptions, IOptionsSchema } from '../../../components/Field/systemOptions';
-import { getAppAndAction } from '../../../helpers/fsm';
+import { getAppAndAction, getBuiltInAppAndAction } from '../../../helpers/fsm';
 import { fetchData } from '../../../helpers/functions';
 import { useFetchActionOptions } from '../../../hooks/useFetchActionOptions';
 import { useGetAppActionData } from '../../../hooks/useGetAppActionData';
@@ -87,16 +88,19 @@ export const QodexAppActionOptions = memo(
               textAlign: 'left',
               dividerAlign: 'left',
             },
-            ...map(connectedStates, ({ value, isValid }, stateId) => {
-              const { app, action } = getAppAndAction(apps, value.app, value.action);
+            ...map(connectedStates, ({ value, isValid, type }, stateId): IReqoreDropdownItem => {
+              const { app, action } =
+                type === 'appaction'
+                  ? getAppAndAction(apps, value.app, value.action)
+                  : getBuiltInAppAndAction(apps, type);
 
               return {
-                disabled: isValid === false,
+                disabled: isValid === false || size(items[stateId]) === 0,
                 intent: isValid === false ? 'danger' : undefined,
-                label: action.display_name,
-                description: action.short_desc,
+                label: action?.display_name,
+                description: action?.short_desc,
                 leftIconProps: {
-                  image: app.logo,
+                  image: app?.logo,
                 },
                 items: map(items[stateId], ({ display_name, value, example_value, name }) => ({
                   label: display_name,
@@ -241,7 +245,6 @@ export const QodexAppActionOptions = memo(
           padded={false}
           label={undefined}
           badge={undefined}
-          allowTemplates={false}
           options={options}
           value={value}
           onDependableOptionChange={handleDependableOptionChange}

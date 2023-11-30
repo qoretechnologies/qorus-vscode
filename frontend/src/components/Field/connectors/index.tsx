@@ -648,7 +648,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
           <SubField title={t('AllowAPIArguments')} desc={t('AllowAPIArgumentsDesc')}>
             <BooleanField
               name="useArgs"
-              value={optionProvider?.use_args || false}
+              value={optionProvider?.use_args ?? true}
               onChange={(_nm, val) => {
                 setOptionProvider((cur) => ({
                   ...cur,
