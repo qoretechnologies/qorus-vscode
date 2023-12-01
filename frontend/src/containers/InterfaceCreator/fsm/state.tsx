@@ -1,10 +1,12 @@
 import {
+  ReqoreButton,
   ReqoreControlGroup,
   ReqorePanel,
   ReqoreTag,
   ReqoreVerticalSpacer,
   useReqoreProperty,
 } from '@qoretechnologies/reqore';
+import { IReqoreButtonProps } from '@qoretechnologies/reqore/dist/components/Button';
 import {
   IReqoreEffect,
   ReqoreTextEffect,
@@ -35,6 +37,7 @@ export interface IFSMStateProps extends IFSMState {
   onDeleteClick: (id: string) => any;
   onUpdate: (id: string, data: any) => any;
   onTransitionOrderClick: (id: string) => any;
+  onNewStateClick: () => any;
   onSelect: (id: string, fromMouseDown?: boolean) => void;
   startTransitionDrag: (id: string) => any;
   stopTransitionDrag: (id: string) => any;
@@ -103,10 +106,22 @@ export const StyledStateTextWrapper = styled.div`
   flex-flow: column;
 `;
 
+const StyledAddNewStatebutton: React.FC<IReqoreButtonProps> = styled(ReqoreButton)`
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  &:active {
+    transform: translateX(-50%) scale(0.97) !important;
+  }
+`;
+
 const StyledFSMState: React.FC<
   IReqorePanelProps & { isStatic?: boolean } & IFSMStateStyleProps
 > = styled(ReqorePanel)`
   transition: none !important;
+  overflow: unset;
 
   ${({ isStatic }) =>
     !isStatic
@@ -225,6 +240,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
   onDblClick,
   onDeleteClick,
   onTransitionOrderClick,
+  onNewStateClick,
   name,
   desc,
   action,
@@ -687,6 +703,24 @@ const FSMState: React.FC<IFSMStateProps> = ({
             }}
           />
         </ReqoreControlGroup>
+        <StyledAddNewStatebutton
+          size="small"
+          customTheme={{
+            main: is_event_trigger
+              ? 'success:darken'
+              : getStateCategory(action?.type || type) !== 'action'
+              ? '#6f1977'
+              : 'info',
+          }}
+          icon="AddLine"
+          onMouseDown={(e) => {
+            e.stopPropagation();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onNewStateClick?.();
+          }}
+        />
       </StyledFSMState>
     </>
   );

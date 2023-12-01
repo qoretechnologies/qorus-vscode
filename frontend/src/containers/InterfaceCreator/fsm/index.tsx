@@ -432,7 +432,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     height: 0,
   });
   const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(true);
-  const [addingNewStateAt, setIsAddingNewStateAt] = useState<{ x: number; y: number }>(undefined);
+  const [addingNewStateAt, setIsAddingNewStateAt] =
+    useState<{ x: number; y: number; fromState?: string | number }>(undefined);
   const [zoom, setZoom] = useState<number>(1);
   const theme = useReqoreTheme();
 
@@ -476,7 +477,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     x,
     y,
     onSuccess?: (stateId: string) => any,
-    isInjectedTriggerState?: boolean
+    isInjectedTriggerState?: boolean,
+    fromState?: string
   ) => {
     const parentStateId = parseInt(parentStateName) || 0;
     const ids: number[] = size(states)
@@ -489,13 +491,30 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     const maxId = (Math.max(...ids) + 1).toString();
     const id = (item.id ?? (parentStateName ? `${parentStateId}.${maxId}` : maxId)).toString();
 
-    setStates(
-      (cur: IFSMStates): IFSMStates => ({
-        ...cur,
+    setStates((cur: IFSMStates): IFSMStates => {
+      const newStates = cloneDeep(cur);
+      let newX = x;
+      let newY = y;
+
+      // If we are creating a new state from a state, we need to add a transition
+      if (fromState) {
+        newStates[fromState].transitions = [
+          ...(newStates[fromState].transitions || []),
+          {
+            state: id,
+          },
+        ];
+
+        newX = newStates[fromState].position.x;
+        newY = newStates[fromState].position.y + 200;
+      }
+
+      return {
+        ...newStates,
         [id]: {
           position: {
-            x,
-            y,
+            x: newX,
+            y: newY,
           },
           key: id,
           keyId: id,
@@ -524,8 +543,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               : undefined,
           transitions: item.transitions,
         },
-      })
-    );
+      };
+    });
 
     onSuccess?.(id);
 
@@ -2059,7 +2078,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                   varType: action.varType,
                 },
                 isFirstTriggerState ? 50 : x,
-                isFirstTriggerState ? 50 : y
+                isFirstTriggerState ? 50 : y,
+                undefined,
+                undefined,
+                addingNewStateAt.fromState
               );
 
               setIsAddingNewStateAt(undefined);
@@ -2093,8 +2115,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         }}
         interfaceId={interfaceId}
         data={stateData}
-        onSubmit={(data) => {
+        onSubmit={(data, createNew?: boolean) => {
           updateStateData(state, data);
+
+          if (createNew) {
+            setIsAddingNewStateAt({ x: 0, y: 0, fromState: state });
+          }
         }}
         onSavedStatusChanged={(saved?: boolean) => {
           setHasUnsavedState(!saved);
@@ -2353,21 +2379,30 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             effect: !areMetadataValid() || !isFSMValid() ? WarningColorEffect : SaveColorEffect,
             show: !embedded,
             tooltip: isFSMValid()
-              ? undefined
+              ? 'Publish your Qodex'
               : {
+                  intent: 'warning',
                   content: (
                     <>
+                      {size(states) < 2 && (
+                        <ReqoreP>- At least 1 trigger and 1 normal states are required</ReqoreP>
+                      )}
                       {!areMetadataValid() && (
-                        <ReqoreMessage intent="danger" margin="bottom" opaque={false}>
-                          Metadata is not valid, please make sure the name of your Qodex is valid
+                        <ReqoreP>
+                          - Metadata is not valid, please make sure the name of your Qodex is valid
                           and that input & output types are compatible
-                        </ReqoreMessage>
+                        </ReqoreP>
                       )}
                       {!areStatesValid(states) && (
-                        <ReqoreMessage intent="danger" margin="bottom" opaque={false}>
-                          States are not valid, please make sure that all states are connected and
-                          the trigger state is present
-                        </ReqoreMessage>
+                        <ReqoreP>
+                          - All states need to be valid (invalid states have red border) and
+                          connected (isolated states have red warning icon)
+                        </ReqoreP>
+                      )}
+                      {!hasEventTriggerState() && (
+                        <ReqoreP>
+                          - You need to have at least 1 trigger state (state with event trigger)
+                        </ReqoreP>
                       )}
                     </>
                   ),
@@ -2690,6 +2725,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                         onDeleteClick={handleStateDeleteClick}
                         onMouseEnter={setHoveredState}
                         onMouseLeave={setHoveredState}
+                        onNewStateClick={() => {
+                          setIsAddingNewStateAt({ x: 0, y: 0, fromState: id });
+                        }}
                         hasTransitionToItself={hasTransitionToItself(id)}
                         variableDescription={
                           getVariable(

@@ -104,7 +104,7 @@ export const QodexAppActionOptions = memo(
                 },
                 items: map(items[stateId], ({ display_name, value, example_value, name }) => ({
                   label: display_name,
-                  description: `Example value: ${example_value}`,
+                  description: `Example value: ${JSON.stringify(example_value)}`,
                   badge: name,
                   value,
                 })),
@@ -121,6 +121,7 @@ export const QodexAppActionOptions = memo(
       action,
       options: value,
       onSuccess: (options) => {
+        console.log('NEW OPTIONS LOADED', { options });
         setOptions(options);
       },
     });

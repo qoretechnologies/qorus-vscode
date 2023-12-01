@@ -14,6 +14,7 @@ import {
   PendingColorEffect,
   PositiveColorEffect,
   SaveColorEffect,
+  SaveColorEffectAlt,
   WarningColorEffect,
 } from '../../../components/Field/multiPair';
 import { InputOutputType } from '../../../components/InputOutputType';
@@ -43,7 +44,7 @@ export interface IFSMStateDetailProps {
   outputProvider?: any;
   activeTab?: string;
   onClose: () => void;
-  onSubmit: (data: Partial<IFSMState>) => void;
+  onSubmit: (data: Partial<IFSMState>, addNewStateOnSuccess?: boolean) => void;
   onDelete: (unfilled?: boolean) => void;
   onSavedStatusChanged?: (hasSaved: boolean) => void;
 }
@@ -151,6 +152,75 @@ export const FSMStateDetail = memo(
       return isStateValid(dataToSubmit, metadata, optionsSchema);
     }, [autoVars.loading, JSON.stringify(dataToSubmit), JSON.stringify(optionsSchema), isLoading]);
 
+    const handleSubmitClick = (addNewStateOnSuccess?: boolean) => {
+      if (!isCustomBlockFirstPage()) {
+        setIsLoading(true);
+
+        postMessage?.('submit-fsm-state', {
+          iface_id: interfaceId,
+          state_id: dataToSubmit.id,
+        });
+
+        const modifiedData: IFSMState = { ...dataToSubmit };
+
+        modifiedData.isValid = true;
+
+        if (blockLogicType === 'custom') {
+          modifiedData.fsm = undefined;
+        } else {
+          modifiedData.states = undefined;
+        }
+
+        if (modifiedData.execution_order === null) {
+          delete modifiedData.execution_order;
+        }
+
+        if (modifiedData.type === 'block' && !modifiedData['block-type']) {
+          modifiedData['block-type'] = 'for';
+        }
+
+        if (modifiedData.type === 'if' && !modifiedData['input-output-type']) {
+          delete modifiedData['input-output-type'];
+        }
+
+        if (!size(modifiedData['block-config'])) {
+          delete modifiedData['block-config'];
+        }
+
+        modifiedData.globalvar = reduce<TFSMVariables, TFSMVariables>(
+          modifiedData.globalvar,
+          (newGlobal, val, key): TFSMVariables => {
+            if (!val.readOnly) {
+              return {
+                ...newGlobal,
+                [key]: val,
+              };
+            }
+
+            return newGlobal;
+          },
+          {}
+        );
+
+        if (!size(modifiedData.globalvar)) {
+          delete modifiedData.globalvar;
+        }
+
+        if (size(autoVars.value)) {
+          modifiedData.autovar = autoVars.value;
+        }
+
+        onSubmit(modifiedData, addNewStateOnSuccess);
+
+        setIsLoading(false);
+        setHasSaved(true);
+      } else {
+        setIsMetadataHidden(true);
+      }
+    };
+
+    console.log({ isDataValid });
+
     return (
       <ReqorePanel
         flat
@@ -195,13 +265,13 @@ export const FSMStateDetail = memo(
           {
             label: isLoading
               ? 'Loading...'
+              : !isDataValid
+              ? 'Fix to save'
               : isCustomBlockFirstPage()
               ? t('Next')
               : hasSaved
               ? undefined
-              : !isDataValid
-              ? 'Fix to save'
-              : t(`Save action`),
+              : t(`Save`),
             disabled: isCustomBlockFirstPage()
               ? !isFSMBlockConfigValid(dataToSubmit)
               : !isDataValid || isLoading,
@@ -218,75 +288,22 @@ export const FSMStateDetail = memo(
               : isCustomBlockFirstPage()
               ? PositiveColorEffect
               : SaveColorEffect,
-            show: isCustomBlockFirstPage() || !hasSaved,
+            show: isLoading || !isDataValid || isCustomBlockFirstPage() || !hasSaved,
             position: 'right',
             responsive: false,
-            onClick: () => {
-              if (!isCustomBlockFirstPage()) {
-                setIsLoading(true);
-
-                postMessage?.('submit-fsm-state', {
-                  iface_id: interfaceId,
-                  state_id: dataToSubmit.id,
-                });
-
-                const modifiedData: IFSMState = { ...dataToSubmit };
-
-                modifiedData.isValid = true;
-
-                if (blockLogicType === 'custom') {
-                  modifiedData.fsm = undefined;
-                } else {
-                  modifiedData.states = undefined;
-                }
-
-                if (modifiedData.execution_order === null) {
-                  delete modifiedData.execution_order;
-                }
-
-                if (modifiedData.type === 'block' && !modifiedData['block-type']) {
-                  modifiedData['block-type'] = 'for';
-                }
-
-                if (modifiedData.type === 'if' && !modifiedData['input-output-type']) {
-                  delete modifiedData['input-output-type'];
-                }
-
-                if (!size(modifiedData['block-config'])) {
-                  delete modifiedData['block-config'];
-                }
-
-                modifiedData.globalvar = reduce<TFSMVariables, TFSMVariables>(
-                  modifiedData.globalvar,
-                  (newGlobal, val, key): TFSMVariables => {
-                    if (!val.readOnly) {
-                      return {
-                        ...newGlobal,
-                        [key]: val,
-                      };
-                    }
-
-                    return newGlobal;
-                  },
-                  {}
-                );
-
-                if (!size(modifiedData.globalvar)) {
-                  delete modifiedData.globalvar;
-                }
-
-                if (size(autoVars.value)) {
-                  modifiedData.autovar = autoVars.value;
-                }
-
-                onSubmit(modifiedData);
-
-                setIsLoading(false);
-                setHasSaved(true);
-              } else {
-                setIsMetadataHidden(true);
-              }
-            },
+            onClick: handleSubmitClick,
+          },
+          {
+            label: t(`Save and New`),
+            className: 'state-submit-and-new-button',
+            id: `state-${camelCase(dataToSubmit?.name)}-submit-and-new-button`,
+            icon: isLoading ? 'Loader5Line' : !isDataValid ? 'ErrorWarningLine' : 'CheckDoubleLine',
+            effect: SaveColorEffectAlt,
+            show: !hasSaved && !isLoading && isDataValid && !isCustomBlockFirstPage(),
+            position: 'right',
+            responsive: false,
+            tooltip: 'Save this action and immediately create a new one',
+            onClick: () => handleSubmitClick(true),
           },
         ]}
       >

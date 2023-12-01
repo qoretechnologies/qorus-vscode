@@ -103,6 +103,16 @@ export const SaveColorEffect: IReqoreEffect = {
   },
 };
 
+export const SaveColorEffectAlt: IReqoreEffect = {
+  gradient: {
+    colors: {
+      0: 'success:darken',
+      100: 'info',
+    },
+    animate: 'hover',
+  },
+};
+
 export const SelectorColorEffect: IReqoreEffect = {
   gradient: {
     direction: 'to right bottom',

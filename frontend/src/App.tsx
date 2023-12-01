@@ -416,6 +416,7 @@ const App: FunctionComponent<IApp> = ({
                 fluid
                 fill
                 flat
+                padded={false}
                 rounded={false}
                 iconImage={QorusBase64Image}
                 iconProps={{ size: '27px', style: { height: 'auto' } }}

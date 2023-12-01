@@ -9,6 +9,7 @@ import {
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import { TReqoreHexColor } from '@qoretechnologies/reqore/dist/components/Effect';
+import { darken, lighten } from 'polished';
 import { useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -112,6 +113,14 @@ const ReqoreWrapper = () => {
       theme={{
         main: theme === 'light' ? '#ffffff' : theme === 'dark' ? '#222222' : editorBackground,
         intents: { success: '#4a7110' },
+        breadcrumbs: {
+          main:
+            theme === 'light'
+              ? darken(0.1, '#ffffff')
+              : theme === 'dark'
+              ? lighten(0.1, '#222222')
+              : lighten(0.1, editorBackground),
+        },
         sidebar: theme === 'light' ? { main: '#333333' } : undefined,
         header: theme === 'light' ? { main: '#333333' } : undefined,
       }}

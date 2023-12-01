@@ -460,7 +460,7 @@ const Tab: React.FC<ITabProps> = ({
       <ReqoreBreadcrumbs
         size="normal"
         flat
-        style={{ padding: 0, margin: 0, border: 'none' }}
+        style={{ border: 'none', paddingTop: '10px', paddingBottom: '10px', margin: 0 }}
         rightElement={<ReqoreControlGroup>{getActions()}</ReqoreControlGroup>}
         items={[
           {
