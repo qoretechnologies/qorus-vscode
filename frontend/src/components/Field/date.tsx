@@ -73,6 +73,8 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
       type="datetime-local"
       disabled={disabled}
       placeholder={'YYYY-MM-DDT00:00:00Z'}
+      // Make this datetime-local input have seconds
+      step="1"
       fluid
       value={!value && !default_value ? undefined : value || default_value}
       onChange={handleInputChange}
