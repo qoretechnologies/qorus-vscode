@@ -511,8 +511,6 @@ const Options = ({
       return { ...newValue, [optionName]: option };
     }, {});
 
-  console.log(options, fixedValue);
-
   const filteredOptions: IOptionsSchema = reduce(
     options,
     (newOptions, option, name) => {

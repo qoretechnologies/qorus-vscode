@@ -18,7 +18,7 @@ export const useFetchActionOptions = ({
   onSuccess,
   loadOnMount,
 }: IUseFetchActionOptionsConfig) => {
-  const [loading, setLoading] = useState<boolean>(action ? true : false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<IOptionsSchema>(undefined);
 
   const load = useCallback(
@@ -46,6 +46,8 @@ export const useFetchActionOptions = ({
 
         return result;
       }
+
+      setLoading(false);
     },
     [action?.options_url, JSON.stringify(options)]
   );

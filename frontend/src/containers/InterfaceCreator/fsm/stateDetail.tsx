@@ -219,8 +219,6 @@ export const FSMStateDetail = memo(
       }
     };
 
-    console.log({ isDataValid });
-
     return (
       <ReqorePanel
         flat

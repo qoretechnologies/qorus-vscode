@@ -121,7 +121,6 @@ export const QodexAppActionOptions = memo(
       action,
       options: value,
       onSuccess: (options) => {
-        console.log('NEW OPTIONS LOADED', { options });
         setOptions(options);
       },
     });
