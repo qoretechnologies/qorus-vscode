@@ -6,6 +6,7 @@ import { DIAGRAM_SIZE, IFSMStates, TFSMSelectedStates } from '../containers/Inte
 import { getStateBoundingRect } from '../helpers/diagram';
 
 export const Emitter = new EventEmitter();
+let lastEvent;
 
 export const useMoveByDragging = (
   selectedStates: TFSMSelectedStates,
@@ -61,8 +62,15 @@ export const useMoveByDragging = (
   };
 
   const handleDragMove = (event) => {
-    let x = event.movementX;
-    let y = event.movementY;
+    if (!lastEvent) {
+      lastEvent = event;
+      return;
+    }
+
+    let x = event.clientX - lastEvent.clientX;
+    let y = event.clientY - lastEvent.clientY;
+
+    lastEvent = event;
 
     if (!x && !y) {
       return;
