@@ -58,6 +58,14 @@ export const viewsIcons: Record<string, IReqoreIconName> = {
   ReleasePackage: 'GitRepositoryLine',
 };
 
+export const viewsNames: Record<string, string> = {
+  Dashboard: 'Dashboard',
+  ProjectConfig: 'Environments overview',
+  Interfaces: 'Interfaces, drafts & files',
+  SourceDirs: 'Source Directories overview',
+  ReleasePackage: 'Release Management',
+};
+
 export const interfaceIcons: Record<string, IReqoreIconName> = {
   service: 'ServerLine',
   step: 'StickyNoteLine',

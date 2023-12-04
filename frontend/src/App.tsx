@@ -1,4 +1,5 @@
 import {
+  ReqoreBreadcrumbs,
   ReqoreMenu,
   ReqoreMenuDivider,
   ReqoreMenuItem,
@@ -14,7 +15,6 @@ import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
 import { createGlobalStyle } from 'styled-components';
 import packageJson from '../package.json';
-import { DraftsView } from './DraftsView';
 import ContextMenu from './components/ContextMenu';
 import Loader from './components/Loader';
 import QorusBase64Image from './components/QorusBase64Image';
@@ -23,6 +23,7 @@ import {
   interfaceKindToName,
   interfaceNameToKind,
   viewsIcons,
+  viewsNames,
 } from './constants/interfaces';
 import { MenuSubItems } from './constants/menu';
 import { Messages } from './constants/messages';
@@ -34,7 +35,6 @@ import { DraftsContext, IDraftData } from './context/drafts';
 import { ErrorsContext } from './context/errors';
 import { InitialContext } from './context/init';
 import { TextContext } from './context/text';
-import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import { callBackendBasic, getTargetFile } from './helpers/functions';
 import withErrors from './hocomponents/withErrors';
 import withFields from './hocomponents/withFields';
@@ -470,12 +470,14 @@ const App: FunctionComponent<IApp> = ({
                       },
                       {
                         icon: 'RefreshLine',
-                        onClick: () =>
+                        onClick: () => {
                           addNotification({
                             content: t('ReloadingWebview'),
                             intent: 'pending',
                             icon: 'RefreshLine',
-                          }),
+                          });
+                          postMessage('reload-webview');
+                        },
                         tooltip: 'Reload webview',
                       },
                     ],
@@ -584,6 +586,37 @@ const App: FunctionComponent<IApp> = ({
                     isOpen={isDirsDialogOpen}
                     onClose={() => setIsDirsDialogOpen(false)}
                   />
+                  {tab !== 'CreateInterface' &&
+                  tab !== 'Dashboard' &&
+                  tab !== 'Login' &&
+                  tab !== 'ProjectConfig' &&
+                  tab !== 'Loading' ? (
+                    <ReqoreBreadcrumbs
+                      size="normal"
+                      flat
+                      style={{
+                        border: 'none',
+                        paddingTop: '10px',
+                        paddingBottom: '10px',
+                        margin: 0,
+                      }}
+                      items={[
+                        {
+                          icon: 'Home4Fill',
+                          onClick: () => {
+                            changeTab(is_hosted_instance ? 'Dashboard' : 'ProjectConfig');
+                          },
+                        },
+                        {
+                          icon: viewsIcons[tab],
+                          label: viewsNames[tab],
+                          onClick: () => {
+                            changeTab('Interfaces', tab);
+                          },
+                        },
+                      ]}
+                    />
+                  ) : null}
                   <>
                     {tab == 'Dashboard' && <Dashboard />}
                     {tab == 'Login' && <LoginContainer />}
@@ -591,8 +624,6 @@ const App: FunctionComponent<IApp> = ({
                     {tab == 'ProjectConfig' && <ProjectConfig />}
                     {tab == 'SourceDirs' && <SourceDirectories flat />}
                     {tab == 'ReleasePackage' && <ReleasePackage />}
-                    {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
-                    {tab === 'Drafts' && <DraftsView />}
                     {tab === 'Interfaces' && <InterfacesView />}
                     {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
                   </>

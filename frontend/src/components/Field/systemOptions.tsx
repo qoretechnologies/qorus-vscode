@@ -667,6 +667,7 @@ const Options = ({
             tooltip: {
               ...getGlobalDescriptionTooltip(options[optionName].desc, optionName),
               placement: 'top',
+              delay: 800,
             },
             className: 'system-option',
             actions: [

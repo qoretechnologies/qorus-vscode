@@ -4,6 +4,7 @@ import {
   ReqoreControlGroup,
   ReqoreInput,
   ReqoreMessage,
+  ReqorePanel,
   ReqoreSpacer,
   useReqoreProperty,
 } from '@qoretechnologies/reqore';
@@ -348,7 +349,7 @@ const Project: FunctionComponent<IProject> = ({
   const { qorus_instance } = initialData;
 
   return (
-    <>
+    <ReqorePanel flat fill>
       <StyledWrapper>
         {changedOnDisk && (
           <ReqoreMessage intent="warning" title={t('ConfigChangedOnDisk')} inverted>
@@ -512,7 +513,7 @@ const Project: FunctionComponent<IProject> = ({
           />
         )}
       </StyledWrapper>
-    </>
+    </ReqorePanel>
   );
 };
 

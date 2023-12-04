@@ -191,7 +191,7 @@ class ReleasePackage extends Component<
     const notUpToDateMsg = () => {
       if (!this.props.branch.up_to_date) {
         return (
-          <ReqoreMessage inverted intent="danger">
+          <ReqoreMessage margin="bottom" intent="danger" opaque={false}>
             {t('GitBranchNotUpToDate')} <ReqoreSpacer width={10} />
             <ReqoreTag
               label="Refresh"
@@ -336,101 +336,106 @@ class ReleasePackage extends Component<
     );
 
     return (
-      <ReqorePanel
-        label="Release Management"
-        size="big"
-        icon="CodeBoxLine"
-        transparent
-        minimal
-        flat
-        fluid
-        contentStyle={{ display: 'flex', overflow: 'hidden', flexFlow: 'column' }}
-      >
-        {notUpToDateMsg()}
-        {!this.state.hasRepository && (
-          <>
-            <ReqoreMessage intent="danger" minimal>
+      <ReqorePanel flat fill>
+        <ReqorePanel
+          size="big"
+          transparent
+          minimal
+          flat
+          fluid
+          contentStyle={{
+            display: 'flex',
+            overflow: 'hidden',
+            flexFlow: 'column',
+            paddingTop: 0,
+            paddingBottom: 0,
+          }}
+        >
+          {notUpToDateMsg()}
+          {!this.state.hasRepository && (
+            <ReqoreMessage intent="danger" minimal opaque={false} margin="bottom">
               {t('ReleaseNoRepository')}
             </ReqoreMessage>
-            <ReqoreSpacer height={10} />
-          </>
-        )}
-        {this.props.step == Step.Type && (
-          <ReqoreTabs
-            fillParent
-            padded={false}
-            activeTabIntent="info"
-            activeTab={this.props.branch.up_to_date && this.state.hasRepository ? 'full' : 'custom'}
-            tabs={[
-              {
-                label: 'Full Release',
-                id: 'full',
-                disabled: !this.props.branch.up_to_date || !this.state.hasRepository,
-              },
-              {
-                label: 'Incremental Release',
-                id: 'incremental',
-                disabled: !this.props.branch.up_to_date || !this.state.hasRepository,
-              },
-              { label: 'Custom Release', id: 'custom' },
-              { label: 'Existing Release', id: 'existing' },
-            ]}
-          >
-            <ReqoreTabsContent tabId="full">{FullRelease}</ReqoreTabsContent>
-            <ReqoreTabsContent tabId="incremental">{IncrementalRelease}</ReqoreTabsContent>
-            <ReqoreTabsContent tabId="custom">
-              <ReqoreMessage intent="info" inverted flat>
-                {t('SelectCustomReleaseInterfaces')}
-                <ReqoreSpacer width={10} />
-                {size(selectedInterfaces) ? (
-                  <ReqoreButton
-                    onClick={this.createCustomPackage}
-                    intent="info"
-                    icon="GitCommitLine"
-                    disabled={this.props.pending}
-                  >
-                    {this.props.pending
-                      ? t('Working')
-                      : `${t('CreateCustomRelease')} (${size(selectedInterfaces)})`}
-                  </ReqoreButton>
-                ) : null}
-              </ReqoreMessage>
-              <Spacer size={20} />
-              <CustomRelease
-                selected={selectedInterfaces}
-                onItemClick={(selectedItems: string[], isDeselect) => {
-                  // Remove or add items from the selected interfaces
-                  if (isDeselect) {
-                    this.setState({
-                      selectedInterfaces: selectedInterfaces.filter(
-                        (item) => !selectedItems.includes(item)
-                      ),
-                    });
-                  } else {
-                    // Add items to the selected interfaces
-                    const newSelectedInterfaces = [
-                      ...selectedInterfaces,
-                      ...selectedItems.filter((item) => {
-                        // Filter out duplicates
-                        return !selectedInterfaces.includes(item);
-                      }),
-                    ];
+          )}
+          {this.props.step == Step.Type && (
+            <ReqoreTabs
+              fillParent
+              padded={false}
+              activeTabIntent="info"
+              activeTab={
+                this.props.branch.up_to_date && this.state.hasRepository ? 'full' : 'custom'
+              }
+              tabs={[
+                {
+                  label: 'Full Release',
+                  id: 'full',
+                  disabled: !this.props.branch.up_to_date || !this.state.hasRepository,
+                },
+                {
+                  label: 'Incremental Release',
+                  id: 'incremental',
+                  disabled: !this.props.branch.up_to_date || !this.state.hasRepository,
+                },
+                { label: 'Custom Release', id: 'custom' },
+                { label: 'Existing Release', id: 'existing' },
+              ]}
+            >
+              <ReqoreTabsContent tabId="full">{FullRelease}</ReqoreTabsContent>
+              <ReqoreTabsContent tabId="incremental">{IncrementalRelease}</ReqoreTabsContent>
+              <ReqoreTabsContent tabId="custom">
+                <ReqoreMessage intent="info" inverted flat>
+                  {t('SelectCustomReleaseInterfaces')}
+                  <ReqoreSpacer width={10} />
+                  {size(selectedInterfaces) ? (
+                    <ReqoreButton
+                      onClick={this.createCustomPackage}
+                      intent="info"
+                      icon="GitCommitLine"
+                      disabled={this.props.pending}
+                    >
+                      {this.props.pending
+                        ? t('Working')
+                        : `${t('CreateCustomRelease')} (${size(selectedInterfaces)})`}
+                    </ReqoreButton>
+                  ) : null}
+                </ReqoreMessage>
+                <Spacer size={20} />
+                <CustomRelease
+                  selected={selectedInterfaces}
+                  onItemClick={(selectedItems: string[], isDeselect) => {
+                    // Remove or add items from the selected interfaces
+                    if (isDeselect) {
+                      this.setState({
+                        selectedInterfaces: selectedInterfaces.filter(
+                          (item) => !selectedItems.includes(item)
+                        ),
+                      });
+                    } else {
+                      // Add items to the selected interfaces
+                      const newSelectedInterfaces = [
+                        ...selectedInterfaces,
+                        ...selectedItems.filter((item) => {
+                          // Filter out duplicates
+                          return !selectedInterfaces.includes(item);
+                        }),
+                      ];
 
-                    this.setState({
-                      selectedInterfaces: newSelectedInterfaces,
-                    });
-                  }
-                }}
-              />
-            </ReqoreTabsContent>
-            <ReqoreTabsContent tabId="existing">{ExistingRelease}</ReqoreTabsContent>
-          </ReqoreTabs>
-        )}
-        {this.props.step == Step.Diff && StepDiff}
+                      this.setState({
+                        selectedInterfaces: newSelectedInterfaces,
+                      });
+                    }
+                  }}
+                />
+              </ReqoreTabsContent>
+              <ReqoreTabsContent tabId="existing">{ExistingRelease}</ReqoreTabsContent>
+            </ReqoreTabs>
+          )}
+          {this.props.step == Step.Diff && StepDiff}
 
-        {this.props.step == Step.Send && StepSend}
+          {this.props.step == Step.Send && StepSend}
 
-        {this.props.step == Step.Close && StepClose}
+          {this.props.step == Step.Close && StepClose}
+        </ReqorePanel>
       </ReqorePanel>
     );
   }

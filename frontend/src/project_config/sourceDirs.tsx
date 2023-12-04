@@ -146,7 +146,11 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
     );
 
   if (flat) {
-    return renderSourceDirs();
+    return (
+      <ReqorePanel flat fill>
+        {renderSourceDirs()}
+      </ReqorePanel>
+    );
   }
 
   return (

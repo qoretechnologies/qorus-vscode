@@ -466,6 +466,12 @@ class QorusWebview {
                 },
               });
               break;
+
+            case 'reload-webview': {
+              // Reload the webview
+              vscode.commands.executeCommand('workbench.action.webview.reloadWebviewAction');
+              break;
+            }
             case 'open-file':
               vscode.workspace
                 .openTextDocument(message.file_path)

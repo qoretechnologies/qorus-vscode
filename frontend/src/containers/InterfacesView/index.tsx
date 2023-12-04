@@ -9,20 +9,15 @@ import {
 import { cloneDeep, map, size } from 'lodash';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useMount } from 'react-use';
-import {
-  QorusColorEffect,
-  SynthColorEffect,
-  WarningColorEffect,
-} from '../../components/Field/multiPair';
+import { SynthColorEffect } from '../../components/Field/multiPair';
 import { IField } from '../../components/FieldWrapper';
 import Loader from '../../components/Loader';
-import { interfaceIcons, interfaceKindToName, interfaceToPlural } from '../../constants/interfaces';
+import { interfaceIcons, interfaceKindToName } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
 import { InitialContext } from '../../context/init';
 import { callBackendBasic } from '../../helpers/functions';
-import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
+import { addMessageListener } from '../../hocomponents/withMessageHandler';
 import { IClassConnections } from '../ClassConnectionsManager';
-import { getZoomActions } from '../ConfigItemManager';
 import { IConnection } from '../InterfaceCreator/connection';
 import { IFSMMetadata, IFSMStates } from '../InterfaceCreator/fsm';
 import { IPipelineElement, IPipelineMetadata } from '../InterfaceCreator/pipeline';
@@ -82,7 +77,7 @@ export const InterfacesView = () => {
   const { qorus_instance, subtab, changeTab, is_hosted_instance } = useContext(InitialContext);
   const [items, setItems] = useState<Record<string, IQorusInterface[]>>(null);
   const [type, setType] = useState(subtab || 'class');
-  const [showRemotes, setShowRemotes] = useState(is_hosted_instance);
+  const [showRemotes, setShowRemotes] = useState(is_hosted_instance || !!qorus_instance);
   const addNotification = useReqoreProperty('addNotification');
   const [zoom, setZoom] = useState(0.5);
 
@@ -142,51 +137,15 @@ export const InterfacesView = () => {
     <ReqorePanel
       minimal
       flat
-      transparent
       fill
-      icon="FileList2Line"
-      label="Interfaces"
       responsiveTitle
       responsiveActions={false}
-      size="big"
-      actions={[
-        {
-          fluid: false,
-          group: getZoomActions('interfaces', zoom, setZoom),
-        },
-        {
-          icon: showRemotes ? 'ServerFill' : 'ServerLine',
-          label: `${showRemotes ? 'Hide' : 'Show'} remote ${interfaceToPlural[type]}`,
-          minimal: !showRemotes,
-          flat: false,
-          disabled: !qorus_instance,
-          onClick: () => setShowRemotes(!showRemotes),
-          effect: QorusColorEffect,
-          show: !isCurrentTypeOther && !is_hosted_instance,
-          className: 'interfaces-toggle-remotes',
-        },
-        {
-          tooltip: 'Delete all drafts',
-          icon: 'DeleteBin6Fill',
-          effect: WarningColorEffect,
-          flat: false,
-          minimal: true,
-          show: !isCurrentTypeOther,
-          onClick: () => {
-            postMessage(Messages.DELETE_ALL_DRAFTS);
-            addNotification({
-              intent: 'success',
-              title: 'All drafts deleted',
-              content: 'All drafts were deleted successfully',
-              duration: 2000,
-            });
-          },
-        },
-      ]}
       contentStyle={{
         display: 'flex',
         flexFlow: 'row',
         overflow: 'hidden',
+        paddingTop: 0,
+        paddingBottom: 0,
       }}
     >
       <ReqoreMenu transparent width="250px">

@@ -10,7 +10,6 @@ import {
   WarningColorEffect,
 } from '../../components/Field/multiPair';
 import Loader from '../../components/Loader';
-import { Markdown } from '../../components/Markdown';
 import {
   interfaceIcons,
   interfaceKindTransform,
@@ -54,6 +53,7 @@ export const InterfacesViewCollection = ({
   };
 
   const onDeployClick = (data) => {
+    console.log(data);
     postMessage(Messages.DEPLOY_INTERFACE, { data });
   };
 
@@ -190,14 +190,6 @@ export const InterfacesViewCollection = ({
             : isDraft || hasDraft
             ? 'pending'
             : 'info:lighten:2',
-          tooltip: {
-            delay: 1000,
-            content:
-              data?.desc || data?.description ? (
-                <Markdown>{data?.desc || data?.description}</Markdown>
-              ) : undefined,
-            maxWidth: '800px',
-          },
           content: (
             <InterfacesViewItem
               {...rest}
@@ -250,6 +242,7 @@ export const InterfacesViewCollection = ({
               icon: 'UploadLine',
               effect: PositiveColorEffect,
               tooltip: 'Deploy',
+              size: 'tiny',
               show: !isDraft && !isServerInterface ? 'hover' : false,
               onClick: () => onDeployClick(data),
             },
@@ -257,12 +250,14 @@ export const InterfacesViewCollection = ({
               icon: 'FileEditLine',
               effect: SelectorColorEffect,
               tooltip: 'Edit code',
+              size: 'tiny',
               show: !!data?.code && !isServerInterface ? 'hover' : false,
             },
             {
               icon: 'DeleteBinLine',
               effect: NegativeColorEffect,
               tooltip: 'Delete',
+              size: 'tiny',
               show: 'hover',
               onClick: () => {
                 if (isDraft) {

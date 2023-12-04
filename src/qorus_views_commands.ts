@@ -61,12 +61,14 @@ export const maybeDeployInterface = (data: any) => {
           return;
         }
 
-        if (!data.data?.yaml_file) {
+        const yamlFile = data?.yaml_file || data.data?.yaml_file;
+
+        if (!yamlFile) {
           msg.error(t`MissingDeploymentData`);
           return;
         }
 
-        deployer.deployFile(data.data.yaml_file, selection === t`YesWithDep`);
+        deployer.deployFile(yamlFile, selection === t`YesWithDep`);
       });
   }
 };

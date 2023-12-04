@@ -98,6 +98,7 @@ const ConnectorSelector = ({
         name="class"
         target_dir={target_dir}
         defaultItems={classes}
+        autoSelect
         reference={{
           iface_kind: 'class',
         }}
@@ -108,6 +109,7 @@ const ConnectorSelector = ({
           onChange={handleChange}
           value={value?.connector}
           name="connector"
+          autoSelect
           description={'Class connector'}
         />
       )}
