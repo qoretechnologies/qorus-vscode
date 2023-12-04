@@ -84,7 +84,7 @@ export const QodexActionExec = memo(({ appName, actionName, options }: IQodexAct
     }
   }, [JSON.stringify(data)]);
 
-  if (!loading) {
+  if (loading) {
     return null;
   }
 
