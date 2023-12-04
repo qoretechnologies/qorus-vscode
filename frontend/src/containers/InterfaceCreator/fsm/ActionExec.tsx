@@ -1,5 +1,6 @@
 import {
   ReqoreIcon,
+  ReqoreMessage,
   ReqoreP,
   ReqorePanel,
   ReqoreSpinner,
@@ -24,11 +25,13 @@ export interface IQodexActionExecProps {
 export const QodexActionExec = memo(({ appName, actionName, options }: IQodexActionExecProps) => {
   const { action } = useGetAppActionData(appName, actionName);
   const [response, setResponse] = useState<any>(undefined);
+  const [error, setError] = useState<any>(undefined);
   const [loadingResponse, setLoading] = useState<boolean>(false);
   const { loading, data, load } = useFetchActionOptions({
     action,
     options,
     onStart: () => {
+      setError(undefined);
       setResponse(undefined);
     },
   });
@@ -45,6 +48,7 @@ export const QodexActionExec = memo(({ appName, actionName, options }: IQodexAct
 
   const executeAction = async () => {
     setLoading(true);
+    setError(undefined);
 
     const optionsUrl = action.exec_url.split('latest/')[1];
 
@@ -58,6 +62,8 @@ export const QodexActionExec = memo(({ appName, actionName, options }: IQodexAct
 
     if (response.ok) {
       setResponse(response.data);
+    } else {
+      setError('There was an error in the test call!');
     }
 
     setLoading(false);
@@ -78,7 +84,7 @@ export const QodexActionExec = memo(({ appName, actionName, options }: IQodexAct
     }
   }, [JSON.stringify(data)]);
 
-  if (!loading && !size(data)) {
+  if (!loading) {
     return null;
   }
 
@@ -149,6 +155,11 @@ export const QodexActionExec = memo(({ appName, actionName, options }: IQodexAct
             )}
           </>
         ) : null}
+        {error && (
+          <ReqoreMessage intent="danger" opaque={false}>
+            {error}
+          </ReqoreMessage>
+        )}
         {response && <ReqoreTree size="small" data={response} />}
       </ReqorePanel>
     </>

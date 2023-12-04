@@ -97,6 +97,37 @@ export const InterfacesViewCollection = ({
     return badgeList;
   }, [getItemsCount, getDraftsCount, showRemotes, getRemotesCount, qorus_instance]);
 
+  // Sort the value by isDraft / hasDraft boolean, put values with truthy isServerInterface at the end and sort the rest by name
+  const sortedValue = useMemo(() => {
+    return value.sort((a, b) => {
+      if (a.isDraft && !b.isDraft) {
+        return -1;
+      }
+
+      if (!a.isDraft && b.isDraft) {
+        return 1;
+      }
+
+      if (a.hasDraft && !b.hasDraft) {
+        return -1;
+      }
+
+      if (!a.hasDraft && b.hasDraft) {
+        return 1;
+      }
+
+      if (a.isServerInterface && !b.isServerInterface) {
+        return 1;
+      }
+
+      if (!a.isServerInterface && b.isServerInterface) {
+        return -1;
+      }
+
+      return a.name.localeCompare(b.name);
+    });
+  }, [value]);
+
   if (loading) {
     return <Loader text="Loading server data..." />;
   }
@@ -104,23 +135,23 @@ export const InterfacesViewCollection = ({
   return (
     <ReqoreCollection
       label={capitalize(interfaceToPlural[type]).replace('-', ' ')}
-      sortable
       filterable
+      sortable={false}
       minimal
       minColumnWidth={zoomToWidth[zoom]}
       badge={badges}
       maxItemHeight={120}
       responsiveActions={false}
       fill
-      paging={{
-        infinite: true,
-        loadMoreLabel: 'Load more...',
-        loadMoreButtonProps: {
-          badge: undefined,
-        },
-        showLabels: true,
-        itemsPerPage,
-      }}
+      // paging={{
+      //   infinite: true,
+      //   loadMoreLabel: 'Load more...',
+      //   loadMoreButtonProps: {
+      //     badge: undefined,
+      //   },
+      //   showLabels: true,
+      //   itemsPerPage,
+      // }}
       actions={[
         {
           icon: 'AddCircleLine',
@@ -150,115 +181,121 @@ export const InterfacesViewCollection = ({
           shortcut: 'letters',
         },
       }}
-      items={value.map(({ name, data, isDraft, hasDraft, isServerInterface, ...rest }, index) => ({
-        label: name || data.error,
-        icon: isServerInterface ? 'ServerLine' : isDraft || hasDraft ? 'EditLine' : 'FileLine',
-        iconColor: isServerInterface
-          ? '#6f1977:lighten:2'
-          : isDraft || hasDraft
-          ? 'pending'
-          : 'info:lighten:2',
-        tooltip: {
-          delay: 1000,
-          content:
-            data?.desc || data?.description ? (
-              <Markdown>{data?.desc || data?.description}</Markdown>
-            ) : undefined,
-          maxWidth: '800px',
-        },
-        content: (
-          <InterfacesViewItem
-            {...rest}
-            data={data}
-            isDraft={isDraft}
-            hasDraft={hasDraft}
-            name={name}
-            isServerInterface={isServerInterface}
-          />
-        ),
-        contentEffect: {
-          gradient: {
-            direction: 'to right bottom',
-            colors: {
-              50: 'main',
-              300:
-                isDraft || hasDraft ? 'pending' : isServerInterface ? '#6f1977' : 'info:lighten:2',
+      items={sortedValue.map(
+        ({ name, data, isDraft, hasDraft, isServerInterface, ...rest }, index) => ({
+          label: name || data.error,
+          icon: isServerInterface ? 'ServerLine' : isDraft || hasDraft ? 'EditLine' : 'FileLine',
+          iconColor: isServerInterface
+            ? '#6f1977:lighten:2'
+            : isDraft || hasDraft
+            ? 'pending'
+            : 'info:lighten:2',
+          tooltip: {
+            delay: 1000,
+            content:
+              data?.desc || data?.description ? (
+                <Markdown>{data?.desc || data?.description}</Markdown>
+              ) : undefined,
+            maxWidth: '800px',
+          },
+          content: (
+            <InterfacesViewItem
+              {...rest}
+              data={data}
+              isDraft={isDraft}
+              hasDraft={hasDraft}
+              name={name}
+              isServerInterface={isServerInterface}
+            />
+          ),
+          contentEffect: {
+            gradient: {
+              direction: 'to right bottom',
+              colors: {
+                50: 'main',
+                300:
+                  isDraft || hasDraft
+                    ? 'pending'
+                    : isServerInterface
+                    ? '#6f1977'
+                    : 'info:lighten:2',
+              },
             },
           },
-        },
-        flat: true,
-        responsiveTitle: false,
-        responsiveActions: false,
-        expandable: isServerInterface,
-        size: zoomToSize[zoom],
-        onClick: () => {
-          if (isServerInterface) {
-            return;
-          }
+          flat: true,
+          responsiveTitle: false,
+          responsiveActions: false,
+          expandable: isServerInterface,
+          size: zoomToSize[zoom],
+          onClick: () => {
+            if (isServerInterface) {
+              return;
+            }
 
-          if (isDraft) {
-            changeDraft({
-              interfaceKind: type,
-              interfaceId: rest.interfaceId,
-            });
-          } else {
-            postMessage(Messages.GET_INTERFACE_DATA, {
-              iface_kind: type,
-              name,
-              include_tabs: true,
-            });
-          }
-        },
-        actions: [
-          {
-            icon: 'UploadLine',
-            effect: PositiveColorEffect,
-            tooltip: 'Deploy',
-            show: !isDraft && !isServerInterface ? 'hover' : false,
-            onClick: () => onDeployClick(data),
+            if (isDraft) {
+              changeDraft({
+                interfaceKind: type,
+                interfaceId: rest.interfaceId,
+              });
+            } else {
+              postMessage(Messages.GET_INTERFACE_DATA, {
+                iface_kind: type,
+                name,
+                include_tabs: true,
+              });
+            }
           },
-          {
-            icon: 'FileEditLine',
-            effect: SelectorColorEffect,
-            tooltip: 'Edit code',
-            show: !!data?.code && !isServerInterface ? 'hover' : false,
-          },
-          {
-            icon: 'DeleteBinLine',
-            effect: NegativeColorEffect,
-            tooltip: 'Delete',
-            show: 'hover',
-            onClick: () => {
-              if (isDraft) {
-                confirmAction({
-                  title: 'Delete draft',
-                  description: 'Are you sure you want to delete this draft?',
-                  onConfirm: () => {
-                    onDeleteClick(type, rest.interfaceId);
-                  },
-                });
-              } else if (isServerInterface) {
-                confirmAction({
-                  title: 'Delete server interface',
-                  description:
-                    'Are you sure you want to delete this interface FROM THE ACTIVE INSTANCE?',
-                  onConfirm: () => {
-                    onDeleteRemoteClick(name || data.id);
-                  },
-                });
-              } else {
-                confirmAction({
-                  title: 'Delete interface',
-                  description: 'Are you sure you want to delete this interface?',
-                  onConfirm: () => {
-                    postMessage(Messages.DELETE_INTERFACE, { iface_kind: type, name });
-                  },
-                });
-              }
+          actions: [
+            {
+              icon: 'UploadLine',
+              effect: PositiveColorEffect,
+              tooltip: 'Deploy',
+              show: !isDraft && !isServerInterface ? 'hover' : false,
+              onClick: () => onDeployClick(data),
             },
-          },
-        ],
-      }))}
+            {
+              icon: 'FileEditLine',
+              effect: SelectorColorEffect,
+              tooltip: 'Edit code',
+              show: !!data?.code && !isServerInterface ? 'hover' : false,
+            },
+            {
+              icon: 'DeleteBinLine',
+              effect: NegativeColorEffect,
+              tooltip: 'Delete',
+              show: 'hover',
+              onClick: () => {
+                if (isDraft) {
+                  confirmAction({
+                    title: 'Delete draft',
+                    description: 'Are you sure you want to delete this draft?',
+                    onConfirm: () => {
+                      onDeleteClick(type, rest.interfaceId);
+                    },
+                  });
+                } else if (isServerInterface) {
+                  confirmAction({
+                    title: 'Delete server interface',
+                    description:
+                      'Are you sure you want to delete this interface FROM THE ACTIVE INSTANCE?',
+                    onConfirm: () => {
+                      onDeleteRemoteClick(name || data.id);
+                    },
+                  });
+                } else {
+                  confirmAction({
+                    title: 'Delete interface',
+                    description: 'Are you sure you want to delete this interface?',
+                    onConfirm: () => {
+                      postMessage(Messages.DELETE_INTERFACE, { iface_kind: type, name });
+                    },
+                  });
+                }
+              },
+            },
+          ],
+        })
+      )}
     />
   );
 };

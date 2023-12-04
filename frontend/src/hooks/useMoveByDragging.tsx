@@ -85,6 +85,8 @@ export const useMoveByDragging = (
   const handleDragStop = () => {
     onFinish?.();
 
+    lastEvent = undefined;
+
     movedFor.current = { x: 0, y: 0 };
 
     window.removeEventListener('mousemove', handleDragMove, true);
@@ -176,6 +178,8 @@ export const useMoveByDragging = (
         // Check if this state already had a mousedown
         if (state?.fromMouseDown) {
           onStart?.();
+
+          lastEvent = undefined;
 
           window.removeEventListener('mousemove', handleDragMove, true);
           window.addEventListener('mousemove', handleDragMove, true);
