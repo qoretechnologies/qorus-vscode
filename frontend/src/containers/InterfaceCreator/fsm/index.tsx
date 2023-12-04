@@ -229,7 +229,7 @@ export const STATE_ITEM_TYPE = 'state';
 
 export const DIAGRAM_SIZE = 4000;
 export const IF_STATE_SIZE = 80;
-export const STATE_WIDTH = 180;
+export const STATE_WIDTH = 350;
 export const STATE_HEIGHT = 50;
 const DIAGRAM_DRAG_KEY = 'Shift';
 const DROP_ACCEPTS: string[] = [TOOLBAR_ITEM_TYPE, STATE_ITEM_TYPE];
@@ -507,6 +507,15 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
         newX = newStates[fromState].position.x;
         newY = newStates[fromState].position.y + 200;
+
+        // Check if there is already a state at this position
+        while (isAnyStateAtPosition(newX, newY)) {
+          if (newX + STATE_WIDTH + 50 > DIAGRAM_SIZE) {
+            newY += 450;
+          } else {
+            newX += STATE_WIDTH + 50;
+          }
+        }
       }
 
       return {
@@ -630,6 +639,15 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
     return valid;
   };
+
+  const isAnyStateAtPosition = useCallback(
+    (x: number, y: number): boolean => {
+      return some(states, (state) => {
+        return state.position.x === x && state.position.y === y;
+      });
+    },
+    [states]
+  );
 
   const hasEventTriggerState = useCallback(() => {
     return find(states, (state) => {
@@ -1280,6 +1298,27 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       });
     },
     [selectedStates]
+  );
+
+  const handleNewStateClick = useCallback(
+    (id) => {
+      const onConfirm = () => {
+        setIsAddingNewStateAt({ x: 0, y: 0, fromState: id });
+      };
+
+      if (hasUnsavedState) {
+        confirmAction({
+          title: 'Unsaved changes',
+          intent: 'warning',
+          description:
+            'You have unsaved changes. Are you sure you want to close the active action detail?',
+          onConfirm,
+        });
+      } else {
+        onConfirm();
+      }
+    },
+    [hasUnsavedState]
   );
 
   const handlePassStateRef = useCallback(
@@ -2725,9 +2764,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                         onDeleteClick={handleStateDeleteClick}
                         onMouseEnter={setHoveredState}
                         onMouseLeave={setHoveredState}
-                        onNewStateClick={() => {
-                          setIsAddingNewStateAt({ x: 0, y: 0, fromState: id });
-                        }}
+                        onNewStateClick={handleNewStateClick}
                         hasTransitionToItself={hasTransitionToItself(id)}
                         variableDescription={
                           getVariable(

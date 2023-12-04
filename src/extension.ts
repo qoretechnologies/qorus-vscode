@@ -35,6 +35,11 @@ const md5 = require('md5');
 qorus_locale.setLocale();
 
 export async function activate(context: vscode.ExtensionContext) {
+  // Hide the sidebar by default if running in a hosted instance
+  if (is_hosted_instance) {
+    vscode.commands.executeCommand('workbench.action.toggleSidebarVisibility');
+  }
+
   isLangClientAvailable();
   qorus_vscode.context = context;
   qorusIcons.update(context.extensionPath);

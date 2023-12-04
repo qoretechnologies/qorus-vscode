@@ -81,34 +81,6 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
       onClearClick={handleResetClick}
     />
   );
-
-  // return (
-  //   <ReqoreInput
-  //     timePickerProps={{}}
-  //     closeOnSelection={false}
-  //     disabled={disabled}
-  //     formatDate={(date) => date.toLocaleString()}
-  //     parseDate={(str) => new Date(str)}
-  //     placeholder={'YYYY-MM-DDT00:00:00Z'}
-  //     invalidDateMessage={t('InvalidDate')}
-  //     inputProps={{ className: Classes.FILL }}
-  //     //defaultValue={new Date()}
-  //     popoverProps={{
-  //       targetTagName: 'div',
-  //       wrapperTagName: 'div',
-  //     }}
-  //     value={!value && !default_value ? null : new Date(value || default_value)}
-  //     onChange={handleInputChange}
-  //     rightElement={
-  //       value &&
-  //       value !== '' && (
-  //         <ButtonGroup minimal>
-  //           <Button onClick={handleResetClick} icon={'cross'} />
-  //         </ButtonGroup>
-  //       )
-  //     }
-  //   />
-  // );
 };
 
 export default compose(withMessageHandler(), withTextContext())(DateField) as FunctionComponent<

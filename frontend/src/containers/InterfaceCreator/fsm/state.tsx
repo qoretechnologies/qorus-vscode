@@ -37,7 +37,7 @@ export interface IFSMStateProps extends IFSMState {
   onDeleteClick: (id: string) => any;
   onUpdate: (id: string, data: any) => any;
   onTransitionOrderClick: (id: string) => any;
-  onNewStateClick: () => any;
+  onNewStateClick: (id: string) => any;
   onSelect: (id: string, fromMouseDown?: boolean) => void;
   startTransitionDrag: (id: string) => any;
   stopTransitionDrag: (id: string) => any;
@@ -117,6 +117,8 @@ const StyledAddNewStatebutton: React.FC<IReqoreButtonProps> = styled(ReqoreButto
   }
 `;
 
+export const STATE_WIDTH = 350;
+
 const StyledFSMState: React.FC<
   IReqorePanelProps & { isStatic?: boolean } & IFSMStateStyleProps
 > = styled(ReqorePanel)`
@@ -128,13 +130,13 @@ const StyledFSMState: React.FC<
       ? css`
           left: ${({ x }) => `${x}px`};
           top: ${({ y }) => `${y}px`};
-          width: 350px;
+          width: ${STATE_WIDTH}px;
 
           position: absolute !important;
           z-index: 20;
         `
       : css`
-          width: 350px;
+          width: ${STATE_WIDTH}px;
         `}
 `;
 
@@ -712,13 +714,14 @@ const FSMState: React.FC<IFSMStateProps> = ({
               ? '#6f1977'
               : 'info',
           }}
+          className="add-new-state-after"
           icon="AddLine"
           onMouseDown={(e) => {
             e.stopPropagation();
           }}
           onClick={(e) => {
             e.stopPropagation();
-            onNewStateClick?.();
+            onNewStateClick?.(id);
           }}
         />
       </StyledFSMState>

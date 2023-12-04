@@ -5,7 +5,14 @@ import FSMView from '../../../containers/InterfaceCreator/fsm';
 import fsm from '../../Data/fsm.json';
 import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
-import { _testsClickState, _testsDeleteState, _testsDoubleClickState, sleep } from './../utils';
+import {
+  _testsClickState,
+  _testsConfirmDialog,
+  _testsDeleteState,
+  _testsDoubleClickState,
+  _testsSelectFromAppCatalogue,
+  sleep,
+} from './../utils';
 import { AutoAlign } from './Alignment.stories';
 
 const meta = {
@@ -35,6 +42,47 @@ export const SwitchesToBuilder: StoryFSM = {
       },
       { timeout: 10000 }
     );
+  },
+};
+
+export const NewStatesAfterState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest });
+    await sleep(200);
+
+    await fireEvent.click(document.querySelector('.add-new-state-after'));
+    await _testsSelectFromAppCatalogue(canvas, undefined, 'Discord', 'Get Server Info');
+
+    await sleep(500);
+
+    await fireEvent.click(document.querySelectorAll('.add-new-state-after')[0]);
+    await _testsConfirmDialog();
+    await _testsSelectFromAppCatalogue(canvas, undefined, 'Discord', 'Get User Info');
+
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(3);
+  },
+};
+
+export const NewStateAfterSavingState: StoryFSM = {
+  play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await NewState.play({ canvasElement, ...rest });
+    await sleep(200);
+
+    await fireEvent.click(document.querySelector('.add-new-state-after'));
+    await _testsSelectFromAppCatalogue(canvas, undefined, 'Discord', 'Get Server Info');
+
+    await _testsClickState(`state-0`);
+
+    await waitFor(() => canvas.getAllByText('Save and New')[0], { timeout: 5000 });
+    await fireEvent.click(canvas.getAllByText('Save and New')[0]);
+
+    await _testsSelectFromAppCatalogue(canvas, undefined, 'Discord', 'Get User Info');
+
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(3);
   },
 };
 

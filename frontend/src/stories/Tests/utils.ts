@@ -20,6 +20,7 @@ const stateCategory = {
   delete: 'Data',
   trigger: 'Action Triggers',
   schedule: 'Action Triggers',
+  appaction: 'appaction',
 };
 
 const stateLabel = {
@@ -96,6 +97,34 @@ export async function _testsSelectAppOrAction(canvas, appOrAction: string) {
   await fireEvent.click(canvas.getByText(appOrAction, { selector: 'h4' }));
 }
 
+export async function _testsSelectFromAppCatalogue(
+  canvas,
+  stateType?: keyof typeof stateCategory,
+  app?: string,
+  action?: string
+) {
+  await waitFor(() => expect(document.querySelector('.fsm-app-selector')).toBeInTheDocument(), {
+    timeout: 10000,
+  });
+
+  if (app) {
+    if (action) {
+      await _testsSelectAppOrAction(canvas, app);
+      await _testsSelectAppOrAction(canvas, action);
+    } else {
+      throw new Error('Not implemented');
+    }
+
+    return;
+  }
+
+  const category = stateCategory[stateType];
+  const label = stateLabel[stateType];
+
+  await _testsSelectAppOrAction(canvas, category);
+  await _testsSelectAppOrAction(canvas, label);
+}
+
 export async function _testsAddNewState(
   stateType: keyof typeof stateCategory,
   canvas,
@@ -104,12 +133,7 @@ export async function _testsAddNewState(
   y?: number
 ) {
   await _testsOpenAppCatalogue(wrapperId, x, y);
-
-  const category = stateCategory[stateType];
-  const label = stateLabel[stateType];
-
-  await _testsSelectAppOrAction(canvas, category);
-  await _testsSelectAppOrAction(canvas, label);
+  await _testsSelectFromAppCatalogue(canvas, stateType);
 }
 
 export async function _testsAddNewVariableState(variableName: string, canvas, wrapperId?: string) {
@@ -247,6 +271,12 @@ export async function _testsMoveState(
   });
 }
 
+export async function _testsConfirmDialog() {
+  await waitFor(async () => screen.getAllByText('Confirm')[0], { timeout: 5000 });
+  await fireEvent.click(screen.getAllByText('Confirm')[0]);
+  await sleep(200);
+}
+
 export async function _testsDeleteState(id) {
   await _testsClickState(`state-${id}`);
   await waitFor(() => expect(document.querySelector('.state-delete-button')).toBeInTheDocument(), {
@@ -254,8 +284,7 @@ export async function _testsDeleteState(id) {
   });
   await fireEvent.click(document.querySelector('.state-delete-button'));
   await sleep(200);
-  await fireEvent.click(screen.getAllByText('Confirm')[0]);
-  await sleep(200);
+  await _testsConfirmDialog();
 }
 
 export async function _testsSelectState(id) {
