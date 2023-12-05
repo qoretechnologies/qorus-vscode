@@ -2,6 +2,7 @@ import * as jsyaml from 'js-yaml';
 import { size } from 'lodash';
 import { t } from 'ttag';
 import { window, workspace } from 'vscode';
+import { deployer } from '../QorusDeploy';
 import { qorus_webview } from '../QorusWebview';
 import * as msg from '../qorus_message';
 import { capitalize, hasConfigItems, toValidIdentifier } from '../qorus_utils';
@@ -25,6 +26,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
       no_data_return,
       request_id,
       recreate,
+      deploy_on_success,
     } = params;
 
     let imports: string[] = [];
@@ -293,6 +295,14 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
 
     if (!no_data_return) {
       const headers_data: any = jsyaml.safeLoad(headers);
+
+      if (deploy_on_success) {
+        this.code_info.update(['yaml']);
+        this.code_info.waitForPending(['yaml', 'file_tree', 'edit_info']).then(() => {
+          deployer.deployFile(this.yaml_file_path, true);
+        });
+      }
+
       this.returnData(
         {
           ...headers_data,

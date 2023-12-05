@@ -1509,75 +1509,90 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     setStates((cur) => ({ ...cur, ...fixedStates }));
   };
 
-  const handleSubmitClick = async (testRun?: boolean) => {
-    const fixedMetadata = { ...metadata };
+  const handleSubmitClick = async (testRun?: boolean, publish?: boolean) => {
+    const submit = async () => {
+      const fixedMetadata = { ...metadata };
 
-    if (size(metadata.groups) === 0) {
-      delete fixedMetadata.groups;
-    }
-
-    const data = {
-      ...fixedMetadata,
-      desc: metadata.desc || 'No description',
-      states: reduce(
-        states,
-        (newStates, state, id) => ({
-          ...newStates,
-          [id]: omit(state, ['isNew', 'corners', 'width', 'height', 'key', 'keyId', 'isValid']),
-        }),
-        {}
-      ),
-    };
-
-    if (testRun) {
-      delete data.target_dir;
-      delete data['input-type'];
-      delete data['output-type'];
-
-      addModal({
-        minimal: true,
-        icon: 'PlayLine',
-        blur: 3,
-        label: `Test run of ${metadata.name}`,
-        children: (
-          <QodexTestRunModal
-            apps={apps.value}
-            data={{
-              type: 'fsm',
-              ...data,
-            }}
-          />
-        ),
-      });
-
-      return;
-    }
-
-    const result = await callBackend(
-      fsm ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
-      undefined,
-      {
-        iface_kind: 'fsm',
-        iface_id: interfaceId,
-        orig_data: fsm,
-        no_data_return: !!onSubmitSuccess,
-        data,
-      },
-      t('Saving FSM...')
-    );
-
-    if (result.ok) {
-      if (onSubmitSuccess) {
-        onSubmitSuccess({
-          ...metadata,
-          states,
-        });
+      if (size(metadata.groups) === 0) {
+        delete fixedMetadata.groups;
       }
 
-      const fileName = getDraftId(fsm, interfaceId);
-      deleteDraft('fsm', fileName, false);
-      reset();
-      resetAllInterfaceData('fsm');
+      const data = {
+        ...fixedMetadata,
+        desc: metadata.desc || 'No description',
+        states: reduce(
+          states,
+          (newStates, state, id) => ({
+            ...newStates,
+            [id]: omit(state, ['isNew', 'corners', 'width', 'height', 'key', 'keyId', 'isValid']),
+          }),
+          {}
+        ),
+      };
+
+      if (testRun) {
+        delete data.target_dir;
+        delete data['input-type'];
+        delete data['output-type'];
+
+        addModal({
+          minimal: true,
+          icon: 'PlayLine',
+          blur: 3,
+          label: `Test run of ${metadata.name}`,
+          children: (
+            <QodexTestRunModal
+              apps={apps.value}
+              data={{
+                type: 'fsm',
+                ...data,
+              }}
+            />
+          ),
+        });
+
+        return;
+      }
+
+      const result = await callBackend(
+        fsm ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
+        undefined,
+        {
+          iface_kind: 'fsm',
+          iface_id: interfaceId,
+          orig_data: fsm,
+          no_data_return: !!onSubmitSuccess,
+          deploy_on_success: publish,
+          data,
+        },
+        t('Saving FSM...')
+      );
+
+      if (result.ok) {
+        if (onSubmitSuccess) {
+          onSubmitSuccess({
+            ...metadata,
+            states,
+          });
+        }
+
+        const fileName = getDraftId(fsm, interfaceId);
+        deleteDraft('fsm', fileName, false);
+        reset();
+        resetAllInterfaceData('fsm');
+      }
+    };
+
+    // Check if there are any unsaved states
+    if (hasUnsavedState) {
+      confirmAction({
+        title: 'Unsaved changes',
+        intent: 'warning',
+        description: 'You have unsaved changes. Are you sure you want to save your Qodex?',
+        onConfirm: submit,
+      });
+    } else {
+      submit();
     }
   };
 
@@ -2411,41 +2426,58 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             effect: PositiveColorEffect,
           },
           {
-            label: !areMetadataValid() || !isFSMValid() ? 'Fix to publish' : t('Publish'),
-            onClick: handleSubmitClick,
-            readOnly: !areMetadataValid() || !isFSMValid(),
-            icon: !areMetadataValid() || !isFSMValid() ? 'ErrorWarningLine' : 'CheckLine',
-            effect: !areMetadataValid() || !isFSMValid() ? WarningColorEffect : SaveColorEffect,
-            show: !embedded,
-            tooltip: isFSMValid()
-              ? 'Publish your Qodex'
-              : {
-                  intent: 'warning',
-                  content: (
-                    <>
-                      {size(states) < 2 && (
-                        <ReqoreP>- At least 1 trigger and 1 normal states are required</ReqoreP>
-                      )}
-                      {!areMetadataValid() && (
-                        <ReqoreP>
-                          - Metadata is not valid, please make sure the name of your Qodex is valid
-                          and that input & output types are compatible
-                        </ReqoreP>
-                      )}
-                      {!areStatesValid(states) && (
-                        <ReqoreP>
-                          - All states need to be valid (invalid states have red border) and
-                          connected (isolated states have red warning icon)
-                        </ReqoreP>
-                      )}
-                      {!hasEventTriggerState() && (
-                        <ReqoreP>
-                          - You need to have at least 1 trigger state (state with event trigger)
-                        </ReqoreP>
-                      )}
-                    </>
-                  ),
-                },
+            group: [
+              {
+                label: !areMetadataValid() || !isFSMValid() ? 'Fix to publish' : t('Publish'),
+                onClick: () => handleSubmitClick(false, true),
+                readOnly: !areMetadataValid() || !isFSMValid(),
+                icon:
+                  !areMetadataValid() || !isFSMValid() ? 'ErrorWarningLine' : 'UploadCloud2Line',
+                effect: !areMetadataValid() || !isFSMValid() ? WarningColorEffect : SaveColorEffect,
+                show: !embedded,
+                tooltip: isFSMValid()
+                  ? 'Publish your Qodex'
+                  : {
+                      intent: 'warning',
+                      content: (
+                        <>
+                          {size(states) < 2 && (
+                            <ReqoreP>- At least 1 trigger and 1 normal states are required</ReqoreP>
+                          )}
+                          {!areMetadataValid() && (
+                            <ReqoreP>
+                              - Metadata is not valid, please make sure the name of your Qodex is
+                              valid and that input & output types are compatible
+                            </ReqoreP>
+                          )}
+                          {!areStatesValid(states) && (
+                            <ReqoreP>
+                              - All states need to be valid (invalid states have red border) and
+                              connected (isolated states have red warning icon)
+                            </ReqoreP>
+                          )}
+                          {!hasEventTriggerState() && (
+                            <ReqoreP>
+                              - You need to have at least 1 trigger state (state with event trigger)
+                            </ReqoreP>
+                          )}
+                        </>
+                      ),
+                    },
+              },
+              {
+                show: isFSMValid() && !embedded,
+                customTheme: { main: 'success:darken' },
+                actions: [
+                  {
+                    label: 'Save locally',
+                    effect: SaveColorEffect,
+                    icon: 'Save3Fill',
+                    onClick: () => handleSubmitClick(false, false),
+                  },
+                ],
+              },
+            ],
           },
         ]}
       >

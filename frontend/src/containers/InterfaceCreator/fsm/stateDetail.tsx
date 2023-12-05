@@ -6,15 +6,14 @@ import {
   useReqoreProperty,
 } from '@qoretechnologies/reqore';
 import { camelCase, isEqual, reduce, size } from 'lodash';
-import { memo, useContext, useMemo, useState } from 'react';
-import { useUnmount, useUpdateEffect } from 'react-use';
+import { memo, useCallback, useContext, useState } from 'react';
+import { useDebounce, useUnmount, useUpdateEffect } from 'react-use';
 import { IFSMMetadata, IFSMState, IFSMStates, TAppAndAction, TFSMVariables } from '.';
 import {
   NegativeColorEffect,
   PendingColorEffect,
   PositiveColorEffect,
   SaveColorEffect,
-  SaveColorEffectAlt,
   WarningColorEffect,
 } from '../../../components/Field/multiPair';
 import { InputOutputType } from '../../../components/InputOutputType';
@@ -109,6 +108,33 @@ export const FSMStateDetail = memo(
       onSavedStatusChanged?.(true);
     });
 
+    const isLoading = isSubmitLoading || autoVars.loading || loading;
+
+    const isDataValid = useCallback(() => {
+      if (
+        autoVars.loading ||
+        (dataToSubmit['block-type'] === 'transaction' && !size(autoVars.value))
+      ) {
+        return false;
+      }
+
+      if (isLoading) {
+        return false;
+      }
+
+      return isStateValid(dataToSubmit, metadata, optionsSchema);
+    }, [autoVars.loading, JSON.stringify(dataToSubmit), JSON.stringify(optionsSchema), isLoading]);
+
+    useDebounce(
+      () => {
+        if (isDataValid() && !isCustomBlockFirstPage() && !hasSaved) {
+          handleSubmitClick();
+        }
+      },
+      300,
+      [dataToSubmit, isDataValid(), hasSaved]
+    );
+
     const handleClose = () => {
       if (hasSaved) {
         onClose();
@@ -134,23 +160,6 @@ export const FSMStateDetail = memo(
     const isCustomBlockSecondPage = () => {
       return isMetadataHidden && dataToSubmit.type === 'block' && blockLogicType === 'custom';
     };
-
-    const isLoading = isSubmitLoading || autoVars.loading || loading;
-
-    const isDataValid = useMemo(() => {
-      if (
-        autoVars.loading ||
-        (dataToSubmit['block-type'] === 'transaction' && !size(autoVars.value))
-      ) {
-        return false;
-      }
-
-      if (isLoading) {
-        return false;
-      }
-
-      return isStateValid(dataToSubmit, metadata, optionsSchema);
-    }, [autoVars.loading, JSON.stringify(dataToSubmit), JSON.stringify(optionsSchema), isLoading]);
 
     const handleSubmitClick = (addNewStateOnSuccess?: boolean) => {
       if (!isCustomBlockFirstPage()) {
@@ -263,7 +272,7 @@ export const FSMStateDetail = memo(
           {
             label: isLoading
               ? 'Loading...'
-              : !isDataValid
+              : !isDataValid()
               ? 'Fix to save'
               : isCustomBlockFirstPage()
               ? t('Next')
@@ -272,37 +281,41 @@ export const FSMStateDetail = memo(
               : t(`Save`),
             disabled: isCustomBlockFirstPage()
               ? !isFSMBlockConfigValid(dataToSubmit)
-              : !isDataValid || isLoading,
+              : !isDataValid() || isLoading,
+            show: isLoading || !isDataValid || isCustomBlockFirstPage(),
             className: isCustomBlockFirstPage() ? 'state-next-button' : 'state-submit-button',
             id: `state-${camelCase(dataToSubmit?.name)}-submit-button`,
-            icon: isLoading ? 'Loader5Line' : !isDataValid ? 'ErrorWarningLine' : 'CheckLine',
+            icon: isLoading ? 'Loader5Line' : !isDataValid() ? 'ErrorWarningLine' : undefined,
             leftIconProps: {
-              animation: isLoading ? 'spin' : isDataValid ? 'heartbeat' : undefined,
+              animation: isLoading ? 'spin' : isDataValid() ? 'heartbeat' : undefined,
             },
+
             effect: isLoading
               ? PendingColorEffect
-              : !isDataValid
+              : !isDataValid()
               ? WarningColorEffect
               : isCustomBlockFirstPage()
               ? PositiveColorEffect
               : SaveColorEffect,
-            show: isLoading || !isDataValid || isCustomBlockFirstPage() || !hasSaved,
             position: 'right',
             responsive: false,
-            onClick: handleSubmitClick,
           },
-          {
-            label: t(`Save and New`),
-            className: 'state-submit-and-new-button',
-            id: `state-${camelCase(dataToSubmit?.name)}-submit-and-new-button`,
-            icon: isLoading ? 'Loader5Line' : !isDataValid ? 'ErrorWarningLine' : 'CheckDoubleLine',
-            effect: SaveColorEffectAlt,
-            show: !hasSaved && !isLoading && isDataValid && !isCustomBlockFirstPage(),
-            position: 'right',
-            responsive: false,
-            tooltip: 'Save this action and immediately create a new one',
-            onClick: () => handleSubmitClick(true),
-          },
+          // {
+          //   label: t(`Save and New`),
+          //   className: 'state-submit-and-new-button',
+          //   id: `state-${camelCase(dataToSubmit?.name)}-submit-and-new-button`,
+          //   icon: isLoading
+          //     ? 'Loader5Line'
+          //     : !isDataValid()
+          //     ? 'ErrorWarningLine'
+          //     : 'CheckDoubleLine',
+          //   effect: SaveColorEffectAlt,
+          //   show: !hasSaved && !isLoading && isDataValid() && !isCustomBlockFirstPage(),
+          //   position: 'right',
+          //   responsive: false,
+          //   tooltip: 'Save this action and immediately create a new one',
+          //   onClick: () => handleSubmitClick(true),
+          // },
         ]}
       >
         <EditableMessage

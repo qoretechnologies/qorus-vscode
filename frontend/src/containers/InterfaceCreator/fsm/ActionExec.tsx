@@ -85,7 +85,11 @@ export const QodexActionExec = memo(({ appName, actionName, options }: IQodexAct
   }, [JSON.stringify(data)]);
 
   if (loading) {
-    return null;
+    return (
+      <ReqoreSpinner size="small" type={3} iconColor="pending" centered>
+        Loading test action runner...
+      </ReqoreSpinner>
+    );
   }
 
   return (

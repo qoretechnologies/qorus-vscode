@@ -53,7 +53,6 @@ export const InterfacesViewCollection = ({
   };
 
   const onDeployClick = (data) => {
-    console.log(data);
     postMessage(Messages.DEPLOY_INTERFACE, { data });
   };
 
