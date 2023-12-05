@@ -160,11 +160,11 @@ export const QodexActionExec = memo(({ appName, actionName, options }: IQodexAct
           </>
         ) : null}
         {error && (
-          <ReqoreMessage intent="danger" opaque={false}>
+          <ReqoreMessage intent="danger" opaque={false} margin="top">
             {error}
           </ReqoreMessage>
         )}
-        {response && <ReqoreTree size="small" data={response} />}
+        {response && <ReqoreTree size="small" data={response} withLabelCopy />}
       </ReqorePanel>
     </>
   );
