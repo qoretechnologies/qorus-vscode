@@ -219,6 +219,31 @@ export const FSMStateDetail = memo(
           modifiedData.autovar = autoVars.value;
         }
 
+        if (modifiedData.action.type === 'appaction') {
+          // Check if all options have a value
+          const { options } = modifiedData.action.value as TAppAndAction;
+
+          if (options) {
+            modifiedData.action.value = {
+              ...(modifiedData.action.value as TAppAndAction),
+              options: reduce(
+                options,
+                (newOptions, option, optionName) => {
+                  if (option.value !== undefined) {
+                    return {
+                      ...newOptions,
+                      [optionName]: option,
+                    };
+                  }
+
+                  return newOptions;
+                },
+                {}
+              ),
+            };
+          }
+        }
+
         onSubmit(modifiedData, addNewStateOnSuccess);
 
         setIsLoading(false);
