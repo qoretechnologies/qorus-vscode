@@ -7,6 +7,7 @@ import { NewState } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
 import {
   _testsClickState,
+  _testsCloseStateDetail,
   _testsConfirmDialog,
   _testsDeleteState,
   _testsDoubleClickState,
@@ -168,39 +169,28 @@ export const StatesCanBeConnected: StoryFSM = {
   },
 };
 
-export const StatesIsNotRemovedOnClose: StoryFSM = {
-  args: {
-    fsm,
-  },
+export const StateIsNotRemovedIfUnfinished: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
-    await SwitchesToBuilder.play({ canvasElement, ...rest });
+    const canvas = within(canvasElement);
 
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
-
-    await _testsClickState('state-1');
+    await NewState.play({ canvasElement, ...rest });
 
     await sleep(1000);
 
-    await fireEvent.click(document.querySelector('.fsm-state-detail .reqore-button'));
+    await fireEvent.click(document.querySelector('.add-new-state-after'));
+    await _testsSelectFromAppCatalogue(canvas, undefined, 'Discord', 'Get Server Info');
+
+    await sleep(1000);
+
+    await _testsCloseStateDetail();
+
+    await sleep(1000);
+
     await _testsConfirmDialog();
 
     await sleep(200);
 
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(9);
-  },
-};
-
-export const StateIsNotRemovedIfUnfinished: StoryFSM = {
-  play: async ({ canvasElement, ...rest }) => {
-    await NewState.play({ canvasElement, ...rest });
-
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(1);
-
-    await fireEvent.click(document.querySelector('.fsm-state-detail .reqore-button'));
-
-    await sleep(200);
-
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(1);
+    await expect(document.querySelectorAll('.fsm-state').length).toBe(2);
   },
 };
 

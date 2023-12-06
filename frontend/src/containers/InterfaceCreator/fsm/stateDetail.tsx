@@ -11,9 +11,7 @@ import { useDebounce, useUnmount, useUpdateEffect } from 'react-use';
 import { IFSMMetadata, IFSMState, IFSMStates, TAppAndAction, TFSMVariables } from '.';
 import {
   NegativeColorEffect,
-  PendingColorEffect,
   PositiveColorEffect,
-  SaveColorEffect,
   WarningColorEffect,
 } from '../../../components/Field/multiPair';
 import { InputOutputType } from '../../../components/InputOutputType';
@@ -136,9 +134,19 @@ export const FSMStateDetail = memo(
     );
 
     const handleClose = () => {
-      if (hasSaved) {
-        onClose();
-      } else {
+      if (isLoading) {
+        confirmAction({
+          title: 'Action in progress',
+          intent: 'warning',
+          description:
+            'There is an action in progress. Are you sure you want to close this action detail?',
+          onConfirm: onClose,
+        });
+
+        return;
+      }
+
+      if (!hasSaved) {
         confirmAction({
           title: 'Unsaved changes',
           intent: 'warning',
@@ -146,7 +154,11 @@ export const FSMStateDetail = memo(
             'You have unsaved changes. Are you sure you want to close this action detail?',
           onConfirm: onClose,
         });
+
+        return;
       }
+
+      onClose();
     };
 
     const updateSubmitData = (data: Partial<IFSMState>) => {
@@ -308,7 +320,7 @@ export const FSMStateDetail = memo(
           },
           {
             label: isLoading
-              ? 'Loading...'
+              ? undefined
               : !isDataValid()
               ? 'Fix to save'
               : hasSaved
@@ -322,12 +334,8 @@ export const FSMStateDetail = memo(
             leftIconProps: {
               animation: isLoading ? 'spin' : isDataValid() ? 'heartbeat' : undefined,
             },
-
-            effect: isLoading
-              ? PendingColorEffect
-              : !isDataValid()
-              ? WarningColorEffect
-              : SaveColorEffect,
+            customTheme: { main: 'transparent' },
+            effect: isLoading ? undefined : !isDataValid() ? WarningColorEffect : undefined,
             position: 'right',
             responsive: false,
           },
