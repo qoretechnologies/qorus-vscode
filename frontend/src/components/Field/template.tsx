@@ -1,11 +1,9 @@
 import {
   ReqoreControlGroup,
-  ReqoreMessage,
   ReqoreTabs,
   ReqoreTabsContent,
   ReqoreTag,
   ReqoreTagGroup,
-  ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import { useContext, useState } from 'react';
 import { useAsyncRetry, useUpdateEffect } from 'react-use';
@@ -175,31 +173,25 @@ export const TemplateField = ({
       <ReqoreTabsContent tabId={'template'}>
         {templates.loading && <Loader />}
         {templates.value ? (
-          <>
-            <ReqoreMessage intent="info" size="small">
-              {`${t('ConfigTemplatesFormat')} $<type>:<key>`}
-            </ReqoreMessage>
-            <ReqoreVerticalSpacer height={10} />
-            <ReqoreControlGroup fluid stack fill>
-              <Select
-                defaultItems={templates.value.map((template) => template)}
-                onChange={(_n, val) => setTemplateKey(val)}
-                value={templateKey}
-                name="templateKey"
-                icon="ExchangeDollarLine"
-                className="template-selector"
-              />
-              <ReqoreTag label=":" />
-              <String
-                fill
-                fillVertically
-                type="string"
-                name="templateVal"
-                value={templateValue}
-                onChange={(_n, val) => setTemplateValue(val)}
-              />
-            </ReqoreControlGroup>
-          </>
+          <ReqoreControlGroup fluid stack fill>
+            <Select
+              defaultItems={templates.value.map((template) => template)}
+              onChange={(_n, val) => setTemplateKey(val)}
+              value={templateKey}
+              name="templateKey"
+              icon="ExchangeDollarLine"
+              className="template-selector"
+            />
+            <ReqoreTag label=":" />
+            <String
+              fill
+              fillVertically
+              type="string"
+              name="templateVal"
+              value={templateValue}
+              onChange={(_n, val) => setTemplateValue(val)}
+            />
+          </ReqoreControlGroup>
         ) : null}
       </ReqoreTabsContent>
     </ReqoreTabs>

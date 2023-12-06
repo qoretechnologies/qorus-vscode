@@ -50,13 +50,14 @@ export const sleep = (ms: number) => {
 
 export function _testsSubmitFSMState(buttonId?: string) {
   return async () => {
-    await expect(
-      document.querySelector(buttonId ? `#${buttonId}` : '.state-submit-button')
-    ).toBeEnabled();
-    await fireEvent.click(
-      document.querySelector(buttonId ? `#${buttonId}` : '.state-submit-button')
-    );
+    await sleep(850);
   };
+}
+
+export async function _testsQodexCanBePublished() {
+  await waitFor(() => expect(screen.getAllByText('Publish')[0]).toBeInTheDocument(), {
+    timeout: 10000,
+  });
 }
 
 export async function _testsCloseStateDetail() {
@@ -97,6 +98,14 @@ export async function _testsSelectAppOrAction(canvas, appOrAction: string) {
   await fireEvent.click(canvas.getByText(appOrAction, { selector: 'h4' }));
 }
 
+export async function _testsOpenAppCatalogueFromState(stateId?: number | string) {
+  if (!stateId) {
+    await fireEvent.click(document.querySelector('.add-new-state-after'));
+  }
+
+  await fireEvent.click(document.querySelector(`#state-${stateId} .add-new-state-after`));
+}
+
 export async function _testsSelectFromAppCatalogue(
   canvas,
   stateType?: keyof typeof stateCategory,
@@ -130,9 +139,15 @@ export async function _testsAddNewState(
   canvas,
   wrapperId?: string,
   x?: number,
-  y?: number
+  y?: number,
+  stateId?: number | string
 ) {
-  await _testsOpenAppCatalogue(wrapperId, x, y);
+  if (stateId || stateId === 0) {
+    await _testsOpenAppCatalogueFromState(stateId);
+  } else {
+    await _testsOpenAppCatalogue(wrapperId, x, y);
+  }
+
   await _testsSelectFromAppCatalogue(canvas, stateType);
 }
 
@@ -244,6 +259,13 @@ export async function _testsMoveState(
 
   await sleep(100);
 
+  const { left, top } = document.querySelector(`#state-${id}`).getBoundingClientRect();
+
+  await fireEvent.mouseMove(document.querySelector(`#state-${id}`), {
+    clientX: left,
+    clientY: top,
+  });
+
   for await (const _ of Array(Math.round(times)).keys()) {
     const { left, top } = document.querySelector(`#state-${id}`).getBoundingClientRect();
 
@@ -254,20 +276,18 @@ export async function _testsMoveState(
     await sleep(16.67);
 
     await fireEvent.mouseMove(document.querySelector(`#state-${id}`), {
-      clientX: left,
-      clientY: top,
-      movementX: x * coeficient,
-      movementY: y + coeficient,
+      clientX: left + x * coeficient,
+      clientY: top + y * coeficient,
     });
   }
 
   await sleep(100);
 
-  const { left, top } = document.querySelector(`#state-${id}`).getBoundingClientRect();
+  const dim = document.querySelector(`#state-${id}`).getBoundingClientRect();
 
   await fireEvent.mouseUp(document.querySelector(`#state-${id}`), {
-    clientX: left,
-    clientY: top,
+    clientX: dim.left,
+    clientY: dim.top,
   });
 }
 

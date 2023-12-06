@@ -9,6 +9,7 @@ import {
   _testsAddNewState,
   _testsCloseAppCatalogue,
   _testsOpenAppCatalogue,
+  _testsOpenAppCatalogueFromState,
   _testsSelectAppOrAction,
   sleep,
 } from '../utils';
@@ -43,7 +44,7 @@ export const NewVariableState: StoryFSM = {
 
     await _testsAddNewState('trigger', canvas);
 
-    await _testsOpenAppCatalogue();
+    await _testsOpenAppCatalogueFromState(0);
 
     await waitFor(() => canvas.getByText('Variables', { selector: 'h4' }), { timeout: 10000 });
     await fireEvent.click(canvas.getAllByText('Manage', { selector: 'span' })[0]);

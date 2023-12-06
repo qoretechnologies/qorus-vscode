@@ -5,7 +5,7 @@
   "states": {
     "1": {
       "position": {
-        "x": 1825,
+        "x": 50,
         "y": 50
       },
       "initial": true,
@@ -52,8 +52,8 @@
     },
     "2": {
       "position": {
-        "x": 1814.75,
-        "y": 557.5
+        "x": 50,
+        "y": 550
       },
       "initial": false,
       "name": "Send Discord Message",
@@ -88,8 +88,8 @@
     },
     "3": {
       "position": {
-        "x": 1800,
-        "y": 324.375
+        "x": 50,
+        "y": 300
       },
       "initial": false,
       "is_event_trigger": false,

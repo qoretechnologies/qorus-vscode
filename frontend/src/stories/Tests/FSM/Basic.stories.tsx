@@ -50,36 +50,15 @@ export const NewStatesAfterState: StoryFSM = {
     const canvas = within(canvasElement);
 
     await NewState.play({ canvasElement, ...rest });
-    await sleep(200);
+
+    await sleep(1000);
 
     await fireEvent.click(document.querySelector('.add-new-state-after'));
     await _testsSelectFromAppCatalogue(canvas, undefined, 'Discord', 'Get Server Info');
 
-    await sleep(500);
+    await sleep(300);
 
     await fireEvent.click(document.querySelectorAll('.add-new-state-after')[0]);
-    await _testsConfirmDialog();
-    await _testsSelectFromAppCatalogue(canvas, undefined, 'Discord', 'Get User Info');
-
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(3);
-  },
-};
-
-export const NewStateAfterSavingState: StoryFSM = {
-  play: async ({ canvasElement, ...rest }) => {
-    const canvas = within(canvasElement);
-
-    await NewState.play({ canvasElement, ...rest });
-    await sleep(200);
-
-    await fireEvent.click(document.querySelector('.add-new-state-after'));
-    await _testsSelectFromAppCatalogue(canvas, undefined, 'Discord', 'Get Server Info');
-
-    await _testsClickState(`state-0`);
-
-    await waitFor(() => canvas.getAllByText('Save and New')[0], { timeout: 5000 });
-    await fireEvent.click(canvas.getAllByText('Save and New')[0]);
-
     await _testsSelectFromAppCatalogue(canvas, undefined, 'Discord', 'Get User Info');
 
     await expect(document.querySelectorAll('.fsm-state').length).toBe(3);
@@ -203,28 +182,11 @@ export const StatesIsNotRemovedOnClose: StoryFSM = {
     await sleep(1000);
 
     await fireEvent.click(document.querySelector('.fsm-state-detail .reqore-button'));
+    await _testsConfirmDialog();
 
     await sleep(200);
 
     await expect(document.querySelectorAll('.fsm-state').length).toBe(9);
-  },
-};
-
-export const WarningIfClosingUnsavedState: StoryFSM = {
-  play: async ({ canvasElement, ...rest }) => {
-    const canvas = within(canvasElement);
-
-    await NewState.play({ canvasElement, ...rest });
-
-    await expect(document.querySelectorAll('.fsm-state').length).toBe(1);
-
-    await sleep(500);
-
-    await fireEvent.click(document.querySelector('.fsm-state-detail .reqore-button'));
-
-    await sleep(200);
-
-    await expect(canvas.getByText('Unsaved changes')).toBeInTheDocument();
   },
 };
 

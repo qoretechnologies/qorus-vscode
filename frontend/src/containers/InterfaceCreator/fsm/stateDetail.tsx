@@ -101,7 +101,7 @@ export const FSMStateDetail = memo(
     }, [dataToSubmit]);
 
     useUpdateEffect(() => {
-      onSavedStatusChanged?.(hasSaved);
+      //onSavedStatusChanged?.(hasSaved);
     }, [hasSaved]);
 
     useUnmount(() => {
@@ -131,7 +131,7 @@ export const FSMStateDetail = memo(
           handleSubmitClick();
         }
       },
-      300,
+      100,
       [dataToSubmit, isDataValid(), hasSaved]
     );
 
@@ -219,7 +219,7 @@ export const FSMStateDetail = memo(
           modifiedData.autovar = autoVars.value;
         }
 
-        if (modifiedData.action.type === 'appaction') {
+        if (modifiedData.action?.type === 'appaction') {
           // Check if all options have a value
           const { options } = modifiedData.action.value as TAppAndAction;
 
@@ -295,20 +295,28 @@ export const FSMStateDetail = memo(
             onClick: onDelete,
           },
           {
+            show: isCustomBlockFirstPage(),
+            label: !isFSMBlockConfigValid(dataToSubmit) ? t('Fix to proceed') : t('Next'),
+            disabled: !isFSMBlockConfigValid(dataToSubmit),
+            className: 'state-next-button',
+            icon: !isFSMBlockConfigValid(dataToSubmit)
+              ? 'ErrorWarningLine'
+              : 'ArrowRightCircleLine',
+            effect: PositiveColorEffect,
+            position: 'right',
+            onClick: () => setIsMetadataHidden(true),
+          },
+          {
             label: isLoading
               ? 'Loading...'
               : !isDataValid()
               ? 'Fix to save'
-              : isCustomBlockFirstPage()
-              ? t('Next')
               : hasSaved
               ? undefined
               : t(`Save`),
-            disabled: isCustomBlockFirstPage()
-              ? !isFSMBlockConfigValid(dataToSubmit)
-              : !isDataValid() || isLoading,
-            show: isLoading || !isDataValid || isCustomBlockFirstPage(),
-            className: isCustomBlockFirstPage() ? 'state-next-button' : 'state-submit-button',
+            disabled: !isDataValid() || isLoading,
+            show: (isLoading || !isDataValid()) && !isCustomBlockFirstPage(),
+            className: 'state-submit-button',
             id: `state-${camelCase(dataToSubmit?.name)}-submit-button`,
             icon: isLoading ? 'Loader5Line' : !isDataValid() ? 'ErrorWarningLine' : undefined,
             leftIconProps: {
@@ -319,28 +327,10 @@ export const FSMStateDetail = memo(
               ? PendingColorEffect
               : !isDataValid()
               ? WarningColorEffect
-              : isCustomBlockFirstPage()
-              ? PositiveColorEffect
               : SaveColorEffect,
             position: 'right',
             responsive: false,
           },
-          // {
-          //   label: t(`Save and New`),
-          //   className: 'state-submit-and-new-button',
-          //   id: `state-${camelCase(dataToSubmit?.name)}-submit-and-new-button`,
-          //   icon: isLoading
-          //     ? 'Loader5Line'
-          //     : !isDataValid()
-          //     ? 'ErrorWarningLine'
-          //     : 'CheckDoubleLine',
-          //   effect: SaveColorEffectAlt,
-          //   show: !hasSaved && !isLoading && isDataValid() && !isCustomBlockFirstPage(),
-          //   position: 'right',
-          //   responsive: false,
-          //   tooltip: 'Save this action and immediately create a new one',
-          //   onClick: () => handleSubmitClick(true),
-          // },
         ]}
       >
         <EditableMessage

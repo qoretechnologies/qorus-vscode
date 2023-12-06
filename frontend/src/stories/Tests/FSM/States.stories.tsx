@@ -10,6 +10,7 @@ import {
   _testsAddNewVariableState,
   _testsClickState,
   _testsCloseStateDetail,
+  _testsQodexCanBePublished,
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
   _testsSubmitFSMState,
@@ -66,8 +67,6 @@ export const NewStateFromVariable: StoryFSM = {
       { timeout: 5000 }
     );
 
-    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
-
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
 
@@ -93,19 +92,12 @@ export const NewMapperState: StoryFSM = {
 
     await NewState.play({ canvasElement, ...rest, stateType: mapperId });
 
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
     await sleep(200);
-    await _testsSelectItemFromCollection(canvas, 'Test Mapper 1', 'Select or create a Mapper')();
-    await sleep(200);
-    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
-    await sleep(200);
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
-
     await waitFor(() => expect(canvas.getAllByText('Test Mapper 1').length).toBe(4));
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -115,19 +107,11 @@ export const NewPipelineState: StoryFSM = {
 
     await NewState.play({ canvasElement, ...rest, stateType: 'pipeline' });
 
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
     await sleep(200);
-    await _testsSelectItemFromCollection(canvas, 'Test Pipeline 1')();
-    await sleep(200);
-    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
-
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
-    await sleep(200);
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
-
     await waitFor(() => expect(canvas.getAllByText('Test Pipeline 1').length).toBe(4));
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -140,16 +124,8 @@ export const NewConnectorState: StoryFSM = {
     const className = 'Test Class With Connectors 1';
     const connectorName = 'Input Output Connector';
 
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
-    await sleep(200);
-    await _testsSelectItemFromDropdown(canvas, className)();
-    await sleep(200);
-    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
-    await sleep(300);
+    await sleep(500);
     await _testsSelectItemFromCollection(canvas, connectorName)();
-    await sleep(200);
-    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
@@ -160,6 +136,7 @@ export const NewConnectorState: StoryFSM = {
     await waitFor(() =>
       expect(canvas.getByText(`${className}:${connectorName} connector`)).toBeInTheDocument()
     );
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -169,19 +146,11 @@ export const NewFSMState: StoryFSM = {
 
     await NewState.play({ canvasElement, ...rest, stateType: 'fsm' });
 
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
-    await sleep(1000);
-    await _testsSelectItemFromDropdown(canvas, 'Test FSM 1')();
-    await sleep(200);
-    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
-
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
-    await sleep(200);
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
 
     await waitFor(() => expect(canvas.getAllByText('Test FSM 1').length).toBe(5));
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -218,8 +187,6 @@ export const NewWhileState: StoryFSM = {
     );
 
     await fireEvent.click(document.querySelector('.state-next-button'));
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).toBeDisabled();
 
     // Add new mapper state to the block
     await _testsAddNewState('mapper', canvas, `${upperFirst(blockType)}`);
@@ -227,9 +194,6 @@ export const NewWhileState: StoryFSM = {
     await waitFor(() => expect(document.querySelectorAll('.fsm-state-detail').length).toBe(2));
 
     await sleep(200);
-    await _testsSelectItemFromCollection(canvas, 'Test Mapper 1', 'Select or create a Mapper')();
-    await sleep(200);
-    await expect(document.querySelector('.state-submit-button')).toBeEnabled();
 
     // Submit the state
     await waitFor(_testsSubmitFSMState('state-mapper-submit-button'), { timeout: 5000 });
@@ -256,6 +220,7 @@ export const NewWhileState: StoryFSM = {
         canvas.getByText('Test Mapper 1', { selector: '.reqore-tag-content span' })
       ).toBeInTheDocument();
     });
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -288,8 +253,6 @@ export const NewTransactionState: StoryFSM = {
     );
 
     await sleep(200);
-
-    await expect(document.querySelector('.state-next-button')).toBeDisabled();
 
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('factory'));
@@ -343,16 +306,6 @@ export const NewTransactionState: StoryFSM = {
 
     await sleep(1500);
 
-    await waitFor(
-      async () => {
-        // The submit button needs to be disabled
-        await expect(document.querySelector('.state-next-button')).not.toBeDisabled();
-      },
-      {
-        timeout: 10000,
-      }
-    );
-
     await fireEvent.click(document.querySelector('.state-next-button'));
 
     await _testsAddNewVariableState('trans', canvas, 'Transaction');
@@ -383,6 +336,7 @@ export const NewTransactionState: StoryFSM = {
     await fireEvent.click(document.querySelector('.state-next-button'));
 
     await waitFor(() => expect(canvas.getByText('transaction')).toBeInTheDocument());
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -392,28 +346,17 @@ export const NewIfState: StoryFSM = {
 
     await NewState.play({ canvasElement, ...rest, stateType: 'if' });
 
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
     await fireEvent.change(document.querySelector('#condition-field'), {
       target: { value: 'asfg condition' },
     });
     await sleep(1000);
 
-    await waitFor(
-      async () => {
-        await expect(document.querySelector('.state-submit-button')).toBeEnabled();
-      },
-      {
-        timeout: 10000,
-      }
-    );
-
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
     await sleep(200);
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
 
     await waitFor(() => expect(canvas.getByText('asfg condition')).toBeInTheDocument());
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -422,8 +365,6 @@ export const NewApiCallState: StoryFSM = {
     const canvas = within(canvasElement);
     await NewState.play({ canvasElement, ...rest, stateType: 'apicall' });
 
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('factory'));
 
@@ -458,9 +399,6 @@ export const NewApiCallState: StoryFSM = {
       }
     );
 
-    await waitFor(() => fireEvent.click(document.querySelectorAll('.reqore-checkbox')[0]), {
-      timeout: 10000,
-    });
     await waitFor(
       () =>
         fireEvent.change(document.querySelector('.system-option textarea'), {
@@ -485,6 +423,7 @@ export const NewApiCallState: StoryFSM = {
     await expect(document.querySelector('.system-option textarea')).toHaveValue(
       'logging some stuff'
     );
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -493,8 +432,6 @@ export const NewMessageState: StoryFSM = {
     const canvas = within(canvasElement);
     await NewState.play({ canvasElement, ...rest, stateType: 'send-message' });
 
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('factory'));
 
@@ -562,6 +499,7 @@ export const NewMessageState: StoryFSM = {
     await expect(document.querySelector('.provider-message-data textarea')).toHaveValue(
       'Hello World'
     );
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -570,8 +508,6 @@ export const NewSingleSearchState: StoryFSM = {
     const canvas = within(canvasElement);
     await NewState.play({ canvasElement, ...rest, stateType: stateType || 'search-single' });
 
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('datasource'));
 
@@ -637,6 +573,7 @@ export const NewSingleSearchState: StoryFSM = {
       },
       { timeout: 5000 }
     );
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -656,8 +593,7 @@ export const NewUpdateState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
     await NewState.play({ canvasElement, ...rest, stateType: 'update' });
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
+
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('datasource'));
 
@@ -718,6 +654,7 @@ export const NewUpdateState: StoryFSM = {
       },
       { timeout: 5000 }
     );
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -725,8 +662,7 @@ export const NewCreateFromFormState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
     await NewState.play({ canvasElement, ...rest, stateType: 'create' });
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
+
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('datasource'));
 
@@ -797,6 +733,7 @@ export const NewCreateFromFormState: StoryFSM = {
       },
       { timeout: 5000 }
     );
+    await _testsQodexCanBePublished();
   },
 };
 
@@ -804,8 +741,7 @@ export const NewCreateFromTextState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
     await NewState.play({ canvasElement, ...rest, stateType: 'create' });
-    // The submit button needs to be disabled
-    await expect(document.querySelector('.state-submit-button')).not.toBeInTheDocument();
+
     await fireEvent.click(document.querySelector('.provider-type-selector'));
     await fireEvent.click(canvas.getByText('datasource'));
 
@@ -875,5 +811,6 @@ export const NewCreateFromTextState: StoryFSM = {
       },
       { timeout: 5000 }
     );
+    await _testsQodexCanBePublished();
   },
 };

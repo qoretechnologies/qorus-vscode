@@ -1,6 +1,7 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
+import { useState } from 'react';
 import { IApp } from '../../components/AppCatalogue';
 import { ConnectionManagement } from '../../components/ConnectionManagement';
 import { AppsContext } from '../../context/apps';
@@ -11,9 +12,11 @@ const meta = {
   component: ConnectionManagement,
   title: 'Components/Connection Management',
   render: (args) => {
+    const [connection, setConnection] = useState(args.selectedConnection);
+
     return (
       <AppsContext.Provider value={apps as IApp[]}>
-        <ConnectionManagement {...args} />
+        <ConnectionManagement {...args} onChange={setConnection} selectedConnection={connection} />
       </AppsContext.Provider>
     );
   },
@@ -91,10 +94,11 @@ export const NewConnectionWithRequiredOptions: Story = {
 export const EditingConnection: Story = {
   args: {
     app: 'GoogleCalendar',
-    selectedConnection: 'google-calendar',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
+
+    await NewConnection.play({ canvasElement, ...rest });
 
     await waitFor(() => canvas.getAllByText('Edit connection')[0], { timeout: 5000 });
 

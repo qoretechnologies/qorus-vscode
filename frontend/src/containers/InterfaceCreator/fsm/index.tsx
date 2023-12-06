@@ -2435,6 +2435,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                   !areMetadataValid() || !isFSMValid() ? 'ErrorWarningLine' : 'UploadCloud2Line',
                 effect: !areMetadataValid() || !isFSMValid() ? WarningColorEffect : SaveColorEffect,
                 show: !embedded,
+                className: 'qodex-publish',
                 tooltip: isFSMValid()
                   ? 'Publish your Qodex'
                   : {

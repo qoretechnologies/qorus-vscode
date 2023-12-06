@@ -409,6 +409,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               object_type: 'mapper',
               return_value: 'objects',
             }}
+            autoSelect
             placeholder="Select or create a Mapper"
             onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
             value={newData?.action?.value}
@@ -606,6 +607,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                   object_type: 'fsm',
                   return_value: 'objects',
                 }}
+                autoSelect
                 reference={{ iface_kind: 'fsm' }}
                 predicate={(name) => fsmName !== name}
                 onChange={handleDataUpdate}
@@ -657,6 +659,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 reference={{
                   iface_kind: 'fsm',
                 }}
+                autoSelect
                 onChange={handleDataUpdate}
                 value={newData?.fsm}
                 name="fsm"

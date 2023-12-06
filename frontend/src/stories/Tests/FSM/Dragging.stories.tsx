@@ -41,6 +41,8 @@ export const StateCanBeDraggedAndDropped: StoryFSM = {
       await SwitchesToBuilder.play({ canvasElement, ...rest });
     }
 
+    await sleep(1000);
+
     await _testsMoveState(2, 3, 300, 0, coeficient);
 
     await sleep(500);
@@ -84,11 +86,18 @@ export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
 
     await sleep(100);
 
-    await _testsCreateSelectionBox(500, 300, 800, 800, true);
+    await _testsCreateSelectionBox(10, 10, 1000, 1000, true);
 
     await sleep(100);
 
     await fireEvent.mouseDown(document.querySelector('#state-3'));
+
+    const { left, top } = document.querySelector('#state-3').getBoundingClientRect();
+
+    await fireEvent.mouseMove(document.querySelector('#state-3'), {
+      clientX: left,
+      clientY: top,
+    });
 
     await sleep(200);
 
@@ -102,18 +111,18 @@ export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
       await sleep(16.67);
 
       await fireEvent.mouseMove(document.querySelector('#state-3'), {
-        clientX: left,
-        clientY: top,
-        movementX: 10,
-        movementY: 300,
+        clientX: left + 10,
+        clientY: top + 300,
       });
     }
 
     await sleep(300);
 
+    const dim = document.querySelector('#state-3').getBoundingClientRect();
+
     await fireEvent.mouseMove(document.querySelector('#state-3'), {
-      movementX: 0,
-      movementY: -300,
+      clientX: dim.left,
+      clientY: dim.top - 300,
     });
 
     await sleep(100);

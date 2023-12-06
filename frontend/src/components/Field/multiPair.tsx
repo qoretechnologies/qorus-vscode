@@ -54,8 +54,8 @@ export const PositiveColorEffect: IReqoreEffect = {
   gradient: {
     direction: 'to right',
     colors: {
-      0: 'info:lighten',
-      100: 'info',
+      0: 'info',
+      100: 'info:darken',
     },
     animate: 'hover',
   },

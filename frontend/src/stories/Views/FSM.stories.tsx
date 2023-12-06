@@ -80,7 +80,16 @@ export const NewState: StoryFSM = {
       await _testsAddNewState('trigger', canvas, undefined, 50, 50);
     }
 
-    await _testsAddNewState(stateType, canvas, undefined, 50, stateType === 'trigger' ? 50 : 250);
+    await sleep(700);
+
+    await _testsAddNewState(
+      stateType,
+      canvas,
+      undefined,
+      50,
+      stateType === 'trigger' ? 50 : 250,
+      stateType === 'trigger' ? undefined : 0
+    );
 
     await expect(document.querySelector('#state-0')).toBeInTheDocument();
 
