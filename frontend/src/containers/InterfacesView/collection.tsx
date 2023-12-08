@@ -1,5 +1,6 @@
 import { ReqoreCollection, useReqoreProperty } from '@qoretechnologies/reqore';
 import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
+import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import { capitalize, size } from 'lodash';
 import { useContext, useMemo } from 'react';
 import { IQorusInterface } from '.';
@@ -61,7 +62,7 @@ export const InterfacesViewCollection = ({
   }, []);
 
   const getItemsCount = () => {
-    return size(value.filter((item) => !item.isDraft && !item.isServerInterface));
+    return size(value.filter((item) => !item.isDraft && item.isLocalInterface));
   };
 
   const getRemotesCount = () => {
@@ -95,6 +96,65 @@ export const InterfacesViewCollection = ({
 
     return badgeList;
   }, [getItemsCount, getDraftsCount, showRemotes, getRemotesCount, qorus_instance]);
+
+  const buildTags = ({
+    isDraft,
+    hasDraft,
+    isLocalInterface,
+    isServerInterface,
+  }: Partial<IQorusInterface>) => {
+    let tags: IReqoreCollectionItemProps['tags'] = [];
+
+    if (isDraft) {
+      tags.push({
+        icon: 'StarLine',
+        label: 'New',
+        intent: 'success',
+      });
+    }
+
+    if (hasDraft) {
+      tags.push({
+        icon: 'Edit2Line',
+        label: 'Draft',
+        intent: 'pending',
+      });
+    }
+
+    if (isLocalInterface && isServerInterface) {
+      tags.push({
+        icon: 'FileLine',
+        rightIcon: 'ServerLine',
+        effect: {
+          gradient: {
+            colors: {
+              0: 'info',
+              100: '#6f1977',
+            },
+          },
+        },
+        label: 'Local & Remote',
+      });
+    } else {
+      if (isLocalInterface) {
+        tags.push({
+          icon: 'FileLine',
+          intent: 'info',
+          label: 'Local',
+        });
+      }
+
+      if (isServerInterface) {
+        tags.push({
+          icon: 'ServerLine',
+          color: '#6f1977',
+          label: 'Remote',
+        });
+      }
+    }
+
+    return tags;
+  };
 
   // Sort the value by isDraft / hasDraft boolean, put values with truthy isServerInterface at the end and sort the rest by name
   const sortedValue = useMemo(() => {
@@ -155,6 +215,7 @@ export const InterfacesViewCollection = ({
         {
           icon: 'AddCircleLine',
           tooltip: `Create new ${type}`,
+          label: 'Create new',
           minimal: true,
           show: !isOther,
           flat: false,
@@ -181,14 +242,12 @@ export const InterfacesViewCollection = ({
         },
       }}
       items={sortedValue.map(
-        ({ name, data, isDraft, hasDraft, isServerInterface, ...rest }, index) => ({
+        (
+          { name, data, isDraft, hasDraft, isServerInterface, isLocalInterface, ...rest },
+          index
+        ): IReqoreCollectionItemProps => ({
           label: name || data.error,
-          icon: isServerInterface ? 'ServerLine' : isDraft || hasDraft ? 'EditLine' : 'FileLine',
-          iconColor: isServerInterface
-            ? '#6f1977:lighten:2'
-            : isDraft || hasDraft
-            ? 'pending'
-            : 'info:lighten:2',
+          icon: interfaceIcons[type],
           content: (
             <InterfacesViewItem
               {...rest}
@@ -204,22 +263,29 @@ export const InterfacesViewCollection = ({
               direction: 'to right bottom',
               colors: {
                 50: 'main',
-                300:
-                  isDraft || hasDraft
-                    ? 'pending'
-                    : isServerInterface
-                    ? '#6f1977'
-                    : 'info:lighten:2',
+                300: isDraft
+                  ? 'success'
+                  : hasDraft
+                  ? 'pending'
+                  : isServerInterface
+                  ? '#6f1977'
+                  : 'info:lighten:2',
               },
             },
           },
           flat: true,
           responsiveTitle: false,
           responsiveActions: false,
-          expandable: isServerInterface,
+          expandable: isServerInterface && !isLocalInterface,
           size: zoomToSize[zoom],
           onClick: () => {
-            if (isServerInterface) {
+            if (isLocalInterface) {
+              postMessage(Messages.GET_INTERFACE_DATA, {
+                iface_kind: type,
+                name,
+                include_tabs: true,
+              });
+
               return;
             }
 
@@ -228,21 +294,26 @@ export const InterfacesViewCollection = ({
                 interfaceKind: type,
                 interfaceId: rest.interfaceId,
               });
-            } else {
-              postMessage(Messages.GET_INTERFACE_DATA, {
-                iface_kind: type,
-                name,
-                include_tabs: true,
-              });
+
+              return;
             }
+
+            return;
           },
+          tags: buildTags({
+            isDraft,
+            hasDraft,
+            isServerInterface,
+            isLocalInterface,
+            data,
+          }),
           actions: [
             {
               icon: 'UploadLine',
               effect: PositiveColorEffect,
               tooltip: 'Deploy',
               size: 'tiny',
-              show: !isDraft && !isServerInterface ? 'hover' : false,
+              show: isLocalInterface ? 'hover' : false,
               onClick: () => onDeployClick(data),
             },
             {
@@ -250,7 +321,7 @@ export const InterfacesViewCollection = ({
               effect: SelectorColorEffect,
               tooltip: 'Edit code',
               size: 'tiny',
-              show: !!data?.code && !isServerInterface ? 'hover' : false,
+              show: !!data?.code && isLocalInterface ? 'hover' : false,
             },
             {
               icon: 'DeleteBinLine',

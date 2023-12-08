@@ -63,19 +63,65 @@ export const useFetchInterfaces = (
     retry();
   };
 
+  let uniqueItems = [
+    ...(value || []).map(
+      (item): IQorusInterface => ({
+        name: item.name,
+        isServerInterface: true,
+        data: item,
+      })
+    ),
+    ...localItems,
+  ] as IQorusInterface[];
+
+  // Make each item in the list unique by name
+  uniqueItems = uniqueItems.reduce((acc, current) => {
+    const item = acc.find((item) => item.name === current.name);
+
+    if (!item) {
+      const sameItems = uniqueItems.filter((item) => item.name === current.name);
+      const isLocalInterface = !!localItems.find(
+        (item) => item.name === current.name && !item.isDraft
+      );
+
+      if (sameItems.length > 1) {
+        const isDraft = sameItems.some((item) => item.isDraft);
+        const hasDraft = sameItems.some((item) => item.hasDraft);
+
+        // Merge all items with the same name into one
+        const mergedData: IQorusInterface = sameItems.reduce(
+          (acc: IQorusInterface, current): IQorusInterface => {
+            return {
+              ...acc,
+              ...current,
+            };
+          },
+          {}
+        );
+
+        acc.push({
+          ...mergedData,
+          isDraft,
+          hasDraft,
+          isLocalInterface,
+        });
+      } else {
+        acc.push({
+          ...current,
+          isLocalInterface,
+        });
+      }
+
+      return acc;
+    } else {
+      return acc;
+    }
+  }, [] as IQorusInterface[]);
+
   return {
     loading,
     onDeleteRemoteClick: handleDeleteClick,
     retry,
-    value: [
-      ...(value || []).map(
-        (item): IQorusInterface => ({
-          name: item.name,
-          isServerInterface: true,
-          data: item,
-        })
-      ),
-      ...localItems,
-    ] as IQorusInterface[],
+    value: uniqueItems,
   };
 };
