@@ -1530,8 +1530,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         ),
       };
 
+      delete data.target_dir;
+
       if (testRun) {
-        delete data.target_dir;
         delete data['input-type'];
         delete data['output-type'];
 
@@ -1565,7 +1566,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           deploy_on_success: publish,
           data,
         },
-        t('Saving FSM...')
+        t('Saving FSM...'),
+        true
       );
 
       if (result.ok) {
@@ -2553,11 +2555,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 get_message={{
                   action: 'creator-get-objects',
                   object_type: 'group',
+                  useWebSocket: true,
                 }}
                 return_message={{
                   action: 'creator-return-objects',
                   object_type: 'group',
                   return_value: 'objects',
+                  useWebSocket: true,
                 }}
                 reference={{
                   iface_kind: 'other',

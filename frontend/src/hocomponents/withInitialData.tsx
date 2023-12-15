@@ -131,7 +131,7 @@ export default () =>
 
       useEffect(() => {
         const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
-          props.setTheme(data.theme);
+          props.setTheme?.(data.theme);
 
           flushSync(() => setInitialData({}));
 
@@ -177,7 +177,8 @@ export default () =>
               }));
               changeTab(data.tab, data.subtab);
             }
-          }
+          },
+          true
         );
 
         return () => {
@@ -365,8 +366,9 @@ export default () =>
         getMessage: string,
         returnMessage: string,
         data: any,
-        toastMessage?: string
-      ) => Promise<any> = async (getMessage, returnMessage, data, toastMessage) => {
+        toastMessage?: string,
+        useWebSocket?: boolean
+      ) => Promise<any> = async (getMessage, returnMessage, data, toastMessage, useWebSocket) => {
         // Create the unique ID for this request
         const uniqueId: string = shortid.generate();
         // Create new toast
@@ -394,27 +396,35 @@ export default () =>
           }, 30000);
           // Watch for the request to complete
           // if the ID matches then resolve
-          addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
-            if (data.request_id === uniqueId) {
-              addNotification({
-                content: data.message,
-                intent: data.ok ? 'success' : 'danger',
-                duration: 3000,
-                id: uniqueId,
-              });
+          addMessageListener(
+            returnMessage || `${getMessage}-complete`,
+            (data) => {
+              if (data.request_id === uniqueId) {
+                addNotification({
+                  content: data.message,
+                  intent: data.ok ? 'success' : 'danger',
+                  duration: 3000,
+                  id: uniqueId,
+                });
 
-              clearTimeout(timeout);
-              timeout = null;
-              resolve(data);
-            }
-          });
+                clearTimeout(timeout);
+                timeout = null;
+                resolve(data);
+              }
+            },
+            useWebSocket
+          );
 
           // Fetch the data
-          postMessage(getMessage, {
-            request_id: uniqueId,
-            ...data,
-            recreate: initialData.isRecreate,
-          });
+          postMessage(
+            getMessage,
+            {
+              request_id: uniqueId,
+              ...data,
+              recreate: initialData.isRecreate,
+            },
+            useWebSocket
+          );
         });
       };
 
@@ -442,6 +452,8 @@ export default () =>
         });
         setDraftData(draftData);
       };
+
+      console.log({ initialData });
 
       if (!initialData) {
         return null;

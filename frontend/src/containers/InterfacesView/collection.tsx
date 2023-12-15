@@ -41,7 +41,7 @@ export const InterfacesViewCollection = ({
 }: IInterfaceViewCollectionProps) => {
   const addNotification = useReqoreProperty('addNotification');
   const confirmAction = useReqoreProperty('confirmAction');
-  const { changeDraft, changeTab, qorus_instance } = useContext(InitialContext);
+  const { changeDraft, changeTab, qorus_instance, is_hosted_instance } = useContext(InitialContext);
 
   const { value, loading, onDeleteRemoteClick } = useFetchInterfaces(
     qorus_instance && showRemotes,
@@ -276,15 +276,19 @@ export const InterfacesViewCollection = ({
           flat: true,
           responsiveTitle: false,
           responsiveActions: false,
-          expandable: isServerInterface && !isLocalInterface,
+          expandable: isServerInterface && !is_hosted_instance,
           size: zoomToSize[zoom],
           onClick: () => {
-            if (isLocalInterface) {
-              postMessage(Messages.GET_INTERFACE_DATA, {
-                iface_kind: type,
-                name,
-                include_tabs: true,
-              });
+            if (isLocalInterface || isServerInterface) {
+              postMessage(
+                Messages.GET_INTERFACE_DATA,
+                {
+                  iface_kind: type,
+                  name,
+                  include_tabs: true,
+                },
+                true
+              );
 
               return;
             }

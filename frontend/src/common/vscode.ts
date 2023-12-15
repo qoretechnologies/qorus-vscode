@@ -8,6 +8,10 @@ import { sleep } from '../stories/Tests/utils';
 export const username = 'IDETestUser';
 export const password = 'wegkur-hegji7-woKnez';
 export const basicAuthCredentials = `${username}:${password}`;
+export const buildWsAuth = (token: string) =>
+  process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'storybook'
+    ? `?username=${username}&password=${password}`
+    : `?token=${token}`;
 
 export const vscode =
   process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'storybook'
@@ -20,6 +24,34 @@ export const vscode =
               messageData = {
                 action: Messages.CONFIG_RETURN_DATA,
                 data: projectConfig,
+              };
+
+              break;
+            }
+            case 'open-window': {
+              if (window) {
+                window.open(data.url, '_blank');
+              }
+
+              break;
+            }
+            case 'get-all-text':
+              messageData = {
+                action: 'return-all-text',
+                data: [],
+              };
+              break;
+            case 'get-initial-data': {
+              messageData = {
+                action: 'return-initial-data',
+                data: {
+                  theme: 'dark',
+                  qorus_instance: {
+                    url: 'https://hq.qoretechnologies.com:8092',
+                  },
+                  is_hosted_instance: true,
+                  is_qore_installed: false,
+                },
               };
 
               break;

@@ -1,8 +1,11 @@
 import {
   ReqoreBreadcrumbs,
+  ReqoreH1,
+  ReqoreIcon,
   ReqoreMenu,
   ReqoreMenuDivider,
   ReqoreMenuItem,
+  ReqoreModal,
   ReqorePanel,
   useReqore,
 } from '@qoretechnologies/reqore';
@@ -11,7 +14,7 @@ import last from 'lodash/last';
 import size from 'lodash/size';
 import { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import { useEffectOnce } from 'react-use';
+import { useEffectOnce, useMount } from 'react-use';
 import compose from 'recompose/compose';
 import { createGlobalStyle } from 'styled-components';
 import packageJson from '../package.json';
@@ -45,7 +48,10 @@ import withMapper from './hocomponents/withMapper';
 import {
   TMessageListener,
   TPostMessage,
+  WS_RECONNECT_MAX_TRIES,
   addMessageListener,
+  createOrGetWebSocket,
+  isWebSocketSupported,
   postMessage,
 } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
@@ -116,6 +122,10 @@ const App: FunctionComponent<IApp> = ({
   const [isDirsDialogOpen, setIsDirsDialogOpen] = useState<boolean>(false);
   const { addNotification } = useReqore();
   const { t, tabHistory, onHistoryBackClick } = useContext(InitialContext);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [websocketReconnectTry, setWebsocketReconnectTry] = useState<number>(0);
+  const [hasWebsocketFailedToReconnect, setHasWebsocketFailedToReconnect] =
+    useState<boolean>(false);
 
   const addDraft = (draftData: any) => {
     setDraft(draftData);
@@ -381,7 +391,38 @@ const App: FunctionComponent<IApp> = ({
     return badge;
   }, []);
 
-  if (!t) {
+  useMount(() => {
+    if (isWebSocketSupported && is_hosted_instance) {
+      createOrGetWebSocket(qorus_instance, 'creator', {
+        onOpen: () => {
+          setWebsocketReconnectTry(0);
+          setHasWebsocketFailedToReconnect(false);
+
+          setIsLoading(false);
+        },
+        onClose: () => {
+          setIsLoading(false);
+        },
+        onError: () => {
+          setIsLoading(false);
+        },
+        onReconnecting: (reconnectNumber) => {
+          setWebsocketReconnectTry(reconnectNumber);
+        },
+        onReconnectFailed: () => {
+          setWebsocketReconnectTry(0);
+          setHasWebsocketFailedToReconnect(true);
+        },
+      });
+    } else {
+      console.log('Websockets Not Supported');
+      setIsLoading(false);
+    }
+  });
+
+  console.log(t, isLoading);
+
+  if (!t || isLoading) {
     return <Loader text="Loading app..." />;
   }
 
@@ -618,6 +659,28 @@ const App: FunctionComponent<IApp> = ({
                     />
                   ) : null}
                   <>
+                    {websocketReconnectTry > 0 ? (
+                      <ReqoreModal isOpen intent="warning" blur={5}>
+                        <ReqoreH1 effect={{ textAlign: 'center' }}>
+                          Lost connection to server. Trying to reconnect...{' '}
+                          <ReqoreIcon
+                            icon="Loader3Line"
+                            animation="spin"
+                            size="big"
+                            margin="both"
+                          />
+                          {websocketReconnectTry} / {WS_RECONNECT_MAX_TRIES}
+                        </ReqoreH1>
+                      </ReqoreModal>
+                    ) : null}
+                    {hasWebsocketFailedToReconnect && (
+                      <ReqoreModal isOpen intent="danger" blur={5}>
+                        <ReqoreH1 effect={{ textAlign: 'center' }}>
+                          Unable to establish a connection to the server, please try to reload the
+                          page.
+                        </ReqoreH1>
+                      </ReqoreModal>
+                    )}
                     {tab == 'Dashboard' && <Dashboard />}
                     {tab == 'Login' && <LoginContainer />}
                     {tab == 'Loading' && <Loader text={t('Loading')} />}

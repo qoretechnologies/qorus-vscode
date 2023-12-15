@@ -9,6 +9,7 @@ import {
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
 import { TReqoreHexColor } from '@qoretechnologies/reqore/dist/components/Effect';
+import { IReqoreUIProviderProps } from '@qoretechnologies/reqore/dist/containers/UIProvider';
 import { darken, lighten } from 'polished';
 import { useState } from 'react';
 import { DndProvider } from 'react-dnd';
@@ -21,7 +22,6 @@ import { vscode } from './common/vscode';
 import reducer from './reducers';
 
 require('./fonts/NeoLight.ttf');
-require('./webview.scss');
 
 const store = createStore(reducer);
 store.subscribe(() => {
@@ -105,7 +105,11 @@ window.onerror = (msg, url, line, col) => {
   );
 };
 
-const ReqoreWrapper = () => {
+export const ReqoreWrapper = ({
+  reqoreOptions,
+}: {
+  reqoreOptions?: IReqoreUIProviderProps['options'];
+}) => {
   const [theme, setTheme] = useState<'light' | 'dark' | 'vscode'>('vscode');
 
   return (
@@ -128,6 +132,7 @@ const ReqoreWrapper = () => {
         animations: { buttons: false },
         withSidebar: true,
         closePopoversOnEscPress: true,
+        ...reqoreOptions,
       }}
     >
       <AppContainer theme={theme} setTheme={setTheme} />

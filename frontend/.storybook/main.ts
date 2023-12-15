@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [
     '@storybook/addon-links',
@@ -20,6 +20,15 @@ module.exports = {
     NODE_ENV: 'storybook',
     BROWSER: 'chrome',
   }),
+  webpackFinal: async (config) => {
+    return {
+      ...config,
+      experiments: {
+        ...config.experiments,
+        topLevelAwait: true,
+      },
+    };
+  },
   refs: {
     reqore: {
       title: 'ReQore',
@@ -27,3 +36,5 @@ module.exports = {
     },
   },
 };
+
+export default config;

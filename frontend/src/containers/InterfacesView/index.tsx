@@ -153,6 +153,7 @@ export const InterfacesView = () => {
         <ReqoreMenuDivider label="Interfaces" align="left" />
         {map(interfaces, (data, iface) => (
           <ReqoreMenuItem
+            key={iface}
             icon={interfaceIcons[iface]}
             flat={type !== iface}
             effect={
@@ -177,6 +178,7 @@ export const InterfacesView = () => {
         <ReqoreMenuDivider label="Other files" align="left" />
         {map(otherItems, (data, iface) => (
           <ReqoreMenuItem
+            key={iface}
             icon={interfaceIcons[iface]}
             flat={type !== iface}
             wrap

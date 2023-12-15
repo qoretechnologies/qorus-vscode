@@ -68,7 +68,7 @@ export const hasRequiredOptions = (options: IOptionsSchema = {}) => {
 
 /* "Fix options to be an object with the correct type." */
 export const fixOptions = (
-  value: IOptions = {},
+  value: IOptions | TFlatOptions = {},
   options: IOptionsSchema,
   operators?: IOperatorsSchema
 ): IOptions => {
@@ -87,17 +87,30 @@ export const fixOptions = (
   return reduce(
     fixedValue,
     (newValue, option, optionName) => {
-      if (!isObject(option)) {
+      if (!isObject(option) || !option?.type) {
         return {
           ...newValue,
           [optionName]: {
-            type: getType(options[optionName].type, operators, option.op),
+            type: getType(options[optionName].type, operators, option?.op),
             value: option,
           },
         };
       }
 
       return { ...newValue, [optionName]: option };
+    },
+    {}
+  );
+};
+
+export const flattenOptions = (options: IOptions): TFlatOptions => {
+  return reduce(
+    options,
+    (newOptions, option, optionName) => {
+      return {
+        ...newOptions,
+        [optionName]: option?.value,
+      };
     },
     {}
   );
@@ -137,6 +150,8 @@ export type IOptions =
     }
   | undefined;
 
+export type TFlatOptions = Record<string, any>;
+
 export interface IOptionFieldMessage {
   title?: string;
   content: string;
@@ -170,6 +185,21 @@ export interface IOptionsSchemaArg {
   metadata?: Record<string, any>;
 
   messages?: IOptionFieldMessage[];
+
+  get_message?: {
+    action: string;
+    object_type?: string;
+    return_value?: string;
+    message_data?: any;
+    useWebSocket?: boolean;
+  };
+
+  return_message?: {
+    action?: string;
+    object_type?: string;
+    return_value?: string;
+    useWebSocket?: boolean;
+  };
 }
 
 export interface IOptionsSchema {
@@ -192,7 +222,7 @@ export interface IOptionsProps extends Omit<IReqoreCollectionProps, 'onChange'> 
   name: string;
   url?: string;
   customUrl?: string;
-  value?: IOptions;
+  value?: IOptions | TFlatOptions;
   options?: IOptionsSchema;
   onChange: (name: string, value?: IOptions) => void;
   onDependableOptionChange?: (
@@ -462,6 +492,8 @@ const Options = ({
     onChange(name, undefined);
   };
 
+  const fixedValue: IOptions = fixOptions(value, options);
+
   const removeSelectedOption = (optionName: string) => {
     const newValue = cloneDeep(value);
 
@@ -473,13 +505,11 @@ const Options = ({
   const addSelectedOption = (optionName: string) => {
     handleValueChange(
       optionName,
-      value,
+      fixedValue,
       options[optionName].default_value,
       getTypeAndCanBeNull(options[optionName].type, options[optionName].allowed_values).type
     );
   };
-
-  const fixedValue: IOptions = fixOptions(value, options);
 
   let unavailableOptionsCount = 0;
   const availableOptions: IOptions = Object.keys(fixedValue)
@@ -583,6 +613,8 @@ const Options = ({
       </ReqoreMessage>
     );
   }
+
+  console.log({ fixedValue });
 
   if ((operatorsUrl && !operators) || (!rest.options && !options)) {
     return (

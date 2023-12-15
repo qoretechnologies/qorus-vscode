@@ -250,6 +250,10 @@ const Tab: React.FC<ITabProps> = ({
   const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
   const getFilePath = () => {
     if (isEditing()) {
+      if (!data[type]?.target_file) {
+        return null;
+      }
+
       const ext = data[type].target_file.split('.').pop();
 
       if (ext === 'yaml') {

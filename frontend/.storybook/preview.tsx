@@ -5,13 +5,37 @@ import {
   useReqoreProperty,
 } from '@qoretechnologies/reqore';
 import { Preview } from '@storybook/react';
+import { useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useMount, useUnmount } from 'react-use';
 import { basicAuthCredentials } from '../src/common/vscode';
 import { InitialContext } from '../src/context/init';
+import { createOrGetWebSocket, disconnectWebSocket } from '../src/hocomponents/withMessageHandler';
 
 const StorybookWrapper = ({ context, Story }) => {
   const confirmAction = useReqoreProperty('confirmAction');
+  const [isLoaded, setIsLoaded] = useState<boolean>(context.args.isFullIDE);
+
+  useMount(() => {
+    disconnectWebSocket('creator');
+
+    if (!context.args.isFullIDE) {
+      console.log('mounting story');
+      createOrGetWebSocket(context.args.qorus_instance, 'creator', {
+        onOpen: () => setIsLoaded(true),
+      });
+    }
+  });
+
+  useUnmount(() => {
+    console.log('unmounting story');
+    disconnectWebSocket('creator');
+  });
+
+  if (!isLoaded) {
+    return null;
+  }
 
   return (
     <ReqoreLayoutContent>
@@ -20,6 +44,7 @@ const StorybookWrapper = ({ context, Story }) => {
           <InitialContext.Provider
             value={{
               qorus_instance: context.args.qorus_instance,
+              is_hosted_instance: true,
               confirmAction,
               saveDraft: () => {},
               fetchData: async (url, method) => {

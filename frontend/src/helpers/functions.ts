@@ -328,8 +328,16 @@ export const callBackendBasic: (
   returnMessage?: string,
   data?: any,
   toastMessage?: string,
-  addNotificationCall?: any
-) => Promise<any> = async (getMessage, returnMessage, data, toastMessage, addNotificationCall) => {
+  addNotificationCall?: any,
+  useWebSocket?: boolean
+) => Promise<any> = async (
+  getMessage,
+  returnMessage,
+  data,
+  toastMessage,
+  addNotificationCall,
+  useWebSocket
+) => {
   // Create the unique ID for this request
   const uniqueId: string = shortid.generate();
   // Create new toast
@@ -353,29 +361,37 @@ export const callBackendBasic: (
     }, 300000);
     // Watch for the request to complete
     // if the ID matches then resolve
-    const listener = addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
-      if (data.request_id === uniqueId) {
-        if (toastMessage) {
-          addNotificationCall?.({
-            content: data.message || `Request ${getMessage} failed!`,
-            intent: data.ok ? 'success' : 'danger',
-            duration: 3000,
-            id: uniqueId,
-          });
-        }
+    const listener = addMessageListener(
+      returnMessage || `${getMessage}-complete`,
+      (data) => {
+        if (data.request_id === uniqueId) {
+          if (toastMessage) {
+            addNotificationCall?.({
+              content: data.message || `Request ${getMessage} failed!`,
+              intent: data.ok ? 'success' : 'danger',
+              duration: 3000,
+              id: uniqueId,
+            });
+          }
 
-        clearTimeout(timeout);
-        timeout = null;
-        listener();
-        resolve(data);
-      }
-    });
+          clearTimeout(timeout);
+          timeout = null;
+          listener();
+          resolve(data);
+        }
+      },
+      useWebSocket
+    );
 
     // Fetch the data
-    postMessage(getMessage, {
-      request_id: uniqueId,
-      ...data,
-    });
+    postMessage(
+      getMessage,
+      {
+        request_id: uniqueId,
+        ...data,
+      },
+      useWebSocket
+    );
   });
 };
 

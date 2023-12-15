@@ -6,7 +6,6 @@ import { map, reduce, size } from 'lodash';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { useDebounce, useUpdateEffect } from 'react-use';
 import { TFSMStateAction } from '.';
-import { password, username } from '../../../common/vscode';
 import { IApp, IAppAction } from '../../../components/AppCatalogue';
 import Options, { IOptions, IOptionsSchema } from '../../../components/Field/systemOptions';
 import { getAppAndAction, getBuiltInAppAndAction } from '../../../helpers/fsm';
@@ -125,27 +124,24 @@ export const QodexAppActionOptions = memo(
       },
     });
 
-    const webSocket = useInternalWebSocket(
-      `wss://hq.qoretechnologies.com:8092/creator?username=${username}&password=${password}`,
-      {
-        onMessage: (message) => {
-          if (message.data === 'pong') {
-            return;
-          }
+    const webSocket = useInternalWebSocket(`creator`, {
+      onMessage: (message) => {
+        if (message.data === 'pong') {
+          return;
+        }
 
-          const data = JSON.parse(message.data);
+        const data = JSON.parse(message.data);
 
-          if (data.event === 'SUBSCRIPTION-EVENT' && data.info?.event_id === 'CONNECTION_UPDATED') {
-            load();
-          }
-        },
-        onOpen: () => {
-          webSocket?.sendMessage(
-            JSON.stringify({ event: 'SUBSCRIBE', args: { matchEvent: 'CONNECTION_UPDATED' } })
-          );
-        },
-      }
-    );
+        if (data.event === 'SUBSCRIPTION-EVENT' && data.info?.event_id === 'CONNECTION_UPDATED') {
+          load();
+        }
+      },
+      onOpen: () => {
+        webSocket?.sendMessage(
+          JSON.stringify({ event: 'SUBSCRIBE', args: { matchEvent: 'CONNECTION_UPDATED' } })
+        );
+      },
+    });
 
     const fetchTemplates = useCallback(async () => {
       if (!size(connectedStates)) {

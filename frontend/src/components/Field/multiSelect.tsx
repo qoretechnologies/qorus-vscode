@@ -3,7 +3,6 @@ import { TReqoreMultiSelectItem } from '@qoretechnologies/reqore/dist/components
 import { FunctionComponent, useMemo, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
-import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../components/FieldWrapper';
 import { submitControl } from '../../containers/InterfaceCreator/controls';
@@ -11,6 +10,8 @@ import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, {
   TMessageListener,
   TPostMessage,
+  addMessageListener,
+  postMessage,
 } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
@@ -19,8 +20,13 @@ import { PositiveColorEffect } from './multiPair';
 import String from './string';
 
 export interface IMultiSelectField {
-  get_message: { action: string; object_type: string };
-  return_message: { action: string; object_type: string; return_value: string };
+  get_message: { action: string; object_type: string; useWebSocket?: boolean };
+  return_message: {
+    action: string;
+    object_type: string;
+    return_value: string;
+    useWebSocket?: boolean;
+  };
   addMessageListener: TMessageListener;
   postMessage: TPostMessage;
   name: string;
@@ -34,8 +40,6 @@ export interface IMultiSelectField {
 const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldChange> = ({
   get_message,
   return_message,
-  addMessageListener,
-  postMessage,
   onChange,
   name,
   value = [],
@@ -53,14 +57,22 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
   useMount(() => {
     if (!simple) {
-      postMessage(get_message.action, { object_type: get_message.object_type });
-      addMessageListener(return_message.action, (data: any) => {
-        // Check if this is the correct
-        // object type
-        if (data.object_type === return_message.object_type) {
-          setItems(data[return_message.return_value]);
-        }
-      });
+      postMessage(
+        get_message.action,
+        { object_type: get_message.object_type },
+        get_message.useWebSocket
+      );
+      addMessageListener(
+        return_message.action,
+        (data: any) => {
+          // Check if this is the correct
+          // object type
+          if (data.object_type === return_message.object_type) {
+            setItems(data[return_message.return_value]);
+          }
+        },
+        get_message.useWebSocket
+      );
     }
   });
 
@@ -91,7 +103,11 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
         name: val,
       },
     ];
-    postMessage(get_message.action, { object_type: get_message.object_type });
+    postMessage(
+      get_message.action,
+      { object_type: get_message.object_type },
+      get_message.useWebSocket
+    );
     setEditorManager({});
     setSelectedItems(newItems);
   };
@@ -110,25 +126,14 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
       return [...modifiedValue, newItem];
     }, []);
     if (!simple) {
-      postMessage(get_message.action, { object_type: get_message.object_type });
+      postMessage(
+        get_message.action,
+        { object_type: get_message.object_type },
+        get_message.useWebSocket
+      );
     }
     setEditorManager({});
     setSelectedItems(newItems);
-  };
-
-  const handleClearClick: () => void = () => {
-    setSelectedItems([]);
-  };
-
-  const deselectItem: (tagName: string | any) => void = (tagName) => {
-    tagName = typeof tagName === 'string' ? tagName : tagName.props.children;
-    // If this is the mapper code field
-    // remove the selected mapper code from relations
-    if (name === 'codes') {
-      removeCodeFromRelations([tagName]);
-    }
-    // Remove tag
-    setSelectedItems(value.filter((item: any) => item.name !== tagName));
   };
 
   canEdit = !!reference || canEdit;
@@ -156,6 +161,8 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     ],
     [items, value]
   );
+
+  console.log('VALUE IN MULTISELECT', value);
 
   return (
     <FieldEnhancer context={context}>
@@ -224,6 +231,5 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 export default compose(
   withTextContext(),
   withMessageHandler(),
-  withMapperConsumer(),
-  onlyUpdateForKeys(['value', 'activeId'])
+  withMapperConsumer()
 )(MultiSelectField);

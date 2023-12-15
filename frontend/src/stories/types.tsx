@@ -6,5 +6,9 @@ export type StoryMeta<
   AdditionalArgs = {}
 > = Meta<
   React.ComponentProps<Component> &
-    AdditionalArgs & { reqoreOptions: IReqoreUIProviderProps['options']; qorus_instance?: boolean }
+    AdditionalArgs & {
+      reqoreOptions: IReqoreUIProviderProps['options'];
+      qorus_instance?: boolean;
+      isFullIDE?: boolean;
+    }
 >;

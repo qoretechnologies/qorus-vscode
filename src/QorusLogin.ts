@@ -279,7 +279,10 @@ export class QorusLogin extends QorusAuth {
     instance_tree.refresh();
   }
 
-  activeQorusInstance = () => instance_tree.getQorusInstance(this.active_url);
+  activeQorusInstance = () => ({
+    ...instance_tree.getQorusInstance(this.active_url),
+    token: this.getToken(),
+  });
 
   activeQorusInstanceAndToken(): any {
     if (!this.active_url) {
