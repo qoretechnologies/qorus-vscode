@@ -162,8 +162,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     [items, value]
   );
 
-  console.log('VALUE IN MULTISELECT', value);
-
   return (
     <FieldEnhancer context={context}>
       {(onEditClick, onCreateClick) => (

@@ -67,9 +67,6 @@ export const createOrGetWebSocket = (instance: any, url: string, options: IWebSo
     };
   }
 
-  console.log(wsConnections);
-  console.log(wsHeartbeats);
-
   if (!wsConnections[url]) {
     connect();
   }
@@ -92,7 +89,6 @@ export const startWebsocketHeartbeat = (url: string) => {
 };
 
 export const disconnectWebSocket = (url: string) => {
-  console.log('disconnecting websocket', url);
   wsConnections[url]?.close();
 
   removeWebSocketData(url);
@@ -107,7 +103,7 @@ export const removeWebSocketData = (url: string) => {
 };
 
 export type TPostMessage = (
-  action: string,
+  action?: string,
   data?: any,
   useWebSockets?: boolean,
   connection?: string
@@ -116,14 +112,25 @@ export type TMessageListener = (
   action: string,
   callback: (data: any) => any,
   useWebSockets?: boolean,
-  connection?: string
+  connection?: string,
+  eventKey?: string
 ) => () => void;
+export const addEventMessageListener: TMessageListener = (
+  event,
+  callback,
+  useWebSockets,
+  connection
+) => {
+  return addMessageListener(event, callback, useWebSockets, connection, 'event');
+};
+
 // Adds a new message listener
 export const addMessageListener: TMessageListener = (
   action,
   callback,
   useWebSockets?: boolean,
-  connection = 'creator'
+  connection = 'creator',
+  eventKey: string = 'action'
 ) => {
   // Check if websockets are supported
   if (isWebSocketSupported && useWebSockets && !wsConnections[connection]) {
@@ -140,7 +147,7 @@ export const addMessageListener: TMessageListener = (
 
     const _data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
     // Check if the action is equal
-    if (_data.action === action) {
+    if (_data[eventKey] === action) {
       // Run the callback with the action data
       if (callback) {
         callback(_data);

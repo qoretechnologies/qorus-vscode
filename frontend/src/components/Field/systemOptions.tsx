@@ -614,8 +614,6 @@ const Options = ({
     );
   }
 
-  console.log({ fixedValue });
-
   if ((operatorsUrl && !operators) || (!rest.options && !options)) {
     return (
       <ReqorePanel fill flat transparent>

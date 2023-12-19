@@ -453,8 +453,6 @@ export default () =>
         setDraftData(draftData);
       };
 
-      console.log({ initialData });
-
       if (!initialData) {
         return null;
       }

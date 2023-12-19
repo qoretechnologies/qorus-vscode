@@ -2,17 +2,17 @@ import { ReqorePanel, ReqoreSpinner } from '@qoretechnologies/reqore';
 import { IReqoreDropdownProps } from '@qoretechnologies/reqore/dist/components/Dropdown';
 import { IReqoreDropdownItem } from '@qoretechnologies/reqore/dist/components/Dropdown/list';
 import { IReqoreTextareaProps } from '@qoretechnologies/reqore/dist/components/Textarea';
-import { map, reduce, size } from 'lodash';
+import { map, size } from 'lodash';
 import { memo, useCallback, useEffect, useState } from 'react';
-import { useDebounce, useUpdateEffect } from 'react-use';
-import { TFSMStateAction } from '.';
+import { useDebounce, useMount, useUpdateEffect } from 'react-use';
+import { IFSMStates, TFSMStateAction } from '.';
 import { IApp, IAppAction } from '../../../components/AppCatalogue';
 import Options, { IOptions, IOptionsSchema } from '../../../components/Field/systemOptions';
 import { getAppAndAction, getBuiltInAppAndAction } from '../../../helpers/fsm';
 import { fetchData } from '../../../helpers/functions';
+import { addMessageListener, postMessage } from '../../../hocomponents/withMessageHandler';
 import { useFetchActionOptions } from '../../../hooks/useFetchActionOptions';
 import { useGetAppActionData } from '../../../hooks/useGetAppActionData';
-import { useInternalWebSocket } from '../../../hooks/useInternalWebSocket';
 import { useWhyDidYouUpdate } from '../../../hooks/useWhyDidYouUpdate';
 
 export interface IQodexAppActionOptionsProps {
@@ -21,6 +21,7 @@ export interface IQodexAppActionOptionsProps {
   value: IOptions;
   onChange: (name: string, value: IOptions) => void;
   connectedStates?: TQodexStatesForTemplates;
+  fullConnectedStates?: IFSMStates;
 }
 
 export interface IQodexStateDataForTemplates extends TFSMStateAction {
@@ -38,6 +39,7 @@ export const QodexAppActionOptions = memo(
     value: outsideValue,
     onChange,
     connectedStates,
+    fullConnectedStates,
   }: IQodexAppActionOptionsProps) => {
     const apps = useGetAppActionData();
     const { action } = useGetAppActionData(appName, actionName);
@@ -115,31 +117,25 @@ export const QodexAppActionOptions = memo(
       [connectedStates]
     );
 
+    useMount(() => {
+      postMessage('subscribe', { args: { matchEvent: 'CONNECTION_UPDATED' } }, true);
+      addMessageListener(
+        'SUBSCRIPTION-EVENT',
+        (data) => {
+          if (data?.data?.event_id === 'CONNECTION_UPDATED') {
+            load();
+          }
+        },
+        true
+      );
+    });
+
     const { load, loading } = useFetchActionOptions({
       loadOnMount: true,
       action,
       options: value,
       onSuccess: (options) => {
         setOptions(options);
-      },
-    });
-
-    const webSocket = useInternalWebSocket(`creator`, {
-      onMessage: (message) => {
-        if (message.data === 'pong') {
-          return;
-        }
-
-        const data = JSON.parse(message.data);
-
-        if (data.event === 'SUBSCRIPTION-EVENT' && data.info?.event_id === 'CONNECTION_UPDATED') {
-          load();
-        }
-      },
-      onOpen: () => {
-        webSocket?.sendMessage(
-          JSON.stringify({ event: 'SUBSCRIBE', args: { matchEvent: 'CONNECTION_UPDATED' } })
-        );
       },
     });
 
@@ -154,21 +150,7 @@ export const QodexAppActionOptions = memo(
       setTemplates(buildTemplates());
 
       // Get everything after "latest/" in action.options_url
-      const response = await fetchData(
-        `fsms/getStateData?context=ui`,
-        'PUT',
-        reduce(
-          connectedStates,
-          (newStates, { type, value }, stateId) => ({
-            ...newStates,
-            [stateId]: {
-              type,
-              value,
-            },
-          }),
-          {}
-        )
-      );
+      const response = await fetchData(`fsms/getStateData?context=ui`, 'PUT', fullConnectedStates);
 
       if (response.ok) {
         setLoadingTemplates(false);

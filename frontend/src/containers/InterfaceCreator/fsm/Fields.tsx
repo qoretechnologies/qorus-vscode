@@ -42,7 +42,6 @@ export const QodexFields = ({ value, onChange }: IQodexFieldsProps) => {
       options={fields}
       value={value}
       onChange={(_name, metadata) => {
-        console.log({ metadata });
         onChange(flattenOptions(metadata));
       }}
     />

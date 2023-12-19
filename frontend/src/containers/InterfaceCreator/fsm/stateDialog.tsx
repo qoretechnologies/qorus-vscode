@@ -14,7 +14,12 @@ import { ContentWrapper, FieldWrapper } from '../../../components/FieldWrapper';
 import { Messages } from '../../../constants/messages';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { getStatesForTemplates, getVariable, removeFSMState } from '../../../helpers/fsm';
+import {
+  getStatesConnectedtoState,
+  getStatesForTemplates,
+  getVariable,
+  removeFSMState,
+} from '../../../helpers/fsm';
 import { getMaxExecutionOrderFromStates } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
@@ -216,6 +221,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     return getStatesForTemplates(id || newData.keyId, otherStates);
   }, [newData.keyId, JSON.stringify(otherStates)]);
 
+  const connectedStates = useMemo(() => {
+    return getStatesConnectedtoState(id || newData.keyId, otherStates);
+  }, [newData.keyId, JSON.stringify(otherStates)]);
+
   const renderActionField = () => {
     switch (actionType) {
       case 'var-action': {
@@ -385,6 +394,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               appName={actionValue?.app}
               actionName={actionValue?.action}
               connectedStates={statesForTemplates}
+              fullConnectedStates={connectedStates}
               value={actionValue?.options}
               onChange={handleAppActionFieldChange}
             />

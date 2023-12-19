@@ -62,8 +62,6 @@ export const useMoveByDragging = (
   };
 
   const handleDragMove = (event) => {
-    console.log(event);
-
     if (!lastEvent) {
       lastEvent = event;
       return;
@@ -73,8 +71,6 @@ export const useMoveByDragging = (
     let y = event.clientY - lastEvent.clientY;
 
     lastEvent = event;
-
-    console.log(x, y);
 
     if (!x && !y) {
       return;

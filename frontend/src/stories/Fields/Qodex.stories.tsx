@@ -9,14 +9,11 @@ const meta = {
   render: (args) => {
     const [val, setVal] = useState(args.value);
 
-    console.log({ val });
-
     return (
       <QodexFields
         {...args}
         value={val}
         onChange={(v) => {
-          console.log('VALUE CHANGE IN STORY', v);
           setVal(v);
         }}
       />

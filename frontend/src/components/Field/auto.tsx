@@ -158,7 +158,6 @@ function AutoField<T = any>({
     const returnType: IQorusType = currentInternalType || currentType || type;
     // Run the onchange
     if (onChange && returnType) {
-      console.log('setting ', name, value, returnType);
       onChange(name, value, returnType, _canBeNull(returnType));
     }
   };
@@ -386,8 +385,6 @@ function AutoField<T = any>({
         );
       }
       case 'multi-select': {
-        console.log('VALUE IN AUTO', value);
-
         return <MultiSelect {...rest} value={value} name={name} onChange={handleChange} />;
       }
       case 'mapper':

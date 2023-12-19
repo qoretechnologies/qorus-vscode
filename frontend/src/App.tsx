@@ -415,12 +415,10 @@ const App: FunctionComponent<IApp> = ({
         },
       });
     } else {
-      console.log('Websockets Not Supported');
+      console.error('Websockets Not Supported');
       setIsLoading(false);
     }
   });
-
-  console.log(t, isLoading);
 
   if (!t || isLoading) {
     return <Loader text="Loading app..." />;
