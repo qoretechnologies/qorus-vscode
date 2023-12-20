@@ -80,7 +80,11 @@ export const NewState: StoryFSM = {
       await _testsAddNewState('trigger', canvas, undefined, 50, 50);
     }
 
-    await sleep(700);
+    await sleep(1000);
+
+    await waitFor(() => expect(document.querySelector('.state-saved-flag')).toBeInTheDocument(), {
+      timeout: 5000,
+    });
 
     await _testsAddNewState(
       stateType,

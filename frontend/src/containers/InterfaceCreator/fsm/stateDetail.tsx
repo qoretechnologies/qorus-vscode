@@ -2,9 +2,11 @@ import {
   ReqorePanel,
   ReqoreTabs,
   ReqoreTabsContent,
+  ReqoreTag,
   ReqoreVerticalSpacer,
   useReqoreProperty,
 } from '@qoretechnologies/reqore';
+import { IReqoreTagProps } from '@qoretechnologies/reqore/dist/components/Tag';
 import { camelCase, isEqual, reduce, size } from 'lodash';
 import { memo, useCallback, useContext, useState } from 'react';
 import { useDebounce, useUnmount, useUpdateEffect } from 'react-use';
@@ -298,6 +300,22 @@ export const FSMStateDetail = memo(
           flexFlow: 'column',
           overflow: 'hidden',
         }}
+        actions={[
+          {
+            as: ReqoreTag,
+            show: hasSaved,
+            props: {
+              label: 'Saved',
+              minimal: true,
+              theme: { main: 'transparent' },
+              flat: true,
+              asBadge: true,
+              icon: 'CheckLine',
+              iconColor: 'success:lighten',
+              className: 'state-saved-flag',
+            } as IReqoreTagProps,
+          },
+        ]}
         bottomActions={[
           {
             tooltip: t('Delete state'),
