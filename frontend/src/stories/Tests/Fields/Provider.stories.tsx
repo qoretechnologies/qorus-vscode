@@ -17,6 +17,10 @@ export const GoStepBack: StoryObj<typeof meta> = {
     requiresRequest: true,
   },
   play: async ({ canvasElement, ...rest }) => {
+    await waitFor(() => expect(document.querySelector('.reqore-content')).toBeInTheDocument(), {
+      timeout: 10000,
+    });
+
     await ApiCall.play({ canvasElement, ...rest });
     await fireEvent.click(document.querySelector('.provider-go-back'));
     await waitFor(

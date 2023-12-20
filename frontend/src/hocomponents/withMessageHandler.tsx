@@ -24,9 +24,13 @@ export const createOrGetWebSocket = (instance: any, url: string, options: IWebSo
   let reconnectInterval: NodeJS.Timeout;
 
   function connect() {
-    wsConnections[url] = new WebSocket(
-      `${instance.url.replace('http', 'ws')}/${url}${buildWsAuth(instance.token)}`
-    );
+    let wsUrl = instance.url.replace('http', 'ws');
+
+    if (wsUrl.endsWith('/')) {
+      wsUrl = wsUrl.slice(0, -1);
+    }
+
+    wsConnections[url] = new WebSocket(`${wsUrl}/${url}${buildWsAuth(instance.token)}`);
 
     wsConnections[url].onopen = function (this, ev) {
       reconnectTries = 0;
@@ -133,7 +137,16 @@ export const addMessageListener: TMessageListener = (
   eventKey: string = 'action'
 ) => {
   // Check if websockets are supported
-  if (isWebSocketSupported && useWebSockets && !wsConnections[connection]) {
+  // @ts-ignore
+  const useWs =
+    isWebSocketSupported &&
+    useWebSockets &&
+    // @ts-ignore
+    window._useWebsocketsInStorybook &&
+    process.env.NODE_ENV !== 'test';
+
+  // Check if websockets are supported
+  if (useWs && !wsConnections[connection]) {
     console.error(`Connection ${connection} does not exist`);
 
     return () => void null;
@@ -155,7 +168,7 @@ export const addMessageListener: TMessageListener = (
     }
   };
 
-  const handler = isWebSocketSupported && useWebSockets ? wsConnections[connection] : window;
+  const handler = useWs ? wsConnections[connection] : window;
 
   handler.addEventListener('message', messageListener);
 
@@ -171,7 +184,14 @@ export const postMessage: TPostMessage = (
   useWebSockets,
   connection = 'creator'
 ) => {
-  if (isWebSocketSupported && useWebSockets) {
+  const useWs =
+    isWebSocketSupported &&
+    useWebSockets &&
+    // @ts-ignore
+    window._useWebsocketsInStorybook &&
+    process.env.NODE_ENV !== 'test';
+
+  if (useWs) {
     if (!wsConnections[connection]) {
       console.error(`Connection ${connection} does not exist`);
       return;

@@ -5,37 +5,25 @@ import {
   useReqoreProperty,
 } from '@qoretechnologies/reqore';
 import { Preview } from '@storybook/react';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useMount, useUnmount } from 'react-use';
 import { basicAuthCredentials } from '../src/common/vscode';
 import { InitialContext } from '../src/context/init';
-import { createOrGetWebSocket, disconnectWebSocket } from '../src/hocomponents/withMessageHandler';
 
 const StorybookWrapper = ({ context, Story }) => {
   const confirmAction = useReqoreProperty('confirmAction');
-  const [isLoaded, setIsLoaded] = useState<boolean>(context.args.isFullIDE);
 
-  useMount(() => {
-    disconnectWebSocket('creator');
-
-    if (!context.args.isFullIDE) {
-      console.log('mounting story');
-      createOrGetWebSocket(context.args.qorus_instance, 'creator', {
-        onOpen: () => setIsLoaded(true),
-      });
+  // @ts-ignore
+  useEffect(() => {
+    if (context.args.isFullIDE) {
+      // @ts-ignore
+      window._useWebsocketsInStorybook = true;
+    } else {
+      // @ts-ignore
+      window._useWebsocketsInStorybook = false;
     }
-  });
-
-  useUnmount(() => {
-    console.log('unmounting story');
-    disconnectWebSocket('creator');
-  });
-
-  if (!isLoaded) {
-    return null;
-  }
+  }, [context.args.isFullIDE]);
 
   return (
     <ReqoreLayoutContent>
@@ -87,7 +75,7 @@ const preview: Preview = {
   },
   args: {
     qorus_instance: {
-      url: 'https://hq.qoretechnologies.com:8092',
+      url: 'https://hq.qoretechnologies.com:8092/',
     },
     reqoreOptions: {
       animations: {
