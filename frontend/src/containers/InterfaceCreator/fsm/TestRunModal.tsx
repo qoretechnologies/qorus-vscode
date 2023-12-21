@@ -86,7 +86,12 @@ export const QodexTestRunModal = ({ data, apps }: IQodexTestRunModalProps) => {
         return {
           label: `[${size(responseList) - index}] ${data.states[key].display_name}`,
           intent: success ? 'success' : 'danger',
-          content: <ReqoreTree data={response} />,
+          content:
+            typeof response === 'string' || typeof response === 'number' ? (
+              response
+            ) : (
+              <ReqoreTree data={response} />
+            ),
           // @ts-expect-error
           collapsible: true,
           isCollapsed: index > 0,
