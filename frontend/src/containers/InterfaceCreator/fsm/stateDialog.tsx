@@ -15,7 +15,7 @@ import { Messages } from '../../../constants/messages';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import {
-  getStatesConnectedtoState,
+  getRecursiveStatesConnectedtoState,
   getStatesForTemplates,
   getVariable,
   removeFSMState,
@@ -222,7 +222,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
   }, [newData.keyId, JSON.stringify(otherStates)]);
 
   const connectedStates = useMemo(() => {
-    return getStatesConnectedtoState(id || newData.keyId, otherStates);
+    return getRecursiveStatesConnectedtoState(id || newData.keyId, otherStates);
   }, [newData.keyId, JSON.stringify(otherStates)]);
 
   const renderActionField = () => {

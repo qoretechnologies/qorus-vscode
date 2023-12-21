@@ -15,6 +15,8 @@ export interface IQodexFieldsProps {
 }
 
 export const QodexFields = ({ value, onChange }: IQodexFieldsProps) => {
+  console.log(value);
+
   const { loading } = useAsyncRetry(async () => {
     if (!fields) {
       const data = await callBackendBasic(
@@ -38,7 +40,9 @@ export const QodexFields = ({ value, onChange }: IQodexFieldsProps) => {
 
   return (
     <Options
+      label="Qodex settings"
       name="fsm-fields"
+      placeholder="More..."
       options={fields}
       value={value}
       onChange={(_name, metadata) => {

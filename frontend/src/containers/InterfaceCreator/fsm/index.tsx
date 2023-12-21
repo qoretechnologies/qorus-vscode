@@ -28,19 +28,13 @@ import styled, { css, keyframes } from 'styled-components';
 import { IApp } from '../../../components/AppCatalogue';
 import Content from '../../../components/Content';
 import { DragSelectArea } from '../../../components/DragSelectArea';
-import Field from '../../../components/Field';
-import Connectors, { IProviderType } from '../../../components/Field/connectors';
-import FileString from '../../../components/Field/fileString';
+import { IProviderType } from '../../../components/Field/connectors';
 import {
   PositiveColorEffect,
   SaveColorEffect,
   WarningColorEffect,
 } from '../../../components/Field/multiPair';
-import MultiSelect from '../../../components/Field/multiSelect';
-import String from '../../../components/Field/string';
 import { IOptions, IQorusType } from '../../../components/Field/systemOptions';
-import FieldGroup from '../../../components/FieldGroup';
-import { FieldWrapper } from '../../../components/FieldWrapper';
 import Loader from '../../../components/Loader';
 import { calculateValueWithZoom } from '../../../components/PanElement';
 import { Messages } from '../../../constants/messages';
@@ -81,6 +75,7 @@ import withMessageHandler, { postMessage } from '../../../hocomponents/withMessa
 import { useMoveByDragging } from '../../../hooks/useMoveByDragging';
 import TinyGrid from '../../../images/graphy-dark.png';
 import { AppSelector } from './AppSelector';
+import { QodexFields } from './Fields';
 import { QodexTestRunModal } from './TestRunModal';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMInitialOrderDialog from './initialOrderDialog';
@@ -146,7 +141,9 @@ export type TTrigger = { class?: string; connector?: string; method?: string };
 
 export interface IFSMMetadata {
   name: string;
+  display_name: string;
   desc: string;
+  short_desc: string;
   target_dir: string;
   groups?: any[];
   'input-type'?: IProviderType;
@@ -371,12 +368,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const [hasUnsavedState, setHasUnsavedState] = useState<boolean>(false);
   const [st, setSt] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
   const [mt, setMt] = useState<IFSMMetadata>({
-    target_dir: fsm?.target_dir || interfaceContext?.target_dir || null,
+    target_dir: fsm?.target_dir || interfaceContext?.target_dir || undefined,
     name: fsm?.name || 'Untitled Qodex',
-    desc: fsm?.desc || 'No description',
-    groups: fsm?.groups || [],
-    'input-type': fsm?.['input-type'] || interfaceContext?.inputType || null,
-    'output-type': fsm?.['output-type'] || null,
+    desc: fsm?.desc || undefined,
+    groups: fsm?.groups || undefined,
+    'input-type': fsm?.['input-type'] || interfaceContext?.inputType || undefined,
+    'output-type': fsm?.['output-type'] || undefined,
     globalvar: fsm?.globalvar,
     localvar: fsm?.localvar,
     autovar: fsm?.autovar || interfaceContext?.autovar,
@@ -2246,8 +2243,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       {renderAppCatalogue()}
 
       <Content
-        label={embedded ? `${parentStateName} inline implementation` : metadata.name}
-        onLabelEdit={embedded ? undefined : (name) => setMetadata({ ...metadata, name })}
+        label={embedded ? `${parentStateName} inline implementation` : metadata.display_name}
+        onLabelEdit={
+          embedded ? undefined : (name) => setMetadata({ ...metadata, display_name: name })
+        }
         contentStyle={{ display: 'flex' }}
         padded={!embedded}
         transparent={embedded}
@@ -2500,146 +2499,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
               },
             ]}
           >
-            <FieldWrapper name="selected-field" label={t('field-label-target_dir')} compact isValid>
-              <FileString
-                onChange={handleMetadataChange}
-                name="target_dir"
-                value={metadata.target_dir}
-                get_message={{
-                  action: 'creator-get-directories',
-                  object_type: 'target_dir',
-                }}
-                return_message={{
-                  action: 'creator-return-directories',
-                  object_type: 'target_dir',
-                  return_value: 'directories',
-                }}
-              />
-            </FieldWrapper>
-            <ReqoreVerticalSpacer height={10} />
-            <FieldWrapper
-              compact
-              name="selected-field"
-              isValid={validateField('string', metadata.name)}
-              label={t('field-label-name')}
-            >
-              <String onChange={handleMetadataChange} value={metadata.name} name="name" autoFocus />
-            </FieldWrapper>
-            <ReqoreVerticalSpacer height={10} />
-            <FieldWrapper
-              compact
-              name="selected-field"
-              isValid={validateField('string', metadata.desc)}
-              label={t('field-label-desc')}
-            >
-              <Field
-                type="long-string"
-                onChange={handleMetadataChange}
-                value={metadata.desc}
-                name="desc"
-                markdown
-              />
-            </FieldWrapper>
-            <ReqoreVerticalSpacer height={10} />
-            <FieldWrapper
-              compact
-              name="selected-field"
-              isValid={
-                metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
-              }
-              detail={t('Optional')}
-              label={t('field-label-groups')}
-            >
-              <MultiSelect
-                onChange={handleMetadataChange}
-                get_message={{
-                  action: 'creator-get-objects',
-                  object_type: 'group',
-                  useWebSocket: true,
-                }}
-                return_message={{
-                  action: 'creator-return-objects',
-                  object_type: 'group',
-                  return_value: 'objects',
-                  useWebSocket: true,
-                }}
-                reference={{
-                  iface_kind: 'other',
-                  type: 'group',
-                }}
-                value={metadata.groups}
-                name="groups"
-              />
-            </FieldWrapper>
-            <ReqoreVerticalSpacer height={10} />
-            <FieldGroup
-              label={t('Types')}
-              isValid={
-                (!metadata['input-type']
-                  ? true
-                  : validateField('type-selector', metadata['input-type']) &&
-                    isTypeCompatible('input')) &&
-                (!metadata['output-type']
-                  ? true
-                  : validateField('type-selector', metadata['output-type']) &&
-                    isTypeCompatible('output'))
-              }
-            >
-              <FieldWrapper
-                name="selected-field"
-                compact
-                isValid={
-                  !metadata['input-type']
-                    ? true
-                    : validateField('type-selector', metadata['input-type']) &&
-                      isTypeCompatible('input')
-                }
-                type={t('Optional')}
-                label={t('InputType')}
-              >
-                {!isTypeCompatible('input') && (
-                  <>
-                    <ReqoreMessage intent="danger">{t('FSMInputTypeError')}</ReqoreMessage>
-                    <ReqoreVerticalSpacer height={20} />
-                  </>
-                )}
-                <Connectors
-                  inline
-                  minimal
-                  value={metadata['input-type']}
-                  onChange={(n, v) => handleMetadataChange(n, v)}
-                  name="input-type"
-                  isInitialEditing={fsm?.['input-type']}
-                />
-              </FieldWrapper>
-              <FieldWrapper
-                compact
-                name="selected-field"
-                isValid={
-                  !metadata['output-type']
-                    ? true
-                    : validateField('type-selector', metadata['output-type']) &&
-                      isTypeCompatible('output')
-                }
-                type={t('Optional')}
-                label={t('OutputType')}
-              >
-                {!isTypeCompatible('output') && (
-                  <>
-                    <ReqoreMessage intent="danger">{t('FSMOutputTypeError')}</ReqoreMessage>
-                    <ReqoreVerticalSpacer height={20} />
-                  </>
-                )}
-                <Connectors
-                  inline
-                  minimal
-                  value={metadata['output-type']}
-                  onChange={(n, v) => handleMetadataChange(n, v)}
-                  name="output-type"
-                  isInitialEditing={fsm?.['output-type']}
-                />
-              </FieldWrapper>
-            </FieldGroup>
+            <QodexFields
+              value={omit(metadata, ['target_dir', 'autovar', 'globalvar', 'localvar'])}
+              onChange={(fields) => {
+                setMetadata(fields);
+              }}
+            />
           </ReqoreModal>
         ) : null}
         {editingInitialOrder && (

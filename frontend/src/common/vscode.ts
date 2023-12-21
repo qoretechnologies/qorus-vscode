@@ -416,6 +416,74 @@ export const vscode =
                 ],
               };
               break;
+            case 'creator-get-fields-as-options': {
+              messageData = {
+                action: 'creator-get-fields-as-options-complete',
+                request_id: data.request_id,
+                ok: true,
+                data: {
+                  iface_kind: 'fsm',
+                  fields: {
+                    name: {
+                      type: 'string',
+                      display_name: 'Internal Name',
+                      short_desc: 'The internal technical name of the flow',
+                      desc: 'The internal technical name of the flow; it will be generated if not given',
+                    },
+                    display_name: {
+                      type: 'string',
+                      display_name: 'Name',
+                      short_desc: 'The display name of the flow',
+                      desc: 'The display name of the flow',
+                      preselected: true,
+                    },
+                    short_desc: {
+                      type: 'string',
+                      display_name: 'Short Description',
+                      short_desc: 'The short plain-text description of the flow',
+                      desc: 'The short plain-text description of the flow',
+                      preselected: true,
+                    },
+                    desc: {
+                      type: 'string',
+                      display_name: 'Description',
+                      short_desc: 'The markdown description of the flow',
+                      desc: 'The markdown description of the flow',
+                    },
+                    groups: {
+                      type: 'multi-select',
+                      display_name: 'Groups',
+                      short_desc: 'Interface groups that the flow belongs to',
+                      desc: 'Interface groups that the flow belongs to',
+                      get_message: {
+                        action: 'creator-get-objects',
+                        object_type: 'group',
+                        useWebSocket: true,
+                      },
+                      return_message: {
+                        action: 'creator-return-objects',
+                        object_type: 'group',
+                        return_value: 'objects',
+                        useWebSocket: true,
+                      },
+                    },
+                    'input-type': {
+                      type: 'data-provider',
+                      display_name: 'Input Type',
+                      short_desc: 'The input type for the flow',
+                      desc: 'The input type for the flow',
+                    },
+                    'output-type': {
+                      type: 'data-provider',
+                      display_name: 'Output Type',
+                      short_desc: 'The output type for the flow',
+                      desc: 'The output type for the flow',
+                    },
+                  },
+                },
+              };
+              break;
+            }
             case 'delete-draft': {
               messageData = {
                 action: 'delete-draft-complete',

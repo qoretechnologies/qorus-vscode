@@ -282,6 +282,10 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
   }
 
   const getItemShortDescription = (itemName: string, defaultDesc: string = '') => {
+    if (!itemName) {
+      return defaultDesc;
+    }
+
     const item = items.find((item) => item.name === itemName || item.value === itemName);
 
     return item?.short_desc || (item?.desc ? 'Hover to see description' : defaultDesc);

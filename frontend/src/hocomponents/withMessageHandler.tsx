@@ -188,7 +188,7 @@ export const postMessage: TPostMessage = (
     isWebSocketSupported &&
     useWebSockets &&
     // @ts-ignore
-    window._useWebsocketsInStorybook &&
+    (process.env.NODE_ENV === 'storybook' ? window._useWebsocketsInStorybook : true) &&
     process.env.NODE_ENV !== 'test';
 
   if (useWs) {
