@@ -1,7 +1,6 @@
 import { StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import { InterfacesView } from '../../containers/InterfacesView';
-import { sleep } from '../Tests/utils';
 import { StoryMeta } from '../types';
 
 const meta = {
@@ -58,21 +57,5 @@ export const OtherFiles: Story = {
     await fireEvent.click(canvas.getAllByText('Script')[0]);
 
     await waitFor(() => canvas.getAllByText('BB_ExcelDataProvider'), { timeout: 10000 });
-  },
-};
-
-export const ShowRemoteDetail: Story = {
-  play: async ({ canvasElement, ...rest }) => {
-    const canvas = within(canvasElement);
-
-    await Default.play({ canvasElement, ...rest });
-
-    await fireEvent.click(canvas.getAllByText('Connection')[0]);
-
-    await waitFor(() => canvas.getAllByText('bee'), { timeout: 10000 });
-
-    await fireEvent.click(canvas.getAllByText('bee')[0]);
-
-    await sleep(1000);
   },
 };
