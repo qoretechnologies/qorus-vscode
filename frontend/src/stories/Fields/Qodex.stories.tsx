@@ -27,7 +27,9 @@ export const Default: StoryObj<typeof meta> = {};
 export const WithValue: StoryObj<typeof meta> = {
   args: {
     value: {
-      name: 'Untitled Qodex',
+      display_name: 'Untitled Qodex',
+      desc: 'test',
+      short_desc: 'short test',
     },
   },
 };

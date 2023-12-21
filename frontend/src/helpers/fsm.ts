@@ -795,3 +795,42 @@ export const getBuiltInAppAndAction = (
 
   return { app, action };
 };
+
+export const buildMetadata = (data?: IFSMMetadata, context?: any): IFSMMetadata => {
+  const metadata: IFSMMetadata = {
+    display_name: 'Untitled Qodex',
+    autovar: data?.autovar || context?.autovar,
+    globalvar: data?.globalvar,
+    localvar: data?.localvar,
+  };
+
+  if (data?.name) {
+    metadata.name = data.name;
+  }
+
+  if (data?.display_name) {
+    metadata.display_name = data.display_name;
+  }
+
+  if (data?.short_desc) {
+    metadata.short_desc = data.short_desc;
+  }
+
+  if (data?.desc) {
+    metadata.desc = data.desc;
+  }
+
+  if (data?.groups) {
+    metadata.groups = data.groups;
+  }
+
+  if (data?.['input-type'] || context?.inputType) {
+    metadata['input-type'] = data?.['input-type'] || context?.inputType;
+  }
+
+  if (data?.['output-type']) {
+    metadata['output-type'] = data['output-type'];
+  }
+
+  return metadata;
+};

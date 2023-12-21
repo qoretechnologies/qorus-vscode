@@ -48,6 +48,7 @@ import {
   IStateCorners,
   alignStates,
   autoAlign,
+  buildMetadata,
   checkOverlap,
   getStatesConnectedtoState,
   getVariable,
@@ -140,11 +141,11 @@ export interface IFSMTransition {
 export type TTrigger = { class?: string; connector?: string; method?: string };
 
 export interface IFSMMetadata {
-  name: string;
+  name?: string;
   display_name: string;
-  desc: string;
-  short_desc: string;
-  target_dir: string;
+  desc?: string;
+  short_desc?: string;
+  target_dir?: string;
   groups?: any[];
   'input-type'?: IProviderType;
   'output-type'?: IProviderType;
@@ -367,17 +368,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const [interfaceId, setInterfaceId] = useState(null);
   const [hasUnsavedState, setHasUnsavedState] = useState<boolean>(false);
   const [st, setSt] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
-  const [mt, setMt] = useState<IFSMMetadata>({
-    target_dir: fsm?.target_dir || interfaceContext?.target_dir || undefined,
-    name: fsm?.name || 'Untitled Qodex',
-    desc: fsm?.desc || undefined,
-    groups: fsm?.groups || undefined,
-    'input-type': fsm?.['input-type'] || interfaceContext?.inputType || undefined,
-    'output-type': fsm?.['output-type'] || undefined,
-    globalvar: fsm?.globalvar,
-    localvar: fsm?.localvar,
-    autovar: fsm?.autovar || interfaceContext?.autovar,
-  });
+  const [mt, setMt] = useState<IFSMMetadata>(buildMetadata(fsm, interfaceContext));
 
   const wrapperRef = useRef(null);
   const showTransitionsToaster = useRef(0);

@@ -1,8 +1,10 @@
+import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
+import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import FSMView from '../../../containers/InterfaceCreator/fsm';
 import { Existing } from '../../Views/FSM.stories';
 import { StoryMeta } from '../../types';
-import { _testsClickState } from './../utils';
+import { _testsClickState, sleep } from './../utils';
 import { SwitchesToBuilder } from './Basic.stories';
 
 const meta = {
@@ -24,7 +26,14 @@ type StoryFSM = StoryObj<typeof meta>;
 export const StateDataIsShown: StoryFSM = {
   ...Existing,
   play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
     await SwitchesToBuilder.play({ canvasElement, ...rest });
     await _testsClickState(`state-2`);
+    await waitFor(() => canvas.findAllByText('Message Content')[0], { timeout: 10000 });
+    await sleep(5000);
+    await fireEvent.click(document.querySelector('.system-option.reqore-textarea'));
+    await expect(
+      document.querySelectorAll('.reqore-popover-content .reqore-menu-item')
+    ).toHaveLength(2);
   },
 };

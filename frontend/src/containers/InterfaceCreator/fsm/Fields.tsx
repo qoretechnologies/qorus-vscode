@@ -38,6 +38,8 @@ export const QodexFields = ({ value, onChange }: IQodexFieldsProps) => {
     return <ReqoreSpinner> Loading </ReqoreSpinner>;
   }
 
+  console.log(fields, value);
+
   return (
     <Options
       label="Qodex settings"

@@ -79,7 +79,10 @@ export const fixOptions = (
     if (option.preselected || option.value || (option.required && !fixedValue[name])) {
       fixedValue[name] = {
         type: getType(option.type, operators, fixedValue[name]?.op),
-        value: fixedValue[name]?.value || option.value || option.default_value,
+        value:
+          (typeof fixedValue[name] === 'object' ? fixedValue[name]?.value : fixedValue[name]) ||
+          option.value ||
+          option.default_value,
       };
     }
   });
