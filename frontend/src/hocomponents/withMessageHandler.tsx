@@ -219,6 +219,8 @@ export const postMessage: TPostMessage = (
         ...data,
       })
     );
+
+    return;
   }
 
   vscode.postMessage?.({
