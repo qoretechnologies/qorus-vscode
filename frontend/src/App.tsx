@@ -64,6 +64,10 @@ import { Dashboard } from './views/dashboard';
 const md5 = require('md5');
 
 const GlobalStyle = createGlobalStyle`
+  html, body, #root {
+    height: 100%;
+  }
+
   .reqore-tree, .reqore-tree-textarea {
     height: 100%;
   }
