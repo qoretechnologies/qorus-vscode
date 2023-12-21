@@ -644,7 +644,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       return false;
     }
 
-    return validateField('string', metadata.name);
+    return validateField('string', metadata.display_name);
   };
 
   const isFSMValid = () => {
