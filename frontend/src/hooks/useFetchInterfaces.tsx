@@ -94,6 +94,10 @@ export const useFetchInterfaces = (
             return {
               ...acc,
               ...current,
+              data: {
+                ...acc.data,
+                ...current.data,
+              },
             };
           },
           {}
