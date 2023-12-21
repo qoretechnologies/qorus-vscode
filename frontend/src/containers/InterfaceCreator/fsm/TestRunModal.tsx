@@ -90,7 +90,7 @@ export const QodexTestRunModal = ({ data, apps }: IQodexTestRunModalProps) => {
           // @ts-expect-error
           collapsible: true,
           isCollapsed: index > 0,
-          iconImage: app.logo,
+          iconImage: app?.logo,
           iconProps: {
             size: '25px',
           },
