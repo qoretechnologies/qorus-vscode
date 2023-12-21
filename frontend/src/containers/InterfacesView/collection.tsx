@@ -246,7 +246,7 @@ export const InterfacesViewCollection = ({
           { name, data, isDraft, hasDraft, isServerInterface, isLocalInterface, ...rest },
           index
         ): IReqoreCollectionItemProps => ({
-          label: name || data.error,
+          label: data?.display_name || name || data.error,
           icon: interfaceIcons[type],
           content: (
             <InterfacesViewItem

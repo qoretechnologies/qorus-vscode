@@ -177,7 +177,7 @@ export type TFSMStateAction = {
   value?: string | TFSMClassConnectorAction | IProviderType | TVariableActionValue | TAppAndAction;
 };
 
-export interface IFSMState {
+export interface IFSMState extends IFSMMetadata {
   key?: string;
   corners?: IStateCorners;
   isNew?: boolean;
@@ -191,12 +191,8 @@ export interface IFSMState {
   transitions?: IFSMTransition[];
   'error-transitions'?: IFSMTransition[];
   action?: TFSMStateAction;
-  'input-type'?: any;
-  'output-type'?: any;
   'block-type'?: 'while' | 'for' | 'foreach' | 'transaction';
-  name?: string;
   type: TFSMStateType;
-  desc?: string;
   states?: IFSMStates;
   fsm?: string;
   id: string;
@@ -212,10 +208,6 @@ export interface IFSMState {
     to: string;
     name?: string;
   };
-  // Block states can have their own variables
-  globalvar?: TFSMVariables;
-  localvar?: TFSMVariables;
-  autovar?: TFSMAutoVariables;
 }
 
 export interface IFSMStates {

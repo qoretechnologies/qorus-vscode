@@ -27,6 +27,8 @@ export interface IQorusInterface extends Partial<IDraftData> {
   name?: string;
   data?: {
     name: string;
+    display_name?: string;
+    short_desc?: string;
     type: string;
     desc?: string;
     target_dir: string;

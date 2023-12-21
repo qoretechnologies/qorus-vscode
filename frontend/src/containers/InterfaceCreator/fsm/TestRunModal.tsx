@@ -84,7 +84,7 @@ export const QodexTestRunModal = ({ data, apps }: IQodexTestRunModalProps) => {
         );
 
         return {
-          label: `[${size(responseList) - index}] ${data.states[key].name}`,
+          label: `[${size(responseList) - index}] ${data.states[key].display_name}`,
           intent: success ? 'success' : 'danger',
           content: <ReqoreTree data={response} />,
           // @ts-expect-error
