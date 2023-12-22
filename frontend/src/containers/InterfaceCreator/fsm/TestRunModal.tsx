@@ -84,7 +84,7 @@ export const QodexTestRunModal = ({ data, apps }: IQodexTestRunModalProps) => {
         );
 
         return {
-          label: `[${size(responseList) - index}] ${data.states[key].display_name}`,
+          label: `[${size(responseList) - index}] ${data.states[key].name}`,
           intent: success ? 'success' : 'danger',
           content:
             typeof response === 'string' || typeof response === 'number' ? (
