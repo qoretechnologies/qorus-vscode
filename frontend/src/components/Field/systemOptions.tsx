@@ -4,7 +4,6 @@ import {
   ReqoreCollection,
   ReqoreControlGroup,
   ReqoreMessage,
-  ReqoreP,
   ReqorePanel,
   ReqoreSpinner,
   ReqoreTag,
@@ -30,7 +29,7 @@ import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { insertAtIndex } from '../../helpers/functions';
 import { hasAllDependenciesFullfilled, validateField } from '../../helpers/validations';
-import { getGlobalDescriptionTooltip } from '../FieldWrapper';
+import { Description } from '../Description';
 import AutoField from './auto';
 import { NegativeColorEffect, PositiveColorEffect } from './multiPair';
 import { OptionFieldMessages } from './optionFieldMessages';
@@ -697,11 +696,6 @@ const Options = ({
             transparent: false,
             intent: getIntent(optionName, type, other.value, other.op),
             badge: buildBadges(options[optionName]),
-            tooltip: {
-              ...getGlobalDescriptionTooltip(options[optionName].desc, optionName),
-              placement: 'top',
-              delay: 800,
-            },
             className: 'system-option',
             actions: [
               {
@@ -721,12 +715,10 @@ const Options = ({
             ],
             content: (
               <>
-                {options[optionName].short_desc ? (
-                  <>
-                    <ReqoreP>{options[optionName].short_desc}</ReqoreP>
-                    <ReqoreVerticalSpacer height={8} />
-                  </>
-                ) : null}
+                <Description
+                  shortDescription={options[optionName].short_desc}
+                  longDescription={options[optionName].desc}
+                />
                 {(options[optionName].messages || []).map(({ intent, title, content }, index) => (
                   <ReqoreMessage
                     intent={intent}
