@@ -810,6 +810,8 @@ export const buildMetadata = (data?: IFSMMetadata, context?: any): IFSMMetadata 
 
   if (data?.display_name) {
     metadata.display_name = data.display_name;
+  } else if (data?.name) {
+    metadata.display_name = data.name;
   }
 
   if (data?.short_desc) {
