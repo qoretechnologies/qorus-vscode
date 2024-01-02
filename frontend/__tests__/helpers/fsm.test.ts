@@ -365,7 +365,7 @@ describe('Repoisitioning state groups', () => {
   });
 });
 
-describe.only('Remove transitions', () => {
+describe('Remove transitions', () => {
   const states: IFSMStates = {
     state1: {
       display_name: 'State 1',
