@@ -8,7 +8,7 @@ export function useQorusStorage<T>(
   defaultValue?: T
 ): {
   value: T;
-  update: (newStorage: T, localOnly?: boolean) => void;
+  update: (newStorage: T) => void;
   loading: boolean;
   error: any;
   refetch: () => void;
@@ -27,12 +27,12 @@ export function useQorusStorage<T>(
     }
   }, [value]);
 
-  const update = (newStorage: T, localOnly?: boolean) => {
+  const update = (newStorage: T) => {
     const updatedStorage = set(cloneDeep(storage), path, newStorage);
 
     setStorage(updatedStorage);
 
-    if (localOnly) return;
+    if (process.env.NODE_ENV !== 'production') return;
 
     fetchData('/users/_current_/', 'PUT', { storage: updatedStorage });
   };

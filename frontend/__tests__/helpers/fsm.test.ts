@@ -1,15 +1,20 @@
-import { cloneDeep, size } from 'lodash';
+import { cloneDeep, pick, size } from 'lodash';
 import { IApp } from '../../src/components/AppCatalogue';
-import { IFSMStates } from '../../src/containers/InterfaceCreator/fsm';
+import { DIAGRAM_SIZE, IFSMStates, TAppAndAction } from '../../src/containers/InterfaceCreator/fsm';
 import {
   IGrid,
+  areStatesAConnectedGroup,
   autoAlign,
+  changeStateIdsToGenerated,
   checkOverlap,
   getAppAndAction,
   removeAllStatesWithVariable,
+  removeTransitionsFromStateGroup,
+  repositionStateGroup,
 } from '../../src/helpers/fsm';
 import OndewoFSM from '../../src/stories/Data/fsm.json';
 import multipleVariableStates from '../../src/stories/Data/multipleVariablesFsm.json';
+import QodexWithMultipleAppsAndActions from '../../src/stories/Data/qodexWithMultipleAppsAndActions.json';
 import multipleStatesInMultipleRows from './json/fsmMultipleStatesInMultipleRows.json';
 import multipleStatesInOneRow from './json/fsmMultipleStatesInOneRow.json';
 import statesObj from './json/fsmStates.json';
@@ -274,5 +279,285 @@ describe('getAppAndAction', () => {
     const result = getAppAndAction(apps, 'app1', 'action3');
     expect(result.app.name).toEqual('app1');
     expect(result.action).toBeUndefined();
+  });
+});
+
+describe('Are states a connected group', () => {
+  const states: IFSMStates = QodexWithMultipleAppsAndActions.states as unknown as IFSMStates;
+
+  it('should return true if a group of lineary connected states are passed', () => {
+    const connected = areStatesAConnectedGroup(pick(states, ['1', '2', '3']));
+
+    expect(connected).toBe(true);
+  });
+
+  it('should return true if a group of parallel connected states are passed', () => {
+    const connected = areStatesAConnectedGroup(pick(states, ['4', '2', '3']));
+
+    expect(connected).toBe(true);
+  });
+
+  it('should return true if a group of parallel and linear connected states are passed', () => {
+    const connected = areStatesAConnectedGroup(pick(states, ['1', '4', '2', '3']));
+
+    expect(connected).toBe(true);
+  });
+
+  it('should return false if separated states are passed', () => {
+    expect(areStatesAConnectedGroup(pick(states, ['1', '4']))).toBe(false);
+    expect(areStatesAConnectedGroup(pick(states, ['2', '4']))).toBe(false);
+    expect(areStatesAConnectedGroup(pick(states, ['3', '4']))).toBe(false);
+    expect(areStatesAConnectedGroup(pick(states, ['1']))).toBe(false);
+  });
+});
+
+describe('Repoisitioning state groups', () => {
+  const states: IFSMStates = {
+    state1: {
+      display_name: 'State 1',
+      type: 'state',
+      id: 'state1',
+      position: {
+        x: 350,
+        y: 0,
+      },
+    },
+    state2: {
+      display_name: 'State 2',
+      type: 'state',
+      id: 'state2',
+      position: {
+        x: 150,
+        y: 250,
+      },
+    },
+    state3: {
+      display_name: 'State 3',
+      type: 'state',
+      id: 'state3',
+      position: {
+        x: 20,
+        y: 20,
+      },
+    },
+    state4: {
+      display_name: 'State 4',
+      type: 'state',
+      id: 'state4',
+      position: {
+        x: DIAGRAM_SIZE - 50,
+        y: DIAGRAM_SIZE - 50,
+      },
+    },
+  };
+
+  it('should reposition a group of states based on the top left most state', () => {
+    const repositionedStates = repositionStateGroup(states, 100, 100);
+
+    expect(repositionedStates.state3.position.x).toBe(100);
+    expect(repositionedStates.state3.position.y).toBe(100);
+
+    expect(repositionedStates.state1.position.x).toBe(430);
+    expect(repositionedStates.state1.position.y).toBe(80);
+
+    expect(repositionedStates.state4.position.x).toBe(DIAGRAM_SIZE);
+    expect(repositionedStates.state4.position.y).toBe(DIAGRAM_SIZE);
+  });
+});
+
+describe.only('Remove transitions', () => {
+  const states: IFSMStates = {
+    state1: {
+      display_name: 'State 1',
+      type: 'state',
+      id: 'state1',
+      transitions: [
+        {
+          state: 'state2',
+        },
+      ],
+      position: {
+        x: 350,
+        y: 0,
+      },
+    },
+    state2: {
+      display_name: 'State 2',
+      type: 'state',
+      id: 'state2',
+      position: {
+        x: 150,
+        y: 250,
+      },
+      transitions: [
+        {
+          state: 'state3',
+        },
+        {
+          state: 'state7',
+        },
+      ],
+    },
+    state3: {
+      display_name: 'State 3',
+      type: 'state',
+      id: 'state3',
+      position: {
+        x: 20,
+        y: 20,
+      },
+      transitions: [
+        {
+          state: 'state4',
+        },
+      ],
+    },
+    state4: {
+      display_name: 'State 4',
+      type: 'state',
+      id: 'state4',
+      position: {
+        x: DIAGRAM_SIZE - 50,
+        y: DIAGRAM_SIZE - 50,
+      },
+      transitions: [
+        {
+          state: 'state5',
+        },
+      ],
+    },
+  };
+
+  it('should remove transitions to states not in a state group', () => {
+    const fixedStates = removeTransitionsFromStateGroup(states);
+
+    expect(fixedStates.state1.transitions.length).toBe(1);
+    expect(fixedStates.state2.transitions.length).toBe(1);
+    expect(fixedStates.state3.transitions.length).toBe(1);
+    expect(fixedStates.state4.transitions.length).toBe(0);
+  });
+});
+
+describe('Regenerating state IDs', () => {
+  const states: IFSMStates = {
+    state1: {
+      display_name: 'State 1',
+      type: 'state',
+      id: 'state1',
+      position: {
+        x: 350,
+        y: 0,
+      },
+      transitions: [
+        {
+          state: 'state2',
+        },
+      ],
+      action: {
+        type: 'appaction',
+        value: {
+          app: 'Discord',
+          action: 'Get user info',
+          options: {
+            qorus_app_connection: {
+              type: 'connection',
+              value: 'discord',
+            },
+          },
+        },
+      },
+    },
+    state2: {
+      display_name: 'State 2',
+      type: 'state',
+      id: 'state2',
+      position: {
+        x: 150,
+        y: 250,
+      },
+      transitions: [
+        {
+          state: 'state3',
+        },
+      ],
+      action: {
+        type: 'appaction',
+        value: {
+          app: 'Discord',
+          action: 'Get user info',
+          options: {
+            qorus_app_connection: {
+              type: 'connection',
+              value: 'discord',
+            },
+            content: {
+              type: 'string',
+              value: 'I use $data:{state1.connection} to connect to $data:{1.app}',
+            },
+          },
+        },
+      },
+    },
+    state3: {
+      display_name: 'State 3',
+      type: 'state',
+      id: 'state3',
+      position: {
+        x: 20,
+        y: 20,
+      },
+      action: {
+        type: 'appaction',
+        value: {
+          app: 'Discord',
+          action: 'Get user info',
+          options: {
+            qorus_app_connection: {
+              type: 'connection',
+              value: 'discord',
+            },
+            server: {
+              type: 'string',
+              value: 'server $data:{state2.server}',
+            },
+            content: {
+              type: 'string',
+              value:
+                'I use $data:{state1.connection} to connect to $data:{state2.app} and $data:{state1.app}',
+            },
+          },
+        },
+      },
+    },
+  };
+
+  it('correctly changes the state IDs in all required places', () => {
+    const newStates = changeStateIdsToGenerated(states);
+    const newState1Id = Object.keys(newStates).find(
+      (key) => newStates[key].display_name === 'State 1'
+    );
+    const newState2Id = Object.keys(newStates).find(
+      (key) => newStates[key].display_name === 'State 2'
+    );
+    const newState3Id = Object.keys(newStates).find(
+      (key) => newStates[key].display_name === 'State 3'
+    );
+
+    expect(newStates[newState1Id].id).toBe(newState1Id);
+    expect(newStates[newState1Id].key).toBe(newState1Id);
+    expect(newStates[newState1Id].keyId).toBe(newState1Id);
+
+    expect(newStates[newState1Id].transitions[0].state).toBe(newState2Id);
+    expect(newStates[newState2Id].transitions[0].state).toBe(newState3Id);
+
+    expect((newStates[newState2Id].action.value as TAppAndAction).options.content.value).toBe(
+      `I use $data:{${newState1Id}.connection} to connect to $data:{1.app}`
+    );
+    expect((newStates[newState3Id].action.value as TAppAndAction).options.server.value).toBe(
+      `server $data:{${newState2Id}.server}`
+    );
+    expect((newStates[newState3Id].action.value as TAppAndAction).options.content.value).toBe(
+      `I use $data:{${newState1Id}.connection} to connect to $data:{${newState2Id}.app} and $data:{${newState1Id}.app}`
+    );
   });
 });

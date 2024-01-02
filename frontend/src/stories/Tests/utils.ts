@@ -121,7 +121,7 @@ export async function _testsSelectFromAppCatalogue(
       await _testsSelectAppOrAction(canvas, app);
       await _testsSelectAppOrAction(canvas, action);
     } else {
-      throw new Error('Not implemented');
+      await _testsSelectAppOrAction(canvas, app);
     }
 
     return;

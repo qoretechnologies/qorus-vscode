@@ -2,7 +2,6 @@ import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
 import { useState } from 'react';
-import { IApp } from '../../components/AppCatalogue';
 import { ConnectionManagement } from '../../components/ConnectionManagement';
 import { AppsContext } from '../../context/apps';
 import apps from '../Data/apps.json';
@@ -15,7 +14,8 @@ const meta = {
     const [connection, setConnection] = useState(args.selectedConnection);
 
     return (
-      <AppsContext.Provider value={apps as IApp[]}>
+      // @ts-ignore
+      <AppsContext.Provider value={{ apps }}>
         <ConnectionManagement {...args} onChange={setConnection} selectedConnection={connection} />
       </AppsContext.Provider>
     );

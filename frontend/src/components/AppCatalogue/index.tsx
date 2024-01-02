@@ -1,12 +1,21 @@
-import { ReqoreCollection } from '@qoretechnologies/reqore';
+import {
+  ReqoreCollection,
+  ReqoreMessage,
+  ReqoreTag,
+  ReqoreTagGroup,
+  ReqoreVerticalSpacer,
+} from '@qoretechnologies/reqore';
 import { IReqoreCollectionProps } from '@qoretechnologies/reqore/dist/components/Collection';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { IReqoreIconName } from '@qoretechnologies/reqore/dist/types/icons';
-import { size } from 'lodash';
+import { map, size } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
-import { IFSMVariable } from '../../containers/InterfaceCreator/fsm';
+import { IFSMStates, IFSMVariable } from '../../containers/InterfaceCreator/fsm';
+import { getStateCategory, getStateColor } from '../../containers/InterfaceCreator/fsm/state';
 import { TAction } from '../../containers/InterfaceCreator/fsm/stateDialog';
+import { FSMItemIconByType } from '../../containers/InterfaceCreator/fsm/toolbarItem';
+import { getAppAndAction } from '../../helpers/fsm';
 import { IOptionsSchema } from '../Field/systemOptions';
 
 export interface IAppAction {
@@ -32,11 +41,15 @@ export interface IAppAction {
   exec_options_url?: string;
   exec_url?: string;
   options?: IOptionsSchema;
+  metadata?: {
+    states?: IFSMStates;
+  };
 }
 
 export interface IApp {
   name: string; // the unique application name;
   builtin?: boolean; //indicates if the application is built-in
+  is_action_set?: boolean; //indicates if the application is an action set
   display_name: string; //the dispay name for the application
   desc?: string; //the application description with markdown formatting
   short_desc: string; //the application short description in plain text
@@ -153,7 +166,39 @@ export const AppCatalogue = ({
         items={getFilteredActions(selectedApp.actions).map(
           (action): IReqoreCollectionItemProps => ({
             label: action.display_name,
-            content: action.short_desc,
+            content: (
+              <>
+                {action.short_desc}
+                {action.metadata?.states ? (
+                  <ReqoreMessage margin="top" opaque={false} size="small" intent="info">
+                    This action set includes {size(action.metadata.states)} actions
+                    <ReqoreVerticalSpacer height={5} />
+                    <ReqoreTagGroup size="small">
+                      {map(action.metadata.states, (state, stateId) => (
+                        <ReqoreTag
+                          key={stateId}
+                          label={state.name}
+                          icon={
+                            state.action?.type !== 'appaction'
+                              ? FSMItemIconByType[state.action?.type]
+                              : 'QuestionLine'
+                          }
+                          leftIconProps={{
+                            image: getAppAndAction(apps, state.action?.value?.app)?.app?.logo,
+                          }}
+                          effect={{
+                            gradient: getStateColor(
+                              getStateCategory(state.action?.type),
+                              state.is_event_trigger
+                            ),
+                          }}
+                        />
+                      ))}
+                    </ReqoreTagGroup>
+                  </ReqoreMessage>
+                ) : null}
+              </>
+            ),
             iconImage: action.logo || selectedApp.logo,
             icon: action.icon || selectedApp.icon,
             contentEffect: {
@@ -171,14 +216,7 @@ export const AppCatalogue = ({
               size: 'huge',
               rounded: true,
             },
-            actions: [
-              {
-                show: 'hover',
-                icon: 'QuestionLine',
-                tooltip: action.desc,
-              },
-              ...(action.actions?.(action) || []),
-            ],
+            actions: [...(action.actions?.(action) || [])],
           })
         )}
       />
@@ -205,7 +243,7 @@ export const AppCatalogue = ({
       items={apps.map((app) => ({
         label: app.display_name,
         badge: size(getFilteredActions(app.actions)),
-        content: app.short_desc,
+        content: <>{app.short_desc}</>,
         selected: favorites.includes(app.name),
         iconImage: app.logo,
         icon: app.icon,

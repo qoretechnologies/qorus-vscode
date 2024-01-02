@@ -16,6 +16,7 @@ import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/compon
 import { IReqorePanelProps } from '@qoretechnologies/reqore/dist/components/Panel';
 import { IReqoreTextareaProps } from '@qoretechnologies/reqore/dist/components/Textarea';
 import { TReqoreIntent } from '@qoretechnologies/reqore/dist/constants/theme';
+import { IReqoreAutoFocusRules } from '@qoretechnologies/reqore/dist/hooks/useAutoFocus';
 import { cloneDeep, findKey, forEach, last } from 'lodash';
 import isArray from 'lodash/isArray';
 import map from 'lodash/map';
@@ -137,6 +138,7 @@ export type IQorusType =
   | 'select-string'
   | 'data-provider'
   | 'file-as-string'
+  | 'connection'
   | 'number';
 
 export type TOperatorValue = string | string[] | undefined | null;
@@ -187,6 +189,8 @@ export interface IOptionsSchemaArg {
   metadata?: Record<string, any>;
 
   messages?: IOptionFieldMessage[];
+
+  focusRules?: IReqoreAutoFocusRules;
 
   get_message?: {
     action: string;

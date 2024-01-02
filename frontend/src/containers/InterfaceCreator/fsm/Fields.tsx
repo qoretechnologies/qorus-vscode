@@ -15,8 +15,6 @@ export interface IQodexFieldsProps {
 }
 
 export const QodexFields = ({ value, onChange }: IQodexFieldsProps) => {
-  console.log(value);
-
   const { loading } = useAsyncRetry(async () => {
     if (!fields) {
       const data = await callBackendBasic(
@@ -37,8 +35,6 @@ export const QodexFields = ({ value, onChange }: IQodexFieldsProps) => {
   if (loading) {
     return <ReqoreSpinner> Loading </ReqoreSpinner>;
   }
-
-  console.log(fields, value);
 
   return (
     <Options

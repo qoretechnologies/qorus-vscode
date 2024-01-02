@@ -10,6 +10,7 @@ import {
   useReqoreTheme,
 } from '@qoretechnologies/reqore';
 import { ReqoreTextEffect, StyledEffect } from '@qoretechnologies/reqore/dist/components/Effect';
+import { ReqoreExportModal } from '@qoretechnologies/reqore/dist/components/ExportModal';
 import { drop, every, find, findKey, omit, some } from 'lodash';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -20,12 +21,11 @@ import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { Dispatch, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useAsyncRetry, useDebounce, useUpdateEffect } from 'react-use';
+import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled, { css, keyframes } from 'styled-components';
-import { IApp } from '../../../components/AppCatalogue';
 import Content from '../../../components/Content';
 import { DragSelectArea } from '../../../components/DragSelectArea';
 import { IProviderType } from '../../../components/Field/connectors';
@@ -47,14 +47,17 @@ import { getStateBoundingRect } from '../../../helpers/diagram';
 import {
   IStateCorners,
   alignStates,
+  areStatesAConnectedGroup,
   autoAlign,
   buildMetadata,
   checkOverlap,
   getStatesConnectedtoState,
   getVariable,
   isStateValid,
+  positionStateInFreeSpot,
   removeAllStatesWithVariable,
   removeFSMState,
+  repositionStateGroup,
 } from '../../../helpers/fsm';
 import {
   ITypeComparatorData,
@@ -73,8 +76,10 @@ import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../../hocomponents/withMapperConsumer';
 import withMessageHandler, { postMessage } from '../../../hocomponents/withMessageHandler';
+import { useApps } from '../../../hooks/useApps';
 import { useMoveByDragging } from '../../../hooks/useMoveByDragging';
 import TinyGrid from '../../../images/graphy-dark.png';
+import { ActionSetDialog } from './ActionSetDialog';
 import { AppSelector } from './AppSelector';
 import { QodexFields } from './Fields';
 import { QodexTestRunModal } from './TestRunModal';
@@ -414,6 +419,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(true);
   const [addingNewStateAt, setIsAddingNewStateAt] =
     useState<{ x: number; y: number; fromState?: string | number }>(undefined);
+  const [isAddingActionSet, setIsAddingActionSet] = useState<boolean>(false);
   const [zoom, setZoom] = useState<number>(1);
   const theme = useReqoreTheme();
 
@@ -427,11 +433,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     Record<string | number, Record<'left' | 'right' | 'top' | 'bottom', number>>
   >({});
 
-  const apps = useAsyncRetry<IApp[]>(async () => {
-    const apps = await fetchData('dataprovider/apps');
-
-    return apps.data;
-  }, []);
+  const apps = useApps();
 
   const getDiagramBoundingRect = (): DOMRect => {
     return document
@@ -461,15 +463,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     fromState?: string
   ) => {
     const parentStateId = parseInt(parentStateName) || 0;
-    const ids: number[] = size(states)
-      ? Object.keys(states).map((key) => {
-          return key.indexOf('.')
-            ? parseInt(key.split('.')[key.split('.').length - 1])
-            : parseInt(key);
-        })
-      : [-1];
-    const maxId = (Math.max(...ids) + 1).toString();
-    const id = (item.id ?? (parentStateName ? `${parentStateId}.${maxId}` : maxId)).toString();
+    const generatedId = shortid.generate();
+    const id = (
+      item.id ?? (parentStateName ? `${parentStateId}.${generatedId}` : generatedId)
+    ).toString();
 
     setStates((cur: IFSMStates): IFSMStates => {
       const newStates = cloneDeep(cur);
@@ -488,14 +485,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         newX = newStates[fromState].position.x;
         newY = newStates[fromState].position.y + 200;
 
-        // Check if there is already a state at this position
-        while (isAnyStateAtPosition(newX, newY)) {
-          if (newX + STATE_WIDTH + 50 > DIAGRAM_SIZE) {
-            newY += 450;
-          } else {
-            newX += STATE_WIDTH + 50;
-          }
-        }
+        const newPosition = positionStateInFreeSpot(newStates, newX, newY);
+
+        newX = newPosition.x;
+        newY = newPosition.y;
       }
 
       return {
@@ -510,14 +503,14 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           isNew: !isInjectedTriggerState,
           isValid: !!isInjectedTriggerState,
           is_event_trigger: item.is_event_trigger,
-          name: getStateName(item, maxId),
+          name: getStateName(item, id),
           desc: item.desc,
           injected: item.injected,
           injectedData: item.injectedData,
           type: item.name,
           'block-type':
             item.name === 'block' ? (item.stateType as 'while' | 'for' | 'foreach') : undefined,
-          id: shortid.generate(),
+          id,
           states: item.name === 'block' ? {} : undefined,
           condition: item.name === 'if' ? '' : undefined,
           action:
@@ -619,15 +612,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
     return valid;
   };
-
-  const isAnyStateAtPosition = useCallback(
-    (x: number, y: number): boolean => {
-      return some(states, (state) => {
-        return state.position.x === x && state.position.y === y;
-      });
-    },
-    [states]
-  );
 
   const hasEventTriggerState = useCallback(() => {
     return find(states, (state) => {
@@ -1523,7 +1507,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
           label: `Test run of ${metadata.name}`,
           children: (
             <QodexTestRunModal
-              apps={apps.value}
+              apps={apps.apps}
               data={{
                 type: 'fsm',
                 ...data,
@@ -1560,8 +1544,13 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
         const fileName = getDraftId(fsm, interfaceId);
         deleteDraft('fsm', fileName, false);
-        reset();
-        resetAllInterfaceData('fsm');
+
+        if (result?.data?.fsm) {
+          init?.changeInitialData('fsm', result.data.fsm);
+        } else {
+          reset();
+          resetAllInterfaceData('fsm');
+        }
       }
     };
 
@@ -2069,6 +2058,51 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             type={isFirstTriggerState ? 'event' : 'action'}
             variables={variables}
             showVariables={setShowVariables}
+            onActionSetSelect={(stateGroup: IFSMStates) => {
+              let x = 0;
+              let y = 0;
+              let freeStateIds = [];
+
+              if (addingNewStateAt.fromState) {
+                ({ x, y } = positionStateInFreeSpot(
+                  states,
+                  states[addingNewStateAt.fromState].position.x,
+                  states[addingNewStateAt.fromState].position.y + 200
+                ));
+                // If adding from a state, add the transition too
+                // Get the state that no other states are connecting to
+                forEach(stateGroup, (_state, stateId) => {
+                  if (!size(getStatesConnectedtoState(stateId, stateGroup))) {
+                    freeStateIds.push(stateId);
+                  }
+                });
+              } else {
+                ({ x, y } = calculateNewStatePositionOnDiagram(
+                  addingNewStateAt.x,
+                  addingNewStateAt.y
+                ));
+              }
+
+              const fixedStates = repositionStateGroup(stateGroup, x, y);
+
+              setStates((cur) => {
+                const result = { ...cur, ...fixedStates };
+
+                if (addingNewStateAt.fromState && size(freeStateIds)) {
+                  result[addingNewStateAt.fromState].transitions = [
+                    ...(result[addingNewStateAt.fromState].transitions || []),
+                    ...freeStateIds.map((id) => ({
+                      state: id,
+                      language: 'qore',
+                    })),
+                  ];
+                }
+
+                return result;
+              });
+
+              setIsAddingNewStateAt(undefined);
+            }}
             onActionSelect={(action, app) => {
               const { x, y } = calculateNewStatePositionOnDiagram(
                 addingNewStateAt.x,
@@ -2196,11 +2230,20 @@ export const FSMView: React.FC<IFSMViewProps> = ({
   }
 
   return (
-    <AppsContext.Provider value={apps.value}>
+    <AppsContext.Provider value={apps}>
       {!compatibilityChecked && (
         <StyledCompatibilityLoader>
           <Loader text={t('CheckingCompatibility')} />
         </StyledCompatibilityLoader>
+      )}
+      {isAddingActionSet && (
+        <ActionSetDialog
+          onClose={() => {
+            setIsAddingActionSet(false);
+            setSelectedStates({});
+          }}
+          states={getStatesFromSelectedStates()}
+        />
       )}
       {showVariables?.show && (
         <FSMVariables
@@ -2362,6 +2405,27 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             },
           },
           {
+            tooltip: 'Save selected states as action set',
+            id: 'save-action-set',
+            icon: 'Save3Fill',
+            show:
+              selectedStates &&
+              size(selectedStates) > 1 &&
+              areStatesAConnectedGroup(getStatesFromSelectedStates()),
+            effect: {
+              gradient: {
+                colors: {
+                  0: '#5865f2',
+                  100: '#6e1977',
+                },
+                animate: 'always',
+              },
+            },
+            onClick: () => {
+              setIsAddingActionSet(true);
+            },
+          },
+          {
             show: isMetadataHidden,
             icon: 'More2Line',
             className: 'fsm-more-actions',
@@ -2451,14 +2515,25 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     },
               },
               {
-                show: isFSMValid() && !embedded,
-                customTheme: { main: 'success:darken' },
+                effect: !areMetadataValid() || !isFSMValid() ? WarningColorEffect : SaveColorEffect,
+                className: 'fsm-publish-more',
                 actions: [
                   {
-                    label: 'Save locally',
-                    effect: SaveColorEffect,
+                    label: 'Export data',
+                    effect:
+                      !areMetadataValid() || !isFSMValid() ? WarningColorEffect : SaveColorEffect,
+                    className: 'fsm-export-data',
                     icon: 'Save3Fill',
-                    onClick: () => handleSubmitClick(false, false),
+                    onClick: () => {
+                      addModal(
+                        <ReqoreExportModal
+                          data={{
+                            ...metadata,
+                            states,
+                          }}
+                        />
+                      );
+                    },
                   },
                 ],
               },

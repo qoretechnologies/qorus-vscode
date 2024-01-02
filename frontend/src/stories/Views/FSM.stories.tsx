@@ -6,6 +6,7 @@ import fsm from '../Data/fsm.json';
 import fsmWithoutInitialState from '../Data/fsmWithoutInitialState.json';
 import multipleVariablesFsm from '../Data/multipleVariablesFsm.json';
 import qodex from '../Data/qodex.json';
+import qodexWithMultipleAppsAndActions from '../Data/qodexWithMultipleAppsAndActions.json';
 import transactionStateFsm from '../Data/transacitonStateFsm.json';
 import { AutoAlign } from '../Tests/FSM/Alignment.stories';
 import { SwitchesToBuilder } from '../Tests/FSM/Basic.stories';
@@ -54,6 +55,26 @@ export const ExistingFSMWithoutInitialState: StoryFSM = {
   },
 };
 
+export const ExportData: StoryFSM = {
+  args: {
+    fsm: qodexWithMultipleAppsAndActions,
+  },
+  play: async ({ canvasElement, stateType, ...rest }) => {
+    await SwitchesToBuilder.play({ canvasElement, ...rest });
+
+    await sleep(1000);
+
+    await fireEvent.click(document.querySelector(`.fsm-publish-more`));
+    await waitFor(() => expect(document.querySelector('.fsm-export-data')).toBeInTheDocument(), {
+      timeout: 10000,
+    });
+    await fireEvent.click(document.querySelector(`.fsm-export-data`));
+    await waitFor(() => expect(document.querySelector('.reqore-modal')).toBeInTheDocument(), {
+      timeout: 10000,
+    });
+  },
+};
+
 export const CatalogueOpen: StoryFSM = {
   args: {
     fsm: multipleVariablesFsm,
@@ -95,10 +116,10 @@ export const NewState: StoryFSM = {
       stateType === 'trigger' ? undefined : 0
     );
 
-    await expect(document.querySelector('#state-0')).toBeInTheDocument();
+    await expect(document.querySelectorAll('.fsm-state')).toHaveLength(1);
 
     if (stateType !== 'trigger') {
-      await expect(document.querySelector('#state-1')).toBeInTheDocument();
+      await expect(document.querySelectorAll('.fsm-state')).toHaveLength(2);
     }
   },
 };

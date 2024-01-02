@@ -171,7 +171,7 @@ test('validateField should return true if the value is a type of string and is n
   expect(validateField('system-options', 'Qorus test string')).toEqual(true);
 });
 
-describe.only('Options', () => {
+describe('Options', () => {
   test('should return false if any required options are missing', () => {
     expect(
       validateField(

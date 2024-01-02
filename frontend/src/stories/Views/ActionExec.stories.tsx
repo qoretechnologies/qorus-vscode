@@ -1,7 +1,6 @@
 import { expect } from '@storybook/jest';
 import { StoryObj } from '@storybook/react';
 import { fireEvent, waitFor, within } from '@storybook/testing-library';
-import { IApp } from '../../components/AppCatalogue';
 import { QodexActionExec } from '../../containers/InterfaceCreator/fsm/ActionExec';
 import { AppsContext } from '../../context/apps';
 import apps from '../Data/apps.json';
@@ -19,7 +18,8 @@ const meta = {
   },
   render: (args) => {
     return (
-      <AppsContext.Provider value={apps as IApp[]}>
+      // @ts-ignore
+      <AppsContext.Provider value={{ apps }}>
         <QodexActionExec {...args} />
       </AppsContext.Provider>
     );

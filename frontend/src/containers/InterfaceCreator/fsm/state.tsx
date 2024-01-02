@@ -527,7 +527,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
           {
             gradient: {
               ...stateColor,
-              borderColor: !isValid ? 'danger' : `${stateColor.borderColor}`,
+              borderColor: !isValid || isIsolated ? 'danger' : `${stateColor.borderColor}`,
               animate: isActive ? 'always' : 'never',
             },
             glow: isBeingDragged

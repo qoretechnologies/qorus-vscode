@@ -1,5 +1,5 @@
 {
-  "type": "fsm",
+  "display_name": "Untitled Qodex",
   "name": "Untitled Qodex",
   "desc": "No description",
   "states": {
@@ -52,8 +52,8 @@
     },
     "2": {
       "position": {
-        "x": 50,
-        "y": 450
+        "x": 49.99999999999999,
+        "y": 528.3333333333333
       },
       "initial": false,
       "name": "Send Discord Message",
@@ -84,12 +84,13 @@
             }
           }
         }
-      }
+      },
+      "transitions": []
     },
     "3": {
       "position": {
         "x": 50,
-        "y": 250
+        "y": 300
       },
       "initial": false,
       "is_event_trigger": false,
@@ -114,8 +115,65 @@
         {
           "state": "2",
           "language": "qore"
+        },
+        {
+          "state": "4"
         }
       ]
+    },
+    "4": {
+      "position": {
+        "x": 521.8888888888889,
+        "y": 463.33333333333314
+      },
+      "key": "4",
+      "keyId": "4",
+      "isNew": true,
+      "isValid": false,
+      "is_event_trigger": false,
+      "name": "Add Event From Text",
+      "desc": "Quickly add an event to a calendar from text",
+      "type": "state",
+      "id": "uvGusta2C",
+      "action": {
+        "type": "appaction",
+        "value": {
+          "app": "GoogleCalendar",
+          "action": "quick-add-event"
+        }
+      },
+      "transitions": [
+        {
+          "state": "7"
+        }
+      ]
+    },
+    "7": {
+      "position": {
+        "x": 521.8888888888889,
+        "y": 663.3333333333331
+      },
+      "key": "7",
+      "keyId": "7",
+      "isValid": true,
+      "is_event_trigger": false,
+      "name": "Send WebSocket Message",
+      "desc": "Send a WebSocket data message",
+      "type": "state",
+      "id": "aNBfktTaHeBq",
+      "action": {
+        "type": "appaction",
+        "value": {
+          "app": "WebSockets",
+          "action": "send-msg-data",
+          "options": {
+            "qorus_app_connection": {
+              "type": "connection",
+              "value": "wss-1"
+            }
+          }
+        }
+      }
     }
   }
 }

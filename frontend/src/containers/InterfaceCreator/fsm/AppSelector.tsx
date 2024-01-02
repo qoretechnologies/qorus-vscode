@@ -1,19 +1,21 @@
 import { ReqoreColumn, ReqoreColumns } from '@qoretechnologies/reqore';
 import { map } from 'lodash';
 import { useCallback, useMemo } from 'react';
-import { TFSMVariables } from '.';
+import { IFSMStates, TFSMVariables } from '.';
 import {
   AppCatalogue,
   IApp,
   IAppAction,
   IAppCatalogueProps,
 } from '../../../components/AppCatalogue';
+import { changeStateIdsToGenerated } from '../../../helpers/fsm';
 import { useGetAppActionData } from '../../../hooks/useGetAppActionData';
 import { useQorusStorage } from '../../../hooks/useQorusStorage';
 import { TAction } from './stateDialog';
 
 export interface IAppSelectorProps {
   onActionSelect: IAppCatalogueProps['onActionSelect'];
+  onActionSetSelect: (states: IFSMStates) => void;
   fetchData: any;
   type?: 'action' | 'event';
   variables?: TFSMVariables;
@@ -46,6 +48,7 @@ export const filterApps = (
 
 export const AppSelector = ({
   onActionSelect,
+  onActionSetSelect,
   type,
   variables = {},
   showVariables,
@@ -124,12 +127,9 @@ export const AppSelector = ({
   const handleFavoriteClick = useCallback(
     (app) => {
       if (favorites.value.includes(app)) {
-        favorites.update(
-          favorites.value.filter((fav) => fav !== app),
-          process.env.NODE_ENV !== 'production'
-        );
+        favorites.update(favorites.value.filter((fav) => fav !== app));
       } else {
-        favorites.update([...favorites.value, app], process.env.NODE_ENV !== 'production');
+        favorites.update([...favorites.value, app]);
       }
     },
     [favorites]
@@ -141,7 +141,13 @@ export const AppSelector = ({
         <AppCatalogue
           apps={apps}
           icon="Apps2Line"
-          onActionSelect={(action, app) => onActionSelect({ ...action, type: 'appaction' }, app)}
+          onActionSelect={(action, app) => {
+            if (app.name === 'action_sets') {
+              onActionSetSelect(changeStateIdsToGenerated(action.metadata?.states));
+            } else {
+              onActionSelect({ ...action, type: 'appaction' }, app);
+            }
+          }}
           label="Applications"
           favorites={favorites.value}
           onFavoriteClick={handleFavoriteClick}

@@ -1,12 +1,16 @@
-import { cloneDeep, every, forEach, omit, reduce, size } from 'lodash';
+import { cloneDeep, every, forEach, omit, reduce, size, some } from 'lodash';
+import shortid from 'shortid';
 import { IApp, IAppAction } from '../components/AppCatalogue';
 import { IProviderType } from '../components/Field/connectors';
-import { IOptionsSchema } from '../components/Field/systemOptions';
+import { IOptions, IOptionsSchema } from '../components/Field/systemOptions';
 import {
+  DIAGRAM_SIZE,
   IFSMMetadata,
   IFSMState,
   IFSMStates,
   IFSMTransition,
+  STATE_WIDTH,
+  TAppAndAction,
   TFSMClassConnectorAction,
   TVariableActionValue,
 } from '../containers/InterfaceCreator/fsm';
@@ -778,6 +782,26 @@ export const getAppAndAction = (
   return { app, action };
 };
 
+export const areStatesAConnectedGroup = (states: IFSMStates): boolean => {
+  // Every state has to be connected to at least one other state
+  return every(states, (state, stateId) => {
+    // Is there any other state connecting to this state?
+    if (size(getStatesConnectedtoState(stateId, states))) {
+      return true;
+    }
+
+    // Is this state connecting to any other state from the provided states?
+    if (size(state.transitions)) {
+      // Check that all of the transitions are not fake & connected to a state from the provided states
+      return every(state.transitions, (transition) => {
+        return !transition.fake && !!states[transition.state];
+      });
+    }
+
+    return false;
+  });
+};
+
 export const getBuiltInAppAndAction = (
   apps: IApp[],
   type: Omit<TAction, 'appaction'>
@@ -794,6 +818,187 @@ export const getBuiltInAppAndAction = (
   const action = app?.actions.find((a) => a.action === type);
 
   return { app, action };
+};
+
+export const changeStateIdsToGenerated = (states: IFSMStates): IFSMStates => {
+  const idMapper: { [x: string]: string } = {};
+  // Change the state ID to a generated one
+  const fixedStates: IFSMStates = reduce(
+    states,
+    (newStates, state, stateId) => {
+      const id = shortid.generate();
+      idMapper[stateId] = id;
+      newStates[id] = {
+        ...state,
+        id,
+        key: id,
+        keyId: id,
+      };
+      return newStates;
+    },
+    {}
+  );
+
+  // Change the state IDs in the transitions
+  forEach(fixedStates, (state, stateId) => {
+    const newState = { ...state };
+
+    if (size(newState.transitions)) {
+      newState.transitions = newState.transitions.map((transition) => {
+        return {
+          ...transition,
+          state: idMapper[transition.state],
+        };
+      });
+    }
+
+    // We also need to change every template in all of action options
+    if (state.action?.type === 'appaction' && size((state.action.value as TAppAndAction).options)) {
+      const fixedOptions: IOptions = reduce(
+        (state.action.value as TAppAndAction).options,
+        (newOptions, option, optionName) => {
+          if (typeof option.value !== 'string') {
+            return {
+              ...newOptions,
+              [optionName]: option,
+            };
+          }
+
+          let fixedValue = option.value;
+
+          forEach(idMapper, (newId, oldId) => {
+            // Get the old id pattern
+            const regex = new RegExp(`\\$data:{${oldId}.`, 'g');
+            // Replace it with the new id
+            fixedValue = fixedValue.replace(regex, `$data:{${newId}.`);
+          });
+
+          return {
+            ...newOptions,
+            [optionName]: {
+              ...option,
+              value: fixedValue,
+            },
+          };
+        },
+        {}
+      );
+
+      (newState.action.value as TAppAndAction).options = fixedOptions;
+    }
+
+    fixedStates[stateId] = newState;
+  });
+
+  return fixedStates;
+};
+
+export const removeTransitionsFromStateGroup = (states: IFSMStates): IFSMStates => {
+  return reduce(
+    states,
+    (newStates, state, stateId) => {
+      // Check if this state has transitions to a state not in this group
+      if (size(state.transitions)) {
+        const newState = cloneDeep(state);
+
+        newState.transitions = newState.transitions.filter((transition) => {
+          return !!states[transition.state];
+        });
+
+        return {
+          ...newStates,
+          [stateId]: newState,
+        };
+      }
+
+      return {
+        ...newStates,
+        [stateId]: state,
+      };
+    },
+    {}
+  );
+};
+
+export const repositionStateGroup = (states: IFSMStates, x: number, y: number): IFSMStates => {
+  // Get the left top most state
+  const leftTopMostState: IFSMState = reduce(
+    states,
+    (leftTopMostState, state) => {
+      if (
+        !leftTopMostState ||
+        state.position.x < leftTopMostState.position.x ||
+        state.position.y < leftTopMostState.position.y
+      ) {
+        return state;
+      }
+
+      return leftTopMostState;
+    },
+    undefined
+  );
+  // Get the difference of x and y from the provided coords and the left top most state
+  const xDiff = x - leftTopMostState.position.x;
+  const yDiff = y - leftTopMostState.position.y;
+
+  // Reposition the states
+  return reduce(
+    states,
+    (newStates, state, stateId) => {
+      let newX = state.id === leftTopMostState.id ? x : state.position.x + xDiff;
+      let newY = state.id === leftTopMostState.id ? y : state.position.y + yDiff;
+
+      if (newX < 0) {
+        newX = 0;
+      }
+
+      if (newY < 0) {
+        newY = 0;
+      }
+
+      if (newX > DIAGRAM_SIZE) {
+        newX = DIAGRAM_SIZE;
+      }
+
+      if (newY > DIAGRAM_SIZE) {
+        newY = DIAGRAM_SIZE;
+      }
+
+      return {
+        ...newStates,
+        [stateId]: {
+          ...state,
+          position: {
+            x: newX,
+            y: newY,
+          },
+        },
+      };
+    },
+    {}
+  );
+};
+
+export const isAnyStateAtPosition = (states: IFSMStates, x: number, y: number): boolean => {
+  return some(states, (state) => {
+    return state.position.x === x && state.position.y === y;
+  });
+};
+
+export const positionStateInFreeSpot = (states: IFSMStates, x: number, y: number) => {
+  let newX = x;
+  let newY = y;
+
+  // Check if there is already a state at this position
+  while (isAnyStateAtPosition(states, newX, newY)) {
+    if (newX + STATE_WIDTH + 50 > DIAGRAM_SIZE) {
+      newY += 450;
+    } else {
+      newX += STATE_WIDTH + 50;
+    }
+  }
+
+  return { x: newX, y: newY };
 };
 
 export const buildMetadata = (data?: IFSMMetadata, context?: any): IFSMMetadata => {

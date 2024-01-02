@@ -14,12 +14,12 @@ export function useGetAppActionData(
   const appsContext = useContext(AppsContext);
 
   if (!app) {
-    return appsContext;
+    return appsContext.apps;
   }
 
   if (!action) {
-    return getAppAndAction(appsContext, app)?.app;
+    return getAppAndAction(appsContext.apps, app)?.app;
   }
 
-  return getAppAndAction(appsContext, app, action);
+  return getAppAndAction(appsContext.apps, app, action);
 }

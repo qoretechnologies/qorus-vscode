@@ -145,14 +145,6 @@ export const addMessageListener: TMessageListener = (
     (process.env.NODE_ENV === 'storybook' ? window._useWebsocketsInStorybook : true) &&
     process.env.NODE_ENV !== 'test';
 
-  console.log('SHOULD USE WEBSOCKETS', useWs, {
-    useWebSockets,
-    connection,
-    wsConnections,
-    isWebSocketSupported,
-    environment: process.env,
-  });
-
   // Check if websockets are supported
   if (useWs && !wsConnections[connection]) {
     console.error(`Connection ${connection} does not exist`);
@@ -198,14 +190,6 @@ export const postMessage: TPostMessage = (
     // @ts-ignore
     (process.env.NODE_ENV === 'storybook' ? window._useWebsocketsInStorybook : true) &&
     process.env.NODE_ENV !== 'test';
-
-  console.log('SHOULD USE WEBSOCKETS', useWs, {
-    useWebSockets,
-    connection,
-    wsConnections,
-    isWebSocketSupported,
-    environment: process.env,
-  });
 
   if (useWs) {
     if (!wsConnections[connection]) {
