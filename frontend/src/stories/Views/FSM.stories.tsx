@@ -15,6 +15,7 @@ import {
   _testsClickState,
   _testsClickStateByLabel,
   _testsCreateSelectionBox,
+  _testsDoubleClickState,
   _testsOpenAppCatalogue,
   _testsSelectAppOrAction,
   _testsSelectState,
@@ -116,10 +117,10 @@ export const NewState: StoryFSM = {
       stateType === 'trigger' ? undefined : 0
     );
 
-    await expect(document.querySelectorAll('.fsm-state')).toHaveLength(1);
-
     if (stateType !== 'trigger') {
       await expect(document.querySelectorAll('.fsm-state')).toHaveLength(2);
+    } else {
+      await expect(document.querySelectorAll('.fsm-state')).toHaveLength(1);
     }
   },
 };
@@ -131,7 +132,7 @@ export const SelectedState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
     await waitFor(() => document.querySelector('#state-3'));
-    await _testsClickState('state-3');
+    await _testsClickState('Intent: Close Ticket?');
   },
 };
 
@@ -143,7 +144,7 @@ export const MultipleDeepVariableStates: StoryFSM = {
     const canvas = within(canvasElement);
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await _testsClickState('state-2');
+    await _testsClickState('State 2');
 
     await waitFor(
       async () => await expect(document.querySelector('.state-next-button')).toBeDisabled(),
@@ -232,7 +233,7 @@ export const TransactionState: StoryFSM = {
     const canvas = within(canvasElement);
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await _testsClickState('state-1');
+    await _testsClickState('State 1');
 
     await sleep(1500);
 
@@ -275,8 +276,7 @@ export const IncompatibleStates: StoryFSM = {
     await sleep(500);
 
     // Fake double click lol
-    await _testsClickState('state-1');
-    await _testsClickState('state-1');
+    await _testsDoubleClickState('Save Intent Info');
   },
 };
 
@@ -289,9 +289,9 @@ export const SelectedStates: StoryFSM = {
 
     await sleep(500);
 
-    await _testsSelectState('state-1');
-    await _testsSelectState('state-7');
-    await _testsSelectState('state-5');
+    await _testsSelectState('Save Intent Info');
+    await _testsSelectState('Intent: Call Back Later?');
+    await _testsSelectState('Intent: Update Ticket Info');
   },
 };
 

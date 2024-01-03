@@ -28,7 +28,7 @@ export const StateDataIsShown: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
     await SwitchesToBuilder.play({ canvasElement, ...rest });
-    await _testsClickState(`state-2`);
+    await _testsClickState(`Send Discord Message`);
     await waitFor(() => canvas.findAllByText('Message Content')[0], { timeout: 10000 });
     await sleep(5000);
     await fireEvent.click(document.querySelector('.system-option.reqore-textarea'));

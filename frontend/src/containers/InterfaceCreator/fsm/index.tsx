@@ -275,6 +275,9 @@ const StyledFSMLine = styled.path`
   filter: drop-shadow(0 0 2px #000000);
   transition: stroke-dashoffset 0.2s linear;
   stroke-dashoffset: 1000;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
 
   &:hover {
     stroke-width: 6;
@@ -283,14 +286,17 @@ const StyledFSMLine = styled.path`
   ${({ deselected }) =>
     deselected &&
     css`
-      opacity: 0.8;
+      opacity: 0.2;
     `}
 
   ${({ selected, fake }) =>
     selected || fake
       ? css`
-          opacity: ${fake ? 0.5 : 1};
-          stroke-dasharray: 7;
+          opacity: ${fake ? 0.8 : 1};
+          stroke-dasharray: ${fake ? 3 : 7};
+          stroke-linejoin: round;
+          stroke-linecap: round;
+          stroke-miterlimit: 10;
           animation: ${StyledFSMLineAnimation} ${fake ? 20 : 10}s linear infinite;
         `
       : undefined}
@@ -695,7 +701,6 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
       if (!size(states)) {
         setIsAddingNewStateAt({ x: 0, y: 0 });
-      } else {
       }
     } else {
       setInterfaceId(defaultInterfaceId);
@@ -770,6 +775,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
         ) {
           let transitions: IFSMTransition[];
           const initialStateId = findKey(newStates, (state: IFSMState) => {
+            if (size(newStates) === 1) {
+              return true;
+            }
+
             return state.initial;
           });
 
@@ -783,20 +792,22 @@ export const FSMView: React.FC<IFSMViewProps> = ({
             delete newStates[initialStateId].initial;
           }
 
-          newStates[0] = {
+          const id = `0_${shortid.generate()}`;
+
+          newStates[id] = {
             position: {
               x: 50,
               y: 50,
             },
-            key: 0,
-            keyId: 0,
+            key: id,
+            keyId: id,
             isNew: false,
             isValid: true,
             is_event_trigger: true,
             name: 'On Demand',
             desc: 'Injected state for backwards compatibility',
             type: 'state',
-            id: shortid.generate(),
+            id,
             action: {
               type: 'appaction',
               value: {
@@ -2742,6 +2753,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                           size(selectedStates) === 1
                         }
                         isActive={activeState === id}
+                        hoveredState={hoveredState}
+                        isConnectedToHoveredState={
+                          !!getStatesConnectedtoState(id, states)[hoveredState]
+                        }
                         isAvailableForTransition={isAvailableForTransition}
                         onTransitionOrderClick={handleTransitionOrderClick}
                         onExecutionOrderClick={handleExecutionOrderClick}
@@ -2756,7 +2771,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                     <svg
                       height="100%"
                       width="100%"
-                      style={{ position: 'absolute', boxShadow: 'inset 0 0 50px 2px #00000080' }}
+                      style={{
+                        position: 'absolute',
+                        boxShadow: 'inset 0 0 50px 2px #00000080',
+                        zIndex: hoveredState ? 20 : undefined,
+                        pointerEvents: hoveredState ? 'none' : undefined,
+                      }}
                     >
                       <defs>
                         <marker

@@ -121,7 +121,7 @@ export const AddNewSetFromStateAndFreely: StoryFSM = {
 
     await expect(document.querySelectorAll('.fsm-state').length).toBe(5);
 
-    await await _testsOpenAppCatalogue(undefined, 850, 600);
+    await await _testsOpenAppCatalogue(undefined, 850, 250);
 
     await _testsSelectFromAppCatalogue(canvas, undefined, 'Action sets', 'Test action set');
 

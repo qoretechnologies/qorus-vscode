@@ -101,6 +101,7 @@ export async function _testsSelectAppOrAction(canvas, appOrAction: string) {
 export async function _testsOpenAppCatalogueFromState(stateId?: number | string) {
   if (!stateId) {
     await fireEvent.click(document.querySelector('.add-new-state-after'));
+    return;
   }
 
   await fireEvent.click(document.querySelector(`#state-${stateId} .add-new-state-after`));
@@ -297,8 +298,8 @@ export async function _testsConfirmDialog() {
   await sleep(200);
 }
 
-export async function _testsDeleteState(id) {
-  await _testsClickState(`state-${id}`);
+export async function _testsDeleteState(name: string) {
+  await _testsClickState(name);
   await waitFor(() => expect(document.querySelector('.state-delete-button')).toBeInTheDocument(), {
     timeout: 5000,
   });
@@ -307,46 +308,43 @@ export async function _testsDeleteState(id) {
   await _testsConfirmDialog();
 }
 
-export async function _testsSelectState(id) {
-  await _testsClickState(id, { shiftKey: true });
+export async function _testsSelectState(name: string) {
+  await _testsClickState(name, { shiftKey: true });
 }
 
 export async function _testsSelectStateByLabel(canvas, label) {
-  await _testsClickStateByLabel(canvas, label, { shiftKey: true });
+  await _testsClickState(label, { shiftKey: true });
 }
 
-export async function _testsDoubleClickState(id, options = {}) {
-  await fireEvent.mouseOver(document.querySelector(`#${id}`), options);
-  await sleep(100);
-  await fireEvent.mouseDown(document.querySelector(`#${id}`), {
-    ...options,
-    timeStamp: 0,
-  });
-  await fireEvent.mouseUp(document.querySelector(`#${id}`), {
-    ...options,
-    timeStamp: 100,
-  });
-  await fireEvent.mouseDown(document.querySelector(`#${id}`), {
-    ...options,
-    timeStamp: 0,
-  });
-  await fireEvent.mouseUp(document.querySelector(`#${id}`), {
-    ...options,
-    timeStamp: 100,
-  });
+export async function _testsDoubleClickState(name, options = {}) {
+  await _testsClickState(name, options);
+  await _testsClickState(name, options);
 }
 
-export async function _testsClickState(id, options = {}) {
-  await fireEvent.mouseOver(document.querySelector(`#${id}`), options);
+export async function _testsClickState(name: string, options = {}, nth: number = 0) {
+  await fireEvent.mouseOver(
+    screen.getAllByText(name, { selector: `.fsm-state h4` })[nth].closest('.fsm-state'),
+    options
+  );
   await sleep(100);
-  await fireEvent.mouseDown(document.querySelector(`#${id}`), {
-    ...options,
-    timeStamp: 0,
-  });
-  await fireEvent.mouseUp(document.querySelector(`#${id}`), {
-    ...options,
-    timeStamp: 100,
-  });
+  await fireEvent.mouseDown(
+    screen.getAllByText(name, { selector: `.fsm-state h4` })[nth].closest('.fsm-state'),
+    {
+      ...options,
+      timeStamp: 0,
+    }
+  );
+  await fireEvent.mouseUp(
+    screen.getAllByText(name, { selector: `.fsm-state h4` })[nth].closest('.fsm-state'),
+    {
+      ...options,
+      timeStamp: 100,
+    }
+  );
+}
+
+export function _testsGetStateByLabel(label: string, nth: number = 0) {
+  return screen.getAllByText(label, { selector: `.fsm-state h4` })[nth].closest('.fsm-state');
 }
 
 export async function _testsClickStateByLabel(canvas, label, options = {}) {

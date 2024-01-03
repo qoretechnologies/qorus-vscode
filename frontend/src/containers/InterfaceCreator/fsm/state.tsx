@@ -54,6 +54,8 @@ export interface IFSMStateProps extends IFSMState {
   isBeingDragged?: boolean;
   isValid?: boolean;
   isActive?: boolean;
+  hoveredState?: string | number;
+  isConnectedToHoveredState?: boolean;
 }
 
 export interface IFSMStateStyleProps {
@@ -122,7 +124,7 @@ export const STATE_WIDTH = 350;
 const StyledFSMState: React.FC<
   IReqorePanelProps & { isStatic?: boolean } & IFSMStateStyleProps
 > = styled(ReqorePanel)`
-  transition: none !important;
+  transition: opacity 0.2s !important;
   overflow: unset;
 
   ${({ isStatic }) =>
@@ -272,6 +274,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
   isBeingDragged,
   isValid,
   isActive,
+  hoveredState,
+  isConnectedToHoveredState,
   ...rest
 }) => {
   const confirmAction = useReqoreProperty('confirmAction');
@@ -544,6 +548,20 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 }
               : undefined,
             grayscale: selectedState && !isCompatible,
+            opacity:
+              (hoveredState || hoveredState === 0) &&
+              hoveredState !== id &&
+              !isConnectedToHoveredState &&
+              !isInSelectedList
+                ? 0.5
+                : undefined,
+            blur:
+              (hoveredState || hoveredState === 0) &&
+              hoveredState !== id &&
+              !isConnectedToHoveredState &&
+              !isInSelectedList
+                ? 3
+                : undefined,
           } as IReqoreEffect
         }
         icon={isLoadingCheck ? 'Loader5Fill' : FSMItemIconByType[action?.type || type]}

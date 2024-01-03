@@ -92,7 +92,7 @@ export const SelectedStateChange: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
-    await _testsClickState('state-3');
+    await _testsClickState('Intent: Close Ticket?');
 
     await sleep(1000);
 
@@ -108,7 +108,7 @@ export const SelectedStateChange: StoryFSM = {
 
     await sleep(500);
 
-    await _testsClickState('state-1');
+    await _testsClickState('Save Intent Info');
 
     await sleep(500);
 
@@ -136,7 +136,7 @@ export const StateIsDeleted: StoryFSM = {
     await expect(document.querySelectorAll('.fsm-state').length).toBe(9);
     await expect(document.querySelectorAll('.fsm-transition').length).toBe(8);
 
-    await _testsDeleteState(3);
+    await _testsDeleteState('Intent: Close Ticket?');
 
     await expect(document.querySelectorAll('.fsm-state').length).toBe(8);
     await expect(document.querySelectorAll('.fsm-transition').length).toBe(5);
@@ -155,11 +155,11 @@ export const StatesCanBeConnected: StoryFSM = {
     await expect(document.querySelectorAll('.fsm-transition').length).toBe(5);
 
     // Fake double click lol
-    await _testsDoubleClickState('state-1');
+    await _testsDoubleClickState('Save Intent Info');
 
     await sleep(2000);
 
-    await _testsClickState('state-6');
+    await _testsClickState('Update Ticket Info');
 
     await sleep(2000);
 
