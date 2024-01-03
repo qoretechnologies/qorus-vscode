@@ -82,7 +82,7 @@ export const MultipleStatesCanBeDraggedAndDropped: StoryFSM = {
     await SwitchesToBuilder.play({ canvasElement, ...rest });
 
     // Select some states
-    await _testsSelectState('state-3');
+    await _testsSelectState('Intent: Close Ticket?');
 
     await sleep(100);
 

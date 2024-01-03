@@ -8,6 +8,7 @@ import { SwitchesToBuilder } from '../FSM/Basic.stories';
 import {
   _testsAddNewState,
   _testsAddNewVariableState,
+  _testsGetStateByLabel,
   _testsSelectItemFromCollection,
   _testsSelectItemFromDropdown,
   _testsSubmitFSMState,
@@ -117,7 +118,7 @@ export const CreateFSMStateFromEventVariable: StoryObj<typeof meta> = {
     await _testsAddNewVariableState('event_provider', canvas);
 
     await waitFor(() => expect(document.querySelector('.reqore-drawer')).toBeInTheDocument());
-    await expect(document.querySelector('#state-1')).toBeInTheDocument();
+    await expect(_testsGetStateByLabel('event_provider')).toBeInTheDocument();
 
     await sleep(1000);
 

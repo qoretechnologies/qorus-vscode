@@ -511,7 +511,7 @@ export const NewMessageState: StoryFSM = {
 };
 
 export const NewSingleSearchState: StoryFSM = {
-  play: async ({ canvasElement, stateType, ...rest }) => {
+  play: async ({ canvasElement, stateType, stateName = 'Single Search', ...rest }) => {
     const canvas = within(canvasElement);
     await NewState.play({ canvasElement, ...rest, stateType: stateType || 'search-single' });
 
@@ -573,7 +573,7 @@ export const NewSingleSearchState: StoryFSM = {
     await waitFor(() => canvas.findByText('datasource/omq/audit_event_codes'));
 
     // Check that state data were saved
-    await _testsClickState('Single Search');
+    await _testsClickState(stateName);
     await waitFor(
       async () => {
         await expect(document.querySelector('.system-option .reqore-input')).toHaveValue(12);
@@ -586,13 +586,23 @@ export const NewSingleSearchState: StoryFSM = {
 
 export const NewSearchState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
-    await NewSingleSearchState.play({ canvasElement, ...rest, stateType: 'search' });
+    await NewSingleSearchState.play({
+      canvasElement,
+      ...rest,
+      stateType: 'search',
+      stateName: 'Search',
+    });
   },
 };
 
 export const NewDeleteState: StoryFSM = {
   play: async ({ canvasElement, ...rest }) => {
-    await NewSingleSearchState.play({ canvasElement, ...rest, stateType: 'delete' });
+    await NewSingleSearchState.play({
+      canvasElement,
+      ...rest,
+      stateType: 'delete',
+      stateName: 'Delete',
+    });
   },
 };
 
