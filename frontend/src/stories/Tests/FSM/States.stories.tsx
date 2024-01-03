@@ -662,7 +662,7 @@ export const NewUpdateState: StoryFSM = {
     await waitFor(() => canvas.findByText('datasource/omq/audit_event_codes'));
 
     // Check that state data were saved
-    await _testsClickState('Search');
+    await _testsClickState('Update');
     await waitFor(
       async () => {
         await expect(document.querySelector('.system-option .reqore-textarea')).toHaveValue(
