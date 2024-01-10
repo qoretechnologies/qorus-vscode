@@ -21,9 +21,9 @@ import { IPipelineElement, IPipelineMetadata } from '../InterfaceCreator/pipelin
 import { InterfacesViewCollection } from './collection';
 
 export interface IQorusInterface extends Partial<IDraftData> {
-  name?: string;
-  display_name?: string;
+  label?: string;
   data?: {
+    id: string | number;
     name: string;
     display_name?: string;
     short_desc?: string;
@@ -34,9 +34,7 @@ export interface IQorusInterface extends Partial<IDraftData> {
     target_file?: string;
     [key: string]: any;
   };
-  isDraft?: boolean;
-  isServerInterface?: boolean;
-  isLocalInterface?: boolean;
+  draft?: boolean;
   hasDraft?: boolean;
   date?: string;
 }

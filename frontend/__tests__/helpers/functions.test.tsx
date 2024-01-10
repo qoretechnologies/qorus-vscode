@@ -159,19 +159,9 @@ describe('callBackendBasic', () => {
 });
 
 describe('getTargetFile', () => {
-  it('should return the correct file path when data has target_dir and target_file', () => {
-    const data = { target_dir: 'dir', target_file: 'file' };
-    expect(getTargetFile(data)).toBe('dir/file');
-  });
-
-  it('should return the correct file path when data has yaml_file', () => {
-    const data = { yaml_file: 'file' };
-    expect(getTargetFile(data)).toBe('file');
-  });
-
-  it('should return null when data is null', () => {
-    const data = null;
-    expect(getTargetFile(data)).toBeNull();
+  it('should return the correct id', () => {
+    const data = { id: 'test' };
+    expect(getTargetFile(data)).toBe('test');
   });
 });
 
@@ -203,8 +193,8 @@ describe('hasValue', () => {
 });
 
 describe('getDraftId', () => {
-  it('should return the interfaceId if data object does not have a target file', () => {
-    const data = { some_other_property: 'value' };
+  it('should return the interfaceId if data object does not have an id', () => {
+    const data = { display_name: 'value' };
     const interfaceId = 'def456';
 
     const result = getDraftId(data, interfaceId);
