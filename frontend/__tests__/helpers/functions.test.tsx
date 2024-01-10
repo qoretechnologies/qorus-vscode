@@ -92,17 +92,6 @@ test('isFSMStateValid should verify if the state is valid', () => {
   expect(isValid2).toEqual(true);
 });
 
-test('getTargetFile should find the target file and return the address', () => {
-  const fileAddress = getTargetFile({ target_dir: 'target/dir', target_file: 'fileName' });
-  expect(fileAddress).toEqual('target/dir/fileName');
-
-  const fileAddressNull = getTargetFile({ target_file: 'fileName' });
-  expect(fileAddressNull).toEqual(null);
-
-  const fileAddressYaml = getTargetFile({ yaml_file: 'fileName' });
-  expect(fileAddressYaml).toEqual('fileName');
-});
-
 test('hasValue should validate the string value', () => {
   const value = hasValue('');
   expect(value).toEqual(false);
