@@ -57,7 +57,7 @@ import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData, IDraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
 import { mapFieldsToGroups, maybeSendOnChangeEvent } from '../../helpers/common';
-import { deleteDraft, getDraftId, getTargetFile } from '../../helpers/functions';
+import { deleteDraft, getDraftId } from '../../helpers/functions';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -241,8 +241,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         fileData.selectedFields = allSelectedFields['service'][interfaceIndex];
         fileData.methods = allFields['service-methods'][interfaceIndex];
         fileData.selectedMethods = allSelectedFields['service-methods'][interfaceIndex];
-        fileData.isValid =
-          isFormValid('service', interfaceIndex) && isFormValid('service-methods', interfaceIndex);
         break;
       case 'mapper-code':
       case 'mapper-methods':
@@ -250,9 +248,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         fileData.selectedFields = allSelectedFields['mapper-code'][interfaceIndex];
         fileData.methods = allFields['mapper-methods'][interfaceIndex];
         fileData.selectedMethods = allSelectedFields['mapper-methods'][interfaceIndex];
-        fileData.isValid =
-          isFormValid('mapper-code', interfaceIndex) &&
-          isFormValid('mapper-methods', interfaceIndex);
         break;
       case 'errors':
       case 'error':
@@ -260,15 +255,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         fileData.selectedFields = allSelectedFields.errors[interfaceIndex];
         fileData.methods = allFields.error[interfaceIndex];
         fileData.selectedMethods = allSelectedFields.error[interfaceIndex];
-        fileData.isValid =
-          isFormValid('error', interfaceIndex) && isFormValid('errors', interfaceIndex);
         break;
       case 'mapper':
         fileData.fields = allFields.mapper[interfaceIndex];
         fileData.selectedFields = allSelectedFields.mapper[interfaceIndex];
         fileData.diagram = rest.mapperData;
-        fileData.isValid =
-          isFormValid('mapper', interfaceIndex) && size(rest.mapperData.relations) > 0;
         break;
       case 'workflow':
         fileData.fields = allFields['workflow'][interfaceIndex];
@@ -278,17 +269,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           stepsData,
           lastStepId,
         };
-        fileData.isValid = isFormValid('workflow', interfaceIndex) && size(steps) > 0;
         break;
       default:
         fileData.fields = allFields[type][interfaceIndex];
         fileData.selectedFields = allSelectedFields[type][interfaceIndex];
-        fileData.isValid = canSubmit();
     }
 
     fileData.classConnections = classConnectionsData;
-    fileData.interfaceId = interfaceId;
-    fileData.associatedInterface = getTargetFile(parentData || data);
 
     await initialData.saveDraft(type, draftId, fileData);
   };
@@ -422,27 +409,36 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         setShow(true);
         // Fetch config items
         fetchConfigItems(interfaceId || currentInterfaceId);
-      }
+      },
+      true
     );
     // Set the new message listener
     setMessageListener(() => messageListenerHandler);
     // Fetch the fields
     if (type === 'config-item' && isEditing) {
-      postMessage(Messages.GET_FIELDS, {
-        iface_kind: type,
-        is_editing: isEditing,
-        context,
-        iface_id: interfaceId,
-        name: data.name,
-        lang: isEditing ? data.lang : undefined,
-      });
+      postMessage(
+        Messages.GET_FIELDS,
+        {
+          iface_kind: type,
+          is_editing: isEditing,
+          context,
+          iface_id: interfaceId,
+          name: data.name,
+          lang: isEditing ? data.lang : undefined,
+        },
+        true
+      );
     } else {
-      postMessage(Messages.GET_FIELDS, {
-        iface_kind: type,
-        is_editing: isEditing,
-        context,
-        lang: isEditing ? data?.lang : undefined,
-      });
+      postMessage(
+        Messages.GET_FIELDS,
+        {
+          iface_kind: type,
+          is_editing: isEditing,
+          context,
+          lang: isEditing ? data?.lang : undefined,
+        },
+        true
+      );
     }
     // Cleanup on unmount
     return () => {
@@ -464,22 +460,30 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     setShow(false);
     // Fetch the fields
     if (type === 'config-item' && isEditing) {
-      postMessage(Messages.GET_FIELDS, {
-        iface_kind: type,
-        is_editing: isEditing,
-        context,
-        iface_id: interfaceId,
-        name: data.name,
-        lang: isEditing ? data.lang : undefined,
-      });
+      postMessage(
+        Messages.GET_FIELDS,
+        {
+          iface_kind: type,
+          is_editing: isEditing,
+          context,
+          iface_id: interfaceId,
+          name: data.name,
+          lang: isEditing ? data.lang : undefined,
+        },
+        true
+      );
     } else {
-      postMessage(Messages.GET_FIELDS, {
-        iface_kind: type,
-        is_editing: isEditing,
-        iface_id: isEditing ? interfaceId : undefined,
-        context,
-        lang: isEditing ? data?.lang : undefined,
-      });
+      postMessage(
+        Messages.GET_FIELDS,
+        {
+          iface_kind: type,
+          is_editing: isEditing,
+          iface_id: isEditing ? interfaceId : undefined,
+          context,
+          lang: isEditing ? data?.lang : undefined,
+        },
+        true
+      );
     }
   };
 

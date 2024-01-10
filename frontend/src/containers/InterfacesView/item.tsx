@@ -1,14 +1,11 @@
 import { IQorusInterface } from '.';
-import { Markdown } from '../../components/Markdown';
+import { Description } from '../../components/Description';
 
 export const InterfacesViewItem = ({ data }: IQorusInterface) => {
   return (
-    <>
-      {data?.desc || data?.description ? (
-        <Markdown>{data?.desc || data?.description}</Markdown>
-      ) : (
-        'No description'
-      )}
-    </>
+    <Description
+      longDescription={data?.desc || data?.description}
+      shortDescription={data?.short_desc || 'No description'}
+    />
   );
 };

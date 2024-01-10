@@ -1,10 +1,4 @@
 import {
-  ReqoreH1,
-  ReqoreH2,
-  ReqoreH3,
-  ReqoreH4,
-  ReqoreH5,
-  ReqoreH6,
   ReqoreTextEffect,
   ReqoreVerticalSpacer,
   useReqoreProperty,
@@ -45,21 +39,7 @@ export const Description = ({
   const handleDescriptionClick = () => {
     if (finalLongDescription) {
       addModal({
-        children: (
-          <ReactMarkdown
-            components={{
-              p: ReqoreP,
-              h1: ReqoreH1,
-              h2: ReqoreH2,
-              h3: ReqoreH3,
-              h4: ReqoreH4,
-              h5: ReqoreH5,
-              h6: ReqoreH6,
-            }}
-          >
-            {finalLongDescription}
-          </ReactMarkdown>
-        ),
+        children: <ReactMarkdown>{finalLongDescription}</ReactMarkdown>,
         minimal: true,
         blur: 1,
       });
@@ -81,7 +61,10 @@ export const Description = ({
               brightness: 180,
               weight: 'bold',
             }}
-            onClick={handleDescriptionClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDescriptionClick?.();
+            }}
           >
             [ more ]
           </ReqoreTextEffect>

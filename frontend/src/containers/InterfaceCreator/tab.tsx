@@ -277,8 +277,8 @@ const Tab: React.FC<ITabProps> = ({
   const context = useContext(GlobalContext);
 
   useEffect(() => {
-    if (lastDraft && lastDraft.interfaceKind === type) {
-      setLastDraft(lastDraft.interfaceId);
+    if (lastDraft && lastDraft.type === type) {
+      setLastDraft(lastDraft.id);
     }
   }, [lastDraft]);
 
@@ -305,9 +305,16 @@ const Tab: React.FC<ITabProps> = ({
       setIsDraftSaved(true);
     } else if (isSavingDraft === false) {
       (async () => {
-        const fetchedDrafts = await callBackendBasic(Messages.GET_DRAFTS, undefined, {
-          iface_kind: interfaceKindTransform[type],
-        });
+        const fetchedDrafts = await callBackendBasic(
+          Messages.GET_DRAFTS,
+          undefined,
+          {
+            type: interfaceKindTransform[type],
+          },
+          undefined,
+          undefined,
+          true
+        );
 
         if (fetchedDrafts.ok) {
           setDraftsCount(size(fetchedDrafts.data.drafts));
@@ -322,9 +329,16 @@ const Tab: React.FC<ITabProps> = ({
   useEffect(() => {
     setIsDraftSaved(false);
     (async () => {
-      const fetchedDrafts = await callBackendBasic(Messages.GET_DRAFTS, undefined, {
-        iface_kind: interfaceKindTransform[type],
-      });
+      const fetchedDrafts = await callBackendBasic(
+        Messages.GET_DRAFTS,
+        undefined,
+        {
+          type: interfaceKindTransform[type],
+        },
+        undefined,
+        undefined,
+        true
+      );
 
       if (fetchedDrafts.ok) {
         setDraftsCount(size(fetchedDrafts.data.drafts));
@@ -507,8 +521,8 @@ const Tab: React.FC<ITabProps> = ({
               setLastDraft(interfaceId);
               setDraftsOpen(false);
               addDraft({
-                interfaceKind: type,
-                interfaceId,
+                type,
+                id: interfaceId,
                 ...draftData,
               });
             }}

@@ -57,6 +57,7 @@ export const Messages = {
   GET_FILE_CONTENT: 'get-file-contents',
   RETURN_FILE_CONTENT: 'get-file-contents-complete',
   GET_ALL_INTERFACES: 'get-all-interfaces',
+  GET_ALL_INTERFACES_COUNT: 'get-all-interface-counts',
   RETURN_ALL_INTERFACES: 'return-all-interfaces',
   DELETE_INTERFACE: 'delete-interface',
   DEPLOY_INTERFACE: 'deploy-interface',

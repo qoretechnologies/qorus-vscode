@@ -192,6 +192,8 @@ export interface IOptionsSchemaArg {
 
   focusRules?: IReqoreAutoFocusRules;
 
+  markdown?: boolean;
+
   get_message?: {
     action: string;
     object_type?: string;

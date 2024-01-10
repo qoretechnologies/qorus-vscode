@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { IField } from '../../components/FieldWrapper';
 import { DraftsContext } from '../../context/drafts';
-import { getDraftId, getTargetFile } from '../../helpers/functions';
+import { getDraftId } from '../../helpers/functions';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
@@ -108,9 +108,6 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
         fields: fields.mapper[interfaceIndex],
         selectedFields: selectedFields.mapper[interfaceIndex],
         diagram: mapperData,
-        interfaceId: interfaceId.mapper[interfaceIndex],
-        associatedInterface: getTargetFile(mapper),
-        isValid: isFormValid('mapper', interfaceIndex) && size(mapperData.relations),
       });
     }
   }, [JSON.stringify(omit(mapperData, ['isContextLoaded']))]);

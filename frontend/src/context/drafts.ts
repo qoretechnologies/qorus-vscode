@@ -6,17 +6,23 @@ import { IFSMMetadata, IFSMStates } from '../containers/InterfaceCreator/fsm';
 import { IPipelineElement, IPipelineMetadata } from '../containers/InterfaceCreator/pipeline';
 
 export interface IDraftData {
-  interfaceKind: string;
-  interfaceId: string;
+  type: string;
+  id: string;
+  label?: string;
+  date?: string;
+
   fields?: any[];
   selectedFields?: any[];
+
   methods?: any;
   selectedMethods?: any;
+
   steps?: {
     steps: any[];
     stepsData: any[];
     lastStepId?: number;
   };
+
   diagram?: any;
   typeData?: any;
   pipelineData?: {
@@ -27,13 +33,11 @@ export interface IDraftData {
     metadata: IFSMMetadata;
     states: IFSMStates;
   };
-  isValid?: boolean;
   connectionData?: {
     data: IConnection;
     fields: IField[];
   };
   classConnections?: IClassConnections;
-  associatedInterface?: string;
 }
 
 export interface IDraftsContext {

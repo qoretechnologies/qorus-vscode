@@ -19,7 +19,7 @@ import FieldGroup from '../../components/FieldGroup';
 import { ContentWrapper, FieldWrapper } from '../../components/FieldWrapper';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData } from '../../context/drafts';
-import { deleteDraft, getDraftId, getTargetFile, hasValue } from '../../helpers/functions';
+import { deleteDraft, getDraftId, hasValue } from '../../helpers/functions';
 import { flattenFields, getLastChildIndex } from '../../helpers/mapper';
 import { validateField } from '../../helpers/validations';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -119,11 +119,8 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
       'type',
       undefined,
       initialData?.type,
-      ({
-        typeData: { fields, val, targetDir, targetFile, types, desc },
-        interfaceId,
-      }: IDraftData) => {
-        setInterfaceId(interfaceId);
+      ({ typeData: { fields, val, targetDir, targetFile, types, desc }, id }: IDraftData) => {
+        setInterfaceId(id);
         setVal(val);
         setTypes(types);
         setDesc(desc);
@@ -189,9 +186,6 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
               fields,
               types,
             },
-            interfaceId,
-            associatedInterface: getTargetFile(initialData.type),
-            isValid: !(!size(fields) && validateField('string', val)),
           },
           val
         );

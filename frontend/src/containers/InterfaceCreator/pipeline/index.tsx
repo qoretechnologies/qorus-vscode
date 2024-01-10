@@ -40,7 +40,6 @@ import {
   checkPipelineCompatibility,
   deleteDraft,
   getDraftId,
-  getTargetFile,
   hasValue,
 } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
@@ -396,9 +395,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
               metadata,
               elements,
             },
-            interfaceId,
-            associatedInterface: getTargetFile(pipeline),
-            isValid: isDataValid(elements, false),
           },
           metadata.name
         );

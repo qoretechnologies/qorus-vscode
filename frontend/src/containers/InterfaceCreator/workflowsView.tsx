@@ -12,7 +12,7 @@ import { SaveColorEffect } from '../../components/Field/multiPair';
 import { ContentWrapper, IField } from '../../components/FieldWrapper';
 import { Messages } from '../../constants/messages';
 import { DraftsContext } from '../../context/drafts';
-import { deleteDraft, getDraftId, getTargetFile } from '../../helpers/functions';
+import { deleteDraft, getDraftId } from '../../helpers/functions';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -116,9 +116,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
             stepsData,
             lastStepId,
           },
-          interfaceId: interfaceId.workflow[workflowIndex],
-          associatedInterface: getTargetFile(workflow),
-          isValid: isFormValid('workflow', workflowIndex),
         });
       }
     },

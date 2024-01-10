@@ -1,3 +1,4 @@
+import { reduce, size } from 'lodash';
 import { Messages } from '../constants/messages';
 import configItems from '../stories/Data/configItems';
 import directories from '../stories/Data/directories.json';
@@ -85,7 +86,24 @@ export const vscode =
             case 'get-all-interfaces': {
               messageData = {
                 action: 'get-all-interfaces-complete',
-                data: items,
+                data: data.type ? items[data.type] : items,
+                request_id: data.request_id,
+              };
+              break;
+            }
+            case Messages.GET_ALL_INTERFACES_COUNT: {
+              messageData = {
+                action: `${Messages.GET_ALL_INTERFACES_COUNT}-complete`,
+                data: reduce(
+                  items,
+                  (newItems, item, type) => ({
+                    ...newItems,
+                    [type]: {
+                      items: size(items[type]),
+                    },
+                  }),
+                  {}
+                ),
                 request_id: data.request_id,
               };
               break;
@@ -96,6 +114,52 @@ export const vscode =
                 data: {},
                 request_id: data.request_id,
               };
+              break;
+            }
+            case 'get-drafts': {
+              messageData = {
+                action: 'get-drafts-complete',
+                data: items[data.type].filter((item) => item.draft),
+                request_id: data.request_id,
+              };
+              break;
+            }
+            case 'get-draft': {
+              messageData = {
+                action: 'get-draft-complete',
+                request_id: data.request_id,
+                data: {
+                  date: '2023-12-31T15:42:54.462412+01:00',
+                  type: 'fsm',
+                  id: 'kJmIdKFwxXbUtGq523GyVm4291dXv4VsFCOuzSO4uPcQsRkL7n',
+                  fsmData: {
+                    metadata: {
+                      name: 'issue-3563-pipeline-fsm',
+                      desc: 'test',
+                    },
+                    states: {
+                      '1': {
+                        position: {
+                          x: 73,
+                          y: 32,
+                        },
+                        initial: true,
+                        name: 'State 1',
+                        desc: '',
+                        type: 'state',
+                        id: 'wkxqJVhIv',
+                        action: {
+                          type: 'pipeline',
+                          value: 'issue-3563-pipeline',
+                        },
+                        execution_order: 1,
+                      },
+                    },
+                  },
+                  label: 'Unnamed Fsm',
+                },
+              };
+
               break;
             }
             case 'creator-get-directories': {

@@ -17,7 +17,7 @@ import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { mapFieldsToGroups } from '../../../helpers/common';
-import { deleteDraft, getDraftId, getTargetFile, hasValue } from '../../../helpers/functions';
+import { deleteDraft, getDraftId, hasValue } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import { addMessageListener, postMessage } from '../../../hocomponents/withMessageHandler';
 
@@ -61,13 +61,17 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
   useMount(() => {
     setConnectionReset(() => () => setData(connection || {}));
 
-    addMessageListener(Messages.FIELDS_FETCHED, ({ fields }) => {
-      setFields(fields);
-      setInterfaceId(connection?.iface_id || shortid.generate());
-      applyDraft();
-    });
+    addMessageListener(
+      Messages.FIELDS_FETCHED,
+      ({ fields }) => {
+        setFields(fields);
+        setInterfaceId(connection?.iface_id || shortid.generate());
+        applyDraft();
+      },
+      true
+    );
 
-    postMessage(Messages.GET_FIELDS, { iface_kind: 'connection', is_editing: !!connection });
+    postMessage(Messages.GET_FIELDS, { iface_kind: 'connection', is_editing: !!connection }, true);
   });
 
   const applyDraft = () => {
@@ -116,9 +120,6 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
               fields,
               data,
             },
-            interfaceId,
-            associatedInterface: getTargetFile(connection),
-            isValid: isDataValid(),
           },
           data.name
         );

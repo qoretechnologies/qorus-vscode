@@ -38,7 +38,7 @@ import { DraftsContext, IDraftData } from './context/drafts';
 import { ErrorsContext } from './context/errors';
 import { InitialContext } from './context/init';
 import { TextContext } from './context/text';
-import { callBackendBasic, getTargetFile } from './helpers/functions';
+import { callBackendBasic, getDraftId, getTargetFile } from './helpers/functions';
 import withErrors from './hocomponents/withErrors';
 import withFields from './hocomponents/withFields';
 import withFunctions from './hocomponents/withFunctions';
@@ -131,7 +131,7 @@ const App: FunctionComponent<IApp> = ({
   const [hasWebsocketFailedToReconnect, setHasWebsocketFailedToReconnect] =
     useState<boolean>(false);
 
-  const addDraft = (draftData: any) => {
+  const addDraft = (draftData: IDraftData) => {
     setDraft(draftData);
   };
 
@@ -149,11 +149,12 @@ const App: FunctionComponent<IApp> = ({
           Messages.GET_DRAFT,
           undefined,
           {
-            interfaceKind,
-            draftId: interfaceId,
+            type: interfaceKind,
+            id: interfaceId,
           },
           null,
-          addNotification
+          addNotification,
+          true
         );
 
         if (fetchedDraft.ok) {
@@ -175,7 +176,8 @@ const App: FunctionComponent<IApp> = ({
         interfaceId,
       },
       null,
-      addNotification
+      addNotification,
+      true
     );
   };
 
@@ -187,24 +189,27 @@ const App: FunctionComponent<IApp> = ({
     applyClassConnectionsFunc?: Function,
     onFinish?: () => any
   ) => {
-    const shouldApplyDraft = draftData ? true : draft?.interfaceKind === ifaceKind;
+    const shouldApplyDraft = draftData ? true : draft?.type === ifaceKind;
+    console.log({ existingInterface });
     // Check if draft for this interface kind exists
     if (shouldApplyDraft || getTargetFile(existingInterface)) {
       let draftToApply = draftData || draft;
       // Fetch the draft if the draft id is provided
       if (existingInterface) {
+        console.log(getTargetFile(existingInterface));
         const fetchedDraft = await callBackendBasic(
           Messages.GET_DRAFT,
           undefined,
           {
-            interfaceKind: ifaceKind,
-            draftId: md5(getTargetFile(existingInterface)),
+            type: ifaceKind,
+            id: getDraftId(existingInterface),
           },
           null,
-          addNotification
+          addNotification,
+          true
         );
 
-        if (fetchedDraft.ok) {
+        if (fetchedDraft.ok && fetchedDraft.data) {
           draftToApply = fetchedDraft.data;
         } else {
           onFinish?.();
@@ -213,8 +218,8 @@ const App: FunctionComponent<IApp> = ({
       }
 
       const {
-        interfaceKind,
-        interfaceId,
+        type,
+        id,
         fields,
         selectedFields,
         methods,
@@ -225,32 +230,32 @@ const App: FunctionComponent<IApp> = ({
       } = draftToApply;
 
       // Set the last saved draft with the interface id
-      rest.setLastDraft({ interfaceId, interfaceKind });
+      rest.setLastDraft({ id, type });
 
       // If the custom function is provided, call it, remove the draft and stop here
       if (customFunction) {
         customFunction(draftToApply);
       } else {
         if (!existingInterface) {
-          setInterfaceId(interfaceKind, interfaceId);
+          setInterfaceId(type, id);
         }
 
-        if (interfaceKind === 'service') {
+        if (type === 'service') {
           setMethodsFromDraft(selectedMethods);
           setFieldsFromDraft('service-methods', methods, selectedMethods);
         }
 
-        if (interfaceKind === 'mapper-code') {
+        if (type === 'mapper-code') {
           setFunctionsFromDraft(selectedMethods);
           setFieldsFromDraft('mapper-methods', methods, selectedMethods);
         }
 
-        if (interfaceKind === 'errors') {
+        if (type === 'errors') {
           setErrorsFromDraft(selectedMethods);
           setFieldsFromDraft('error', methods, selectedMethods);
         }
 
-        if (interfaceKind === 'mapper') {
+        if (type === 'mapper') {
           setMapperFromDraft(diagram);
         }
 
@@ -258,7 +263,7 @@ const App: FunctionComponent<IApp> = ({
           setStepsFromDraft(steps.steps, steps.stepsData, steps.lastStepId);
         }
 
-        setFieldsFromDraft(interfaceKind, fields, selectedFields);
+        setFieldsFromDraft(type, fields, selectedFields);
       }
 
       if (classConnections) {

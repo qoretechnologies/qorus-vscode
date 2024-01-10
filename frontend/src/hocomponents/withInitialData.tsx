@@ -1,5 +1,6 @@
 import { useReqore, useReqoreProperty } from '@qoretechnologies/reqore';
 import { TReqoreIntent } from '@qoretechnologies/reqore/dist/constants/theme';
+import { find } from 'lodash';
 import set from 'lodash/set';
 import { FunctionComponent, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -9,6 +10,7 @@ import shortid from 'shortid';
 import Loader from '../components/Loader';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
+import { IDraftData } from '../context/drafts';
 import { InitialContext } from '../context/init';
 import { callBackendBasic } from '../helpers/functions';
 import withFieldsConsumer from './withFieldsConsumer';
@@ -262,8 +264,8 @@ export default () =>
 
         if (newTab.draftId) {
           changeDraft({
-            interfaceKind: newTab.subtab,
-            interfaceId: newTab.draftId,
+            type: newTab.subtab,
+            id: newTab.draftId,
           });
 
           return;
@@ -428,19 +430,33 @@ export default () =>
         });
       };
 
-      const saveDraft = async (interfaceKind, interfaceId, fileData, name?: string) => {
+      const saveDraft = async (type, id, data: IDraftData, label?: string) => {
         setIsSavingDraft(true);
 
-        await callBackendBasic(Messages.SAVE_DRAFT, undefined, {
-          iface_id: interfaceId,
-          iface_kind: interfaceKindTransform[interfaceKind],
-          fileData: {
-            name,
-            ...fileData,
-          },
-        });
+        const draftLabel =
+          label ||
+          find(
+            data?.selectedFields || [],
+            (field) => field.name === 'name' || field.name === 'class-class-name'
+          )?.value;
 
-        updateCurrentHistoryTab({ draftId: interfaceId });
+        await callBackendBasic(
+          Messages.SAVE_DRAFT,
+          undefined,
+          {
+            id,
+            type: interfaceKindTransform[type],
+            data: {
+              label: draftLabel,
+              ...data,
+            },
+          },
+          undefined,
+          undefined,
+          true
+        );
+
+        updateCurrentHistoryTab({ draftId: id });
 
         setIsSavingDraft(false);
       };

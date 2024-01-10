@@ -27,6 +27,7 @@ import {
   TVariableActionValue,
 } from '../containers/InterfaceCreator/fsm';
 import { TAction } from '../containers/InterfaceCreator/fsm/stateDialog';
+import { IQorusInterface } from '../containers/InterfacesView';
 import { addMessageListener, postMessage } from '../hocomponents/withMessageHandler';
 const md5 = require('md5');
 
@@ -499,8 +500,8 @@ export const fetchData: (
 export { functionOrStringExp, getType };
 
 export const deleteDraft = async (
-  interfaceKind,
-  fileName?,
+  type: string,
+  id?: string,
   notify: boolean = false,
   addNotification?: any
 ) => {
@@ -508,24 +509,17 @@ export const deleteDraft = async (
     Messages.DELETE_DRAFT,
     undefined,
     {
-      iface_id: fileName,
-      iface_kind: interfaceKindTransform[interfaceKind],
+      id,
+      type: interfaceKindTransform[type],
     },
     notify ? 'DeletingDraft' : undefined,
-    addNotification
+    addNotification,
+    true
   );
 };
 
 export const getTargetFile = (data: any) => {
-  if (data?.target_dir && data?.target_file) {
-    return `${data.target_dir}/${data.target_file}`;
-  }
-
-  if (data?.yaml_file) {
-    return data.yaml_file;
-  }
-
-  return null;
+  return data?.id;
 };
 
 export const insertUrlPartBeforeQuery = (url: string, part: string, query?: string) => {
@@ -543,10 +537,6 @@ export const hasValue = (value) => {
     return false;
   }
 };
-export const getDraftId = (data, interfaceId) => {
-  if (data && getTargetFile(data)) {
-    return md5(getTargetFile(data));
-  }
-
-  return interfaceId;
+export const getDraftId = (data: IQorusInterface['data'], interfaceId?: string) => {
+  return data?.id || interfaceId;
 };

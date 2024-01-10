@@ -1,7 +1,7 @@
 import { useReqoreProperty } from '@qoretechnologies/reqore';
 import { useAsyncRetry } from 'react-use';
-import { IQorusInterface } from '../containers/InterfacesView';
-import { fetchData } from '../helpers/functions';
+import { Messages } from '../constants/messages';
+import { callBackendBasic, fetchData } from '../helpers/functions';
 
 const transformTypeForFetch = (type: string) => {
   switch (type) {
@@ -19,11 +19,7 @@ const transformTypeForFetch = (type: string) => {
   }
 };
 
-export const useFetchInterfaces = (
-  show: boolean,
-  type: string,
-  localItems: IQorusInterface[] = []
-) => {
+export const useFetchInterfaces = (type?: string) => {
   const addNotification = useReqoreProperty('addNotification');
 
   const {
@@ -32,14 +28,17 @@ export const useFetchInterfaces = (
     retry,
     error,
   } = useAsyncRetry(async () => {
-    const fetchType = transformTypeForFetch(type);
-
-    if (!show || !fetchType) return [];
-
-    const data = await fetchData(`${fetchType}`);
+    const data = await callBackendBasic(
+      Messages.GET_ALL_INTERFACES,
+      undefined,
+      { type },
+      undefined,
+      undefined,
+      true
+    );
 
     return data.data;
-  }, [type, localItems, show]);
+  }, [type]);
 
   const handleDeleteClick = async (id: string | number) => {
     const fetchType = transformTypeForFetch(type);
@@ -63,64 +62,95 @@ export const useFetchInterfaces = (
     retry();
   };
 
-  let uniqueItems = [
-    ...(value || []).map(
-      (item): IQorusInterface => ({
-        name: item.name,
-        isServerInterface: true,
-        data: item,
-      })
-    ),
-    ...localItems,
-  ] as IQorusInterface[];
+  // let uniqueItems = [
+  //   ...(value || []).map(
+  //     (item): IQorusInterface => ({
+  //       name: item.name,
+  //       display_name: item.display_name,
+  //       data: item,
+  //     })
+  //   ),
+  // ] as IQorusInterface[];
 
-  // Make each item in the list unique by name
-  uniqueItems = uniqueItems.reduce((acc, current) => {
-    const item = acc.find((item) => item.name === current.name);
+  // // Make each item in the list unique by name
+  // uniqueItems = uniqueItems.reduce((acc, current) => {
+  //   const item = acc.find((item) => item.display_name === current.display_name);
 
-    if (!item) {
-      const sameItems = uniqueItems.filter((item) => item.name === current.name);
-      const isLocalInterface = !!localItems.find(
-        (item) => item.name === current.name && !item.isDraft
+  //   if (!item) {
+  //     const sameItems = uniqueItems.filter((item) => item.display_name === current.display_name);
+
+  //     if (sameItems.length > 1) {
+  //       const isDraft = sameItems.some((item) => item.isDraft);
+  //       const hasDraft = sameItems.some((item) => item.hasDraft);
+
+  //       // Merge all items with the same name into one
+  //       const mergedData: IQorusInterface = sameItems.reduce(
+  //         (acc: IQorusInterface, current): IQorusInterface => {
+  //           return {
+  //             ...acc,
+  //             ...current,
+  //             data: {
+  //               ...acc.data,
+  //               ...current.data,
+  //             },
+  //           };
+  //         },
+  //         {}
+  //       );
+
+  //       acc.push({
+  //         ...mergedData,
+  //         isDraft,
+  //         hasDraft,
+  //       });
+  //     } else {
+  //       acc.push({
+  //         ...current,
+  //       });
+  //     }
+
+  //     return acc;
+  //   } else {
+  //     return acc;
+  //   }
+  // }, [] as IQorusInterface[]);
+
+  const uniqueItems = value.reduce((newValue, item) => {
+    if (item.draft) {
+      // Check if this is a draft of an existing interface
+      const existingItem = value.find(
+        (searchedItem) => !searchedItem.draft && searchedItem.id === item.id
       );
 
-      if (sameItems.length > 1) {
-        const isDraft = sameItems.some((item) => item.isDraft);
-        const hasDraft = sameItems.some((item) => item.hasDraft);
-
-        // Merge all items with the same name into one
-        const mergedData: IQorusInterface = sameItems.reduce(
-          (acc: IQorusInterface, current): IQorusInterface => {
-            return {
-              ...acc,
-              ...current,
-              data: {
-                ...acc.data,
-                ...current.data,
-              },
-            };
-          },
-          {}
-        );
-
-        acc.push({
-          ...mergedData,
-          isDraft,
-          hasDraft,
-          isLocalInterface,
-        });
-      } else {
-        acc.push({
-          ...current,
-          isLocalInterface,
-        });
+      if (existingItem) {
+        return newValue;
       }
 
-      return acc;
-    } else {
-      return acc;
+      return [
+        ...newValue,
+        {
+          ...item,
+          isDraft: true,
+          hasDraft: false,
+        },
+      ];
     }
-  }, [] as IQorusInterface[]);
+
+    // Check if this item has a draft
+    const itemWithDraft = value.find(
+      (searchedItem) => searchedItem.draft && searchedItem.id === item.id
+    );
+
+    return [
+      ...newValue,
+      {
+        ...item,
+        isDraft: false,
+        hasDraft: !!itemWithDraft,
+        label: itemWithDraft?.label,
+      },
+    ];
+  }, []);
 
   return {
     loading,

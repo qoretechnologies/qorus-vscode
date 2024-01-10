@@ -22,15 +22,22 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
   const t = useContext(TextContext);
   const { changeDraft } = useContext(InitialContext);
   // Get the last draft from the initial data context
-  const [drafts, setDrafts] = useState<any[]>([]);
+  const [drafts, setDrafts] = useState<IDraftData[]>([]);
   const [query, setQuery] = useState('');
   const { addNotification } = useReqore();
 
   useMount(() => {
     (async () => {
-      const fetchedDrafts = await callBackendBasic(Messages.GET_DRAFTS, undefined, {
-        iface_kind: interfaceKindTransform[interfaceKind],
-      });
+      const fetchedDrafts = await callBackendBasic(
+        Messages.GET_DRAFTS,
+        undefined,
+        {
+          type: interfaceKindTransform[interfaceKind],
+        },
+        undefined,
+        undefined,
+        true
+      );
 
       if (fetchedDrafts.ok) {
         setDrafts(fetchedDrafts.data.drafts);
@@ -41,9 +48,16 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
   const onDeleteClick = async (interfaceId) => {
     await deleteDraft(interfaceKindTransform[interfaceKind], interfaceId, false, addNotification);
 
-    const fetchedDrafts = await callBackendBasic(Messages.GET_DRAFTS, undefined, {
-      iface_kind: interfaceKindTransform[interfaceKind],
-    });
+    const fetchedDrafts = await callBackendBasic(
+      Messages.GET_DRAFTS,
+      undefined,
+      {
+        type: interfaceKindTransform[interfaceKind],
+      },
+      undefined,
+      undefined,
+      true
+    );
 
     refreshCategories?.();
 
@@ -55,13 +69,8 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
   const sortedDrafts = sortBy(drafts, (draft) => draft.date)
     .reverse()
     .filter((draft) => {
-      return draft.name.toLowerCase().includes(query.toLowerCase());
+      return draft.label.toLowerCase().includes(query.toLowerCase());
     });
-
-  // Function that returns true or false based on whether every field in the list is valid or not
-  const isValid = (draftData: IDraftData) => {
-    return draftData.isValid;
-  };
 
   const buildBadges = (data): TReqoreBadge[] => {
     const badges: TReqoreBadge[] = [
@@ -85,13 +94,6 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
       });
     }
 
-    badges.push({
-      labelKey: 'Status',
-      label: t(isValid(data) ? 'Valid' : 'Invalid'),
-      intent: isValid(data) ? 'success' : 'danger',
-      minimal: false,
-    });
-
     return badges;
   };
 
@@ -99,7 +101,7 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
     <div>
       <ReqoreInput
         placeholder={t('Start typing to filter drafts')}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e: any) => setQuery(e.target.value)}
         value={query}
         icon="SearchLine"
         rightIcon="KeyboardFill"
@@ -112,25 +114,25 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
       <ReqoreVerticalSpacer height={10} />
       <ReqoreControlGroup vertical fluid>
         {size(sortedDrafts) ? (
-          sortedDrafts.map(({ date, interfaceId, fileName, ...rest }) => (
-            <ReqoreControlGroup fluid fill stack key={interfaceId}>
+          sortedDrafts.map(({ date, id, ...rest }) => (
+            <ReqoreControlGroup fluid fill stack key={id}>
               <ReqoreButton
                 onClick={
-                  interfaceId === lastDraft
+                  id === lastDraft
                     ? undefined
                     : () => {
                         changeDraft({
-                          interfaceId,
-                          interfaceKind,
+                          id,
+                          type: interfaceKind,
                         });
                       }
                 }
-                key={interfaceId}
-                active={interfaceId === lastDraft}
+                key={id}
+                active={id === lastDraft}
                 badge={buildBadges(rest)}
                 description={`${t('Last modified')}: ${timeago(date)}`}
               >
-                {rest.name}
+                {rest.label}
               </ReqoreButton>
 
               <ReqoreButton
@@ -139,7 +141,7 @@ export const DraftsTable = ({ interfaceKind, onClick, lastDraft, refreshCategori
                 icon="DeleteBinLine"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDeleteClick(interfaceId);
+                  onDeleteClick(id);
                 }}
               />
             </ReqoreControlGroup>

@@ -19,7 +19,14 @@ import { callBackendBasic } from '../../helpers/functions';
 export const Dashboard = () => {
   const { changeTab, changeDraft } = useContext(InitialContext);
   const draft = useAsyncRetry(async () => {
-    const data = await callBackendBasic(Messages.GET_LATEST_DRAFT, undefined);
+    const data = await callBackendBasic(
+      Messages.GET_LATEST_DRAFT,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true
+    );
 
     return data?.data?.draft;
   }, []);
@@ -188,12 +195,12 @@ export const Dashboard = () => {
               label="Open latest draft"
               onClick={() => {
                 changeDraft({
-                  interfaceKind: draft.value.interfaceKind,
-                  interfaceId: draft.value.interfaceId,
+                  type: draft.value.type,
+                  id: draft.value.id,
                 });
               }}
             >
-              {capitalize(draft.value.interfaceKind)} "{draft.value.name}" created{' '}
+              {capitalize(draft.value.type)} "{draft.value.name}" created{' '}
               <ReqoreTimeAgo time={draft.value.date} />
             </ReqorePanel>
           )}

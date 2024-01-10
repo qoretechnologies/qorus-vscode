@@ -67,7 +67,6 @@ import {
   formatAndFixOptionsToKeyValuePairs,
   getDraftId,
   getStateProvider,
-  getTargetFile,
   hasValue,
   isFSMStateValid,
   isStateIsolated,
@@ -664,8 +663,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       'fsm',
       undefined,
       fsm,
-      ({ fsmData: { metadata, states }, interfaceId }: IDraftData) => {
-        setInterfaceId(interfaceId);
+      ({ fsmData: { metadata, states }, id }: IDraftData) => {
+        setInterfaceId(id);
         setMetadata(metadata);
         setStates((cur) => ({ ...cur, ...states }));
       },
@@ -721,9 +720,10 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
         if (
           draftId &&
-          (hasValue(metadata.target_dir) ||
-            hasValue(metadata.desc) ||
+          (hasValue(metadata.desc) ||
             hasValue(metadata.name) ||
+            hasValue(metadata.short_desc) ||
+            hasValue(metadata.display_name) ||
             hasValue(metadata['input-type']) ||
             hasValue(metadata['output-type']) ||
             size(metadata.groups) ||
@@ -738,11 +738,8 @@ export const FSMView: React.FC<IFSMViewProps> = ({
                 metadata,
                 states,
               },
-              interfaceId,
-              associatedInterface: getTargetFile(fsm),
-              isValid: isFSMValid(),
             },
-            metadata.name
+            metadata.display_name
           );
         }
       }

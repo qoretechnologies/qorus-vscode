@@ -23,7 +23,7 @@ export const Default: Story = {
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
 
-    await waitFor(() => canvas.getAllByText('_DraftTestClass'), { timeout: 10000 });
+    await waitFor(() => canvas.getAllByText('Issue3485 Conditional'), { timeout: 10000 });
   },
 };
 
@@ -33,9 +33,9 @@ export const ChangeTab: Story = {
 
     await Default.play({ canvasElement, ...rest });
 
-    await fireEvent.click(canvas.getAllByText('Mapper Code')[0]);
+    await fireEvent.click(canvas.getAllByText('Flow Builder')[0]);
 
-    await waitFor(() => canvas.getAllByText('GlImportClass'), { timeout: 10000 });
+    await waitFor(() => canvas.getAllByText('Issue 3979 edited'), { timeout: 10000 });
   },
 };
 
@@ -45,17 +45,5 @@ export const NoInstance: Story = {
   },
   play: async (args) => {
     await Default.play(args);
-  },
-};
-
-export const OtherFiles: Story = {
-  play: async ({ canvasElement, ...rest }) => {
-    const canvas = within(canvasElement);
-
-    await Default.play({ canvasElement, ...rest });
-
-    await fireEvent.click(canvas.getAllByText('Script')[0]);
-
-    await waitFor(() => canvas.getAllByText('BB_ExcelDataProvider'), { timeout: 10000 });
   },
 };

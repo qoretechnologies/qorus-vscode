@@ -1,13 +1,13 @@
-import { ReqoreCollection, useReqoreProperty } from '@qoretechnologies/reqore';
+import { ReqoreCollection, ReqoreTag, useReqoreProperty } from '@qoretechnologies/reqore';
 import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
+import { IReqoreTableBodyCellProps } from '@qoretechnologies/reqore/dist/components/Table/cell';
+import { IReqoreTagProps } from '@qoretechnologies/reqore/dist/components/Tag';
 import { capitalize, size } from 'lodash';
 import { useContext, useMemo } from 'react';
-import { IQorusInterface } from '.';
 import {
   NegativeColorEffect,
   PositiveColorEffect,
-  SelectorColorEffect,
   WarningColorEffect,
 } from '../../components/Field/multiPair';
 import Loader from '../../components/Loader';
@@ -26,40 +26,23 @@ import { InterfacesViewItem } from './item';
 
 export interface IInterfaceViewCollectionProps {
   type: string;
-  items: IQorusInterface[];
-  showRemotes?: boolean;
   zoom: number;
-  isOther: boolean;
 }
 
-export const InterfacesViewCollection = ({
-  type,
-  items,
-  showRemotes,
-  zoom,
-  isOther,
-}: IInterfaceViewCollectionProps) => {
+let showAsTable = false;
+
+export const InterfacesViewCollection = ({ type, zoom }: IInterfaceViewCollectionProps) => {
   const addNotification = useReqoreProperty('addNotification');
   const confirmAction = useReqoreProperty('confirmAction');
   const { changeDraft, changeTab, qorus_instance, is_hosted_instance } = useContext(InitialContext);
 
-  const { value, loading, onDeleteRemoteClick } = useFetchInterfaces(
-    qorus_instance && showRemotes,
-    interfaceToPlural[type],
-    items
-  );
+  const { value, loading, onDeleteRemoteClick, retry } = useFetchInterfaces(type);
 
-  const onDeleteClick = async (interfaceKind, interfaceId?) => {
-    await deleteDraft(interfaceKindTransform[interfaceKind], interfaceId, true, addNotification);
+  const onDeleteClick = async (type, id?) => {
+    await deleteDraft(interfaceKindTransform[type], id, true, addNotification);
+
+    retry();
   };
-
-  const onDeployClick = (data) => {
-    postMessage(Messages.DEPLOY_INTERFACE, { data });
-  };
-
-  const itemsPerPage = useMemo(() => {
-    return 50;
-  }, []);
 
   const getItemsCount = () => {
     return size(value.filter((item) => !item.isDraft && item.isLocalInterface));
@@ -74,122 +57,60 @@ export const InterfacesViewCollection = ({
   };
 
   const badges = useMemo(() => {
-    const badgeList: TReqoreBadge[] = [
-      {
-        labelKey: 'Local',
-        label: getItemsCount(),
-        intent: 'info',
-      },
-    ];
+    const badgeList: TReqoreBadge[] = [getRemotesCount()];
 
-    if (!isOther) {
-      badgeList.push({ labelKey: 'Drafts', label: getDraftsCount(), intent: 'pending' });
-    }
-
-    if (qorus_instance && showRemotes) {
-      badgeList.push({
-        labelKey: 'Remotes',
-        label: getRemotesCount(),
-        color: '#6f1977',
-      });
-    }
+    badgeList.push({ label: getDraftsCount(), intent: 'pending' });
 
     return badgeList;
-  }, [getItemsCount, getDraftsCount, showRemotes, getRemotesCount, qorus_instance]);
-
-  const buildTags = ({
-    isDraft,
-    hasDraft,
-    isLocalInterface,
-    isServerInterface,
-  }: Partial<IQorusInterface>) => {
-    let tags: IReqoreCollectionItemProps['tags'] = [];
-
-    if (isDraft) {
-      tags.push({
-        icon: 'StarLine',
-        label: 'New',
-        intent: 'success',
-      });
-    }
-
-    if (hasDraft) {
-      tags.push({
-        icon: 'Edit2Line',
-        label: 'Draft',
-        intent: 'pending',
-      });
-    }
-
-    if (isLocalInterface && isServerInterface) {
-      tags.push({
-        icon: 'FileLine',
-        rightIcon: 'ServerLine',
-        effect: {
-          gradient: {
-            colors: {
-              0: 'info',
-              100: '#6f1977',
-            },
-          },
-        },
-        label: 'Local & Remote',
-      });
-    } else {
-      if (isLocalInterface) {
-        tags.push({
-          icon: 'FileLine',
-          intent: 'info',
-          label: 'Local',
-        });
-      }
-
-      if (isServerInterface) {
-        tags.push({
-          icon: 'ServerLine',
-          color: '#6f1977',
-          label: 'Remote',
-        });
-      }
-    }
-
-    return tags;
-  };
-
-  // Sort the value by isDraft / hasDraft boolean, put values with truthy isServerInterface at the end and sort the rest by name
-  const sortedValue = useMemo(() => {
-    return value.sort((a, b) => {
-      if (a.isDraft && !b.isDraft) {
-        return -1;
-      }
-
-      if (!a.isDraft && b.isDraft) {
-        return 1;
-      }
-
-      if (a.hasDraft && !b.hasDraft) {
-        return -1;
-      }
-
-      if (!a.hasDraft && b.hasDraft) {
-        return 1;
-      }
-
-      if (a.isServerInterface && !b.isServerInterface) {
-        return 1;
-      }
-
-      if (!a.isServerInterface && b.isServerInterface) {
-        return -1;
-      }
-
-      return a.name.localeCompare(b.name);
-    });
-  }, [value]);
+  }, [getItemsCount, getDraftsCount, getRemotesCount, qorus_instance]);
 
   if (loading) {
     return <Loader text="Loading server data..." />;
   }
+
+  const buildActions: IReqoreTableBodyCellProps['cell']['actions'] = (data) => {
+    const actions = [];
+
+    if (data.isDraft || data.hasDraft) {
+      actions.push({
+        icon: 'CloseLine',
+        effect: WarningColorEffect,
+        tooltip: 'Delete draft',
+        iconsAlign: 'center',
+        size: 'tiny',
+        onClick: () => {
+          confirmAction({
+            title: 'Delete draft',
+            description: 'Are you sure you want to delete this draft?',
+            onConfirm: () => {
+              onDeleteClick(type, data.interfaceId);
+            },
+          });
+        },
+      });
+    }
+
+    if (!data.isDraft) {
+      actions.push({
+        icon: 'DeleteBinLine',
+        effect: NegativeColorEffect,
+        tooltip: 'Delete',
+        iconsAlign: 'center',
+        size: 'tiny',
+        onClick: () => {
+          confirmAction({
+            title: 'Delete server interface',
+            description: 'Are you sure you want to delete this interface FROM THE ACTIVE INSTANCE?',
+            onConfirm: () => {
+              onDeleteRemoteClick(data.name || data.id);
+            },
+          });
+        },
+      });
+    }
+
+    return actions;
+  };
 
   return (
     <ReqoreCollection
@@ -202,32 +123,21 @@ export const InterfacesViewCollection = ({
       maxItemHeight={120}
       responsiveActions={false}
       fill
-      // paging={{
-      //   infinite: true,
-      //   loadMoreLabel: 'Load more...',
-      //   loadMoreButtonProps: {
-      //     badge: undefined,
-      //   },
-      //   showLabels: true,
-      //   itemsPerPage,
-      // }}
       actions={[
         {
           icon: 'AddCircleLine',
           tooltip: `Create new ${type}`,
           label: 'Create new',
           minimal: true,
-          show: !isOther,
           flat: false,
           onClick: () => changeTab('CreateInterface', type),
           effect: PositiveColorEffect,
         },
         {
-          icon: 'DeleteBin6Fill',
+          icon: 'CloseLine',
           tooltip: `Delete ${type} drafts`,
           effect: WarningColorEffect,
           minimal: true,
-          show: !isOther,
           flat: false,
           onClick: () => {
             onDeleteClick(type);
@@ -241,125 +151,85 @@ export const InterfacesViewCollection = ({
           shortcut: 'letters',
         },
       }}
-      items={sortedValue.map(
-        (
-          { name, data, isDraft, hasDraft, isServerInterface, isLocalInterface, ...rest },
-          index
-        ): IReqoreCollectionItemProps => ({
-          label: data?.display_name || name || data.error,
+      items={value.map(
+        ({ label, data, isDraft, hasDraft, ...rest }): IReqoreCollectionItemProps => ({
+          label: label || data?.display_name,
           icon: interfaceIcons[type],
-          content: (
-            <InterfacesViewItem
-              {...rest}
-              data={data}
-              isDraft={isDraft}
-              hasDraft={hasDraft}
-              name={name}
-              isServerInterface={isServerInterface}
-            />
-          ),
+          content: <InterfacesViewItem data={data} />,
           contentEffect: {
             gradient: {
               direction: 'to right bottom',
               colors: {
                 50: 'main',
-                300: isDraft
-                  ? 'success'
-                  : hasDraft
-                  ? 'pending'
-                  : isServerInterface
-                  ? '#6f1977'
-                  : 'info:lighten:2',
+                300: isDraft ? 'success' : hasDraft ? 'pending' : 'main:lighten',
               },
             },
           },
           flat: true,
+          showHeaderTooltip: true,
           responsiveTitle: false,
           responsiveActions: false,
-          expandable: isServerInterface && !is_hosted_instance,
           size: zoomToSize[zoom],
           onClick: () => {
-            if (isLocalInterface || isServerInterface) {
+            if (isDraft) {
+              changeDraft({
+                type,
+                id: rest.id,
+              });
+            } else {
               postMessage(
                 Messages.GET_INTERFACE_DATA,
                 {
                   iface_kind: type,
-                  name,
+                  name: label,
                   include_tabs: true,
                 },
                 true
               );
-
-              return;
             }
-
-            if (isDraft) {
-              changeDraft({
-                interfaceKind: type,
-                interfaceId: rest.interfaceId,
-              });
-
-              return;
-            }
-
-            return;
           },
-          tags: buildTags({
-            isDraft,
-            hasDraft,
-            isServerInterface,
-            isLocalInterface,
-            data,
-          }),
           actions: [
             {
-              icon: 'UploadLine',
-              effect: PositiveColorEffect,
-              tooltip: 'Deploy',
-              size: 'tiny',
-              show: isLocalInterface ? 'hover' : false,
-              onClick: () => onDeployClick(data),
+              as: ReqoreTag,
+              show: isDraft || hasDraft ? true : false,
+              props: {
+                icon: 'EditLine',
+                label: isDraft ? 'New' : 'Draft',
+                intent: isDraft ? 'success' : 'pending',
+                size: 'tiny',
+              } as IReqoreTagProps,
             },
             {
-              icon: 'FileEditLine',
-              effect: SelectorColorEffect,
-              tooltip: 'Edit code',
+              icon: 'CloseLine',
+              effect: WarningColorEffect,
+              tooltip: 'Delete draft',
               size: 'tiny',
-              show: !!data?.code && isLocalInterface ? 'hover' : false,
+              show: isDraft || hasDraft ? 'hover' : false,
+              onClick: () => {
+                confirmAction({
+                  title: 'Delete draft',
+                  description: 'Are you sure you want to delete this draft?',
+                  onConfirm: () => {
+                    onDeleteClick(type, rest.id);
+                  },
+                });
+              },
             },
             {
               icon: 'DeleteBinLine',
               effect: NegativeColorEffect,
               tooltip: 'Delete',
               size: 'tiny',
-              show: 'hover',
+              show: !isDraft ? 'hover' : false,
               onClick: () => {
-                if (isDraft) {
-                  confirmAction({
-                    title: 'Delete draft',
-                    description: 'Are you sure you want to delete this draft?',
-                    onConfirm: () => {
-                      onDeleteClick(type, rest.interfaceId);
-                    },
-                  });
-                } else if (isServerInterface) {
-                  confirmAction({
-                    title: 'Delete server interface',
-                    description:
-                      'Are you sure you want to delete this interface FROM THE ACTIVE INSTANCE?',
-                    onConfirm: () => {
-                      onDeleteRemoteClick(name || data.id);
-                    },
-                  });
-                } else {
-                  confirmAction({
-                    title: 'Delete interface',
-                    description: 'Are you sure you want to delete this interface?',
-                    onConfirm: () => {
-                      postMessage(Messages.DELETE_INTERFACE, { iface_kind: type, name });
-                    },
-                  });
-                }
+                confirmAction({
+                  title: 'Delete server interface',
+                  description:
+                    'Are you sure you want to delete this interface FROM THE ACTIVE INSTANCE?',
+                  onConfirm: () => {
+                    onDeleteRemoteClick(label || data.id);
+                  },
+                });
               },
             },
           ],
