@@ -200,7 +200,7 @@ export const Dashboard = () => {
                 });
               }}
             >
-              {capitalize(draft.value.type)} "{draft.value.name}" created{' '}
+              {capitalize(draft.value.type)} "{draft.value.label}" created{' '}
               <ReqoreTimeAgo time={draft.value.date} />
             </ReqorePanel>
           )}

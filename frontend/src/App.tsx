@@ -14,7 +14,7 @@ import last from 'lodash/last';
 import size from 'lodash/size';
 import { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import { useEffectOnce, useMount } from 'react-use';
+import { useEffectOnce, useMount, useUnmount } from 'react-use';
 import compose from 'recompose/compose';
 import { createGlobalStyle } from 'styled-components';
 import packageJson from '../package.json';
@@ -34,11 +34,8 @@ import InterfaceCreator from './containers/InterfaceCreator';
 import { InterfacesView } from './containers/InterfacesView';
 import { ContextMenuContext, IContextMenu } from './context/contextMenu';
 import { DialogsContext } from './context/dialogs';
-import { DraftsContext, IDraftData } from './context/drafts';
-import { ErrorsContext } from './context/errors';
 import { InitialContext } from './context/init';
 import { TextContext } from './context/text';
-import { callBackendBasic, getDraftId, getTargetFile } from './helpers/functions';
 import withErrors from './hocomponents/withErrors';
 import withFields from './hocomponents/withFields';
 import withFunctions from './hocomponents/withFunctions';
@@ -51,6 +48,7 @@ import {
   WS_RECONNECT_MAX_TRIES,
   addMessageListener,
   createOrGetWebSocket,
+  disconnectWebSocket,
   isWebSocketSupported,
   postMessage,
 } from './hocomponents/withMessageHandler';
@@ -59,6 +57,7 @@ import withSteps from './hocomponents/withSteps';
 import { LoginContainer } from './login/Login';
 import ProjectConfig from './project_config/ProjectConfig';
 import SourceDirectories from './project_config/sourceDirs';
+import { DraftsProvider } from './providers/Drafts';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
 import { Dashboard } from './views/dashboard';
 const md5 = require('md5');
@@ -98,7 +97,6 @@ const App: FunctionComponent<IApp> = ({
   tab,
   project_folder,
   qorus_instance,
-  is_qore_installed,
   changeTab,
   main_color,
   path,
@@ -121,8 +119,6 @@ const App: FunctionComponent<IApp> = ({
 }) => {
   const [openedDialogs, setOpenedDialogs] = useState<{ id: string; onClose: () => void }[]>([]);
   const [contextMenu, setContextMenu] = useState<IContextMenu>(null);
-  const [draft, setDraft] = useState<IDraftData>(null);
-  const { setErrorsFromDraft }: any = useContext(ErrorsContext);
   const [isDirsDialogOpen, setIsDirsDialogOpen] = useState<boolean>(false);
   const { addNotification } = useReqore();
   const { t, tabHistory, onHistoryBackClick } = useContext(InitialContext);
@@ -130,152 +126,6 @@ const App: FunctionComponent<IApp> = ({
   const [websocketReconnectTry, setWebsocketReconnectTry] = useState<number>(0);
   const [hasWebsocketFailedToReconnect, setHasWebsocketFailedToReconnect] =
     useState<boolean>(false);
-
-  const addDraft = (draftData: IDraftData) => {
-    setDraft(draftData);
-  };
-
-  const removeDraft = () => {
-    setDraft(null);
-    setDraftData(null);
-  };
-
-  useEffect(() => {
-    const { interfaceKind, interfaceId } = draftData || {};
-
-    if (interfaceKind && interfaceId) {
-      (async () => {
-        const fetchedDraft = await callBackendBasic(
-          Messages.GET_DRAFT,
-          undefined,
-          {
-            type: interfaceKind,
-            id: interfaceId,
-          },
-          null,
-          addNotification,
-          true
-        );
-
-        if (fetchedDraft.ok) {
-          addDraft({ ...fetchedDraft.data });
-          changeTab('CreateInterface', fetchedDraft.data.interfaceKind);
-          setDraftData(null);
-        }
-      })();
-    }
-  }, [draftData]);
-
-  const maybeDeleteDraft = (interfaceKind: string, interfaceId: string) => {
-    callBackendBasic(
-      Messages.DELETE_DRAFT,
-      undefined,
-      {
-        no_notify: true,
-        interfaceKind,
-        interfaceId,
-      },
-      null,
-      addNotification,
-      true
-    );
-  };
-
-  const maybeApplyDraft = async (
-    ifaceKind: string,
-    draftData: IDraftData,
-    existingInterface?: any,
-    customFunction?: (draft: IDraftData) => void,
-    applyClassConnectionsFunc?: Function,
-    onFinish?: () => any
-  ) => {
-    const shouldApplyDraft = draftData ? true : draft?.type === ifaceKind;
-    console.log({ existingInterface });
-    // Check if draft for this interface kind exists
-    if (shouldApplyDraft || getTargetFile(existingInterface)) {
-      let draftToApply = draftData || draft;
-      // Fetch the draft if the draft id is provided
-      if (existingInterface) {
-        console.log(getTargetFile(existingInterface));
-        const fetchedDraft = await callBackendBasic(
-          Messages.GET_DRAFT,
-          undefined,
-          {
-            type: ifaceKind,
-            id: getDraftId(existingInterface),
-          },
-          null,
-          addNotification,
-          true
-        );
-
-        if (fetchedDraft.ok && fetchedDraft.data) {
-          draftToApply = fetchedDraft.data;
-        } else {
-          onFinish?.();
-          return;
-        }
-      }
-
-      const {
-        type,
-        id,
-        fields,
-        selectedFields,
-        methods,
-        selectedMethods,
-        steps,
-        diagram,
-        classConnections,
-      } = draftToApply;
-
-      // Set the last saved draft with the interface id
-      rest.setLastDraft({ id, type });
-
-      // If the custom function is provided, call it, remove the draft and stop here
-      if (customFunction) {
-        customFunction(draftToApply);
-      } else {
-        if (!existingInterface) {
-          setInterfaceId(type, id);
-        }
-
-        if (type === 'service') {
-          setMethodsFromDraft(selectedMethods);
-          setFieldsFromDraft('service-methods', methods, selectedMethods);
-        }
-
-        if (type === 'mapper-code') {
-          setFunctionsFromDraft(selectedMethods);
-          setFieldsFromDraft('mapper-methods', methods, selectedMethods);
-        }
-
-        if (type === 'errors') {
-          setErrorsFromDraft(selectedMethods);
-          setFieldsFromDraft('error', methods, selectedMethods);
-        }
-
-        if (type === 'mapper') {
-          setMapperFromDraft(diagram);
-        }
-
-        if (steps) {
-          setStepsFromDraft(steps.steps, steps.stepsData, steps.lastStepId);
-        }
-
-        setFieldsFromDraft(type, fields, selectedFields);
-      }
-
-      if (classConnections) {
-        applyClassConnectionsFunc?.(classConnections);
-      }
-
-      // Remove the draft
-      removeDraft();
-    }
-
-    onFinish?.();
-  };
 
   const addDialog: (id: string, onClose: any) => void = (id, onClose) => {
     // Only add dialogs that can be closed
@@ -378,29 +228,11 @@ const App: FunctionComponent<IApp> = ({
   const badges: IReqorePanelProps['badge'] = useMemo(() => {
     let badge: IReqorePanelProps['badge'] = [];
 
-    badge.push({
-      icon: 'ComputerLine',
-      effect: qorus_instance ? { gradient: { colors: '#7e2d90' }, weight: 'bold' } : undefined,
-      tooltip: is_hosted_instance
-        ? 'Connected locally'
-        : qorus_instance
-        ? qorus_instance.name
-        : 'Not connected',
-    });
-
-    if (!is_qore_installed) {
-      badge.push({
-        icon: 'SpamLine',
-        intent: 'danger',
-        tooltip: 'Qore language is not installed',
-        effect: { gradient: { colors: '#ac1728' }, weight: 'bold' },
-      });
-    }
-
     return badge;
   }, []);
 
   useMount(() => {
+    console.log('mounting');
     if (isWebSocketSupported && is_hosted_instance) {
       createOrGetWebSocket(qorus_instance, 'creator', {
         onOpen: () => {
@@ -429,6 +261,10 @@ const App: FunctionComponent<IApp> = ({
     }
   });
 
+  useUnmount(() => {
+    disconnectWebSocket('creator');
+  });
+
   if (!t || isLoading) {
     return <Loader text="Loading app..." />;
   }
@@ -436,15 +272,7 @@ const App: FunctionComponent<IApp> = ({
   return (
     <>
       <GlobalStyle />
-      <DraftsContext.Provider
-        value={{
-          addDraft,
-          removeDraft,
-          maybeApplyDraft,
-          maybeDeleteDraft,
-          draft,
-        }}
-      >
+      <DraftsProvider>
         <ContextMenuContext.Provider
           value={{
             addMenu: setContextMenu,
@@ -702,7 +530,7 @@ const App: FunctionComponent<IApp> = ({
             </TextContext.Provider>
           </DialogsContext.Provider>
         </ContextMenuContext.Provider>
-      </DraftsContext.Provider>
+      </DraftsProvider>
     </>
   );
 };

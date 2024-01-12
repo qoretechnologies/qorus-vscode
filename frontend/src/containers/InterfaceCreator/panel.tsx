@@ -43,7 +43,6 @@ import {
   PositiveColorEffect,
   SaveColorEffect,
   SelectorColorEffect,
-  WarningColorEffect,
 } from '../../components/Field/multiPair';
 import FieldGroup from '../../components/FieldGroup';
 import {
@@ -342,17 +341,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 : false,
             value: clonedData && field.name in clonedData ? clonedData[field.name] : undefined,
             hasValueSet: clonedData && field.name in clonedData,
-            warning:
-              field.name === 'lang' && !initialData.is_qore_installed
-                ? 'Qore language missing, you will not be able to create or edit qore interfaces.'
-                : undefined,
-            items:
-              field.name === 'lang' && !initialData.is_qore_installed
-                ? field.items.map((item) => ({
-                    ...item,
-                    disabled: item.value === 'qore',
-                  }))
-                : field.items,
           }));
 
           if (!size(selectedFields)) {
@@ -1138,14 +1126,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   const canSubmit: () => boolean = () => {
     let isValid = true;
 
-    if (!initialData.is_qore_installed) {
-      const lang = requestFieldData('lang', 'value');
-
-      if (lang === 'qore') {
-        isValid = false;
-      }
-    }
-
     if (hasClassConnections && !areClassConnectionsValid()) {
       isValid = false;
     }
@@ -1233,32 +1213,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   };
 
   const getSubmitIcon = (): IReqoreIconName => {
-    const lang = requestFieldData('lang', 'value');
-
-    if (lang === 'qore' && !initialData.is_qore_installed) {
-      return 'ErrorWarningLine';
-    }
-
     return 'CheckLine';
   };
 
   const getSubmitEffect = (): IReqoreEffect => {
-    const lang = requestFieldData('lang', 'value');
-
-    if (lang === 'qore' && !initialData.is_qore_installed) {
-      return WarningColorEffect;
-    }
-
     return SaveColorEffect;
   };
 
   const getSubmitTooltip = (): string => {
-    const lang = requestFieldData('lang', 'value');
-
-    if (lang === 'qore' && !initialData.is_qore_installed) {
-      return 'Qore language is missing, please select a different language';
-    }
-
     return 'Save this interface';
   };
 

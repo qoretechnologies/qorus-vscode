@@ -4,7 +4,7 @@ import { find } from 'lodash';
 import set from 'lodash/set';
 import { FunctionComponent, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { useEffectOnce, useUpdateEffect } from 'react-use';
+import { useEffectOnce } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import shortid from 'shortid';
 import Loader from '../components/Loader';
@@ -70,23 +70,6 @@ export default () =>
       useMount(() => {
         postMessage(Messages.GET_INITIAL_DATA);
       });
-
-      useUpdateEffect(() => {
-        if (!initialData.qorus_instance?.url) {
-          setInitialData({
-            image_path: initialData.image_path,
-            tab: 'ProjectConfig',
-          });
-        } else {
-          addNotification({
-            content: 'Successfully logged in!',
-            intent: 'success',
-            duration: 3000,
-            minimal: false,
-            id: 'logged-in',
-          });
-        }
-      }, [initialData?.qorus_instance?.url]);
 
       useEffect(() => {
         if (texts) {
@@ -437,8 +420,9 @@ export default () =>
           label ||
           find(
             data?.selectedFields || [],
-            (field) => field.name === 'name' || field.name === 'class-class-name'
-          )?.value;
+            (field) => field.name === 'display_name' || field.name === 'class-class-name'
+          )?.value ||
+          `Untitled ${type}`;
 
         await callBackendBasic(
           Messages.SAVE_DRAFT,

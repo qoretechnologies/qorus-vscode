@@ -1,3 +1,3 @@
 import { createContext } from 'react';
 
-export const StepsContext = createContext({});
+export const StepsContext = createContext<any>({});

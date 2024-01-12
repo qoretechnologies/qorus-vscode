@@ -1,0 +1,893 @@
+{
+  "job": {
+    "tab_token": "none",
+    "iface_kind": "job",
+    "fields": [
+      {
+        "name": "name",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "display_name",
+        "type": "string",
+        "mandatory": true,
+        "compact": true,
+        "group": "info",
+        "autoFocus": true
+      },
+      {
+        "name": "short_desc",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "version",
+        "type": "string",
+        "mandatory": true,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "author",
+        "type": "select-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "author",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "author",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "lang",
+        "type": "enum",
+        "mandatory": true,
+        "on_change": "lang-changed",
+        "compact": true,
+        "group": "info",
+        "default_value": "qore",
+        "items": [
+          {
+            "value": "qore",
+            "icon_filename": "qore-106x128.png"
+          },
+          {
+            "value": "python",
+            "icon_filename": "python-129x128.png"
+          },
+          {
+            "value": "java",
+            "icon_filename": "java-96x128.png"
+          }
+        ]
+      },
+      {
+        "name": "class-name",
+        "type": "string",
+        "mandatory": false,
+        "has_to_be_valid_identifier": true,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "active",
+        "type": "boolean",
+        "mandatory": false,
+        "compact": true,
+        "group": "info",
+        "default_value": true
+      },
+      {
+        "name": "base-class-name",
+        "type": "select-string",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "job-base-class",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "job-base-class",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "on_change": "get-config-items",
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "expiry-date",
+        "type": "date",
+        "mandatory": false,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "run-skipped",
+        "type": "boolean",
+        "mandatory": false,
+        "compact": true,
+        "group": "info",
+        "default_value": false
+      },
+      {
+        "name": "mappers",
+        "type": "string",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "mapper",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "mapper",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "resources"
+      },
+      {
+        "name": "vmaps",
+        "type": "select-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "value-map",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "value-map",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "resources"
+      },
+      {
+        "name": "modules",
+        "type": "select-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "job-modules",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "job-modules",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "resources"
+      },
+      {
+        "name": "remote",
+        "type": "boolean",
+        "mandatory": false,
+        "compact": true,
+        "group": "scaling",
+        "default_value": true
+      },
+      {
+        "name": "desc",
+        "type": "long-string",
+        "mandatory": false
+      },
+      {
+        "name": "tags",
+        "type": "array-of-pairs",
+        "mandatory": false,
+        "fields": ["key", "value"]
+      },
+      {
+        "name": "classes",
+        "type": "class-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "class",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "class",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "on_change": "get-config-items",
+        "notify_on_remove": true
+      },
+      {
+        "name": "groups",
+        "type": "multi-select",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "group",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "group",
+          "return_value": "objects",
+          "useWebSocket": true
+        }
+      },
+      {
+        "name": "system-options",
+        "type": "options",
+        "mandatory": false,
+        "url": "system"
+      },
+      {
+        "name": "schedule",
+        "type": "cron",
+        "mandatory": true,
+        "default_value": "0 0 * * *"
+      },
+      {
+        "name": "fsm",
+        "type": "fsm-list",
+        "mandatory": false
+      }
+    ],
+    "action": "creator-return-fields",
+    "ok": true,
+    "message": "all fields"
+  },
+  "class": {
+    "tab_token": "none",
+    "iface_kind": "class",
+    "fields": [
+      {
+        "name": "class-class-name",
+        "type": "string",
+        "mandatory": false,
+        "has_to_be_valid_identifier": true,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "display_name",
+        "type": "string",
+        "mandatory": true,
+        "compact": true,
+        "group": "info",
+        "autoFocus": true
+      },
+      {
+        "name": "short_desc",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "version",
+        "type": "string",
+        "mandatory": true,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "author",
+        "type": "select-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "author",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "author",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "base-class-name",
+        "type": "select-string",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "base-class",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "base-class",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "on_change": "get-config-items",
+        "notify_on_remove": true,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "lang",
+        "type": "enum",
+        "mandatory": true,
+        "on_change": "lang-changed",
+        "compact": true,
+        "group": "info",
+        "default_value": "qore",
+        "items": [
+          {
+            "value": "qore",
+            "icon_filename": "qore-106x128.png"
+          },
+          {
+            "value": "python",
+            "icon_filename": "python-129x128.png"
+          },
+          {
+            "value": "java",
+            "icon_filename": "java-96x128.png"
+          }
+        ]
+      },
+      {
+        "name": "desc",
+        "type": "long-string",
+        "mandatory": false
+      },
+      {
+        "name": "tags",
+        "type": "array-of-pairs",
+        "mandatory": false,
+        "fields": ["key", "value"]
+      },
+      {
+        "name": "requires",
+        "type": "class-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "class",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "class",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "on_change": "get-config-items",
+        "notify_on_remove": true
+      },
+      {
+        "name": "processor",
+        "type": "processor",
+        "mandatory": false,
+        "notify_on_add": true
+      },
+      {
+        "name": "class-connectors",
+        "type": "class-connectors",
+        "mandatory": false
+      }
+    ],
+    "action": "creator-return-fields",
+    "ok": true,
+    "message": "all fields"
+  },
+  "service": {
+    "tab_token": "none",
+    "iface_kind": "service",
+    "fields": [
+      {
+        "name": "name",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "display_name",
+        "type": "string",
+        "mandatory": true,
+        "compact": true,
+        "group": "info",
+        "autoFocus": true
+      },
+      {
+        "name": "short_desc",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "version",
+        "type": "string",
+        "mandatory": true,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "author",
+        "type": "select-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "author",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "author",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "lang",
+        "type": "enum",
+        "mandatory": true,
+        "on_change": "lang-changed",
+        "compact": true,
+        "group": "info",
+        "default_value": "qore",
+        "items": [
+          {
+            "value": "qore",
+            "icon_filename": "qore-106x128.png"
+          },
+          {
+            "value": "python",
+            "icon_filename": "python-129x128.png"
+          },
+          {
+            "value": "java",
+            "icon_filename": "java-96x128.png"
+          }
+        ]
+      },
+      {
+        "name": "class-name",
+        "type": "string",
+        "mandatory": false,
+        "has_to_be_valid_identifier": true,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "service-autostart",
+        "type": "boolean",
+        "mandatory": false,
+        "compact": true,
+        "group": "info",
+        "default_value": false
+      },
+      {
+        "name": "base-class-name",
+        "type": "select-string",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "service-base-class",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "service-base-class",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "on_change": "get-config-items",
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "mappers",
+        "type": "string",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "mapper",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "mapper",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "resources"
+      },
+      {
+        "name": "vmaps",
+        "type": "select-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "value-map",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "value-map",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "resources"
+      },
+      {
+        "name": "modules",
+        "type": "select-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "svc-modules",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "svc-modules",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "resources"
+      },
+      {
+        "name": "remote",
+        "type": "boolean",
+        "mandatory": false,
+        "compact": true,
+        "group": "scaling",
+        "default_value": true
+      },
+      {
+        "name": "container-cpu-limit",
+        "type": "float",
+        "mandatory": false,
+        "compact": true,
+        "group": "scaling",
+        "disabled": true,
+        "default_value": 4
+      },
+      {
+        "name": "container-cpu-request",
+        "type": "float",
+        "mandatory": false,
+        "compact": true,
+        "group": "scaling",
+        "disabled": true,
+        "default_value": 0.2
+      },
+      {
+        "name": "container-memory-limit",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "scaling",
+        "disabled": true,
+        "default_value": "1Gi"
+      },
+      {
+        "name": "container-memory-request",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "scaling",
+        "disabled": true,
+        "default_value": "300Mi"
+      },
+      {
+        "name": "scaling-cpu",
+        "type": "number",
+        "mandatory": false,
+        "compact": true,
+        "group": "scaling",
+        "disabled": true,
+        "default_value": 80
+      },
+      {
+        "name": "scaling-max-replicas",
+        "type": "number",
+        "mandatory": false,
+        "compact": true,
+        "group": "scaling",
+        "disabled": true,
+        "default_value": 3
+      },
+      {
+        "name": "scaling-memory",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "scaling",
+        "disabled": true,
+        "default_value": "800Mi"
+      },
+      {
+        "name": "scaling-min-replicas",
+        "type": "number",
+        "mandatory": false,
+        "compact": true,
+        "group": "scaling",
+        "disabled": true,
+        "default_value": 1
+      },
+      {
+        "name": "stateless",
+        "type": "boolean",
+        "mandatory": false,
+        "on_change": "stateless-changed",
+        "notify_on_add": true,
+        "notify_on_remove": true,
+        "compact": true,
+        "group": "scaling",
+        "default_value": false
+      },
+      {
+        "name": "desc",
+        "type": "long-string",
+        "mandatory": false
+      },
+      {
+        "name": "tags",
+        "type": "array-of-pairs",
+        "mandatory": false,
+        "fields": ["key", "value"]
+      },
+      {
+        "name": "classes",
+        "type": "class-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "class",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "class",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "on_change": "get-config-items",
+        "notify_on_remove": true
+      },
+      {
+        "name": "groups",
+        "type": "multi-select",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "group",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "group",
+          "return_value": "objects",
+          "useWebSocket": true
+        }
+      },
+      {
+        "name": "system-options",
+        "type": "options",
+        "mandatory": false,
+        "url": "system"
+      },
+      {
+        "name": "fsm",
+        "type": "fsm-list",
+        "mandatory": false
+      },
+      {
+        "name": "api-manager",
+        "type": "api-manager",
+        "mandatory": false
+      },
+      {
+        "name": "event-handlers",
+        "type": "service-events",
+        "mandatory": false
+      }
+    ],
+    "action": "creator-return-fields",
+    "ok": true,
+    "message": "all fields"
+  },
+  "mapper": {
+    "tab_token": "none",
+    "iface_kind": "mapper",
+    "fields": [
+      {
+        "name": "context",
+        "type": "context-selector",
+        "mandatory": false,
+        "group": "code"
+      },
+      {
+        "name": "codes",
+        "type": "select-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "mapper-code",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "mapper-code",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "group": "code"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "display_name",
+        "type": "string",
+        "mandatory": true,
+        "compact": true,
+        "group": "info",
+        "autoFocus": true
+      },
+      {
+        "name": "short_desc",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "version",
+        "type": "string",
+        "mandatory": true,
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "author",
+        "type": "select-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "author",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "author",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "mappertype",
+        "type": "string",
+        "mandatory": false,
+        "compact": true,
+        "group": "info",
+        "default_value": "Mapper"
+      },
+      {
+        "name": "desc",
+        "type": "long-string",
+        "mandatory": false
+      },
+      {
+        "name": "mapper_options",
+        "type": "options",
+        "mandatory": false,
+        "url": "mapper",
+        "requires_fields": "mappertype"
+      }
+    ],
+    "action": "creator-return-fields",
+    "ok": true,
+    "message": "all fields"
+  },
+  "service-methods": {
+    "request_id": "j40XRfLn0PBp5yZ",
+    "tab_token": "none",
+    "iface_kind": "service-methods",
+    "fields": [
+      {
+        "name": "name",
+        "type": "method-name",
+        "mandatory": true,
+        "has_to_be_valid_identifier": true,
+        "compact": true,
+        "group": "info",
+        "autoFocus": true
+      },
+      {
+        "name": "author",
+        "type": "select-array",
+        "mandatory": false,
+        "get_message": {
+          "action": "creator-get-objects",
+          "object_type": "author",
+          "useWebSocket": true
+        },
+        "return_message": {
+          "action": "creator-return-objects",
+          "object_type": "author",
+          "return_value": "objects",
+          "useWebSocket": true
+        },
+        "compact": true,
+        "group": "info"
+      },
+      {
+        "name": "desc",
+        "type": "long-string",
+        "mandatory": false
+      },
+      {
+        "name": "lock",
+        "type": "enum",
+        "mandatory": false,
+        "default_value": "none",
+        "items": [
+          {
+            "value": "none",
+            "icon_filename": null
+          },
+          {
+            "value": "read",
+            "icon_filename": null
+          },
+          {
+            "value": "write",
+            "icon_filename": null
+          }
+        ]
+      },
+      {
+        "name": "internal",
+        "type": "boolean",
+        "mandatory": false,
+        "default_value": false
+      },
+      {
+        "name": "write",
+        "type": "boolean",
+        "mandatory": false,
+        "default_value": false
+      }
+    ],
+    "action": "creator-return-fields",
+    "ok": true,
+    "message": "all fields"
+  }
+}

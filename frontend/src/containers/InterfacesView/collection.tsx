@@ -181,7 +181,7 @@ export const InterfacesViewCollection = ({ type, zoom }: IInterfaceViewCollectio
                 Messages.GET_INTERFACE_DATA,
                 {
                   iface_kind: type,
-                  name: label,
+                  name: data?.name,
                   include_tabs: true,
                 },
                 true

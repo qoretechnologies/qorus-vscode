@@ -2,7 +2,9 @@ import { reduce, size } from 'lodash';
 import { Messages } from '../constants/messages';
 import configItems from '../stories/Data/configItems';
 import directories from '../stories/Data/directories.json';
+import fields from '../stories/Data/fields.json';
 import items from '../stories/Data/interfaces.json';
+import objects from '../stories/Data/objects.json';
 import projectConfig from '../stories/Data/projectConfig.json';
 import { sleep } from '../stories/Tests/utils';
 
@@ -51,7 +53,6 @@ export const vscode =
                     url: 'https://hq.qoretechnologies.com:8092',
                   },
                   is_hosted_instance: true,
-                  is_qore_installed: false,
                 },
               };
 
@@ -187,84 +188,81 @@ export const vscode =
               break;
             }
             case 'creator-get-objects': {
-              messageData = {
-                action: 'creator-return-objects',
-                object_type: data.object_type,
-              };
+              messageData = objects[data.object_type];
 
-              switch (data.object_type) {
-                case 'mapper': {
-                  messageData.objects = [
-                    {
-                      name: 'Test Mapper 1',
-                      desc: 'Test Mapper 1 description',
-                      version: '1.0',
-                      type: 'mapper',
-                    },
-                  ];
-                  break;
-                }
-                case 'pipeline': {
-                  messageData.objects = [
-                    {
-                      name: 'Test Pipeline 1',
-                      desc: 'Test Pipeline 1 description',
-                      version: '1.0',
-                      type: 'pipeline',
-                    },
-                  ];
-                  break;
-                }
-                case 'fsm': {
-                  messageData.objects = [
-                    {
-                      name: 'Test FSM 1',
-                      type: 'fsm',
-                    },
-                  ];
-                  break;
-                }
-                case 'group': {
-                  messageData.objects = [
-                    {
-                      name: 'Test Group 1',
-                      type: 'group',
-                    },
-                  ];
-                  break;
-                }
-                case 'class-with-connectors': {
-                  messageData.objects = [
-                    {
-                      name: 'Test Class With Connectors 1',
-                      type: 'class',
-                      'class-connectors': [
-                        {
-                          name: 'Input Connector ',
-                          desc: 'Connector description',
-                          type: 'input',
-                        },
-                        {
-                          name: 'Ouptut Connector ',
-                          desc: 'Connector description',
-                          type: 'output',
-                        },
-                        {
-                          name: 'Input Output Connector ',
-                          desc: 'Connector description',
-                          type: 'input-output',
-                        },
-                        {
-                          name: 'Event Connector ',
-                          desc: 'Connector description',
-                          type: 'event',
-                        },
-                      ],
-                    },
-                  ];
-                  break;
-                }
-              }
+              // switch (data.object_type) {
+              //   case 'mapper': {
+              //     messageData.objects = [
+              //       {
+              //         name: 'Test Mapper 1',
+              //         desc: 'Test Mapper 1 description',
+              //         version: '1.0',
+              //         type: 'mapper',
+              //       },
+              //     ];
+              //     break;
+              //   }
+              //   case 'pipeline': {
+              //     messageData.objects = [
+              //       {
+              //         name: 'Test Pipeline 1',
+              //         desc: 'Test Pipeline 1 description',
+              //         version: '1.0',
+              //         type: 'pipeline',
+              //       },
+              //     ];
+              //     break;
+              //   }
+              //   case 'fsm': {
+              //     messageData.objects = [
+              //       {
+              //         name: 'Test FSM 1',
+              //         type: 'fsm',
+              //       },
+              //     ];
+              //     break;
+              //   }
+              //   case 'group': {
+              //     messageData.objects = [
+              //       {
+              //         name: 'Test Group 1',
+              //         type: 'group',
+              //       },
+              //     ];
+              //     break;
+              //   }
+              //   case 'class-with-connectors': {
+              //     messageData.objects = [
+              //       {
+              //         name: 'Test Class With Connectors 1',
+              //         type: 'class',
+              //         'class-connectors': [
+              //           {
+              //             name: 'Input Connector ',
+              //             desc: 'Connector description',
+              //             type: 'input',
+              //           },
+              //           {
+              //             name: 'Ouptut Connector ',
+              //             desc: 'Connector description',
+              //             type: 'output',
+              //           },
+              //           {
+              //             name: 'Input Output Connector ',
+              //             desc: 'Connector description',
+              //             type: 'input-output',
+              //           },
+              //           {
+              //             name: 'Event Connector ',
+              //             desc: 'Connector description',
+              //             type: 'event',
+              //           },
+              //         ],
+              //       },
+              //     ];
+              //     break;
+              //   }
+              // }
 
               break;
             }
@@ -480,6 +478,11 @@ export const vscode =
                 ],
               };
               break;
+            case 'creator-get-fields': {
+              messageData = fields[data.iface_kind];
+
+              break;
+            }
             case 'creator-get-fields-as-options': {
               messageData = {
                 action: 'creator-get-fields-as-options-complete',

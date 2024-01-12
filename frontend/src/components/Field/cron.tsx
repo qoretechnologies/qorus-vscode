@@ -132,7 +132,9 @@ const CronField: FunctionComponent<ICronField & IField & IFieldChange> = ({
         <ReqoreButton fixed onClick={handleResetClick} icon={'CloseLine'} />
       </ReqoreControlGroup>
       <ReqoreVerticalSpacer height={10} />
-      <ReqoreMessage intent={isError ? 'danger' : 'info'}>{message}</ReqoreMessage>
+      <ReqoreMessage intent={isError ? 'danger' : 'info'} opaque={false}>
+        {message}
+      </ReqoreMessage>
     </>
   );
 };

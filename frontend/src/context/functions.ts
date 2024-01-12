@@ -1,3 +1,3 @@
 import { createContext } from 'react';
 
-export const FunctionsContext = createContext({});
+export const FunctionsContext = createContext<any>({});

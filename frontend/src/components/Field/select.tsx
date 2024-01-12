@@ -171,33 +171,41 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
     if (hasProcessor && name === 'base-class-name') {
       listener && listener();
       setListener(() =>
-        addMessageListener(return_message.action, (data: any) => {
-          const newItems = get(data, 'objects');
+        addMessageListener(
+          return_message.action,
+          (data: any) => {
+            const newItems = get(data, 'objects');
 
-          if (data.object_type === 'processor-base-class') {
-            setItems(get(data, 'objects'));
+            if (data.object_type === 'processor-base-class') {
+              setItems(get(data, 'objects'));
 
-            // Check if the current value is a correct processor class
-            // Remove the value if not
-            if (value && !newItems.find((item) => item.name === value)) {
-              onChange(name, null);
-            } else {
-              onChange(name, value);
+              // Check if the current value is a correct processor class
+              // Remove the value if not
+              if (value && !newItems.find((item) => item.name === value)) {
+                onChange(name, null);
+              } else {
+                onChange(name, value);
+              }
             }
-          }
-        })
+          },
+          true
+        )
       );
     } else {
       listener && listener();
       if (return_message) {
         setListener(() =>
-          addMessageListener(return_message.action, (data: any) => {
-            // Check if this is the correct
-            // object type
-            if (!return_message.object_type || data.object_type === return_message.object_type) {
-              setItems(get(data, return_message.return_value));
-            }
-          })
+          addMessageListener(
+            return_message.action,
+            (data: any) => {
+              // Check if this is the correct
+              // object type
+              if (!return_message.object_type || data.object_type === return_message.object_type) {
+                setItems(get(data, return_message.return_value));
+              }
+            },
+            true
+          )
         );
       }
     }
@@ -255,22 +263,30 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
 
     if (hasProcessor && name === 'base-class-name') {
       // Get only the processor related classes
-      postMessage('creator-get-objects', {
-        object_type: 'processor-base-class',
-        lang: requestFieldData('lang', 'value') || 'qore',
-        iface_kind,
-        class_name: className,
-      });
+      postMessage(
+        'creator-get-objects',
+        {
+          object_type: 'processor-base-class',
+          lang: requestFieldData('lang', 'value') || 'qore',
+          iface_kind,
+          class_name: className,
+        },
+        true
+      );
     } else if (get_message) {
       get_message.message_data = get_message.message_data || {};
       // Get the list of items from backend
-      postMessage(get_message.action, {
-        object_type: get_message.object_type,
-        data: { ...get_message.message_data },
-        lang: requestFieldData ? requestFieldData('lang', 'value') : 'qore',
-        iface_kind,
-        class_name: className,
-      });
+      postMessage(
+        get_message.action,
+        {
+          object_type: get_message.object_type,
+          data: { ...get_message.message_data },
+          lang: requestFieldData ? requestFieldData('lang', 'value') : 'qore',
+          iface_kind,
+          class_name: className,
+        },
+        true
+      );
     }
   };
 
@@ -296,6 +312,8 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
 
     return item?.desc || item?.short_desc;
   };
+
+  console.log(filteredItems);
 
   const reqoreItems: IReqoreMenuItemProps[] = filteredItems.map((item) => ({
     label: item.name,

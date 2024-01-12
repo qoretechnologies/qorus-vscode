@@ -35,6 +35,7 @@ const StorybookWrapper = ({ context, Story }) => {
               is_hosted_instance: true,
               confirmAction,
               saveDraft: () => {},
+              maybeApplyDraft: () => {},
               fetchData: async (url, method) => {
                 const data = await fetch(`https://hq.qoretechnologies.com:8092/api/latest/${url}`, {
                   method,

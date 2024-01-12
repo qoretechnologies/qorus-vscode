@@ -37,7 +37,7 @@ export const useFetchInterfaces = (type?: string) => {
       true
     );
 
-    return data.data;
+    return type ? data.data[type] : data.data;
   }, [type]);
 
   const handleDeleteClick = async (id: string | number) => {

@@ -1,3 +1,3 @@
 import { createContext } from 'react';
 
-export const MapperContext = createContext({});
+export const MapperContext = createContext<any>({});

@@ -1,3 +1,3 @@
 import { createContext } from 'react';
 
-export const ErrorsContext = createContext({});
+export const ErrorsContext = createContext<any>({});
