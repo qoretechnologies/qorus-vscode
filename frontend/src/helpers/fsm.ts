@@ -1001,6 +1001,34 @@ export const positionStateInFreeSpot = (states: IFSMStates, x: number, y: number
   return { x: newX, y: newY };
 };
 
+export const prepareFSMDataForPublishing = (
+  metadata: Partial<IFSMMetadata>,
+  states: IFSMStates
+) => {
+  const fixedMetadata = { ...metadata };
+
+  if (size(metadata.groups) === 0) {
+    delete fixedMetadata.groups;
+  }
+
+  const data = {
+    ...fixedMetadata,
+    desc: metadata.desc || 'No description',
+    states: reduce(
+      states,
+      (newStates, state, id) => ({
+        ...newStates,
+        [id]: omit(state, ['isNew', 'corners', 'width', 'height', 'key', 'keyId', 'isValid']),
+      }),
+      {}
+    ),
+  };
+
+  delete data.target_dir;
+
+  return data;
+};
+
 export const buildMetadata = (data?: IFSMMetadata, context?: any): IFSMMetadata => {
   const metadata: IFSMMetadata = {
     display_name: 'Untitled Qodex',

@@ -55,7 +55,7 @@ export const DependantsResetWhenParentChanges: StoryObj<typeof meta> = {
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
 
-    await waitFor(() => expect(canvas.getAllByText('local')[0]).toBeInTheDocument(), {
+    await waitFor(() => expect(canvas.getAllByDisplayValue('$local:test')[0]).toBeInTheDocument(), {
       timeout: 10000,
     });
     await waitFor(

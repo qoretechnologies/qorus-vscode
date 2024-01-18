@@ -55,6 +55,7 @@ import {
   getVariable,
   isStateValid,
   positionStateInFreeSpot,
+  prepareFSMDataForPublishing,
   removeAllStatesWithVariable,
   removeFSMState,
   repositionStateGroup,
@@ -337,6 +338,8 @@ export interface IFSMSelectedState {
   fromMouseDown?: boolean;
 }
 export type TFSMSelectedStates = Record<string, IFSMSelectedState>;
+
+export const FSMContext = React.createContext<any>({});
 
 export const FSMView: React.FC<IFSMViewProps> = ({
   onSubmitSuccess,
@@ -1483,26 +1486,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   const handleSubmitClick = async (testRun?: boolean, publish?: boolean) => {
     const submit = async () => {
-      const fixedMetadata = { ...metadata };
-
-      if (size(metadata.groups) === 0) {
-        delete fixedMetadata.groups;
-      }
-
-      const data = {
-        ...fixedMetadata,
-        desc: metadata.desc || 'No description',
-        states: reduce(
-          states,
-          (newStates, state, id) => ({
-            ...newStates,
-            [id]: omit(state, ['isNew', 'corners', 'width', 'height', 'key', 'keyId', 'isValid']),
-          }),
-          {}
-        ),
-      };
-
-      delete data.target_dir;
+      const data = prepareFSMDataForPublishing(metadata, states);
 
       if (testRun) {
         delete data['input-type'];
@@ -2237,7 +2221,7 @@ export const FSMView: React.FC<IFSMViewProps> = ({
     showTransitionsToaster.current = 0;
   }
 
-  return (
+  const renderFSM = () => (
     <AppsContext.Provider value={apps}>
       {!compatibilityChecked && (
         <StyledCompatibilityLoader>
@@ -2944,6 +2928,12 @@ export const FSMView: React.FC<IFSMViewProps> = ({
       </Content>
     </AppsContext.Provider>
   );
+
+  if (embedded) {
+    return renderFSM();
+  }
+
+  return <FSMContext.Provider value={{ metadata, states }}>{renderFSM()}</FSMContext.Provider>;
 };
 
 export default compose(

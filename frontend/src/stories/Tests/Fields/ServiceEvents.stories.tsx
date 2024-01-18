@@ -42,7 +42,7 @@ export const CreateNew: StoryObj<typeof meta> = {
 
     await sleep(1000);
 
-    await _testsSelectItemFromDropdown(canvas, 'Test FSM 1')();
+    await _testsSelectItemFromCollection(canvas, 'fsm-actions')();
 
     await sleep(1000);
 
@@ -75,7 +75,7 @@ export const ModifyExisting: StoryObj<typeof meta> = {
 
     await sleep(500);
 
-    await _testsSelectItemFromDropdown(canvas, 'Test FSM 1')();
+    await _testsSelectItemFromCollection(canvas, 'fsm-actions')();
 
     // Add new event
     await fireEvent.click(document.querySelector('.service-event-add-new'));

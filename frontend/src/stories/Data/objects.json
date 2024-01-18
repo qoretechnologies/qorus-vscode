@@ -2168,274 +2168,1273 @@
     "ok": true,
     "message": "base-class"
   },
-  "class-with-connector": {
-    "request_id": "xsOLHgjCBhqvofn",
+  "class-with-connectors": {
+    "request_id": "IRsu5AKj6zSR8SY",
     "tab_token": "none",
     "object_type": "class-with-connectors",
     "objects": [
       {
+        "name": "BB_BasicsProcessOrdersClass",
+        "desc": "## Helper class to get new orders from the exchange_orders table\n\nIt has one connector to be used in order to retrive new exchange orders",
+        "class-connectors": [
+          {
+            "name": "BasicsProcessOrdersClass1",
+            "method": "getParams",
+            "output-provider": {
+              "can_manage_fields": true,
+              "name": "qore",
+              "path": "/hash",
+              "type": "type"
+            },
+            "type": "output"
+          }
+        ]
+      },
+      {
         "name": "BBM_AutoMapper",
-        "desc": "## Summary\n\nBase class for running a mapper in autonomous mode, meaning that the input and output data are provided by data providers configured in the mapper.\n\nThis building block is not suitable for mapping input data and returning output data, for that use `BBM_GenericMapper` or a mapper in an FSM, a data pipeline, or in a class connection in an interface.\n\nUse this object's configuration to provide input or search filtering as well as to tune the output data handling.\n\n## Connectors\n\n### Input/Output Connector `runMapper`\n\nThis connector runs the mapper in autonomous mode.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n## References\n\nSee `BBM_GenericMapper`"
+        "desc": "## Summary\n\nBase class for running a mapper in autonomous mode, meaning that the input and output data are provided by data providers configured in the mapper.\n\nThis building block is not suitable for mapping input data and returning output data, for that use `BBM_GenericMapper` or a mapper in an FSM, a data pipeline, or in a class connection in an interface.\n\nUse this object's configuration to provide input or search filtering as well as to tune the output data handling.\n\n## Connectors\n\n### Input/Output Connector `runMapper`\n\nThis connector runs the mapper in autonomous mode.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n## References\n\nSee `BBM_GenericMapper`",
+        "class-connectors": [
+          {
+            "name": "runMapper",
+            "method": "runMapper",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_AutoMapperRecord",
-        "desc": "## Summary\n\nBase class for running a mapper with a record-based output data provider in autonomous mode, meaning that the input and output data are provided by data providers configured in the mapper.  This building block also supports recovery logic and a validation connector.\n\nThis building block is not suitable for mapping input data and returning output data, for that use `BBM_GenericMapper` or a mapper in an FSM, a data pipeline, or in a class connection in an interface.\n\nUse this object's configuration to provide input or search filtering as well as to tune the output data handling.\n\n## Connectors\n\n### Input/Output Connector `runMapper`\n\nThis connector runs the mapper in autonomous mode.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n### Input/Output Connector `validate`\n\nThis connector is suitable for step validation logic; it returns a string providing the validation status, either `COMPLETE` or `RETRY`, depending if output data was found in the output data provider or not.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n## References\n\nSee `BBM_GenericMapper`\n"
+        "desc": "## Summary\n\nBase class for running a mapper with a record-based output data provider in autonomous mode, meaning that the input and output data are provided by data providers configured in the mapper.  This building block also supports recovery logic and a validation connector.\n\nThis building block is not suitable for mapping input data and returning output data, for that use `BBM_GenericMapper` or a mapper in an FSM, a data pipeline, or in a class connection in an interface.\n\nUse this object's configuration to provide input or search filtering as well as to tune the output data handling.\n\n## Connectors\n\n### Input/Output Connector `runMapper`\n\nThis connector runs the mapper in autonomous mode.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n### Input/Output Connector `validate`\n\nThis connector is suitable for step validation logic; it returns a string providing the validation status, either `COMPLETE` or `RETRY`, depending if output data was found in the output data provider or not.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n## References\n\nSee `BBM_GenericMapper`\n",
+        "class-connectors": [
+          {
+            "name": "runMapper",
+            "type": "input-output",
+            "method": "runMapper"
+          },
+          {
+            "name": "validate",
+            "type": "input-output",
+            "method": "validate"
+          }
+        ]
       },
       {
         "name": "BBM_AutoMapperRequest",
-        "desc": "## Summary\n\nBase class for running a mapper with a request/response-based output data provider in autonomous mode, meaning that the input and output data are provided by data providers configured in the mapper.  This building block also supports recovery logic and a validation connector.\n\nThis building block is not suitable for mapping input data and returning output data, for that use `BBM_GenericMapper` or a mapper in an FSM, a data pipeline, or in a class connection in an interface.\n\nUse this object's configuration to provide input or search filtering as well as to tune the output data handling.\n\n## Connectors\n\n### Input/Output Connector `runMapper`\n\nThis connector runs the mapper in autonomous mode.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` is the input argument data for the connector available as `$local:input`.\n\n### Input/Output Connector `validate`\n\nThis connector is suitable for step validation logic; it returns a string providing the validation status, either `COMPLETE` or `RETRY`, depending if output data was found in the output data provider or not.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` is the input argument data for the connector available as `$local:input`.\n\n## References\n\nSee `BBM_GenericMapper`"
+        "desc": "## Summary\n\nBase class for running a mapper with a request/response-based output data provider in autonomous mode, meaning that the input and output data are provided by data providers configured in the mapper.  This building block also supports recovery logic and a validation connector.\n\nThis building block is not suitable for mapping input data and returning output data, for that use `BBM_GenericMapper` or a mapper in an FSM, a data pipeline, or in a class connection in an interface.\n\nUse this object's configuration to provide input or search filtering as well as to tune the output data handling.\n\n## Connectors\n\n### Input/Output Connector `runMapper`\n\nThis connector runs the mapper in autonomous mode.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` is the input argument data for the connector available as `$local:input`.\n\n### Input/Output Connector `validate`\n\nThis connector is suitable for step validation logic; it returns a string providing the validation status, either `COMPLETE` or `RETRY`, depending if output data was found in the output data provider or not.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` is the input argument data for the connector available as `$local:input`.\n\n## References\n\nSee `BBM_GenericMapper`",
+        "class-connectors": [
+          {
+            "name": "runMapper",
+            "type": "input-output",
+            "method": "runMapper"
+          },
+          {
+            "name": "validate",
+            "type": "input-output",
+            "method": "validate"
+          }
+        ]
       },
       {
         "name": "BBM_AwsSnsServiceEventSource",
-        "desc": "## Summary\n\nBase AWS [Simple Notification Service][Simple Notification Service] handler service event source class.\n\n## Connectors\n\n### Input/Output Connector `snsEvent`\n\nProvides SNS event information when it's received by this class.\n\n## References\n\nSee `BBM_AwsSnsServiceBase`\n"
+        "desc": "## Summary\n\nBase AWS [Simple Notification Service][Simple Notification Service] handler service event source class.\n\n## Connectors\n\n### Input/Output Connector `snsEvent`\n\nProvides SNS event information when it's received by this class.\n\n## References\n\nSee `BBM_AwsSnsServiceBase`\n",
+        "class-connectors": [
+          {
+            "name": "snsEvent",
+            "type": "event",
+            "method": "snsEvent",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/aws/sns/notification"
+            }
+          }
+        ]
       },
       {
         "name": "BBM_BindSubworkflow",
-        "desc": "## Summary\n\nBinds a subworkflow in a subworkflow step.\n\nThis building block uses the input data for binding; for a building block that binds based on configuration, see `BBM_BindSubworkflowStatic`\n\nThis building block is useful only in limited use cases; `BBM_BindSubworkflowStatic` can do everything this building block can do and more; it's recommended to use `BBM_BindSubworkflowStatic` instead.\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `util/workflow/bind-subworkflow` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `bindSubworkflow`\n\nBinds the subworkflow based on the input data; configuration is only used to identify the workflow and to specify output data handling."
+        "desc": "## Summary\n\nBinds a subworkflow in a subworkflow step.\n\nThis building block uses the input data for binding; for a building block that binds based on configuration, see `BBM_BindSubworkflowStatic`\n\nThis building block is useful only in limited use cases; `BBM_BindSubworkflowStatic` can do everything this building block can do and more; it's recommended to use `BBM_BindSubworkflowStatic` instead.\n\n## Connectors\n\n### Input/Output Connector `bindSubworkflow`\n\nBinds the subworkflow based on the input data; configuration is only used to identify the workflow and to specify output data handling.",
+        "class-connectors": [
+          {
+            "name": "bindSubworkflow",
+            "type": "input-output",
+            "method": "bindSubworkflow",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/bind-subworkflow/response"
+            },
+            "input-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/bind-subworkflow/request"
+            }
+          }
+        ]
       },
       {
         "name": "BBM_BindSubworkflowStatic",
-        "desc": "## Summary\n\nBinds a subworkflow in a subworkflow step based on configuration.\n\nThis building block uses configuration for all binding data; for a building block that binds purely based on input data, see `BBM_BindSubworkflow`\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `util/workflow/bind-subworkflow` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `bindSubworkflow`\n\nBinds the subworkflow based on configuration.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`)."
+        "desc": "## Summary\n\nBinds a subworkflow in a subworkflow step based on configuration.\n\nThis building block uses configuration for all binding data; for a building block that binds purely based on input data, see `BBM_BindSubworkflow`\n\n## Connectors\n\n### Input/Output Connector `bindSubworkflow`\n\nBinds the subworkflow based on configuration.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).",
+        "class-connectors": [
+          {
+            "name": "bindSubworkflow",
+            "method": "bindSubworkflow",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/bind-subworkflow/response"
+            },
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_Break",
-        "desc": "## Summary\n\nBuilding block that throws an `FSM-BREAK` exception to provide a `break` action when executing an FSM.\n\nThere is no configuration\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `util/break` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input Connector doBreak\n\nThrows an `FSM-BREAK` exception to provide a `break` action when executing an FSM.\n\nInput data is ignored\n"
+        "desc": "## Summary\n\nBuilding block that throws an `FSM-BREAK` exception to provide a `break` action when executing an FSM.\n\nThere is no configuration\n\n## Connectors\n\n### Input Connector doBreak\n\nThrows an `FSM-BREAK` exception to provide a `break` action when executing an FSM.\n\nInput data is ignored\n",
+        "class-connectors": [
+          {
+            "name": "doBreak",
+            "type": "input",
+            "method": "doBreak"
+          }
+        ]
       },
       {
         "name": "BBM_Continue",
-        "desc": "## Summary\n\nBuilding block that throws an `FSM-CONTINUE` exception to provide a `continue` action when executing an FSM.\n\nThere is no configuration\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `util/continue` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input Connector doContinue\n\nThrows an `FSM-CONTINUE` exception to provide a `continue` action when executing an FSM.\n\nInput data is ignored\n"
+        "desc": "## Summary\n\nBuilding block that throws an `FSM-CONTINUE` exception to provide a `continue` action when executing an FSM.\n\nThere is no configuration\n\n## Connectors\n\n### Input Connector doContinue\n\nThrows an `FSM-CONTINUE` exception to provide a `continue` action when executing an FSM.\n\nInput data is ignored\n",
+        "class-connectors": [
+          {
+            "name": "doContinue",
+            "type": "input",
+            "method": "doContinue"
+          }
+        ]
       },
       {
         "name": "BBM_CreateOrder",
-        "desc": "## Summary\n\nBuilding block for creating a workflow order from input data.\n\nThis building block uses the input data for creating the new workflow order; for a building block that binds based on configuration, see `BBM_CreateOrderStatic`\n\nThis building block is useful only in limited use cases; `BBM_CreateOrderStatic` can do everything this building block can do and more; it's recommended to use `BBM_CreateOrderStatic` instead.\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `workflows/create-order` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `createOrder`\n\nCreates a new workflow order based on the input data; configuration is only used to identify the workflow and to specify output data handling."
+        "desc": "## Summary\n\nBuilding block for creating a workflow order from input data.\n\nThis building block uses the input data for creating the new workflow order; for a building block that binds based on configuration, see `BBM_CreateOrderStatic`\n\nThis building block is useful only in limited use cases; `BBM_CreateOrderStatic` can do everything this building block can do and more; it's recommended to use `BBM_CreateOrderStatic` instead.\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `workflows/create-order` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `createOrder`\n\nCreates a new workflow order based on the input data; configuration is only used to identify the workflow and to specify output data handling.",
+        "class-connectors": [
+          {
+            "name": "createOrder",
+            "input-provider": {
+              "name": "qoretechnologies",
+              "path": "/qorus-api/workflows/create-order/request",
+              "type": "type"
+            },
+            "method": "createWorkflowOrderConnector",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/qorus-api/workflows/create-order/response"
+            },
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_CreateOrderStatic",
-        "desc": "## Summary\n\nBuilding block for creating a workflow order from configuration.\n\nThis building block uses configuration to create the new workflow order; for a building block that binds purely based on input data, see `BBM_CreateOrder`\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `workflows/create-order` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `createOrderStatic`\n\nCreate the workflow order based on configuration.\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`)."
+        "desc": "## Summary\n\nBuilding block for creating a workflow order from configuration.\n\nThis building block uses configuration to create the new workflow order; for a building block that binds purely based on input data, see `BBM_CreateOrder`\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `workflows/create-order` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `createOrderStatic`\n\nCreate the workflow order based on configuration.\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).",
+        "class-connectors": [
+          {
+            "name": "createOrderStatic",
+            "method": "createOrderStatic",
+            "output-provider": {
+              "name": "qoretechnologies",
+              "path": "/qorus-api/workflows/create-order/response",
+              "type": "type"
+            },
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_CsvReadDataProvider",
-        "desc": "## Summary\n\nProvides a config-based data provider object for data from CSV input data\n\n## Connectors\n\n ### Input/Output Connector `searchRecordsConnector`\n\nCreates a CSV read data provider object and returns the records parsed.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` for all config items is the input  argument data for the connector available as `$local:input`."
+        "desc": "## Summary\n\nProvides a config-based data provider object for data from CSV input data\n\n## Connectors\n\n ### Input/Output Connector `searchRecordsConnector`\n\nCreates a CSV read data provider object and returns the records parsed.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` for all config items is the input  argument data for the connector available as `$local:input`.",
+        "class-connectors": [
+          {
+            "name": "searchRecordsConnector",
+            "type": "input-output",
+            "method": "searchRecordsConnector"
+          }
+        ]
       },
       {
         "name": "BBM_DataProviderRecordCreate",
-        "desc": "## Summary\n\nBuilding block for creating records in record-based data providers.\n\nThe record to be created is determined by the value of the config item `dataprovider-create-input`; ex:\n\n```\nname: $static:name\ndescription: $static:description\n```\n\nFor a data provider supporting the `returning` create option (like `DbTableDataProvider`, for example), the output data can return values created implicitly in the record creation action such as column values populated by sequences from a trigger using the `dataprovider-create-options` config item - ex: `returning: customer_id`\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `data-provider/create` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `DataProvider Record Create`\n\nInserts data from the input argument, or, if there is none, from config item `dataprovider-create-input`\n\n### Input/Output Connector  `DataProvider Record Create From Config`\n\nInserts data solely from config item `dataprovider-create-input`.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n### Input/Output Connector `DataProvider Record Validate`\n\nThis connector is suitable for step validation logic; it returns a string providing the validation status, either `COMPLETE` or `RETRY`, depending if output data was found in the output data provider or not.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`)."
+        "desc": "## Summary\n\nBuilding block for creating records in record-based data providers.\n\nThe record to be created is determined by the value of the config item `dataprovider-create-input`; ex:\n\n```\nname: $static:name\ndescription: $static:description\n```\n\nFor a data provider supporting the `returning` create option (like `DbTableDataProvider`, for example), the output data can return values created implicitly in the record creation action such as column values populated by sequences from a trigger using the `dataprovider-create-options` config item - ex: `returning: customer_id`\n\n## Connectors\n\n### Input/Output Connector `DataProvider Record Create`\n\nInserts data from the input argument, or, if there is none, from config item `dataprovider-create-input`\n\n### Input/Output Connector  `DataProvider Record Create From Config`\n\nInserts data solely from config item `dataprovider-create-input`.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n### Input/Output Connector `DataProvider Record Validate`\n\nThis connector is suitable for step validation logic; it returns a string providing the validation status, either `COMPLETE` or `RETRY`, depending if output data was found in the output data provider or not.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).",
+        "class-connectors": [
+          {
+            "name": "DataProvider Record Create",
+            "method": "makeDataProviderRecord",
+            "type": "input-output"
+          },
+          {
+            "name": "DataProvider Record Create From Config",
+            "type": "input-output",
+            "method": "makeDataProviderRecordFromConfig"
+          },
+          {
+            "name": "DataProvider Record Validate",
+            "type": "input-output",
+            "method": "validate"
+          }
+        ]
       },
       {
         "name": "BBM_DataProviderRecordUpdate",
-        "desc": "## Summary\n\nBuilding block to make an update in record-based data providers.\n\n## Connectors\n\n### Input/Output Connector `updateDataProviderRecord`\n\nUsed to make an update in a record-based data provider based on input data providing the update hash; if no input data is provided, then the update hash is taken from config item `dataprovider-update-set `.\n\nThe output data is a hash with the single key `count` giving the number of records updated.\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `data-provider/update` API data provider in the `qorus-api` factory instead\n\n### Input/Output Connector `updateDataProviderRecordFromConfig`\n\nUsed to make an update in a record-based data provider based on config item `dataprovider-update-set ` providing the update hash.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n\nThe output data is a hash with the single key `count` giving the number of records updated.\n"
+        "desc": "## Summary\n\nBuilding block to make an update in record-based data providers.\n\n## Connectors\n\n### Input/Output Connector `updateDataProviderRecord`\n\nUsed to make an update in a record-based data provider based on input data providing the update hash; if no input data is provided, then the update hash is taken from config item `dataprovider-update-set `.\n\nThe output data is a hash with the single key `count` giving the number of records updated.\n\n### Input/Output Connector `updateDataProviderRecordFromConfig`\n\nUsed to make an update in a record-based data provider based on config item `dataprovider-update-set ` providing the update hash.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n\nThe output data is a hash with the single key `count` giving the number of records updated.\n",
+        "class-connectors": [
+          {
+            "name": "DataProvider Record Update",
+            "method": "updateDataProviderRecord",
+            "type": "input-output",
+            "input-provider": {
+              "type": "type",
+              "name": "qore",
+              "can_manage_fields": true,
+              "path": "/hash"
+            },
+            "output-provider": {
+              "type": "type",
+              "name": "qore",
+              "can_manage_fields": true,
+              "path": "/hash"
+            }
+          },
+          {
+            "name": "DataProvider Record Update From Config",
+            "type": "input-output",
+            "method": "updateDataProviderRecordFromConfig",
+            "output-provider": {
+              "type": "type",
+              "name": "qore",
+              "can_manage_fields": true,
+              "path": "/hash"
+            }
+          }
+        ]
       },
       {
         "name": "BBM_DataProviderRequest",
-        "desc": "## Summary\n\nBuilding block base class for request-reply-based data providers.\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `data-provider/do-request` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `makeDataProviderRequestConnector`\n\nThis connector makes a request using the input data for the request body.\n\n### Input/Output Connector `makeDataProviderRequestFromConfigConnector`\n\nThis connector makes a request using configuration to provide the request body.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n## References\n\nSee `BBM_DataProviderRequestWithRecovery`"
+        "desc": "## Summary\n\nBuilding block base class for request-reply-based data providers.\n\n## Connectors\n\n### Input/Output Connector `makeDataProviderRequestConnector`\n\nThis connector makes a request using the input data for the request body.\n\n### Input/Output Connector `makeDataProviderRequestFromConfigConnector`\n\nThis connector makes a request using configuration to provide the request body.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n## References\n\nSee `BBM_DataProviderRequestWithRecovery`",
+        "class-connectors": [
+          {
+            "name": "DataProvider Request",
+            "method": "makeDataProviderRequestConnector",
+            "type": "input-output"
+          },
+          {
+            "name": "DataProvider Request From Config",
+            "type": "input-output",
+            "method": "makeDataProviderRequestFromConfigConnector"
+          }
+        ]
       },
       {
         "name": "BBM_DataProviderRequestWithRecovery",
-        "desc": "## Summary\n\nBuilding block for request-based data providers with recovery logic; supports recovery with a single request\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `data-provider/do-request` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `makeDataProviderRequestConnector`\n\nThis connector makes a request using the input data for the request body.\n\n### Input/Output Connector `makeDataProviderRequestFromConfigConnector`\n\nThis connector makes a request using configuration to provide the request body.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` is the input argument data for the connector available as `$local:input`.\n\n### Input/Output Connector `DataProvider Request Validation`\n\nThis connector is suitable for step validation logic; it returns a string providing the validation status, either `COMPLETE` or `RETRY`, depending if output data was found in the output data provider or not.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n"
+        "desc": "## Summary\n\nBuilding block for request-based data providers with recovery logic; supports recovery with a single request\n\n## Connectors\n\n### Input/Output Connector `makeDataProviderRequestConnector`\n\nThis connector makes a request using the input data for the request body.\n\n### Input/Output Connector `makeDataProviderRequestFromConfigConnector`\n\nThis connector makes a request using configuration to provide the request body.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` is the input argument data for the connector available as `$local:input`.\n\n### Input/Output Connector `DataProvider Request Validation`\n\nThis connector is suitable for step validation logic; it returns a string providing the validation status, either `COMPLETE` or `RETRY`, depending if output data was found in the output data provider or not.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n",
+        "class-connectors": [
+          {
+            "name": "DataProvider Request",
+            "method": "makeDataProviderRequestConnector",
+            "type": "input-output"
+          },
+          {
+            "name": "DataProvider Request Validation",
+            "method": "makeDataProviderRequestValidationConnector",
+            "type": "output"
+          },
+          {
+            "name": "DataProvider Request From Config",
+            "type": "input-output",
+            "method": "makeDataProviderRequestFromConfigConnector"
+          }
+        ]
       },
       {
         "name": "BBM_DataProviderSearch",
-        "desc": "## Summary\n\nPerforms a search in a record-based data provider and returns the result\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `data-provider/search` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `DataProvider Single Record Search`\n\nThis connector executes the search using the input data for the search parameters; the search must return a single record (or no result).\n\nWith this connector, the local data (i.e. `$local:*`) for the `dataprovider-search-output-data` config item is the record returned if any data is returned; if no data is returned from the search, no output data can be stored; the internal call to `UserApi::updateOutputData()` is not executed in this case.\n\n### Input/Output Connector `DataProvider Single Record Search From Config`\n\nThis connector executes the search using configuration for search parameters; the search must return a single record (or no result).\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`) except `dataprovider-search-output-data`.\n\nWith this connector, the local data (i.e. `$local:*`) for the `dataprovider-search-output-data` config item is the record returned if any data is returned; if no data is returned from the search, no output data can be stored; the internal call to `UserApi::updateOutputData()` is not executed in this case.\n\n### Input/Output Connector `DataProvider Multiple Record Search`\n\nThis connector executes the search using the input data for the search parameters; the search can return multiple records; output data is the list of hashes representing the records retrieved, or no data, in case no records were matched.\n\nWith this connector, the local data for the `dataprovider-search-output-data` config item is the records returned in `$local:records`).\n\n### Input/Output Connector `DataProvider Multiple Record Search From Config`\n\nThis connector executes the search using configuration for search parameters; the search can return multiple records; output data is the list of hashes representing the records retrieved, or no data, in case no records were matched.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`) except `dataprovider-search-output-data`.\n\nWith this connector, the local data for the `dataprovider-search-output-data` config item is the records returned in `$local:records`).\n\n## References\n\nSee `BBM_DataProviderSearchBase`\n"
+        "desc": "## Summary\n\nPerforms a search in a record-based data provider and returns the result\n\n## Connectors\n\n### Input/Output Connector `DataProvider Single Record Search`\n\nThis connector executes the search using the input data for the search parameters; the search must return a single record (or no result).\n\nWith this connector, the local data (i.e. `$local:*`) for the `dataprovider-search-output-data` config item is the record returned if any data is returned; if no data is returned from the search, no output data can be stored; the internal call to `UserApi::updateOutputData()` is not executed in this case.\n\n### Input/Output Connector `DataProvider Single Record Search From Config`\n\nThis connector executes the search using configuration for search parameters; the search must return a single record (or no result).\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`) except `dataprovider-search-output-data`.\n\nWith this connector, the local data (i.e. `$local:*`) for the `dataprovider-search-output-data` config item is the record returned if any data is returned; if no data is returned from the search, no output data can be stored; the internal call to `UserApi::updateOutputData()` is not executed in this case.\n\n### Input/Output Connector `DataProvider Multiple Record Search`\n\nThis connector executes the search using the input data for the search parameters; the search can return multiple records; output data is the list of hashes representing the records retrieved, or no data, in case no records were matched.\n\nWith this connector, the local data for the `dataprovider-search-output-data` config item is the records returned in `$local:records`).\n\n### Input/Output Connector `DataProvider Multiple Record Search From Config`\n\nThis connector executes the search using configuration for search parameters; the search can return multiple records; output data is the list of hashes representing the records retrieved, or no data, in case no records were matched.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`) except `dataprovider-search-output-data`.\n\nWith this connector, the local data for the `dataprovider-search-output-data` config item is the records returned in `$local:records`).\n\n## References\n\nSee `BBM_DataProviderSearchBase`\n",
+        "class-connectors": [
+          {
+            "name": "DataProvider Single Record Search",
+            "method": "doSingleRecordSearchConnector",
+            "type": "input-output",
+            "output-provider": {
+              "name": "qore",
+              "path": "/hash",
+              "type": "type"
+            },
+            "input-provider": {
+              "name": "qoretechnologies",
+              "path": "/building-blocks/data-provider-search/input",
+              "type": "type"
+            }
+          },
+          {
+            "name": "DataProvider Single Record Search From Config",
+            "method": "doSingleRecordSearchConnectorFromConfig",
+            "output-provider": {
+              "name": "qore",
+              "path": "/hash",
+              "type": "type"
+            },
+            "type": "input-output"
+          },
+          {
+            "name": "DataProvider Multiple Record Search",
+            "type": "input-output",
+            "method": "doMultipleSearchConnector",
+            "input-provider": {
+              "name": "qoretechnologies",
+              "path": "/building-blocks/data-provider-search/input",
+              "type": "type"
+            }
+          },
+          {
+            "name": "DataProvider Multiple Record Search From Config",
+            "type": "input-output",
+            "method": "doMultipleSearchConnectorFromConfig"
+          }
+        ]
       },
       {
         "name": "BBM_DataProviderSearchRecordIterator",
-        "desc": "## Summary\n\nProvides a building block that outputs a record iterator suitable for use as an input element in a data pipeline.\n\n## Connectors\n\n### Input/Output Connector getIterator()\n\nPerforms the search and returns a bulk record iterator for use as input to a data pipeline, for example.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n"
+        "desc": "## Summary\n\nProvides a building block that outputs a record iterator suitable for use as an input element in a data pipeline.\n\n## Connectors\n\n### Input/Output Connector getIterator()\n\nPerforms the search and returns a bulk record iterator for use as input to a data pipeline, for example.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n",
+        "class-connectors": [
+          {
+            "name": "getIterator",
+            "type": "input-output",
+            "method": "getIterator"
+          }
+        ]
       },
       {
         "name": "BBM_DataSerialization",
-        "desc": "## Summary\n\nSerializes data to a specific format according to the `data-serialization-format` configuration item:\n- **JSON**: serialize to a JSON string\n- **XML**: serialize to an XML string\n- **XML-RPC**: serialize to an XML string in [XML-RPC](https://en.wikipedia.org/wiki/XML-RPC) format\n- **YAML**: serialize to a YAML string\n\nUse the `data-serialization-verbose-output` config item to use multi-line serialization for more human-readable results for complex data structures if necessary.\n\n## Connectors\n\n### Input/Output Connector `serialize`\n\nInput data is available as local context data during the resolution of all config item as `$local:input`.  \n\nThe output data includes the serialized data in the `output` key of the hash returned.\n"
+        "desc": "## Summary\n\nSerializes data to a specific format according to the `data-serialization-format` configuration item:\n- **JSON**: serialize to a JSON string\n- **XML**: serialize to an XML string\n- **XML-RPC**: serialize to an XML string in [XML-RPC](https://en.wikipedia.org/wiki/XML-RPC) format\n- **YAML**: serialize to a YAML string\n\nUse the `data-serialization-verbose-output` config item to use multi-line serialization for more human-readable results for complex data structures if necessary.\n\n## Connectors\n\n### Input/Output Connector `serialize`\n\nInput data is available as local context data during the resolution of all config item as `$local:input`.  \n\nThe output data includes the serialized data in the `output` key of the hash returned.\n",
+        "class-connectors": [
+          {
+            "name": "serialize",
+            "type": "input-output",
+            "method": "serialize",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/dataserialization/output"
+            }
+          }
+        ]
       },
       {
         "name": "BBM_DeleteFilePath",
-        "desc": "## Summary\n\nDeletes a file from the filesystem\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `delete` API data provider in the `file` factory instead\n\n## Connectors\n\n### Input/Output Connector `deleteFilePath`\n\nDeletes the file identified by the `delete-file-path` config item.\n\nLocal data used when resolving config items for this connector is the input argument data for the connector available as `$local:input`."
+        "desc": "## Summary\n\nDeletes a file from the filesystem\n\n## Connectors\n\n### Input/Output Connector `deleteFilePath`\n\nDeletes the file identified by the `delete-file-path` config item.\n\nLocal data used when resolving config items for this connector is the input argument data for the connector available as `$local:input`.",
+        "class-connectors": [
+          {
+            "name": "deleteFilePath",
+            "method": "deleteFilePath",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_ExcelReadDataProvider",
-        "desc": "## Summary\n\nProvides a config-based data provider object for data from a **[Microsoft Excel](https://www.microsoft.com/en-us/microsoft-365/excel)** spreadsheet.\n\n## Connectors\n\n### Input/Output Connector `searchRecordsConnector`\n\nCreates an Excel read data provider object and returns the records parsed.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` for all config items is the input  argument data for the connector available as `$local:input`."
+        "desc": "## Summary\n\nProvides a config-based data provider object for data from a **[Microsoft Excel](https://www.microsoft.com/en-us/microsoft-365/excel)** spreadsheet.\n\n## Connectors\n\n### Input/Output Connector `searchRecordsConnector`\n\nCreates an Excel read data provider object and returns the records parsed.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` for all config items is the input  argument data for the connector available as `$local:input`.",
+        "class-connectors": [
+          {
+            "name": "searchRecordsConnector",
+            "type": "input-output",
+            "method": "searchRecordsConnector"
+          }
+        ]
       },
       {
         "name": "BBM_ExecSyncWorkflow",
-        "desc": "## Summary\n\nExecutes a synchronous workflow order and returns the results.\n\nThis building block is useful only in limited use cases;`BBM_ExecSyncWorkflowStatic` can do everything this building block can do and more; it's recommended to use `BBM_ExecSyncWorkflowStatic` instead.\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `workflows/exec-sync` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `execSyncWorkflow`\n\nCreates a new workflow order based on the input data; configuration is only used to identify the workflow and to specify output data handling."
+        "desc": "## Summary\n\nExecutes a synchronous workflow order and returns the results.\n\nThis building block is useful only in limited use cases;`BBM_ExecSyncWorkflowStatic` can do everything this building block can do and more; it's recommended to use `BBM_ExecSyncWorkflowStatic` instead.\n\n## Connectors\n\n### Input/Output Connector `execSyncWorkflow`\n\nCreates a new workflow order based on the input data; configuration is only used to identify the workflow and to specify output data handling.",
+        "class-connectors": [
+          {
+            "name": "execSyncWorkflow",
+            "input-provider": {
+              "can_manage_fields": false,
+              "name": "qoretechnologies",
+              "path": "/qorus-api/workflows/create-order/request",
+              "type": "type"
+            },
+            "output-provider": {
+              "can_manage_fields": false,
+              "name": "qoretechnologies",
+              "path": "/building-blocks/exec-sync-workflow/response",
+              "type": "type"
+            },
+            "method": "execSyncWorkflow",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_ExecSyncWorkflowStatic",
-        "desc": "## Summary\n\nClass for executing a synchronous workflow order from configuration.\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `workflows/exec-sync` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `execSyncWorkflowStatic`\n\nCreates and executes a workflow order synchronously from the configuration data.\n\nThe input data is available as `$local:input` for all config items resolved  with this connector (in internal calls to `UserApi::expandTemplatedValue()).\n"
+        "desc": "## Summary\n\nClass for executing a synchronous workflow order from configuration.\n\n## Connectors\n\n### Input/Output Connector `execSyncWorkflowStatic`\n\n\nCreates and executes a workflow order synchronously from the configuration data.\n\nThe input data is available as `$local:input` for all config items resolved  with this connector (in internal calls to `UserApi::expandTemplatedValue()).\n",
+        "class-connectors": [
+          {
+            "name": "execSyncWorkflowStatic",
+            "method": "execSyncWorkflowStatic",
+            "output-provider": {
+              "can_manage_fields": false,
+              "name": "qoretechnologies",
+              "path": "/building-blocks/exec-sync-workflow/response",
+              "type": "type"
+            },
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_FsEventBase",
-        "desc": "generic class for event-driven file actions on the local filesystem"
+        "desc": "generic class for event-driven file actions on the local filesystem",
+        "class-connectors": [
+          {
+            "name": "event",
+            "method": "fileEvent",
+            "output-provider": {
+              "can_manage_fields": false,
+              "name": "qore",
+              "path": "/fsevents/event",
+              "type": "type"
+            },
+            "type": "event"
+          },
+          {
+            "name": "stop",
+            "method": "stop",
+            "type": "output"
+          }
+        ]
       },
       {
         "name": "BBM_FtpPollerBase",
-        "desc": "## Summary\n\nGeneric building block class for polling for files from an FTP server.\n\nThis class is meant to be used as a base class for interfaces (normally a job or a service) that provide FTP polling as an event connector.\n\nIf config item `ftp-polling-file-connection` is set, then files are streamed efficiently to the given local file system location and not stored in memory.  If this config item is not set, then all files are transferred and stored in main memory, which can cause problems with very large files.\n\nIf uploads to the FTP server are not atomic, the `ftp-polling-minage` config item can be used to ensure that files are only polled after they have been present on the FTP server for a defined period of time, which should be greater than the maximum time required to transfer the largest files.\n\nNote that this class can be used in either a job or a service to provide regular polling for files from an FTP server.  Use in a job is encouraged, as the job schedule is easily controlled by operational users and is the pollijng schedule, additionally the results of each polling operation are exposed in the UI and in the API as job results, making it easier to monitor the FTP polling status.\n\n## Connectors\n\n### Input/Output Connector `pollForFiles`\n\nUsed to poll for files once and return file data as output for all files polled; this connector is useful in a job to poll for files regularly according to the job's schedule.  Input data is ignored.\n\n### Input/Output Connector `start`\n\nThis connector can be used in a service to poll in a service's `start()` method in a background thread.  In order to use this class's `ftpFileEvent` connector, this connector must be used as the service's `start()` method.  \n\nInput data is ignored and passed through to the output data.\n\n### Input/Output Connector `stop`\n\nThis connector can be used in a service to stop polling in a service's `stop()` method.   In order to use this class's `ftpFileEvent` connector, this connector must be used as the service's `stop()` method.  \n\nInput data is ignored and passed through to the output data.\n\n### Event Connector `ftpFileEvent`\n\nThis event connector can be used in a service to process file events once they have been polled and fully transferred to the server.  In order to use this connector, the `start` and `stop` connectors must be used in a service's `start()` and `stop()` methods to start and stop the polling thread, respectively.\n\n## References\n\nSee:\n- class building block: `BBM_FtpPollerCreateOrder`\n- job base class: `BBM_FtpPollerCreateOrderJob`\n\n"
+        "desc": "## Summary\n\nGeneric building block class for polling for files from an FTP server.\n\nThis class is meant to be used as a base class for interfaces (normally a job or a service) that provide FTP polling as an event connector.\n\nIf config item `ftp-polling-file-connection` is set, then files are streamed efficiently to the given local file system location and not stored in memory.  If this config item is not set, then all files are transferred and stored in main memory, which can cause problems with very large files.\n\nIf uploads to the FTP server are not atomic, the `ftp-polling-minage` config item can be used to ensure that files are only polled after they have been present on the FTP server for a defined period of time, which should be greater than the maximum time required to transfer the largest files.\n\nNote that this class can be used in either a job or a service to provide regular polling for files from an FTP server.  Use in a job is encouraged, as the job schedule is easily controlled by operational users and is the pollijng schedule, additionally the results of each polling operation are exposed in the UI and in the API as job results, making it easier to monitor the FTP polling status.\n\n## Connectors\n\n### Input/Output Connector `pollForFiles`\n\nUsed to poll for files once and return file data as output for all files polled; this connector is useful in a job to poll for files regularly according to the job's schedule.  Input data is ignored.\n\n### Input/Output Connector `start`\n\nThis connector can be used in a service to poll in a service's `start()` method in a background thread.  In order to use this class's `ftpFileEvent` connector, this connector must be used as the service's `start()` method.  \n\nInput data is ignored and passed through to the output data.\n\n### Input/Output Connector `stop`\n\nThis connector can be used in a service to stop polling in a service's `stop()` method.   In order to use this class's `ftpFileEvent` connector, this connector must be used as the service's `stop()` method.  \n\nInput data is ignored and passed through to the output data.\n\n### Event Connector `ftpFileEvent`\n\nThis event connector can be used in a service to process file events once they have been polled and fully transferred to the server.  In order to use this connector, the `start` and `stop` connectors must be used in a service's `start()` and `stop()` methods to start and stop the polling thread, respectively.\n\n## References\n\nSee:\n- class building block: `BBM_FtpPollerCreateOrder`\n- job base class: `BBM_FtpPollerCreateOrderJob`\n\n",
+        "class-connectors": [
+          {
+            "name": "pollForFiles",
+            "type": "input-output",
+            "method": "pollForFiles"
+          },
+          {
+            "name": "start",
+            "type": "input-output",
+            "method": "start"
+          },
+          {
+            "name": "stop",
+            "type": "input-output",
+            "method": "stop"
+          },
+          {
+            "name": "ftpFileEvent",
+            "type": "event",
+            "method": "ftpFileEvent",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/ftp/event"
+            }
+          }
+        ]
       },
       {
         "name": "BBM_GenericMapper",
-        "desc": "## Summary\n\nThis is a generic mapper class building block that can be used to make generic data transformations.\n\n## Connectors\n\n### Input/Output Connector `map`\n\nThis connector uses the configured mapper to transform the input data; the output data is the result of the map operation.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n\nNote that input data used for the mapper is always the connector input data if present.\n\n### Input/Output Connector `mapFromConfig`\n\nThis connector uses the configured mapper to transform the input data; the output data is the result of the map operation.\n\nNote that input data used for the mapper is always taken from the `automapper-input` config item; input data is only used as context data (i.e. as `$local:input`) when resolving config item template values.\n"
+        "desc": "## Summary\n\nThis is a generic mapper class building block that can be used to make generic data transformations.\n\n## Connectors\n\n### Input/Output Connector `map`\n\nThis connector uses the configured mapper to transform the input data; the output data is the result of the map operation.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n\nNote that input data used for the mapper is always the connector input data if present.\n\n### Input/Output Connector `mapFromConfig`\n\nThis connector uses the configured mapper to transform the input data; the output data is the result of the map operation.\n\nNote that input data used for the mapper is always taken from the `automapper-input` config item; input data is only used as context data (i.e. as `$local:input`) when resolving config item template values.\n",
+        "class-connectors": [
+          {
+            "name": "map",
+            "method": "genericMapper",
+            "type": "input-output"
+          },
+          {
+            "name": "mapFromConfig",
+            "type": "input-output",
+            "method": "mapFromConfig"
+          }
+        ]
       },
       {
         "name": "BBM_GetArray",
-        "desc": "## Summary\n\nReturns an array from the configuration data\n\n## Connectors\n\n### Input/Output Connector `getArray`\n\nThis connector returns a list defined by the value of the `get-array-output` config item; if this config item returns a non-list value, then it is converted to a list before returning.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`)."
+        "desc": "## Summary\n\nReturns an array from the configuration data\n\n## Connectors\n\n### Input/Output Connector `getArray`\n\nThis connector returns a list defined by the value of the `get-array-output` config item; if this config item returns a non-list value, then it is converted to a list before returning.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).",
+        "class-connectors": [
+          {
+            "name": "getArray",
+            "method": "getArray",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_GetData",
-        "desc": "## Summary\n\nReturns data from configuration data\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `util/get-data` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `getData`\n\nReturns the value of the `get-data` config item.\n\nInput data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n### Input/Output Connector `getDataAsList`\n\nReturns the value of the `get-data` config item, converted to a single-element list if necessary.\n\nInput data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`)."
+        "desc": "## Summary\n\nReturns data from configuration data\n\n## Connectors\n\n### Input/Output Connector `getData`\n\nReturns the value of the `get-data` config item.\n\nInput data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).\n\n### Input/Output Connector `getDataAsList`\n\nReturns the value of the `get-data` config item, converted to a single-element list if necessary.\n\nInput data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).",
+        "class-connectors": [
+          {
+            "name": "getData",
+            "method": "getData",
+            "type": "input-output"
+          },
+          {
+            "name": "getDataAsList",
+            "type": "input-output",
+            "method": "getDataAsList"
+          }
+        ]
       },
       {
         "name": "BBM_InternalIterator",
-        "desc": "## Summary\n\nBuilding block that allows for iteration of internal data; converts a hash with an internal list into a list of hashes having common top-level data with the interior element repeated \n\n## Connectors\n\n### Input/Output Connector `internalIterator`\n\nAccepts the input data and returns a list of records according to the `internal-iterator-key-path` config item, designating the position in the input data to iterate.\n\nInput data is furthermore available as `$local:input` when resolving config items with this connector.\n"
+        "desc": "## Summary\n\nBuilding block that allows for iteration of internal data; converts a hash with an internal list into a list of hashes having common top-level data with the interior element repeated \n\n## Connectors\n\n### Input/Output Connector `internalIterator`\n\nAccepts the input data and returns a list of records according to the `internal-iterator-key-path` config item, designating the position in the input data to iterate.\n\nInput data is furthermore available as `$local:input` when resolving config items with this connector.\n",
+        "class-connectors": [
+          {
+            "name": "internalIterator",
+            "method": "internalIterator",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_KafkaConsumer",
-        "desc": "## Summary\n\n**[Kafka](https://kafka.apache.org/)** message consumer building block; provides a Kafka message event source to Qorus.\n\nThis building block class is designed to be used in a Qorus service.\n\n## Connectors\n\n### Event Connector `event`\n\nProvides Kafka messages as events.\n\nEvent connectors can only be used in Qorus services.\n\n### Input/Output Connector `start`\n\nStarts listening to Kafka messages; meant to be assocated with a service's `start()` method.\n\nInput data is ignored; returns `true` if the Kafka listening thread was started, `false` immediately if already running.  This connector returns `true` at the end of listening; the `start()` method runs for the lifetime of the object until stopped.\n\n### Input/Output Connector `stop`\n\nStops listening to Kafka messages; means to be associated with a service's `stop()` method.\n\nInput data is ignored; returns `null` (`NOTHING` if called from Qore, `None` if called from Python)."
+        "desc": "## Summary\n\n**[Kafka](https://kafka.apache.org/)** message consumer building block; provides a Kafka message event source to Qorus.\n\nThis building block class is designed to be used in a Qorus service.\n\n## Connectors\n\n### Event Connector `event`\n\nProvides Kafka messages as events.\n\nEvent connectors can only be used in Qorus services.\n\n### Input/Output Connector `start`\n\nStarts listening to Kafka messages; meant to be assocated with a service's `start()` method.\n\nInput data is ignored; returns `true` if the Kafka listening thread was started, `false` immediately if already running.  This connector returns `true` at the end of listening; the `start()` method runs for the lifetime of the object until stopped.\n\n### Input/Output Connector `stop`\n\nStops listening to Kafka messages; means to be associated with a service's `stop()` method.\n\nInput data is ignored; returns `null` (`NOTHING` if called from Qore, `None` if called from Python).",
+        "class-connectors": [
+          {
+            "name": "event",
+            "type": "event",
+            "method": "eventLoop",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/kafka/recv-message"
+            }
+          },
+          {
+            "name": "start",
+            "type": "input-output",
+            "method": "start"
+          },
+          {
+            "name": "stop",
+            "type": "input-output",
+            "method": "stop"
+          }
+        ]
       },
       {
         "name": "BBM_KafkaProducer",
-        "desc": "## Summary\n\n**[Kafka](https://kafka.apache.org/)** message producer building block for sending Kafka messages from Qorus.\n\n## Connectors\n\n## Input/Output Connector `sendMessage`\n\nSends a message synchronously; the input data is used to send the message and must correspond to the given input type.\n\nOutput data provides information about the message sent.\n\n## Input/Output Connector `sendMessageAsync`\n\nSends a message asynchronously; the input data is used to send the message and must correspond to the given input type.\n\nOutput data is a `Future` object regarding the asynchronous message sent."
+        "desc": "## Summary\n\n**[Kafka](https://kafka.apache.org/)** message producer building block for sending Kafka messages from Qorus.\n\n## Connectors\n\n## Input/Output Connector `sendMessage`\n\nSends a message synchronously; the input data is used to send the message and must correspond to the given input type.\n\nOutput data provides information about the message sent.\n\n## Input/Output Connector `sendMessageAsync`\n\nSends a message asynchronously; the input data is used to send the message and must correspond to the given input type.\n\nOutput data is a `Future` object regarding the asynchronous message sent.",
+        "class-connectors": [
+          {
+            "name": "sendMessage",
+            "type": "input-output",
+            "method": "sendMessage",
+            "input-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/kafka/send-message"
+            },
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/kafka/record-metadata"
+            }
+          },
+          {
+            "name": "sendMessageAsync",
+            "type": "input-output",
+            "method": "sendMessageAsync"
+          }
+        ]
       },
       {
         "name": "BBM_ListCache",
-        "desc": "## Summary\n\nA building block class that implements a simple cache of a list of data items of any type\n\n## Connectors\n\n### Input/Output Connector `cacheData`\n\nThis connector adds data to the cache by resolving the `list-cache-data` config item.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in the call to `UserApi::expandTemplatedValue()`).\n\nThe input data is returned as output data as well.\n\n### Input/Output Connector `getData`\n\nReturns the data cached; input data is ignored as no configuration is used in this connector.\n\n### Input/Output Connector `clear`\n\nThe cache is emptied; input data is ignored; the cache contents are returned as output data."
+        "desc": "## Summary\n\nA building block class that implements a simple cache of a list of data items of any type\n\n## Connectors\n\n### Input/Output Connector `cacheData`\n\nThis connector adds data to the cache by resolving the `list-cache-data` config item.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in the call to `UserApi::expandTemplatedValue()`).\n\nThe input data is returned as output data as well.\n\n### Input/Output Connector `getData`\n\nReturns the data cached; input data is ignored as no configuration is used in this connector.\n\n### Input/Output Connector `clear`\n\nThe cache is emptied; input data is ignored; the cache contents are returned as output data.",
+        "class-connectors": [
+          {
+            "name": "cacheData",
+            "type": "input-output",
+            "method": "cacheData"
+          },
+          {
+            "name": "getData",
+            "type": "input-output",
+            "method": "getData"
+          },
+          {
+            "name": "clear",
+            "type": "input-output",
+            "method": "clear"
+          }
+        ]
       },
       {
         "name": "BBM_LogMessage",
-        "desc": "## Summary\n\nOutput a message to the current log file.\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `util/log-message` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `logMessage`\n\nLogs a message to the log file according to the values of the configuration; input data to the connector is available as `$local:input`.\n\nOuput data is the messages logged in a hash in the `msg` key."
+        "desc": "## Summary\n\nOutput a message to the current log file.\n\n## Connectors\n\n### Input/Output Connector `logMessage`\n\nLogs a message to the log file according to the values of the configuration; input data to the connector is available as `$local:input`.\n\nOuput data is the messages logged in a hash in the `msg` key.",
+        "class-connectors": [
+          {
+            "name": "logMessage",
+            "method": "logMessage",
+            "type": "input-output",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/log/output"
+            }
+          }
+        ]
       },
       {
         "name": "BBM_MqttPahoPublisher",
-        "desc": "## Summary\n\n[MQTT Paho](https://www.eclipse.org/paho/) client for publishing messages to an MQTT topic\n\n## Connectors\n\n### Input/Output Connector `publishFromConfig`\n\nUsed to publish a message from config item `mqtt-paho-message-body`.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in the call to `UserApi::expandTemplatedValue()`).\n\nMessage data is converted to a binary for publishing, if necessary by first converting to a string.\n\nThe output data is the `org.eclipse.paho.client.mqttv3.MqttMessage` object published.\n\n### Input/Output Connector `publish`\n\nUsed to publish a message from data passed as input; if no value is passed, then the message data is taken from config item `mqtt-paho-message-body`.\n\nThe input data is converted to a binary if necessary, if necessary by first converting to a string.\n\nThe output data is the `org.eclipse.paho.client.mqttv3.MqttMessage` object published.\n\nIs is recommended to use the `publishFromConfig` connector instead.\n"
+        "desc": "## Summary\n\n[MQTT Paho](https://www.eclipse.org/paho/) client for publishing messages to an MQTT topic\n\n## Connectors\n\n### Input/Output Connector `publishFromConfig`\n\nUsed to publish a message from config item `mqtt-paho-message-body`.\n\nThe input data is available as `$local:input` for all config items resolved with this connector (in the call to `UserApi::expandTemplatedValue()`).\n\nMessage data is converted to a binary for publishing, if necessary by first converting to a string.\n\nThe output data is the `org.eclipse.paho.client.mqttv3.MqttMessage` object published.\n\n### Input/Output Connector `publish`\n\nUsed to publish a message from data passed as input; if no value is passed, then the message data is taken from config item `mqtt-paho-message-body`.\n\nThe input data is converted to a binary if necessary, if necessary by first converting to a string.\n\nThe output data is the `org.eclipse.paho.client.mqttv3.MqttMessage` object published.\n\nIs is recommended to use the `publishFromConfig` connector instead.\n",
+        "class-connectors": [
+          {
+            "name": "publish",
+            "type": "input-output",
+            "method": "publish"
+          },
+          {
+            "name": "publishFromConfig",
+            "type": "input-output",
+            "method": "publish"
+          }
+        ]
       },
       {
         "name": "BBM_MqttPahoSubscriber",
-        "desc": "## Summary\n\n[MQTT Paho](https://www.eclipse.org/paho/) client for receiving messages from an MQTT server\n\n## Connectors\n\n### Event Connector `connectionLost`\n\nRaised when the connection is lost; event hash keys:\n- **`class_name`**: (`string`) the full exception class name\n- **`message`**: (`string`) the exception message\n- **`cause`**: (`java.lang.Throwable`) the exception object itself\n\n### Event Connector `deliveryComplete`\n\nRaised when a message has been successfully delivered; event hash keys:\n- **`topics`** (`list<string>`) the topic or topics for the message\n- **`id`**: (`string`) the message ID delivered\n- **`payload`**: the message payload, decoded according to config item `mqtt-paho-message-format`\n- **`qos`**: (`int`) the QoS code for the message\n- **`duplicate`**: (`bool`) if the message is a duplicate\n- **`retained`**: (`bool`) if the message was retained\n- **`message`**: (`org.eclipse.paho.client.mqttv3.MqttMessage`)\n the message object itself\n\n### Event Connector `messageArrived`\n\nRaised when a message arrives from a topic matching config item `mqtt-paho-message-topics`; event hash keys:\n- **`topic`** (`string`) the topic for the message\n- **`id`**: (`string`) the message ID delivered\n- **`payload`**: the message payload, decoded according to config item `mqtt-paho-message-format`\n- **`qos`**: (`int`) the QoS code for the message\n- **`duplicate`**: (`bool`) if the message is a duplicate\n- **`retained`**: (`bool`) if the message was retained\n- **`message`**: (`org.eclipse.paho.client.mqttv3.MqttMessage`)\n the message object itself\n\n### Input / Output Connector `start`\n\nPasses through any input given.  Can be used as the start method of a service. Only returns when `stop()` is called.\n### Input / Output Connector `stop`\n\nPasses through any input given.  Stops listening and disconnects the connection."
+        "desc": "## Summary\n\n[MQTT Paho](https://www.eclipse.org/paho/) client for receiving messages from an MQTT server\n\n## Connectors\n\n### Event Connector `connectionLost`\n\nRaised when the connection is lost; event hash keys:\n- **`class_name`**: (`string`) the full exception class name\n- **`message`**: (`string`) the exception message\n- **`cause`**: (`java.lang.Throwable`) the exception object itself\n\n### Event Connector `deliveryComplete`\n\nRaised when a message has been successfully delivered; event hash keys:\n- **`topics`** (`list<string>`) the topic or topics for the message\n- **`id`**: (`string`) the message ID delivered\n- **`payload`**: the message payload, decoded according to config item `mqtt-paho-message-format`\n- **`qos`**: (`int`) the QoS code for the message\n- **`duplicate`**: (`bool`) if the message is a duplicate\n- **`retained`**: (`bool`) if the message was retained\n- **`message`**: (`org.eclipse.paho.client.mqttv3.MqttMessage`)\n the message object itself\n\n### Event Connector `messageArrived`\n\nRaised when a message arrives from a topic matching config item `mqtt-paho-message-topics`; event hash keys:\n- **`topic`** (`string`) the topic for the message\n- **`id`**: (`string`) the message ID delivered\n- **`payload`**: the message payload, decoded according to config item `mqtt-paho-message-format`\n- **`qos`**: (`int`) the QoS code for the message\n- **`duplicate`**: (`bool`) if the message is a duplicate\n- **`retained`**: (`bool`) if the message was retained\n- **`message`**: (`org.eclipse.paho.client.mqttv3.MqttMessage`)\n the message object itself\n\n### Input / Output Connector `start`\n\nPasses through any input given.  Can be used as the start method of a service. Only returns when `stop()` is called.\n### Input / Output Connector `stop`\n\nPasses through any input given.  Stops listening and disconnects the connection.",
+        "class-connectors": [
+          {
+            "name": "messageArrived",
+            "type": "event",
+            "method": "messageArrived",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/mqtt-paho/messageArrived"
+            }
+          },
+          {
+            "name": "deliveryComplete",
+            "type": "event",
+            "method": "deliveryComplete",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/mqtt-paho/deliveryComplete"
+            }
+          },
+          {
+            "name": "connectionLost",
+            "type": "event",
+            "method": "connectionLost",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/mqtt-paho/connectionLost"
+            }
+          },
+          {
+            "name": "start",
+            "type": "input-output",
+            "method": "start"
+          },
+          {
+            "name": "stop",
+            "type": "input-output",
+            "method": "stop"
+          }
+        ]
+      },
+      {
+        "name": "BBM_OndewoBpiServer",
+        "desc": "Building block for an ONDEWO Business Process Integration server service in Qorus",
+        "class-connectors": [
+          {
+            "name": "start",
+            "type": "input-output",
+            "method": "start"
+          },
+          {
+            "name": "stop",
+            "type": "input-output",
+            "method": "stop"
+          },
+          {
+            "name": "intentEvent",
+            "type": "event",
+            "method": "intentEvent"
+          }
+        ]
+      },
+      {
+        "name": "BBM_OndewoVtsiClient",
+        "desc": " Building block that returns an ONDEWO VTSI client from an `ondewovtsi://` Qorus connection",
+        "class-connectors": [
+          {
+            "name": "startCaller",
+            "type": "input-output",
+            "method": "startCaller"
+          },
+          {
+            "name": "startListener",
+            "type": "input-output",
+            "method": "startListener"
+          }
+        ]
       },
       {
         "name": "BBM_OutputData",
-        "desc": "## Summary\n\nWrites output data to locations provided by config item `output-data-hash`, which should be assigned a hash in the following format:\n- **key**: *data to store* -> **value**: *location to store it in*\n\nThe keys in the hash are expanded with calls to `UserApi::expandTemplatedValue()`\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `util/write-output` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `writeOutput`\n\nThis connector executes the output write data operation.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n\nIt is recommended to use this connector instead of the similar `writeOutputData` connector, as this connector support standard handling of the local input data, and the `writeOutputData` connector does not.\n\n### Input/Output Connector `writeOutputData`\n\nThis connector executes the output write data operation.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` is the input argument data for the connector; if the input data is a hash, then it is used directly as the local context data for the `$local:` template.  If the input data is not a hash, then it is stored in the `input` key of the local data hash.\n\nThis connector differs from `writeOutput` only in the non-standard handling of the local input data.\n\nIt is recommended to use the `writeOutput` connector instead, as it uses standard input data handling.\n\n## `output-data-hash` Config Item Examples\n\n- `$local:input: $dynamic:data` -> store the input data in the `data` key of dynamic data\n- `'$info:started': '$pstate:started'` -> store the `started` key from the `$info:` template into the `started` key of the persistent state hash for the current interface\n- `'$local:*': '$jinfo:result'` -> store the entire local context data hash in the `result` key of the `$jinfo:` (job info) hash"
+        "desc": "## Summary\n\nWrites output data to locations provided by config item `output-data-hash`, which should be assigned a hash in the following format:\n- **key**: *data to store* -> **value**: *location to store it in*\n\nThe keys in the hash are expanded with calls to `UserApi::expandTemplatedValue()`\n\n## Connectors\n\n### Input/Output Connector `writeOutput`\n\nThis connector executes the output write data operation.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n\nIt is recommended to use this connector instead of the similar `writeOutputData` connector, as this connector support standard handling of the local input data, and the `writeOutputData` connector does not.\n\n### Input/Output Connector `writeOutputData`\n\nThis connector executes the output write data operation.\n\nLocal data for the call to `UserApi::expandTemplatedValue()` is the input argument data for the connector; if the input data is a hash, then it is used directly as the local context data for the `$local:` template.  If the input data is not a hash, then it is stored in the `input` key of the local data hash.\n\nThis connector differs from `writeOutput` only in the non-standard handling of the local input data.\n\nIt is recommended to use the `writeOutput` connector instead, as it uses standard input data handling.\n\n## `output-data-hash` Config Item Examples\n\n- `$local:input: $dynamic:data` -> store the input data in the `data` key of dynamic data\n- `'$info:started': '$pstate:started'` -> store the `started` key from the `$info:` template into the `started` key of the persistent state hash for the current interface\n- `'$local:*': '$jinfo:result'` -> store the entire local context data hash in the `result` key of the `$jinfo:` (job info) hash",
+        "class-connectors": [
+          {
+            "name": "writeOutputData",
+            "method": "writeOutputData",
+            "type": "input-output"
+          },
+          {
+            "name": "writeOutput",
+            "method": "writeOutput",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_PauseDataPassthru",
-        "desc": "## Summary\n\nA building block that executes a configurable pause or delay.\n\nThe `pause` connector passes through any data as-is when used in a connection.\n\nNote that if the interface shuts down while the pause is in action, a `RETRY-ERROR` will be thrown to ensure a retry when used in a workflow context.\n\n## Connectors\n\n### Input/Output Connector `pause`\n\nPerforms a configurable pause based on the config item values resolved.\n\nInput data is available as `$local:input` when resolving config items with this connector."
+        "desc": "## Summary\n\nA building block that executes a configurable pause or delay.\n\nThe `pause` connector passes through any data as-is when used in a connection.\n\nNote that if the interface shuts down while the pause is in action, a `RETRY-ERROR` will be thrown to ensure a retry when used in a workflow context.\n\n## Connectors\n\n### Input/Output Connector `pause`\n\nPerforms a configurable pause based on the config item values resolved.\n\nInput data is available as `$local:input` when resolving config items with this connector.",
+        "class-connectors": [
+          {
+            "name": "pause",
+            "type": "input-output",
+            "method": "pause"
+          }
+        ]
       },
       {
         "name": "BBM_QorusServiceMethodCaller",
-        "desc": "This building block allows for Qorus service methods to be called based on configuration\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `services/call-method` API data provider in the `qorus-api` factory instead"
+        "desc": "This building block allows for Qorus service methods to be called based on configuration",
+        "class-connectors": [
+          {
+            "name": "callServiceMethod",
+            "type": "input-output",
+            "method": "callServiceMethod",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/service-method-caller/output"
+            }
+          }
+        ]
       },
       {
         "name": "BBM_QorusUiExtension",
-        "desc": "## Summary\n\nQorus web UI extension handlindler service building block.   Allows a Qorus service to provide a UI extension with configuration.\n\nThe UI resources files should be provided as service resources; the default resource will be served according to config item `ui-extension-default-resource`.\n\n## Connectors\n\n### Input/Output Connector `init`\n\nInitializes the service according to configurqation; input data is returned as-is but is otherwise ignored."
+        "desc": "## Summary\n\nQorus web UI extension handlindler service building block.   Allows a Qorus service to provide a UI extension with configuration.\n\nThe UI resources files should be provided as service resources; the default resource will be served according to config item `ui-extension-default-resource`.\n\n## Connectors\n\n### Input/Output Connector `init`\n\nInitializes the service according to configurqation; input data is returned as-is but is otherwise ignored.",
+        "class-connectors": [
+          {
+            "name": "init",
+            "type": "input-output",
+            "method": "init"
+          }
+        ]
       },
       {
         "name": "BBM_RestAction",
-        "desc": "## Summary\n\nBuilding block class for making a REST request.\n\nUse the `rest-output-data` config item to write the results of the REST call to an output location; ex: `body: $dynamic:rest_results` would write the response body to the `rest_results` key of the dynamic data hash in a workflow order.\n\nNote that there is inline retry configuration for I/O errors; by default this object will make 3 retries spaced 5 seconds apart if configured socket errors are encountered; see config items for more information.\n\n## Connectors\n\nOutput data for all connectors is a hash with the following keys:\n- `body`: the response message body, if any\n- `request-uri`: the request URI string sent (ex: `GET /services/async/38.0/job HTTP/1.1`)\n- `request-headers`: hash of outgoing HTTP request headers\n- `request-serialization`: message serialization used in the request body\n- `response-code`: the HTTP response code\n- `response-uri`: the HTTP response URI\n- `response-headers`:  a hash of processed incoming HTTP headers in the response with keys converted to lower case and with additional information added\n- `response-serialization`: message serialization used in the response body\n- `response-chunked`: `true` if the response body was sent chunked\n\n### Input/Output Connector `restAction`\n\nThis connector uses the input data as a hash to provide the following values for the REST call:\n- `body`: the request message body (note that requests with `GET` and `HEAD` methods should not contain a message body)\n- `uri_path` the request URI path\n- `hdr`: any headers to include in the request\n\n### Input/Output Connector `restActionFromConfig`\n\nThis connector takes all configuration for the REST call from config items.\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`)."
+        "desc": "## Summary\n\nBuilding block class for making a REST request.\n\nUse the `rest-output-data` config item to write the results of the REST call to an output location; ex: `body: $dynamic:rest_results` would write the response body to the `rest_results` key of the dynamic data hash in a workflow order.\n\nNote that there is inline retry configuration for I/O errors; by default this object will make 3 retries spaced 5 seconds apart if configured socket errors are encountered; see config items for more information.\n\n## Connectors\n\nOutput data for all connectors is a hash with the following keys:\n- `body`: the response message body, if any\n- `request-uri`: the request URI string sent (ex: `GET /services/async/38.0/job HTTP/1.1`)\n- `request-headers`: hash of outgoing HTTP request headers\n- `request-serialization`: message serialization used in the request body\n- `response-code`: the HTTP response code\n- `response-uri`: the HTTP response URI\n- `response-headers`:  a hash of processed incoming HTTP headers in the response with keys converted to lower case and with additional information added\n- `response-serialization`: message serialization used in the response body\n- `response-chunked`: `true` if the response body was sent chunked\n\n### Input/Output Connector `restAction`\n\nThis connector uses the input data as a hash to provide the following values for the REST call:\n- `body`: the request message body (note that requests with `GET` and `HEAD` methods should not contain a message body)\n- `uri_path` the request URI path\n- `hdr`: any headers to include in the request\n\n### Input/Output Connector `restActionFromConfig`\n\nThis connector takes all configuration for the REST call from config items.\nThe input data is available as `$local:input` for all config items resolved with this connector (in internal calls to `UserApi::expandTemplatedValue()`).",
+        "class-connectors": [
+          {
+            "name": "restAction",
+            "input-provider": {
+              "name": "qoretechnologies",
+              "path": "/building-blocks/rest-action/request",
+              "type": "type"
+            },
+            "method": "makeRestRequestConnector",
+            "output-provider": {
+              "name": "qoretechnologies",
+              "path": "/building-blocks/rest-action/response",
+              "type": "type"
+            },
+            "type": "input-output"
+          },
+          {
+            "name": "restActionFromConfig",
+            "method": "makeRestRequestConnectorFromConfig",
+            "output-provider": {
+              "name": "qoretechnologies",
+              "path": "/building-blocks/rest-action/response",
+              "type": "type"
+            },
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "BBM_RestActionWithRecovery",
-        "desc": "Class for making a transaction-safe REST request"
+        "desc": "Class for making a transaction-safe REST request",
+        "class-connectors": [
+          {
+            "name": "restAction",
+            "input-provider": {
+              "name": "qoretechnologies",
+              "path": "/building-blocks/rest-action/request",
+              "type": "type"
+            },
+            "method": "makeRestRequestConnector",
+            "output-provider": {
+              "name": "qoretechnologies",
+              "path": "/building-blocks/rest-action/response",
+              "type": "type"
+            },
+            "type": "input-output"
+          },
+          {
+            "name": "restAction Validation",
+            "method": "makeRestValidationRequestConnector",
+            "type": "output"
+          }
+        ]
       },
       {
         "name": "BBM_SalesforceStreamBase",
-        "desc": "## Summary\n\nBase class for **Salesforce** streaming API support; reports events; can only be used in services\n\n## Connectors\n\n### Event Connector `event`\n\nProvides information about events in a Salesforce instance in Qorus services."
+        "desc": "## Summary\n\nBase class for **Salesforce** streaming API support; reports events; can only be used in services\n\n## Connectors\n\n### Event Connector `event`\n\nProvides information about events in a Salesforce instance in Qorus services.",
+        "class-connectors": [
+          {
+            "name": "event",
+            "method": "messageCallbackImpl",
+            "output-provider": {
+              "name": "qoretechnologies",
+              "path": "/building-blocks/salesforce/stream-event",
+              "type": "type"
+            },
+            "type": "event"
+          }
+        ]
       },
       {
         "name": "BBM_SftpPollerBase",
-        "desc": "## Summary\n\nGeneric building block class for polling for files from an SFTP server.\n\nThis class is meant to be used as a base class for interfaces (normally a job or a service) that provide SFTP polling as an event connector.\n\nIf config item `sftp-polling-file-connection` is set, then files are streamed efficiently to the given local file system location and not stored in memory.  If this config item is not set, then all files are transferred and stored in main memory, which can cause problems with very large files.\n\nIf uploads to the SFTP server are not atomic, the `sftp-polling-minage` config item can be used to ensure that files are only polled after they have been present on the FTP server for a defined period of time, which should be greater than the maximum time required to transfer the largest files.\n\nNote that this class can be used in either a job or a service to provide regular polling for files from an SFTP server.  Use in a job is encouraged, as the job schedule is easily controlled by operational users and is the pollijng schedule, additionally the results of each polling operation are exposed in the UI and in the API as job results, making it easier to monitor the SFTP polling status.\n\n## Connectors\n\n### Input/Output Connector `pollForFiles`\n\nUsed to poll for files once and return file data as output for all files polled.  Input data is ignored.\n\n### Input/Output Connector `start`\n\nThis connector can be used in a service to poll in a service's `start()` method in a background thread.  In order to use this class's `sftpFileEvent` connector, this connector must be used as the service's `start()` method.\n\nInput data is ignored and passed through to the output data.\n\n### Input/Output Connector `stop`\n\nThis connector can be used in a service to stop polling in a service's `stop()` method.   In order to use this class's `sftpFileEvent` connector, this connector must be used as the service's `stop()` method.\n\nInput data is ignored and passed through to the output data.\n\n### Event Connector `sftpFileEvent`\n\nThis event connector can be used in a service to process file events once they have been polled and fully transferred to the server.  In order to use this connector, the `start` and `stop` connectors must be used in a service's `start()` and `stop()` methods to start and stop the polling thread, respectively.\n\n## References\n\nSee:\n- class building block: `BBM_SftpPollerCreateOrder`\n- job base class: `BBM_SftpPollerCreateOrderJob`\n\n"
+        "desc": "## Summary\n\nGeneric building block class for polling for files from an SFTP server.\n\nThis class is meant to be used as a base class for interfaces (normally a job or a service) that provide SFTP polling as an event connector.\n\nIf config item `sftp-polling-file-connection` is set, then files are streamed efficiently to the given local file system location and not stored in memory.  If this config item is not set, then all files are transferred and stored in main memory, which can cause problems with very large files.\n\nIf uploads to the SFTP server are not atomic, the `sftp-polling-minage` config item can be used to ensure that files are only polled after they have been present on the FTP server for a defined period of time, which should be greater than the maximum time required to transfer the largest files.\n\nNote that this class can be used in either a job or a service to provide regular polling for files from an SFTP server.  Use in a job is encouraged, as the job schedule is easily controlled by operational users and is the pollijng schedule, additionally the results of each polling operation are exposed in the UI and in the API as job results, making it easier to monitor the SFTP polling status.\n\n## Connectors\n\n### Input/Output Connector `pollForFiles`\n\nUsed to poll for files once and return file data as output for all files polled.  Input data is ignored.\n\n### Input/Output Connector `start`\n\nThis connector can be used in a service to poll in a service's `start()` method in a background thread.  In order to use this class's `sftpFileEvent` connector, this connector must be used as the service's `start()` method.\n\nInput data is ignored and passed through to the output data.\n\n### Input/Output Connector `stop`\n\nThis connector can be used in a service to stop polling in a service's `stop()` method.   In order to use this class's `sftpFileEvent` connector, this connector must be used as the service's `stop()` method.\n\nInput data is ignored and passed through to the output data.\n\n### Event Connector `sftpFileEvent`\n\nThis event connector can be used in a service to process file events once they have been polled and fully transferred to the server.  In order to use this connector, the `start` and `stop` connectors must be used in a service's `start()` and `stop()` methods to start and stop the polling thread, respectively.\n\n## References\n\nSee:\n- class building block: `BBM_SftpPollerCreateOrder`\n- job base class: `BBM_SftpPollerCreateOrderJob`\n\n",
+        "class-connectors": [
+          {
+            "name": "pollForFiles",
+            "type": "input-output",
+            "method": "pollForFiles"
+          },
+          {
+            "name": "start",
+            "type": "input-output",
+            "method": "start"
+          },
+          {
+            "name": "stop",
+            "type": "input-output",
+            "method": "stop"
+          },
+          {
+            "name": "ftpFileEvent",
+            "type": "event",
+            "method": "sftpFileEvent",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/sftp/event"
+            }
+          }
+        ]
       },
       {
         "name": "BBM_SftpPollerCreateOrder",
-        "desc": "## Summary\n\nBuilding block class for polling for files from an SFTP server and creating a workflow order from files polled.\n\nThe local context data for the internal workflow order creation call is the file event data as described by data type `qoretechnologies/building-blocks/sftp/event`; therefore this information can be used when creating the order; for example `create-workflow-staticdata` = `$local:*` would set the initial static order data to the file event hash.\n\nDuplicates can be detected from order keys, i.e. if one of the following config items is used:\n- `create-workflow-specific-unique-key`\n- `create-workflow-unique-key`\n- `create-workflow-global-unique-key`\n\nIn this case this object also contains configuration that allows for an alternative \"duplicate-file-handling\" workflow order to be created.  See config items in the **SFTP Polling Workflow Creation Duplicate File Handling** group for more information.\n\n## References\n\nSee `BBM_SftpPollerCreateOrderJob` for a class designed to be used as the base class for a job"
+        "desc": "## Summary\n\nBuilding block class for polling for files from an SFTP server and creating a workflow order from files polled.\n\nThe local context data for the internal workflow order creation call is the file event data as described by data type `qoretechnologies/building-blocks/sftp/event`; therefore this information can be used when creating the order; for example `create-workflow-staticdata` = `$local:*` would set the initial static order data to the file event hash.\n\nDuplicates can be detected from order keys, i.e. if one of the following config items is used:\n- `create-workflow-specific-unique-key`\n- `create-workflow-unique-key`\n- `create-workflow-global-unique-key`\n\nIn this case this object also contains configuration that allows for an alternative \"duplicate-file-handling\" workflow order to be created.  See config items in the **SFTP Polling Workflow Creation Duplicate File Handling** group for more information.\n\n## References\n\nSee `BBM_SftpPollerCreateOrderJob` for a class designed to be used as the base class for a job",
+        "class-connectors": [
+          {
+            "name": "runJob",
+            "type": "input-output",
+            "method": "runJob"
+          }
+        ]
       },
       {
         "name": "BBM_SftpPollerCreateOrderJob",
-        "desc": "## Summary \n\nBuilding block job base class for polling for files from an SFTP server and creating a workflow order from files polled.\n\nThe local context data for the internal workflow order creation call is the file event data as described by data type `qoretechnologies/building-blocks/sftp/event`; therefore this information can be used when creating the order; for example `create-workflow-staticdata` = `$local:*` would set the initial static order data to the file event hash.\n\nDuplicates can be detected from order keys, i.e. if one of the following config items is used: \n- `create-workflow-specific-unique-key`\n- `create-workflow-unique-key`\n- `create-workflow-global-unique-key`\n\nIn this case this object also contains configuration that allows for an alternative \"duplicate-file-handling\" workflow order to be created.  See config items in the **SFTP Polling Workflow Creation Duplicate File Handling** group for more information.\n\n**Note** The `sftp-polling-interval-secs` config item is always ignored in this class; this class must be used as the base class for a job, and the job's schedule determines the polling interval.\n\n## Connectors\n\n### Input/Output Connector `runJob`\n\nRuns the poll action once."
+        "desc": "## Summary \n\nBuilding block job base class for polling for files from an SFTP server and creating a workflow order from files polled.\n\nThe local context data for the internal workflow order creation call is the file event data as described by data type `qoretechnologies/building-blocks/sftp/event`; therefore this information can be used when creating the order; for example `create-workflow-staticdata` = `$local:*` would set the initial static order data to the file event hash.\n\nDuplicates can be detected from order keys, i.e. if one of the following config items is used: \n- `create-workflow-specific-unique-key`\n- `create-workflow-unique-key`\n- `create-workflow-global-unique-key`\n\nIn this case this object also contains configuration that allows for an alternative \"duplicate-file-handling\" workflow order to be created.  See config items in the **SFTP Polling Workflow Creation Duplicate File Handling** group for more information.\n\n**Note** The `sftp-polling-interval-secs` config item is always ignored in this class; this class must be used as the base class for a job, and the job's schedule determines the polling interval.\n\n## Connectors\n\n### Input/Output Connector `runJob`\n\nRuns the poll action once.",
+        "class-connectors": [
+          {
+            "name": "runJob",
+            "type": "input-output",
+            "method": "runJob"
+          }
+        ]
       },
       {
         "name": "BBM_SmtpEmailSender",
-        "desc": "## Summary\n\nA building class to send one or more emails through an SMTP server.\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `send-email` API data provider in the `smtpclient` factory instead\n\n## Connectors\n\n### Input/Output Connector sendEmail\n\nSends an email to the recipient based on configuration.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n"
+        "desc": "## Summary\n\nA building class to send one or more emails through an SMTP server.\n\n## Connectors\n\n### Input/Output Connector sendEmail\n\nSends an email to the recipient based on configuration.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n",
+        "class-connectors": [
+          {
+            "name": "sendEmail",
+            "type": "input-output",
+            "method": "sendEmail"
+          }
+        ]
       },
       {
         "name": "BBM_SnmpServiceTrapEventSource",
-        "desc": "Building block providing an event source for SNMP traps"
+        "desc": "Building block providing an event source for SNMP traps",
+        "class-connectors": [
+          {
+            "name": "snmpTrap",
+            "type": "event",
+            "method": "snmpTrap"
+          }
+        ]
       },
       {
         "name": "BBM_TextAnalysis",
-        "desc": "## Summary\n\nA Python-based text analysis building block class using tensorflow, keras, and numpy to apply a pre-trained model on text input to classify the user's intent.\n\n## Connectors\n\n### Input/Output Connector `processInput`\n\nProcesses the input directly; input must be a string.\n\nThe output is any action string associated wiht the input.\n\n### Input/Output Connector `processInputHash`\n\nProcess input data identified as by the `text-analysis-hash-event-key` config item which designates a key in the input hash holding the input data.\n\nOutput data is a hash with a `result` key giving the action associated with the input.\n\n### Input/Output Connector `processInputFromConfig`\n\nProcess input data identified by the `text-analysis-input` config item, where the input data to this connector is available as `$local:input`/\n\nOutput data is a hash with a `result` key giving the action associated with the input.\n"
+        "desc": "## Summary\n\nA Python-based text analysis building block class using tensorflow, keras, and numpy to apply a pre-trained model on text input to classify the user's intent.\n\n## Connectors\n\n### Input/Output Connector `processInput`\n\nProcesses the input directly; input must be a string.\n\nThe output is any action string associated wiht the input.\n\n### Input/Output Connector `processInputHash`\n\nProcess input data identified as by the `text-analysis-hash-event-key` config item which designates a key in the input hash holding the input data.\n\nOutput data is a hash with a `result` key giving the action associated with the input.\n\n### Input/Output Connector `processInputFromConfig`\n\nProcess input data identified by the `text-analysis-input` config item, where the input data to this connector is available as `$local:input`/\n\nOutput data is a hash with a `result` key giving the action associated with the input.\n",
+        "class-connectors": [
+          {
+            "name": "processInput",
+            "method": "processInput",
+            "type": "input-output",
+            "input-provider": {
+              "type": "type",
+              "name": "qore",
+              "can_manage_fields": false,
+              "path": "/string"
+            }
+          },
+          {
+            "name": "processInputHash",
+            "type": "input-output",
+            "method": "processInputHash",
+            "input-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/text-analysis/input-event"
+            },
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "can_manage_fields": false,
+              "path": "/building-blocks/text-analysis/output-event"
+            }
+          },
+          {
+            "name": "processInputFromConfig",
+            "type": "input-output",
+            "method": "processInputFromConfig"
+          }
+        ]
       },
       {
         "name": "BBM_ThrowException",
-        "desc": "## Summary\n\nThrows an exception\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `util/throw-exception` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input Connector throwException\n\nThis connector throws an exception according to the configuration.\n\nInput data is available as `$local:input` when resolving config items with this connector."
+        "desc": "## Summary\n\nThrows an exception\n\n## Connectors\n\n### Input Connector throwException\n\nThis connector throws an exception according to the configuration.\n\nInput data is available as `$local:input` when resolving config items with this connector.",
+        "class-connectors": [
+          {
+            "name": "throwException",
+            "type": "input",
+            "method": "throwException"
+          }
+        ]
       },
       {
         "name": "BBM_UpdateOrderDynamicData",
-        "desc": "## Summary\n\nUpdates the dynamic data of a workflow order based on configuration.\n\n**NOTE**:  This building block's functionality has been superceded by an API (request - response) data provider; it's recommended to use the `util/write-output` API data provider in the `qorus-api` factory instead\n\n## Connectors\n\n### Input/Output Connector `update`\n\nPerforms the update of dynamic data according to configuration.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n\nProvides the hash data updated in the given order as output data.\n\n**NOTE**: the update performed uses `UserApi::updateDynamicOrderData()` and therefore is atomic"
+        "desc": "## Summary\n\nUpdates the dynamic data of a workflow order based on configuration.\n\n## Connectors\n\n### Input/Output Connector `update`\n\nPerforms the update of dynamic data according to configuration.\n\nInput data is available as `$local:input` when resolving config items with this connector.\n\nProvides the hash data updated in the given order as output data.\n\n**NOTE**: the update performed uses `UserApi::updateDynamicOrderData()` and therefore is atomic",
+        "class-connectors": [
+          {
+            "name": "update",
+            "type": "input-output",
+            "method": "update",
+            "output-provider": {
+              "type": "type",
+              "name": "qore",
+              "can_manage_fields": true,
+              "path": "/hash"
+            }
+          }
+        ]
       },
       {
         "name": "BBM_WebSocketServiceDataEventSource",
-        "desc": "## Summary\n\nA data event source for WebSocket events in Qorus services, supporting serialized data for events.\n\nThe class's constructor initializes the object, so if it's used as an event source (or generally in any connection) or as the primary service class, there is no need to use the `init` connector.\n\n## Data Serialization\n\nThe default data serialization is `json`, as this is the most common serialization used; `yaml` is also supported.\n\n## Connectors\n\n### Event Connector `webSocketReceiveEvent`\n\nProvides a hash event when a WebSocket message is received from a client.\n\n### Input/Output Connector `init`\n\nMust be used to initialize the object in a service if this class is not used as an event source (or generally in any connection) or as the primary service class.\n\n### Input/Output Connector `webSocketSendEvent`\n\nSends a message or a response to a client; the client is identified by the `cid` key in the input hash.\n\nNo ouput data is provided.\n\n### Input/Output Connector `webSocketBroadcastEvent`\n\nBroadcasts a message to all clients; the message is provided as the `msg` key in the input data.\n\nNo ouput data is provided."
+        "desc": "## Summary\n\nA data event source for WebSocket events in Qorus services, supporting serialized data for events.\n\nThe class's constructor initializes the object, so if it's used as an event source (or generally in any connection) or as the primary service class, there is no need to use the `init` connector.\n\n## Data Serialization\n\nThe default data serialization is `json`, as this is the most common serialization used; `yaml` is also supported.\n\n## Connectors\n\n### Event Connector `webSocketReceiveEvent`\n\nProvides a hash event when a WebSocket message is received from a client.\n\n### Input/Output Connector `init`\n\nMust be used to initialize the object in a service if this class is not used as an event source (or generally in any connection) or as the primary service class.\n\n### Input/Output Connector `webSocketSendEvent`\n\nSends a message or a response to a client; the client is identified by the `cid` key in the input hash.\n\nNo ouput data is provided.\n\n### Input/Output Connector `webSocketBroadcastEvent`\n\nBroadcasts a message to all clients; the message is provided as the `msg` key in the input data.\n\nNo ouput data is provided.",
+        "class-connectors": [
+          {
+            "name": "webSocketReceiveEvent",
+            "type": "event",
+            "method": "event",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "path": "/building-blocks/websockets/recv-data-event"
+            }
+          },
+          {
+            "name": "webSocketSendEvent",
+            "type": "input-output",
+            "method": "sendMessage",
+            "input-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "path": "/building-blocks/websockets/send-data-event"
+            }
+          },
+          {
+            "name": "init",
+            "type": "input-output",
+            "method": "init"
+          },
+          {
+            "name": "webSocketBroadcastEvent",
+            "type": "input-output",
+            "method": "broadcastMessage",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "path": "/building-blocks/websockets/broadcast-data-event"
+            }
+          }
+        ]
       },
       {
         "name": "BBM_WebSocketServiceEventSource",
-        "desc": "## Summary\n\nAn event source for WebSocket events in Qorus services\n\nThis class is designed to be used as an event source for services.\n\nThe class's constructor initializes the object, so if it's used as an event source (or generally in any connection) or as the primary service class, there is no need to use the `init` connector.\n\n## Connectors\n\n### Event Connector `webSocketReceiveEvent`\n\nProvides a hash event when a WebSocket message is received from a client.\n\n### Input/Output Connector `init`\n\nMust be used to initialize the object in a service if this class is not used as an event source (or generally in any connection) or as the primary service class.\n\n### Input/Output Connector `webSocketSendEvent`\n\nSends a message or a response to a client; the client is identified by the `cid` key in the input hash.\n\nNo ouput data is provided.\n\n### Input/Output Connector `webSocketBroadcastEvent`\n\nBroadcasts a message to all clients; the message is provided as the `msg` key in the input data.\n\nNo ouput data is provided."
+        "desc": "## Summary\n\nAn event source for WebSocket events in Qorus services\n\nThis class is designed to be used as an event source for services.\n\nThe class's constructor initializes the object, so if it's used as an event source (or generally in any connection) or as the primary service class, there is no need to use the `init` connector.\n\n## Connectors\n\n### Event Connector `webSocketReceiveEvent`\n\nProvides a hash event when a WebSocket message is received from a client.\n\n### Input/Output Connector `init`\n\nMust be used to initialize the object in a service if this class is not used as an event source (or generally in any connection) or as the primary service class.\n\n### Input/Output Connector `webSocketSendEvent`\n\nSends a message or a response to a client; the client is identified by the `cid` key in the input hash.\n\nNo ouput data is provided.\n\n### Input/Output Connector `webSocketBroadcastEvent`\n\nBroadcasts a message to all clients; the message is provided as the `msg` key in the input data.\n\nNo ouput data is provided.",
+        "class-connectors": [
+          {
+            "name": "webSocketReceiveEvent",
+            "type": "event",
+            "method": "event (ignored)",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "path": "/building-blocks/websockets/recv-event"
+            }
+          },
+          {
+            "name": "webSocketSendEvent",
+            "type": "input-output",
+            "method": "sendMessage",
+            "input-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "path": "/building-blocks/websockets/send-event"
+            }
+          },
+          {
+            "name": "init",
+            "type": "input-output",
+            "method": "init"
+          },
+          {
+            "name": "webSocketBroadcastEvent",
+            "type": "input-output",
+            "method": "broadcastMessage",
+            "output-provider": {
+              "type": "type",
+              "name": "qoretechnologies",
+              "path": "/building-blocks/websockets/broadcast-event"
+            }
+          }
+        ]
       },
       {
         "name": "FsmBreakTest",
-        "desc": "FSM break test connector"
+        "desc": "FSM break test connector",
+        "class-connectors": [
+          {
+            "name": "break",
+            "method": "breakMethod",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "FsmDepTest",
-        "desc": "FSM dep test connector"
+        "desc": "FSM dep test connector",
+        "class-connectors": [
+          {
+            "name": "writeValue",
+            "method": "writeValue",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "FsmRetryTest",
-        "desc": "FSM retry test"
-      },
-      {
-        "name": "GincoBookingsToEmpathicBuilding",
-        "desc": "Convert Gingco bookings to EmpathicBuilding measurements"
+        "desc": "FSM retry test",
+        "class-connectors": [
+          {
+            "name": "retry",
+            "method": "retry",
+            "output-provider": {
+              "can_manage_fields": false,
+              "name": "qoretechnologies",
+              "path": "/building-blocks/generic/string",
+              "type": "type"
+            },
+            "type": "output"
+          }
+        ]
       },
       {
         "name": "Issue3485Action",
-        "desc": "Simple action class connector"
+        "desc": "Simple action class connector",
+        "class-connectors": [
+          {
+            "name": "action1",
+            "method": "action1",
+            "type": "input-output"
+          },
+          {
+            "name": "errorAction",
+            "method": "errorAction",
+            "type": "input"
+          }
+        ]
       },
       {
         "name": "Issue3485Conditional",
-        "desc": "Simple conditional class connector"
+        "desc": "Simple conditional class connector",
+        "class-connectors": [
+          {
+            "name": "condition",
+            "method": "condition",
+            "type": "condition"
+          },
+          {
+            "name": "condition2",
+            "method": "condition2",
+            "type": "condition"
+          }
+        ]
       },
       {
         "name": "Issue3810LogList",
-        "desc": "test for issue #3810"
+        "desc": "test for issue #3810",
+        "class-connectors": [
+          {
+            "name": "logList",
+            "type": "input-output",
+            "method": "logList"
+          }
+        ]
       },
       {
         "name": "Issue3810OutputList",
-        "desc": "test for issues #3810"
+        "desc": "test for issues #3810",
+        "class-connectors": [
+          {
+            "name": "outputList",
+            "type": "input-output",
+            "method": "outputList"
+          }
+        ]
       },
       {
         "name": "JavaConnectorTest",
-        "desc": "To test Java connectors from other languages"
+        "desc": "To test Java connectors from other languages",
+        "class-connectors": [
+          {
+            "name": "test",
+            "method": "test",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "LogMessageTest",
-        "desc": "logs a message according to the config"
+        "desc": "logs a message according to the config",
+        "class-connectors": [
+          {
+            "name": "logMessage",
+            "type": "input-output",
+            "method": "logMessage"
+          }
+        ]
       },
       {
         "name": "LowCodeGetData",
-        "desc": "returns data for the low code test"
+        "desc": "returns data for the low code test",
+        "class-connectors": [
+          {
+            "name": "getData",
+            "type": "input-output",
+            "method": "getData"
+          },
+          {
+            "name": "getDataSimple",
+            "type": "input-output",
+            "method": "getDataSimple"
+          }
+        ]
       },
       {
         "name": "PythonConnectorTest",
-        "desc": "Python connector test"
+        "desc": "Python connector test",
+        "class-connectors": [
+          {
+            "name": "test",
+            "method": "test",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "QoreConnectorTest",
-        "desc": "testing Qore connectors mixed with other languages"
+        "desc": "testing Qore connectors mixed with other languages",
+        "class-connectors": [
+          {
+            "name": "test",
+            "method": "test",
+            "type": "input-output"
+          }
+        ]
       },
       {
         "name": "TestEventSource",
-        "desc": "test event source class"
+        "desc": "test event source class",
+        "class-connectors": [
+          {
+            "name": "event",
+            "method": "raiseEvent",
+            "type": "event"
+          }
+        ]
       },
       {
         "name": "TestHashStore",
-        "desc": "takes hash info and stores it in a list"
+        "desc": "takes hash info and stores it in a list",
+        "class-connectors": [
+          {
+            "name": "store",
+            "input-provider": {
+              "can_manage_fields": true,
+              "name": "qore",
+              "path": "/hash",
+              "type": "type"
+            },
+            "method": "store",
+            "type": "input"
+          },
+          {
+            "name": "get",
+            "type": "output",
+            "method": "get"
+          },
+          {
+            "name": "clear",
+            "type": "input-output",
+            "method": "clear"
+          }
+        ]
       }
     ],
     "action": "creator-return-objects",

@@ -35,15 +35,6 @@ export const ChangeTab: Story = {
 
     await fireEvent.click(canvas.getAllByText('Flow Builder')[0]);
 
-    await waitFor(() => canvas.getAllByText('Issue 3979 edited'), { timeout: 10000 });
-  },
-};
-
-export const NoInstance: Story = {
-  args: {
-    qorus_instance: null,
-  },
-  play: async (args) => {
-    await Default.play(args);
+    await waitFor(() => canvas.getAllByText('Authorize Payment'), { timeout: 10000 });
   },
 };

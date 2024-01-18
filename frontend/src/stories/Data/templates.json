@@ -1,0 +1,83 @@
+{
+  "_context": {
+    "display_name": "Context Data",
+    "short_desc": "Data from the current execution context",
+    "app": "Qorus",
+    "logo": "https://hq.qoretechnologies.com:8092/api/public/apps/Qorus/qorus-logo.svg",
+    "internal": true,
+    "items": [
+      {
+        "name": "current_timestamp",
+        "display_name": "Current Timestamp",
+        "short_desc": "The current timestamp as a date/time value",
+        "desc": "The current timestamp as a date/time value",
+        "value": "$timestamp:now",
+        "type": "date",
+        "example_value": "2024-01-17T13:46:25.899859+01:00"
+      },
+      {
+        "name": "day_end",
+        "display_name": "Day End",
+        "short_desc": "The end of the day; the timestamp at midnight of the following day",
+        "desc": "The end of the day (or start of the next day); the timestamp at midnight of the following day",
+        "example_value": "2024-01-18T00:00:00.000000+01:00",
+        "value": "$timestamp:next_midnight",
+        "type": "date"
+      },
+      {
+        "name": "day_start",
+        "display_name": "Day Start",
+        "short_desc": "The start of the day; the timestamp at midnight of the current day",
+        "desc": "The start of the day; the timestamp at midnight of the current day",
+        "example_value": "2024-01-17T00:00:00.000000+01:00",
+        "value": "$timestamp:last_midnight",
+        "type": "date"
+      },
+      {
+        "name": "timegm",
+        "display_name": "Epoch Seconds",
+        "short_desc": "The number of seconds after the UNIX epoch",
+        "desc": "The number of seconds after the UNIX epoch (`1970-01-01 UTC`)",
+        "example_value": 1705496417,
+        "value": "$timestamp:timegm",
+        "type": "int"
+      },
+      {
+        "name": "id",
+        "display_name": "Interface ID",
+        "short_desc": "The internal ID of the interface",
+        "desc": "The internal ID of the interface",
+        "value": "$local:id",
+        "type": "int",
+        "example_value": 100
+      },
+      {
+        "name": "name",
+        "display_name": "Interface Name",
+        "short_desc": "The name of the interface",
+        "desc": "The name of the interface",
+        "example_value": "my-interface",
+        "value": "$local:name",
+        "type": "string"
+      },
+      {
+        "name": "type",
+        "display_name": "Interface Type",
+        "short_desc": "The type of interface",
+        "desc": "The type of interface: `workflow`, `service`, or `job`",
+        "example_value": "job",
+        "value": "$local:type",
+        "type": "string"
+      },
+      {
+        "name": "version",
+        "display_name": "Interface Version",
+        "short_desc": "The version of the interface",
+        "desc": "The version of the interface",
+        "example_value": "1.0",
+        "value": "$local:version",
+        "type": "string"
+      }
+    ]
+  }
+}

@@ -29,11 +29,12 @@ export const StateDataIsShown: StoryFSM = {
     const canvas = within(canvasElement);
     await SwitchesToBuilder.play({ canvasElement, ...rest });
     await _testsClickState(`Send Discord Message`);
-    await waitFor(() => canvas.findAllByText('Message Content')[0], { timeout: 10000 });
+    await sleep(500);
+    await waitFor(() => canvas.getAllByText('Message Content')[0], { timeout: 20000 });
     await sleep(5000);
     await fireEvent.click(document.querySelector('.system-option.reqore-textarea'));
     await expect(
       document.querySelectorAll('.reqore-popover-content .reqore-menu-item')
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   },
 };

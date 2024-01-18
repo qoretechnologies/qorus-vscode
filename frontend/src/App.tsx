@@ -232,7 +232,6 @@ const App: FunctionComponent<IApp> = ({
   }, []);
 
   useMount(() => {
-    console.log('mounting');
     if (isWebSocketSupported && is_hosted_instance) {
       createOrGetWebSocket(qorus_instance, 'creator', {
         onOpen: () => {

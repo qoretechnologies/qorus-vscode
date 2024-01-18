@@ -51,6 +51,6 @@ export const New: Story = {
 
 export const Existing: Story = {
   args: {
-    initialData: { subtab: 'class', class: interfaces.class[0].data },
+    initialData: { subtab: 'class', class: interfaces.class[3].data },
   },
 };

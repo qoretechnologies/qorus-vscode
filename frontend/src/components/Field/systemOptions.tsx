@@ -30,6 +30,7 @@ import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { insertAtIndex } from '../../helpers/functions';
 import { hasAllDependenciesFullfilled, validateField } from '../../helpers/validations';
+import { useTemplates } from '../../hooks/useTemplates';
 import { Description } from '../Description';
 import AutoField from './auto';
 import { NegativeColorEffect, PositiveColorEffect } from './multiPair';
@@ -172,7 +173,7 @@ export interface IOptionsSchemaArg {
   sensitive?: boolean;
   desc?: string;
   arg_schema?: IOptionsSchema;
-  disallow_template?: boolean;
+  supports_templates?: boolean;
 
   app?: string;
   action?: string;
@@ -248,6 +249,7 @@ export interface IOptionsProps extends Omit<IReqoreCollectionProps, 'onChange'> 
   readOnly?: boolean;
   allowTemplates?: boolean;
   stringTemplates?: IReqoreTextareaProps['templates'];
+  interfaceContext?: string;
 }
 
 export const getTypeAndCanBeNull = (
@@ -273,6 +275,8 @@ export const getTypeAndCanBeNull = (
     canBeNull,
   };
 };
+
+const templatesCache: { [key: string]: IReqoreTextareaProps['templates'] } = {};
 
 const Options = ({
   name,
@@ -390,6 +394,8 @@ const Options = ({
       })();
     }
   }, [operatorsUrl, qorus_instance]);
+
+  const templates = useTemplates(allowTemplates, rest.stringTemplates);
 
   const handleValueChange = (
     optionName: string,
@@ -622,7 +628,7 @@ const Options = ({
     );
   }
 
-  if ((operatorsUrl && !operators) || (!rest.options && !options)) {
+  if ((operatorsUrl && !operators) || (!rest.options && !options) || templates.loading) {
     return (
       <ReqorePanel fill flat transparent>
         <ReqoreSpinner
@@ -789,8 +795,8 @@ const Options = ({
                 ) : null}
                 <TemplateField
                   {...options[optionName]}
-                  allowTemplates={allowTemplates && !options[optionName].disallow_template}
-                  templates={rest?.stringTemplates}
+                  allowTemplates={!!(allowTemplates && options[optionName].supports_templates)}
+                  templates={templates.value}
                   component={AutoField}
                   {...getTypeAndCanBeNull(type, options[optionName].allowed_values, other.op)}
                   className="system-option"

@@ -1,7 +1,6 @@
 import { ReqoreCollection, ReqoreTag, useReqoreProperty } from '@qoretechnologies/reqore';
 import { TReqoreBadge } from '@qoretechnologies/reqore/dist/components/Button';
 import { IReqoreCollectionItemProps } from '@qoretechnologies/reqore/dist/components/Collection/item';
-import { IReqoreTableBodyCellProps } from '@qoretechnologies/reqore/dist/components/Table/cell';
 import { IReqoreTagProps } from '@qoretechnologies/reqore/dist/components/Tag';
 import { capitalize, size } from 'lodash';
 import { useContext, useMemo } from 'react';
@@ -44,16 +43,12 @@ export const InterfacesViewCollection = ({ type, zoom }: IInterfaceViewCollectio
     retry();
   };
 
-  const getItemsCount = () => {
-    return size(value.filter((item) => !item.isDraft && item.isLocalInterface));
-  };
-
   const getRemotesCount = () => {
-    return size(value.filter((item) => item.isServerInterface));
+    return size(value);
   };
 
   const getDraftsCount = () => {
-    return size(value.filter((item) => item.isDraft || item.hasDraft));
+    return size(value.filter((item) => item.draft || item.hasDraft));
   };
 
   const badges = useMemo(() => {
@@ -62,55 +57,11 @@ export const InterfacesViewCollection = ({ type, zoom }: IInterfaceViewCollectio
     badgeList.push({ label: getDraftsCount(), intent: 'pending' });
 
     return badgeList;
-  }, [getItemsCount, getDraftsCount, getRemotesCount, qorus_instance]);
+  }, [getDraftsCount, getRemotesCount, qorus_instance]);
 
   if (loading) {
     return <Loader text="Loading server data..." />;
   }
-
-  const buildActions: IReqoreTableBodyCellProps['cell']['actions'] = (data) => {
-    const actions = [];
-
-    if (data.isDraft || data.hasDraft) {
-      actions.push({
-        icon: 'CloseLine',
-        effect: WarningColorEffect,
-        tooltip: 'Delete draft',
-        iconsAlign: 'center',
-        size: 'tiny',
-        onClick: () => {
-          confirmAction({
-            title: 'Delete draft',
-            description: 'Are you sure you want to delete this draft?',
-            onConfirm: () => {
-              onDeleteClick(type, data.interfaceId);
-            },
-          });
-        },
-      });
-    }
-
-    if (!data.isDraft) {
-      actions.push({
-        icon: 'DeleteBinLine',
-        effect: NegativeColorEffect,
-        tooltip: 'Delete',
-        iconsAlign: 'center',
-        size: 'tiny',
-        onClick: () => {
-          confirmAction({
-            title: 'Delete server interface',
-            description: 'Are you sure you want to delete this interface FROM THE ACTIVE INSTANCE?',
-            onConfirm: () => {
-              onDeleteRemoteClick(data.name || data.id);
-            },
-          });
-        },
-      });
-    }
-
-    return actions;
-  };
 
   return (
     <ReqoreCollection
@@ -152,7 +103,7 @@ export const InterfacesViewCollection = ({ type, zoom }: IInterfaceViewCollectio
         },
       }}
       items={value.map(
-        ({ label, data, isDraft, hasDraft, ...rest }): IReqoreCollectionItemProps => ({
+        ({ label, data, draft, hasDraft, ...rest }): IReqoreCollectionItemProps => ({
           label: label || data?.display_name,
           icon: interfaceIcons[type],
           content: <InterfacesViewItem data={data} />,
@@ -161,7 +112,7 @@ export const InterfacesViewCollection = ({ type, zoom }: IInterfaceViewCollectio
               direction: 'to right bottom',
               colors: {
                 50: 'main',
-                300: isDraft ? 'success' : hasDraft ? 'pending' : 'main:lighten',
+                300: draft && !data ? 'success' : draft ? 'pending' : 'main:lighten',
               },
             },
           },
@@ -171,7 +122,7 @@ export const InterfacesViewCollection = ({ type, zoom }: IInterfaceViewCollectio
           responsiveActions: false,
           size: zoomToSize[zoom],
           onClick: () => {
-            if (isDraft) {
+            if (draft) {
               changeDraft({
                 type,
                 id: rest.id,
@@ -191,11 +142,11 @@ export const InterfacesViewCollection = ({ type, zoom }: IInterfaceViewCollectio
           actions: [
             {
               as: ReqoreTag,
-              show: isDraft || hasDraft ? true : false,
+              show: draft ? true : false,
               props: {
                 icon: 'EditLine',
-                label: isDraft ? 'New' : 'Draft',
-                intent: isDraft ? 'success' : 'pending',
+                label: draft && !data ? 'New' : 'Draft',
+                intent: draft && !data ? 'success' : 'pending',
                 size: 'tiny',
               } as IReqoreTagProps,
             },
@@ -204,7 +155,7 @@ export const InterfacesViewCollection = ({ type, zoom }: IInterfaceViewCollectio
               effect: WarningColorEffect,
               tooltip: 'Delete draft',
               size: 'tiny',
-              show: isDraft || hasDraft ? 'hover' : false,
+              show: draft ? 'hover' : false,
               onClick: () => {
                 confirmAction({
                   title: 'Delete draft',
@@ -220,7 +171,7 @@ export const InterfacesViewCollection = ({ type, zoom }: IInterfaceViewCollectio
               effect: NegativeColorEffect,
               tooltip: 'Delete',
               size: 'tiny',
-              show: !isDraft ? 'hover' : false,
+              show: !draft || data ? 'hover' : false,
               onClick: () => {
                 confirmAction({
                   title: 'Delete server interface',

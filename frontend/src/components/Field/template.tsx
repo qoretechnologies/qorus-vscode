@@ -5,14 +5,13 @@ import {
   ReqoreTag,
   ReqoreTagGroup,
 } from '@qoretechnologies/reqore';
+import { IReqoreTextareaProps } from '@qoretechnologies/reqore/dist/components/Textarea';
 import { useContext, useState } from 'react';
-import { useAsyncRetry, useUpdateEffect } from 'react-use';
-import { templatesList } from '../../containers/ConfigItemManager/modal';
+import { useUpdateEffect } from 'react-use';
 import { TextContext } from '../../context/text';
-import { fetchData } from '../../helpers/functions';
-import Loader from '../Loader';
-import Select from './select';
-import String from './string';
+import { filterTemplatesByType } from '../../helpers/functions';
+import Auto from './auto';
+import LongStringField from './longString';
 
 /**
  * It checks if a string starts with a dollar sign, contains a colon, and if the text between the
@@ -24,10 +23,8 @@ export const isValueTemplate = (value?: any) => {
   if (typeof value !== 'string' || !value?.startsWith('$') || !value?.includes(':')) {
     return false;
   }
-  // Get everything between first $ and first colon
-  const template = value.substring(value.indexOf('$') + 1, value.indexOf(':'));
-  // Check if the template matches a template from the list
-  return templatesList.includes(template);
+
+  return true;
 };
 
 /**
@@ -61,67 +58,59 @@ export interface ITemplateFieldProps {
   onChange?: (name: string, value: any) => void;
   // React element
   component: React.FC<any>;
-  [key: string]: any;
-  templateContext?: 1 | 2 | 4 | 7 | 8 | 15;
+  interfaceContext?: string;
   allowTemplates?: boolean;
+  templates?: IReqoreTextareaProps['templates'];
+  [key: string]: any;
 }
 
 export const TemplateField = ({
   value,
   name,
   onChange,
-  component: Comp,
-  templateContext = 15,
+  component: Comp = Auto,
+  templates,
+  interfaceContext,
   allowTemplates = true,
   ...rest
 }: ITemplateFieldProps) => {
   const [isTemplate, setIsTemplate] = useState<boolean>(isValueTemplate(value));
-  const [templateKey, setTemplateKey] = useState<string | null>(getTemplateKey(value));
-  const [templateValue, setTemplateValue] = useState<string | null>(getTemplateValue(value));
-
-  const templates = useAsyncRetry(async () => {
-    if (allowTemplates) {
-      const serverTemplates = await fetchData(`/system/templates?filter=${templateContext}`);
-
-      if (serverTemplates.ok) {
-        return serverTemplates.data;
-      }
-
-      return null;
-    }
-    return null;
-  }, [allowTemplates]);
-
-  useUpdateEffect(() => {
-    if (isValueTemplate(value)) {
-      setIsTemplate(true);
-      setTemplateKey(getTemplateKey(value));
-      setTemplateValue(getTemplateValue(value));
-    } else {
-      setIsTemplate(false);
-      setTemplateKey(null);
-      setTemplateValue(null);
-    }
-  }, [value]);
+  const [templateValue, setTemplateValue] = useState<string | null>(value);
+  const t = useContext(TextContext);
 
   // When template key or template value change run the onChange function
   useUpdateEffect(() => {
-    if (templateKey && templateValue) {
-      onChange?.(name, `$${templateKey}:${templateValue}`);
+    if (templateValue) {
+      onChange?.(name, templateValue);
     }
-  }, [templateKey, templateValue]);
+  }, [templateValue]);
 
-  const t = useContext(TextContext);
+  const disableTemplateTab =
+    !allowTemplates ||
+    (rest.type !== 'number' &&
+      rest.type !== 'boolean' &&
+      rest.type !== 'date' &&
+      rest.type !== 'bool' &&
+      rest.type !== 'int');
 
-  if (!allowTemplates) {
-    return <Comp value={value} onChange={onChange} name={name} {...rest} />;
+  if (disableTemplateTab) {
+    return (
+      <Comp
+        value={value}
+        onChange={onChange}
+        name={name}
+        {...rest}
+        className={`${rest.className} template-selector`}
+        templates={allowTemplates ? filterTemplatesByType(templates, rest.type) : undefined}
+      />
+    );
   }
 
   if (rest.disabled) {
     if (isTemplate) {
       return (
         <ReqoreTagGroup>
-          <ReqoreTag labelKey={`$${templateKey}:`} label={templateValue} />
+          <ReqoreTag label={templateValue} />
         </ReqoreTagGroup>
       );
     }
@@ -158,7 +147,6 @@ export const TemplateField = ({
       onTabChange={(newTabId: string): void => {
         if (newTabId === 'custom') {
           setIsTemplate(false);
-          setTemplateKey(null);
           setTemplateValue(null);
           onChange(name, null);
         } else {
@@ -171,28 +159,16 @@ export const TemplateField = ({
         <Comp value={value} onChange={onChange} name={name} {...rest} />
       </ReqoreTabsContent>
       <ReqoreTabsContent tabId={'template'}>
-        {templates.loading && <Loader />}
-        {templates.value ? (
-          <ReqoreControlGroup fluid stack fill>
-            <Select
-              defaultItems={templates.value.map((template) => template)}
-              onChange={(_n, val) => setTemplateKey(val)}
-              value={templateKey}
-              name="templateKey"
-              icon="ExchangeDollarLine"
-              className="template-selector"
-            />
-            <ReqoreTag label=":" />
-            <String
-              fill
-              fillVertically
-              type="string"
-              name="templateVal"
-              value={templateValue}
-              onChange={(_n, val) => setTemplateValue(val)}
-            />
-          </ReqoreControlGroup>
-        ) : null}
+        <ReqoreControlGroup fluid stack fill>
+          <LongStringField
+            className="template-selector"
+            type="string"
+            name="templateVal"
+            value={templateValue}
+            templates={allowTemplates ? filterTemplatesByType(templates, rest.type) : undefined}
+            onChange={(_n, val) => setTemplateValue(val)}
+          />
+        </ReqoreControlGroup>
       </ReqoreTabsContent>
     </ReqoreTabs>
   );

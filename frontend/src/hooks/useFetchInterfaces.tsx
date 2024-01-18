@@ -36,8 +36,7 @@ export const useFetchInterfaces = (type?: string) => {
       undefined,
       true
     );
-
-    return type ? data.data[type] : data.data;
+    return data.data;
   }, [type]);
 
   const handleDeleteClick = async (id: string | number) => {
@@ -62,100 +61,10 @@ export const useFetchInterfaces = (type?: string) => {
     retry();
   };
 
-  // let uniqueItems = [
-  //   ...(value || []).map(
-  //     (item): IQorusInterface => ({
-  //       name: item.name,
-  //       display_name: item.display_name,
-  //       data: item,
-  //     })
-  //   ),
-  // ] as IQorusInterface[];
-
-  // // Make each item in the list unique by name
-  // uniqueItems = uniqueItems.reduce((acc, current) => {
-  //   const item = acc.find((item) => item.display_name === current.display_name);
-
-  //   if (!item) {
-  //     const sameItems = uniqueItems.filter((item) => item.display_name === current.display_name);
-
-  //     if (sameItems.length > 1) {
-  //       const isDraft = sameItems.some((item) => item.isDraft);
-  //       const hasDraft = sameItems.some((item) => item.hasDraft);
-
-  //       // Merge all items with the same name into one
-  //       const mergedData: IQorusInterface = sameItems.reduce(
-  //         (acc: IQorusInterface, current): IQorusInterface => {
-  //           return {
-  //             ...acc,
-  //             ...current,
-  //             data: {
-  //               ...acc.data,
-  //               ...current.data,
-  //             },
-  //           };
-  //         },
-  //         {}
-  //       );
-
-  //       acc.push({
-  //         ...mergedData,
-  //         isDraft,
-  //         hasDraft,
-  //       });
-  //     } else {
-  //       acc.push({
-  //         ...current,
-  //       });
-  //     }
-
-  //     return acc;
-  //   } else {
-  //     return acc;
-  //   }
-  // }, [] as IQorusInterface[]);
-
-  const uniqueItems = value.reduce((newValue, item) => {
-    if (item.draft) {
-      // Check if this is a draft of an existing interface
-      const existingItem = value.find(
-        (searchedItem) => !searchedItem.draft && searchedItem.id === item.id
-      );
-
-      if (existingItem) {
-        return newValue;
-      }
-
-      return [
-        ...newValue,
-        {
-          ...item,
-          isDraft: true,
-          hasDraft: false,
-        },
-      ];
-    }
-
-    // Check if this item has a draft
-    const itemWithDraft = value.find(
-      (searchedItem) => searchedItem.draft && searchedItem.id === item.id
-    );
-
-    return [
-      ...newValue,
-      {
-        ...item,
-        isDraft: false,
-        hasDraft: !!itemWithDraft,
-        label: itemWithDraft?.label,
-      },
-    ];
-  }, []);
-
   return {
     loading,
     onDeleteRemoteClick: handleDeleteClick,
     retry,
-    value: uniqueItems,
+    value,
   };
 };

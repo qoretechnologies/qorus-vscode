@@ -71,8 +71,6 @@ export const createOrGetWebSocket = (instance: any, url: string, options: IWebSo
     };
   }
 
-  console.log(wsConnections[url]);
-
   if (!wsConnections[url]) {
     connect();
   }

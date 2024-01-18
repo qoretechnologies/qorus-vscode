@@ -96,9 +96,11 @@ export const NewMapperState: StoryFSM = {
 
     await sleep(200);
 
+    await _testsSelectItemFromCollection(canvas, 'bb-test-db-step', 'Select or create a Mapper')();
+
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
-    await waitFor(() => expect(canvas.getAllByText('Test Mapper 1').length).toBe(4));
+    await waitFor(() => expect(canvas.getAllByText('bb-test-db-step').length).toBe(4));
     await _testsQodexCanBePublished();
   },
 };
@@ -110,9 +112,12 @@ export const NewPipelineState: StoryFSM = {
     await NewState.play({ canvasElement, ...rest, stateType: 'pipeline' });
 
     await sleep(200);
+
+    await _testsSelectItemFromCollection(canvas, 'factory-test')();
+
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
-    await waitFor(() => expect(canvas.getAllByText('Test Pipeline 1').length).toBe(4));
+    await waitFor(() => expect(canvas.getAllByText('factory-test').length).toBe(4));
     await _testsQodexCanBePublished();
   },
 };
@@ -123,11 +128,11 @@ export const NewConnectorState: StoryFSM = {
 
     await NewState.play({ canvasElement, ...rest, stateType: 'connector' });
 
-    const className = 'Test Class With Connectors 1';
-    const connectorName = 'Input Output Connector';
+    const className = 'BBM_AutoMapper';
+    const connectorName = 'runMapper';
 
-    await sleep(500);
-    await _testsSelectItemFromCollection(canvas, connectorName)();
+    await sleep(200);
+    await _testsSelectItemFromCollection(canvas, className)();
 
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
@@ -148,10 +153,14 @@ export const NewFSMState: StoryFSM = {
 
     await NewState.play({ canvasElement, ...rest, stateType: 'fsm' });
 
+    await sleep(200);
+
+    await _testsSelectItemFromCollection(canvas, 'fsm-event-test')();
+
     // Submit the state
     await waitFor(_testsSubmitFSMState(), { timeout: 5000 });
 
-    await waitFor(() => expect(canvas.getAllByText('Test FSM 1').length).toBe(5));
+    await waitFor(() => expect(canvas.getAllByText('fsm-event-test').length).toBe(5));
     await _testsQodexCanBePublished();
   },
 };
@@ -197,11 +206,13 @@ export const NewWhileState: StoryFSM = {
 
     await sleep(200);
 
+    await _testsSelectItemFromCollection(canvas, 'bb-test-db-step', 'Select or create a Mapper')();
+
     // Submit the state
     await waitFor(_testsSubmitFSMState('state-mapper-submit-button'), { timeout: 5000 });
     await waitFor(async () => {
       await expect(
-        canvas.getByText('Test Mapper 1', { selector: '.reqore-tag-content span' })
+        canvas.getByText('bb-test-db-step', { selector: '.reqore-tag-content span' })
       ).toBeInTheDocument();
     });
     await sleep(200);
@@ -219,7 +230,7 @@ export const NewWhileState: StoryFSM = {
     await waitFor(async () => {
       await expect(document.querySelectorAll('.fsm-state-detail').length).toBe(1);
       await expect(
-        canvas.getByText('Test Mapper 1', { selector: '.reqore-tag-content span' })
+        canvas.getByText('bb-test-db-step', { selector: '.reqore-tag-content span' })
       ).toBeInTheDocument();
     });
     await _testsQodexCanBePublished();

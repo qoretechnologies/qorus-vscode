@@ -397,6 +397,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
               fullConnectedStates={connectedStates}
               value={actionValue?.options}
               onChange={handleAppActionFieldChange}
+              id={id}
             />
             <ReqoreVerticalSpacer height={10} />
             <QodexActionExec

@@ -1,3 +1,6 @@
+import { IReqoreDropdownProps } from '@qoretechnologies/reqore/dist/components/Dropdown';
+import { IReqoreDropdownItem } from '@qoretechnologies/reqore/dist/components/Dropdown/list';
+import { IReqoreFormTemplates } from '@qoretechnologies/reqore/dist/components/Textarea';
 import { IReqoreNotificationData } from '@qoretechnologies/reqore/dist/containers/ReqoreProvider';
 import { cloneDeep } from 'lodash';
 import forEach from 'lodash/forEach';
@@ -16,7 +19,7 @@ import set from 'lodash/set';
 import size from 'lodash/size';
 import shortid from 'shortid';
 import { IProviderType } from '../components/Field/connectors';
-import { IOptions } from '../components/Field/systemOptions';
+import { IOptions, IQorusType } from '../components/Field/systemOptions';
 import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
 import {
@@ -26,9 +29,11 @@ import {
   TFSMClassConnectorAction,
   TVariableActionValue,
 } from '../containers/InterfaceCreator/fsm';
+import { TQodexTemplates } from '../containers/InterfaceCreator/fsm/AppActionOptions';
 import { TAction } from '../containers/InterfaceCreator/fsm/stateDialog';
 import { IQorusInterface } from '../containers/InterfacesView';
 import { addMessageListener, postMessage } from '../hocomponents/withMessageHandler';
+import { isStateValid } from './fsm';
 const md5 = require('md5');
 
 const functionOrStringExp: Function = (item: Function | string, ...itemArguments) =>
@@ -539,4 +544,96 @@ export const hasValue = (value) => {
 };
 export const getDraftId = (data: IQorusInterface['data'], interfaceId?: string) => {
   return data?.id || interfaceId;
+};
+
+export const filterTemplatesByType = (
+  templates: IReqoreFormTemplates,
+  fieldType: IQorusType = 'string'
+): IReqoreFormTemplates => {
+  const newTemplates = cloneDeep(templates);
+
+  newTemplates.items = newTemplates.items.reduce((newItems, item) => {
+    if (item.divider) {
+      return [...newItems, item];
+    }
+    const subItems = item.items?.filter((subItem) => {
+      return (
+        subItem.badge === fieldType ||
+        (fieldType === 'string' && isTypeStringCompatible(subItem.badge as string))
+      );
+    });
+
+    return [
+      ...newItems,
+      {
+        ...item,
+        items: subItems,
+      },
+    ];
+  }, []);
+
+  return newTemplates;
+};
+
+export const buildTemplates = (
+  templates?: TQodexTemplates,
+  states?: IFSMStates,
+  title?: string
+) => {
+  if (!size(templates)) {
+    return undefined;
+  }
+
+  return {
+    items: [
+      {
+        divider: true,
+        label: title || 'Use data from Qorus',
+        size: 'small',
+        textAlign: 'left',
+        dividerAlign: 'left',
+      },
+      ...map(
+        templates,
+        (
+          { display_name, items, app, short_desc, action, internal, logo },
+          dataId
+        ): IReqoreDropdownItem => {
+          const isValid = internal || isStateValid(states[dataId]);
+          return {
+            disabled: !isValid,
+            intent: isValid === false ? 'danger' : undefined,
+            label: display_name,
+            description: short_desc,
+            leftIconProps: {
+              image: logo,
+            },
+            badge: app,
+            items: map(items, ({ display_name, value, example_value, name, type }) => ({
+              label: display_name,
+              description: example_value
+                ? `Example value: ${JSON.stringify(example_value)}`
+                : undefined,
+              badge: type,
+              value,
+            })),
+          };
+        }
+      ),
+    ],
+  } as IReqoreDropdownProps;
+};
+
+export const isTypeStringCompatible = (type: string) => {
+  const strongType = type.replace('*', '').replace('soft', '');
+
+  return (
+    strongType === 'string' ||
+    strongType === 'number' ||
+    strongType === 'boolean' ||
+    strongType === 'date' ||
+    strongType === 'int' ||
+    strongType === 'bool' ||
+    strongType === 'float'
+  );
 };

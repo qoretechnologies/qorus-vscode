@@ -313,8 +313,6 @@ const SelectField: React.FC<ISelectField & IField & IReqoreControlGroupProps> = 
     return item?.desc || item?.short_desc;
   };
 
-  console.log(filteredItems);
-
   const reqoreItems: IReqoreMenuItemProps[] = filteredItems.map((item) => ({
     label: item.name,
     description: getItemDescription(item.name),

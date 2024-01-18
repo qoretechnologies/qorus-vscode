@@ -1,15 +1,17 @@
 import { ReqorePanel, ReqoreSpinner } from '@qoretechnologies/reqore';
-import { IReqoreDropdownProps } from '@qoretechnologies/reqore/dist/components/Dropdown';
-import { IReqoreDropdownItem } from '@qoretechnologies/reqore/dist/components/Dropdown/list';
 import { IReqoreTextareaProps } from '@qoretechnologies/reqore/dist/components/Textarea';
-import { map, size } from 'lodash';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { size } from 'lodash';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDebounce, useMount, useUpdateEffect } from 'react-use';
-import { IFSMStates, TFSMStateAction } from '.';
+import { FSMContext, IFSMStates, TFSMStateAction } from '.';
 import { IApp, IAppAction } from '../../../components/AppCatalogue';
-import Options, { IOptions, IOptionsSchema } from '../../../components/Field/systemOptions';
-import { getAppAndAction, getBuiltInAppAndAction } from '../../../helpers/fsm';
-import { fetchData } from '../../../helpers/functions';
+import Options, {
+  IOptions,
+  IOptionsSchema,
+  IQorusType,
+} from '../../../components/Field/systemOptions';
+import { prepareFSMDataForPublishing } from '../../../helpers/fsm';
+import { buildTemplates, fetchData } from '../../../helpers/functions';
 import { addMessageListener, postMessage } from '../../../hocomponents/withMessageHandler';
 import { useFetchActionOptions } from '../../../hooks/useFetchActionOptions';
 import { useGetAppActionData } from '../../../hooks/useGetAppActionData';
@@ -22,7 +24,28 @@ export interface IQodexAppActionOptionsProps {
   onChange: (name: string, value: IOptions) => void;
   connectedStates?: TQodexStatesForTemplates;
   fullConnectedStates?: IFSMStates;
+  id?: string;
 }
+
+export interface IQodexTemplate {
+  app: string;
+  action: string;
+  display_name: string;
+  short_desc: string;
+  logo: string;
+  internal?: boolean;
+  items: {
+    name: string;
+    display_name: string;
+    short_desc: string;
+    desc: string;
+    example_value: any;
+    value: string;
+    type: IQorusType;
+  }[];
+}
+
+export type TQodexTemplates = Record<string | number, IQodexTemplate>;
 
 export interface IQodexStateDataForTemplates extends TFSMStateAction {
   isValid?: boolean;
@@ -39,14 +62,14 @@ export const QodexAppActionOptions = memo(
     value: outsideValue,
     onChange,
     connectedStates,
-    fullConnectedStates,
+    id,
   }: IQodexAppActionOptionsProps) => {
-    const apps = useGetAppActionData();
     const { action } = useGetAppActionData(appName, actionName);
     const [options, setOptions] = useState<IOptionsSchema>(action?.options);
     const [loadingTemplates, setLoadingTemplates] = useState<boolean>(true);
     const [templates, setTemplates] = useState<IReqoreTextareaProps['templates']>();
     const [value, setValue] = useState<IOptions>(outsideValue);
+    const { metadata, states } = useContext(FSMContext);
 
     useWhyDidYouUpdate(`AppActionOptions`, {
       appName,
@@ -67,55 +90,6 @@ export const QodexAppActionOptions = memo(
     useUpdateEffect(() => {
       setValue(outsideValue);
     }, [JSON.stringify(outsideValue)]);
-
-    const buildTemplates = useCallback(
-      (
-        items: {
-          [stateId: number]: { display_name: string; value: string; example_value?: string }[];
-        } = {}
-      ) => {
-        if (!size(connectedStates)) {
-          return undefined;
-        }
-
-        return {
-          useTargetWidth: true,
-          noArrow: true,
-          items: [
-            {
-              divider: true,
-              label: 'Use data from connected apps',
-              size: 'small',
-              textAlign: 'left',
-              dividerAlign: 'left',
-            },
-            ...map(connectedStates, ({ value, isValid, type }, stateId): IReqoreDropdownItem => {
-              const { app, action } =
-                type === 'appaction'
-                  ? getAppAndAction(apps, value.app, value.action)
-                  : getBuiltInAppAndAction(apps, type);
-
-              return {
-                disabled: isValid === false || size(items[stateId]) === 0,
-                intent: isValid === false ? 'danger' : undefined,
-                label: action?.display_name,
-                description: action?.short_desc,
-                leftIconProps: {
-                  image: app?.logo,
-                },
-                items: map(items[stateId], ({ display_name, value, example_value, name }) => ({
-                  label: display_name,
-                  description: `Example value: ${JSON.stringify(example_value)}`,
-                  badge: name,
-                  value,
-                })),
-              };
-            }),
-          ],
-        } as IReqoreDropdownProps;
-      },
-      [connectedStates]
-    );
 
     useMount(() => {
       postMessage('subscribe', { args: { matchEvent: 'CONNECTION_UPDATED' } }, true);
@@ -150,16 +124,20 @@ export const QodexAppActionOptions = memo(
       setTemplates(buildTemplates());
 
       // Get everything after "latest/" in action.options_url
-      const response = await fetchData(`fsms/getStateData?context=ui`, 'PUT', fullConnectedStates);
+      // TODO: Param FSM with the whole FSM
+      // fsm_context: workflow | service | job
+      //
+      const response = await fetchData(`fsms/getStateData?context=ui`, 'PUT', {
+        fsm: prepareFSMDataForPublishing(metadata, states),
+        current_state: id,
+      });
 
       if (response.ok) {
         setLoadingTemplates(false);
 
-        const data: {
-          [stateId: number]: { display_name: string; value: string; example_value?: string }[];
-        } = response.data;
+        const data = response.data;
 
-        setTemplates(buildTemplates(data));
+        setTemplates(buildTemplates(data, states, 'Use data from connected actions'));
       }
     }, [JSON.stringify(connectedStates)]);
 

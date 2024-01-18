@@ -18,6 +18,7 @@ const getOptions = (allOptional: boolean = false): IOptionsSchema => ({
     display_name: 'Option with description',
     desc: 'Option with markdown `description`\n\r ## Nice',
     preselected: !allOptional,
+    supports_templates: true,
   },
   optionWithShortDescription: {
     type: 'list',
@@ -25,6 +26,7 @@ const getOptions = (allOptional: boolean = false): IOptionsSchema => ({
     short_desc: 'Option with short description',
     required: !allOptional,
     depends_on: ['basicOption', 'nonExistentOption'],
+    supports_templates: true,
   },
   hiddenOption: {
     type: 'string',
@@ -34,6 +36,7 @@ const getOptions = (allOptional: boolean = false): IOptionsSchema => ({
   optionWithValue: {
     type: 'string',
     display_name: 'Option with value',
+    supports_templates: true,
   },
   optionWithInvalidValue: {
     type: 'string',
@@ -42,12 +45,14 @@ const getOptions = (allOptional: boolean = false): IOptionsSchema => ({
   templateOption: {
     type: 'string',
     display_name: 'Template option',
+    supports_templates: true,
   },
   optionWithMessages: {
     short_desc: 'Option with some messages',
     preselected: !allOptional,
     type: 'string',
     display_name: 'Option with messages',
+    supports_templates: true,
     messages: [
       {
         title: 'Success',
@@ -71,9 +76,11 @@ const getOptions = (allOptional: boolean = false): IOptionsSchema => ({
     display_name: 'Option with auto select',
     allowed_values: [{ name: 'Allowed value 1', short_desc: 'Allowed value 1' }],
     required: !allOptional,
+    supports_templates: true,
   },
   optionWithBrokenAllowedValues: {
     type: 'string',
+    supports_templates: true,
     display_name: 'Option with allowed values',
     allowed_values: [
       { name: 'Allowed value 1', short_desc: 'Allowed value 1' },
@@ -83,9 +90,11 @@ const getOptions = (allOptional: boolean = false): IOptionsSchema => ({
   },
   selectedOption: {
     type: 'hash',
+    supports_templates: true,
     display_name: 'Selected option',
   },
   optionWithDependents: {
+    supports_templates: true,
     type: 'date',
     display_name: 'Option with dependents',
     short_desc: 'Option with dependents',
@@ -93,6 +102,7 @@ const getOptions = (allOptional: boolean = false): IOptionsSchema => ({
     required: !allOptional,
   },
   schemaOption: {
+    supports_templates: true,
     type: 'hash',
     preselected: !allOptional,
     display_name: 'Schema Option',
@@ -137,7 +147,7 @@ export const Basic: StoryObj<typeof meta> = {
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
 
-    await waitFor(() => expect(canvas.getAllByText('local')[0]).toBeInTheDocument(), {
+    await waitFor(() => expect(canvas.getAllByDisplayValue('$local:test')[0]).toBeInTheDocument(), {
       timeout: 10000,
     });
     await waitFor(
@@ -213,6 +223,11 @@ export const NonExistentOptionsFiltered: StoryObj<typeof meta> = {
     },
   },
   play: async ({ canvasElement, ...rest }) => {
+    const canvas = within(canvasElement);
+
+    await waitFor(() => expect(canvas.getAllByDisplayValue('option1')[0]).toBeInTheDocument(), {
+      timeout: 10000,
+    });
     await fireEvent.change(document.querySelectorAll('.system-option .reqore-textarea')[0], {
       target: { value: 'option1a' },
     });

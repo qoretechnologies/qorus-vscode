@@ -856,14 +856,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           undefined,
           {
             iface_kind,
-            data: { ...newData, 'class-connections': classConnectionsData },
+            data: { ...data, ...newData, 'class-connections': classConnectionsData },
             orig_data: data,
             workflow,
             open_file_on_success: openFileOnSubmit !== false,
             no_data_return: !!onSubmitSuccess,
             iface_id: interfaceId,
           },
-          t(`Saving ${iface_kind}...`)
+          t(`Saving ${iface_kind}...`),
+          true
         );
       } else {
         let true_type: string;
@@ -879,6 +880,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           {
             iface_kind,
             data: {
+              ...data,
               ...newData,
               'class-connections': classConnectionsData,
               default_value_true_type: true_type,
@@ -891,7 +893,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             no_data_return: !!onSubmitSuccess,
             iface_id: interfaceId,
           },
-          t(`Saving ${iface_kind}...`)
+          t(`Saving ${iface_kind}...`),
+          true
         );
       }
 

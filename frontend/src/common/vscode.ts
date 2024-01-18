@@ -1,9 +1,9 @@
-import { reduce, size } from 'lodash';
 import { Messages } from '../constants/messages';
 import configItems from '../stories/Data/configItems';
 import directories from '../stories/Data/directories.json';
 import fields from '../stories/Data/fields.json';
 import items from '../stories/Data/interfaces.json';
+import interfacesWithCount from '../stories/Data/interfacesWithCount.json';
 import objects from '../stories/Data/objects.json';
 import projectConfig from '../stories/Data/projectConfig.json';
 import { sleep } from '../stories/Tests/utils';
@@ -36,6 +36,9 @@ export const vscode =
                 window.open(data.url, '_blank');
               }
 
+              break;
+            }
+            case 'save-draft': {
               break;
             }
             case 'get-all-text':
@@ -94,19 +97,10 @@ export const vscode =
             }
             case Messages.GET_ALL_INTERFACES_COUNT: {
               messageData = {
-                action: `${Messages.GET_ALL_INTERFACES_COUNT}-complete`,
-                data: reduce(
-                  items,
-                  (newItems, item, type) => ({
-                    ...newItems,
-                    [type]: {
-                      items: size(items[type]),
-                    },
-                  }),
-                  {}
-                ),
+                ...interfacesWithCount,
                 request_id: data.request_id,
               };
+
               break;
             }
             case 'get-latest-draft': {

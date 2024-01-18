@@ -82,13 +82,11 @@ export const DraftsProvider = ({ children }: any) => {
     onFinish?: () => any
   ) => {
     const shouldApplyDraft = draftData ? true : draft?.type === ifaceKind;
-    console.log({ existingInterface });
     // Check if draft for this interface kind exists
     if (shouldApplyDraft || getTargetFile(existingInterface)) {
       let draftToApply = draftData || draft;
       // Fetch the draft if the draft id is provided
       if (existingInterface) {
-        console.log(getTargetFile(existingInterface));
         const fetchedDraft = await callBackendBasic(
           Messages.GET_DRAFT,
           undefined,

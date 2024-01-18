@@ -1,0 +1,37 @@
+{
+  "request_id": "9xXqmKTt2ENFkwk",
+  "tab_token": "none",
+  "data": {
+    "connection": {
+      "drafts": 0,
+      "items": 20
+    },
+    "class": {
+      "drafts": 0,
+      "items": 193
+    },
+    "errors": {
+      "drafts": 0,
+      "items": 0
+    },
+    "fsm": {
+      "drafts": 1,
+      "items": 47
+    },
+    "mapper": {
+      "drafts": 0,
+      "items": 37
+    },
+    "pipeline": {
+      "drafts": 0,
+      "items": 15
+    },
+    "job": {
+      "drafts": 0,
+      "items": 92
+    }
+  },
+  "action": "get-all-interface-counts-complete",
+  "ok": true,
+  "message": "all interface and draft counts"
+}

@@ -41,18 +41,26 @@ const ConnectorSelector = ({
   const [classes, setClasses] = useState<IClass[]>(null);
 
   useEffect(() => {
-    const listener = addMessageListener('creator-return-objects', (data) => {
-      if (data.object_type === 'class-with-connectors') {
-        setClasses(data.objects);
-      }
-    });
-
-    postMessage('creator-get-objects', {
-      object_type: 'class-with-connectors',
-      custom_data: {
-        connector_type: types,
+    const listener = addMessageListener(
+      'creator-return-objects',
+      (data) => {
+        if (data.object_type === 'class-with-connectors') {
+          setClasses(data.objects);
+        }
       },
-    });
+      true
+    );
+
+    postMessage(
+      'creator-get-objects',
+      {
+        object_type: 'class-with-connectors',
+        custom_data: {
+          connector_type: types,
+        },
+      },
+      true
+    );
 
     return () => {
       listener();
