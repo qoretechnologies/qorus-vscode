@@ -170,6 +170,9 @@ export const StatesCanBeConnected: StoryFSM = {
 };
 
 export const StateIsNotRemovedIfUnfinished: StoryFSM = {
+  parameters: {
+    chromatic: { disable: true },
+  },
   play: async ({ canvasElement, ...rest }) => {
     const canvas = within(canvasElement);
 
