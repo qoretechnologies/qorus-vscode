@@ -65,6 +65,9 @@ const md5 = require('md5');
 const GlobalStyle = createGlobalStyle`
   html, body, #root {
     height: 100%;
+    padding: 0;
+    margin: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   .reqore-tree, .reqore-tree-textarea {

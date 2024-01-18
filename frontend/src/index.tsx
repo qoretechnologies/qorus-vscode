@@ -8,7 +8,6 @@ import {
   ReqoreUIProvider,
   ReqoreVerticalSpacer,
 } from '@qoretechnologies/reqore';
-import { TReqoreHexColor } from '@qoretechnologies/reqore/dist/components/Effect';
 import { IReqoreUIProviderProps } from '@qoretechnologies/reqore/dist/containers/UIProvider';
 import { darken, lighten } from 'polished';
 import { useState } from 'react';
@@ -29,33 +28,11 @@ store.subscribe(() => {
 });
 
 const root = createRoot(document.getElementById('root'));
-const styles = getComputedStyle(document.querySelector('html')!);
-let editorBackground: TReqoreHexColor = styles.getPropertyValue(
-  '--vscode-editor-background'
-) as TReqoreHexColor;
-// Transform editorBackground to hex
-if (editorBackground.startsWith('rgb')) {
-  // Create RGB to Hex function
-  const rgbToHex = (rgb: string) => {
-    const [r, g, b] = rgb
-      .replace(/[^\d,]/g, '')
-      .split(',')
-      .map(Number);
-    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-  };
-
-  editorBackground = rgbToHex(editorBackground) as TReqoreHexColor;
-}
-
-// if editorBackground hex has transparency, remove it
-if (editorBackground.length === 9) {
-  editorBackground = editorBackground.slice(0, 7) as TReqoreHexColor;
-}
 
 window.onerror = (msg, url, line, col) => {
   root.render(
     <ReqoreUIProvider
-      theme={{ main: editorBackground, intents: { success: '#4a7110' } }}
+      theme={{ intents: { success: '#4a7110' } }}
       options={{
         animations: { buttons: false },
         closePopoversOnEscPress: true,
@@ -115,15 +92,10 @@ export const ReqoreWrapper = ({
   return (
     <ReqoreUIProvider
       theme={{
-        main: theme === 'light' ? '#ffffff' : theme === 'dark' ? '#222222' : editorBackground,
+        main: theme === 'light' ? '#ffffff' : '#222222',
         intents: { success: '#4a7110' },
         breadcrumbs: {
-          main:
-            theme === 'light'
-              ? darken(0.1, '#ffffff')
-              : theme === 'dark'
-              ? lighten(0.1, '#222222')
-              : lighten(0.1, editorBackground),
+          main: theme === 'light' ? darken(0.1, '#ffffff') : lighten(0.1, '#222222'),
         },
         sidebar: theme === 'light' ? { main: '#333333' } : undefined,
         header: theme === 'light' ? { main: '#333333' } : undefined,

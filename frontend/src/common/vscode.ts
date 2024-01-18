@@ -13,7 +13,7 @@ export const username = 'IDETestUser';
 export const password = 'wegkur-hegji7-woKnez';
 export const basicAuthCredentials = `${username}:${password}`;
 export const buildWsAuth = (token: string) =>
-  process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'storybook'
+  process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'storybook' || !token
     ? `?username=${username}&password=${password}`
     : `?token=${token}`;
 
@@ -566,4 +566,4 @@ export const vscode =
         setState: () => {},
         getState: () => {},
       }
-    : acquireVsCodeApi();
+    : {};

@@ -1,8 +1,7 @@
 import { IReqoreFormTemplates } from '@qoretechnologies/reqore/dist/components/Textarea';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useAsyncRetry } from 'react-use';
-import { InitialContext } from '../context/init';
-import { buildTemplates } from '../helpers/functions';
+import { buildTemplates, fetchData } from '../helpers/functions';
 
 export interface IUseTemplates {
   loading: boolean;
@@ -17,8 +16,6 @@ export const useTemplates = (
   allow?: boolean,
   localTemplates: IReqoreFormTemplates = {}
 ): IUseTemplates => {
-  const { fetchData }: any = useContext(InitialContext);
-
   const globalTemplates = useAsyncRetry(async () => {
     if (allow) {
       const interfaceContext = 'generic';

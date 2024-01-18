@@ -18,6 +18,7 @@ import omit from 'lodash/omit';
 import set from 'lodash/set';
 import size from 'lodash/size';
 import shortid from 'shortid';
+import { basicAuthCredentials } from '../common/vscode';
 import { IProviderType } from '../components/Field/connectors';
 import { IOptions, IQorusType } from '../components/Field/systemOptions';
 import { interfaceKindTransform } from '../constants/interfaces';
@@ -470,36 +471,23 @@ export const fetchData: (
   method?: string,
   body?: { [key: string]: any }
 ) => Promise<any> = async (url, method = 'GET', body) => {
-  // Create the unique ID for this request
-  const uniqueId: string = shortid.generate();
-  return new Promise((resolve, reject) => {
-    // Create a timeout that will reject the request
-    // after 2 minutes
-    let timeout: NodeJS.Timer | null = setTimeout(() => {
-      reject({
-        error: true,
-        msg: 'Request timed out',
-      });
-    }, 120000);
-    // Watch for the request to complete
-    // if the ID matches then resolve
-    const listener = addMessageListener('fetch-data-complete', (data) => {
-      if (data.id === uniqueId) {
-        clearTimeout(timeout);
-        timeout = null;
-        resolve(data);
-        //* Remove the listener after the call is done
-        listener();
-      }
-    });
-    // Fetch the data
-    postMessage('fetch-data', {
-      id: uniqueId,
-      url,
-      method,
-      body,
-    });
+  const requestData = await fetch(`https://hq.qoretechnologies.com:8092/api/latest/${url}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${btoa(basicAuthCredentials)}`,
+    },
+    body: JSON.stringify(body),
   });
+
+  const json = await requestData.json();
+
+  return {
+    action: 'fetch-data-complete',
+    data: json,
+    ok: requestData.ok,
+    error: !requestData.ok ? json : undefined,
+  };
 };
 
 export { functionOrStringExp, getType };

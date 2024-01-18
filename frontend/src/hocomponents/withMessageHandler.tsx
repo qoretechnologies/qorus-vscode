@@ -158,13 +158,17 @@ export const addMessageListener: TMessageListener = (
       return;
     }
 
-    const _data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-    // Check if the action is equal
-    if (_data[eventKey] === action) {
-      // Run the callback with the action data
-      if (callback) {
-        callback(_data);
+    try {
+      const _data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+      // Check if the action is equal
+      if (_data[eventKey] === action) {
+        // Run the callback with the action data
+        if (callback) {
+          callback(_data);
+        }
       }
+    } catch (e) {
+      console.error(e);
     }
   };
 

@@ -32,7 +32,14 @@ export const Dashboard = () => {
   }, []);
 
   const interfaces = useAsyncRetry(async () => {
-    const data = await callBackendBasic(Messages.GET_ALL_INTERFACES, undefined);
+    const data = await callBackendBasic(
+      Messages.GET_ALL_INTERFACES,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true
+    );
 
     return data?.data;
   }, []);

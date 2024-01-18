@@ -4,6 +4,7 @@ import {
   ReqoreMessage,
   ReqoreModal,
   ReqoreP,
+  ReqoreSpinner,
   ReqoreVerticalSpacer,
   useReqore,
   useReqoreProperty,
@@ -2207,9 +2208,9 @@ export const FSMView: React.FC<IFSMViewProps> = ({
 
   if (!isReady || apps.loading) {
     return (
-      <ReqoreMessage title={t('Loading')} intent="pending">
-        {t('Loading FSM...')}
-      </ReqoreMessage>
+      <ReqoreSpinner iconColor="info" centered size="huge">
+        {t('Loading...')}
+      </ReqoreSpinner>
     );
   }
 

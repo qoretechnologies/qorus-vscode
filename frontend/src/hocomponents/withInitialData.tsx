@@ -22,10 +22,14 @@ const pastTexts: { [id: string]: { isTranslated: boolean; text: string } } = {};
 export default () =>
   (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
-      const [isReady, setIsReady] = useState(false);
+      const [isReady, setIsReady] = useState(true);
       const [initialData, setInitialData] = useState<any>({
-        tab: 'ProjectConfig',
+        tab: 'Dashboard',
         sidebarOpen: false,
+        is_hosted_instance: true,
+        qorus_instance: {
+          url: `https://hq.qoretechnologies.com:8092`,
+        },
       });
       const [confirmDialog, setConfirmDialog] = useState<{
         isOpen: boolean;
@@ -39,7 +43,7 @@ export default () =>
       const [isSavingDraft, setIsSavingDraft] = useState(false);
       const [lastDraft, setLastDraft] = useState(null);
       const confirmActionReqore = useReqoreProperty('confirmAction');
-      const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
+      const [texts, setTexts] = useState<{ [key: string]: string }[]>([]);
       const [t, setT] = useState<(text_id) => string>(undefined);
       const [tabHistory, setTabHistory] = useState<
         { tab: string; subtab?: string; iface_id?: string; name?: string; draftId?: string }[]
@@ -79,7 +83,7 @@ export default () =>
             };
           });
         }
-      }, [texts]);
+      }, []);
 
       useEffectOnce(() => {
         const listeners: any = [];
