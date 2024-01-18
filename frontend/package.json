@@ -125,7 +125,7 @@
     "update-reqore": "yarn add @qoretechnologies/reqore@beta",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test-storybook": "test-storybook --maxWorkers=1",
+    "test-storybook": "test-storybook src/Stories/Components --maxWorkers=1 && test-storybook src/Stories/Views --maxWorkers=1 && test-storybook src/Stories/Fields --maxWorkers=1 && test-storybook src/Stories/Interfaces --maxWorkers=1 && test-storybook src/Stories/Tests --maxWorkers=1",
     "install-playwright": "npx playwright install --with-deps"
   },
   "eslintConfig": {
