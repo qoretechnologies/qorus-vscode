@@ -2,7 +2,6 @@ import { t } from 'ttag';
 import { extensions } from 'vscode';
 import { API, Branch, GitExtension, Ref, Repository } from './@types/git';
 import { QorusRepository, QorusRepositoryCurrentBranch } from './QorusRepository';
-import * as msg from './qorus_message';
 
 export class QorusRepositoryGit implements QorusRepository {
   private git: API | undefined = undefined;
@@ -22,7 +21,7 @@ export class QorusRepositoryGit implements QorusRepository {
             return Promise.reject(t`ErrorInInitializingGitExtension`);
           }
           for (const i in this.git.repositories) {
-            const repo: Repository = this.git.repositories[i];
+            const repo = this.git.repositories[i];
             if (folder.indexOf(repo.rootUri.fsPath) == 0) {
               this.repository = repo;
               return Promise.resolve();
@@ -55,14 +54,16 @@ export class QorusRepositoryGit implements QorusRepository {
     };
   }
 
-  commits(hash_filter = '', branch_filter = '', tag_filter = ''): string[] {
+  async commits(hash_filter = '', branch_filter = '', tag_filter = ''): Promise<string[]> {
     // issue #1118: work without a git repository
     if (typeof this.repository == 'undefined') {
       return [];
     }
 
+    const refs = await this.repository.getRefs?.();
+    console.log('REFS', refs);
     const current_commit = this.currentBranch().commit;
-    const commits = this.repository.state.refs.reduce((accumulator, ref: Ref) => {
+    const commits = refs.reduce((accumulator, ref: Ref) => {
       if (ref.commit.indexOf(hash_filter) != 0 || ref.commit == current_commit) {
         return accumulator;
       }

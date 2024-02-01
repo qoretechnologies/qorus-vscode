@@ -11,7 +11,9 @@
   "engines": {
     "vscode": "^1.47.0"
   },
-  "extensionDependencies": ["qoretechnologies.qore-vscode"],
+  "extensionDependencies": [
+    "qoretechnologies.qore-vscode"
+  ],
   "license": "SEE LICENSE IN LICENSE.txt",
   "homepage": "https://github.com/qoretechnologies/qorus-vscode",
   "repository": {
@@ -21,7 +23,10 @@
   "bugs": {
     "url": "https://github.com/qoretechnologies/qorus-vscode/issues"
   },
-  "categories": ["Other", "Snippets"],
+  "categories": [
+    "Other",
+    "Snippets"
+  ],
   "icon": "images/QorusDeveloperTools_Medium.png",
   "galleryBanner": {
     "color": "#333333",
@@ -29,18 +34,32 @@
   },
   "quokka": {
     "babel": {
-      "presets": ["env"]
+      "presets": [
+        "env"
+      ]
     }
   },
-  "keywords": ["qore", "qorus", "ide", "integration", "engine"],
-  "activationEvents": ["onStartupFinished"],
+  "keywords": [
+    "qore",
+    "qorus",
+    "ide",
+    "integration",
+    "engine"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "out/extension.js",
   "contributes": {
     "languages": [
       {
         "id": "qmapper",
-        "aliases": ["Qorus Mapper"],
-        "extensions": [".qmapper"],
+        "aliases": [
+          "Qorus Mapper"
+        ],
+        "extensions": [
+          ".qmapper"
+        ],
         "configuration": "./syntaxes/qmapper.configuration.json"
       }
     ],
@@ -1655,6 +1674,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.6.0",
     "@types/fs-extra": "^9.0.13",
+    "@types/git": "^0.0.21",
     "@types/glob": "^5.0.35",
     "@types/mocha": "^2.2.43",
     "@types/node": "^10.16.0",
