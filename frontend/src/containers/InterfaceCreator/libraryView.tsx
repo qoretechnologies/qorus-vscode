@@ -121,7 +121,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                 tooltip={t('AddFunction')}
                 effect={PositiveColorEffect}
               >
-                {t('AddError')}
+                {t('Add Method')}
               </ReqoreMenuItem>
               {functions.map((fun: { id: number; name?: string }, index: number) => (
                 <MethodSelector
