@@ -255,13 +255,13 @@ export const maybeBuildOptionProvider = (provider) => {
     // Get everything between the < and >
     //const factory = provider.substring(provider.indexOf('<') + 1, provider.indexOf('>'));
     // Add / to the provider at the end if it doesn't already have it
-    const fixedProvider = provider.endsWith('/') ? provider : `${provider}/`;
+    const fixedProvider: string = provider.endsWith('/') ? provider : `${provider}/`;
     // Get the factory name
     const [factoryType]: string[] = fixedProvider.split('/');
     // Get everything between the first / and { bracket
     const factoryName = fixedProvider.substring(
       fixedProvider.indexOf('/') + 1,
-      fixedProvider.lastIndexOf('{')
+      fixedProvider.indexOf('{')
     );
     // Get everything in the provider between first { and last }, which are the options
     const options = fixedProvider.substring(

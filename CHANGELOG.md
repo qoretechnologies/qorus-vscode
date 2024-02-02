@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 4.3.9
+
+- Fixed a bug where a config item with a data provider value that contained a { character could not be read properly
+- Fixed a bug where git branches were not loaded properly in the Releases view beacuse of Microsoft API changes
+- Changed the `Add Error` button to properly display `Add Method` in the Mapper Code methods manager
+- Removed `Make Transition` option from FSMs context menu - please use the double click functionality to create transitions between states
+
 ## Version 4.3.6
 
 - Qorus Developer Tools is now available on Open VSX extension market https://open-vsx.org/extension/qoretechnologies/qorus-vscode
