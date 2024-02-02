@@ -8,9 +8,17 @@
 
 Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologies.com/qorus_integration_engine/).
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
-It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools extension enables creating, editing, and extending reusable IT and AI building blocks for advanced automation challenges.
+It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools extension enables
+creating, editing, and extending reusable IT and AI building blocks for advanced automation challenges.
 
-## Version 4.3.6
+## Version 4.3.9
+
+- Fixed a bug where a config item with a data provider value that contained a { character could not be read properly
+- Fixed a bug where git branches were not loaded properly in the Releases view beacuse of Microsoft API changes
+- Changed the `Add Error` button to properly display `Add Method` in the Mapper Code methods manager
+- Removed `Make Transition` option from FSMs context menu - please use the double click functionality to create transitions between states
+
+## Version 4.3.8
 
 - Qorus Developer Tools is now available on Open VSX extension market https://open-vsx.org/extension/qoretechnologies/qorus-vscode
 

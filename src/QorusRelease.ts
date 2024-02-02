@@ -290,10 +290,10 @@ class QorusRelease {
     }
   }
 
-  getCommits(filters: any) {
+  async getCommits(filters: any) {
     qorus_webview.postMessage({
       action: 'release-return-commits',
-      commits: this.repository.commits(filters.hash, filters.branch, filters.tag),
+      commits: await this.repository.commits(filters.hash, filters.branch, filters.tag),
     });
   }
 
