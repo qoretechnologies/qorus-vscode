@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 4.3.10
+
+- Fixed dependency handling for mappers and mapper code
+
 ## Version 4.3.9
 
 - Fixed a bug where a config item with a data provider value that contained a { character could not be read properly

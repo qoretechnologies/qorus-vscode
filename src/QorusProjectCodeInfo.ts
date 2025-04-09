@@ -906,6 +906,7 @@ export class QorusProjectCodeInfo {
       checkObjects('class', data.classes);
       checkObjects('class', data.requires);
       checkObjects('mapper', data.mappers);
+      checkObjects('mapper-code', data['mapper-code']);
       checkObjects('group', data.groups);
       checkObjects('fsm', data.fsm);
       checkObjects('value-map', data.vmaps);

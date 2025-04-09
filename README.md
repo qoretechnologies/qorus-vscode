@@ -11,6 +11,10 @@ This extension makes it possible to easily create, deploy, and test Qorus interf
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools extension enables
 creating, editing, and extending reusable IT and AI building blocks for advanced automation challenges.
 
+## Version 4.3.10
+
+- Fixed dependency handling for mappers and mapper code
+
 ## Version 4.3.9
 
 - Fixed a bug where a config item with a data provider value that contained a { character could not be read properly
